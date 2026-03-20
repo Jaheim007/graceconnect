@@ -12,6 +12,8 @@ import { useShortLink } from '@/hooks/useShortLink';
 import { useI18n } from '@/i18n/I18nContext';
 import { useMemo } from 'react';
 
+const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
 export default function BlogArticlePage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -19,6 +21,42 @@ export default function BlogArticlePage() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const article = getArticleBySlug(slug || '');
+
+  const ogImage = article ? getArticleOgImage(article) : '';
+  const currentIndex = article ? blogArticles.findIndex(a => a.slug === article.slug) : -1;
+  const prevArticle = currentIndex > 0 ? blogArticles[currentIndex - 1] : null;
+  const nextArticle = currentIndex < blogArticles.length - 1 ? blogArticles[currentIndex + 1] : null;
+
+  const localizedTitle = article ? getLocalizedTitle(article, locale) : '';
+  const localizedDesc = article ? getLocalizedDescription(article, locale) : '';
+  const localizedContent = article ? getLocalizedContent(article, locale) : '';
+  const localizedCategory = article ? getLocalizedCategory(article.category, locale) : '';
+
+  const relatedArticles = useMemo(() => {
+    if (!article) return [];
+    const sameCat = blogArticles.filter(a => a.slug !== article.slug && a.category === article.category);
+    const others = blogArticles.filter(a => a.slug !== article.slug && a.category !== article.category);
+    return [...sameCat, ...others].slice(0, 5);
+  }, [article?.slug, article?.category]);
+
+  const trendingArticles = useMemo(() => {
+    if (!article) return [];
+    const seen = new Set<string>();
+    return blogArticles
+      .filter(a => a.slug !== article.slug)
+      .filter(a => {
+        if (seen.has(a.category)) return false;
+        seen.add(a.category);
+        return true;
+      })
+      .slice(0, 4);
+  }, [article?.slug]);
+
+  const { shareUrl: socialShareUrl } = useShortLink({
+    targetPath: article ? `/blog/${article.slug}` : '/blog',
+    title: localizedTitle,
+    description: localizedDesc,
+  });
 
   if (!article) {
     return (
