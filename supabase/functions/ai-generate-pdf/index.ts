@@ -78,24 +78,47 @@ Deno.serve(async (req) => {
       .eq('user_id', user.id).eq('organization_id', org_id).maybeSingle();
     if (!member || !['owner', 'admin', 'editor'].includes(member.role)) return jsonError('Forbidden', 403);
 
-    const { data: project, error: projErr } = await admin
+    // Try to find the AI project first
+    const { data: project } = await admin
       .from('ai_content_projects').select('*')
-      .eq('id', project_id).eq('organization_id', org_id).single();
-    if (projErr || !project) return jsonError('Project not found', 404);
+      .eq('id', project_id).eq('organization_id', org_id).maybeSingle();
+
+    // If no project found, try to find a product linked to this project_id
+    // This handles cases where ai_project_id references a non-existent or orphaned project
+    let fallbackProduct: any = null;
+    if (!project) {
+      const { data: productByProject } = await admin
+        .from('digital_products').select('id, title, description, cover_image_url, organization_id')
+        .eq('ai_project_id', project_id).eq('organization_id', org_id).maybeSingle();
+      
+      if (!productByProject) {
+        // Also try finding by product_id directly
+        const { data: productById } = await admin
+          .from('digital_products').select('id, title, description, cover_image_url, organization_id')
+          .eq('id', bodyProductId || project_id).eq('organization_id', org_id).maybeSingle();
+        fallbackProduct = productById;
+      } else {
+        fallbackProduct = productByProject;
+      }
+
+      if (!fallbackProduct) return jsonError('Project not found', 404);
+      console.log('[ai-generate-pdf] Using fallback product data for:', fallbackProduct.title);
+    }
 
     const [{ data: coverAsset }, { data: org }, { data: linkedProduct }, { data: chapterIllustrations }] = await Promise.all([
-      admin.from('ai_project_assets').select('file_url')
-        .eq('project_id', project_id).eq('is_cover', true).maybeSingle(),
+      project ? admin.from('ai_project_assets').select('file_url')
+        .eq('project_id', project_id).eq('is_cover', true).maybeSingle() : Promise.resolve({ data: null }),
       admin.from('organizations').select('name').eq('id', org_id).maybeSingle(),
-      admin.from('digital_products').select('id, cover_image_url')
+      admin.from('digital_products').select('id, cover_image_url, description')
         .eq('ai_project_id', project_id).eq('organization_id', org_id).maybeSingle(),
-      admin.from('ai_project_assets').select('file_url, label, display_order')
+      project ? admin.from('ai_project_assets').select('file_url, label, display_order')
         .eq('project_id', project_id).eq('asset_type', 'illustration')
-        .order('display_order', { ascending: true }),
+        .order('display_order', { ascending: true }) : Promise.resolve({ data: [] }),
     ]);
 
     const resolvedCoverUrl = asText(coverAsset?.file_url, '')
       || asText(linkedProduct?.cover_image_url, '')
+      || asText(fallbackProduct?.cover_image_url, '')
       || asText(directCoverUrl, '');
 
     // Build chapter illustration map (by display_order = chapter index)
@@ -109,14 +132,32 @@ Deno.serve(async (req) => {
       }
     }
 
-    const projectData = (project.structure_json || project.data_json || {}) as { chapters?: ChapterInput[] };
-    const chapters = Array.isArray(projectData.chapters) ? projectData.chapters : [];
+    let chapters: ChapterInput[] = [];
+    let docTitle = 'Document';
+    let docSubtitle = '';
+    let docLanguage = 'fr';
+
+    if (project) {
+      const projectData = (project.structure_json || project.data_json || {}) as { chapters?: ChapterInput[] };
+      chapters = Array.isArray(projectData.chapters) ? projectData.chapters : [];
+      docTitle = asText(project.title, 'Document');
+      docSubtitle = asText(project.objective, '');
+      docLanguage = asText(project.language, 'fr');
+    } else if (fallbackProduct) {
+      // Extract chapters from product description HTML if available
+      docTitle = asText(fallbackProduct.title, 'Document');
+      // Create a single chapter from the product description
+      const desc = asText(fallbackProduct.description, '');
+      if (desc) {
+        chapters = [{ title: docTitle, content: desc }];
+      }
+    }
 
     const pdfBytes = await buildProfessionalPdf({
-      title: asText(project.title, 'Document'),
-      subtitle: asText(project.objective, ''),
+      title: docTitle,
+      subtitle: docSubtitle,
       orgName: asText(org?.name, 'Siteviral'),
-      language: asText(project.language, 'fr'),
+      language: docLanguage,
       chapters,
       coverUrl: resolvedCoverUrl,
       pageSize: normalizedPageSize,
