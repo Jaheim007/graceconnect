@@ -131,7 +131,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
 
   const salePrice = (product as any).sale_price;
   const saleEndsAt = (product as any).sale_ends_at;
-  const isFlashSale = salePrice != null && saleEndsAt && new Date(saleEndsAt) > new Date();
+  const isFlashSale = !(product as any).is_pwyw && salePrice != null && saleEndsAt && new Date(saleEndsAt) > new Date();
   const displayPrice = isFlashSale ? salePrice : product.price;
 
   const fmt = (n: number) => formatPrice(n, product.is_free, product.currency);
