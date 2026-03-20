@@ -473,7 +473,7 @@ export function ProductForm() {
                     <Input
                       type="number"
                       min={pwywFloor}
-                      value={watch('min_price') || pwywFloor}
+                      value={watch('min_price') ?? pwywFloor}
                       onChange={e => {
                         const val = Number(e.target.value);
                         setValue('min_price', val < pwywFloor ? pwywFloor : val);
