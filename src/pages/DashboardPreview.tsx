@@ -24,7 +24,7 @@ const fmt = (n: number, currency = 'XOF') => {
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 16, filter: 'blur(4px)' },
   animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
-  transition: { delay, duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+  transition: { delay, duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
 });
 
 const typeIcon: Record<string, typeof BookOpen> = {
