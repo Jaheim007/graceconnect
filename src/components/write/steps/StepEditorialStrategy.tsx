@@ -215,7 +215,7 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
                     <p className="text-xs text-muted-foreground">{t('write.strategy_edit_hint')}</p>
                   </div>
                 ) : (
-                  <p className="text-sm leading-relaxed">{(strategy[key] as string).replace(/\*+/g, '')}</p>
+                  <p className="text-sm leading-relaxed">{typeof strategy[key] === 'string' ? (strategy[key] as string).replace(/\*+/g, '') : String(strategy[key] ?? '')}</p>
                 )}
               </div>
             </div>
