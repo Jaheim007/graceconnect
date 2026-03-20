@@ -1,11 +1,13 @@
-import { useState } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen, Brush, Cross, Moon, Flame, BookHeart, Megaphone, ScrollText, Swords, HandHeart } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen, Brush, Cross, Moon, Flame, BookHeart, Megaphone, ScrollText, Swords, HandHeart, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
@@ -23,10 +25,15 @@ interface Props {
 export function StepParams({ state, update, onNext, onBack }: Props) {
   const { t, locale } = useI18n();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [suggestingTitles, setSuggestingTitles] = useState(false);
+  const [suggestingSubtitles, setSuggestingSubtitles] = useState(false);
   const [titleSuggestions, setTitleSuggestions] = useState<string[]>([]);
+  const [subtitleSuggestions, setSubtitleSuggestions] = useState<string[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [keywordInput, setKeywordInput] = useState('');
+  const [orgName, setOrgName] = useState<string | null>(null);
+  const [useOrgName, setUseOrgName] = useState(true);
   const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   const styles: { type: BookStyle; icon: typeof BookOpen; label: string; desc: string }[] = [
@@ -93,6 +100,45 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
   const hasSavedChapters = hasGeneratedContent(state.chapters);
   const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
 
+  // Load organization name for auto-fill
+  useEffect(() => {
+    if (!user?.id) return;
+    (async () => {
+      try {
+        const { data: membership } = await supabase
+          .from('organization_members')
+          .select('organization_id')
+          .eq('user_id', user.id)
+          .eq('role', 'owner')
+          .limit(1)
+          .maybeSingle();
+        if (!membership?.organization_id) return;
+
+        const { data: org } = await supabase
+          .from('organizations')
+          .select('name')
+          .eq('id', membership.organization_id)
+          .maybeSingle();
+        if (org?.name) {
+          setOrgName(org.name);
+          // Auto-fill if author name is empty and toggle is on
+          if (!state.authorName) {
+            update({ authorName: org.name });
+          }
+        }
+      } catch { /* non-blocking */ }
+    })();
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync author name when toggle changes
+  useEffect(() => {
+    if (useOrgName && orgName && !state.authorName) {
+      update({ authorName: orgName });
+    }
+  }, [useOrgName, orgName]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
+
   const handleBookLengthChange = (length: BookLength) => {
     const chapterDefaults: Record<BookLength, number> = { short: 5, medium: 8, long: 15 };
     const pageDefaults: Record<BookLength, number> = { short: 35, medium: 70, long: 150 };
@@ -137,6 +183,36 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
       }
     } finally {
       setSuggestingTitles(false);
+    }
+  };
+
+  const handleSuggestSubtitles = async () => {
+    if (suggestingSubtitles || !state.title?.trim()) return;
+    setSuggestingSubtitles(true);
+    setSubtitleSuggestions([]);
+    try {
+      const { data, error } = await supabase.functions.invoke('suggest-subtitles', {
+        body: {
+          title: state.title,
+          topic: state.topic || '',
+          style: state.style,
+          audience: state.targetAudience,
+          language: requestedLanguage,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (Array.isArray(data?.subtitles)) {
+        setSubtitleSuggestions(data.subtitles);
+      }
+      refreshCredits();
+    } catch (err: any) {
+      console.error('Subtitle suggestion error:', err);
+      if (!handleAiError(err)) {
+        toast({ title: '❌ Erreur', description: err?.message, variant: 'destructive' });
+      }
+    } finally {
+      setSuggestingSubtitles(false);
     }
   };
 
@@ -193,26 +269,81 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
 
       {/* Subtitle */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">
-          {t('write.subtitle_label') || 'Sous-titre'} <span className="text-muted-foreground font-normal text-xs">({t('common.optional') || 'optionnel'})</span>
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">
+            {t('write.subtitle_label') || 'Sous-titre'} <span className="text-muted-foreground font-normal text-xs">({t('common.optional') || 'optionnel'})</span>
+          </label>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-xs h-7 text-primary"
+            disabled={suggestingSubtitles || !state.title?.trim()}
+            onClick={handleSuggestSubtitles}
+          >
+            {suggestingSubtitles ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Sparkles className="h-3 w-3" />
+            )}
+            {t('write.suggest_subtitles') || '✨ Suggest subtitles'}
+          </Button>
+        </div>
         <Input
           value={state.subtitle || ''}
           onChange={e => update({ subtitle: e.target.value })}
-          placeholder={t('write.subtitle_placeholder') || 'Ex: "Découvrir la personne que Dieu a créée"'}
+          placeholder={t('write.subtitle_placeholder') || 'Ex: "Discover the person God created"'}
           className="h-10 text-sm"
         />
+        {subtitleSuggestions.length > 0 && (
+          <div className="space-y-1.5">
+            {subtitleSuggestions.map((suggestion, i) => (
+              <button
+                key={i}
+                onClick={() => { update({ subtitle: suggestion }); setSubtitleSuggestions([]); }}
+                className="w-full text-left px-3 py-2 rounded-lg border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors text-sm"
+              >
+                <span className="text-primary font-bold mr-2">{i + 1}.</span>
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Author name */}
       <div className="space-y-2">
-        <label className="text-sm font-medium flex items-center gap-1.5">
-          <UserPen className="h-3.5 w-3.5" /> {t('write.author_label') || "Nom de l'auteur"}
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium flex items-center gap-1.5">
+            <UserPen className="h-3.5 w-3.5" /> {t('write.author_label') || "Author name"}
+          </label>
+          {orgName && (
+            <div className="flex items-center gap-2">
+              <label className="text-[10px] text-muted-foreground flex items-center gap-1">
+                <Building2 className="h-3 w-3" />
+                {t('write.use_org_name') || 'Use organization name'}
+              </label>
+              <Switch
+                checked={useOrgName}
+                onCheckedChange={(checked) => {
+                  setUseOrgName(checked);
+                  if (checked && orgName) {
+                    update({ authorName: orgName });
+                  } else {
+                    update({ authorName: '' });
+                  }
+                }}
+              />
+            </div>
+          )}
+        </div>
         <Input
           value={state.authorName || ''}
-          onChange={e => update({ authorName: e.target.value })}
-          placeholder={t('write.author_placeholder') || 'Le nom qui apparaîtra sur votre livre'}
+          onChange={e => {
+            update({ authorName: e.target.value });
+            if (orgName && e.target.value !== orgName) setUseOrgName(false);
+          }}
+          placeholder={t('write.author_placeholder') || 'The name that will appear on your book'}
           className="h-10 text-sm"
         />
       </div>
