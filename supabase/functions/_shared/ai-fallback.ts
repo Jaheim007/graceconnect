@@ -74,6 +74,7 @@ export async function aiGenerateImageBase64(opts: {
   geminiKey: string;
   openaiKey?: string;
   prompt: string;
+  size?: string;
   timeoutMs?: number;
 }): Promise<{ base64: string; mimeType: string }> {
   const openaiKey = opts.openaiKey || Deno.env.get('OPENAI_API_KEY');
@@ -84,6 +85,7 @@ export async function aiGenerateImageBase64(opts: {
       return await openaiGenerateImageBase64({
         apiKey: openaiKey,
         prompt: opts.prompt,
+        size: opts.size,
         timeoutMs: opts.timeoutMs,
       });
     } catch (openaiErr: any) {

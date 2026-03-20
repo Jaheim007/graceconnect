@@ -7,7 +7,7 @@ const artStylePrompts: Record<string, string> = {
   children_book: 'children book illustration style, warm colors, friendly characters, soft lighting, storybook feel',
   watercolor: 'watercolor painting style, soft washes of color, artistic, fluid brushstrokes',
   cartoon: 'modern cartoon illustration, bold colors, clean lines, fun and engaging',
-  realistic: 'realistic digital painting, detailed and lifelike, rich colors',
+  realistic: 'high-quality photorealistic illustration, cinematic lighting, sharp detail, professional photography quality, natural skin tones and textures, depth of field',
   line_art: 'black and white line art for coloring book, clean bold outlines only, NO shading NO fills NO colors, thick black contour lines on pure white background, large areas to color in',
 };
 
@@ -40,7 +40,23 @@ Deno.serve(async (req) => {
 
     const prompt = isColoring
       ? `Create a coloring book page. BLACK AND WHITE LINE ART ONLY.\nBook: "${bookTitle || 'Untitled'}"\nPage theme: "${chapterTitle}"\nContext: ${chapterSummary || chapterTitle}\nCRITICAL: ONLY black outlines on pure white, NO shading/fills/colors, bold clean lines, large enclosed areas for coloring. ${audiencePrompt}. NO text in image.`
-      : `Create a beautiful illustration for a book chapter.\nBook: "${bookTitle || 'Untitled'}"\nChapter: "${chapterTitle}"\nContext: ${chapterSummary || chapterTitle}\nStyle: ${stylePrompt}\nAudience: ${audiencePrompt}\nSingle captivating illustration, no text, professional book illustration.`;
+      : `Create a wide landscape illustration for a book chapter. The image will be displayed inside a book as a chapter header illustration.
+Book: "${bookTitle || 'Untitled'}"
+Chapter: "${chapterTitle}"
+Context: ${chapterSummary || chapterTitle}
+Style: ${stylePrompt}
+Audience: ${audiencePrompt}
+
+CRITICAL COMPOSITION RULES:
+- LANDSCAPE orientation (wider than tall) — this is a chapter illustration, NOT a book cover
+- Frame the scene with generous composition so subjects are fully visible (full body or upper body, never cropped faces)
+- Leave breathing room around the main subject — do NOT zoom in too close
+- The illustration should work as a wide banner/header image inside a book
+- Professional book interior illustration quality
+- NO text, NO words, NO letters in the image`;
+
+    // Use landscape size for chapter illustrations (1536x1024), portrait for covers
+    const illustrationSize = '1536x1024';
 
     const imageUrl = await consumeCreditsWithRefund({
       admin,
@@ -48,8 +64,8 @@ Deno.serve(async (req) => {
       actionKey: 'generate_illustration',
       tier: normalizeTier(tier),
       action: async () => {
-        console.log('[generate-illustration] Starting generation for:', chapterTitle?.slice(0, 50));
-        const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 120_000 });
+        console.log('[generate-illustration] Starting generation for:', chapterTitle?.slice(0, 50), 'size:', illustrationSize);
+        const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, size: illustrationSize, timeoutMs: 120_000 });
         console.log('[generate-illustration] Image generated, mimeType:', mimeType);
 
         // Upload to storage
