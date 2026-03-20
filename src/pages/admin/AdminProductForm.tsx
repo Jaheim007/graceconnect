@@ -202,6 +202,7 @@ export function ProductForm() {
           const floor = floors[cur] || 500;
           return Math.max(data.min_price || 0, floor);
         })(),
+        publication_status: data.is_published ? 'published' : 'draft',
         cover_image_url: data.cover_image_url || null,
         file_url: data.file_url || null,
         external_link: data.external_link || null,
