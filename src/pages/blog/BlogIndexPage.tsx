@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Clock, BookOpen, Users, Megaphone, Palette } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { blogArticles, BlogUniverse, getArticleOgImage } from '@/lib/blogArticles';
+import { blogArticles, BlogUniverse, getArticleOgImage, getLocalizedTitle, getLocalizedDescription, getLocalizedCategory } from '@/lib/blogArticles';
 import { useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
 
