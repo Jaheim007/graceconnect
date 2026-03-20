@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { cn } from '@/lib/utils';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import { getPublicUrl } from '@/lib/publicUrl';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
