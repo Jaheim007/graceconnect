@@ -539,8 +539,9 @@ export function ProductForm() {
                 try {
                   const { data: pdfData, error: pdfError } = await supabase.functions.invoke('ai-generate-pdf', {
                     body: {
-                      org_id: currentOrg.id,
+                      org_id: item.organization_id || currentOrg.id,
                       project_id: item.ai_project_id,
+                      product_id: item.id,
                       format: 'ebook',
                       page_size: 'A4',
                     },
