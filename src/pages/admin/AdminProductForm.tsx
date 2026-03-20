@@ -407,7 +407,7 @@ export function ProductForm() {
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label>Type</Label>
-            <Select value={watch('product_type') || ''} onValueChange={v => setValue('product_type', v as any)}>
+            <Select value={watch('product_type')} onValueChange={v => setValue('product_type', v as any)}>
               <SelectTrigger><SelectValue placeholder={isFr ? 'Choisir un type' : 'Select type'} /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="pdf">PDF</SelectItem>
@@ -473,7 +473,7 @@ export function ProductForm() {
                     <Input
                       type="number"
                       min={pwywFloor}
-                      value={watch('min_price') || pwywFloor}
+                      value={watch('min_price') ?? pwywFloor}
                       onChange={e => {
                         const val = Number(e.target.value);
                         setValue('min_price', val < pwywFloor ? pwywFloor : val);
