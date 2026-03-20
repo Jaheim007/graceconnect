@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -57,13 +58,34 @@ export function ProductQuickView({ product, open, onClose }: ProductQuickViewPro
             <WishlistButton productId={product.id} />
           </div>
           <div className="absolute bottom-3 right-3">
-            <span className="inline-flex flex-col items-end px-3 py-1.5 rounded-lg text-base font-bold bg-background/90 backdrop-blur-sm border border-border/50">
-              {isFlashSale && <span className="text-xs line-through text-muted-foreground">{fmt(product.price)}</span>}
-              {fmt(displayPrice)}
-              {!product.is_free && displayPrice > 0 && (
-                <LocalPriceHint amount={displayPrice} currency={product.currency || 'XOF'} />
-              )}
-            </span>
+            {(() => {
+              const isPwyw = !!product.is_pwyw;
+              const minPrice = (product as any).min_price || 0;
+              const effectivelyFree = product.is_free && !(isPwyw && minPrice > 0);
+              return (
+                <span className={cn(
+                  'inline-flex flex-col items-end px-3 py-1.5 rounded-lg text-base font-bold backdrop-blur-sm',
+                  effectivelyFree
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-background/90 border border-border/50'
+                )}>
+                  {isPwyw && minPrice > 0 ? (
+                    <span>💰 {isFr ? 'Dès' : 'From'} {fmt(minPrice)}</span>
+                  ) : (
+                    <>
+                      {isFlashSale && <span className="text-xs line-through text-muted-foreground">{fmt(product.price)}</span>}
+                      {effectivelyFree ? (isFr ? 'Gratuit' : 'Free') : fmt(displayPrice)}
+                    </>
+                  )}
+                  {!effectivelyFree && !isPwyw && displayPrice > 0 && (
+                    <LocalPriceHint amount={displayPrice} currency={product.currency || 'XOF'} />
+                  )}
+                  {isPwyw && minPrice > 0 && (
+                    <LocalPriceHint amount={minPrice} currency={product.currency || 'XOF'} />
+                  )}
+                </span>
+              );
+            })()}
           </div>
         </div>
 
@@ -107,7 +129,7 @@ export function ProductQuickView({ product, open, onClose }: ProductQuickViewPro
 
           <div className="flex gap-2 pt-1">
             <Button className="flex-1 font-semibold" onClick={goToDetail}>
-              {product.is_free ? (isFr ? 'Obtenir gratuitement' : 'Get for free') : (isFr ? 'Voir & Acheter' : 'View & Buy')}
+              {(product.is_free && !(product.is_pwyw && ((product as any).min_price || 0) > 0)) ? (isFr ? 'Obtenir gratuitement' : 'Get for free') : (isFr ? 'Voir & Acheter' : 'View & Buy')}
             </Button>
             <Button variant="outline" size="icon" onClick={goToDetail} title={isFr ? 'Voir détails' : 'View details'}>
               <Eye className="h-4 w-4" />

@@ -120,7 +120,9 @@ export function SmartRecommendations({
                 <div className="flex items-center justify-between mt-1.5">
                   <p className="text-[10px] text-muted-foreground truncate">{org?.name}</p>
                   <p className="text-xs font-bold text-primary shrink-0">
-                    {fmtPrice(product.price || 0, product.is_free, product.currency, isFr ? 'Gratuit' : 'Free')}
+                    {product.is_pwyw && (product.min_price || 0) > 0
+                      ? `💰 ${isFr ? 'Dès' : 'From'} ${fmtPrice(product.min_price, false, product.currency, isFr ? 'Gratuit' : 'Free')}`
+                      : fmtPrice(product.price || 0, product.is_free, product.currency, isFr ? 'Gratuit' : 'Free')}
                   </p>
                 </div>
               </div>
