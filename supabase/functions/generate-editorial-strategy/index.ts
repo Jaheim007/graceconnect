@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
         let lastRaw = '';
         for (let attempt = 0; attempt < 2; attempt++) {
           lastRaw = await aiGenerateText({
-            geminiKey: GEMINI_API_KEY, model: 'gemini-2.0-flash',
+            geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
             system: prompts.system, prompt: prompts.user(params),
             maxOutputTokens: 2048, jsonMode: true,
           });
