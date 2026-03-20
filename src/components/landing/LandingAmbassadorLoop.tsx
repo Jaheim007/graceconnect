@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Share2, Users, Banknote, ArrowRight } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
-import ambassadorScreenshot from '@/assets/screenshots/ambassador-real-tweaked.png';
+import { landingScreenshots } from './landingScreenshotRegistry';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -100,11 +100,11 @@ export function LandingAmbassadorLoop() {
                 <span className="h-2 w-2 rounded-full bg-amber-400/70" />
                 <span className="h-2 w-2 rounded-full bg-emerald-400/70" />
                 <span className="ml-3 text-[9px] text-muted-foreground font-mono bg-background/60 rounded px-2 py-0.5">
-                  siteviral.com/ambassador
+                  {landingScreenshots.ambassador.chromeLabel}
                 </span>
               </div>
               <img
-                src={ambassadorScreenshot}
+                src={landingScreenshots.ambassador.src}
                 alt={isFr ? "Tableau de bord ambassadeur SiteViral" : "SiteViral ambassador dashboard"}
                 className="w-full h-auto"
                 loading="lazy"

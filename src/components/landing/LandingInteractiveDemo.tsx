@@ -4,7 +4,7 @@ import { PenLine, Sparkles, ArrowRight, BookOpen, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
-import aiStudioScreenshot from '@/assets/screenshots/dashboard-real-tweaked.png';
+import { landingScreenshots } from './landingScreenshotRegistry';
 
 export function LandingInteractiveDemo() {
   const [activeStep, setActiveStep] = useState(0);
@@ -110,11 +110,11 @@ export function LandingInteractiveDemo() {
                 <span className="h-2 w-2 rounded-full bg-amber-400/70" />
                 <span className="h-2 w-2 rounded-full bg-emerald-400/70" />
                 <span className="ml-3 text-[9px] text-muted-foreground font-mono bg-background/60 rounded px-2 py-0.5">
-                  siteviral.com/ai-studio
+                  {landingScreenshots.aiStudio.chromeLabel}
                 </span>
               </div>
               <img
-                src={aiStudioScreenshot}
+                src={landingScreenshots.aiStudio.src}
                 alt={isFr ? "Studio IA SiteViral — Création de livre" : "SiteViral AI Studio — Book creation"}
                 className="w-full h-auto"
                 loading="lazy"

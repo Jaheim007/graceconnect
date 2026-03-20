@@ -2,7 +2,6 @@ import { lazy, Suspense, useState, useCallback } from 'react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingHeroManifesto } from '@/components/landing/LandingHeroManifesto';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { LiveAuthorsCounter } from '@/components/growth/LiveAuthorsCounter';
 import { CommunityProgressBar } from '@/components/growth/CommunityProgressBar';
 import { SplashScreen, wasSplashShown } from '@/components/splash/SplashScreen';
 
@@ -15,7 +14,6 @@ const LandingSourcesSection = lazy(() => import('@/components/landing/LandingSou
 const LandingMobileMoney = lazy(() => import('@/components/landing/LandingMobileMoney').then(m => ({ default: m.LandingMobileMoney })));
 const LandingTrustShield = lazy(() => import('@/components/landing/LandingTrustShield').then(m => ({ default: m.LandingTrustShield })));
 const LandingPricingSimple = lazy(() => import('@/components/landing/LandingPricingSimple').then(m => ({ default: m.LandingPricingSimple })));
-const LandingSocialProof = lazy(() => import('@/components/landing/LandingSocialProof').then(m => ({ default: m.LandingSocialProof })));
 const LandingMigration = lazy(() => import('@/components/landing/LandingMigration').then(m => ({ default: m.LandingMigration })));
 const LandingFinalCTA = lazy(() => import('@/components/landing/LandingFinalCTA').then(m => ({ default: m.LandingFinalCTA })));
 const LandingFooterCompact = lazy(() => import('@/components/landing/LandingFooterCompact').then(m => ({ default: m.LandingFooterCompact })));
@@ -65,8 +63,6 @@ export default function LandingPage() {
       <LandingNav />
       <LandingHeroManifesto />
 
-      <LiveAuthorsCounter />
-
       <Suspense fallback={null}>
         <LandingHowItWorks />
         <LandingInteractiveDemo />
@@ -78,7 +74,6 @@ export default function LandingPage() {
         <LandingMobileMoney />
         <LandingTrustShield />
         <LandingPricingSimple />
-        <LandingSocialProof />
         <LandingMigration />
         <LandingFinalCTA />
         <LandingFooterCompact />
