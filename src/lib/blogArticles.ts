@@ -1,4 +1,5 @@
 import { BLOG_EN, CATEGORY_EN } from './blogTranslations';
+import { BLOG_CONTENT_EN } from './blogContentTranslations';
 
 export type BlogUniverse = 'all' | 'buyer' | 'ambassador' | 'creator';
 
@@ -27,6 +28,12 @@ export function getLocalizedTitle(article: BlogArticle, locale: string): string 
 export function getLocalizedDescription(article: BlogArticle, locale: string): string {
   if (locale !== 'fr' && BLOG_EN[article.slug]?.description) return BLOG_EN[article.slug].description;
   return article.description;
+}
+
+/** Get localized article body content */
+export function getLocalizedContent(article: BlogArticle, locale: string): string {
+  if (locale !== 'fr' && BLOG_CONTENT_EN[article.slug]) return BLOG_CONTENT_EN[article.slug];
+  return article.content;
 }
 
 /** Get localized category name */
