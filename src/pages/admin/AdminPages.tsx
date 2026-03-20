@@ -427,7 +427,9 @@ export function AdminProducts() {
                     {(p as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">{isFr ? 'Démo' : 'Demo'}</Badge>}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {fmtPrice(p.price || 0, p.is_free, p.currency)} · {p.sales_count || 0} {isFr ? 'vente' : 'sale'}{(p.sales_count || 0) > 1 ? 's' : ''}
+                    {(p as any).is_pwyw
+                      ? `💰 ${isFr ? 'Dès' : 'From'} ${fmtPrice((p as any).min_price || 0, false, p.currency)}`
+                      : fmtPrice(p.price || 0, p.is_free, p.currency)} · {p.sales_count || 0} {isFr ? 'vente' : 'sale'}{(p.sales_count || 0) > 1 ? 's' : ''}
                   </p>
                 </div>
                 <Badge variant="outline" className={cn('text-xs border-0 shrink-0', p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
