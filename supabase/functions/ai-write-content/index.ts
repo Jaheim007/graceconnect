@@ -162,8 +162,8 @@ You MUST produce a complete, well-structured HTML text following this schema:
     return jsonResp({ content });
   } catch (e: any) {
     if (e?.status === 402) return jsonResp({ error: e.message }, 402);
-    if (e?.status === 429) return jsonResp({ error: 'Trop de requêtes. Réessayez.' }, 429);
+    if (e?.status === 429) return jsonResp({ error: 'Too many requests. Please retry.' }, 429);
     console.error('ai-write-content error:', e);
-    return jsonResp({ error: e instanceof Error ? e.message : 'Erreur interne.' }, 500);
+    return jsonResp({ error: e instanceof Error ? e.message : 'Internal error.' }, 500);
   }
 });

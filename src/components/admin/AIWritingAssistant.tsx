@@ -37,8 +37,9 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
     setResult('');
 
     try {
+      const lang = document.documentElement.lang || 'fr';
       const { data, error } = await supabase.functions.invoke('ai-write-content', {
-        body: { prompt: prompt.trim(), tone, context },
+        body: { prompt: prompt.trim(), tone, context, lang },
       });
 
       if (error) throw error;
