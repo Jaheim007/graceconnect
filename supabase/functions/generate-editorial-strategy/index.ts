@@ -4,7 +4,7 @@ import { aiGenerateText, extractJson } from '../_shared/ai-fallback.ts';
 
 const langPrompts: Record<string, { system: string; user: (p: any) => string }> = {
   fr: {
-    system: `Tu es un STRATÈGE ÉDITORIAL SENIOR avec 20 ans d'expérience dans l'édition de best-sellers. Ta mission : analyser le sujet d'un auteur et créer un POSITIONNEMENT ÉDITORIAL puissant AVANT l'écriture. Tu retournes UNIQUEMENT un JSON valide.`,
+    system: `Tu es un STRATÈGE ÉDITORIAL SENIOR avec 20 ans d'expérience dans l'édition de best-sellers. Ta mission : analyser le sujet d'un auteur et créer un POSITIONNEMENT ÉDITORIAL puissant AVANT l'écriture. Tu retournes UNIQUEMENT un JSON valide. IMPORTANT : N'utilise JAMAIS de formatage markdown (pas de **, pas de *, pas de #). Écris en texte brut uniquement.`,
     user: (p: any) => `Sujet / Idée du livre : "${p.topic}"
 ${p.title ? `Titre envisagé : "${p.title}"` : ''}
 Style : ${p.style || 'ebook'}
@@ -23,7 +23,7 @@ Retourne UNIQUEMENT ce JSON :
 }`
   },
   en: {
-    system: `You are a SENIOR EDITORIAL STRATEGIST with 20 years experience. Analyze an author's topic and create a powerful EDITORIAL POSITIONING. Return ONLY valid JSON.`,
+    system: `You are a SENIOR EDITORIAL STRATEGIST with 20 years experience. Analyze an author's topic and create a powerful EDITORIAL POSITIONING. Return ONLY valid JSON. IMPORTANT: NEVER use markdown formatting (no **, no *, no #). Write in plain text only.`,
     user: (p: any) => `Book topic: "${p.topic}"
 ${p.title ? `Working title: "${p.title}"` : ''}
 Style: ${p.style || 'ebook'}  Audience: ${p.audience || 'general'}  Tone: ${p.tone || 'professional'}
