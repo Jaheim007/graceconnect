@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { EarningsCard } from '@/components/ambassador/EarningsCard';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { DailyTip } from '@/components/ambassador/DailyTip';
+import { AmbassadorPayoutBreakdown } from '@/components/ambassador/AmbassadorPayoutBreakdown';
 
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { StatCard } from '@/components/ui/StatCard';
@@ -84,6 +85,39 @@ export default function AmbassadorDashboard() {
   const totalClicks = affiliateLinks.reduce((s, l) => s + (l.clicks || 0), 0);
   const totalConversions = affiliateSales.length;
 
+  const payableByOrg = affiliateSales.reduce((acc: Record<string, { orgId: string; amount: number; currency: string; salesCount: number }>, sale: any) => {
+    if (sale.status !== 'payable') return acc;
+
+    if (!acc[sale.organization_id]) {
+      acc[sale.organization_id] = {
+        orgId: sale.organization_id,
+        amount: 0,
+        currency: sale.currency || primaryCurrency,
+        salesCount: 0,
+      };
+    }
+
+    acc[sale.organization_id].amount += sale.commission_amount || 0;
+    acc[sale.organization_id].salesCount += 1;
+    return acc;
+  }, {});
+
+  const payoutEntries = Object.values(payableByOrg)
+    .map((entry) => {
+      const linkedOrg = affiliateLinks.find((link) => link.organization_id === entry.orgId)?.organizations;
+      const memberOrg = userOrgs.find((org) => org.id === entry.orgId);
+
+      return {
+        ...entry,
+        orgName: linkedOrg?.name || memberOrg?.name || (isFr ? 'Organisation' : 'Organization'),
+      };
+    })
+    .sort((a, b) => b.amount - a.amount);
+
+  const availableLabel = payoutEntries.length > 1
+    ? (isFr ? 'Disponible total' : 'Total available')
+    : (isFr ? 'À retirer' : 'Available');
+
   const hasShared = affiliateLinks.length > 0;
   const hasClick = totalClicks > 0;
 
@@ -137,21 +171,22 @@ export default function AmbassadorDashboard() {
           />
           <StatCard
             icon={Wallet}
-            label={isFr ? 'À retirer' : 'Available'}
+            label={availableLabel}
             value={fmt(payableCommission)}
             color="primary"
             delay={0.1}
           />
         </div>
 
-        {payableCommission > 0 && (
-          <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white gap-2" onClick={() => {
-            const firstOrg = affiliateSales.find((s: any) => s.status === 'payable');
-            if (firstOrg) handleRequestPayout((firstOrg as any).organization_id);
-          }} disabled={!!requestingPayout}>
-            <Wallet className="h-4 w-4" />
-            {requestingPayout ? (isFr ? 'En cours…' : 'Processing…') : (isFr ? 'Retirer mes gains' : 'Withdraw earnings')}
-          </Button>
+        {payoutEntries.length > 0 && (
+          <AmbassadorPayoutBreakdown
+            entries={payoutEntries}
+            isFr={isFr}
+            locale={locale}
+            requestingPayout={requestingPayout}
+            onRequestPayout={handleRequestPayout}
+            onOpenDetails={() => navigate('/affiliation')}
+          />
         )}
 
         {/* ═══ DAILY TIP ═══ */}
