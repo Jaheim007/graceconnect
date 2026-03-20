@@ -129,7 +129,7 @@ export function ProductQuickView({ product, open, onClose }: ProductQuickViewPro
 
           <div className="flex gap-2 pt-1">
             <Button className="flex-1 font-semibold" onClick={goToDetail}>
-              {product.is_free ? (isFr ? 'Obtenir gratuitement' : 'Get for free') : (isFr ? 'Voir & Acheter' : 'View & Buy')}
+              {(product.is_free && !(product.is_pwyw && ((product as any).min_price || 0) > 0)) ? (isFr ? 'Obtenir gratuitement' : 'Get for free') : (isFr ? 'Voir & Acheter' : 'View & Buy')}
             </Button>
             <Button variant="outline" size="icon" onClick={goToDetail} title={isFr ? 'Voir détails' : 'View details'}>
               <Eye className="h-4 w-4" />
