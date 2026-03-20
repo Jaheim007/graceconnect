@@ -341,7 +341,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
               <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-1">
                 <span>📄 {state.pageCount} {t('write.pages')}</span>
                 <span>·</span>
-                <span>📘 {state.style === 'ebook' ? t('write.style_ebook') : state.style === 'guide' ? t('write.style_guide') : t('write.style_prayers')}</span>
+                <span>📘 {t(`write.style_${state.style}`) || state.style}</span>
               </div>
             </div>
 
