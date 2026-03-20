@@ -126,16 +126,17 @@ export function ProductForm() {
 
   useEffect(() => {
     if (item) {
+      const resolvedPublished = item.is_published || (item as any).publication_status === 'published';
       reset({
         title: item.title,
         description: item.description || '',
-        product_type: (item.product_type || 'pdf') as any,
+        product_type: (item.product_type as any) || 'pdf',
         price: item.price || 0,
         cover_image_url: item.cover_image_url || '',
         file_url: item.file_url || '',
         external_link: item.external_link || '',
         is_free: item.is_free || false,
-        is_published: item.is_published || false,
+        is_published: resolvedPublished,
         is_bundle: item.is_bundle || false,
         is_pwyw: item.is_pwyw || false,
         min_price: item.min_price || 0,
