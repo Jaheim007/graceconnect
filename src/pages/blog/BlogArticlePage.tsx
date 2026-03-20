@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Clock, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getArticleBySlug, blogArticles, getArticleOgImage } from '@/lib/blogArticles';
+import { getArticleBySlug, blogArticles, getArticleOgImage, getLocalizedTitle, getLocalizedDescription, getLocalizedCategory } from '@/lib/blogArticles';
 import { useToast } from '@/hooks/use-toast';
 import { useShortLink } from '@/hooks/useShortLink';
 import { useI18n } from '@/i18n/I18nContext';
@@ -38,15 +38,18 @@ export default function BlogArticlePage() {
   const prevArticle = currentIndex > 0 ? blogArticles[currentIndex - 1] : null;
   const nextArticle = currentIndex < blogArticles.length - 1 ? blogArticles[currentIndex + 1] : null;
 
+  const localizedTitle = getLocalizedTitle(article, locale);
+  const localizedDesc = getLocalizedDescription(article, locale);
+
   const { shareUrl: socialShareUrl } = useShortLink({
     targetPath: `/blog/${article.slug}`,
-    title: article.title,
-    description: article.description,
+    title: localizedTitle,
+    description: localizedDesc,
   });
 
   const handleShare = async () => {
     if (navigator.share) {
-      await navigator.share({ title: article.title, text: article.description, url: socialShareUrl });
+      await navigator.share({ title: localizedTitle, text: localizedDesc, url: socialShareUrl });
     } else {
       await navigator.clipboard.writeText(socialShareUrl);
       toast({ title: isFr ? 'Lien copié ✅' : 'Link copied ✅' });
@@ -56,8 +59,8 @@ export default function BlogArticlePage() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title={`${article.title} — Blog Siteviral`}
-        description={article.description}
+        title={`${localizedTitle} — Blog Siteviral`}
+        description={localizedDesc}
         ogImage={ogImage}
         ogType="article"
         canonicalUrl={`https://siteviral.com/blog/${article.slug}`}
@@ -83,7 +86,7 @@ export default function BlogArticlePage() {
             <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Tous les articles' : 'All articles'}
           </Link>
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="outline" className="text-[10px] px-2 py-0.5 rounded-full">{article.category}</Badge>
+            <Badge variant="outline" className="text-[10px] px-2 py-0.5 rounded-full">{getLocalizedCategory(article.category, locale)}</Badge>
             <span className="text-[10px] text-muted-foreground flex items-center gap-1">
               <Clock className="h-3 w-3" /> {article.readTime} {isFr ? 'de lecture' : 'read'}
             </span>
@@ -93,9 +96,9 @@ export default function BlogArticlePage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-2xl sm:text-4xl font-extrabold leading-tight"
           >
-            {article.title}
+            {localizedTitle}
           </motion.h1>
-          <p className="text-muted-foreground leading-relaxed">{article.description}</p>
+          <p className="text-muted-foreground leading-relaxed">{localizedDesc}</p>
           <div className="flex items-center gap-2 flex-wrap">
             {article.personas.map(p => (
               <Badge key={p} variant="secondary" className="text-[10px] px-2 py-0.5 rounded-full">{p}</Badge>
@@ -142,13 +145,13 @@ export default function BlogArticlePage() {
             {prevArticle && (
               <Link to={`/blog/${prevArticle.slug}`} className="p-4 rounded-xl border border-border bg-card hover:border-primary/30 transition-colors group">
                 <span className="text-[10px] text-muted-foreground">{isFr ? '← Article précédent' : '← Previous article'}</span>
-                <p className="text-sm font-medium mt-1 group-hover:text-primary transition-colors line-clamp-2">{prevArticle.title}</p>
+                <p className="text-sm font-medium mt-1 group-hover:text-primary transition-colors line-clamp-2">{getLocalizedTitle(prevArticle, locale)}</p>
               </Link>
             )}
             {nextArticle && (
               <Link to={`/blog/${nextArticle.slug}`} className={`p-4 rounded-xl border border-border bg-card hover:border-primary/30 transition-colors group text-right ${!prevArticle ? 'sm:col-start-2' : ''}`}>
                 <span className="text-[10px] text-muted-foreground">{isFr ? 'Article suivant →' : 'Next article →'}</span>
-                <p className="text-sm font-medium mt-1 group-hover:text-primary transition-colors line-clamp-2">{nextArticle.title}</p>
+                <p className="text-sm font-medium mt-1 group-hover:text-primary transition-colors line-clamp-2">{getLocalizedTitle(nextArticle, locale)}</p>
               </Link>
             )}
           </div>
