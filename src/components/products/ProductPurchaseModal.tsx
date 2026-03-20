@@ -144,8 +144,9 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
   const salePrice = (product as any).sale_price;
   const saleEndsAt = (product as any).sale_ends_at;
-  const isFlashSale = salePrice != null && saleEndsAt && new Date(saleEndsAt) > new Date();
   const isPwyw = !!(product as any).is_pwyw;
+  // Flash sale is ignored when PWYW is active
+  const isFlashSale = !isPwyw && salePrice != null && saleEndsAt && new Date(saleEndsAt) > new Date();
   const rawMinPrice = (product as any).min_price || 0;
   const productCurrency = (product as any).currency || 'XOF';
   const pwywFloors: Record<string, number> = { XOF: 500, XAF: 500, NGN: 500, USD: 1, EUR: 1, GBP: 1, GHS: 5, KES: 100, ZAR: 10, MAD: 10, TND: 3 };
@@ -154,7 +155,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
   const pwywValue = isPwyw && pwywAmount ? parseFloat(pwywAmount) : 0;
   const effectiveBasePrice = isPwyw
-    ? (pwywValue > 0 ? pwywValue : suggestedPrice)
+    ? (pwywValue > 0 ? pwywValue : minPrice)
     : isFlashSale ? salePrice : (product.price ?? 0);
 
   const bumpPrice = bumpProduct ? Math.round((bumpProduct.price || 0) * (1 - bumpDiscount / 100)) : 0;
@@ -366,7 +367,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShoppingBag className="h-4 w-4 text-primary" />
-            {product.is_free
+            {product.is_free && !isPwyw
               ? (isFr ? 'Télécharger gratuitement' : 'Download for free')
               : (isFr ? 'Acheter ce produit' : 'Buy this product')}
           </DialogTitle>
@@ -528,7 +529,11 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   onClick={handleConfirmToBuyerInfo}
                   className="flex-1 bg-primary text-primary-foreground"
                 >
-                  {product.is_free || finalPrice === 0 ? (isFr ? 'Accéder gratuitement' : 'Access for free') : `${isFr ? 'Payer' : 'Pay'} ${fmt(finalPrice)}`}
+                  {isPwyw
+                    ? `${isFr ? 'Payer' : 'Pay'} ${fmt(pwywValue > 0 ? pwywValue : minPrice)}`
+                    : (product.is_free || finalPrice === 0)
+                      ? (isFr ? 'Accéder gratuitement' : 'Access for free')
+                      : `${isFr ? 'Payer' : 'Pay'} ${fmt(finalPrice)}`}
                 </Button>
               )}
             </div>
