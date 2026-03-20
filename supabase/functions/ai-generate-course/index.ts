@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { corsHeaders, jsonResp, requireAuth, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsWithRefund, consumeCreditsOrThrow, refundCreditsAsBonus, normalizeTier } from '../_shared/credits.ts';
-import { openaiGenerateImageBase64 } from '../_shared/ai-openai.ts';
+import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 import { geminiGenerateText } from '../_shared/ai-gemini.ts';
 
 const ACTION_KEY = 'ai_course_structure';
