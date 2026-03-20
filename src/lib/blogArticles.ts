@@ -38,11 +38,7 @@ export function getArticleOgImage(article: BlogArticle): string {
   return images[hash % images.length];
 }
 
-/** Get OG image for an article – uses explicit ogImage or falls back to category */
-export function getArticleOgImage(article: BlogArticle): string {
-  if (article.ogImage) return article.ogImage;
-  return CATEGORY_OG_MAP[article.category] || '/images/blog/og-strategie.jpg';
-}
+
 
 export const blogArticles: BlogArticle[] = [
   {
