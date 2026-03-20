@@ -447,12 +447,15 @@ function safeDrawText(page: PDFPage, text: string, opts: { x: number; y: number;
 // ══════════════════════════════════════════════════════════════════════
 // Image embedding helpers
 // ══════════════════════════════════════════════════════════════════════
-const MAX_IMAGE_BYTES = 1_500_000; // 1.5 MB per image to keep PDF under 50 MB
+const MAX_IMAGE_BYTES = 800_000; // 800 KB per image to stay within edge function memory limits
 
 async function tryEmbedImage(pdfDoc: any, imageUrl: string): Promise<any | null> {
   if (!imageUrl) return null;
   try {
-    const response = await fetch(imageUrl);
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 8_000); // 8s timeout per image
+    const response = await fetch(imageUrl, { signal: controller.signal });
+    clearTimeout(tid);
     if (!response.ok) return null;
     const bytes = new Uint8Array(await response.arrayBuffer());
     if (bytes.length > MAX_IMAGE_BYTES) {
@@ -464,7 +467,7 @@ async function tryEmbedImage(pdfDoc: any, imageUrl: string): Promise<any | null>
     if (ct.includes('png') || lower.endsWith('.png')) return await pdfDoc.embedPng(bytes);
     if (ct.includes('jpeg') || ct.includes('jpg') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || ct.includes('image')) return await pdfDoc.embedJpg(bytes);
     return null;
-  } catch (e) { console.error('Image embed error:', e); return null; }
+  } catch (e) { console.error('Image embed error:', (e as any)?.message?.slice(0, 100)); return null; }
 }
 
 async function drawInlineImage(
