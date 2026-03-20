@@ -1046,18 +1046,26 @@ GARDE-FOUS D'AUTHENTICITÉ :
 - Chaque chapitre doit apporter une matière exploitable immédiatement
 - Interdit de générer des titres vagues, lyriques ou décoratifs hors fiction
 - Interdit d'écrire des paragraphes de remplissage
-- Chaque chapitre doit contenir au moins 1 élément concret vérifiable (cadre, étape, cas, référence, verset, checklist)
-
+- Chaque chapitre doit contenir au moins 1 élément concret vérifiable (cadre, étape, cas, référence, checklist)
+${['prayers', 'devotional'].includes(_style) || tone === 'spiritual' ? '' : `
+⚠️ INTERDICTION ABSOLUE — CONTENU RELIGIEUX :
+Ce livre est un ebook LAÏC. Il est STRICTEMENT INTERDIT d'inclure :
+- Des versets bibliques ou coraniques
+- Des références aux Écritures (Bible, Coran, Torah, etc.)
+- Des prières ou invocations
+- Du vocabulaire religieux spécifique (Saint-Esprit, Allah, Seigneur, etc.)
+- Des citations de prédicateurs ou leaders religieux
+Si le sujet touche la spiritualité, traite-le de manière UNIVERSELLE et PHILOSOPHIQUE, sans textes sacrés.
+`}
 HTML — FORMATAGE PROFESSIONNEL (comme un vrai livre édité) :
 - <p> pour les paragraphes de corps de texte (3-5 phrases chacun)
-- <h2> pour les TITRES DE SECTIONS MAJUSCULES (ex: "1. LE PÉCHÉ", "A- CINQ RAISONS MAJEURES")
-- <h3> pour les sous-sections (ex: "1.1. L'orgueil", "4.2. Solution dans l'ancien testament")
-- <blockquote> pour les VERSETS BIBLIQUES complets avec référence en <strong> (ex: <blockquote><strong>Éphésiens 6v12</strong> : <em>"nous n'avons pas à lutter contre la chair et le sang..."</em></blockquote>)
-- <ol><li> pour les listes NUMÉROTÉES (points de prière, étapes, arguments)
+- <h2> pour les TITRES DE SECTIONS MAJUSCULES
+- <h3> pour les sous-sections
+- <blockquote> pour les citations importantes ou principes clés${['prayers', 'devotional'].includes(_style) ? ' et les versets avec référence en <strong>' : ''}
+- <ol><li> pour les listes NUMÉROTÉES (étapes, arguments)
 - <ul><li> pour les listes à puces (thèmes, exemples)
-- <strong> pour les mots-clés, références bibliques et concepts importants
-- <em> pour les citations, les versets en italique, l'emphase
-- <ul><li> ou <ol><li> pour les listes
+- <strong> pour les mots-clés et concepts importants
+- <em> pour les citations et l'emphase
 ${styleRefInstruction}
 FORMAT DE SORTIE : JSON valide uniquement. Pas de markdown, pas de code fences.`
 
