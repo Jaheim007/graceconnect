@@ -313,36 +313,12 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
 
       {/* Author name */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium flex items-center gap-1.5">
-            <UserPen className="h-3.5 w-3.5" /> {t('write.author_label') || "Author name"}
-          </label>
-          {orgName && (
-            <div className="flex items-center gap-2">
-              <label className="text-[10px] text-muted-foreground flex items-center gap-1">
-                <Building2 className="h-3 w-3" />
-                {t('write.use_org_name') || 'Use organization name'}
-              </label>
-              <Switch
-                checked={useOrgName}
-                onCheckedChange={(checked) => {
-                  setUseOrgName(checked);
-                  if (checked && orgName) {
-                    update({ authorName: orgName });
-                  } else {
-                    update({ authorName: '' });
-                  }
-                }}
-              />
-            </div>
-          )}
-        </div>
+        <label className="text-sm font-medium flex items-center gap-1.5">
+          <UserPen className="h-3.5 w-3.5" /> {t('write.author_label') || "Author name"}
+        </label>
         <Input
           value={state.authorName || ''}
-          onChange={e => {
-            update({ authorName: e.target.value });
-            if (orgName && e.target.value !== orgName) setUseOrgName(false);
-          }}
+          onChange={e => update({ authorName: e.target.value })}
           placeholder={t('write.author_placeholder') || 'The name that will appear on your book'}
           className="h-10 text-sm"
         />
