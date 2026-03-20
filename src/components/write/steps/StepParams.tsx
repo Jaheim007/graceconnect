@@ -100,6 +100,44 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
   const hasSavedChapters = hasGeneratedContent(state.chapters);
   const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
 
+  // Load organization name for auto-fill
+  useEffect(() => {
+    if (!user?.id) return;
+    (async () => {
+      try {
+        const { data: membership } = await supabase
+          .from('organization_members')
+          .select('organization_id')
+          .eq('user_id', user.id)
+          .eq('role', 'owner')
+          .limit(1)
+          .maybeSingle();
+        if (!membership?.organization_id) return;
+
+        const { data: org } = await supabase
+          .from('organizations')
+          .select('name')
+          .eq('id', membership.organization_id)
+          .maybeSingle();
+        if (org?.name) {
+          setOrgName(org.name);
+          // Auto-fill if author name is empty and toggle is on
+          if (!state.authorName) {
+            update({ authorName: org.name });
+          }
+        }
+      } catch { /* non-blocking */ }
+    })();
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync author name when toggle changes
+  useEffect(() => {
+    if (useOrgName && orgName && !state.authorName) {
+      update({ authorName: orgName });
+    }
+  }, [useOrgName, orgName]); // eslint-disable-line react-hooks/exhaustive-deps
+  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
+
   const handleBookLengthChange = (length: BookLength) => {
     const chapterDefaults: Record<BookLength, number> = { short: 5, medium: 8, long: 15 };
     const pageDefaults: Record<BookLength, number> = { short: 35, medium: 70, long: 150 };
