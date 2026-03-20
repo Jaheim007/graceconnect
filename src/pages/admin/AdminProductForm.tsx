@@ -395,14 +395,7 @@ export function ProductForm() {
             placeholder={isFr ? 'Décrivez votre produit en détail...' : 'Describe your product in detail...'}
             onAIAssist={() => setShowAI(true)}
           />
-          <AIDescriptionButton
-            title={watch('title') || ''}
-            productType={watch('product_type') || 'pdf'}
-            price={watch('price') || 0}
-            currency={currentOrg?.currency || 'XOF'}
-            existingDescription={watch('description') || ''}
-            onGenerated={(html) => setValue('description', html, { shouldDirty: true })}
-          />
+          {/* AI description via "Aide IA" button in toolbar above */}
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
