@@ -29,7 +29,7 @@ const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16, filter: 'blur(4px)' },
-  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { type: 'spring', stiffness: 260, damping: 28 } },
+  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { type: 'spring' as const, stiffness: 260, damping: 28 } },
 };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } };
 
