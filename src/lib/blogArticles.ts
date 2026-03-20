@@ -15,24 +15,30 @@ export interface BlogArticle {
   content: string; // markdown-like HTML
 }
 
-/** Map category → OG image path (served from /public) */
-const CATEGORY_OG_MAP: Record<string, string> = {
-  'Stratégie': '/images/blog/og-strategie.jpg',
-  'Tutoriel': '/images/blog/og-tutoriel.jpg',
-  'Comparaison': '/images/blog/og-comparaison.jpg',
-  'Découverte': '/images/blog/og-decouverte.jpg',
-  'Discovery': '/images/blog/og-decouverte.jpg',
-  'Confiance': '/images/blog/og-confiance.jpg',
-  'Guide pratique': '/images/blog/og-guide-pratique.jpg',
-  'Étude de cas': '/images/blog/og-etude-de-cas.jpg',
-  'Éducation': '/images/blog/og-education.jpg',
+/** Map category → multiple OG image paths for rotation */
+const CATEGORY_OG_IMAGES: Record<string, string[]> = {
+  'Stratégie': ['/images/blog/strategie-1.jpg', '/images/blog/strategie-2.jpg', '/images/blog/strategie-3.jpg', '/images/blog/strategie-4.jpg', '/images/blog/strategie-5.jpg'],
+  'Tutoriel': ['/images/blog/tutoriel-1.jpg', '/images/blog/tutoriel-2.jpg', '/images/blog/tutoriel-3.jpg', '/images/blog/tutoriel-4.jpg'],
+  'Comparaison': ['/images/blog/compare-1.jpg', '/images/blog/compare-2.jpg', '/images/blog/compare-3.jpg'],
+  'Découverte': ['/images/blog/decouverte-1.jpg', '/images/blog/decouverte-2.jpg', '/images/blog/decouverte-3.jpg'],
+  'Discovery': ['/images/blog/decouverte-1.jpg', '/images/blog/decouverte-2.jpg', '/images/blog/decouverte-3.jpg'],
+  'Confiance': ['/images/blog/confiance-1.jpg', '/images/blog/confiance-2.jpg'],
+  'Guide pratique': ['/images/blog/guide-1.jpg', '/images/blog/guide-2.jpg', '/images/blog/guide-3.jpg'],
+  'Étude de cas': ['/images/blog/etude-1.jpg', '/images/blog/etude-2.jpg'],
+  'Éducation': ['/images/blog/education-1.jpg'],
 };
 
-/** Get OG image for an article – uses explicit ogImage or falls back to category */
+/** Get OG image for an article – uses explicit ogImage or rotates within category */
 export function getArticleOgImage(article: BlogArticle): string {
   if (article.ogImage) return article.ogImage;
-  return CATEGORY_OG_MAP[article.category] || '/images/blog/og-strategie.jpg';
+  const images = CATEGORY_OG_IMAGES[article.category];
+  if (!images || images.length === 0) return '/images/blog/strategie-1.jpg';
+  // Use slug hash to deterministically pick an image so each article gets a consistent but varied image
+  const hash = article.slug.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return images[hash % images.length];
 }
+
+
 
 export const blogArticles: BlogArticle[] = [
   {
