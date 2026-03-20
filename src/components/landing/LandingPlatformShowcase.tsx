@@ -94,25 +94,12 @@ export function LandingPlatformShowcase() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
             className="order-2 lg:order-1"
           >
-            <div className="rounded-2xl overflow-hidden border border-border/50 shadow-premium bg-card">
-              <div className="flex items-center gap-1.5 px-4 py-2.5 bg-muted/50 border-b border-border/30">
-                <span className="h-2.5 w-2.5 rounded-full bg-red-400/60" />
-                <span className="h-2.5 w-2.5 rounded-full bg-amber-400/60" />
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/60" />
-                <span className="ml-3 text-[9px] text-muted-foreground font-mono bg-background/50 rounded px-2 py-0.5">
-                  Sales Dashboard
-                </span>
+            <div className="rounded-2xl overflow-hidden border border-border/50 shadow-premium bg-card p-8 sm:p-12 text-center">
+              <div className="h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="h-8 w-8 text-accent" />
               </div>
-              <div className="relative w-full overflow-hidden" style={{ height: 340 }}>
-                <iframe
-                  src="/dashboard-preview"
-                  title={isFr ? "Dashboard des ventes SiteViral" : "SiteViral sales dashboard"}
-                  className="w-full border-0 pointer-events-none"
-                  style={{ height: 700, transform: 'scale(0.52)', transformOrigin: 'top left', width: '192%' }}
-                  loading="lazy"
-                  tabIndex={-1}
-                />
-              </div>
+              <p className="text-lg font-bold mb-2">{isFr ? 'Tableau de bord' : 'Sales Dashboard'}</p>
+              <p className="text-sm text-muted-foreground">{isFr ? 'Suivez vos ventes et performances en temps réel' : 'Track your sales and performance in real-time'}</p>
             </div>
           </motion.div>
 

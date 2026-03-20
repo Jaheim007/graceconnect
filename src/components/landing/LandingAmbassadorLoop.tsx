@@ -93,25 +93,12 @@ export function LandingAmbassadorLoop() {
             viewport={{ once: true }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
           >
-            <div className="rounded-2xl overflow-hidden border border-border/60 shadow-elevated bg-card">
-              <div className="flex items-center gap-1.5 px-4 py-2 bg-muted/60 border-b border-border/40">
-                <span className="h-2 w-2 rounded-full bg-red-400/70" />
-                <span className="h-2 w-2 rounded-full bg-amber-400/70" />
-                <span className="h-2 w-2 rounded-full bg-emerald-400/70" />
-                <span className="ml-3 text-[9px] text-muted-foreground font-mono bg-background/60 rounded px-2 py-0.5">
-                  Ambassador Dashboard
-                </span>
+            <div className="rounded-2xl overflow-hidden border border-border/60 shadow-elevated bg-card p-8 sm:p-12 text-center">
+              <div className="h-16 w-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-emerald-500" />
               </div>
-              <div className="relative w-full overflow-hidden" style={{ height: 340 }}>
-                <iframe
-                  src="/dashboard-preview"
-                  title={isFr ? "Tableau de bord ambassadeur SiteViral" : "SiteViral ambassador dashboard"}
-                  className="w-full border-0 pointer-events-none"
-                  style={{ height: 700, transform: 'scale(0.52)', transformOrigin: 'top left', width: '192%' }}
-                  loading="lazy"
-                  tabIndex={-1}
-                />
-              </div>
+              <p className="text-lg font-bold mb-2">{isFr ? 'Dashboard Ambassadeur' : 'Ambassador Dashboard'}</p>
+              <p className="text-sm text-muted-foreground">{isFr ? 'Suivez vos commissions et performances en temps réel' : 'Track your commissions and performance in real-time'}</p>
             </div>
           </motion.div>
         </div>
