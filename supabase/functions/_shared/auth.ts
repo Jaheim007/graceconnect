@@ -27,6 +27,11 @@ export async function requireAuth(req: Request): Promise<AuthContext | Response>
     return jsonResp({ error: 'Unauthorized' }, 401);
   }
 
+  const token = authHeader.replace('Bearer ', '').trim();
+  if (!token) {
+    return jsonResp({ error: 'Unauthorized' }, 401);
+  }
+
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -35,12 +40,14 @@ export async function requireAuth(req: Request): Promise<AuthContext | Response>
     global: { headers: { Authorization: authHeader } },
   });
 
-  const { data: { user }, error } = await userClient.auth.getUser();
-  if (error || !user) {
+  const { data, error } = await userClient.auth.getClaims(token);
+  const userId = data?.claims?.sub;
+
+  if (error || !userId) {
     return jsonResp({ error: 'Unauthorized' }, 401);
   }
 
-  return { supabaseUrl, anonKey, serviceKey, authHeader, userId: user.id };
+  return { supabaseUrl, anonKey, serviceKey, authHeader, userId };
 }
 
 export function adminClient(supabaseUrl: string, serviceKey: string) {
