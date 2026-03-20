@@ -136,7 +136,8 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
       update({ authorName: orgName });
     }
   }, [useOrgName, orgName]); // eslint-disable-line react-hooks/exhaustive-deps
-  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
+
+
 
   const handleBookLengthChange = (length: BookLength) => {
     const chapterDefaults: Record<BookLength, number> = { short: 5, medium: 8, long: 15 };
