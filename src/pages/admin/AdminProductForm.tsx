@@ -88,6 +88,7 @@ export function ProductForm() {
   const [showAI, setShowAI] = useState(false);
   
   const [regeneratingPdf, setRegeneratingPdf] = useState(false);
+  const [regeneratingCover, setRegeneratingCover] = useState(false);
   const [orderBumpProductId, setOrderBumpProductId] = useState('');
   const [orderBumpDiscount, setOrderBumpDiscount] = useState('');
   const [upsellProductIds, setUpsellProductIds] = useState<string[]>([]);
