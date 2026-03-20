@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState, useCallback } from 'react';
+
 import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingHeroManifesto } from '@/components/landing/LandingHeroManifesto';
 import { SEOHead } from '@/components/seo/SEOHead';
