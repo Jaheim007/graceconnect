@@ -155,6 +155,8 @@ export function Sidebar() {
                 <div className="mt-3 space-y-0.5">
                   {renderNavItem({ to: '/dashboard', icon: Home, label: t('sidebar.home'), desc: t('sidebar.home_desc') })}
                   {myPageItem && renderNavItem(myPageItem)}
+                  {renderNavItem({ to: '/resources', icon: Package, label: t('sidebar.purchases'), desc: t('sidebar.purchases_desc') })}
+                  {renderNavItem({ to: '/my-programs', icon: GraduationCap, label: t('sidebar.my_courses'), desc: t('sidebar.my_courses_desc') })}
                   {renderNavItem({ to: '/admin/create', icon: Plus, label: 'Viral AI Studio', desc: t('sidebar.create_desc') })}
                   {renderNavItem({ to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools', desc: t('sidebar.viral_tools_desc') })}
                   {renderNavItem({ to: '/credits', icon: Coins, label: t('sidebar.credits'), desc: t('sidebar.credits_desc') })}
