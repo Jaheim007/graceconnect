@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { Store, BarChart3, Sparkles, Users } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
-import { landingScreenshots } from './landingScreenshotRegistry';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -74,7 +73,7 @@ export function LandingPlatformShowcase() {
             initial={{ opacity: 0, x: 40, scale: 0.95 }}
             whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
           >
             <div className="rounded-2xl overflow-hidden border border-border/50 shadow-premium bg-card">
               <div className="flex items-center gap-1.5 px-4 py-2.5 bg-muted/50 border-b border-border/30">
@@ -82,15 +81,19 @@ export function LandingPlatformShowcase() {
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-400/60" />
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/60" />
                 <span className="ml-3 text-[9px] text-muted-foreground font-mono bg-background/50 rounded px-2 py-0.5">
-                  {landingScreenshots.storefront.chromeLabel}
+                  Marketplace
                 </span>
               </div>
-              <img
-                src={landingScreenshots.storefront.src}
-                alt={isFr ? "Boutique digitale SiteViral" : "SiteViral digital storefront"}
-                className="w-full h-auto"
-                loading="lazy"
-              />
+              <div className="relative w-full overflow-hidden" style={{ height: 340 }}>
+                <iframe
+                  src="/dashboard-preview"
+                  title={isFr ? "Boutique digitale SiteViral" : "SiteViral digital storefront"}
+                  className="w-full border-0 pointer-events-none"
+                  style={{ height: 700, transform: 'scale(0.52)', transformOrigin: 'top left', width: '192%' }}
+                  loading="lazy"
+                  tabIndex={-1}
+                />
+              </div>
             </div>
           </motion.div>
         </div>
@@ -101,7 +104,7 @@ export function LandingPlatformShowcase() {
             initial={{ opacity: 0, x: -40, scale: 0.95 }}
             whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
             className="order-2 lg:order-1"
           >
             <div className="rounded-2xl overflow-hidden border border-border/50 shadow-premium bg-card">
@@ -110,15 +113,19 @@ export function LandingPlatformShowcase() {
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-400/60" />
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/60" />
                 <span className="ml-3 text-[9px] text-muted-foreground font-mono bg-background/50 rounded px-2 py-0.5">
-                  {landingScreenshots.sales.chromeLabel}
+                  Sales Dashboard
                 </span>
               </div>
-              <img
-                src={landingScreenshots.sales.src}
-                alt={isFr ? "Dashboard des ventes SiteViral" : "SiteViral sales dashboard"}
-                className="w-full h-auto"
-                loading="lazy"
-              />
+              <div className="relative w-full overflow-hidden" style={{ height: 340 }}>
+                <iframe
+                  src="/dashboard-preview"
+                  title={isFr ? "Dashboard des ventes SiteViral" : "SiteViral sales dashboard"}
+                  className="w-full border-0 pointer-events-none"
+                  style={{ height: 700, transform: 'scale(0.52)', transformOrigin: 'top left', width: '192%' }}
+                  loading="lazy"
+                  tabIndex={-1}
+                />
+              </div>
             </div>
           </motion.div>
 

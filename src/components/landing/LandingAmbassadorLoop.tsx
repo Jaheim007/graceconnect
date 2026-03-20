@@ -2,7 +2,6 @@ import { motion } from 'framer-motion';
 import { Share2, Users, Banknote, ArrowRight } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
-import { landingScreenshots } from './landingScreenshotRegistry';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -87,12 +86,12 @@ export function LandingAmbassadorLoop() {
             </motion.div>
           </div>
 
-          {/* Right: Ambassador dashboard screenshot */}
+          {/* Right: Ambassador dashboard — live demo iframe */}
           <motion.div
             initial={{ opacity: 0, x: 30, scale: 0.96 }}
             whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
           >
             <div className="rounded-2xl overflow-hidden border border-border/60 shadow-elevated bg-card">
               <div className="flex items-center gap-1.5 px-4 py-2 bg-muted/60 border-b border-border/40">
@@ -100,15 +99,19 @@ export function LandingAmbassadorLoop() {
                 <span className="h-2 w-2 rounded-full bg-amber-400/70" />
                 <span className="h-2 w-2 rounded-full bg-emerald-400/70" />
                 <span className="ml-3 text-[9px] text-muted-foreground font-mono bg-background/60 rounded px-2 py-0.5">
-                  {landingScreenshots.ambassador.chromeLabel}
+                  Ambassador Dashboard
                 </span>
               </div>
-              <img
-                src={landingScreenshots.ambassador.src}
-                alt={isFr ? "Tableau de bord ambassadeur SiteViral" : "SiteViral ambassador dashboard"}
-                className="w-full h-auto"
-                loading="lazy"
-              />
+              <div className="relative w-full overflow-hidden" style={{ height: 340 }}>
+                <iframe
+                  src="/dashboard-preview"
+                  title={isFr ? "Tableau de bord ambassadeur SiteViral" : "SiteViral ambassador dashboard"}
+                  className="w-full border-0 pointer-events-none"
+                  style={{ height: 700, transform: 'scale(0.52)', transformOrigin: 'top left', width: '192%' }}
+                  loading="lazy"
+                  tabIndex={-1}
+                />
+              </div>
             </div>
           </motion.div>
         </div>

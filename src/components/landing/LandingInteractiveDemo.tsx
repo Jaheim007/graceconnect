@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PenLine, Sparkles, ArrowRight, BookOpen, Eye } from 'lucide-react';
+import { PenLine, Sparkles, ArrowRight, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
-import { landingScreenshots } from './landingScreenshotRegistry';
 
 export function LandingInteractiveDemo() {
   const [activeStep, setActiveStep] = useState(0);
@@ -17,6 +16,9 @@ export function LandingInteractiveDemo() {
     { label: t('demo.step2'), preview: t('demo.step2_preview'), icon: Sparkles },
     { label: t('demo.step3'), preview: t('demo.step3_preview'), icon: BookOpen },
   ];
+
+  // Map each step to a tab hash for the demo preview iframe
+  const stepTabs = ['dashboard', 'ai-studio', 'sales'];
 
   return (
     <section className="py-16 sm:py-20 px-4 bg-muted/20 border-y border-border">
@@ -96,12 +98,12 @@ export function LandingInteractiveDemo() {
             </AnimatePresence>
           </div>
 
-          {/* Right: Screenshot */}
+          {/* Right: Live demo iframe */}
           <motion.div
             initial={{ opacity: 0, x: 30, scale: 0.96 }}
             whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
             className="hidden lg:block"
           >
             <div className="rounded-2xl overflow-hidden border border-border/60 shadow-elevated bg-card">
@@ -110,15 +112,19 @@ export function LandingInteractiveDemo() {
                 <span className="h-2 w-2 rounded-full bg-amber-400/70" />
                 <span className="h-2 w-2 rounded-full bg-emerald-400/70" />
                 <span className="ml-3 text-[9px] text-muted-foreground font-mono bg-background/60 rounded px-2 py-0.5">
-                  {landingScreenshots.aiStudio.chromeLabel}
+                  Viral AI Studio
                 </span>
               </div>
-              <img
-                src={landingScreenshots.aiStudio.src}
-                alt={isFr ? "Studio IA SiteViral — Création de livre" : "SiteViral AI Studio — Book creation"}
-                className="w-full h-auto"
-                loading="lazy"
-              />
+              <div className="relative w-full overflow-hidden" style={{ height: 360 }}>
+                <iframe
+                  src="/dashboard-preview"
+                  title="SiteViral AI Studio preview"
+                  className="w-full border-0 pointer-events-none"
+                  style={{ height: 700, transform: 'scale(0.53)', transformOrigin: 'top left', width: '189%' }}
+                  loading="lazy"
+                  tabIndex={-1}
+                />
+              </div>
             </div>
           </motion.div>
         </div>
