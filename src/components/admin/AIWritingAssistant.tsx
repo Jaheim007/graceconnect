@@ -16,11 +16,11 @@ interface AIWritingAssistantProps {
 }
 
 const TONE_OPTIONS = [
-  { value: 'professional', label: 'Professionnel' },
-  { value: 'friendly', label: 'Amical & accessible' },
-  { value: 'inspiring', label: 'Inspirant & motivant' },
-  { value: 'persuasive', label: 'Persuasif & vendeur' },
-  { value: 'educational', label: 'Éducatif & pédagogique' },
+  { value: 'professional', label_fr: 'Professionnel', label_en: 'Professional' },
+  { value: 'friendly', label_fr: 'Amical & accessible', label_en: 'Friendly & accessible' },
+  { value: 'inspiring', label_fr: 'Inspirant & motivant', label_en: 'Inspiring & motivating' },
+  { value: 'persuasive', label_fr: 'Persuasif & vendeur', label_en: 'Persuasive & sales-driven' },
+  { value: 'educational', label_fr: 'Éducatif & pédagogique', label_en: 'Educational' },
 ];
 
 export function AIWritingAssistant({ open, onClose, onInsert, context = 'description' }: AIWritingAssistantProps) {
