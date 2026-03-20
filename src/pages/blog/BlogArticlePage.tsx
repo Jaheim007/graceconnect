@@ -86,7 +86,7 @@ export default function BlogArticlePage() {
             <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Tous les articles' : 'All articles'}
           </Link>
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="outline" className="text-[10px] px-2 py-0.5 rounded-full">{article.category}</Badge>
+            <Badge variant="outline" className="text-[10px] px-2 py-0.5 rounded-full">{getLocalizedCategory(article.category, locale)}</Badge>
             <span className="text-[10px] text-muted-foreground flex items-center gap-1">
               <Clock className="h-3 w-3" /> {article.readTime} {isFr ? 'de lecture' : 'read'}
             </span>
@@ -96,9 +96,9 @@ export default function BlogArticlePage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-2xl sm:text-4xl font-extrabold leading-tight"
           >
-            {article.title}
+            {localizedTitle}
           </motion.h1>
-          <p className="text-muted-foreground leading-relaxed">{article.description}</p>
+          <p className="text-muted-foreground leading-relaxed">{localizedDesc}</p>
           <div className="flex items-center gap-2 flex-wrap">
             {article.personas.map(p => (
               <Badge key={p} variant="secondary" className="text-[10px] px-2 py-0.5 rounded-full">{p}</Badge>
