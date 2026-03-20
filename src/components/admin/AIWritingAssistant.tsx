@@ -24,6 +24,7 @@ const TONE_OPTIONS = [
 ];
 
 export function AIWritingAssistant({ open, onClose, onInsert, context = 'description' }: AIWritingAssistantProps) {
+  const isFrUI = document.documentElement.lang === 'fr';
   const [prompt, setPrompt] = useState('');
   const [tone, setTone] = useState('professional');
   const [result, setResult] = useState('');
