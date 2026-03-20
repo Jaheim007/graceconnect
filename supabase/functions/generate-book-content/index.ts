@@ -1093,17 +1093,26 @@ AUTHENTICITY GUARDRAILS:
 - Each chapter must deliver immediately usable substance
 - No vague, lyrical, decorative chapter titles outside fiction
 - No filler paragraphs
-- Each chapter must include at least one concrete artifact (framework, step, case, reference, verse, or checklist)
-
+- Each chapter must include at least one concrete artifact (framework, step, case, reference, or checklist)
+${['prayers', 'devotional'].includes(_style) || tone === 'spiritual' ? '' : `
+⚠️ ABSOLUTE BAN — RELIGIOUS CONTENT:
+This is a SECULAR ebook. It is STRICTLY FORBIDDEN to include:
+- Bible verses, Quran verses, or any scripture
+- References to Scripture (Bible, Quran, Torah, etc.)
+- Prayers or invocations
+- Specific religious vocabulary (Holy Spirit, Allah, Lord, etc.)
+- Quotes from preachers or religious leaders
+If the topic touches spirituality, treat it UNIVERSALLY and PHILOSOPHICALLY, without sacred texts.
+`}
 HTML — PROFESSIONAL FORMATTING (like a real published book):
 - <p> for body text paragraphs (3-5 sentences each)
-- <h2> for MAJOR SECTION TITLES (e.g. "1. THE PROBLEM", "A- FIVE MAJOR REASONS")
-- <h3> for sub-sections (e.g. "1.1. Pride", "4.2. Old Testament solution")
-- <blockquote> for FULL SCRIPTURE VERSES with reference in <strong> (e.g. <blockquote><strong>Ephesians 6:12</strong>: <em>"For we wrestle not against flesh..."</em></blockquote>)
-- <ol><li> for NUMBERED lists (prayer points, steps, arguments)
+- <h2> for MAJOR SECTION TITLES
+- <h3> for sub-sections
+- <blockquote> for important quotes or key principles${['prayers', 'devotional'].includes(_style) ? ' and scripture verses with reference in <strong>' : ''}
+- <ol><li> for NUMBERED lists (steps, arguments)
 - <ul><li> for bullet lists (themes, examples)
-- <strong> for key terms, biblical references, important concepts
-- <em> for quotes, verse text in italics, emphasis
+- <strong> for key terms and important concepts
+- <em> for quotes and emphasis
 ${styleRefInstruction}
 OUTPUT FORMAT: Valid JSON only. No markdown, no code fences.`;
 
