@@ -129,12 +129,8 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     })();
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sync author name when toggle changes
-  useEffect(() => {
-    if (useOrgName && orgName && !state.authorName) {
-      update({ authorName: orgName });
-    }
-  }, [useOrgName, orgName]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
 
 
 
