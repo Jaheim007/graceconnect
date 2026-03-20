@@ -104,7 +104,7 @@ export default function BlogIndexPage() {
                     : 'bg-card border-border text-muted-foreground hover:text-foreground'
                 }`}
               >
-                {cat === 'Tous' && !isFr ? 'All' : cat}
+                {cat === 'Tous' ? (isFr ? 'Tous' : 'All') : getLocalizedCategory(cat, locale)}
               </button>
             ))}
           </div>
