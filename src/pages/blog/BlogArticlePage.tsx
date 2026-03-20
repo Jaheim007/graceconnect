@@ -151,7 +151,7 @@ export default function BlogArticlePage() {
             {nextArticle && (
               <Link to={`/blog/${nextArticle.slug}`} className={`p-4 rounded-xl border border-border bg-card hover:border-primary/30 transition-colors group text-right ${!prevArticle ? 'sm:col-start-2' : ''}`}>
                 <span className="text-[10px] text-muted-foreground">{isFr ? 'Article suivant →' : 'Next article →'}</span>
-                <p className="text-sm font-medium mt-1 group-hover:text-primary transition-colors line-clamp-2">{nextArticle.title}</p>
+                <p className="text-sm font-medium mt-1 group-hover:text-primary transition-colors line-clamp-2">{getLocalizedTitle(nextArticle, locale)}</p>
               </Link>
             )}
           </div>
