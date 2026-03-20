@@ -44,6 +44,7 @@ const PageLoader = () => (
 // ─── Lazy-loaded pages ─── //
 // Public
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
+const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
 const AuthCallbackPage = lazy(() => import("@/pages/AuthCallbackPage"));
 const DiscoverPage = lazy(() => import("@/pages/DiscoverPage"));
@@ -286,6 +287,7 @@ const App = () => (
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<LandingPage />} />
+                <Route path="/dashboard-preview" element={<DashboardPreview />} />
                 <Route path="/embed/checkout/:productId" element={<EmbedCheckoutPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />

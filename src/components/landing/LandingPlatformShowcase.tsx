@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { Store, BarChart3, Sparkles, Users } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
-import { landingScreenshots } from './landingScreenshotRegistry';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -74,23 +73,14 @@ export function LandingPlatformShowcase() {
             initial={{ opacity: 0, x: 40, scale: 0.95 }}
             whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
           >
-            <div className="rounded-2xl overflow-hidden border border-border/50 shadow-premium bg-card">
-              <div className="flex items-center gap-1.5 px-4 py-2.5 bg-muted/50 border-b border-border/30">
-                <span className="h-2.5 w-2.5 rounded-full bg-red-400/60" />
-                <span className="h-2.5 w-2.5 rounded-full bg-amber-400/60" />
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/60" />
-                <span className="ml-3 text-[9px] text-muted-foreground font-mono bg-background/50 rounded px-2 py-0.5">
-                  {landingScreenshots.storefront.chromeLabel}
-                </span>
+            <div className="rounded-2xl overflow-hidden border border-border/50 shadow-premium bg-card p-8 sm:p-12 text-center">
+              <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Store className="h-8 w-8 text-primary" />
               </div>
-              <img
-                src={landingScreenshots.storefront.src}
-                alt={isFr ? "Boutique digitale SiteViral" : "SiteViral digital storefront"}
-                className="w-full h-auto"
-                loading="lazy"
-              />
+              <p className="text-lg font-bold mb-2">{isFr ? 'Votre Marketplace' : 'Your Marketplace'}</p>
+              <p className="text-sm text-muted-foreground">{isFr ? 'Une vitrine professionnelle prête en quelques clics' : 'A professional storefront ready in clicks'}</p>
             </div>
           </motion.div>
         </div>
@@ -101,24 +91,15 @@ export function LandingPlatformShowcase() {
             initial={{ opacity: 0, x: -40, scale: 0.95 }}
             whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
             className="order-2 lg:order-1"
           >
-            <div className="rounded-2xl overflow-hidden border border-border/50 shadow-premium bg-card">
-              <div className="flex items-center gap-1.5 px-4 py-2.5 bg-muted/50 border-b border-border/30">
-                <span className="h-2.5 w-2.5 rounded-full bg-red-400/60" />
-                <span className="h-2.5 w-2.5 rounded-full bg-amber-400/60" />
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/60" />
-                <span className="ml-3 text-[9px] text-muted-foreground font-mono bg-background/50 rounded px-2 py-0.5">
-                  {landingScreenshots.sales.chromeLabel}
-                </span>
+            <div className="rounded-2xl overflow-hidden border border-border/50 shadow-premium bg-card p-8 sm:p-12 text-center">
+              <div className="h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="h-8 w-8 text-accent" />
               </div>
-              <img
-                src={landingScreenshots.sales.src}
-                alt={isFr ? "Dashboard des ventes SiteViral" : "SiteViral sales dashboard"}
-                className="w-full h-auto"
-                loading="lazy"
-              />
+              <p className="text-lg font-bold mb-2">{isFr ? 'Tableau de bord' : 'Sales Dashboard'}</p>
+              <p className="text-sm text-muted-foreground">{isFr ? 'Suivez vos ventes et performances en temps réel' : 'Track your sales and performance in real-time'}</p>
             </div>
           </motion.div>
 

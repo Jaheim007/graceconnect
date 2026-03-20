@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PenLine, Sparkles, ArrowRight, BookOpen, Eye } from 'lucide-react';
+import { PenLine, Sparkles, ArrowRight, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
-import { landingScreenshots } from './landingScreenshotRegistry';
 
 export function LandingInteractiveDemo() {
   const [activeStep, setActiveStep] = useState(0);
@@ -17,6 +16,9 @@ export function LandingInteractiveDemo() {
     { label: t('demo.step2'), preview: t('demo.step2_preview'), icon: Sparkles },
     { label: t('demo.step3'), preview: t('demo.step3_preview'), icon: BookOpen },
   ];
+
+  // Map each step to a tab hash for the demo preview iframe
+  const stepTabs = ['dashboard', 'ai-studio', 'sales'];
 
   return (
     <section className="py-16 sm:py-20 px-4 bg-muted/20 border-y border-border">
@@ -96,29 +98,20 @@ export function LandingInteractiveDemo() {
             </AnimatePresence>
           </div>
 
-          {/* Right: Screenshot */}
+          {/* Right: Visual placeholder */}
           <motion.div
             initial={{ opacity: 0, x: 30, scale: 0.96 }}
             whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
             className="hidden lg:block"
           >
-            <div className="rounded-2xl overflow-hidden border border-border/60 shadow-elevated bg-card">
-              <div className="flex items-center gap-1.5 px-4 py-2 bg-muted/60 border-b border-border/40">
-                <span className="h-2 w-2 rounded-full bg-red-400/70" />
-                <span className="h-2 w-2 rounded-full bg-amber-400/70" />
-                <span className="h-2 w-2 rounded-full bg-emerald-400/70" />
-                <span className="ml-3 text-[9px] text-muted-foreground font-mono bg-background/60 rounded px-2 py-0.5">
-                  {landingScreenshots.aiStudio.chromeLabel}
-                </span>
+            <div className="rounded-2xl overflow-hidden border border-border/60 shadow-elevated bg-card p-8 sm:p-12 text-center">
+              <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="h-8 w-8 text-primary" />
               </div>
-              <img
-                src={landingScreenshots.aiStudio.src}
-                alt={isFr ? "Studio IA SiteViral — Création de livre" : "SiteViral AI Studio — Book creation"}
-                className="w-full h-auto"
-                loading="lazy"
-              />
+              <p className="text-lg font-bold mb-2">{isFr ? 'Studio IA Viral' : 'Viral AI Studio'}</p>
+              <p className="text-sm text-muted-foreground">{isFr ? 'Créez votre livre en quelques clics avec l\'intelligence artificielle' : 'Create your book in a few clicks with artificial intelligence'}</p>
             </div>
           </motion.div>
         </div>
