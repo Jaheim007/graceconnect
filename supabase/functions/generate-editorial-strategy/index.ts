@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
           lastRaw = await aiGenerateText({
             geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
             system: prompts.system, prompt: prompts.user(params),
-            maxOutputTokens: 2048, jsonMode: true,
+            maxOutputTokens: 4096, jsonMode: true,
           });
           strategy = extractJson(lastRaw);
           if (strategy) break;
