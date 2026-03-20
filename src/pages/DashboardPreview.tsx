@@ -2,23 +2,26 @@ import { motion } from 'framer-motion';
 import {
   TrendingUp, ShoppingBag, Users, Package, ArrowUpRight,
   Sparkles, BookOpen, Palette, Share2, BarChart3, Zap,
-  CheckCircle2, Clock, FileText, PenLine
+  CheckCircle2, Clock, FileText, PenLine, Shuffle
 } from 'lucide-react';
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { DashboardSection } from '@/components/ui/DashboardSection';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import {
-  DEMO_METRICS, DEMO_REVENUE_CHART, DEMO_SALES,
-  DEMO_AI_PROJECTS, DEMO_AMBASSADOR, DEMO_VIRAL_TOOLS
-} from '@/lib/demoData';
+import { generateDemoData, type DemoData } from '@/lib/demoDataGenerator';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
 
-const fmt = (n: number, currency = 'XOF') => {
-  if (currency === 'USD') return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', maximumFractionDigits: 0 }).format(n);
+const fmtCurrency = (n: number, currency = 'XOF') => {
+  try {
+    return new Intl.NumberFormat(currency === 'USD' || currency === 'GBP' || currency === 'CAD' ? 'en-US' : 'fr-FR', {
+      style: 'currency', currency, maximumFractionDigits: 0,
+    }).format(n);
+  } catch {
+    return `${n.toLocaleString()} ${currency}`;
+  }
 };
 
 const fadeUp = (delay = 0) => ({
@@ -30,7 +33,6 @@ const fadeUp = (delay = 0) => ({
 const typeIcon: Record<string, typeof BookOpen> = {
   ebook: BookOpen,
   course: Sparkles,
-  template: FileText,
   coloring_book: Palette,
 };
 
@@ -44,6 +46,13 @@ type Tab = 'dashboard' | 'sales' | 'ai-studio' | 'viral-tools';
 
 export default function DashboardPreview() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+  const [data, setData] = useState<DemoData>(() => generateDemoData());
+  const [shuffleKey, setShuffleKey] = useState(0);
+
+  const randomize = useCallback(() => {
+    setData(generateDemoData());
+    setShuffleKey(k => k + 1);
+  }, []);
 
   const tabs: { key: Tab; label: string; icon: typeof BarChart3 }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -65,12 +74,22 @@ export default function DashboardPreview() {
               <span className="font-bold text-sm">SiteViral</span>
               <span className="text-[9px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full">Creator Pro</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              {/* Randomize button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={randomize}
+                className="gap-2 text-xs font-bold border-primary/30 hover:bg-primary/10 hover:text-primary transition-all active:scale-95"
+              >
+                <Shuffle className="h-3.5 w-3.5" />
+                Randomize
+              </Button>
               <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-xs font-bold text-primary">GA</span>
+                <span className="text-xs font-bold text-primary">{data.orgName.slice(0, 2).toUpperCase()}</span>
               </div>
               <div className="hidden sm:block">
-                <p className="text-xs font-semibold">Growth Academy</p>
+                <p className="text-xs font-semibold">{data.orgName}</p>
                 <p className="text-[10px] text-muted-foreground">creator@example.com</p>
               </div>
             </div>
@@ -101,13 +120,12 @@ export default function DashboardPreview() {
         </div>
       </div>
 
-      <div className="container max-w-6xl px-4 py-6 space-y-6">
-        {activeTab === 'dashboard' && <DashboardTab />}
-        {activeTab === 'sales' && <SalesTab />}
-        {activeTab === 'ai-studio' && <AIStudioTab />}
-        {activeTab === 'viral-tools' && <ViralToolsTab />}
+      <div className="container max-w-6xl px-4 py-6 space-y-6" key={shuffleKey}>
+        {activeTab === 'dashboard' && <DashboardTab data={data} />}
+        {activeTab === 'sales' && <SalesTab data={data} />}
+        {activeTab === 'ai-studio' && <AIStudioTab data={data} />}
+        {activeTab === 'viral-tools' && <ViralToolsTab data={data} />}
 
-        {/* Discreet disclaimer */}
         <p className="text-[9px] text-muted-foreground/40 text-center pt-4">
           Demo data for illustration purposes
         </p>
@@ -117,12 +135,15 @@ export default function DashboardPreview() {
 }
 
 /* ═══════════════════════ DASHBOARD TAB ═══════════════════════ */
-function DashboardTab() {
+function DashboardTab({ data }: { data: DemoData }) {
+  const { metrics, revenueChart, sales, ambassador, orgCurrency } = data;
+  const cur = orgCurrency.code;
+
   const stats = [
-    { label: 'Total Revenue', value: fmt(DEMO_METRICS.totalRevenue), growth: `+${DEMO_METRICS.revenueGrowth}%`, icon: TrendingUp, color: 'primary' as const },
-    { label: 'Transactions', value: DEMO_METRICS.totalTransactions.toLocaleString(), growth: `+${DEMO_METRICS.transactionGrowth}%`, icon: ShoppingBag, color: 'emerald' as const },
-    { label: 'Customers', value: DEMO_METRICS.totalCustomers.toLocaleString(), growth: `+${DEMO_METRICS.customerGrowth}%`, icon: Users, color: 'blue' as const },
-    { label: 'Products', value: DEMO_METRICS.totalProducts.toString(), growth: '+12%', icon: Package, color: 'amber' as const },
+    { label: 'Total Revenue', value: fmtCurrency(metrics.totalRevenue, cur), growth: `+${metrics.revenueGrowth}%`, icon: TrendingUp, color: 'primary' as const },
+    { label: 'Transactions', value: metrics.totalTransactions.toLocaleString(), growth: `+${metrics.transactionGrowth}%`, icon: ShoppingBag, color: 'emerald' as const },
+    { label: 'Customers', value: metrics.totalCustomers.toLocaleString(), growth: `+${metrics.customerGrowth}%`, icon: Users, color: 'blue' as const },
+    { label: 'Products', value: metrics.totalProducts.toString(), growth: '+12%', icon: Package, color: 'amber' as const },
   ];
 
   const colorMap = {
@@ -134,14 +155,11 @@ function DashboardTab() {
 
   return (
     <>
-      {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {stats.map((s, i) => {
           const c = colorMap[s.color];
           return (
-            <motion.div key={s.label} {...fadeUp(i * 0.08)}
-              className={cn('rounded-2xl border p-4 sm:p-5', c.border)}
-            >
+            <motion.div key={s.label} {...fadeUp(i * 0.08)} className={cn('rounded-2xl border p-4 sm:p-5', c.border)}>
               <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center mb-3', c.bg)}>
                 <s.icon className={cn('h-4 w-4', c.text)} />
               </div>
@@ -164,17 +182,17 @@ function DashboardTab() {
             <div className="flex items-center justify-between mb-1">
               <div>
                 <h3 className="text-sm font-bold">Revenue Overview</h3>
-                <p className="text-[10px] text-muted-foreground">Last 12 months performance</p>
+                <p className="text-[10px] text-muted-foreground">Last 12 months · {cur}</p>
               </div>
               <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 px-2 py-1 rounded-full">
                 <ArrowUpRight className="h-3 w-3" />
-                <span className="text-[10px] font-bold">+{DEMO_METRICS.growthPercent}%</span>
+                <span className="text-[10px] font-bold">+{metrics.growthPercent}%</span>
               </div>
             </div>
           </div>
           <div className="h-[220px] sm:h-[260px] px-2">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={DEMO_REVENUE_CHART} margin={{ top: 20, right: 20, left: 0, bottom: 0 }}>
+              <AreaChart data={revenueChart} margin={{ top: 20, right: 20, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.2} />
@@ -182,10 +200,16 @@ function DashboardTab() {
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="month" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1_000_000).toFixed(1)}M`} />
+                <YAxis tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false}
+                  tickFormatter={(v) => {
+                    if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+                    if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K`;
+                    return v.toString();
+                  }}
+                />
                 <Tooltip
                   contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12, fontSize: 11 }}
-                  formatter={(value: number) => [fmt(value), 'Revenue']}
+                  formatter={(value: number) => [fmtCurrency(value, cur), 'Revenue']}
                 />
                 <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#revenueGradient)" />
               </AreaChart>
@@ -198,17 +222,17 @@ function DashboardTab() {
       <motion.div {...fadeUp(0.4)}>
         <DashboardSection title="Recent Sales" icon={ShoppingBag}>
           <PremiumCard variant="default" noPadding className="divide-y divide-border">
-            {DEMO_SALES.slice(0, 5).map((sale) => (
+            {sales.slice(0, 5).map((sale) => (
               <div key={sale.id} className="flex items-center gap-3 p-3.5">
                 <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
                   <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold truncate">{sale.product}</p>
-                  <p className="text-[10px] text-muted-foreground">{sale.buyer} · {sale.org}</p>
+                  <p className="text-[10px] text-muted-foreground">{sale.buyer} · {sale.buyerFlag} {sale.buyerCity}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-xs font-bold text-emerald-600">{fmt(sale.price, sale.currency)}</p>
+                  <p className="text-xs font-bold text-emerald-600">{fmtCurrency(sale.price, sale.currency)}</p>
                   <p className="text-[9px] text-muted-foreground">{new Date(sale.date).toLocaleDateString('fr-FR')}</p>
                 </div>
               </div>
@@ -217,27 +241,25 @@ function DashboardTab() {
         </DashboardSection>
       </motion.div>
 
-      {/* Ambassador Stats */}
+      {/* Ambassador */}
       <motion.div {...fadeUp(0.5)}>
         <DashboardSection title="Ambassador Program" icon={Share2}>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: 'Total Earned', value: fmt(DEMO_AMBASSADOR.totalEarned), color: 'text-emerald-500' },
-              { label: 'Clicks', value: DEMO_AMBASSADOR.totalClicks.toLocaleString(), color: 'text-blue-500' },
-              { label: 'Conversions', value: DEMO_AMBASSADOR.totalConversions.toLocaleString(), color: 'text-primary' },
-              { label: 'Conv. Rate', value: `${DEMO_AMBASSADOR.conversionRate}%`, color: 'text-amber-500' },
+              { label: 'Total Earned', value: fmtCurrency(ambassador.totalEarned, ambassador.currency), color: 'text-emerald-500' },
+              { label: 'Clicks', value: ambassador.totalClicks.toLocaleString(), color: 'text-blue-500' },
+              { label: 'Conversions', value: ambassador.totalConversions.toLocaleString(), color: 'text-primary' },
+              { label: 'Conv. Rate', value: `${ambassador.conversionRate}%`, color: 'text-amber-500' },
             ].map((s, i) => (
-              <motion.div key={s.label} {...fadeUp(0.5 + i * 0.06)}
-                className="text-center p-3 rounded-xl border border-border bg-card"
-              >
+              <motion.div key={s.label} {...fadeUp(0.5 + i * 0.06)} className="text-center p-3 rounded-xl border border-border bg-card">
                 <p className={cn('text-lg font-extrabold', s.color)}>{s.value}</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">{s.label}</p>
               </motion.div>
             ))}
           </div>
           <PremiumCard variant="default" noPadding className="mt-3 divide-y divide-border">
-            {DEMO_AMBASSADOR.topAmbassadors.slice(0, 3).map((amb, i) => (
-              <div key={amb.name} className="flex items-center gap-3 p-3.5">
+            {ambassador.topAmbassadors.slice(0, 3).map((amb, i) => (
+              <div key={amb.name + i} className="flex items-center gap-3 p-3.5">
                 <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
                   {i + 1}
                 </div>
@@ -245,7 +267,7 @@ function DashboardTab() {
                   <p className="text-xs font-semibold">{amb.name}</p>
                   <p className="text-[10px] text-muted-foreground">{amb.sales} sales</p>
                 </div>
-                <span className="text-xs font-bold text-emerald-600">{fmt(amb.earned)}</span>
+                <span className="text-xs font-bold text-emerald-600">{fmtCurrency(amb.earned, ambassador.currency)}</span>
               </div>
             ))}
           </PremiumCard>
@@ -256,19 +278,21 @@ function DashboardTab() {
 }
 
 /* ═══════════════════════ SALES TAB ═══════════════════════ */
-function SalesTab() {
+function SalesTab({ data }: { data: DemoData }) {
+  const { metrics, sales, orgCurrency } = data;
+  const cur = orgCurrency.code;
+  const thisMonth = data.revenueChart[data.revenueChart.length - 1]?.revenue ?? 0;
+  const avgOrder = metrics.totalTransactions > 0 ? Math.round(metrics.totalRevenue / metrics.totalTransactions) : 0;
+
   return (
     <>
-      {/* Summary bar */}
       <motion.div {...fadeUp(0)} className="grid grid-cols-3 gap-3">
         {[
-          { label: 'Total Sales', value: fmt(DEMO_METRICS.totalRevenue), sub: `${DEMO_METRICS.totalTransactions} transactions` },
-          { label: 'This Month', value: fmt(2_130_000), sub: '+32% vs last month' },
-          { label: 'Avg. Order', value: fmt(6_950), sub: 'per transaction' },
+          { label: 'Total Sales', value: fmtCurrency(metrics.totalRevenue, cur), sub: `${metrics.totalTransactions} transactions` },
+          { label: 'This Month', value: fmtCurrency(thisMonth, cur), sub: `+${metrics.revenueGrowth}% vs last month` },
+          { label: 'Avg. Order', value: fmtCurrency(avgOrder, cur), sub: 'per transaction' },
         ].map((s, i) => (
-          <motion.div key={s.label} {...fadeUp(i * 0.08)}
-            className="rounded-2xl border border-border p-4 bg-card"
-          >
+          <motion.div key={s.label} {...fadeUp(i * 0.08)} className="rounded-2xl border border-border p-4 bg-card">
             <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">{s.label}</p>
             <p className="text-lg sm:text-xl font-bold mt-1 tracking-tight">{s.value}</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">{s.sub}</p>
@@ -276,11 +300,9 @@ function SalesTab() {
         ))}
       </motion.div>
 
-      {/* Transaction list */}
       <motion.div {...fadeUp(0.2)}>
         <DashboardSection title="All Transactions" icon={ShoppingBag}>
           <PremiumCard variant="default" noPadding className="overflow-hidden">
-            {/* Table header */}
             <div className="grid grid-cols-12 gap-2 px-4 py-2.5 bg-muted/40 border-b border-border text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
               <span className="col-span-4">Product</span>
               <span className="col-span-2">Buyer</span>
@@ -288,7 +310,7 @@ function SalesTab() {
               <span className="col-span-2 text-right">Amount</span>
               <span className="col-span-2 text-right">Date</span>
             </div>
-            {DEMO_SALES.map((sale) => {
+            {sales.map((sale) => {
               const Icon = typeIcon[sale.type] || BookOpen;
               return (
                 <div key={sale.id} className="grid grid-cols-12 gap-2 px-4 py-3 border-b border-border/50 items-center hover:bg-muted/20 transition-colors">
@@ -298,17 +320,18 @@ function SalesTab() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs font-semibold truncate">{sale.product}</p>
-                      <p className="text-[9px] text-muted-foreground capitalize">{sale.type}</p>
+                      <p className="text-[9px] text-muted-foreground capitalize">{sale.typeLabel}</p>
                     </div>
                   </div>
                   <div className="col-span-2">
                     <p className="text-xs truncate">{sale.buyer}</p>
+                    <p className="text-[9px] text-muted-foreground">{sale.buyerFlag} {sale.buyerCity}</p>
                   </div>
                   <div className="col-span-2">
                     <p className="text-[10px] text-muted-foreground truncate">{sale.org}</p>
                   </div>
                   <div className="col-span-2 text-right">
-                    <span className="text-xs font-bold text-emerald-600">{fmt(sale.price, sale.currency)}</span>
+                    <span className="text-xs font-bold text-emerald-600">{fmtCurrency(sale.price, sale.currency)}</span>
                   </div>
                   <div className="col-span-2 text-right">
                     <div className="flex items-center justify-end gap-1.5">
@@ -327,20 +350,22 @@ function SalesTab() {
 }
 
 /* ═══════════════════════ AI STUDIO TAB ═══════════════════════ */
-function AIStudioTab() {
+function AIStudioTab({ data }: { data: DemoData }) {
+  const { aiProjects } = data;
+  const published = aiProjects.filter(p => p.status === 'published').length;
+  const totalPages = aiProjects.reduce((a, p) => a + p.pages, 0);
+  const inProgress = aiProjects.filter(p => p.status !== 'published').length;
+
   return (
     <>
-      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Projects', value: DEMO_AI_PROJECTS.length.toString(), icon: FileText, color: 'text-primary bg-primary/8' },
-          { label: 'Published', value: DEMO_AI_PROJECTS.filter(p => p.status === 'published').length.toString(), icon: CheckCircle2, color: 'text-emerald-500 bg-emerald-500/8' },
-          { label: 'Total Pages', value: DEMO_AI_PROJECTS.reduce((a, p) => a + p.pages, 0).toString(), icon: BookOpen, color: 'text-blue-500 bg-blue-500/8' },
-          { label: 'In Progress', value: DEMO_AI_PROJECTS.filter(p => p.status !== 'published').length.toString(), icon: Clock, color: 'text-amber-500 bg-amber-500/8' },
+          { label: 'Projects', value: aiProjects.length.toString(), icon: FileText, color: 'text-primary bg-primary/8' },
+          { label: 'Published', value: published.toString(), icon: CheckCircle2, color: 'text-emerald-500 bg-emerald-500/8' },
+          { label: 'Total Pages', value: totalPages.toString(), icon: BookOpen, color: 'text-blue-500 bg-blue-500/8' },
+          { label: 'In Progress', value: inProgress.toString(), icon: Clock, color: 'text-amber-500 bg-amber-500/8' },
         ].map((s, i) => (
-          <motion.div key={s.label} {...fadeUp(i * 0.06)}
-            className="flex items-center gap-3 p-4 rounded-2xl border border-border bg-card"
-          >
+          <motion.div key={s.label} {...fadeUp(i * 0.06)} className="flex items-center gap-3 p-4 rounded-2xl border border-border bg-card">
             <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', s.color.split(' ')[1])}>
               <s.icon className={cn('h-5 w-5', s.color.split(' ')[0])} />
             </div>
@@ -352,11 +377,10 @@ function AIStudioTab() {
         ))}
       </div>
 
-      {/* Project list */}
       <motion.div {...fadeUp(0.2)}>
         <DashboardSection title="My Projects" icon={PenLine}>
           <div className="space-y-2">
-            {DEMO_AI_PROJECTS.map((proj, i) => {
+            {aiProjects.map((proj, i) => {
               const Icon = typeIcon[proj.type] || BookOpen;
               return (
                 <motion.div key={proj.id} {...fadeUp(0.2 + i * 0.06)}>
@@ -375,10 +399,10 @@ function AIStudioTab() {
                         <p className="text-[10px] text-muted-foreground mt-0.5">
                           {proj.pages > 0 ? `${proj.pages} pages · ` : ''}{proj.type.replace('_', ' ')} · Created {new Date(proj.createdAt).toLocaleDateString('fr-FR')}
                         </p>
-                        {proj.status === 'generating' && (
+                        {proj.status === 'generating' && proj.progress && (
                           <div className="mt-2">
-                            <Progress value={63} className="h-1.5" />
-                            <p className="text-[9px] text-muted-foreground mt-1">Generating... 63%</p>
+                            <Progress value={proj.progress} className="h-1.5" />
+                            <p className="text-[9px] text-muted-foreground mt-1">Generating... {proj.progress}%</p>
                           </div>
                         )}
                       </div>
@@ -395,15 +419,17 @@ function AIStudioTab() {
 }
 
 /* ═══════════════════════ VIRAL TOOLS TAB ═══════════════════════ */
-function ViralToolsTab() {
+function ViralToolsTab({ data }: { data: DemoData }) {
+  const { viralTools } = data;
+
   return (
     <>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Total Shares', value: DEMO_VIRAL_TOOLS.totalShares.toLocaleString(), icon: Share2, color: 'primary' },
-          { label: 'Referral Links', value: DEMO_VIRAL_TOOLS.referralLinks.toString(), icon: Zap, color: 'emerald' },
-          { label: 'Emails Sent', value: DEMO_VIRAL_TOOLS.emailsSent.toLocaleString(), icon: Users, color: 'blue' },
-          { label: 'Landing Pages', value: DEMO_VIRAL_TOOLS.landingPages.toString(), icon: FileText, color: 'amber' },
+          { label: 'Total Shares', value: viralTools.totalShares.toLocaleString(), icon: Share2, color: 'primary' },
+          { label: 'Referral Links', value: viralTools.referralLinks.toString(), icon: Zap, color: 'emerald' },
+          { label: 'Emails Sent', value: viralTools.emailsSent.toLocaleString(), icon: Users, color: 'blue' },
+          { label: 'Landing Pages', value: viralTools.landingPages.toString(), icon: FileText, color: 'amber' },
         ].map((s, i) => {
           const colorMap: Record<string, { bg: string; text: string; border: string }> = {
             primary: { bg: 'bg-primary/8', text: 'text-primary', border: 'border-primary/20' },
@@ -413,9 +439,7 @@ function ViralToolsTab() {
           };
           const c = colorMap[s.color];
           return (
-            <motion.div key={s.label} {...fadeUp(i * 0.06)}
-              className={cn('rounded-2xl border p-4', c.border)}
-            >
+            <motion.div key={s.label} {...fadeUp(i * 0.06)} className={cn('rounded-2xl border p-4', c.border)}>
               <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center mb-3', c.bg)}>
                 <s.icon className={cn('h-4 w-4', c.text)} />
               </div>
@@ -426,16 +450,10 @@ function ViralToolsTab() {
         })}
       </div>
 
-      {/* Top performing links */}
       <motion.div {...fadeUp(0.2)}>
         <DashboardSection title="Top Performing Links" icon={Zap}>
           <PremiumCard variant="default" noPadding className="divide-y divide-border">
-            {[
-              { name: 'Les 7 Clés du Succès Digital', clicks: 3_240, conversions: 187, rate: '5.8%' },
-              { name: 'Masterclass Marketing', clicks: 1_890, conversions: 98, rate: '5.2%' },
-              { name: 'Template Business Plan', clicks: 1_450, conversions: 62, rate: '4.3%' },
-              { name: 'Guide Entrepreneuriat', clicks: 980, conversions: 34, rate: '3.5%' },
-            ].map((link) => (
+            {viralTools.topLinks.map((link) => (
               <div key={link.name} className="flex items-center gap-3 p-3.5">
                 <div className="h-8 w-8 rounded-lg bg-primary/8 flex items-center justify-center shrink-0">
                   <Zap className="h-4 w-4 text-primary" />
