@@ -741,12 +741,14 @@ export default function ProductDetailPage() {
                 averageRating={(product as any).average_rating || 0}
               />
 
-              {/* Urgency */}
-              <UrgencyWidget
-                saleEndsAt={(product as any).sale_ends_at}
-                salesCount={product.sales_count || 0}
-                isFree={product.is_free || false}
-              />
+              {/* Urgency — hidden when PWYW is active (no flash sale applies) */}
+              {!(product as any).is_pwyw && (
+                <UrgencyWidget
+                  saleEndsAt={(product as any).sale_ends_at}
+                  salesCount={product.sales_count || 0}
+                  isFree={product.is_free || false}
+                />
+              )}
 
               {/* Content size */}
               <ContentSizeBadge
