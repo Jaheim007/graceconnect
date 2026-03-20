@@ -98,14 +98,14 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
           </div>
 
           <div className="space-y-2">
-            <Label>Ton souhaité</Label>
+            <Label>{isFrUI ? 'Ton souhaité' : 'Desired tone'}</Label>
             <Select value={tone} onValueChange={setTone}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {TONE_OPTIONS.map((t) => (
-                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  <SelectItem key={t.value} value={t.value}>{isFrUI ? t.label_fr : t.label_en}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
