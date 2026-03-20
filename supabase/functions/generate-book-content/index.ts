@@ -967,7 +967,7 @@ Deno.serve(async (req) => {
         : Math.max(MIN_CHAPTERS, Math.min(MAX_CHAPTERS, Math.round(pages / 5)));
     const chapterWordTarget = singleChapter
       ? '450-700'
-      : chapterCount >= 6 ? '320-520' : '420-650';
+      : chapterCount >= 8 ? '250-400' : chapterCount >= 6 ? '320-520' : '420-650';
     const subtitleLine = subtitle ? (lang === 'fr' ? `\nSous-titre : "${subtitle}"` : `\nSubtitle: "${subtitle}"`) : '';
     const authorLine = authorName ? (lang === 'fr' ? `\nAuteur : ${authorName}` : `\nAuthor: ${authorName}`) : '';
     const keywordsLine = Array.isArray(keywords) && keywords.length > 0
@@ -1203,10 +1203,10 @@ Return ONLY valid JSON:
 REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL book, not AI text.`;
     }
 
-    const requestTimeoutMs = singleChapter ? 50_000 : 85_000;
+    const requestTimeoutMs = singleChapter ? 50_000 : 95_000;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
-    const maxTokens = singleChapter ? 3200 : 16000;
+    const maxTokens = singleChapter ? 3200 : (chapterCount >= 8 ? 24000 : 16000);
 
     // Credit debit (will be refunded on AI failure)
     const creditActionKey = singleChapter ? 'generate_chapter' : 'generate_book';
