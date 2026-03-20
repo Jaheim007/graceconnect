@@ -384,13 +384,7 @@ export default function WriteWizard() {
           .maybeSingle();
         if (!membership?.organization_id) return;
 
-        // Fetch org currency for pricing step
-        const { data: orgData } = await supabase
-          .from('organizations')
-          .select('currency')
-          .eq('id', membership.organization_id)
-          .maybeSingle();
-        if (orgData?.currency) setOrgCurrency(orgData.currency);
+        // Currency now comes from useOrg() context
 
         const { data: projects } = await supabase
           .from('ai_content_projects')
