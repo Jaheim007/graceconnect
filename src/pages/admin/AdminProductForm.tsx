@@ -29,7 +29,7 @@ import { EmbedSnippetGen } from '@/components/products/EmbedSnippetGen';
 import { ContentTemplateSelector } from '@/components/admin/ContentTemplateSelector';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
-import { AIDescriptionButton } from '@/components/admin/AIDescriptionButton';
+// AIDescriptionButton removed — use "Aide IA" in the RichTextEditor toolbar instead
 import { SocialSnippetsViewer } from '@/components/products/SocialSnippetsViewer';
 import { SuggestedPriceHint } from '@/components/admin/SuggestedPriceHint';
 import { ContextTip } from '@/components/admin/ContextualTooltips';
@@ -395,14 +395,7 @@ export function ProductForm() {
             placeholder={isFr ? 'Décrivez votre produit en détail...' : 'Describe your product in detail...'}
             onAIAssist={() => setShowAI(true)}
           />
-          <AIDescriptionButton
-            title={watch('title') || ''}
-            productType={watch('product_type') || 'pdf'}
-            price={watch('price') || 0}
-            currency={currentOrg?.currency || 'XOF'}
-            existingDescription={watch('description') || ''}
-            onGenerated={(html) => setValue('description', html, { shouldDirty: true })}
-          />
+          {/* AI description via "Aide IA" button in toolbar above */}
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">

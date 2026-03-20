@@ -366,6 +366,7 @@ export default function WriteWizard() {
   const STEP_LABELS = isFr ? STEP_LABELS_FR : STEP_LABELS_EN;
   const { toast } = useToast();
   const [dbDrafts, setDbDrafts] = useState<SavedWriteDraftSummary[]>([]);
+  const [orgCurrency, setOrgCurrency] = useState<string | null>(null);
 
   // Load DB-backed projects (previously generated books)
   useEffect(() => {
@@ -380,6 +381,14 @@ export default function WriteWizard() {
           .limit(1)
           .maybeSingle();
         if (!membership?.organization_id) return;
+
+        // Fetch org currency for pricing step
+        const { data: orgData } = await supabase
+          .from('organizations')
+          .select('currency')
+          .eq('id', membership.organization_id)
+          .maybeSingle();
+        if (orgData?.currency) setOrgCurrency(orgData.currency);
 
         const { data: projects } = await supabase
           .from('ai_content_projects')
@@ -992,7 +1001,7 @@ export default function WriteWizard() {
             {step === 4 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
             {step === ILLUSTRATIONS_STEP && <StepIllustrations state={state} update={update} onNext={next} onBack={back} />}
             {step === COVER_STEP && <StepCover state={state} update={update} onNext={next} onBack={back} />}
-            {step === PRICING_STEP && <StepPricing state={state} update={update} onNext={next} onBack={back} />}
+            {step === PRICING_STEP && <StepPricing state={state} update={update} onNext={next} onBack={back} orgCurrency={orgCurrency} />}
             {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={saveCurrentDraftNow} saving={publishing} />}
             {step === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
             {step === CELEBRATION_STEP && <StepCelebration state={state} onWriteAnother={handleCreateNewDraft} />}
