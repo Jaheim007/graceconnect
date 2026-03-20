@@ -366,6 +366,7 @@ export default function WriteWizard() {
   const STEP_LABELS = isFr ? STEP_LABELS_FR : STEP_LABELS_EN;
   const { toast } = useToast();
   const [dbDrafts, setDbDrafts] = useState<SavedWriteDraftSummary[]>([]);
+  const [orgCurrency, setOrgCurrency] = useState<string | null>(null);
 
   // Load DB-backed projects (previously generated books)
   useEffect(() => {
