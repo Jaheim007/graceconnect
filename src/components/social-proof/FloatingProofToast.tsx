@@ -87,6 +87,7 @@ export function FloatingProofToast() {
   });
 
   const isSuperadmin = location.pathname.startsWith('/superadmin');
+  const isLandingPage = location.pathname === '/';
   const MAX_PER_SESSION = 8;
 
   const handleDismiss = useCallback(() => {
@@ -96,16 +97,16 @@ export function FloatingProofToast() {
   }, []);
 
   const showNext = useCallback(() => {
-    if (isSuperadmin || dismissed || sessionCount >= MAX_PER_SESSION) return;
+    if (isSuperadmin || isLandingPage || dismissed || sessionCount >= MAX_PER_SESSION) return;
     const notif = generateNotification(isFr);
     setNotification(notif);
     setVisible(true);
     setSessionCount(c => c + 1);
     setTimeout(() => setVisible(false), 5000);
-  }, [isSuperadmin, isFr, dismissed, sessionCount]);
+  }, [isSuperadmin, isLandingPage, isFr, dismissed, sessionCount]);
 
   useEffect(() => {
-    if (isSuperadmin || dismissed) return;
+    if (isSuperadmin || isLandingPage || dismissed) return;
     // Random initial delay 5-12s, then every 25-45s
     const initialDelay = setTimeout(() => showNext(), 5000 + Math.random() * 7000);
     const interval = setInterval(() => showNext(), 25000 + Math.random() * 20000);
@@ -113,9 +114,9 @@ export function FloatingProofToast() {
       clearTimeout(initialDelay);
       clearInterval(interval);
     };
-  }, [showNext, isSuperadmin, dismissed]);
+  }, [showNext, isSuperadmin, isLandingPage, dismissed]);
 
-  if (isSuperadmin || dismissed) return null;
+  if (isSuperadmin || isLandingPage || dismissed) return null;
 
   return (
     <div className="fixed bottom-20 lg:bottom-4 left-4 z-50 max-w-xs sm:max-w-sm pointer-events-none">

@@ -1,8 +1,7 @@
 import { motion } from 'framer-motion';
 import { Store, BarChart3, Sparkles, Users } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
-import storefrontScreenshot from '@/assets/screenshots/storefront-real.png';
-import dashboardScreenshot from '@/assets/screenshots/sales-real-tweaked.png';
+import { landingScreenshots } from './landingScreenshotRegistry';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -83,11 +82,11 @@ export function LandingPlatformShowcase() {
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-400/60" />
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/60" />
                 <span className="ml-3 text-[9px] text-muted-foreground font-mono bg-background/50 rounded px-2 py-0.5">
-                  siteviral.com/store/your-brand
+                  {landingScreenshots.storefront.chromeLabel}
                 </span>
               </div>
               <img
-                src={storefrontScreenshot}
+                src={landingScreenshots.storefront.src}
                 alt={isFr ? "Boutique digitale SiteViral" : "SiteViral digital storefront"}
                 className="w-full h-auto"
                 loading="lazy"
@@ -111,11 +110,11 @@ export function LandingPlatformShowcase() {
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-400/60" />
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/60" />
                 <span className="ml-3 text-[9px] text-muted-foreground font-mono bg-background/50 rounded px-2 py-0.5">
-                  siteviral.com/admin/sales
+                  {landingScreenshots.sales.chromeLabel}
                 </span>
               </div>
               <img
-                src={dashboardScreenshot}
+                src={landingScreenshots.sales.src}
                 alt={isFr ? "Dashboard des ventes SiteViral" : "SiteViral sales dashboard"}
                 className="w-full h-auto"
                 loading="lazy"

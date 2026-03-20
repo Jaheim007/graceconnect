@@ -7,7 +7,7 @@ import { trackEvent } from '@/hooks/useClientAnalytics';
 import { RotatingWords } from './RotatingWords';
 import { GradientText } from './GradientText';
 import { useI18n } from '@/i18n/I18nContext';
-import dashboardScreenshot from '@/assets/screenshots/dashboard-real-tweaked.png';
+import { landingScreenshots } from './landingScreenshotRegistry';
 
 const stagger = {
   hidden: {},
@@ -157,11 +157,11 @@ export function LandingHeroManifesto() {
               <span className="h-2.5 w-2.5 rounded-full bg-amber-400/70" />
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
               <span className="ml-3 text-[10px] text-muted-foreground font-mono bg-background/60 rounded px-2 py-0.5">
-                siteviral.com/admin/sales
+                  {landingScreenshots.hero.chromeLabel}
               </span>
             </div>
             <img
-              src={dashboardScreenshot}
+                src={landingScreenshots.hero.src}
               alt={isFr ? "Tableau de bord des ventes SiteViral" : "SiteViral sales dashboard"}
               className="w-full h-auto"
               loading="eager"
