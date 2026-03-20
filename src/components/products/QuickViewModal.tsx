@@ -44,14 +44,24 @@ export function QuickViewModal({ product, orgSlug, open, onClose, isPurchased }:
           )}
           {/* Price overlay */}
           <div className="absolute bottom-3 left-3">
-            <div className={cn(
-              'px-3 py-1.5 rounded-lg font-bold text-sm backdrop-blur-md',
-              product.is_free
-                ? 'bg-emerald-500/90 text-white'
-                : 'bg-background/90 text-foreground border border-border/50'
-            )}>
-              {formatPrice(product.price || 0, product.is_free, product.currency)}
-            </div>
+            {(() => {
+              const isPwyw = !!(product as any).is_pwyw;
+              const minPrice = (product as any).min_price || 0;
+              const effectivelyFree = product.is_free && !(isPwyw && minPrice > 0);
+              const isFr = document.documentElement.lang === 'fr';
+              return (
+                <div className={cn(
+                  'px-3 py-1.5 rounded-lg font-bold text-sm backdrop-blur-md',
+                  effectivelyFree
+                    ? 'bg-emerald-500/90 text-white'
+                    : 'bg-background/90 text-foreground border border-border/50'
+                )}>
+                  {isPwyw && minPrice > 0
+                    ? `💰 ${isFr ? 'Dès' : 'From'} ${formatPrice(minPrice, false, product.currency)}`
+                    : formatPrice(product.price || 0, effectivelyFree, product.currency)}
+                </div>
+              );
+            })()}
           </div>
           {product.sale_price && product.sale_price < product.price && (
             <div className="absolute top-3 right-3">

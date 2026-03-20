@@ -257,28 +257,39 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
           </div>
         </div>
         <div className="absolute bottom-2.5 right-2.5">
-          <span className={cn(
-            'inline-flex flex-col items-end px-2.5 py-1 rounded-lg text-sm font-bold shadow-sm',
-            product.is_free
-              ? 'bg-emerald-600 text-white'
-              : 'bg-background/90 backdrop-blur-sm text-foreground border border-border/50'
-          )}>
-            <span>
-              {(product as any).is_pwyw && !product.is_free ? (
-                <>
-                  💰 {isFr ? 'Dès' : 'From'} {fmt((product as any).min_price || 0)}
-                </>
-              ) : (
-                <>
-                  {isFlashSale && <span className="text-[10px] line-through text-muted-foreground mr-1">{fmt(product.price)}</span>}
-                  {product.is_free ? (isFr ? 'Gratuit' : 'Free') : fmt(displayPrice)}
-                </>
-              )}
-            </span>
-            {!product.is_free && !(product as any).is_pwyw && displayPrice > 0 && (
-              <LocalPriceHint amount={displayPrice} currency={product.currency || 'XOF'} />
-            )}
-          </span>
+          {(() => {
+            const isPwyw = !!(product as any).is_pwyw;
+            const minPrice = (product as any).min_price || 0;
+            // PWYW with min_price > 0 should show "From X", never "Free"
+            const effectivelyFree = product.is_free && !(isPwyw && minPrice > 0);
+            return (
+              <span className={cn(
+                'inline-flex flex-col items-end px-2.5 py-1 rounded-lg text-sm font-bold shadow-sm',
+                effectivelyFree
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-background/90 backdrop-blur-sm text-foreground border border-border/50'
+              )}>
+                <span>
+                  {isPwyw && minPrice > 0 ? (
+                    <>
+                      💰 {isFr ? 'Dès' : 'From'} {fmt(minPrice)}
+                    </>
+                  ) : (
+                    <>
+                      {isFlashSale && <span className="text-[10px] line-through text-muted-foreground mr-1">{fmt(product.price)}</span>}
+                      {effectivelyFree ? (isFr ? 'Gratuit' : 'Free') : fmt(displayPrice)}
+                    </>
+                  )}
+                </span>
+                {!effectivelyFree && !isPwyw && displayPrice > 0 && (
+                  <LocalPriceHint amount={displayPrice} currency={product.currency || 'XOF'} />
+                )}
+                {isPwyw && minPrice > 0 && (
+                  <LocalPriceHint amount={minPrice} currency={product.currency || 'XOF'} />
+                )}
+              </span>
+            );
+          })()}
         </div>
       </div>
 
