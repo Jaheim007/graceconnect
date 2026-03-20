@@ -33,6 +33,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [keywordInput, setKeywordInput] = useState('');
   const [orgName, setOrgName] = useState<string | null>(null);
+  const { currentOrg } = useOrg();
   
   const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
