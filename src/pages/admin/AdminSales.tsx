@@ -10,7 +10,7 @@ import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart3, ShoppingCart, Heart, CreditCard, Zap, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react';
+import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart3, ShoppingCart, Heart, CreditCard, Zap, ArrowUpRight, ArrowDownRight, Filter, Wallet } from 'lucide-react';
 import { format, startOfDay, startOfWeek, startOfMonth, subDays, subMonths } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -265,8 +265,11 @@ export default function AdminSales() {
           <p className="text-sm text-muted-foreground mt-1">{isFr ? 'Historique complet des transactions de votre boutique' : 'Complete transaction history for your store'}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => navigate('/admin/payouts')} className="gap-2">
-            <ArrowUpRight className="h-4 w-4" /> {isFr ? 'Retraits' : 'Payouts'}
+          <Button
+            onClick={() => navigate('/admin/payouts')}
+            className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-bold shadow-lg rounded-xl h-10 px-5"
+          >
+            <Wallet className="h-4 w-4" /> {isFr ? 'Retraits' : 'Payouts'}
           </Button>
           <Button onClick={handleExport} className="gap-2 shadow-lg shadow-primary/20">
             <Download className="h-4 w-4" /> Export CSV
