@@ -29,7 +29,7 @@ import { EmbedSnippetGen } from '@/components/products/EmbedSnippetGen';
 import { ContentTemplateSelector } from '@/components/admin/ContentTemplateSelector';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
-import { AIDescriptionButton } from '@/components/admin/AIDescriptionButton';
+// AIDescriptionButton removed — use "Aide IA" in the RichTextEditor toolbar instead
 import { SocialSnippetsViewer } from '@/components/products/SocialSnippetsViewer';
 import { SuggestedPriceHint } from '@/components/admin/SuggestedPriceHint';
 import { ContextTip } from '@/components/admin/ContextualTooltips';
