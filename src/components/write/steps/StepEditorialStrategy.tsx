@@ -45,7 +45,13 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
     setErrorMsg('');
 
     try {
+      // Refresh session to avoid stale JWT / "Session not found" errors
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) throw new Error('Not authenticated');
+
       const { data, error } = await supabase.functions.invoke('generate-editorial-strategy', {
+        headers: { Authorization: `Bearer ${token}` },
         body: {
           topic: state.topic || state.title || '',
           title: state.title || '',
