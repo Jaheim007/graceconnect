@@ -491,8 +491,10 @@ async function drawInlineImage(
 async function tryDrawCover(pdfDoc: any, page: PDFPage, coverUrl: string) {
   if (!coverUrl) return false;
   try {
-    const response = await fetch(coverUrl);
-    if (!response.ok) return false;
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 10_000);
+    const response = await fetch(coverUrl, { signal: controller.signal });
+    clearTimeout(tid);
     const bytes = new Uint8Array(await response.arrayBuffer());
     if (bytes.length > 1_500_000) {
       console.warn(`Cover image too large (${(bytes.length / 1e6).toFixed(1)} MB), skipping embed`);
