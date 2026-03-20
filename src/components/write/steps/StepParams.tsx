@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen, Brush, Cross, Moon, Flame, BookHeart, Megaphone, ScrollText, Swords, HandHeart, Building2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen, Brush, Cross, Moon, Flame, BookHeart, Megaphone, ScrollText, Swords, HandHeart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,7 +32,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [keywordInput, setKeywordInput] = useState('');
   const [orgName, setOrgName] = useState<string | null>(null);
-  const [useOrgName, setUseOrgName] = useState(true);
+  
   const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   const styles: { type: BookStyle; icon: typeof BookOpen; label: string; desc: string }[] = [
@@ -130,12 +129,8 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     })();
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sync author name when toggle changes
-  useEffect(() => {
-    if (useOrgName && orgName && !state.authorName) {
-      update({ authorName: orgName });
-    }
-  }, [useOrgName, orgName]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
 
 
 
@@ -313,36 +308,12 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
 
       {/* Author name */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium flex items-center gap-1.5">
-            <UserPen className="h-3.5 w-3.5" /> {t('write.author_label') || "Author name"}
-          </label>
-          {orgName && (
-            <div className="flex items-center gap-2">
-              <label className="text-[10px] text-muted-foreground flex items-center gap-1">
-                <Building2 className="h-3 w-3" />
-                {t('write.use_org_name') || 'Use organization name'}
-              </label>
-              <Switch
-                checked={useOrgName}
-                onCheckedChange={(checked) => {
-                  setUseOrgName(checked);
-                  if (checked && orgName) {
-                    update({ authorName: orgName });
-                  } else {
-                    update({ authorName: '' });
-                  }
-                }}
-              />
-            </div>
-          )}
-        </div>
+        <label className="text-sm font-medium flex items-center gap-1.5">
+          <UserPen className="h-3.5 w-3.5" /> {t('write.author_label') || "Author name"}
+        </label>
         <Input
           value={state.authorName || ''}
-          onChange={e => {
-            update({ authorName: e.target.value });
-            if (orgName && e.target.value !== orgName) setUseOrgName(false);
-          }}
+          onChange={e => update({ authorName: e.target.value })}
           placeholder={t('write.author_placeholder') || 'The name that will appear on your book'}
           className="h-10 text-sm"
         />
