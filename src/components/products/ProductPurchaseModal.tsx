@@ -528,7 +528,11 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   onClick={handleConfirmToBuyerInfo}
                   className="flex-1 bg-primary text-primary-foreground"
                 >
-                  {product.is_free || finalPrice === 0 ? (isFr ? 'Accéder gratuitement' : 'Access for free') : `${isFr ? 'Payer' : 'Pay'} ${fmt(finalPrice)}`}
+                  {isPwyw
+                    ? `${isFr ? 'Payer' : 'Pay'} ${fmt(pwywValue > 0 ? pwywValue : minPrice)}`
+                    : (product.is_free || finalPrice === 0)
+                      ? (isFr ? 'Accéder gratuitement' : 'Access for free')
+                      : `${isFr ? 'Payer' : 'Pay'} ${fmt(finalPrice)}`}
                 </Button>
               )}
             </div>
