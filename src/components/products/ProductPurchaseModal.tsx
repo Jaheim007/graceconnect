@@ -366,7 +366,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShoppingBag className="h-4 w-4 text-primary" />
-            {product.is_free
+            {product.is_free && !isPwyw
               ? (isFr ? 'Télécharger gratuitement' : 'Download for free')
               : (isFr ? 'Acheter ce produit' : 'Buy this product')}
           </DialogTitle>
