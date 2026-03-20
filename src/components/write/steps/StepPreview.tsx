@@ -9,6 +9,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { WriteState, WriteChapter } from '../WriteWizard';
+import { resolveRequestedBookLanguage } from '../utils/bookLanguage';
 
 interface Props {
   state: WriteState;
@@ -39,7 +40,7 @@ function htmlToPlainText(html: string, maxLength = 3500): string {
 }
 
 export function StepPreview({ state, update, onNext, onBack }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { toast } = useToast();
   const [chaptersDraft, setChaptersDraft] = useState<WriteChapter[]>(state.chapters);
   const [activeChapter, setActiveChapter] = useState(0);
@@ -52,6 +53,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
   const [lastAutoSavedAt, setLastAutoSavedAt] = useState<number | null>(null);
   const initializedRef = useRef(false);
   const autosaveTimeoutRef = useRef<number | null>(null);
+  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
 
   useEffect(() => {
     if (initializedRef.current) return;
@@ -219,7 +221,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
           topic: topicPayload,
           style: state.style,
           pageCount: 5,
-          language: state.language || 'fr',
+          language: requestedLanguage,
           tone: state.tone,
           languageLevel: state.languageLevel,
           targetAudience: state.targetAudience,

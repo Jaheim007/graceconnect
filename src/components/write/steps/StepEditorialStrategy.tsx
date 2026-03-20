@@ -8,6 +8,7 @@ import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState } from '../WriteWizard';
 import { hasGeneratedContent } from '../utils/hasGeneratedContent';
+import { resolveRequestedBookLanguage } from '../utils/bookLanguage';
 
 interface Props {
   state: WriteState;
@@ -29,7 +30,7 @@ export interface EditorialStrategy {
 type Phase = 'loading' | 'ready' | 'error';
 
 export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [phase, setPhase] = useState<Phase>('loading');
   const [strategy, setStrategy] = useState<EditorialStrategy | null>(state.editorialStrategy || null);
   const [errorMsg, setErrorMsg] = useState('');
@@ -37,6 +38,7 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
   const [editingField, setEditingField] = useState<string | null>(null);
   const ran = useRef(false);
   const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
+  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
 
   const generate = async () => {
     setPhase('loading');
@@ -50,7 +52,7 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
           style: state.style,
           audience: state.targetAudience,
           tone: state.tone,
-          language: state.language || 'fr',
+          language: requestedLanguage,
         },
       });
 

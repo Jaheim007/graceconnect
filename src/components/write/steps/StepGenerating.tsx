@@ -7,6 +7,7 @@ import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState, WriteChapter } from '../WriteWizard';
 import { hasGeneratedContent } from '../utils/hasGeneratedContent';
+import { resolveRequestedBookLanguage } from '../utils/bookLanguage';
 
 interface Props {
   state: WriteState;
@@ -18,7 +19,7 @@ interface Props {
 type Phase = 'thinking' | 'generating' | 'done' | 'error';
 
 export function StepGenerating({ state, update, onNext, onBack }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [phase, setPhase] = useState<Phase>('thinking');
   const [visibleChapters, setVisibleChapters] = useState<string[]>([]);
   const [totalChapters, setTotalChapters] = useState(0);
@@ -27,6 +28,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
   const aborted = useRef(false);
   const ran = useRef(false);
   const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
+  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
 
   useEffect(() => {
     if (phase !== 'thinking') return;
@@ -51,7 +53,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         pageCount: requestedPageCount,
         chapterCount: state.chapterCount || 8,
         keywords: state.keywords || [],
-        language: state.language || 'fr',
+        language: requestedLanguage,
         tone: state.tone || 'professional',
         languageLevel: state.languageLevel || 'intermediate',
         targetAudience: state.targetAudience || 'general',
