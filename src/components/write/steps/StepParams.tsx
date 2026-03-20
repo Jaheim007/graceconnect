@@ -7,6 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
@@ -32,6 +33,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [keywordInput, setKeywordInput] = useState('');
   const [orgName, setOrgName] = useState<string | null>(null);
+  const { currentOrg } = useOrg();
   
   const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
@@ -100,34 +102,15 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
   const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
 
   // Load organization name for auto-fill
+  // Use current org name for author auto-fill
   useEffect(() => {
-    if (!user?.id) return;
-    (async () => {
-      try {
-        const { data: membership } = await supabase
-          .from('organization_members')
-          .select('organization_id')
-          .eq('user_id', user.id)
-          .eq('role', 'owner')
-          .limit(1)
-          .maybeSingle();
-        if (!membership?.organization_id) return;
-
-        const { data: org } = await supabase
-          .from('organizations')
-          .select('name')
-          .eq('id', membership.organization_id)
-          .maybeSingle();
-        if (org?.name) {
-          setOrgName(org.name);
-          // Auto-fill if author name is empty and toggle is on
-          if (!state.authorName) {
-            update({ authorName: org.name });
-          }
-        }
-      } catch { /* non-blocking */ }
-    })();
-  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!currentOrg?.name) return;
+    setOrgName(currentOrg.name);
+    // Auto-fill if author name is empty
+    if (!state.authorName) {
+      update({ authorName: currentOrg.name });
+    }
+  }, [currentOrg?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
 
