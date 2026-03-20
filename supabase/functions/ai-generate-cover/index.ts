@@ -193,14 +193,14 @@ Deno.serve(async (req) => {
           ? `\n\nAUTHOR NAME — MANDATORY: The author name "${author_name}" MUST appear on the cover. Place it clearly visible, typically at the bottom, in a refined complementary font. This is NON-NEGOTIABLE — the cover is incomplete without the author name.`
           : '';
 
-        const prompt = `You are a world-class book cover designer. Each cover you create is a ONE-OF-A-KIND masterpiece that looks nothing like any other cover you've ever made.
+        const prompt = `You are a senior book cover designer at a top publishing house (Penguin, HarperCollins, Gallimard). Design a REAL, PROFESSIONAL book cover that could sit on a bookstore shelf and sell.
 
 BOOK DETAILS:
 - Title: "${title}"
 ${shortDesc ? `- About: ${shortDesc}` : ''}
 - Genre/Theme: ${anchor.theme}
 
-UNIQUE ARTISTIC DIRECTION FOR THIS SPECIFIC COVER:
+ARTISTIC DIRECTION:
 1. COMPOSITION: ${chosenComposition}
 2. TYPOGRAPHY: ${chosenTypography}
 3. COLOR PALETTE: ${chosenColors}
@@ -209,15 +209,19 @@ UNIQUE ARTISTIC DIRECTION FOR THIS SPECIFIC COVER:
 6. MAIN VISUAL SUBJECT: ${chosenSubject}
 ${authorLine}
 
-STRICT RULES:
-- The title "${title}" must be perfectly legible, well-kerned, and beautifully integrated
-- Portrait format (2:3 ratio), print-ready quality
-- Follow the EXACT artistic direction above — do NOT deviate to a generic style
-- This cover must look COMPLETELY DIFFERENT from any standard AI-generated book cover
-- Make it look like it was designed by a top creative agency, not by AI
-- The overall feel should be unique, premium, and unforgettable
-- DO NOT default to dark moody oil paintings — follow the color palette specified above
-- Every text element must be in the SAME LANGUAGE as the title`;
+PROFESSIONAL PUBLISHING STANDARDS (CRITICAL):
+- This must look like a REAL published book cover, NOT an AI-generated image
+- Typography is KING: the title must be perfectly typeset with professional kerning, tracking, and hierarchy — like a real graphic designer placed each letter
+- Use CLEAN, POLISHED layout with intentional whitespace and visual breathing room
+- The cover should have a CLEAR focal point and visual hierarchy: title → illustration → author name
+- Avoid cluttered, busy, or overly detailed compositions — professional covers are REFINED and RESTRAINED
+- No cheap-looking gradients, no generic stock photo feel, no oversaturated colors
+- Think bestseller shelf appeal: bold, confident, simple yet striking
+- The spine area (left edge) should be clean
+- Portrait format, 2:3 ratio, print-ready quality
+- Text must be PERFECTLY SPELLED and in the SAME LANGUAGE as the title
+- The overall aesthetic should scream "professionally published" not "self-published"
+- Look at real bestseller covers for reference: clean, bold typography, restrained color palette, one strong visual concept`;
 
         console.log('[ai-generate-cover] Generating with unique variation:', {
           title: title?.slice(0, 40),
