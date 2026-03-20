@@ -265,8 +265,11 @@ export default function AdminSales() {
           <p className="text-sm text-muted-foreground mt-1">{isFr ? 'Historique complet des transactions de votre boutique' : 'Complete transaction history for your store'}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => navigate('/admin/payouts')} className="gap-2">
-            <ArrowUpRight className="h-4 w-4" /> {isFr ? 'Retraits' : 'Payouts'}
+          <Button
+            onClick={() => navigate('/admin/payouts')}
+            className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-bold shadow-lg rounded-xl h-10 px-5"
+          >
+            <Wallet className="h-4 w-4" /> {isFr ? 'Retraits' : 'Payouts'}
           </Button>
           <Button onClick={handleExport} className="gap-2 shadow-lg shadow-primary/20">
             <Download className="h-4 w-4" /> Export CSV
