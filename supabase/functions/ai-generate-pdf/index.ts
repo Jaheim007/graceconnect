@@ -447,12 +447,15 @@ function safeDrawText(page: PDFPage, text: string, opts: { x: number; y: number;
 // ══════════════════════════════════════════════════════════════════════
 // Image embedding helpers
 // ══════════════════════════════════════════════════════════════════════
-const MAX_IMAGE_BYTES = 1_500_000; // 1.5 MB per image to keep PDF under 50 MB
+const MAX_IMAGE_BYTES = 800_000; // 800 KB per image to stay within edge function memory limits
 
 async function tryEmbedImage(pdfDoc: any, imageUrl: string): Promise<any | null> {
   if (!imageUrl) return null;
   try {
-    const response = await fetch(imageUrl);
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 8_000); // 8s timeout per image
+    const response = await fetch(imageUrl, { signal: controller.signal });
+    clearTimeout(tid);
     if (!response.ok) return null;
     const bytes = new Uint8Array(await response.arrayBuffer());
     if (bytes.length > MAX_IMAGE_BYTES) {
@@ -464,7 +467,7 @@ async function tryEmbedImage(pdfDoc: any, imageUrl: string): Promise<any | null>
     if (ct.includes('png') || lower.endsWith('.png')) return await pdfDoc.embedPng(bytes);
     if (ct.includes('jpeg') || ct.includes('jpg') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || ct.includes('image')) return await pdfDoc.embedJpg(bytes);
     return null;
-  } catch (e) { console.error('Image embed error:', e); return null; }
+  } catch (e) { console.error('Image embed error:', (e as any)?.message?.slice(0, 100)); return null; }
 }
 
 async function drawInlineImage(
@@ -488,10 +491,12 @@ async function drawInlineImage(
 async function tryDrawCover(pdfDoc: any, page: PDFPage, coverUrl: string) {
   if (!coverUrl) return false;
   try {
-    const response = await fetch(coverUrl);
-    if (!response.ok) return false;
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 10_000);
+    const response = await fetch(coverUrl, { signal: controller.signal });
+    clearTimeout(tid);
     const bytes = new Uint8Array(await response.arrayBuffer());
-    if (bytes.length > 3_000_000) {
+    if (bytes.length > 1_500_000) {
       console.warn(`Cover image too large (${(bytes.length / 1e6).toFixed(1)} MB), skipping embed`);
       return false;
     }
@@ -780,11 +785,12 @@ async function buildProfessionalPdf(opts: {
       thickness: 0.5, color: C.rule,
     });
 
-    // ── CHAPTER ILLUSTRATION (from ai_project_assets) ──────
-    const chapterIllUrl = opts.chapterIllustrations?.[ci];
+    // ── CHAPTER ILLUSTRATION (from ai_project_assets, limit to first 3 chapters to save memory) ──
+    const chapterIllUrl = ci < 3 ? opts.chapterIllustrations?.[ci] : undefined;
     if (chapterIllUrl) {
-      const illResult = await drawInlineImage(pdfDoc, openerPage, chapterIllUrl, M.outer, cty - 20, pg.width - M.outer * 2, 220);
-      // If illustration drawn, it's on the opener page below the title
+      try {
+        await drawInlineImage(pdfDoc, openerPage, chapterIllUrl, M.outer, cty - 20, pg.width - M.outer * 2, 220);
+      } catch (e) { console.warn('Chapter illustration skipped:', (e as any)?.message?.slice(0, 80)); }
     }
 
     // ── CHAPTER CONTENT PAGES ───────────────────────────────
