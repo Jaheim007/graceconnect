@@ -70,47 +70,65 @@ Deno.serve(async (req) => {
       }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // ── FULL MODE: requires org_id and project_id ──
-    if (!org_id || !project_id) return jsonError('org_id and project_id required', 400);
+    // ── FULL MODE: requires project_id; org_id may be stale from the client ──
+    if (!project_id) return jsonError('project_id required', 400);
 
-    const { data: member } = await admin
-      .from('organization_members').select('role')
-      .eq('user_id', user.id).eq('organization_id', org_id).maybeSingle();
-    if (!member || !['owner', 'admin', 'editor'].includes(member.role)) return jsonError('Forbidden', 403);
+    // Resolve the real organization from the project/product instead of trusting the client payload.
+    let effectiveOrgId = org_id || '';
 
-    // Try to find the AI project first
-    const { data: project } = await admin
+    let { data: project } = await admin
       .from('ai_content_projects').select('*')
-      .eq('id', project_id).eq('organization_id', org_id).maybeSingle();
+      .eq('id', project_id)
+      .eq('organization_id', effectiveOrgId || '00000000-0000-0000-0000-000000000000')
+      .maybeSingle();
 
-    // If no project found, try to find a product linked to this project_id
-    // This handles cases where ai_project_id references a non-existent or orphaned project
+    if (!project) {
+      const { data: projectById } = await admin
+        .from('ai_content_projects').select('*')
+        .eq('id', project_id)
+        .maybeSingle();
+      if (projectById) {
+        project = projectById;
+        effectiveOrgId = projectById.organization_id;
+      }
+    }
+
     let fallbackProduct: any = null;
     if (!project) {
       const { data: productByProject } = await admin
         .from('digital_products').select('id, title, description, cover_image_url, organization_id')
-        .eq('ai_project_id', project_id).eq('organization_id', org_id).maybeSingle();
-      
-      if (!productByProject) {
-        // Also try finding by product_id directly
+        .eq('ai_project_id', project_id)
+        .maybeSingle();
+
+      if (productByProject) {
+        fallbackProduct = productByProject;
+        effectiveOrgId = productByProject.organization_id;
+      } else if (bodyProductId) {
         const { data: productById } = await admin
           .from('digital_products').select('id, title, description, cover_image_url, organization_id')
-          .eq('id', bodyProductId || project_id).eq('organization_id', org_id).maybeSingle();
-        fallbackProduct = productById;
-      } else {
-        fallbackProduct = productByProject;
+          .eq('id', bodyProductId)
+          .maybeSingle();
+        if (productById) {
+          fallbackProduct = productById;
+          effectiveOrgId = productById.organization_id;
+        }
       }
 
       if (!fallbackProduct) return jsonError('Project not found', 404);
-      console.log('[ai-generate-pdf] Using fallback product data for:', fallbackProduct.title);
+      console.log('[ai-generate-pdf] Using fallback product data for:', fallbackProduct.title, 'org:', effectiveOrgId);
     }
+
+    const { data: member } = await admin
+      .from('organization_members').select('role')
+      .eq('user_id', user.id).eq('organization_id', effectiveOrgId).maybeSingle();
+    if (!member || !['owner', 'admin', 'editor'].includes(member.role)) return jsonError('Forbidden', 403);
 
     const [{ data: coverAsset }, { data: org }, { data: linkedProduct }, { data: chapterIllustrations }] = await Promise.all([
       project ? admin.from('ai_project_assets').select('file_url')
         .eq('project_id', project_id).eq('is_cover', true).maybeSingle() : Promise.resolve({ data: null }),
-      admin.from('organizations').select('name').eq('id', org_id).maybeSingle(),
+      admin.from('organizations').select('name').eq('id', effectiveOrgId).maybeSingle(),
       admin.from('digital_products').select('id, cover_image_url, description')
-        .eq('ai_project_id', project_id).eq('organization_id', org_id).maybeSingle(),
+        .eq('ai_project_id', project_id).eq('organization_id', effectiveOrgId).maybeSingle(),
       project ? admin.from('ai_project_assets').select('file_url, label, display_order')
         .eq('project_id', project_id).eq('asset_type', 'illustration')
         .order('display_order', { ascending: true }) : Promise.resolve({ data: [] }),
@@ -144,13 +162,9 @@ Deno.serve(async (req) => {
       docSubtitle = asText(project.objective, '');
       docLanguage = asText(project.language, 'fr');
     } else if (fallbackProduct) {
-      // Extract chapters from product description HTML if available
       docTitle = asText(fallbackProduct.title, 'Document');
-      // Create a single chapter from the product description
       const desc = asText(fallbackProduct.description, '');
-      if (desc) {
-        chapters = [{ title: docTitle, content: desc }];
-      }
+      if (desc) chapters = [{ title: docTitle, content: desc }];
     }
 
     const pdfBytes = await buildProfessionalPdf({
@@ -165,7 +179,7 @@ Deno.serve(async (req) => {
       chapterIllustrations: illustrationMap,
     });
 
-    const storagePath = `${org_id}/${project_id}/exports/document-${Date.now()}.pdf`;
+    const storagePath = `${effectiveOrgId}/${project_id}/exports/document-${Date.now()}.pdf`;
     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
 
     const { error: uploadErr } = await admin.storage
@@ -174,14 +188,14 @@ Deno.serve(async (req) => {
 
     const { data: asset, error: assetErr } = await admin
       .from('ai_assets').upsert({
-        org_id, project_id, asset_type: 'pdf', storage_bucket: 'org-uploads',
+        org_id: effectiveOrgId, project_id, asset_type: 'pdf', storage_bucket: 'org-uploads',
         storage_path: storagePath, mime_type: 'application/pdf',
         metadata: { format: projectFormat, page_size: normalizedPageSize, chapters_count: chapters.length, generated_at: new Date().toISOString(), pdf_engine: 'pdf-lib' },
       }, { onConflict: 'storage_bucket,storage_path' }).select('id').single();
     if (assetErr) console.error('Asset record error:', assetErr);
 
     await admin.from('ai_project_assets').insert({
-      project_id, organization_id: org_id, asset_type: 'pdf',
+      project_id, organization_id: effectiveOrgId, asset_type: 'pdf',
       file_url: `${supabaseUrl}/storage/v1/object/public/org-uploads/${storagePath}`,
       mime_type: 'application/pdf', label: `Export ${projectFormat} (${normalizedPageSize})`,
       metadata: { format: projectFormat, page_size: normalizedPageSize },
@@ -192,12 +206,12 @@ Deno.serve(async (req) => {
       await admin.from('digital_products')
         .update({ file_url: downloadUrl })
         .eq('ai_project_id', project_id)
-        .eq('organization_id', org_id);
+        .eq('organization_id', effectiveOrgId);
     }
 
     await admin.from('audit_logs').insert({
       user_id: user.id, action: 'studio.pdf_generated', resource_type: 'ai_content_project',
-      resource_id: project_id, organization_id: org_id,
+      resource_id: project_id, organization_id: effectiveOrgId,
       metadata: { format: projectFormat, page_size: normalizedPageSize, asset_id: asset?.id },
     });
 
