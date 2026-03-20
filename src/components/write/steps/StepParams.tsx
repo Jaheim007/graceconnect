@@ -11,6 +11,7 @@ import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState, BookStyle, WritingTone, TargetAudience, BookLanguage, BookLength, ReligiousTradition, PrayerFormat } from '../WriteWizard';
 import { hasGeneratedContent } from '../utils/hasGeneratedContent';
+import { resolveRequestedBookLanguage } from '../utils/bookLanguage';
 
 interface Props {
   state: WriteState;
@@ -20,7 +21,7 @@ interface Props {
 }
 
 export function StepParams({ state, update, onNext, onBack }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { toast } = useToast();
   const [suggestingTitles, setSuggestingTitles] = useState(false);
   const [titleSuggestions, setTitleSuggestions] = useState<string[]>([]);
@@ -90,6 +91,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     ? state.topic.length > 40 ? state.topic.substring(0, 40) + '…' : state.topic
     : '';
   const hasSavedChapters = hasGeneratedContent(state.chapters);
+  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
 
   const handleBookLengthChange = (length: BookLength) => {
     const chapterDefaults: Record<BookLength, number> = { short: 5, medium: 8, long: 15 };
@@ -119,7 +121,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
           topic: state.topic || state.title || '',
           style: state.style,
           audience: state.targetAudience,
-          language: state.language || 'fr',
+          language: requestedLanguage,
         },
       });
       if (error) throw error;
@@ -416,9 +418,9 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
               {languages.map(l => (
                 <button
                   key={l.type}
-                  onClick={() => update({ language: l.type })}
+                  onClick={() => update({ language: l.type, languageManuallySelected: true })}
                   className={`p-2 rounded-lg border text-center transition-all ${
-                    state.language === l.type
+                    requestedLanguage === l.type
                       ? 'border-primary bg-primary/5 text-primary'
                       : 'border-border hover:border-primary/30 text-muted-foreground hover:text-foreground'
                   }`}

@@ -9,6 +9,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { WriteState, WriteChapter } from '../WriteWizard';
+import { resolveRequestedBookLanguage } from '../utils/bookLanguage';
 
 interface Props {
   state: WriteState;
@@ -39,7 +40,7 @@ function htmlToPlainText(html: string, maxLength = 3500): string {
 }
 
 export function StepPreview({ state, update, onNext, onBack }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { toast } = useToast();
   const [chaptersDraft, setChaptersDraft] = useState<WriteChapter[]>(state.chapters);
   const [activeChapter, setActiveChapter] = useState(0);
@@ -52,6 +53,8 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
   const [lastAutoSavedAt, setLastAutoSavedAt] = useState<number | null>(null);
   const initializedRef = useRef(false);
   const autosaveTimeoutRef = useRef<number | null>(null);
+  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
+  const isEnglishBook = requestedLanguage === 'en';
 
   useEffect(() => {
     if (initializedRef.current) return;
@@ -197,8 +200,12 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
       const chapterBody = htmlToPlainText(currentChapter.content, 3500);
 
       const actionInstruction: Record<'regenerate' | 'amplify' | 'custom', string> = {
-        regenerate: `Réécris entièrement le chapitre "${currentChapter.title}" avec un angle neuf mais fidèle au sujet du livre.`,
-        amplify: `Enrichis fortement le chapitre "${currentChapter.title}" avec plus de profondeur, d'exemples, et de valeur concrète.`,
+        regenerate: isEnglishBook
+          ? `Rewrite the chapter "${currentChapter.title}" from scratch with a fresh angle while staying faithful to the book's subject.`
+          : `Réécris entièrement le chapitre "${currentChapter.title}" avec un angle neuf mais fidèle au sujet du livre.`,
+        amplify: isEnglishBook
+          ? `Deepen the chapter "${currentChapter.title}" with more substance, examples, and concrete value.`
+          : `Enrichis fortement le chapitre "${currentChapter.title}" avec plus de profondeur, d'exemples, et de valeur concrète.`,
         custom: customPrompt?.trim() || '',
       };
 
@@ -206,11 +213,21 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
       if (!instruction) return;
 
       const topicPayload = [
-        `Contexte livre : titre "${bookTitle}", sujet "${bookTopic}".`,
-        `Format : ${state.style}. Ton : ${state.tone || 'professional'}. Niveau : ${state.languageLevel || 'intermediate'}. Public : ${state.targetAudience || 'general'}.`,
-        state.styleReference?.trim() ? `Référence de style prioritaire : ${state.styleReference.trim()}.` : '',
-        `Instruction : ${instruction}`,
-        action === 'regenerate' ? '' : `Contenu actuel à améliorer : ${chapterBody}`,
+        isEnglishBook
+          ? `Book context: title "${bookTitle}", topic "${bookTopic}".`
+          : `Contexte livre : titre "${bookTitle}", sujet "${bookTopic}".`,
+        isEnglishBook
+          ? `Format: ${state.style}. Tone: ${state.tone || 'professional'}. Level: ${state.languageLevel || 'intermediate'}. Audience: ${state.targetAudience || 'general'}.`
+          : `Format : ${state.style}. Ton : ${state.tone || 'professional'}. Niveau : ${state.languageLevel || 'intermediate'}. Public : ${state.targetAudience || 'general'}.`,
+        state.styleReference?.trim()
+          ? (isEnglishBook
+            ? `Priority style reference: ${state.styleReference.trim()}.`
+            : `Référence de style prioritaire : ${state.styleReference.trim()}.`)
+          : '',
+        isEnglishBook ? `Instruction: ${instruction}` : `Instruction : ${instruction}`,
+        action === 'regenerate'
+          ? ''
+          : (isEnglishBook ? `Current content to improve: ${chapterBody}` : `Contenu actuel à améliorer : ${chapterBody}`),
       ].filter(Boolean).join('\n\n');
 
       const { data, error } = await supabase.functions.invoke('generate-book-content', {
@@ -219,7 +236,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
           topic: topicPayload,
           style: state.style,
           pageCount: 5,
-          language: state.language || 'fr',
+          language: requestedLanguage,
           tone: state.tone,
           languageLevel: state.languageLevel,
           targetAudience: state.targetAudience,

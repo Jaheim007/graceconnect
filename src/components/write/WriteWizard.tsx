@@ -19,6 +19,7 @@ import { StepPdfPreview } from './steps/StepPdfPreview';
 import { WriteProgress } from './WriteProgress';
 import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
+import { resolveBookLanguageFromLocale, type SupportedBookLanguage } from './utils/bookLanguage';
 
 export type SourceType = 'idea' | 'document' | 'youtube' | 'audio' | 'notes_photo';
 export type BookStyle = 'ebook' | 'guide' | 'prayers' | 'story' | 'novel' | 'devotional' | 'activity' | 'coloring';
@@ -27,7 +28,7 @@ export type PrayerFormat = 'simple_prayers' | 'warfare_prayers' | 'proclamations
 export type WritingTone = 'professional' | 'conversational' | 'humorous' | 'spiritual' | 'poetic' | 'academic';
 export type LanguageLevel = 'simple' | 'intermediate' | 'advanced';
 export type TargetAudience = 'general' | 'children' | 'teens' | 'adults' | 'seniors' | 'professionals';
-export type BookLanguage = 'fr' | 'en' | 'es' | 'pt' | 'de' | 'sw';
+export type BookLanguage = SupportedBookLanguage;
 export type BookLength = 'short' | 'medium' | 'long';
 
 export interface WriteChapter {
@@ -63,6 +64,7 @@ export interface WriteState {
   languageLevel: LanguageLevel;
   targetAudience: TargetAudience;
   language: BookLanguage;
+  languageManuallySelected: boolean;
   styleReference: string;
   bookLength: BookLength;
   chapterCount: number;
@@ -124,41 +126,42 @@ const STEP_LABELS_EN = ['Source', 'Details', '🎯 Strategy', 'Creation', 'Previ
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
 function detectBookLanguage(): BookLanguage {
-  const htmlLang = document.documentElement.lang;
-  if (htmlLang && ['fr', 'en', 'es', 'pt', 'de', 'sw'].includes(htmlLang)) return htmlLang as BookLanguage;
-  return 'fr';
+  return resolveBookLanguageFromLocale(document.documentElement.lang) ?? 'fr';
 }
 
-const initialState: WriteState = {
-  source: 'idea',
-  topic: '',
-  sourceUrl: '',
-  uploadedFile: null,
-  transcribing: false,
-  title: '',
-  subtitle: '',
-  authorName: '',
-  keywords: [],
-  style: 'ebook',
-  religiousTradition: undefined,
-  prayerFormat: undefined,
-  tone: 'professional',
-  languageLevel: 'intermediate',
-  targetAudience: 'general',
-  language: detectBookLanguage(),
-  styleReference: '',
-  bookLength: 'medium',
-  chapterCount: 8,
-  pageCount: 20,
-  chapters: [],
-  chapterIllustrations: {},
-  coverTemplate: 0,
-  coverFile: null,
-  coverUrl: '',
-  price: 2000,
-  isFree: false,
-  commissionRate: 20,
-};
+function createInitialState(): WriteState {
+  return {
+    source: 'idea',
+    topic: '',
+    sourceUrl: '',
+    uploadedFile: null,
+    transcribing: false,
+    title: '',
+    subtitle: '',
+    authorName: '',
+    keywords: [],
+    style: 'ebook',
+    religiousTradition: undefined,
+    prayerFormat: undefined,
+    tone: 'professional',
+    languageLevel: 'intermediate',
+    targetAudience: 'general',
+    language: detectBookLanguage(),
+    languageManuallySelected: false,
+    styleReference: '',
+    bookLength: 'medium',
+    chapterCount: 8,
+    pageCount: 20,
+    chapters: [],
+    chapterIllustrations: {},
+    coverTemplate: 0,
+    coverFile: null,
+    coverUrl: '',
+    price: 2000,
+    isFree: false,
+    commissionRate: 20,
+  };
+}
 
 function createDraftId() {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -181,7 +184,7 @@ function toSerializableState(state: WriteState): Partial<WriteState> {
 
 function toHydratedState(rawState?: Partial<WriteState>): WriteState {
   return {
-    ...initialState,
+    ...createInitialState(),
     ...(rawState ?? {}),
     uploadedFile: null,
     coverFile: null,
@@ -414,6 +417,18 @@ export default function WriteWizard() {
     setState((prev) => ({ ...prev, ...patch }));
   }, []);
 
+  useEffect(() => {
+    if (state.languageManuallySelected) return;
+
+    const localeLanguage = detectBookLanguage();
+    if (state.language === localeLanguage) return;
+
+    setState((prev) => {
+      if (prev.languageManuallySelected || prev.language === localeLanguage) return prev;
+      return { ...prev, language: localeLanguage };
+    });
+  }, [locale, state.language, state.languageManuallySelected]);
+
   const saveCurrentDraftNow = useCallback(() => {
     if (step >= CELEBRATION_STEP) return;
 
@@ -512,11 +527,12 @@ export default function WriteWizard() {
 
         // Reconstruct WriteState from DB project
         const restoredState: WriteState = {
-          ...initialState,
+          ...createInitialState(),
           title: project.title || '',
           topic: project.description || dataJson.topic || '',
           style: dataJson.style || 'ebook',
           language: (project.language as BookLanguage) || 'fr',
+          languageManuallySelected: true,
           chapters: (structJson.chapters || dataJson.chapters || []).map((ch: any, idx: number) => ({
             id: ch.id || `ch-${idx + 1}`,
             title: ch.title || '',
