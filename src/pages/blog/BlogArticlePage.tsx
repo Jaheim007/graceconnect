@@ -38,10 +38,13 @@ export default function BlogArticlePage() {
   const prevArticle = currentIndex > 0 ? blogArticles[currentIndex - 1] : null;
   const nextArticle = currentIndex < blogArticles.length - 1 ? blogArticles[currentIndex + 1] : null;
 
+  const localizedTitle = getLocalizedTitle(article, locale);
+  const localizedDesc = getLocalizedDescription(article, locale);
+
   const { shareUrl: socialShareUrl } = useShortLink({
     targetPath: `/blog/${article.slug}`,
-    title: article.title,
-    description: article.description,
+    title: localizedTitle,
+    description: localizedDesc,
   });
 
   const handleShare = async () => {
