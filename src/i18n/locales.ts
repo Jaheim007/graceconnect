@@ -1363,6 +1363,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'sidebar.my_courses_desc': 'Enrolled courses & progress',
     'sidebar.credits': 'Credits',
     'sidebar.credits_desc': 'AI credits balance & history',
+    'credits.insufficient_title': 'Insufficient Credits',
+    'credits.insufficient_desc': "You don't have enough credits for this action.",
     'sidebar.bookmarks': 'Bookmarks',
     'sidebar.bookmarks_desc': 'Saved items',
     'sidebar.coming_soon': 'Soon',
