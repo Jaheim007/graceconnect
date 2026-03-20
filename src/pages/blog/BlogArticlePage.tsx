@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Clock, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getArticleBySlug, blogArticles, getArticleOgImage, getLocalizedTitle, getLocalizedDescription, getLocalizedCategory } from '@/lib/blogArticles';
+import { getArticleBySlug, blogArticles, getArticleOgImage, getLocalizedTitle, getLocalizedDescription, getLocalizedCategory, getLocalizedContent } from '@/lib/blogArticles';
 import { useToast } from '@/hooks/use-toast';
 import { useShortLink } from '@/hooks/useShortLink';
 import { useI18n } from '@/i18n/I18nContext';
@@ -40,6 +40,8 @@ export default function BlogArticlePage() {
 
   const localizedTitle = getLocalizedTitle(article, locale);
   const localizedDesc = getLocalizedDescription(article, locale);
+  const localizedContent = getLocalizedContent(article, locale);
+  const localizedCategory = getLocalizedCategory(article.category, locale);
 
   const { shareUrl: socialShareUrl } = useShortLink({
     targetPath: `/blog/${article.slug}`,
@@ -66,7 +68,7 @@ export default function BlogArticlePage() {
         canonicalUrl={`https://siteviral.com/blog/${article.slug}`}
         article={{
           publishedTime: article.publishedAt,
-          section: article.category,
+          section: localizedCategory,
           tags: article.personas,
         }}
       />
@@ -76,7 +78,7 @@ export default function BlogArticlePage() {
         {/* OG Image banner */}
         <div className="container max-w-3xl px-4 pt-24 sm:pt-32">
           <div className="rounded-2xl overflow-hidden mb-8 aspect-[16/9] bg-muted">
-            <img src={ogImage} alt={article.title} className="w-full h-full object-cover" />
+            <img src={ogImage} alt={localizedTitle} className="w-full h-full object-cover" />
           </div>
         </div>
 
@@ -86,7 +88,7 @@ export default function BlogArticlePage() {
             <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Tous les articles' : 'All articles'}
           </Link>
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="outline" className="text-[10px] px-2 py-0.5 rounded-full">{getLocalizedCategory(article.category, locale)}</Badge>
+            <Badge variant="outline" className="text-[10px] px-2 py-0.5 rounded-full">{localizedCategory}</Badge>
             <span className="text-[10px] text-muted-foreground flex items-center gap-1">
               <Clock className="h-3 w-3" /> {article.readTime} {isFr ? 'de lecture' : 'read'}
             </span>
@@ -124,7 +126,7 @@ export default function BlogArticlePage() {
               prose-strong:text-foreground
               prose-ul:space-y-1 prose-ol:space-y-1
               dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: article.content }}
+            dangerouslySetInnerHTML={{ __html: localizedContent }}
           />
         </div>
 
