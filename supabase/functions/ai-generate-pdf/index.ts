@@ -783,11 +783,12 @@ async function buildProfessionalPdf(opts: {
       thickness: 0.5, color: C.rule,
     });
 
-    // ── CHAPTER ILLUSTRATION (from ai_project_assets) ──────
-    const chapterIllUrl = opts.chapterIllustrations?.[ci];
+    // ── CHAPTER ILLUSTRATION (from ai_project_assets, limit to first 3 chapters to save memory) ──
+    const chapterIllUrl = ci < 3 ? opts.chapterIllustrations?.[ci] : undefined;
     if (chapterIllUrl) {
-      const illResult = await drawInlineImage(pdfDoc, openerPage, chapterIllUrl, M.outer, cty - 20, pg.width - M.outer * 2, 220);
-      // If illustration drawn, it's on the opener page below the title
+      try {
+        await drawInlineImage(pdfDoc, openerPage, chapterIllUrl, M.outer, cty - 20, pg.width - M.outer * 2, 220);
+      } catch (e) { console.warn('Chapter illustration skipped:', (e as any)?.message?.slice(0, 80)); }
     }
 
     // ── CHAPTER CONTENT PAGES ───────────────────────────────
