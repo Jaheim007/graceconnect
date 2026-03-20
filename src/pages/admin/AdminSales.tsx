@@ -10,7 +10,7 @@ import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart3, ShoppingCart, Heart, CreditCard, Zap, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react';
+import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart3, ShoppingCart, Heart, CreditCard, Zap, ArrowUpRight, ArrowDownRight, Filter, Wallet } from 'lucide-react';
 import { format, startOfDay, startOfWeek, startOfMonth, subDays, subMonths } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
