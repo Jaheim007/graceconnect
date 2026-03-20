@@ -67,10 +67,12 @@ export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: S
     );
   }
 
-  const isFree = product?.is_free || product?.price === 0;
-  const hasSale = product?.sale_price && product?.sale_price < product?.price;
+  const isPwyw = !!(product as any)?.is_pwyw;
+  const isFree = !isPwyw && (product?.is_free || product?.price === 0);
+  const hasSale = !isPwyw && product?.sale_price && product?.sale_price < product?.price;
   const displayPrice = hasSale ? product.sale_price : product.price;
   const currency = product?.currency || 'XOF';
+  const minPrice = (product as any)?.min_price || 0;
 
   const currentNudge = nudges[nudgeIdx];
   const NudgeIcon = currentNudge.icon;
