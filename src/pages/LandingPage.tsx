@@ -73,6 +73,7 @@ export default function LandingPage() {
         <LandingLiveStats />
         <CommunityProgressBar />
         <LandingAmbassadorLoop />
+        <LandingPlatformShowcase />
         <LandingSourcesSection />
         <LandingMobileMoney />
         <LandingTrustShield />
