@@ -163,7 +163,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
   };
 
   const handleSuggestSubtitles = async () => {
-    if (suggestingSubtitles || !state.title?.trim()) return;
+    if (suggestingSubtitles || !(state.title?.trim() || state.topic?.trim())) return;
     setSuggestingSubtitles(true);
     setSubtitleSuggestions([]);
     try {
