@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { Store, BarChart3, Sparkles, Users } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
-import storefrontScreenshot from '@/assets/screenshots/storefront.png';
-import dashboardScreenshot from '@/assets/screenshots/dashboard-sales.png';
+import storefrontScreenshot from '@/assets/screenshots/storefront-real.png';
+import dashboardScreenshot from '@/assets/screenshots/sales-real.png';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },

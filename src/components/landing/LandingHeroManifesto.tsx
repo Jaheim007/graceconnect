@@ -7,7 +7,7 @@ import { trackEvent } from '@/hooks/useClientAnalytics';
 import { RotatingWords } from './RotatingWords';
 import { GradientText } from './GradientText';
 import { useI18n } from '@/i18n/I18nContext';
-import dashboardScreenshot from '@/assets/screenshots/dashboard-sales.png';
+import dashboardScreenshot from '@/assets/screenshots/dashboard-real.png';
 
 const stagger = {
   hidden: {},
