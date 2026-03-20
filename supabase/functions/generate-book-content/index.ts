@@ -733,10 +733,17 @@ function detectEditorialProfile(style: string, tone: string, title: string, topi
     return 'simple_prayers';
   }
 
-  // Non-prayer spiritual content
-  const spiritualSignals = ['prière', 'priere', 'anges', 'ange', 'spirituel', 'combat', 'delivrance', 'foi', 'satan', 'bataille', 'guerre', 'jesus', 'bible', 'miracle'];
-  if (tone === 'spiritual' || spiritualSignals.some((word) => haystack.includes(word))) {
-    return 'spiritual_warfare';
+  // Non-prayer spiritual content — ONLY route to spiritual_warfare if BOTH:
+  // 1) The tone is explicitly 'spiritual' AND
+  // 2) The topic contains strong spiritual signals
+  // This prevents classic ebooks about "faith in yourself" or "spiritual growth" from getting Bible verses
+  if (tone === 'spiritual') {
+    const strongSpiritualSignals = ['prière', 'priere', 'combat spirituel', 'delivrance', 'satan', 'jesus', 'bible', 'anges', 'ange'];
+    if (strongSpiritualSignals.some((word) => haystack.includes(word))) {
+      return 'spiritual_warfare';
+    }
+    // Spiritual tone but no strong signals → personal_growth, not warfare
+    return 'personal_growth';
   }
 
   const leadershipSignals = ['leadership', 'équipe', 'equipe', 'manager', 'travail en équipe', 'collaboration', 'influence', 'lois', 'principes'];
