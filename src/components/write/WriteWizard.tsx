@@ -532,6 +532,7 @@ export default function WriteWizard() {
           topic: project.description || dataJson.topic || '',
           style: dataJson.style || 'ebook',
           language: (project.language as BookLanguage) || 'fr',
+          languageManuallySelected: true,
           chapters: (structJson.chapters || dataJson.chapters || []).map((ch: any, idx: number) => ({
             id: ch.id || `ch-${idx + 1}`,
             title: ch.title || '',
