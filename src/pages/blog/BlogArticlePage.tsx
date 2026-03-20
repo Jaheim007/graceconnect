@@ -49,7 +49,7 @@ export default function BlogArticlePage() {
 
   const handleShare = async () => {
     if (navigator.share) {
-      await navigator.share({ title: article.title, text: article.description, url: socialShareUrl });
+      await navigator.share({ title: localizedTitle, text: localizedDesc, url: socialShareUrl });
     } else {
       await navigator.clipboard.writeText(socialShareUrl);
       toast({ title: isFr ? 'Lien copié ✅' : 'Link copied ✅' });
