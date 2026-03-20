@@ -329,9 +329,13 @@ export function AdminProducts() {
   };
 
   const handleTogglePublish = async (p: any) => {
-    await db.from('digital_products').update({ is_published: !p.is_published }).eq('id', p.id);
+    const newPublished = !p.is_published;
+    await db.from('digital_products').update({
+      is_published: newPublished,
+      publication_status: newPublished ? 'published' : 'draft',
+    }).eq('id', p.id);
     qc.invalidateQueries({ queryKey: ['org-products'] });
-    toast({ title: p.is_published ? (isFr ? 'Produit dépublié' : 'Product unpublished') : (isFr ? 'Produit publié ✅' : 'Product published ✅') });
+    toast({ title: newPublished ? (isFr ? 'Produit publié ✅' : 'Product published ✅') : (isFr ? 'Produit dépublié' : 'Product unpublished') });
   };
 
   const handleDeleteSingle = async (p: any) => {

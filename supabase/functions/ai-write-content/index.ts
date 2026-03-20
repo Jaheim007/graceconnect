@@ -9,8 +9,9 @@ Deno.serve(async (req) => {
     const auth = await requireAuth(req);
     if (auth instanceof Response) return auth;
 
-    const { prompt, tone = 'professional', context = 'description', tier } = await req.json();
-    if (!prompt || typeof prompt !== 'string') return jsonResp({ error: "Le champ 'prompt' est requis." }, 400);
+    const { prompt, tone = 'professional', context = 'description', tier, lang = 'fr' } = await req.json();
+    const isFr = lang === 'fr';
+    if (!prompt || typeof prompt !== 'string') return jsonResp({ error: isFr ? "Le champ 'prompt' est requis." : "'prompt' field is required." }, 400);
 
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
     if (!GEMINI_API_KEY) return jsonResp({ error: 'AI not configured' }, 500);
