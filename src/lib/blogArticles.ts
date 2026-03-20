@@ -15,6 +15,25 @@ export interface BlogArticle {
   content: string; // markdown-like HTML
 }
 
+/** Map category → OG image path (served from /public) */
+const CATEGORY_OG_MAP: Record<string, string> = {
+  'Stratégie': '/images/blog/og-strategie.jpg',
+  'Tutoriel': '/images/blog/og-tutoriel.jpg',
+  'Comparaison': '/images/blog/og-comparaison.jpg',
+  'Découverte': '/images/blog/og-decouverte.jpg',
+  'Discovery': '/images/blog/og-decouverte.jpg',
+  'Confiance': '/images/blog/og-confiance.jpg',
+  'Guide pratique': '/images/blog/og-guide-pratique.jpg',
+  'Étude de cas': '/images/blog/og-etude-de-cas.jpg',
+  'Éducation': '/images/blog/og-education.jpg',
+};
+
+/** Get OG image for an article – uses explicit ogImage or falls back to category */
+export function getArticleOgImage(article: BlogArticle): string {
+  if (article.ogImage) return article.ogImage;
+  return CATEGORY_OG_MAP[article.category] || '/images/blog/og-strategie.jpg';
+}
+
 export const blogArticles: BlogArticle[] = [
   {
     slug: 'quest-ce-que-siteviral',
