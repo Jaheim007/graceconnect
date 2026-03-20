@@ -10,6 +10,7 @@ const LandingHowItWorks = lazy(() => import('@/components/landing/LandingHowItWo
 const LandingInteractiveDemo = lazy(() => import('@/components/landing/LandingInteractiveDemo').then(m => ({ default: m.LandingInteractiveDemo })));
 const LandingLiveStats = lazy(() => import('@/components/landing/LandingLiveStats').then(m => ({ default: m.LandingLiveStats })));
 const LandingAmbassadorLoop = lazy(() => import('@/components/landing/LandingAmbassadorLoop').then(m => ({ default: m.LandingAmbassadorLoop })));
+const LandingPlatformShowcase = lazy(() => import('@/components/landing/LandingPlatformShowcase').then(m => ({ default: m.LandingPlatformShowcase })));
 const LandingSourcesSection = lazy(() => import('@/components/landing/LandingSourcesSection').then(m => ({ default: m.LandingSourcesSection })));
 const LandingMobileMoney = lazy(() => import('@/components/landing/LandingMobileMoney').then(m => ({ default: m.LandingMobileMoney })));
 const LandingTrustShield = lazy(() => import('@/components/landing/LandingTrustShield').then(m => ({ default: m.LandingTrustShield })));
@@ -72,6 +73,7 @@ export default function LandingPage() {
         <LandingLiveStats />
         <CommunityProgressBar />
         <LandingAmbassadorLoop />
+        <LandingPlatformShowcase />
         <LandingSourcesSection />
         <LandingMobileMoney />
         <LandingTrustShield />
