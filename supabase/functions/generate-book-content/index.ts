@@ -500,14 +500,73 @@ function parseCandidate(candidate: string): any | null {
     .replace(/,\s*([}\]])/g, '$1')
     .trim();
   if (!cleaned) return null;
-  try { return JSON.parse(cleaned); } catch { return null; }
+  try { return JSON.parse(cleaned); } catch { /* fall through */ }
+
+  // Attempt to salvage truncated JSON by closing open structures
+  const salvaged = salvageTruncatedJson(cleaned);
+  if (salvaged) {
+    try { return JSON.parse(salvaged); } catch { /* fall through */ }
+  }
+  return null;
+}
+
+/**
+ * Attempt to close truncated JSON that was cut off mid-stream.
+ * Finds the last complete chapter object and closes the array/object.
+ */
+function salvageTruncatedJson(raw: string): string | null {
+  const chaptersMatch = raw.match(/"chapters"\s*:\s*\[/);
+  if (!chaptersMatch) return null;
+
+  let lastGoodEnd = -1;
+  let inStr = false;
+  let escaped = false;
+  let braceDepth = 0;
+  const arrStart = raw.indexOf('[', raw.indexOf('"chapters"'));
+  if (arrStart < 0) return null;
+
+  for (let i = arrStart; i < raw.length; i++) {
+    const ch = raw[i];
+    if (escaped) { escaped = false; continue; }
+    if (ch === '\\') { escaped = true; continue; }
+    if (ch === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (ch === '{') braceDepth++;
+    if (ch === '}') {
+      braceDepth--;
+      if (braceDepth === 1) {
+        lastGoodEnd = i;
+      }
+    }
+  }
+
+  if (lastGoodEnd > 0) {
+    const truncated = raw.slice(0, lastGoodEnd + 1);
+    let openBraces = 0;
+    let openBrackets = 0;
+    let s = false;
+    let esc = false;
+    for (let i = 0; i < truncated.length; i++) {
+      const c = truncated[i];
+      if (esc) { esc = false; continue; }
+      if (c === '\\') { esc = true; continue; }
+      if (c === '"') { s = !s; continue; }
+      if (s) continue;
+      if (c === '{') openBraces++;
+      if (c === '}') openBraces--;
+      if (c === '[') openBrackets++;
+      if (c === ']') openBrackets--;
+    }
+    return truncated + ']'.repeat(Math.max(0, openBrackets)) + '}'.repeat(Math.max(0, openBraces));
+  }
+  return null;
 }
 
 function tryParsePayload(raw: string): any | null {
   const direct = parseCandidate(raw);
   if (direct) return direct;
   const candidate = extractJsonObjectCandidate(raw);
-  if (!candidate) return null;
+  if (!candidate) return parseCandidate(raw);
   return parseCandidate(candidate);
 }
 
@@ -527,9 +586,9 @@ async function repairJsonWithAi(apiKey: string, rawContent: string, chapterCount
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      system_instruction: { parts: [{ text: 'You repair malformed JSON only. Return ONLY valid JSON with this shape: {"chapters":[{"id":"ch-1","title":"...","content":"<p>...</p>"}]}. Keep HTML in content. Do not summarize.' }] },
-      contents: [{ role: 'user', parts: [{ text: `Repair this malformed payload into valid JSON. Expected ${chapterCount} chapters.\n\n${rawContent.slice(0, 80000)}` }] }],
-      generationConfig: { maxOutputTokens: 7000, responseMimeType: 'application/json' },
+      system_instruction: { parts: [{ text: 'You repair malformed/truncated JSON. Return ONLY valid JSON: {"chapters":[{"id":"ch-1","title":"...","content":"<p>...</p>"}]}. Keep ALL HTML intact. If truncated mid-chapter, close the last complete chapter and omit the incomplete one.' }] },
+      contents: [{ role: 'user', parts: [{ text: `Repair this malformed/truncated JSON into valid JSON. Expected ${chapterCount} chapters (return as many complete ones as possible).\n\n${rawContent.slice(0, 80000)}` }] }],
+      generationConfig: { maxOutputTokens: 16000, responseMimeType: 'application/json' },
     }),
   });
   if (!repairRes.ok) return null;
