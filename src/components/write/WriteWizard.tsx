@@ -361,13 +361,14 @@ export default function WriteWizard() {
   const [publishingStage, setPublishingStage] = useState<PublishingStage>('preparing');
   const [willCreateOrg, setWillCreateOrg] = useState(false);
   const { user } = useAuth();
+  const { currentOrg } = useOrg();
   const navigate = useNavigate();
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
   const STEP_LABELS = isFr ? STEP_LABELS_FR : STEP_LABELS_EN;
   const { toast } = useToast();
   const [dbDrafts, setDbDrafts] = useState<SavedWriteDraftSummary[]>([]);
-  const [orgCurrency, setOrgCurrency] = useState<string | null>(null);
+  const orgCurrency = currentOrg?.currency || null;
 
   // Load DB-backed projects (previously generated books)
   useEffect(() => {
