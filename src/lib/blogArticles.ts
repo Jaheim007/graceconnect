@@ -17,14 +17,14 @@ export interface BlogArticle {
 
 /** Map category → multiple OG image paths for rotation */
 const CATEGORY_OG_IMAGES: Record<string, string[]> = {
-  'Stratégie': ['/images/blog/strategie-1.jpg', '/images/blog/strategie-2.jpg', '/images/blog/strategie-3.jpg', '/images/blog/strategie-4.jpg', '/images/blog/strategie-5.jpg'],
-  'Tutoriel': ['/images/blog/tutoriel-1.jpg', '/images/blog/tutoriel-2.jpg', '/images/blog/tutoriel-3.jpg', '/images/blog/tutoriel-4.jpg'],
-  'Comparaison': ['/images/blog/compare-1.jpg', '/images/blog/compare-2.jpg', '/images/blog/compare-3.jpg'],
-  'Découverte': ['/images/blog/decouverte-1.jpg', '/images/blog/decouverte-2.jpg', '/images/blog/decouverte-3.jpg'],
-  'Discovery': ['/images/blog/decouverte-1.jpg', '/images/blog/decouverte-2.jpg', '/images/blog/decouverte-3.jpg'],
-  'Confiance': ['/images/blog/confiance-1.jpg', '/images/blog/confiance-2.jpg'],
+  'Stratégie': ['/images/blog/strategie-1.jpg', '/images/blog/strategie-2.jpg', '/images/blog/strategie-3.jpg', '/images/blog/strategie-4.jpg', '/images/blog/strategie-5.jpg', '/images/blog/strategie-6.jpg', '/images/blog/strategie-7.jpg', '/images/blog/strategie-8.jpg', '/images/blog/strategie-9.jpg', '/images/blog/strategie-10.jpg'],
+  'Tutoriel': ['/images/blog/tutoriel-1.jpg', '/images/blog/tutoriel-2.jpg', '/images/blog/tutoriel-3.jpg', '/images/blog/tutoriel-4.jpg', '/images/blog/tutoriel-5.jpg', '/images/blog/tutoriel-6.jpg', '/images/blog/tutoriel-7.jpg', '/images/blog/tutoriel-8.jpg'],
+  'Comparaison': ['/images/blog/compare-1.jpg', '/images/blog/compare-2.jpg', '/images/blog/compare-3.jpg', '/images/blog/compare-4.jpg', '/images/blog/compare-5.jpg'],
+  'Découverte': ['/images/blog/decouverte-1.jpg', '/images/blog/decouverte-2.jpg', '/images/blog/decouverte-3.jpg', '/images/blog/decouverte-4.jpg', '/images/blog/decouverte-5.jpg'],
+  'Discovery': ['/images/blog/decouverte-1.jpg', '/images/blog/decouverte-2.jpg', '/images/blog/decouverte-3.jpg', '/images/blog/decouverte-4.jpg', '/images/blog/decouverte-5.jpg'],
+  'Confiance': ['/images/blog/confiance-1.jpg', '/images/blog/confiance-2.jpg', '/images/blog/confiance-3.jpg'],
   'Guide pratique': ['/images/blog/guide-1.jpg', '/images/blog/guide-2.jpg', '/images/blog/guide-3.jpg'],
-  'Étude de cas': ['/images/blog/etude-1.jpg', '/images/blog/etude-2.jpg'],
+  'Étude de cas': ['/images/blog/etude-1.jpg', '/images/blog/etude-2.jpg', '/images/blog/etude-3.jpg'],
   'Éducation': ['/images/blog/education-1.jpg'],
 };
 
