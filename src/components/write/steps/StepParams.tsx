@@ -186,6 +186,36 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     }
   };
 
+  const handleSuggestSubtitles = async () => {
+    if (suggestingSubtitles || !state.title?.trim()) return;
+    setSuggestingSubtitles(true);
+    setSubtitleSuggestions([]);
+    try {
+      const { data, error } = await supabase.functions.invoke('suggest-subtitles', {
+        body: {
+          title: state.title,
+          topic: state.topic || '',
+          style: state.style,
+          audience: state.targetAudience,
+          language: requestedLanguage,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (Array.isArray(data?.subtitles)) {
+        setSubtitleSuggestions(data.subtitles);
+      }
+      refreshCredits();
+    } catch (err: any) {
+      console.error('Subtitle suggestion error:', err);
+      if (!handleAiError(err)) {
+        toast({ title: '❌ Erreur', description: err?.message, variant: 'destructive' });
+      }
+    } finally {
+      setSuggestingSubtitles(false);
+    }
+  };
+
   return (
     <div className="space-y-6 pt-6">
       <div className="text-center space-y-2">
