@@ -146,4 +146,11 @@ export const BLOG_EN: Record<string, { title: string; description: string }> = {
   'marketplace-siteviral-guide-acheteur': { title: 'Siteviral marketplace: Buyer\'s complete guide', description: 'How to discover, buy and download digital products on Siteviral.' },
   'ambassadeur-reseaux-sociaux-strategie': { title: 'Ambassador: Social media strategy to maximize sales', description: 'Platform-specific sharing techniques for better conversions.' },
   'vendre-modeles-business-plan': { title: 'How to sell business plan templates online', description: 'Help entrepreneurs succeed with ready-to-use templates.' },
+
+  'diaspora-creer-entreprise-distance': { title: 'Diaspora: Create a business remotely from abroad', description: 'How to build an African digital business from anywhere in the world.' },
+  'contenu-evergreen-vs-actualite': { title: 'Evergreen vs trending content: Which strategy for your products?', description: 'Long-term vs timely content strategies for digital sellers.' },
+  'siteviral-vs-ko-fi': { title: 'Siteviral vs Ko-fi: Which platform for African creators?', description: 'Comparing donation and product selling platforms.' },
+  'diversifier-sources-revenus-numeriques': { title: 'How to diversify your digital revenue streams', description: 'Multiple income strategies for creators and organizations.' },
+  'collaborer-entre-createurs': { title: 'How to collaborate between creators on Siteviral', description: 'Partnership and co-creation strategies for digital creators.' },
+  'creer-page-de-vente-convertit': { title: 'How to create a sales page that converts', description: 'Essential elements of high-converting sales pages.' },
 };
