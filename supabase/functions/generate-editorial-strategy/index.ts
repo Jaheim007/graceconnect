@@ -23,7 +23,7 @@ Retourne UNIQUEMENT ce JSON :
 }`
   },
   en: {
-    system: `You are a SENIOR EDITORIAL STRATEGIST with 20 years experience. Analyze an author's topic and create a powerful EDITORIAL POSITIONING. Return ONLY valid JSON.`,
+    system: `You are a SENIOR EDITORIAL STRATEGIST with 20 years experience. Analyze an author's topic and create a powerful EDITORIAL POSITIONING. Return ONLY valid JSON. IMPORTANT: NEVER use markdown formatting (no **, no *, no #). Write in plain text only.`,
     user: (p: any) => `Book topic: "${p.topic}"
 ${p.title ? `Working title: "${p.title}"` : ''}
 Style: ${p.style || 'ebook'}  Audience: ${p.audience || 'general'}  Tone: ${p.tone || 'professional'}
