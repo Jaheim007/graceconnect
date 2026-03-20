@@ -118,6 +118,11 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
 
   return (
     <div className="space-y-8 pt-8">
+      {state.title && (
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">📖 {state.title}</p>
+        </div>
+      )}
       <div className="text-center space-y-2">
         <h2 className="text-2xl sm:text-3xl font-extrabold">{t('write.cover_title')}</h2>
         <p className="text-muted-foreground text-sm">{t('write.cover_sub')}</p>
