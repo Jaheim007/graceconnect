@@ -4,7 +4,7 @@ import { aiGenerateText, extractJson } from '../_shared/ai-fallback.ts';
 
 const langPrompts: Record<string, { system: string; user: (p: any) => string }> = {
   fr: {
-    system: `Tu es un STRATÈGE ÉDITORIAL SENIOR avec 20 ans d'expérience dans l'édition de best-sellers. Ta mission : analyser le sujet d'un auteur et créer un POSITIONNEMENT ÉDITORIAL puissant AVANT l'écriture. Tu retournes UNIQUEMENT un JSON valide.`,
+    system: `Tu es un STRATÈGE ÉDITORIAL SENIOR avec 20 ans d'expérience dans l'édition de best-sellers. Ta mission : analyser le sujet d'un auteur et créer un POSITIONNEMENT ÉDITORIAL puissant AVANT l'écriture. Tu retournes UNIQUEMENT un JSON valide. IMPORTANT : N'utilise JAMAIS de formatage markdown (pas de **, pas de *, pas de #). Écris en texte brut uniquement.`,
     user: (p: any) => `Sujet / Idée du livre : "${p.topic}"
 ${p.title ? `Titre envisagé : "${p.title}"` : ''}
 Style : ${p.style || 'ebook'}
