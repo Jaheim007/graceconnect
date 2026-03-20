@@ -88,6 +88,7 @@ export function ProductForm() {
   const [showAI, setShowAI] = useState(false);
   
   const [regeneratingPdf, setRegeneratingPdf] = useState(false);
+  const [regeneratingCover, setRegeneratingCover] = useState(false);
   const [orderBumpProductId, setOrderBumpProductId] = useState('');
   const [orderBumpDiscount, setOrderBumpDiscount] = useState('');
   const [upsellProductIds, setUpsellProductIds] = useState<string[]>([]);
@@ -514,7 +515,48 @@ export function ProductForm() {
             };
             const cfg = coverHints[pt] || coverHints.other;
             return (
-              <ImageUploader value={watch('cover_image_url') || ''} onChange={(url) => setValue('cover_image_url', url)} folder="products" label={isFr ? 'Image de couverture' : 'Cover image'} hint={cfg.hint} aspectRatio={cfg.aspect} />
+              <div className="space-y-2">
+                <ImageUploader value={watch('cover_image_url') || ''} onChange={(url) => setValue('cover_image_url', url)} folder="products" label={isFr ? 'Image de couverture' : 'Cover image'} hint={cfg.hint} aspectRatio={cfg.aspect} />
+                {isEdit && item?.id && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={regeneratingCover}
+                    className="gap-2 text-xs"
+                    onClick={async () => {
+                      setRegeneratingCover(true);
+                      try {
+                        const { data, error } = await supabase.functions.invoke('ai-generate-cover', {
+                          body: {
+                            product_id: item.id,
+                            title: watch('title') || item.title,
+                            product_type: watch('product_type'),
+                            description: (watch('description') || '').slice(0, 300),
+                            author_name: currentOrg?.name || '',
+                            book_style: item.product_type || 'ebook',
+                          },
+                        });
+                        if (error) throw error;
+                        if (data?.error) throw new Error(data.error);
+                        if (data?.cover_url) {
+                          setValue('cover_image_url', data.cover_url);
+                          toast({ title: isFr ? '✅ Couverture générée' : '✅ Cover generated' });
+                        }
+                      } catch (err: any) {
+                        toast({ title: isFr ? '❌ Erreur' : '❌ Error', description: err.message, variant: 'destructive' });
+                      } finally {
+                        setRegeneratingCover(false);
+                      }
+                    }}
+                  >
+                    {regeneratingCover ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                    {regeneratingCover
+                      ? (isFr ? 'Génération en cours…' : 'Generating…')
+                      : (isFr ? 'Générer une couverture avec l\'IA' : 'Generate cover with AI')}
+                  </Button>
+                )}
+              </div>
             );
           })()}
         </div>

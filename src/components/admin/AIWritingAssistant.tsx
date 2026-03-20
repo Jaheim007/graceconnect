@@ -7,12 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sparkles, Loader2, Copy, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface AIWritingAssistantProps {
   open: boolean;
   onClose: () => void;
   onInsert: (html: string) => void;
-  context?: string; // e.g. "product description", "campaign description"
+  context?: string;
 }
 
 const TONE_OPTIONS = [
@@ -24,7 +25,8 @@ const TONE_OPTIONS = [
 ];
 
 export function AIWritingAssistant({ open, onClose, onInsert, context = 'description' }: AIWritingAssistantProps) {
-  const isFrUI = document.documentElement.lang === 'fr';
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const [prompt, setPrompt] = useState('');
   const [tone, setTone] = useState('professional');
   const [result, setResult] = useState('');
@@ -38,28 +40,26 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
     setResult('');
 
     try {
-      const lang = document.documentElement.lang || 'fr';
       const { data, error } = await supabase.functions.invoke('ai-write-content', {
-        body: { prompt: prompt.trim(), tone, context, lang },
+        body: { prompt: prompt.trim(), tone, context, lang: isFr ? 'fr' : 'en' },
       });
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      // Clean any markdown remnants and ensure HTML
       let content = data?.content || '';
-      // Strip ```html wrapper if model added it
       content = content.replace(/^```html\s*/i, '').replace(/\s*```$/i, '');
-      // Convert any remaining markdown bold/italic to HTML
       content = content.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
       content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
       content = content.replace(/\*(.*?)\*/g, '<em>$1</em>');
-      // Remove leading/trailing --- separators
       content = content.replace(/^\s*---\s*/g, '').replace(/\s*---\s*$/g, '');
-      setResult(content || (document.documentElement.lang === 'fr' ? 'Aucun résultat généré.' : 'No result generated.'));
+      setResult(content || (isFr ? 'Aucun résultat généré.' : 'No result generated.'));
     } catch (err: any) {
-      const isFr = document.documentElement.lang === 'fr';
-      toast({ title: isFr ? 'Erreur IA' : 'AI Error', description: err.message || (isFr ? 'Impossible de générer le contenu.' : 'Unable to generate content.'), variant: 'destructive' });
+      toast({
+        title: isFr ? 'Erreur IA' : 'AI Error',
+        description: err.message || (isFr ? 'Impossible de générer le contenu.' : 'Unable to generate content.'),
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
@@ -80,33 +80,37 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Aide à la rédaction IA
+            {isFr ? 'Aide à la rédaction IA' : 'AI Writing Assistant'}
           </DialogTitle>
           <DialogDescription>
-            Décrivez brièvement ce que vous voulez et l'IA rédigera un texte complet pour vous.
+            {isFr
+              ? 'Décrivez brièvement ce que vous voulez et l\'IA rédigera un texte complet pour vous.'
+              : 'Briefly describe what you need and the AI will write a complete text for you.'}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Décrivez votre besoin</Label>
+            <Label>{isFr ? 'Décrivez votre besoin' : 'Describe your need'}</Label>
             <Textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Ex: Une description pour un ebook sur la gestion financière pour les familles africaines. Le livre contient 12 chapitres, des exercices pratiques..."
+              placeholder={isFr
+                ? 'Ex: Une description pour un ebook sur la gestion financière pour les familles africaines. Le livre contient 12 chapitres, des exercices pratiques...'
+                : 'Ex: A description for an ebook about financial management for African families. The book has 12 chapters, practical exercises...'}
               rows={4}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>{isFrUI ? 'Ton souhaité' : 'Desired tone'}</Label>
+            <Label>{isFr ? 'Ton souhaité' : 'Desired tone'}</Label>
             <Select value={tone} onValueChange={setTone}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {TONE_OPTIONS.map((t) => (
-                  <SelectItem key={t.value} value={t.value}>{isFrUI ? t.label_fr : t.label_en}</SelectItem>
+                  <SelectItem key={t.value} value={t.value}>{isFr ? t.label_fr : t.label_en}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -114,7 +118,9 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
 
           <Button onClick={handleGenerate} disabled={loading || !prompt.trim()} className="w-full gap-2">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            {loading ? 'Rédaction en cours…' : 'Générer le texte'}
+            {loading
+              ? (isFr ? 'Rédaction en cours…' : 'Writing in progress…')
+              : (isFr ? 'Générer le texte' : 'Generate text')}
           </Button>
 
           {result && (
@@ -127,7 +133,7 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
               </div>
               <div className="flex gap-2">
                 <Button onClick={handleInsert} className="flex-1 gap-2">
-                  <CheckCircle className="h-4 w-4" /> Insérer dans l'éditeur
+                  <CheckCircle className="h-4 w-4" /> {isFr ? 'Insérer dans l\'éditeur' : 'Insert into editor'}
                 </Button>
                 <Button
                   variant="outline"
@@ -139,7 +145,7 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
                   className="gap-2"
                 >
                   {copied ? <CheckCircle className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                  {copied ? 'Copié' : 'Copier'}
+                  {copied ? (isFr ? 'Copié' : 'Copied') : (isFr ? 'Copier' : 'Copy')}
                 </Button>
               </div>
             </div>
