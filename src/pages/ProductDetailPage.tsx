@@ -713,12 +713,6 @@ export default function ProductDetailPage() {
                         {formatPrice((product as any).min_price || 0, false, product.currency)}
                       </span>
                     </p>
-                    {(product.price ?? 0) > 0 && (product.price ?? 0) > ((product as any).min_price || 0) && (
-                      <p className="text-xs text-muted-foreground">
-                        {locale === 'fr' ? 'Prix suggéré :' : 'Suggested price:'}{' '}
-                        <span className="font-semibold">{formatPrice(product.price || 0, false, product.currency)}</span>
-                      </p>
-                    )}
                   </div>
                 ) : (
                   <>
