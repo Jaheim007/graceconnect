@@ -352,7 +352,9 @@ export default function WriteWizard() {
   const [willCreateOrg, setWillCreateOrg] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
+  const STEP_LABELS = isFr ? STEP_LABELS_FR : STEP_LABELS_EN;
   const { toast } = useToast();
   const [dbDrafts, setDbDrafts] = useState<SavedWriteDraftSummary[]>([]);
 
