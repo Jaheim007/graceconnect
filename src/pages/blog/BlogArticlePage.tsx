@@ -59,8 +59,8 @@ export default function BlogArticlePage() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title={`${article.title} — Blog Siteviral`}
-        description={article.description}
+        title={`${localizedTitle} — Blog Siteviral`}
+        description={localizedDesc}
         ogImage={ogImage}
         ogType="article"
         canonicalUrl={`https://siteviral.com/blog/${article.slug}`}
