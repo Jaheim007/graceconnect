@@ -671,8 +671,9 @@ MANDATORY REQUIREMENTS:
               }
 
               const imageTimeoutMs = Math.min(20_000, Math.max(10_000, budgetMs - 15_000));
-              const { base64, mimeType } = await openaiGenerateImageBase64({
-                apiKey: OPENAI_API_KEY,
+              const { base64, mimeType } = await aiGenerateImageBase64({
+                geminiKey: GEMINI_API_KEY || '',
+                openaiKey: OPENAI_API_KEY || undefined,
                 prompt: `Professional educational illustration: ${imagePrompt}. Clean, modern, flat design style. No text in the image.`,
                 timeoutMs: imageTimeoutMs,
               });
