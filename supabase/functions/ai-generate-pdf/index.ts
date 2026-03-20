@@ -494,7 +494,7 @@ async function tryDrawCover(pdfDoc: any, page: PDFPage, coverUrl: string) {
     const response = await fetch(coverUrl);
     if (!response.ok) return false;
     const bytes = new Uint8Array(await response.arrayBuffer());
-    if (bytes.length > 3_000_000) {
+    if (bytes.length > 1_500_000) {
       console.warn(`Cover image too large (${(bytes.length / 1e6).toFixed(1)} MB), skipping embed`);
       return false;
     }
