@@ -254,7 +254,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
             variant="ghost"
             size="sm"
             className="gap-1.5 text-xs h-7 text-primary"
-            disabled={suggestingSubtitles || !state.title?.trim()}
+            disabled={suggestingSubtitles || !(state.title?.trim() || state.topic?.trim())}
             onClick={handleSuggestSubtitles}
           >
             {suggestingSubtitles ? (
