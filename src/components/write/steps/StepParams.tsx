@@ -32,7 +32,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [keywordInput, setKeywordInput] = useState('');
   const [orgName, setOrgName] = useState<string | null>(null);
-  const [useOrgName, setUseOrgName] = useState(true);
+  
   const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   const styles: { type: BookStyle; icon: typeof BookOpen; label: string; desc: string }[] = [
