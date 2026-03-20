@@ -131,13 +131,13 @@ export default function BlogIndexPage() {
                   </div>
                   <div className="p-5">
                     <Badge variant="outline" className="text-[10px] px-2 py-0.5 rounded-full mb-3">
-                      {article.category}
+                      {getLocalizedCategory(article.category, locale)}
                     </Badge>
                     <h2 className="font-bold text-sm mb-2 group-hover:text-primary transition-colors leading-snug">
-                      {article.title}
+                      {getLocalizedTitle(article, locale)}
                     </h2>
                     <p className="text-xs text-muted-foreground leading-relaxed mb-4 line-clamp-3">
-                      {article.description}
+                      {getLocalizedDescription(article, locale)}
                     </p>
                     <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
                       <span className="flex items-center gap-1">
