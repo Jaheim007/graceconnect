@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 
 import { useI18n } from '@/i18n/I18nContext';
-import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { formatCurrency } from '@/lib/currency';
 import type { WriteState } from '../WriteWizard';
 
 interface Props {
@@ -11,6 +11,7 @@ interface Props {
   update: (patch: Partial<WriteState>) => void;
   onNext: () => void;
   onBack: () => void;
+  orgCurrency?: string | null;
 }
 
 /** Price ranges per currency for the write wizard */
@@ -28,9 +29,10 @@ const CURRENCY_RANGES: Record<string, { min: number; max: number; step: number }
   TND: { min: 3, max: 80, step: 1 },
 };
 
-export function StepPricing({ state, update, onNext, onBack }: Props) {
+export function StepPricing({ state, update, onNext, onBack, orgCurrency }: Props) {
   const { t } = useI18n();
-  const { currency, fmt } = useDisplayCurrency();
+  const currency = orgCurrency || 'XOF';
+  const fmt = (amount: number) => formatCurrency(amount, currency);
   const range = CURRENCY_RANGES[currency] || CURRENCY_RANGES.USD;
 
   const effectivePrice = Math.max(range.min, Math.min(state.price, range.max));
