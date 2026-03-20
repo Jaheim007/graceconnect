@@ -118,9 +118,16 @@ const PRICING_STEP = 7;
 const PDF_PREVIEW_STEP = 8;
 const PUBLISHING_STEP = 9;
 const CELEBRATION_STEP = 10;
-const STEP_LABELS = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', '🎨 Illustrations', 'Couverture', 'Prix', 'Aperçu PDF', 'Sauvegarde', '🎉'];
+const STEP_LABELS_FR = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', '🎨 Illustrations', 'Couverture', 'Prix', 'Aperçu PDF', 'Sauvegarde', '🎉'];
+const STEP_LABELS_EN = ['Source', 'Details', '🎯 Strategy', 'Creation', 'Preview', '🎨 Illustrations', 'Cover', 'Pricing', 'PDF Preview', 'Save', '🎉'];
 
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
+
+function detectBookLanguage(): BookLanguage {
+  const htmlLang = document.documentElement.lang;
+  if (htmlLang && ['fr', 'en', 'es', 'pt', 'de', 'sw'].includes(htmlLang)) return htmlLang as BookLanguage;
+  return 'fr';
+}
 
 const initialState: WriteState = {
   source: 'idea',
@@ -138,7 +145,7 @@ const initialState: WriteState = {
   tone: 'professional',
   languageLevel: 'intermediate',
   targetAudience: 'general',
-  language: 'fr',
+  language: detectBookLanguage(),
   styleReference: '',
   bookLength: 'medium',
   chapterCount: 8,
@@ -351,7 +358,9 @@ export default function WriteWizard() {
   const [willCreateOrg, setWillCreateOrg] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
+  const STEP_LABELS = isFr ? STEP_LABELS_FR : STEP_LABELS_EN;
   const { toast } = useToast();
   const [dbDrafts, setDbDrafts] = useState<SavedWriteDraftSummary[]>([]);
 

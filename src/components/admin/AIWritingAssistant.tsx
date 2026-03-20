@@ -16,14 +16,15 @@ interface AIWritingAssistantProps {
 }
 
 const TONE_OPTIONS = [
-  { value: 'professional', label: 'Professionnel' },
-  { value: 'friendly', label: 'Amical & accessible' },
-  { value: 'inspiring', label: 'Inspirant & motivant' },
-  { value: 'persuasive', label: 'Persuasif & vendeur' },
-  { value: 'educational', label: 'Éducatif & pédagogique' },
+  { value: 'professional', label_fr: 'Professionnel', label_en: 'Professional' },
+  { value: 'friendly', label_fr: 'Amical & accessible', label_en: 'Friendly & accessible' },
+  { value: 'inspiring', label_fr: 'Inspirant & motivant', label_en: 'Inspiring & motivating' },
+  { value: 'persuasive', label_fr: 'Persuasif & vendeur', label_en: 'Persuasive & sales-driven' },
+  { value: 'educational', label_fr: 'Éducatif & pédagogique', label_en: 'Educational' },
 ];
 
 export function AIWritingAssistant({ open, onClose, onInsert, context = 'description' }: AIWritingAssistantProps) {
+  const isFrUI = document.documentElement.lang === 'fr';
   const [prompt, setPrompt] = useState('');
   const [tone, setTone] = useState('professional');
   const [result, setResult] = useState('');
@@ -37,8 +38,9 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
     setResult('');
 
     try {
+      const lang = document.documentElement.lang || 'fr';
       const { data, error } = await supabase.functions.invoke('ai-write-content', {
-        body: { prompt: prompt.trim(), tone, context },
+        body: { prompt: prompt.trim(), tone, context, lang },
       });
 
       if (error) throw error;
@@ -97,14 +99,14 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
           </div>
 
           <div className="space-y-2">
-            <Label>Ton souhaité</Label>
+            <Label>{isFrUI ? 'Ton souhaité' : 'Desired tone'}</Label>
             <Select value={tone} onValueChange={setTone}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {TONE_OPTIONS.map((t) => (
-                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  <SelectItem key={t.value} value={t.value}>{isFrUI ? t.label_fr : t.label_en}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
