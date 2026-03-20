@@ -967,7 +967,7 @@ Deno.serve(async (req) => {
         : Math.max(MIN_CHAPTERS, Math.min(MAX_CHAPTERS, Math.round(pages / 5)));
     const chapterWordTarget = singleChapter
       ? '450-700'
-      : chapterCount >= 6 ? '320-520' : '420-650';
+      : chapterCount >= 8 ? '250-400' : chapterCount >= 6 ? '320-520' : '420-650';
     const subtitleLine = subtitle ? (lang === 'fr' ? `\nSous-titre : "${subtitle}"` : `\nSubtitle: "${subtitle}"`) : '';
     const authorLine = authorName ? (lang === 'fr' ? `\nAuteur : ${authorName}` : `\nAuthor: ${authorName}`) : '';
     const keywordsLine = Array.isArray(keywords) && keywords.length > 0
