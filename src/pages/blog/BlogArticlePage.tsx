@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Clock, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getArticleBySlug, blogArticles, getArticleOgImage } from '@/lib/blogArticles';
+import { getArticleBySlug, blogArticles, getArticleOgImage, getLocalizedTitle, getLocalizedDescription, getLocalizedCategory } from '@/lib/blogArticles';
 import { useToast } from '@/hooks/use-toast';
 import { useShortLink } from '@/hooks/useShortLink';
 import { useI18n } from '@/i18n/I18nContext';
