@@ -274,7 +274,11 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
         throw new Error('Réponse IA invalide pour ce chapitre');
       }
 
-      const newContent = aiChapters[0].content || '';
+      // Clean markdown artifacts that may leak from AI
+      let newContent = (aiChapters[0].content || '')
+        .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/(?<![<\w])\*([^*\n]+?)\*(?![>\w])/g, '<em>$1</em>');
       const newTitle = action === 'regenerate' ? (aiChapters[0].title || currentChapter.title) : currentChapter.title;
       updateChapterContent(activeChapter, newContent);
       if (action === 'regenerate') updateChapterTitle(activeChapter, newTitle);
