@@ -412,28 +412,31 @@ export function ProductForm() {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5">
+           <div className="space-y-1.5">
             <div className="flex items-center gap-1.5">
               <Label>{isFr ? `Prix (${currentOrg?.currency || 'XOF'})` : `Price (${currentOrg?.currency || 'XOF'})`}</Label>
               <ContextTip tipKey="product_price" />
             </div>
-            <Input type="number" {...register('price')} disabled={isFree} placeholder="Ex: 5000" />
-            {!isFree && <SuggestedPriceHint productType={watch('product_type') || 'pdf'} />}
+            <Input type="number" {...register('price')} disabled={isFree || watch('is_pwyw')} placeholder="Ex: 5000" className={watch('is_pwyw') ? 'opacity-50' : ''} />
+            {!isFree && !watch('is_pwyw') && <SuggestedPriceHint productType={watch('product_type') || 'pdf'} />}
           </div>
         </div>
 
-        {/* Flash Sale */}
+        {/* Flash Sale — disabled when PWYW is active */}
         {!isFree && (
-          <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4 space-y-3">
+          <div className={cn('bg-destructive/5 border border-destructive/20 rounded-xl p-4 space-y-3', watch('is_pwyw') && 'opacity-40 pointer-events-none')}>
             <p className="text-sm font-semibold flex items-center gap-2">🔥 {isFr ? 'Vente Flash' : 'Flash Sale'}</p>
+            {watch('is_pwyw') && (
+              <p className="text-[10px] text-muted-foreground italic">{isFr ? 'Désactivé lorsque "Pay What You Want" est actif.' : 'Disabled when "Pay What You Want" is active.'}</p>
+            )}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">{isFr ? `Prix promo (${currentOrg?.currency || 'XOF'})` : `Sale price (${currentOrg?.currency || 'XOF'})`}</Label>
-                <Input type="number" value={salePrice} onChange={e => setSalePrice(e.target.value)} placeholder={isFr ? 'Ex: 2500' : 'E.g. 2500'} className="h-8 text-xs" />
+                <Input type="number" value={salePrice} onChange={e => setSalePrice(e.target.value)} placeholder={isFr ? 'Ex: 2500' : 'E.g. 2500'} className="h-8 text-xs" disabled={watch('is_pwyw')} />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">{isFr ? 'Fin de la promo' : 'Sale ends'}</Label>
-                <Input type="datetime-local" value={saleEndsAt} onChange={e => setSaleEndsAt(e.target.value)} className="h-8 text-xs" />
+                <Input type="datetime-local" value={saleEndsAt} onChange={e => setSaleEndsAt(e.target.value)} className="h-8 text-xs" disabled={watch('is_pwyw')} />
               </div>
             </div>
             <p className="text-[10px] text-muted-foreground">{isFr ? 'Laissez vide pour désactiver.' : 'Leave empty to disable.'}</p>
