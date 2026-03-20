@@ -287,6 +287,7 @@ const App = () => (
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<LandingPage />} />
+                <Route path="/dashboard-preview" element={<DashboardPreview />} />
                 <Route path="/embed/checkout/:productId" element={<EmbedCheckoutPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
