@@ -116,7 +116,12 @@ export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: S
         onClick={onBuy}
       >
         <ShoppingBag className="h-5 w-5" />
-        {isFree ? 'Obtenir gratuitement' : `Acheter — ${formatPrice(displayPrice, false, currency)}`}
+        {isPwyw
+          ? `💰 ${formatPrice(minPrice, false, currency)}+`
+          : isFree
+            ? 'Obtenir gratuitement'
+            : `Acheter — ${formatPrice(displayPrice, false, currency)}`}
+      </Button>
       </Button>
 
       {/* Strikethrough original price */}

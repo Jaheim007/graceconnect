@@ -457,6 +457,9 @@ export function ProductForm() {
                   if (v) {
                     const current = watch('min_price') || 0;
                     if (current < pwywFloor) setValue('min_price', pwywFloor);
+                    // Clear flash sale fields when enabling PWYW
+                    setSalePrice('');
+                    setSaleEndsAt('');
                   }
                 }} />
                 <Label className="text-sm font-semibold cursor-pointer">💰 Pay What You Want</Label>
