@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Share2, Users, Banknote, ArrowRight } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
-import ambassadorScreenshot from '@/assets/screenshots/ambassador-dashboard.png';
+import ambassadorScreenshot from '@/assets/screenshots/ambassador-real.png';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
