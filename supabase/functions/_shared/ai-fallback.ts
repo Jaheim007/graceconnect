@@ -1,22 +1,67 @@
 /**
- * AI Fallback Layer — Gemini first, OpenAI fallback. ALWAYS.
- * 
- * Every AI call goes through here so that if the primary fails (500, 503, timeout, etc.)
- * the system automatically retries with the fallback before giving up.
+ * AI Fallback Layer — strict provider separation:
  * 
  * TEXT: Gemini first → OpenAI fallback
- * IMAGES: OpenAI first → Gemini fallback (better quality for covers/illustrations)
+ * IMAGES: OpenAI first → Gemini fallback
+ * 
+ * When OpenAI image generation fails and we fall back to Gemini,
+ * all superadmins are notified so they can check the OpenAI quota.
  * 
  * Rate-limit (429) and credit (402) errors are NOT retried — they bubble up immediately.
  */
 
 import { geminiGenerateText, extractJson, geminiGenerateImageBase64 } from './ai-gemini.ts';
 import { openaiChat, openaiGenerateImageBase64 } from './ai-openai.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 /** Errors that should NOT trigger fallback (user-side / billing issues) */
 function shouldNotFallback(err: any): boolean {
   const status = err?.status;
   return status === 402 || status === 401 || status === 403;
+}
+
+/**
+ * Notify all superadmins when OpenAI image generation fails.
+ * Fire-and-forget — never blocks or throws.
+ */
+async function notifySuperadminsOpenAIFailure(errorMsg: string, errorStatus?: number) {
+  try {
+    const url = Deno.env.get('SUPABASE_URL');
+    const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (!url || !key) return;
+
+    const db = createClient(url, key);
+
+    // Get all superadmin user IDs
+    const { data: superadmins } = await db
+      .from('user_platform_roles')
+      .select('user_id')
+      .eq('role', 'superadmin');
+
+    if (!superadmins?.length) return;
+
+    const isQuota = errorStatus === 429 || errorMsg?.toLowerCase().includes('quota') || errorMsg?.toLowerCase().includes('rate limit') || errorMsg?.toLowerCase().includes('insufficient_quota');
+    const title = isQuota
+      ? '⚠️ OpenAI — Quota épuisé / Rate limit'
+      : '⚠️ OpenAI — Génération image échouée';
+    const body = isQuota
+      ? `La génération d'image OpenAI a échoué (quota/rate-limit). Le système utilise Gemini en secours. Vérifiez le quota OpenAI. Erreur: ${errorMsg?.slice(0, 200)}`
+      : `La génération d'image OpenAI a échoué (status ${errorStatus || 'unknown'}). Le système utilise Gemini en secours. Erreur: ${errorMsg?.slice(0, 200)}`;
+
+    const notifications = superadmins.map((sa: any) => ({
+      user_id: sa.user_id,
+      title,
+      body,
+      notification_type: 'openai_image_failure',
+      action_url: '/superadmin',
+    }));
+
+    await db.from('notifications').insert(notifications);
+    console.log(`[ai-fallback] Notified ${superadmins.length} superadmin(s) about OpenAI image failure`);
+  } catch (notifErr) {
+    // Never let notification errors affect the main flow
+    console.warn('[ai-fallback] Failed to notify superadmins:', (notifErr as any)?.message?.slice(0, 200));
+  }
 }
 
 // ─── Text Generation with Fallback (Gemini → OpenAI) ───
@@ -68,7 +113,6 @@ export async function aiGenerateText(opts: {
 }
 
 // ─── Image Generation with Fallback (OpenAI FIRST → Gemini fallback) ───
-// OpenAI produces higher quality images for covers, illustrations, etc.
 
 export async function aiGenerateImageBase64(opts: {
   geminiKey: string;
@@ -90,8 +134,17 @@ export async function aiGenerateImageBase64(opts: {
       });
     } catch (openaiErr: any) {
       if (shouldNotFallback(openaiErr)) throw openaiErr;
-      console.warn('[ai-fallback] OpenAI image failed, falling back to Gemini:', openaiErr?.message?.slice(0, 200));
+      
+      const errMsg = openaiErr?.message || 'Unknown error';
+      const errStatus = openaiErr?.status;
+      console.warn('[ai-fallback] OpenAI image failed, falling back to Gemini:', errMsg.slice(0, 200));
+      
+      // Fire-and-forget: notify superadmins about the failure
+      notifySuperadminsOpenAIFailure(errMsg, errStatus);
     }
+  } else {
+    // No OpenAI key at all — also notify
+    notifySuperadminsOpenAIFailure('OPENAI_API_KEY not configured', undefined);
   }
 
   // Fallback to Gemini
