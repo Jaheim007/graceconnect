@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { corsHeaders, jsonResp, requireAuth, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsWithRefund, consumeCreditsOrThrow, refundCreditsAsBonus, normalizeTier } from '../_shared/credits.ts';
-import { openaiGenerateImageBase64 } from '../_shared/ai-openai.ts';
+import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 import { geminiGenerateText } from '../_shared/ai-gemini.ts';
 
 const ACTION_KEY = 'ai_course_structure';
@@ -603,8 +603,8 @@ MANDATORY REQUIREMENTS:
     // ─── Image generation (after structure, per lesson) ───
     let imagesGenerated = 0;
     if (generate_images && result?.modules) {
-      if (!OPENAI_API_KEY) {
-        console.warn('[ai-generate-course] Skipping lesson images: OPENAI_API_KEY is not configured');
+      if (!OPENAI_API_KEY && !GEMINI_API_KEY) {
+        console.warn('[ai-generate-course] Skipping lesson images: no AI image provider configured');
       } else {
         const imageJobs: Array<{ lesson: any; imagePrompt: string }> = [];
         for (const mod of result.modules) {
@@ -671,8 +671,9 @@ MANDATORY REQUIREMENTS:
               }
 
               const imageTimeoutMs = Math.min(20_000, Math.max(10_000, budgetMs - 15_000));
-              const { base64, mimeType } = await openaiGenerateImageBase64({
-                apiKey: OPENAI_API_KEY,
+              const { base64, mimeType } = await aiGenerateImageBase64({
+                geminiKey: GEMINI_API_KEY || '',
+                openaiKey: OPENAI_API_KEY || undefined,
                 prompt: `Professional educational illustration: ${imagePrompt}. Clean, modern, flat design style. No text in the image.`,
                 timeoutMs: imageTimeoutMs,
               });
