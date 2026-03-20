@@ -1,3 +1,5 @@
+import { BLOG_EN, CATEGORY_EN } from './blogTranslations';
+
 export type BlogUniverse = 'all' | 'buyer' | 'ambassador' | 'creator';
 
 export interface BlogArticle {
@@ -13,6 +15,24 @@ export interface BlogArticle {
   /** Optional OG image URL for social sharing (1200x630 recommended) */
   ogImage?: string;
   content: string; // markdown-like HTML
+}
+
+/** Get localized title for an article */
+export function getLocalizedTitle(article: BlogArticle, locale: string): string {
+  if (locale !== 'fr' && BLOG_EN[article.slug]?.title) return BLOG_EN[article.slug].title;
+  return article.title;
+}
+
+/** Get localized description for an article */
+export function getLocalizedDescription(article: BlogArticle, locale: string): string {
+  if (locale !== 'fr' && BLOG_EN[article.slug]?.description) return BLOG_EN[article.slug].description;
+  return article.description;
+}
+
+/** Get localized category name */
+export function getLocalizedCategory(category: string, locale: string): string {
+  if (locale !== 'fr' && CATEGORY_EN[category]) return CATEGORY_EN[category];
+  return category;
 }
 
 /** Map category → multiple OG image paths for rotation */
