@@ -197,7 +197,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
     try {
       const bookTitle = (state.title || t('write.my_book')).trim();
       const bookTopic = (state.topic || state.title || currentChapter.title || '').trim();
-      const chapterBody = htmlToPlainText(currentChapter.content, 3500);
+      const chapterBody = htmlToPlainText(currentChapter.content, 8000);
 
       const isReligiousStyle = ['prayers', 'devotional'].includes(state.style || '');
       const noReligiousContent = !isReligiousStyle && !state.religiousTradition;
@@ -224,8 +224,8 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
           ? `Rewrite the chapter "${currentChapter.title}" from scratch with a fresh angle while staying faithful to the book's subject.${hasStyleRef ? ` Write exactly in the style of "${state.styleReference!.trim()}".` : ''}`
           : `Réécris entièrement le chapitre "${currentChapter.title}" avec un angle neuf mais fidèle au sujet du livre.${hasStyleRef ? ` Écris exactement dans le style de « ${state.styleReference!.trim()} ».` : ''}`,
         amplify: isEnglishBook
-          ? `Deepen and EXPAND the chapter "${currentChapter.title}" significantly. Add more substance, more detailed examples, more concrete arguments, and more depth to each point. Make it longer and richer.${hasStyleRef ? ` The amplified content MUST stay in the style of "${state.styleReference!.trim()}" — use their vocabulary, their rhetorical patterns, their way of making arguments.` : ''} Do NOT change the subject or add topics that weren't in the original. Just go DEEPER into what's already there.`
-          : `Enrichis et DÉVELOPPE significativement le chapitre "${currentChapter.title}". Ajoute plus de substance, plus d'exemples détaillés, plus d'arguments concrets, et plus de profondeur à chaque point. Rends-le plus long et plus riche.${hasStyleRef ? ` Le contenu amplifié DOIT rester dans le style de « ${state.styleReference!.trim()} » — utilise son vocabulaire, ses schémas rhétoriques, sa façon d'argumenter.` : ''} Ne change PAS le sujet et n'ajoute pas de thèmes absents de l'original. Va juste PLUS EN PROFONDEUR dans ce qui est déjà là.`,
+          ? `Deepen and EXPAND the chapter "${currentChapter.title}" significantly. You MUST return the COMPLETE amplified chapter from start to finish — never stop mid-sentence or mid-paragraph. Add more substance, more detailed examples, more concrete arguments, and more depth to each point. Make it at least 50% longer and richer than the original.${hasStyleRef ? ` The amplified content MUST stay in the style of "${state.styleReference!.trim()}" — use their vocabulary, their rhetorical patterns, their way of making arguments.` : ''} Do NOT change the subject or add topics that weren't in the original. Just go DEEPER into what's already there. The output must be a COMPLETE, FINISHED chapter.`
+          : `Enrichis et DÉVELOPPE significativement le chapitre "${currentChapter.title}". Tu DOIS retourner le chapitre amplifié COMPLET du début à la fin — ne t'arrête JAMAIS en pleine phrase ou en plein paragraphe. Ajoute plus de substance, plus d'exemples détaillés, plus d'arguments concrets, et plus de profondeur à chaque point. Rends-le au moins 50% plus long et plus riche que l'original.${hasStyleRef ? ` Le contenu amplifié DOIT rester dans le style de « ${state.styleReference!.trim()} » — utilise son vocabulaire, ses schémas rhétoriques, sa façon d'argumenter.` : ''} Ne change PAS le sujet et n'ajoute pas de thèmes absents de l'original. Va juste PLUS EN PROFONDEUR dans ce qui est déjà là. Le résultat doit être un chapitre COMPLET et TERMINÉ.`,
         custom: customPrompt?.trim() || '',
       };
 
