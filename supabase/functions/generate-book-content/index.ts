@@ -534,7 +534,7 @@ function salvageTruncatedJson(raw: string): string | null {
     if (ch === '{') braceDepth++;
     if (ch === '}') {
       braceDepth--;
-      if (braceDepth === 1) {
+      if (braceDepth === 0) {
         lastGoodEnd = i;
       }
     }
