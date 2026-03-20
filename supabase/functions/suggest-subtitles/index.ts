@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
     if (!GEMINI_API_KEY) return jsonResp({ error: 'AI not configured' }, 500);
 
     const { title, topic, style, audience, language, tier } = await req.json();
-    if (!title) return jsonResp({ error: 'title required' }, 400);
+    if (!title && !topic) return jsonResp({ error: 'title or topic required' }, 400);
 
     const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
 
