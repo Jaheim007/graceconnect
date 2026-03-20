@@ -4,7 +4,7 @@ import { PenLine, Sparkles, ArrowRight, BookOpen, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
-import aiStudioScreenshot from '@/assets/screenshots/dashboard-real.png';
+import aiStudioScreenshot from '@/assets/screenshots/dashboard-real-tweaked.png';
 
 export function LandingInteractiveDemo() {
   const [activeStep, setActiveStep] = useState(0);
