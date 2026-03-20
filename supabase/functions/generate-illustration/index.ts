@@ -7,7 +7,7 @@ const artStylePrompts: Record<string, string> = {
   children_book: 'children book illustration style, warm colors, friendly characters, soft lighting, storybook feel',
   watercolor: 'watercolor painting style, soft washes of color, artistic, fluid brushstrokes',
   cartoon: 'modern cartoon illustration, bold colors, clean lines, fun and engaging',
-  realistic: 'realistic digital painting, detailed and lifelike, rich colors',
+  realistic: 'high-quality photorealistic illustration, cinematic lighting, sharp detail, professional photography quality, natural skin tones and textures, depth of field',
   line_art: 'black and white line art for coloring book, clean bold outlines only, NO shading NO fills NO colors, thick black contour lines on pure white background, large areas to color in',
 };
 
