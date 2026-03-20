@@ -199,13 +199,33 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
       const bookTopic = (state.topic || state.title || currentChapter.title || '').trim();
       const chapterBody = htmlToPlainText(currentChapter.content, 3500);
 
+      const isReligiousStyle = ['prayers', 'devotional'].includes(state.style || '');
+      const noReligiousContent = !isReligiousStyle && !state.religiousTradition;
+      const hasStyleRef = !!state.styleReference?.trim();
+
+      const noMarkdownRule = isEnglishBook
+        ? 'CRITICAL: Output must be clean HTML only. NEVER use markdown syntax: no asterisks (*), no double asterisks (**), no underscores for emphasis, no # headings. Use only HTML tags: <strong> for bold, <em> for italic, <h2>/<h3> for headings, <p> for paragraphs.'
+        : 'CRITIQUE : Le contenu doit être en HTML propre UNIQUEMENT. JAMAIS de syntaxe markdown : pas d\'astérisques (*), pas de double astérisques (**), pas d\'underscores pour l\'emphase, pas de # pour les titres. Utilise UNIQUEMENT les balises HTML : <strong> pour le gras, <em> pour l\'italique, <h2>/<h3> pour les titres, <p> pour les paragraphes.';
+
+      const noVerseRule = noReligiousContent
+        ? (isEnglishBook
+          ? 'IMPORTANT: Do NOT add Bible verses, scripture references, or any religious content. This is a SECULAR book.'
+          : 'IMPORTANT : N\'ajoute PAS de versets bibliques, de références scripturaires ni de contenu religieux. C\'est un livre SÉCULIER.')
+        : '';
+
+      const styleRefRule = hasStyleRef
+        ? (isEnglishBook
+          ? `PRIORITY: Write in the style of "${state.styleReference!.trim()}". Every paragraph must sound like this person/style wrote it. Reproduce their vocabulary, rhythm, and tone faithfully.`
+          : `PRIORITÉ : Écris dans le style de « ${state.styleReference!.trim()} ». Chaque paragraphe doit sonner comme si cette personne/ce style l'avait écrit. Reproduis fidèlement son vocabulaire, son rythme et son ton.`)
+        : '';
+
       const actionInstruction: Record<'regenerate' | 'amplify' | 'custom', string> = {
         regenerate: isEnglishBook
-          ? `Rewrite the chapter "${currentChapter.title}" from scratch with a fresh angle while staying faithful to the book's subject.`
-          : `Réécris entièrement le chapitre "${currentChapter.title}" avec un angle neuf mais fidèle au sujet du livre.`,
+          ? `Rewrite the chapter "${currentChapter.title}" from scratch with a fresh angle while staying faithful to the book's subject.${hasStyleRef ? ` Write exactly in the style of "${state.styleReference!.trim()}".` : ''}`
+          : `Réécris entièrement le chapitre "${currentChapter.title}" avec un angle neuf mais fidèle au sujet du livre.${hasStyleRef ? ` Écris exactement dans le style de « ${state.styleReference!.trim()} ».` : ''}`,
         amplify: isEnglishBook
-          ? `Deepen the chapter "${currentChapter.title}" with more substance, examples, and concrete value.`
-          : `Enrichis fortement le chapitre "${currentChapter.title}" avec plus de profondeur, d'exemples, et de valeur concrète.`,
+          ? `Deepen and EXPAND the chapter "${currentChapter.title}" significantly. Add more substance, more detailed examples, more concrete arguments, and more depth to each point. Make it longer and richer.${hasStyleRef ? ` The amplified content MUST stay in the style of "${state.styleReference!.trim()}" — use their vocabulary, their rhetorical patterns, their way of making arguments.` : ''} Do NOT change the subject or add topics that weren't in the original. Just go DEEPER into what's already there.`
+          : `Enrichis et DÉVELOPPE significativement le chapitre "${currentChapter.title}". Ajoute plus de substance, plus d'exemples détaillés, plus d'arguments concrets, et plus de profondeur à chaque point. Rends-le plus long et plus riche.${hasStyleRef ? ` Le contenu amplifié DOIT rester dans le style de « ${state.styleReference!.trim()} » — utilise son vocabulaire, ses schémas rhétoriques, sa façon d'argumenter.` : ''} Ne change PAS le sujet et n'ajoute pas de thèmes absents de l'original. Va juste PLUS EN PROFONDEUR dans ce qui est déjà là.`,
         custom: customPrompt?.trim() || '',
       };
 
@@ -219,11 +239,9 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
         isEnglishBook
           ? `Format: ${state.style}. Tone: ${state.tone || 'professional'}. Level: ${state.languageLevel || 'intermediate'}. Audience: ${state.targetAudience || 'general'}.`
           : `Format : ${state.style}. Ton : ${state.tone || 'professional'}. Niveau : ${state.languageLevel || 'intermediate'}. Public : ${state.targetAudience || 'general'}.`,
-        state.styleReference?.trim()
-          ? (isEnglishBook
-            ? `Priority style reference: ${state.styleReference.trim()}.`
-            : `Référence de style prioritaire : ${state.styleReference.trim()}.`)
-          : '',
+        noMarkdownRule,
+        noVerseRule,
+        styleRefRule,
         isEnglishBook ? `Instruction: ${instruction}` : `Instruction : ${instruction}`,
         action === 'regenerate'
           ? ''
@@ -256,7 +274,11 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
         throw new Error('Réponse IA invalide pour ce chapitre');
       }
 
-      const newContent = aiChapters[0].content || '';
+      // Clean markdown artifacts that may leak from AI
+      let newContent = (aiChapters[0].content || '')
+        .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/(?<![<\w])\*([^*\n]+?)\*(?![>\w])/g, '<em>$1</em>');
       const newTitle = action === 'regenerate' ? (aiChapters[0].title || currentChapter.title) : currentChapter.title;
       updateChapterContent(activeChapter, newContent);
       if (action === 'regenerate') updateChapterTitle(activeChapter, newTitle);
