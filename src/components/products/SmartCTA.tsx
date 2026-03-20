@@ -122,7 +122,6 @@ export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: S
             ? 'Obtenir gratuitement'
             : `Acheter — ${formatPrice(displayPrice, false, currency)}`}
       </Button>
-      </Button>
 
       {/* Strikethrough original price */}
       {hasSale && (
