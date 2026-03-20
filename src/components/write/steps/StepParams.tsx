@@ -95,9 +95,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     { type: 'long', label: t('write.length_long') || 'Long', desc: t('write.length_long_desc') || 'Ouvrage complet', pages: '100-200' },
   ];
 
-  const suggestedTitle = state.topic
-    ? state.topic.length > 40 ? state.topic.substring(0, 40) + '…' : state.topic
-    : '';
+  const suggestedTitle = state.topic || '';
   const hasSavedChapters = hasGeneratedContent(state.chapters);
   const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
 
@@ -256,7 +254,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
             variant="ghost"
             size="sm"
             className="gap-1.5 text-xs h-7 text-primary"
-            disabled={suggestingSubtitles || !state.title?.trim()}
+            disabled={suggestingSubtitles || !(state.title?.trim() || state.topic?.trim())}
             onClick={handleSuggestSubtitles}
           >
             {suggestingSubtitles ? (
