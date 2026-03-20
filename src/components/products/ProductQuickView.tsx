@@ -32,7 +32,7 @@ export function ProductQuickView({ product, open, onClose }: ProductQuickViewPro
 
   const salePrice = product.sale_price;
   const saleEndsAt = product.sale_ends_at;
-  const isFlashSale = salePrice != null && saleEndsAt && new Date(saleEndsAt) > new Date();
+  const isFlashSale = !product.is_pwyw && salePrice != null && saleEndsAt && new Date(saleEndsAt) > new Date();
   const displayPrice = isFlashSale ? salePrice : product.price;
   const fmt = (n: number) => formatPrice(n, product.is_free, product.currency);
 
