@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -360,13 +361,14 @@ export default function WriteWizard() {
   const [publishingStage, setPublishingStage] = useState<PublishingStage>('preparing');
   const [willCreateOrg, setWillCreateOrg] = useState(false);
   const { user } = useAuth();
+  const { currentOrg } = useOrg();
   const navigate = useNavigate();
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
   const STEP_LABELS = isFr ? STEP_LABELS_FR : STEP_LABELS_EN;
   const { toast } = useToast();
   const [dbDrafts, setDbDrafts] = useState<SavedWriteDraftSummary[]>([]);
-  const [orgCurrency, setOrgCurrency] = useState<string | null>(null);
+  const orgCurrency = currentOrg?.currency || null;
 
   // Load DB-backed projects (previously generated books)
   useEffect(() => {
@@ -382,13 +384,7 @@ export default function WriteWizard() {
           .maybeSingle();
         if (!membership?.organization_id) return;
 
-        // Fetch org currency for pricing step
-        const { data: orgData } = await supabase
-          .from('organizations')
-          .select('currency')
-          .eq('id', membership.organization_id)
-          .maybeSingle();
-        if (orgData?.currency) setOrgCurrency(orgData.currency);
+        // Currency now comes from useOrg() context
 
         const { data: projects } = await supabase
           .from('ai_content_projects')
