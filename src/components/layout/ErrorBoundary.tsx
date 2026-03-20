@@ -1,5 +1,5 @@
 import { Component, type ReactNode, type ErrorInfo } from 'react';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Props {
@@ -69,13 +69,21 @@ export class ErrorBoundary extends Component<Props, State> {
                 <pre className="mt-2 whitespace-pre-wrap break-all">{this.state.error.message}{'\n'}{this.state.error.stack}</pre>
               </details>
             )}
-            <div className="flex gap-2 justify-center">
-              <Button variant="outline" size="sm" onClick={this.handleReset}>
-                <RefreshCw className="h-4 w-4 mr-1" /> Réessayer
-              </Button>
-              <Button size="sm" onClick={() => window.location.reload()}>
-                Recharger
-              </Button>
+            <div className="flex flex-col gap-2 items-center">
+              <div className="flex gap-2 justify-center">
+                <Button variant="outline" size="sm" onClick={this.handleReset}>
+                  <RefreshCw className="h-4 w-4 mr-1" /> Réessayer
+                </Button>
+                <Button size="sm" onClick={() => window.location.reload()}>
+                  Recharger
+                </Button>
+              </div>
+              <a
+                href="mailto:support@siteviral.com?subject=Erreur%20inattendue%20sur%20SiteViral&body=Bonjour%2C%20j'ai%20rencontr%C3%A9%20une%20erreur%20sur%20la%20plateforme.%20Merci%20de%20m'aider."
+                className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline mt-2"
+              >
+                <Mail className="h-4 w-4" /> Contacter le support
+              </a>
             </div>
           </div>
         </div>
