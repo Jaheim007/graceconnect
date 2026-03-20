@@ -6,10 +6,9 @@ import { useOrg } from '@/contexts/OrgContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart3, ShoppingCart, Heart, CreditCard, Zap, ArrowUpRight, Wallet } from 'lucide-react';
+import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart3, ShoppingCart, Heart, CreditCard, Zap, ArrowUpRight, Wallet, ChevronRight } from 'lucide-react';
 import { format, startOfDay, startOfWeek, startOfMonth, subDays, subMonths } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -203,38 +202,10 @@ export default function AdminSales() {
   };
 
   const statCards = [
-    {
-      label: isFr ? "Chiffre d'affaires" : 'Revenue',
-      value: fmt(totalGMV, orgCurrency),
-      icon: DollarSign,
-      accent: 'hsl(var(--primary))',
-      accentBg: 'bg-primary/10',
-      accentText: 'text-primary',
-    },
-    {
-      label: isFr ? 'Reçu (net)' : 'Received (net)',
-      value: fmt(totalOrgReceived, orgCurrency),
-      icon: TrendingUp,
-      accent: 'hsl(142 71% 45%)',
-      accentBg: 'bg-emerald-500/10',
-      accentText: 'text-emerald-600',
-    },
-    {
-      label: isFr ? 'Comm. Affiliés' : 'Affiliate Comm.',
-      value: fmt(totalAffComm, orgCurrency),
-      icon: Users,
-      accent: 'hsl(38 92% 50%)',
-      accentBg: 'bg-amber-500/10',
-      accentText: 'text-amber-600',
-    },
-    {
-      label: 'Transactions',
-      value: allTx.length.toString(),
-      icon: BarChart3,
-      accent: 'hsl(262 83% 58%)',
-      accentBg: 'bg-violet-500/10',
-      accentText: 'text-violet-600',
-    },
+    { label: isFr ? "Chiffre d'affaires" : 'Revenue', value: fmt(totalGMV, orgCurrency), icon: DollarSign, color: 'primary' as const },
+    { label: isFr ? 'Reçu (net)' : 'Received (net)', value: fmt(totalOrgReceived, orgCurrency), icon: TrendingUp, color: 'emerald' as const },
+    { label: isFr ? 'Comm. Affiliés' : 'Affiliate Comm.', value: fmt(totalAffComm, orgCurrency), icon: Users, color: 'amber' as const },
+    { label: 'Transactions', value: allTx.length.toString(), icon: BarChart3, color: 'blue' as const },
   ];
 
   const typeFilters = [
@@ -252,112 +223,137 @@ export default function AdminSales() {
 
   const periodOptions: { key: PeriodKey; label: string }[] = [
     { key: 'all', label: isFr ? 'Tout' : 'All' },
-    { key: 'today', label: isFr ? "Aujourd'hui" : 'Today' },
-    { key: 'this_week', label: isFr ? 'Semaine' : 'Week' },
+    { key: 'today', label: isFr ? "Auj." : 'Today' },
+    { key: 'this_week', label: isFr ? 'Sem.' : 'Week' },
     { key: 'this_month', label: isFr ? 'Mois' : 'Month' },
-    { key: '7d', label: '7d' },
-    { key: '30d', label: '30d' },
-    { key: '90d', label: '90d' },
-    { key: 'custom', label: isFr ? 'Personnalisé' : 'Custom' },
+    { key: '7d', label: '7j' },
+    { key: '30d', label: '30j' },
+    { key: '90d', label: '90j' },
+    { key: 'custom', label: isFr ? 'Custom' : 'Custom' },
   ];
 
+  const gatewayLabel = (g: string) =>
+    g === 'stripe' ? 'Stripe' : g === 'paystack' ? 'Paystack' : isFr ? 'Gratuit' : 'Free';
+
+  const statusLabel = (s: string) =>
+    s === 'completed' ? (isFr ? 'Succès' : 'Success') :
+    s === 'pending' ? (isFr ? 'Attente' : 'Pending') :
+    (isFr ? 'Échec' : 'Failed');
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-6 pb-8">
       {/* ── Header ── */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="flex items-start justify-between gap-3"
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div>
-          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight leading-tight">
+        <div className="flex items-center justify-between gap-3 mb-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             {isFr ? 'Mes Ventes' : 'My Sales'}
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            {isFr ? 'Historique complet des transactions de votre boutique' : 'Complete transaction history for your store'}
-          </p>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              onClick={() => navigate('/admin/payouts')}
+              className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-bold shadow-elevated rounded-xl h-10 px-5 text-sm"
+            >
+              <Wallet className="h-4 w-4" /> {isFr ? 'Retraits' : 'Payouts'}
+            </Button>
+            <Button
+              onClick={handleExport}
+              variant="outline"
+              size="icon"
+              className="rounded-xl h-10 w-10 border-border shrink-0"
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <Button
-            onClick={() => navigate('/admin/payouts')}
-            className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-bold shadow-lg rounded-xl h-9 sm:h-10 px-4 sm:px-5 text-xs sm:text-sm"
-          >
-            <Wallet className="h-4 w-4" /> {isFr ? 'Retraits' : 'Payouts'}
-          </Button>
-          <Button
-            onClick={handleExport}
-            variant="outline"
-            className="gap-2 rounded-xl h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm font-semibold border-border"
-          >
-            <Download className="h-4 w-4" /> CSV
-          </Button>
-        </div>
+        <p className="text-sm text-muted-foreground">
+          {isFr ? 'Historique complet des transactions de votre boutique' : 'Complete transaction history for your store'}
+        </p>
       </motion.div>
 
       {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {statCards.map((card, i) => (
-          <motion.div
-            key={card.label}
-            initial={{ opacity: 0, y: 14, filter: 'blur(4px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ delay: i * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="rounded-xl border border-border bg-card p-4 hover:shadow-md transition-shadow duration-300"
-          >
-            <div className={cn('h-8 w-8 rounded-lg flex items-center justify-center mb-3', card.accentBg)}>
-              <card.icon className={cn('h-4 w-4', card.accentText)} />
-            </div>
-            <p className="text-xl sm:text-2xl font-extrabold tracking-tight leading-none">{card.value}</p>
-            <p className="text-[11px] text-muted-foreground mt-1.5 font-medium uppercase tracking-wide">{card.label}</p>
-          </motion.div>
-        ))}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        {statCards.map((card, i) => {
+          const colorStyles = {
+            primary: { bg: 'bg-primary/8', text: 'text-primary', border: 'border-primary/15' },
+            emerald: { bg: 'bg-emerald-500/8', text: 'text-emerald-600', border: 'border-emerald-500/15' },
+            amber: { bg: 'bg-amber-500/8', text: 'text-amber-600', border: 'border-amber-500/15' },
+            blue: { bg: 'bg-blue-500/8', text: 'text-blue-600', border: 'border-blue-500/15' },
+          }[card.color];
+
+          return (
+            <motion.div
+              key={card.label}
+              initial={{ opacity: 0, y: 16, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ delay: 0.08 * i, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className={cn(
+                'relative rounded-2xl border bg-card p-5 sm:p-6 overflow-hidden transition-shadow duration-300 hover:shadow-elevated',
+                colorStyles.border
+              )}
+            >
+              <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center mb-4', colorStyles.bg)}>
+                <card.icon className={cn('h-[18px] w-[18px]', colorStyles.text)} />
+              </div>
+              <p className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-none tabular-nums">
+                {card.value}
+              </p>
+              <p className="text-[11px] sm:text-xs text-muted-foreground mt-2 font-semibold uppercase tracking-wider">
+                {card.label}
+              </p>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* ── Filters ── */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ delay: 0.3, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="space-y-3"
       >
-        {/* Search + type + status */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="relative flex-1 min-w-[180px] max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={isFr ? 'Rechercher...' : 'Search...'}
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="pl-9 h-9 rounded-lg bg-muted/40 border-border/60 text-sm focus-visible:ring-primary/30"
-            />
-          </div>
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={isFr ? 'Rechercher un produit, acheteur, email...' : 'Search product, buyer, email...'}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pl-10 h-11 rounded-xl bg-muted/30 border-border/50 text-sm focus-visible:ring-primary/30"
+          />
+        </div>
 
-          <div className="flex items-center gap-0.5 bg-muted/40 rounded-lg p-0.5 border border-border/40">
+        {/* Type + Status filters */}
+        <div className="flex flex-wrap gap-2">
+          <div className="flex items-center gap-0.5 bg-muted/40 rounded-xl p-1 border border-border/30">
             {typeFilters.map(f => (
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
                 className={cn(
-                  'flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-semibold transition-all duration-200',
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200',
                   filter === f.key
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 <f.icon className="h-3 w-3" />
-                <span className="hidden sm:inline">{f.label}</span>
+                {f.label}
               </button>
             ))}
           </div>
 
-          <div className="flex items-center gap-0.5 bg-muted/40 rounded-lg p-0.5 border border-border/40">
+          <div className="flex items-center gap-0.5 bg-muted/40 rounded-xl p-1 border border-border/30">
             {statusFilters.map(s => (
               <button
                 key={s.key}
                 onClick={() => setStatusFilter(s.key)}
                 className={cn(
-                  'px-2.5 py-1.5 rounded-md text-xs font-semibold transition-all duration-200',
+                  'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200',
                   statusFilter === s.key
                     ? 'bg-foreground text-background shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
@@ -370,14 +366,14 @@ export default function AdminSales() {
         </div>
 
         {/* Period */}
-        <div className="flex flex-wrap items-center gap-1.5">
-          <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground mr-0.5" />
+        <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide pb-0.5">
+          <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground mr-1 shrink-0" />
           {periodOptions.map(p => (
             <button
               key={p.key}
               onClick={() => setPeriodFilter(p.key)}
               className={cn(
-                'px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-200',
+                'px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 whitespace-nowrap shrink-0',
                 periodFilter === p.key
                   ? 'bg-primary/10 text-primary ring-1 ring-primary/20'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
@@ -389,13 +385,13 @@ export default function AdminSales() {
         </div>
 
         {periodFilter === 'custom' && (
-          <div className="flex flex-wrap items-center gap-2.5 p-3 rounded-lg bg-muted/30 border border-border/40">
+          <div className="flex flex-wrap items-center gap-2.5 p-3 rounded-xl bg-muted/20 border border-border/30">
             <span className="text-xs text-muted-foreground font-medium">{isFr ? 'Du :' : 'From:'}</span>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className={cn("h-8 text-xs gap-1.5 rounded-lg", !customDateFrom && "text-muted-foreground")}>
                   <CalendarIcon className="h-3 w-3" />
-                  {customDateFrom ? format(customDateFrom, 'dd MMM yyyy', { locale: dateFnsLocale }) : (isFr ? 'Date début' : 'Start')}
+                  {customDateFrom ? format(customDateFrom, 'dd MMM yyyy', { locale: dateFnsLocale }) : (isFr ? 'Début' : 'Start')}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -407,7 +403,7 @@ export default function AdminSales() {
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className={cn("h-8 text-xs gap-1.5 rounded-lg", !customDateTo && "text-muted-foreground")}>
                   <CalendarIcon className="h-3 w-3" />
-                  {customDateTo ? format(customDateTo, 'dd MMM yyyy', { locale: dateFnsLocale }) : (isFr ? 'Date fin' : 'End')}
+                  {customDateTo ? format(customDateTo, 'dd MMM yyyy', { locale: dateFnsLocale }) : (isFr ? 'Fin' : 'End')}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -423,127 +419,121 @@ export default function AdminSales() {
         )}
       </motion.div>
 
-      {/* ── Transaction Table ── */}
+      {/* ── Transactions ── */}
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="rounded-xl border border-border bg-card overflow-hidden"
+        transition={{ delay: 0.4, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
-        {/* Table header bar */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border/60">
-          <h2 className="text-sm font-bold flex items-center gap-2">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-bold flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-primary" />
-            {isFr ? 'Historique des transactions' : 'Transaction history'}
+            {isFr ? 'Transactions' : 'Transactions'}
           </h2>
-          <span className="text-xs text-muted-foreground tabular-nums">
+          <span className="text-xs text-muted-foreground font-medium tabular-nums">
             {allTx.length} {isFr ? 'résultat' : 'result'}{allTx.length !== 1 ? 's' : ''}
           </span>
         </div>
 
         {isLoading ? (
-          <div className="p-4"><SkeletonRow count={6} /></div>
+          <div className="space-y-3">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="rounded-xl border border-border bg-card p-4 skeleton-shimmer h-24" />
+            ))}
+          </div>
         ) : allTx.length === 0 ? (
-          <div className="p-12 sm:p-16 text-center">
-            <div className="h-12 w-12 rounded-xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
-              <ShoppingCart className="h-6 w-6 text-muted-foreground" />
+          <div className="rounded-2xl border border-border bg-card p-12 sm:p-16 text-center">
+            <div className="h-14 w-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+              <ShoppingCart className="h-7 w-7 text-muted-foreground" />
             </div>
-            <p className="font-bold">{isFr ? 'Aucune transaction' : 'No transactions'}</p>
-            <p className="text-sm text-muted-foreground mt-1">{isFr ? 'Les ventes et dons apparaîtront ici' : 'Sales and donations will appear here'}</p>
+            <p className="font-bold text-base">{isFr ? 'Aucune transaction' : 'No transactions'}</p>
+            <p className="text-sm text-muted-foreground mt-1.5 max-w-xs mx-auto">
+              {isFr ? 'Les ventes et dons apparaîtront ici dès votre première transaction' : 'Sales and donations will appear here once you get your first transaction'}
+            </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/30 hover:bg-muted/30">
-                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[90px]">Type</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground min-w-[140px]">{isFr ? 'Produit' : 'Product'}</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground min-w-[120px]">{isFr ? 'Acheteur' : 'Buyer'}</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[80px]">{isFr ? 'Passerelle' : 'Gateway'}</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground text-right w-[90px]">{isFr ? 'Montant' : 'Amount'}</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground text-right w-[100px]">{isFr ? 'Reçu (net)' : 'Received'}</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground text-right w-[70px]">{isFr ? 'Frais' : 'Fees'}</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground min-w-[90px]">{isFr ? 'Affilié' : 'Affiliate'}</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[80px]">{isFr ? 'Statut' : 'Status'}</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[85px]">Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {allTx.map((tx) => (
-                  <TableRow key={tx.id} className="group hover:bg-muted/20 transition-colors duration-150">
-                    <TableCell className="py-3">
+          <div className="space-y-2.5">
+            {allTx.map((tx, i) => (
+              <motion.div
+                key={tx.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="rounded-xl border border-border bg-card p-4 hover:shadow-card transition-shadow duration-200 group"
+              >
+                {/* Row 1: Type badge + Amount + Status */}
+                <div className="flex items-start justify-between gap-3 mb-2.5">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={cn(
+                      'h-9 w-9 rounded-xl flex items-center justify-center shrink-0',
+                      tx.type === 'purchase' ? 'bg-primary/10' : 'bg-pink-500/10'
+                    )}>
+                      {tx.type === 'purchase'
+                        ? <ShoppingCart className="h-4 w-4 text-primary" />
+                        : <Heart className="h-4 w-4 text-pink-500" />
+                      }
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold truncate">{tx.label}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{tx.buyer_display}</p>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-extrabold tabular-nums">{fmt(tx.amount || 0, tx.currency)}</p>
+                    <span className={cn(
+                      'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold mt-0.5',
+                      tx.status === 'completed' ? 'bg-emerald-500/10 text-emerald-600' :
+                      tx.status === 'pending' ? 'bg-amber-500/10 text-amber-600' :
+                      'bg-red-500/10 text-red-600'
+                    )}>
                       <span className={cn(
-                        'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold',
-                        tx.type === 'purchase' ? 'bg-primary/10 text-primary' : 'bg-pink-500/10 text-pink-500'
-                      )}>
-                        {tx.type === 'purchase' ? <ShoppingCart className="h-2.5 w-2.5" /> : <Heart className="h-2.5 w-2.5" />}
-                        {tx.type === 'purchase' ? (isFr ? 'Achat' : 'Purchase') : (isFr ? 'Don' : 'Donation')}
-                      </span>
-                    </TableCell>
-                    <TableCell className="py-3">
-                      <p className="text-xs font-semibold truncate max-w-[180px]">{tx.label}</p>
-                      <p className="text-[9px] text-muted-foreground font-mono mt-0.5 truncate max-w-[180px]">{tx.paystack_reference?.slice(0, 22)}</p>
-                    </TableCell>
-                    <TableCell className="py-3">
-                      <p className="text-xs font-medium truncate max-w-[130px]">{tx.buyer_display}</p>
-                      {tx.buyer_email && <p className="text-[9px] text-muted-foreground truncate max-w-[130px] mt-0.5">{tx.buyer_email}</p>}
-                    </TableCell>
-                    <TableCell className="py-3">
-                      <span className={cn(
-                        'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold',
-                        tx.gateway === 'stripe' ? 'bg-violet-500/10 text-violet-600' :
-                        tx.gateway === 'paystack' ? 'bg-blue-500/10 text-blue-600' :
-                        'bg-muted text-muted-foreground'
-                      )}>
-                        <CreditCard className="h-2.5 w-2.5" />
-                        {tx.gateway === 'stripe' ? 'Stripe' : tx.gateway === 'paystack' ? 'Paystack' : (isFr ? 'Gratuit' : 'Free')}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right py-3">
-                      <span className="text-xs font-bold tabular-nums">{fmt(tx.amount || 0, tx.currency)}</span>
-                    </TableCell>
-                    <TableCell className="text-right py-3">
-                      <span className="text-xs font-bold text-emerald-600 flex items-center justify-end gap-0.5 tabular-nums">
-                        <ArrowUpRight className="h-3 w-3" />
-                        {fmt(tx.organization_amount || 0, tx.currency)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right py-3">
-                      <span className="text-[11px] text-muted-foreground tabular-nums">{fmt(tx.platform_fee || 0, tx.currency)}</span>
-                    </TableCell>
-                    <TableCell className="py-3">
-                      {tx.affiliate_name ? (
-                        <div>
-                          <p className="text-[11px] font-semibold truncate max-w-[90px]">{tx.affiliate_name}</p>
-                          <p className="text-[9px] text-amber-600 font-medium tabular-nums">{fmt(tx.affiliate_commission || 0, tx.currency)}</p>
-                        </div>
-                      ) : (
-                        <span className="text-[11px] text-muted-foreground/40">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="py-3">
-                      <span className={cn(
-                        'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold',
-                        tx.status === 'completed' ? 'bg-emerald-500/12 text-emerald-600' :
-                        tx.status === 'pending' ? 'bg-amber-500/12 text-amber-600' :
-                        'bg-red-500/12 text-red-600'
-                      )}>
-                        <span className={cn(
-                          'h-1.5 w-1.5 rounded-full',
-                          tx.status === 'completed' ? 'bg-emerald-500' :
-                          tx.status === 'pending' ? 'bg-amber-500' : 'bg-red-500'
-                        )} />
-                        {tx.status === 'completed' ? (isFr ? 'Succès' : 'Success') : tx.status === 'pending' ? (isFr ? 'En attente' : 'Pending') : (isFr ? 'Échec' : 'Failed')}
-                      </span>
-                    </TableCell>
-                    <TableCell className="py-3 text-muted-foreground whitespace-nowrap">
-                      <p className="text-[11px] font-medium">{new Date(tx.created_at).toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { day: '2-digit', month: 'short', year: '2-digit' })}</p>
-                      <p className="text-[9px] mt-0.5">{new Date(tx.created_at).toLocaleTimeString(isFr ? 'fr-FR' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</p>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                        'h-1.5 w-1.5 rounded-full',
+                        tx.status === 'completed' ? 'bg-emerald-500' :
+                        tx.status === 'pending' ? 'bg-amber-500' : 'bg-red-500'
+                      )} />
+                      {statusLabel(tx.status)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Row 2: Details grid */}
+                <div className="flex items-center gap-3 text-[11px] text-muted-foreground border-t border-border/40 pt-2.5 mt-1">
+                  {/* Received */}
+                  <div className="flex items-center gap-1">
+                    <ArrowUpRight className="h-3 w-3 text-emerald-500" />
+                    <span className="font-semibold text-emerald-600 tabular-nums">{fmt(tx.organization_amount || 0, tx.currency)}</span>
+                  </div>
+
+                  <span className="text-border">•</span>
+
+                  {/* Gateway */}
+                  <span className={cn(
+                    'inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-semibold',
+                    tx.gateway === 'stripe' ? 'bg-violet-500/8 text-violet-600' :
+                    tx.gateway === 'paystack' ? 'bg-blue-500/8 text-blue-600' :
+                    'bg-muted text-muted-foreground'
+                  )}>
+                    <CreditCard className="h-2.5 w-2.5" />
+                    {gatewayLabel(tx.gateway)}
+                  </span>
+
+                  <span className="text-border">•</span>
+
+                  {/* Date */}
+                  <span className="tabular-nums">
+                    {new Date(tx.created_at).toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { day: '2-digit', month: 'short' })}
+                  </span>
+
+                  {/* Affiliate if exists */}
+                  {tx.affiliate_name && (
+                    <>
+                      <span className="text-border">•</span>
+                      <span className="text-amber-600 font-semibold truncate max-w-[80px]">{tx.affiliate_name}</span>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            ))}
           </div>
         )}
       </motion.div>
