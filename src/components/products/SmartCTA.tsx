@@ -109,8 +109,8 @@ export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: S
         </div>
       )}
 
-      {/* Main CTA — A/B testable */}
-      <ExperimentedCTAButton
+      {/* Main CTA — A/B testable via experiment slot "product-cta" */}
+      <ProductCTAButton
         isPwyw={isPwyw}
         isFree={isFree}
         minPrice={minPrice}
@@ -129,5 +129,35 @@ export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: S
         </p>
       )}
     </div>
+  );
+}
+
+/** Sub-component that uses experiment hook at top level (no conditional) */
+function ProductCTAButton({
+  isPwyw, isFree, minPrice, displayPrice, currency, onBuy,
+}: {
+  isPwyw: boolean; isFree: boolean; minPrice: number; displayPrice: number; currency: string; onBuy: () => void;
+}) {
+  const defaultLabel = isPwyw
+    ? `💰 ${formatPrice(minPrice, false, currency)}+`
+    : isFree
+      ? 'Obtenir gratuitement'
+      : `Acheter — ${formatPrice(displayPrice, false, currency)}`;
+
+  const ctaExperiment = useExperimentContent('product-cta', defaultLabel);
+  const trackClick = useExperimentClick();
+
+  return (
+    <Button
+      size="lg"
+      className="w-full gap-2 font-semibold shadow-lg text-base h-12"
+      onClick={() => {
+        trackClick(ctaExperiment);
+        onBuy();
+      }}
+    >
+      <ShoppingBag className="h-5 w-5" />
+      {ctaExperiment.value}
+    </Button>
   );
 }
