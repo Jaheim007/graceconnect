@@ -145,7 +145,7 @@ function ProductCTAButton({
       ? 'Obtenir gratuitement'
       : `Acheter — ${formatPrice(displayPrice, false, currency)}`;
 
-  const ctaExperiment = useExperimentContent('product-cta', defaultLabel);
+  const ctaExperiment = useExperimentContent('cta', defaultLabel);
   const trackClick = useExperimentClick();
 
   return (

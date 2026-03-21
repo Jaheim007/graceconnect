@@ -96,8 +96,8 @@ export default function AdminExperiments() {
       b: { label: 'Version B', content: form.versionB },
     };
 
-    // Build slot_key from testType + location (e.g. "product-cta", "ambassador-message")
-    const slotKey = `${form.location?.replace('_', '-') || 'product-page'}-${form.testType || 'custom'}`;
+    // Build slot_key matching live code slots: "product-cta", "product-title", "ambassador-message", etc.
+    const slotKey = `${form.testType || 'custom'}`;
 
     const payload = {
       name: form.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),

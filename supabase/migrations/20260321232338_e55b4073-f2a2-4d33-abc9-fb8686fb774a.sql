@@ -1,0 +1,1 @@
+UPDATE experiments SET slot_key = 'cta' WHERE id = 'a078ffe8-bc5e-4e76-910a-9589f2dc2f21' AND slot_key = 'product-page-cta';
