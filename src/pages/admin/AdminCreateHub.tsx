@@ -158,7 +158,7 @@ export default function AdminCreateHub() {
                     <h3 className="font-bold text-sm">{t(item.labelKey)}</h3>
                     {count !== undefined && count > 0 && (
                       <span className={cn(
-                        'text-[10px] font-bold px-2 py-0.5 rounded-full',
+                        'inline-flex items-center justify-center min-w-[24px] h-6 text-xs font-bold px-2 rounded-full shadow-sm',
                         bgColor, textColor
                       )}>{count}</span>
                     )}
