@@ -435,7 +435,9 @@ export default function AdminExperiments() {
                           {meta.displayName || exp.name}
                         </h3>
                         <Badge variant={exp.is_active ? 'default' : 'secondary'} className="text-[10px] shrink-0">
-                          {exp.is_active ? (isFr ? 'Actif' : 'Active') : (isFr ? 'En pause' : 'Paused')}
+                          {exp.winner_variant
+                            ? (isFr ? `🏆 ${exp.winner_variant === 'a' ? 'A' : 'B'} gagnant` : `🏆 ${exp.winner_variant === 'a' ? 'A' : 'B'} winner`)
+                            : exp.is_active ? (isFr ? 'Actif' : 'Active') : (isFr ? 'En pause' : 'Paused')}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
