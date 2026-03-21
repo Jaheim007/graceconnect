@@ -122,6 +122,14 @@ export function ProductPreviewViewer({
     }
   }, [onRequestClose]);
 
+  // Reset cached pages when fileUrl changes (e.g. after PDF regeneration)
+  useEffect(() => {
+    setPages([]);
+    setCurrentPage(0);
+    setTotalPages(0);
+    setError(null);
+  }, [fileUrl]);
+
   useEffect(() => {
     if (autoOpen && !open) {
       handleOpenPreview();
