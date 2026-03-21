@@ -4,22 +4,22 @@ import { useI18n } from '@/i18n/I18nContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import {
-  ShoppingBag, GraduationCap, Play, Megaphone, CalendarDays,
-  Heart, Tag, ArrowRight, Sparkles, MessageSquare
+  PackageCheck, BookOpen, MonitorPlay, Megaphone, CalendarCheck2,
+  HeartHandshake, Percent, ArrowRight, Sparkles, Gift, LayoutPanelTop, GraduationCap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
 const createItems = [
-  { to: '/admin/products', icon: ShoppingBag, labelKey: 'create_hub.products', descKey: 'create_hub.products_desc', color: 'text-primary bg-primary/10 border-primary/20' },
-  { to: '/admin/media', icon: Play, labelKey: 'create_hub.media', descKey: 'create_hub.media_desc', color: 'text-blue-500 bg-blue-500/10 border-blue-500/20' },
-  { to: '/admin/programs', icon: GraduationCap, labelKey: 'create_hub.programs', descKey: 'create_hub.programs_desc', color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' },
-  { to: '/admin/campaigns', icon: Heart, labelKey: 'create_hub.campaigns', descKey: 'create_hub.campaigns_desc', color: 'text-rose-500 bg-rose-500/10 border-rose-500/20' },
-  { to: '/admin/events', icon: CalendarDays, labelKey: 'create_hub.events', descKey: 'create_hub.events_desc', color: 'text-purple-500 bg-purple-500/10 border-purple-500/20' },
+  { to: '/admin/products', icon: PackageCheck, labelKey: 'create_hub.products', descKey: 'create_hub.products_desc', color: 'text-primary bg-primary/10 border-primary/20' },
+  { to: '/admin/media', icon: MonitorPlay, labelKey: 'create_hub.media', descKey: 'create_hub.media_desc', color: 'text-blue-500 bg-blue-500/10 border-blue-500/20' },
+  { to: '/admin/programs', icon: BookOpen, labelKey: 'create_hub.programs', descKey: 'create_hub.programs_desc', color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' },
+  { to: '/admin/campaigns', icon: HeartHandshake, labelKey: 'create_hub.campaigns', descKey: 'create_hub.campaigns_desc', color: 'text-rose-500 bg-rose-500/10 border-rose-500/20' },
+  { to: '/admin/events', icon: CalendarCheck2, labelKey: 'create_hub.events', descKey: 'create_hub.events_desc', color: 'text-purple-500 bg-purple-500/10 border-purple-500/20' },
   { to: '/admin/announcements', icon: Megaphone, labelKey: 'create_hub.announcements', descKey: 'create_hub.announcements_desc', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
-  { to: '/admin/promo-codes', icon: Tag, labelKey: 'create_hub.promos', descKey: 'create_hub.promos_desc', color: 'text-teal-500 bg-teal-500/10 border-teal-500/20' },
-  { to: '/admin/offerings', icon: Heart, labelKey: 'create_hub.donations', descKey: 'create_hub.donations_desc', color: 'text-pink-500 bg-pink-500/10 border-pink-500/20' },
-  { to: '/admin/popups', icon: MessageSquare, labelKey: 'create_hub.popups', descKey: 'create_hub.popups_desc', color: 'text-orange-500 bg-orange-500/10 border-orange-500/20' },
+  { to: '/admin/promo-codes', icon: Percent, labelKey: 'create_hub.promos', descKey: 'create_hub.promos_desc', color: 'text-teal-500 bg-teal-500/10 border-teal-500/20' },
+  { to: '/admin/offerings', icon: Gift, labelKey: 'create_hub.donations', descKey: 'create_hub.donations_desc', color: 'text-pink-500 bg-pink-500/10 border-pink-500/20' },
+  { to: '/admin/popups', icon: LayoutPanelTop, labelKey: 'create_hub.popups', descKey: 'create_hub.popups_desc', color: 'text-orange-500 bg-orange-500/10 border-orange-500/20' },
 ];
 
 export default function AdminCreateHub() {
