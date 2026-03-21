@@ -65,20 +65,29 @@ export function useExperimentContent(
   const { data: experiment } = useQuery({
     queryKey: ['experiment-slot', slotKey, orgId],
     queryFn: async () => {
-      let q = db
+      const { data, error } = await db
         .from('experiments')
         .select('*')
         .eq('slot_key', slotKey)
         .eq('is_active', true)
         .is('winner_variant', null)
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      // Note: org filtering would be added server-side via RLS in production
-      const { data } = await q;
+      if (error) {
+        console.warn(`[A/B] Query error for slot "${slotKey}":`, error.message);
+        return null;
+      }
+      
+      if (data) {
+        console.log(`[A/B] Found experiment for slot "${slotKey}":`, data.name);
+      } else {
+        console.log(`[A/B] No active experiment for slot "${slotKey}"`);
+      }
+      
       return data;
     },
-    staleTime: 60_000, // Cache for 1 minute
+    staleTime: 60_000,
     retry: false,
   });
 
