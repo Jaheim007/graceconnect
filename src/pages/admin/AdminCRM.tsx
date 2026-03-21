@@ -100,6 +100,8 @@ export default function AdminCRM() {
     const contactEmails = new Set(rawContacts.map((c: any) => c.email?.toLowerCase()));
     const memberContacts = members
       .filter((m: any) => {
+        // Exclude the org owner (current user) — they're not a "contact"
+        if (m.user_id === user?.id) return false;
         const name = m.profiles?.display_name;
         return name && !contactEmails.has(name?.toLowerCase());
       })
