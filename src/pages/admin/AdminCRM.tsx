@@ -63,8 +63,8 @@ export default function AdminCRM() {
   const [filterTag, setFilterTag] = useState<string>('all');
   const [filterSource, setFilterSource] = useState<string>('all');
 
-  // Contacts
-  const { data: contacts = [], isLoading: loadingContacts } = useQuery({
+  // Contacts from contacts table
+  const { data: rawContacts = [], isLoading: loadingContacts } = useQuery({
     queryKey: ['crm-contacts', orgId],
     queryFn: async () => {
       if (!orgId) return [];
@@ -74,6 +74,42 @@ export default function AdminCRM() {
     },
     enabled: !!orgId,
   });
+
+  // Members of the community
+  const { data: members = [] } = useQuery({
+    queryKey: ['crm-members', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+      const { data } = await db.from('organization_members')
+        .select('user_id, role, joined_at, profiles(display_name, avatar_url)')
+        .eq('organization_id', orgId);
+      return data || [];
+    },
+    enabled: !!orgId,
+  });
+
+  // Merge: contacts + members (deduplicate by name)
+  const contacts = useMemo(() => {
+    const contactEmails = new Set(rawContacts.map((c: any) => c.email?.toLowerCase()));
+    const memberContacts = members
+      .filter((m: any) => {
+        const name = m.profiles?.display_name;
+        return name && !contactEmails.has(name?.toLowerCase());
+      })
+      .map((m: any) => ({
+        id: `member-${m.user_id}`,
+        name: m.profiles?.display_name || null,
+        email: null,
+        phone: null,
+        tags: ['member'],
+        source: 'member',
+        is_subscribed: true,
+        created_at: m.joined_at,
+        avatar_url: m.profiles?.avatar_url,
+        _isMember: true,
+      }));
+    return [...rawContacts.map((c: any) => ({ ...c, _isMember: false })), ...memberContacts];
+  }, [rawContacts, members]);
 
   // Add contact
   const addContact = useMutation({
