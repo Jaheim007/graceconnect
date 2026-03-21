@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrgMembers } from '@/hooks/useOrgRole';
 import { useQuery } from '@tanstack/react-query';
