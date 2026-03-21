@@ -95,7 +95,94 @@ export default function AdminDashboard() {
     },
     enabled: !!currentOrg?.id,
   });
-...
+
+  const { data: topProducts = [] } = useQuery({
+    queryKey: ['admin-top-products', currentOrg?.id],
+    queryFn: async () => {
+      if (!currentOrg?.id) return [];
+      const { data } = await db.from('digital_products').select('id, title, sales_count, price, currency')
+        .eq('organization_id', currentOrg.id).eq('is_published', true)
+        .order('sales_count', { ascending: false }).limit(5);
+      return data || [];
+    },
+    enabled: !!currentOrg?.id,
+  });
+
+  const { data: dailyMetrics = [] } = useQuery({
+    queryKey: ['admin-daily-metrics', currentOrg?.id],
+    queryFn: async () => {
+      if (!currentOrg?.id) return [];
+      const { data } = await db.from('org_daily_metrics')
+        .select('metric_date, revenue, transactions_count, new_members, products_sold, donations_count')
+        .eq('organization_id', currentOrg.id)
+        .order('metric_date', { ascending: true })
+        .limit(30);
+      return data || [];
+    },
+    enabled: !!currentOrg?.id,
+  });
+
+  const chartData = useMemo(() =>
+    dailyMetrics.map((d: any) => ({
+      date: new Date(d.metric_date).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', { day: '2-digit', month: 'short' }),
+      revenue: d.revenue || 0,
+      transactions: d.transactions_count || 0,
+      members: d.new_members || 0,
+    })),
+    [dailyMetrics]
+  );
+
+  const allTxns = [...donationTxns, ...purchaseTxns];
+  const totalRevenue = allTxns.reduce((s, t) => s + (t.amount || 0), 0);
+  const totalOrgReceived = allTxns.reduce((s, t) => s + (t.organization_amount || 0), 0);
+  const totalAffiliateCommission = allTxns.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
+  const totalPlatformFee = allTxns.reduce((s, t) => s + (t.platform_fee || 0), 0);
+  const commissionRate = currentOrg?.affiliation_commission_percent ?? 10;
+  const conversionRate = allTxns.length > 0 ? ((allTxns.length / Math.max(members.length, 1)) * 100).toFixed(1) : '0';
+  const orgCurrency = currentOrg?.currency;
+  const txCount = allTxns.length;
+
+  const handleExportCSV = () => {
+    const rows = allTxns.map((t: any) => ({
+      montant: t.amount || 0,
+      reçu_org: t.organization_amount || 0,
+      commission_affilié: t.affiliate_commission || 0,
+      frais_plateforme: t.platform_fee || 0,
+    }));
+    downloadCSV(rows, `revenus-${currentOrg?.slug || 'org'}`);
+  };
+
+  const handleExportPDF = () => {
+    downloadDashboardPDF({
+      orgName: currentOrg?.name || 'Organisation',
+      logoUrl: currentOrg?.logo_url || undefined,
+      currency: orgCurrency,
+      stats: [
+        { label: 'Revenus totaux', value: fmt(totalRevenue, orgCurrency), color: '#3b82f6' },
+        { label: 'Reçu org', value: fmt(totalOrgReceived, orgCurrency), color: '#10b981' },
+        { label: 'Commissions', value: fmt(totalAffiliateCommission, orgCurrency), color: '#f59e0b' },
+        { label: 'Frais plateforme', value: fmt(totalPlatformFee, orgCurrency), color: '#94a3b8' },
+      ],
+      revenueData: chartData.map((d: any) => ({ label: d.date, value: d.revenue })),
+      topProducts: topProducts.map((p: any) => ({ title: p.title, sales: p.sales_count || 0, revenue: (p.sales_count || 0) * (p.price || 0) })),
+      transactions: allTxns.map((t: any) => ({
+        montant: t.amount || 0,
+        reçu_org: t.organization_amount || 0,
+        commission_affilié: t.affiliate_commission || 0,
+        frais_plateforme: t.platform_fee || 0,
+      })),
+    });
+  };
+
+  const contentStats = [
+    { label: t('admin.media'), value: media.length, published: media.filter(m => m.is_published).length, icon: Play, to: '/admin/media', color: 'blue' as const },
+    { label: t('admin.announcements'), value: announcements.length, published: announcements.filter(a => a.is_published).length, icon: Megaphone, to: '/admin/announcements', color: 'primary' as const },
+    { label: t('admin.events'), value: events.length, published: events.filter(e => e.is_published).length, icon: CalendarDays, to: '/admin/events', color: 'emerald' as const },
+    { label: t('admin.members'), value: members.length, published: members.length, icon: Users, to: '/admin/members', color: 'blue' as const },
+    { label: t('admin.campaigns'), value: campaigns.length, published: campaigns.filter(c => c.is_published).length, icon: Heart, to: '/admin/campaigns', color: 'rose' as const },
+    { label: t('admin.products'), value: products.length, published: products.filter(p => p.is_published).length, icon: ShoppingBag, to: '/admin/products', color: 'amber' as const },
+  ];
+
   return (
     <div className="space-y-6">
       {/* ═══ HEADER — compact, one line ═══ */}
