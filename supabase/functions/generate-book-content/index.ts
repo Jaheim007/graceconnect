@@ -566,8 +566,60 @@ function tryParsePayload(raw: string): any | null {
   const direct = parseCandidate(raw);
   if (direct) return direct;
   const candidate = extractJsonObjectCandidate(raw);
-  if (!candidate) return parseCandidate(raw);
-  return parseCandidate(candidate);
+  if (candidate) {
+    const parsed = parseCandidate(candidate);
+    if (parsed) return parsed;
+  }
+  // Last resort: regex extraction of individual chapter objects
+  return regexExtractChapters(raw);
+}
+
+/**
+ * Last-resort: extract chapters via regex from mangled/truncated JSON.
+ * Finds all complete {"id":"...","title":"...","content":"..."} objects.
+ */
+function regexExtractChapters(raw: string): any | null {
+  const chapters: { id: string; title: string; content: string }[] = [];
+  const idPattern = /"id"\s*:\s*"(ch-\d+)"/g;
+  let match;
+  while ((match = idPattern.exec(raw)) !== null) {
+    const objStart = raw.lastIndexOf('{', match.index);
+    if (objStart < 0) continue;
+    let inStr = false;
+    let esc = false;
+    let depth = 0;
+    let objEnd = -1;
+    for (let i = objStart; i < raw.length; i++) {
+      const c = raw[i];
+      if (esc) { esc = false; continue; }
+      if (c === '\\') { esc = true; continue; }
+      if (c === '"') { inStr = !inStr; continue; }
+      if (inStr) continue;
+      if (c === '{') depth++;
+      if (c === '}') { depth--; if (depth === 0) { objEnd = i; break; } }
+    }
+    if (objEnd < 0) continue;
+    const objStr = raw.slice(objStart, objEnd + 1);
+    try {
+      const obj = JSON.parse(objStr);
+      if (obj.title && obj.content && obj.content.length > 20) {
+        chapters.push({ id: obj.id || `ch-${chapters.length + 1}`, title: obj.title, content: obj.content });
+      }
+    } catch {
+      try {
+        const cleaned = objStr.replace(/,\s*([}\]])/g, '$1');
+        const obj = JSON.parse(cleaned);
+        if (obj.title && obj.content && obj.content.length > 20) {
+          chapters.push({ id: obj.id || `ch-${chapters.length + 1}`, title: obj.title, content: obj.content });
+        }
+      } catch { /* skip */ }
+    }
+  }
+  if (chapters.length > 0) {
+    console.log(`[generate-book-content] Regex extraction recovered ${chapters.length} chapters`);
+    return { chapters };
+  }
+  return null;
 }
 
 function normalizeGeneratedChapters(parsed: any): { id: string; title: string; content: string }[] {
@@ -582,6 +634,13 @@ function normalizeGeneratedChapters(parsed: any): { id: string; title: string; c
 }
 
 async function repairJsonWithAi(apiKey: string, rawContent: string, chapterCount: number): Promise<any | null> {
+  // First try regex extraction before calling AI repair (cheaper & faster)
+  const regexResult = regexExtractChapters(rawContent);
+  if (regexResult && regexResult.chapters?.length >= Math.max(2, Math.ceil(chapterCount * 0.5))) {
+    console.log(`[generate-book-content] Regex repair recovered ${regexResult.chapters.length}/${chapterCount} chapters, skipping AI repair`);
+    return regexResult;
+  }
+
   const repairRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -591,10 +650,10 @@ async function repairJsonWithAi(apiKey: string, rawContent: string, chapterCount
       generationConfig: { maxOutputTokens: 16000, responseMimeType: 'application/json' },
     }),
   });
-  if (!repairRes.ok) return null;
+  if (!repairRes.ok) return regexResult;
   const repairData = await repairRes.json().catch(() => null);
   const repairedRaw = repairData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  return tryParsePayload(repairedRaw);
+  return tryParsePayload(repairedRaw) || regexResult;
 }
 
 function isAbortError(error: unknown): boolean {
