@@ -570,15 +570,32 @@ export function ProductForm() {
               <Sparkles className="h-4 w-4 text-primary" /> {isFr ? 'Produit généré par IA' : 'AI-generated product'}
             </p>
             <p className="text-xs text-muted-foreground">
-              {isFr ? 'Si vous avez modifié la couverture ou le contenu, vous pouvez régénérer le PDF.' : 'If you modified the cover or content, you can regenerate the PDF.'}
+              {item?.ai_project_id
+                ? (isFr
+                    ? 'Si vous avez modifié la couverture ou le contenu, vous pouvez régénérer le PDF.'
+                    : 'If you modified the cover or content, you can regenerate the PDF.')
+                : (isFr
+                    ? "Ce produit IA n'a plus de projet source lié. Vous pouvez téléverser un nouveau PDF ci-dessus, mais la régénération automatique n'est pas disponible pour ce produit."
+                    : 'This AI product no longer has a linked source project. You can upload a new PDF above, but automatic regeneration is not available for this product.')}
             </p>
             <Button
               type="button"
               variant="outline"
               size="sm"
               className="gap-2"
-              disabled={regeneratingPdf}
+              disabled={regeneratingPdf || !item?.ai_project_id}
               onClick={async () => {
+                if (!item?.ai_project_id) {
+                  toast({
+                    title: isFr ? 'Source IA introuvable' : 'AI source not found',
+                    description: isFr
+                      ? "Ce produit n'a pas de projet IA lié, donc le PDF ne peut pas être régénéré automatiquement."
+                      : 'This product has no linked AI project, so the PDF cannot be regenerated automatically.',
+                    variant: 'destructive',
+                  });
+                  return;
+                }
+
                 setRegeneratingPdf(true);
                 try {
                   const { data: pdfData, error: pdfError } = await supabase.functions.invoke('ai-generate-pdf', {
@@ -594,7 +611,7 @@ export function ProductForm() {
                   if (pdfData?.error) throw new Error(pdfData.error);
                   if (pdfData?.download_url) {
                     setValue('file_url', pdfData.download_url, { shouldDirty: true });
-                  toast({ title: isFr ? '✅ PDF régénéré avec succès !' : '✅ PDF regenerated successfully!' });
+                    toast({ title: isFr ? '✅ PDF régénéré avec succès !' : '✅ PDF regenerated successfully!' });
                   } else {
                     throw new Error(isFr ? 'Aucune URL retournée' : 'No URL returned');
                   }
@@ -607,8 +624,10 @@ export function ProductForm() {
             >
               {regeneratingPdf ? (
                 <><Loader2 className="h-4 w-4 animate-spin" /> {isFr ? 'Régénération en cours…' : 'Regenerating…'}</>
-              ) : (
+              ) : item?.ai_project_id ? (
                 <><RefreshCw className="h-4 w-4" /> {isFr ? 'Joindre / Régénérer le PDF' : 'Attach / Regenerate PDF'}</>
+              ) : (
+                <><RefreshCw className="h-4 w-4" /> {isFr ? 'Régénération indisponible' : 'Regeneration unavailable'}</>
               )}
             </Button>
           </div>
