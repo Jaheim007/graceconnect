@@ -186,6 +186,13 @@ export default function PaymentSuccessPage() {
         const found = await lookupTransaction();
         if (found) {
           await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
+          // Track A/B experiment conversions on successful purchase
+          try {
+            const sessionSeed = sessionStorage.getItem('sv_exp_seed');
+            if (sessionSeed) {
+              trackEvent('experiment_conversion', { product_id: found.product_id, source: 'purchase' }, user?.id);
+            }
+          } catch {}
           setTx(found); setLoading(false); return;
         }
 
