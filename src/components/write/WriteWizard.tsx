@@ -126,8 +126,9 @@ const STEP_LABELS_EN = ['Source', 'Details', '🎯 Strategy', 'Creation', 'Previ
 
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
-function detectBookLanguage(): BookLanguage {
-  return resolveBookLanguageFromLocale(document.documentElement.lang) ?? 'fr';
+function detectBookLanguage(uiLocale?: string): BookLanguage {
+  const source = uiLocale || document.documentElement.lang;
+  return resolveBookLanguageFromLocale(source) ?? 'en';
 }
 
 function createInitialState(): WriteState {
@@ -425,7 +426,7 @@ export default function WriteWizard() {
   useEffect(() => {
     if (state.languageManuallySelected) return;
 
-    const localeLanguage = detectBookLanguage();
+    const localeLanguage = detectBookLanguage(locale);
     if (state.language === localeLanguage) return;
 
     setState((prev) => {
