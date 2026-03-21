@@ -241,6 +241,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         <StatCard
           icon={DollarSign} label={t('admin.total_sales')}
+          renderIcon={<CurrencyIcon currency={orgCurrency} className="h-4 w-4 text-primary" />}
           value={fmt(totalRevenue, orgCurrency)}
           sub={`${txCount} ${txCount > 1 ? t('admin.transactions') : t('admin.transaction')}`}
           color="primary" delay={0}
@@ -259,6 +260,7 @@ export default function AdminDashboard() {
         />
         <StatCard
           icon={DollarSign} label={t('admin.platform_fees')}
+          renderIcon={<CurrencyIcon currency={orgCurrency} className="h-4 w-4 text-muted-foreground" />}
           value={fmt(totalPlatformFee, orgCurrency)}
           sub={`${currentOrg?.platform_fee_percent ?? 10}%`}
           color="muted" delay={0.15}
