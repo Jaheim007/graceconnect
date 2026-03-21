@@ -720,7 +720,7 @@ export function AdminKYC() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   return (
-    <AdminPageShell title={isFr ? 'Vérification de compte' : 'Account verification'} backRoute="/admin/create">
+    <AdminPageShell title={isFr ? 'Vérification de compte' : 'Account verification'} backRoute="/admin">
       <div className="space-y-4">
         <div className="p-4 rounded-2xl border border-primary/20 bg-primary/8">
           <p className="font-semibold text-sm mb-1">{isFr ? '💡 La vérification est requise uniquement pour les retraits' : '💡 Verification is only required for withdrawals'}</p>
