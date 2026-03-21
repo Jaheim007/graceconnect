@@ -5,9 +5,7 @@ import { useMemo } from 'react';
  * Assigns a user to a variant deterministically based on a hash of
  * experimentId + userId (or a random session id stored in localStorage).
  *
- * Usage:
- *   const variant = useExperiment('cta-color', ['blue', 'green']);
- *   // variant is consistently 'blue' or 'green' for this user
+ * Supports URL-based debug forcing: ?exp_hero-cta=a
  */
 
 function getSessionId(): string {
@@ -30,6 +28,22 @@ function simpleHash(str: string): number {
   return Math.abs(hash);
 }
 
+/**
+ * Check URL for forced variant: ?exp_<experimentId>=<variant>
+ */
+function getUrlForcedVariant<T extends string>(experimentId: string, variants: T[]): T | null {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const forced = params.get(`exp_${experimentId}`);
+    if (forced && variants.includes(forced as T)) {
+      return forced as T;
+    }
+  } catch {
+    // SSR or no window
+  }
+  return null;
+}
+
 export function useExperiment<T extends string>(
   experimentId: string,
   variants: T[],
@@ -38,6 +52,10 @@ export function useExperiment<T extends string>(
   const sid = userId || getSessionId();
 
   return useMemo(() => {
+    // Check URL forcing first (debug/QA mode)
+    const forced = getUrlForcedVariant(experimentId, variants);
+    if (forced) return forced;
+
     const hash = simpleHash(`${experimentId}:${sid}`);
     return variants[hash % variants.length];
   }, [experimentId, sid, variants]);
