@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/csvExport';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { useI18n } from '@/i18n/I18nContext';
+import { CurrencyIcon } from '@/components/ui/CurrencyIcon';
 import { motion } from 'framer-motion';
 
 type PeriodKey = 'all' | 'today' | '7d' | '30d' | '90d' | 'this_month' | 'this_week' | 'custom';
