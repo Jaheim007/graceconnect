@@ -5,7 +5,8 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import {
   PackageCheck, BookOpen, MonitorPlay, Megaphone, CalendarCheck2,
-  HeartHandshake, Percent, ArrowRight, Sparkles, Gift, LayoutPanelTop, GraduationCap
+  HeartHandshake, Percent, ArrowRight, Gift, LayoutPanelTop, GraduationCap,
+  Wand2, PenLine, Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -56,7 +57,7 @@ export default function AdminCreateHub() {
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Sparkles className="h-5 w-5 text-primary" />
+          <Zap className="h-5 w-5 text-primary" />
         </div>
         <div>
           <h1 className="text-xl font-bold tracking-tight">Viral AI Studio</h1>
@@ -79,7 +80,7 @@ export default function AdminCreateHub() {
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <Sparkles className="h-7 w-7 text-primary-foreground" />
+          <PenLine className="h-7 w-7 text-primary-foreground" />
         </motion.div>
         <div className="relative flex-1 min-w-0">
           <div className="flex items-center gap-2">
