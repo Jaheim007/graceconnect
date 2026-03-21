@@ -96,6 +96,9 @@ export default function AdminExperiments() {
       b: { label: 'Version B', content: form.versionB },
     };
 
+    // Build slot_key from testType + location (e.g. "product-cta", "ambassador-message")
+    const slotKey = `${form.location?.replace('_', '-') || 'product-page'}-${form.testType || 'custom'}`;
+
     const payload = {
       name: form.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
       description: JSON.stringify({
@@ -107,6 +110,7 @@ export default function AdminExperiments() {
       variants,
       traffic_percent: form.trafficPercent,
       created_by: user?.id,
+      slot_key: slotKey,
     };
 
     try {
