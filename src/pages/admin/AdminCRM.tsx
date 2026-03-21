@@ -16,7 +16,8 @@ import { motion } from 'framer-motion';
 import {
   UserPlus, Mail, Download, Send, Trash2, Plus, Loader2, Heart, ShoppingBag,
   Search, Tag, Star, Filter, Users, MessageSquare, Megaphone, TrendingUp,
-  ArrowUpRight, Calendar, DollarSign, Eye, EyeOff, MoreHorizontal, Sparkles
+  ArrowUpRight, Calendar, DollarSign, Eye, EyeOff, MoreHorizontal, Globe,
+  Checkbox, UserCheck, Construction
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
