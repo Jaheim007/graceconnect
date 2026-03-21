@@ -16,7 +16,8 @@ import { motion } from 'framer-motion';
 import {
   UserPlus, Mail, Download, Send, Trash2, Plus, Loader2, Heart, ShoppingBag,
   Search, Tag, Star, Filter, Users, MessageSquare, Megaphone, TrendingUp,
-  ArrowUpRight, Calendar, DollarSign, Eye, EyeOff, MoreHorizontal, Sparkles
+  ArrowUpRight, Calendar, DollarSign, Eye, EyeOff, MoreHorizontal, Globe,
+  CheckSquare, UserCheck, Construction
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
@@ -62,8 +63,8 @@ export default function AdminCRM() {
   const [filterTag, setFilterTag] = useState<string>('all');
   const [filterSource, setFilterSource] = useState<string>('all');
 
-  // Contacts
-  const { data: contacts = [], isLoading: loadingContacts } = useQuery({
+  // Contacts from contacts table
+  const { data: rawContacts = [], isLoading: loadingContacts } = useQuery({
     queryKey: ['crm-contacts', orgId],
     queryFn: async () => {
       if (!orgId) return [];
@@ -73,6 +74,42 @@ export default function AdminCRM() {
     },
     enabled: !!orgId,
   });
+
+  // Members of the community
+  const { data: members = [] } = useQuery({
+    queryKey: ['crm-members', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+      const { data } = await db.from('organization_members')
+        .select('user_id, role, joined_at, profiles(display_name, avatar_url)')
+        .eq('organization_id', orgId);
+      return data || [];
+    },
+    enabled: !!orgId,
+  });
+
+  // Merge: contacts + members (deduplicate by name)
+  const contacts = useMemo(() => {
+    const contactEmails = new Set(rawContacts.map((c: any) => c.email?.toLowerCase()));
+    const memberContacts = members
+      .filter((m: any) => {
+        const name = m.profiles?.display_name;
+        return name && !contactEmails.has(name?.toLowerCase());
+      })
+      .map((m: any) => ({
+        id: `member-${m.user_id}`,
+        name: m.profiles?.display_name || null,
+        email: null,
+        phone: null,
+        tags: ['member'],
+        source: 'member',
+        is_subscribed: true,
+        created_at: m.joined_at,
+        avatar_url: m.profiles?.avatar_url,
+        _isMember: true,
+      }));
+    return [...rawContacts.map((c: any) => ({ ...c, _isMember: false })), ...memberContacts];
+  }, [rawContacts, members]);
 
   // Add contact
   const addContact = useMutation({
@@ -191,7 +228,7 @@ export default function AdminCRM() {
         <StatMiniCard icon={Users} label={isFr ? 'Contacts' : 'Contacts'} value={totalContacts} color="text-primary bg-primary/10" />
         <StatMiniCard icon={Mail} label={isFr ? 'Abonnés' : 'Subscribed'} value={subscribedCount} color="text-emerald-500 bg-emerald-500/10" />
         <StatMiniCard icon={Tag} label={isFr ? 'Étiquetés' : 'Tagged'} value={taggedCount} color="text-violet-500 bg-violet-500/10" />
-        <StatMiniCard icon={Sparkles} label={isFr ? 'Sources' : 'Sources'} value={allSources.length} color="text-amber-500 bg-amber-500/10" />
+        <StatMiniCard icon={Globe} label={isFr ? 'Sources' : 'Sources'} value={allSources.length} color="text-amber-500 bg-amber-500/10" />
       </div>
 
       <Tabs value={tab} onValueChange={v => setTab(v)}>
@@ -297,16 +334,31 @@ export default function AdminCRM() {
                   <motion.div key={c.id} custom={i} variants={springIn} initial="hidden" animate="visible"
                     className="group flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/40 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
                     {/* Avatar */}
-                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-sm font-bold text-primary shrink-0">
-                      {(c.name || c.email)[0].toUpperCase()}
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-sm font-bold text-primary shrink-0 overflow-hidden">
+                      {c.avatar_url ? (
+                        <img src={c.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        (c.name || c.email || '?')[0].toUpperCase()
+                      )}
                     </div>
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
-                        {c.name || (isFr ? 'Contact' : 'Contact')}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
+                          {c.name || (isFr ? 'Contact' : 'Contact')}
+                        </p>
+                        {c._isMember && (
+                          <Badge variant="outline" className="text-[9px] rounded-md bg-primary/10 text-primary border-primary/20">
+                            {isFr ? 'Membre' : 'Member'}
+                          </Badge>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <p className="text-[11px] text-muted-foreground truncate">{maskEmail(c.email)}</p>
+                        {c.email ? (
+                          <p className="text-[11px] text-muted-foreground truncate">{maskEmail(c.email)}</p>
+                        ) : (
+                          <p className="text-[11px] text-muted-foreground italic">{isFr ? 'Membre communauté' : 'Community member'}</p>
+                        )}
                         {c.phone && <span className="text-[11px] text-muted-foreground">· {c.phone}</span>}
                       </div>
                     </div>
@@ -322,10 +374,12 @@ export default function AdminCRM() {
                       ))}
                     </div>
                     <Badge variant="outline" className="text-[10px] rounded-lg shrink-0 capitalize">{c.source}</Badge>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive"
-                      onClick={() => deleteContact.mutate(c.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    {!c._isMember && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive"
+                        onClick={() => deleteContact.mutate(c.id)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                   </motion.div>
                 );
               })}
@@ -603,6 +657,20 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [tags, setTags] = useState('');
+  const [recipientMode, setRecipientMode] = useState<'all' | 'tags' | 'individual'>('all');
+  const [selectedContact, setSelectedContact] = useState('');
+
+  // Fetch contacts for recipient selection
+  const { data: allContacts = [] } = useQuery({
+    queryKey: ['crm-contacts-for-campaign', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+      const { data } = await db.from('contacts').select('id, name, email, tags')
+        .eq('organization_id', orgId).order('name', { ascending: true });
+      return data || [];
+    },
+    enabled: !!orgId,
+  });
 
   const { data: campaigns = [], isLoading } = useQuery({
     queryKey: ['crm-email-campaigns', orgId],
@@ -618,7 +686,7 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
   const createCampaign = useMutation({
     mutationFn: async () => {
       if (!orgId || !subject.trim() || !body.trim()) throw new Error(isFr ? 'Sujet et contenu requis' : 'Subject and content required');
-      const recipientTags = tags.split(',').map(t => t.trim()).filter(Boolean);
+      const recipientTags = recipientMode === 'tags' ? tags.split(',').map(t => t.trim()).filter(Boolean) : [];
       const { error } = await db.from('email_campaigns').insert({
         organization_id: orgId,
         created_by: user?.id,
@@ -631,7 +699,7 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
     },
     onSuccess: () => {
       toast({ title: `✅ ${t('crm.campaign_created')}` });
-      setSubject(''); setBody(''); setTags('');
+      setSubject(''); setBody(''); setTags(''); setSelectedContact('');
       setShowNew(false);
       qc.invalidateQueries({ queryKey: ['crm-email-campaigns', orgId] });
     },
@@ -652,8 +720,32 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
   const sentCampaigns = campaigns.filter((c: any) => c.status === 'sent');
   const draftCampaigns = campaigns.filter((c: any) => c.status === 'draft');
 
+  // All unique tags from contacts
+  const contactTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    allContacts.forEach((c: any) => (c.tags || []).forEach((t: string) => tagSet.add(t)));
+    return Array.from(tagSet).sort();
+  }, [allContacts]);
+
   return (
     <div className="space-y-5">
+      {/* Coming soon banner */}
+      <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 flex items-center gap-3">
+        <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+          <Construction className="h-5 w-5 text-amber-500" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+            {isFr ? 'Fonctionnalité en développement' : 'Feature in development'}
+          </p>
+          <p className="text-[11px] text-muted-foreground">
+            {isFr
+              ? 'Les campagnes email et SMS seront bientôt entièrement fonctionnelles. Vous pouvez déjà préparer vos brouillons.'
+              : 'Email and SMS campaigns will be fully functional soon. You can already prepare your drafts.'}
+          </p>
+        </div>
+      </div>
+
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <StatMiniCard icon={Megaphone} label={isFr ? 'Campagnes' : 'Campaigns'} value={campaigns.length} color="text-primary bg-primary/10" />
@@ -709,7 +801,84 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
+              {/* Recipient selection */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium">{isFr ? 'Destinataires' : 'Recipients'} *</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    onClick={() => setRecipientMode('all')}
+                    className={cn(
+                      'flex flex-col items-center gap-1.5 p-3 rounded-xl text-[11px] font-semibold border transition-all',
+                      recipientMode === 'all'
+                        ? 'bg-primary/10 border-primary/30 text-primary'
+                        : 'bg-card border-border text-muted-foreground hover:border-primary/20'
+                    )}
+                  >
+                    <Users className="h-5 w-5" />
+                    {isFr ? 'Tous les contacts' : 'All contacts'}
+                    <span className="text-[10px] opacity-60">({allContacts.length})</span>
+                  </button>
+                  <button
+                    onClick={() => setRecipientMode('tags')}
+                    className={cn(
+                      'flex flex-col items-center gap-1.5 p-3 rounded-xl text-[11px] font-semibold border transition-all',
+                      recipientMode === 'tags'
+                        ? 'bg-primary/10 border-primary/30 text-primary'
+                        : 'bg-card border-border text-muted-foreground hover:border-primary/20'
+                    )}
+                  >
+                    <Tag className="h-5 w-5" />
+                    {isFr ? 'Par tag' : 'By tag'}
+                  </button>
+                  <button
+                    onClick={() => setRecipientMode('individual')}
+                    className={cn(
+                      'flex flex-col items-center gap-1.5 p-3 rounded-xl text-[11px] font-semibold border transition-all',
+                      recipientMode === 'individual'
+                        ? 'bg-primary/10 border-primary/30 text-primary'
+                        : 'bg-card border-border text-muted-foreground hover:border-primary/20'
+                    )}
+                  >
+                    <UserCheck className="h-5 w-5" />
+                    {isFr ? 'Contact spécifique' : 'Specific contact'}
+                  </button>
+                </div>
+
+                {recipientMode === 'tags' && (
+                  <div className="space-y-1.5">
+                    <Input value={tags} onChange={e => setTags(e.target.value)}
+                      placeholder={isFr ? 'Tags (séparés par des virgules): vip, newsletter' : 'Tags (comma separated): vip, newsletter'}
+                      className="h-9 text-xs rounded-xl" />
+                    {contactTags.length > 0 && (
+                      <div className="flex gap-1.5 flex-wrap">
+                        {contactTags.map(tag => (
+                          <button key={tag} onClick={() => setTags(prev => prev ? `${prev}, ${tag}` : tag)}
+                            className="text-[10px] px-2 py-1 rounded-lg bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors">
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {recipientMode === 'individual' && (
+                  <Select value={selectedContact} onValueChange={setSelectedContact}>
+                    <SelectTrigger className="h-9 text-xs rounded-xl">
+                      <SelectValue placeholder={isFr ? 'Sélectionner un contact...' : 'Select a contact...'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allContacts.map((c: any) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name || c.email}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium">{t('crm.subject')} *</Label>
                 <Input value={subject} onChange={e => setSubject(e.target.value)}
@@ -721,12 +890,6 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
                 <Textarea value={body} onChange={e => setBody(e.target.value)}
                   placeholder="<h1>Hello {{name}}</h1>..."
                   rows={6} className="text-xs rounded-xl" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-medium">{t('crm.recipient_tags')}</Label>
-                <Input value={tags} onChange={e => setTags(e.target.value)}
-                  placeholder="vip, newsletter"
-                  className="h-9 text-xs rounded-xl" />
               </div>
               <div className="flex gap-2">
                 <Button size="sm" className="text-xs rounded-xl" onClick={() => createCampaign.mutate()} disabled={createCampaign.isPending}>
