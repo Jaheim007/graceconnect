@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload } from '@/lib/secureDownload';
 import { verifyStripePayment } from '@/lib/api';
+import { trackEvent } from '@/hooks/useClientAnalytics';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 
