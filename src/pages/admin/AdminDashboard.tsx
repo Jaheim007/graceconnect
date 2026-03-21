@@ -26,7 +26,6 @@ import { DashboardSection } from '@/components/ui/DashboardSection';
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
 import { SmartNextAction } from '@/components/admin/SmartNextAction';
 import { VideoImportButton } from '@/components/admin/VideoImportButton';
-import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
 import { AIAnalyticsInsights } from '@/components/admin/AIAnalyticsInsights';
 
 // Advanced tools — lazy-loaded section
@@ -67,7 +66,6 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
-  const [showQuickStart, setShowQuickStart] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   useBehavioralNotifications();
 
@@ -187,8 +185,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <QuickStartWizard open={showQuickStart} onClose={() => setShowQuickStart(false)} />
-
       {/* ═══ HEADER — compact, one line ═══ */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
@@ -205,7 +201,7 @@ export default function AdminDashboard() {
             <Download className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> PDF
           </Button>
           <VideoImportButton />
-          <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3 shrink-0">
+          <Button size="sm" variant="outline" onClick={() => navigate('/admin/create')} className="gap-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3 shrink-0">
             <Rocket className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> <span className="hidden xs:inline">{t('admin.quickstart')}</span><span className="xs:hidden">Start</span>
           </Button>
           <Button size="sm" asChild variant="outline" className="gap-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3 shrink-0">
