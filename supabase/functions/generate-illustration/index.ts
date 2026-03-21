@@ -11,6 +11,50 @@ const artStylePrompts: Record<string, string> = {
   line_art: 'black and white line art for coloring book, clean bold outlines only, NO shading NO fills NO colors, thick black contour lines on pure white background, large areas to color in',
 };
 
+// Variation elements to force unique compositions per illustration
+const compositionVariations = [
+  'wide establishing shot showing the full scene from a distance',
+  'medium shot focusing on the main subject with environmental context',
+  'dramatic low-angle perspective looking upward',
+  'bird\'s eye view from above showing the scene layout',
+  'intimate close-up with shallow depth of field on key details',
+  'side profile view with dramatic side lighting',
+  'three-quarter view with dynamic diagonal composition',
+  'symmetrical centered composition with leading lines',
+  'rule of thirds with subject off-center and negative space',
+  'panoramic ultra-wide framing with layered foreground and background',
+];
+
+const lightingVariations = [
+  'golden hour warm sunlight with long shadows',
+  'soft diffused overcast lighting, gentle and even',
+  'dramatic chiaroscuro with strong light/dark contrast',
+  'cool blue moonlight atmosphere',
+  'vibrant sunset with orange and purple sky tones',
+  'bright midday sun with crisp shadows',
+  'misty atmospheric lighting with fog and haze',
+  'warm candlelight or firelight glow',
+  'backlit silhouette with rim lighting',
+  'dappled light filtering through leaves or windows',
+];
+
+const moodVariations = [
+  'serene and peaceful atmosphere',
+  'energetic and dynamic with sense of movement',
+  'mysterious and contemplative mood',
+  'joyful and celebratory feeling',
+  'dramatic and intense emotional tone',
+  'nostalgic and warm reminiscence',
+  'hopeful and uplifting spirit',
+  'quiet introspection and solitude',
+];
+
+function getVariation(arr: string[], seed: string, offset = 0): string {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0;
+  return arr[Math.abs(hash + offset) % arr.length];
+}
+
 const audiencePrompts: Record<string, string> = {
   children: 'age-appropriate for children 6-12, safe and friendly imagery',
   teens: 'suitable for teenagers, modern and dynamic',
