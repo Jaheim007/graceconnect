@@ -228,7 +228,7 @@ export default function AdminCRM() {
         <StatMiniCard icon={Users} label={isFr ? 'Contacts' : 'Contacts'} value={totalContacts} color="text-primary bg-primary/10" />
         <StatMiniCard icon={Mail} label={isFr ? 'Abonnés' : 'Subscribed'} value={subscribedCount} color="text-emerald-500 bg-emerald-500/10" />
         <StatMiniCard icon={Tag} label={isFr ? 'Étiquetés' : 'Tagged'} value={taggedCount} color="text-violet-500 bg-violet-500/10" />
-        <StatMiniCard icon={Sparkles} label={isFr ? 'Sources' : 'Sources'} value={allSources.length} color="text-amber-500 bg-amber-500/10" />
+        <StatMiniCard icon={Globe} label={isFr ? 'Sources' : 'Sources'} value={allSources.length} color="text-amber-500 bg-amber-500/10" />
       </div>
 
       <Tabs value={tab} onValueChange={v => setTab(v)}>
