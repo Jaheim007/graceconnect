@@ -73,8 +73,24 @@ Deno.serve(async (req) => {
     // ── FULL MODE: requires project_id; org_id may be stale from the client ──
     if (!project_id) return jsonError('project_id required', 400);
 
-    // Resolve the real organization from the project/product instead of trusting the client payload.
+    // Resolve the real organization from the active product first, then project.
+    // This protects existing legacy records where ai_project_id points to a project
+    // created under another organization.
     let effectiveOrgId = org_id || '';
+    let fallbackProduct: any = null;
+
+    if (bodyProductId) {
+      const { data: productById } = await admin
+        .from('digital_products')
+        .select('id, title, description, cover_image_url, organization_id, ai_project_id')
+        .eq('id', bodyProductId)
+        .maybeSingle();
+
+      if (productById) {
+        fallbackProduct = productById;
+        effectiveOrgId = productById.organization_id || effectiveOrgId;
+      }
+    }
 
     let { data: project } = await admin
       .from('ai_content_projects').select('*')
@@ -93,28 +109,41 @@ Deno.serve(async (req) => {
       }
     }
 
-    let fallbackProduct: any = null;
-    if (!project) {
+    if (!fallbackProduct && !project) {
       const { data: productByProject } = await admin
-        .from('digital_products').select('id, title, description, cover_image_url, organization_id')
+        .from('digital_products')
+        .select('id, title, description, cover_image_url, organization_id, ai_project_id')
         .eq('ai_project_id', project_id)
         .maybeSingle();
 
       if (productByProject) {
         fallbackProduct = productByProject;
         effectiveOrgId = productByProject.organization_id;
-      } else if (bodyProductId) {
-        const { data: productById } = await admin
-          .from('digital_products').select('id, title, description, cover_image_url, organization_id')
-          .eq('id', bodyProductId)
-          .maybeSingle();
-        if (productById) {
-          fallbackProduct = productById;
-          effectiveOrgId = productById.organization_id;
-        }
       }
+    }
 
-      if (!fallbackProduct) return jsonError('Project not found', 404);
+    if (!project && !fallbackProduct) return jsonError('Project not found', 404);
+
+    const hasOrgMismatch = Boolean(
+      project
+      && fallbackProduct?.organization_id
+      && project.organization_id
+      && fallbackProduct.organization_id !== project.organization_id
+    );
+
+    if (hasOrgMismatch) {
+      effectiveOrgId = fallbackProduct.organization_id;
+      console.warn('[ai-generate-pdf] Product/project org mismatch detected, preferring product organization', {
+        product_id: fallbackProduct.id,
+        project_id,
+        product_org_id: fallbackProduct.organization_id,
+        project_org_id: project.organization_id,
+      });
+    } else if (!effectiveOrgId && project?.organization_id) {
+      effectiveOrgId = project.organization_id;
+    }
+
+    if (!project && fallbackProduct) {
       console.log('[ai-generate-pdf] Using fallback product data for:', fallbackProduct.title, 'org:', effectiveOrgId);
     }
 
@@ -134,10 +163,15 @@ Deno.serve(async (req) => {
         .order('display_order', { ascending: true }) : Promise.resolve({ data: [] }),
     ]);
 
-    const resolvedCoverUrl = asText(coverAsset?.file_url, '')
-      || asText(linkedProduct?.cover_image_url, '')
-      || asText(fallbackProduct?.cover_image_url, '')
-      || asText(directCoverUrl, '');
+    const resolvedCoverUrl = hasOrgMismatch
+      ? asText(fallbackProduct?.cover_image_url, '')
+        || asText(linkedProduct?.cover_image_url, '')
+        || asText(coverAsset?.file_url, '')
+        || asText(directCoverUrl, '')
+      : asText(coverAsset?.file_url, '')
+        || asText(linkedProduct?.cover_image_url, '')
+        || asText(fallbackProduct?.cover_image_url, '')
+        || asText(directCoverUrl, '');
 
     // Build chapter illustration map (by display_order = chapter index)
     const illustrationMap: Record<number, string> = {};
@@ -203,10 +237,14 @@ Deno.serve(async (req) => {
 
     const downloadUrl = `${supabaseUrl}/storage/v1/object/public/org-uploads/${storagePath}`;
     if (update_product !== false) {
-      await admin.from('digital_products')
-        .update({ file_url: downloadUrl })
-        .eq('ai_project_id', project_id)
-        .eq('organization_id', effectiveOrgId);
+      const productUpdate = admin.from('digital_products').update({ file_url: downloadUrl });
+      if (bodyProductId) {
+        await productUpdate.eq('id', bodyProductId);
+      } else {
+        await productUpdate
+          .eq('ai_project_id', project_id)
+          .eq('organization_id', effectiveOrgId);
+      }
     }
 
     await admin.from('audit_logs').insert({
