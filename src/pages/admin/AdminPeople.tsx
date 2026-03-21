@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrgMembers } from '@/hooks/useOrgRole';
 import { useQuery } from '@tanstack/react-query';
@@ -13,6 +14,7 @@ import AmbassadorsList from '@/components/admin/people/AmbassadorsList';
 
 export default function AdminPeople() {
   const { currentOrg } = useOrg();
+  const { user } = useAuth();
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
   const [search, setSearch] = useState('');
@@ -50,6 +52,8 @@ export default function AdminPeople() {
   });
 
   const filteredMembers = members.filter((m: any) => {
+    // Exclude the current user (org owner) from the members list
+    if (m.user_id === user?.id) return false;
     if (!search) return true;
     const name = m.profiles?.display_name || '';
     return name.toLowerCase().includes(search.toLowerCase());

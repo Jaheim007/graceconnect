@@ -100,6 +100,8 @@ export default function AdminCRM() {
     const contactEmails = new Set(rawContacts.map((c: any) => c.email?.toLowerCase()));
     const memberContacts = members
       .filter((m: any) => {
+        // Exclude the org owner (current user) — they're not a "contact"
+        if (m.user_id === user?.id) return false;
         const name = m.profiles?.display_name;
         return name && !contactEmails.has(name?.toLowerCase());
       })
@@ -381,12 +383,6 @@ export default function AdminCRM() {
                       ))}
                     </div>
                     <Badge variant="outline" className="text-[10px] rounded-lg shrink-0 capitalize">{c.source}</Badge>
-                    {!c._isMember && (
-                      <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive"
-                        onClick={() => deleteContact.mutate(c.id)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
                   </motion.div>
                 );
               })}
