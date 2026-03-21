@@ -336,7 +336,7 @@ export default function AdminAnalyticsPage() {
   const currency = currentOrg?.currency || 'XOF';
 
   const kpis = [
-    { label: t('analytics.total_revenue'), value: fmt(stats.totalRevenue, currency), icon: DollarSign, color: 'text-emerald-500', growth: <GrowthBadge current={stats.totalRevenue} previous={stats.prev.revenue} /> },
+    { label: t('analytics.total_revenue'), value: fmt(stats.totalRevenue, currency), icon: DollarSign, useCurrencyIcon: true, color: 'text-emerald-500', growth: <GrowthBadge current={stats.totalRevenue} previous={stats.prev.revenue} /> },
     { label: t('analytics.transactions'), value: stats.totalTransactions, icon: Activity, color: 'text-blue-500', growth: <GrowthBadge current={stats.totalTransactions} previous={stats.prev.tx} /> },
     { label: t('analytics.donations_received'), value: fmt(stats.totalDonations, currency), icon: Heart, color: 'text-pink-500', growth: null },
     { label: t('analytics.product_sales'), value: fmt(stats.totalPurchases, currency), icon: ShoppingBag, color: 'text-amber-500', growth: null },
