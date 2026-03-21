@@ -374,10 +374,12 @@ export default function AdminCRM() {
                       ))}
                     </div>
                     <Badge variant="outline" className="text-[10px] rounded-lg shrink-0 capitalize">{c.source}</Badge>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive"
-                      onClick={() => deleteContact.mutate(c.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    {!c._isMember && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive"
+                        onClick={() => deleteContact.mutate(c.id)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                   </motion.div>
                 );
               })}
