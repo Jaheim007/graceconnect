@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { formatPrice } from '@/lib/currency';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { useExperimentContent, useExperimentClick } from '@/hooks/useExperimentContent';
 
 interface SmartCTAProps {
   product: any;
