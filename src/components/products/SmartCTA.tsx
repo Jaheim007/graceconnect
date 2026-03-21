@@ -109,19 +109,15 @@ export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: S
         </div>
       )}
 
-      {/* Main CTA */}
-      <Button
-        size="lg"
-        className="w-full gap-2 font-semibold shadow-lg text-base h-12"
-        onClick={onBuy}
-      >
-        <ShoppingBag className="h-5 w-5" />
-        {isPwyw
-          ? `💰 ${formatPrice(minPrice, false, currency)}+`
-          : isFree
-            ? 'Obtenir gratuitement'
-            : `Acheter — ${formatPrice(displayPrice, false, currency)}`}
-      </Button>
+      {/* Main CTA — A/B testable */}
+      <ExperimentedCTAButton
+        isPwyw={isPwyw}
+        isFree={isFree}
+        minPrice={minPrice}
+        displayPrice={displayPrice}
+        currency={currency}
+        onBuy={onBuy}
+      />
 
       {/* Strikethrough original price */}
       {hasSale && (
