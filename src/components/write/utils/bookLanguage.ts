@@ -20,5 +20,6 @@ export function resolveRequestedBookLanguage(
   const localeLanguage = resolveBookLanguageFromLocale(locale);
 
   if (manuallySelected && explicitLanguage) return explicitLanguage;
-  return localeLanguage ?? explicitLanguage ?? 'fr';
+  if (localeLanguage) return localeLanguage;
+  return explicitLanguage ?? 'en';
 }
