@@ -397,7 +397,7 @@ export default function AdminAnalyticsPage() {
             <motion.div key={kpi.label} variants={fadeUp} initial="hidden" animate="visible"
               className="bg-card border border-border rounded-2xl p-4 shadow-card">
               <div className="flex items-center gap-2 mb-2">
-                <kpi.icon className={`h-4 w-4 ${kpi.color}`} />
+                {'useCurrencyIcon' in kpi && kpi.useCurrencyIcon ? <CurrencyIcon currency={currency} className={`h-4 w-4 ${kpi.color}`} /> : <kpi.icon className={`h-4 w-4 ${kpi.color}`} />}
                 <p className="text-[11px] text-muted-foreground">{kpi.label}</p>
               </div>
               <div className="flex items-end gap-2">
