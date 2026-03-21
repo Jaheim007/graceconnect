@@ -6058,22 +6058,40 @@ export type Database = {
         }
         Returns: string
       }
-      create_book_quick: {
-        Args: {
-          _chapters?: Json
-          _commission_rate?: number
-          _cover_url?: string
-          _description?: string
-          _file_url?: string
-          _is_free?: boolean
-          _page_count?: number
-          _price?: number
-          _style?: string
-          _title: string
-          _topic?: string
-        }
-        Returns: Json
-      }
+      create_book_quick:
+        | {
+            Args: {
+              _chapters?: Json
+              _commission_rate?: number
+              _cover_url?: string
+              _description?: string
+              _file_url?: string
+              _is_free?: boolean
+              _page_count?: number
+              _price?: number
+              _style?: string
+              _title: string
+              _topic?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _chapters?: Json
+              _commission_rate?: number
+              _cover_url?: string
+              _description?: string
+              _file_url?: string
+              _is_free?: boolean
+              _org_id?: string
+              _page_count?: number
+              _price?: number
+              _style?: string
+              _title: string
+              _topic?: string
+            }
+            Returns: Json
+          }
       create_organization_with_owner: {
         Args: {
           _category?: Database["public"]["Enums"]["org_category"]
