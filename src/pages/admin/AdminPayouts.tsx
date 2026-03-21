@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { motion } from 'framer-motion';
+import { CurrencyIcon } from '@/components/ui/CurrencyIcon';
 import { cn } from '@/lib/utils';
 import {
   Wallet, Clock, CheckCircle, XCircle, ArrowUpRight, AlertTriangle,
@@ -300,7 +301,7 @@ export default function AdminPayouts() {
             <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{isFr ? 'Revenus des ventes' : 'Sales Revenue'}</p>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
-                { label: isFr ? "Chiffre d'affaires" : 'Gross Revenue', value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, accent: 'text-foreground', bg: 'bg-muted/50' },
+                { label: isFr ? "Chiffre d'affaires" : 'Gross Revenue', value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, accent: 'text-foreground', bg: 'bg-muted/50', useCurrencyIcon: true },
                 { label: t('payouts.org_share'), value: fmt(fundSummary.totalOrgReceived, currency), icon: Banknote, accent: 'text-emerald-500', bg: 'bg-emerald-500/8' },
                 { label: t('payouts.platform_fees'), value: fmt(fundSummary.totalPlatformFees, currency), icon: Shield, accent: 'text-muted-foreground', bg: 'bg-muted/50' },
                 { label: t('payouts.affiliate_commissions'), value: fmt(fundSummary.totalAffiliateCommissionsPaid, currency), icon: ArrowUpRight, accent: 'text-amber-500', bg: 'bg-amber-500/8' },
@@ -308,7 +309,7 @@ export default function AdminPayouts() {
                 <motion.div key={c.label} variants={fadeUp}
                   className={cn('rounded-2xl border border-border p-4 transition-shadow hover:shadow-md', c.bg)}>
                   <div className="flex items-center justify-between mb-3">
-                    <c.icon className={cn('h-4 w-4', c.accent)} />
+                    {'useCurrencyIcon' in c && c.useCurrencyIcon ? <CurrencyIcon currency={currency} className={cn('h-4 w-4', c.accent)} /> : <c.icon className={cn('h-4 w-4', c.accent)} />}
                   </div>
                   <p className="text-xl font-extrabold tracking-tight">{c.value}</p>
                   <p className="text-[10px] text-muted-foreground font-medium mt-1 uppercase tracking-wide">{c.label}</p>

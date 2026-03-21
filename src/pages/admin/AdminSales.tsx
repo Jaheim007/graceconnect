@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/csvExport';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { useI18n } from '@/i18n/I18nContext';
+import { CurrencyIcon } from '@/components/ui/CurrencyIcon';
 import { motion } from 'framer-motion';
 
 type PeriodKey = 'all' | 'today' | '7d' | '30d' | '90d' | 'this_month' | 'this_week' | 'custom';
@@ -202,7 +203,7 @@ export default function AdminSales() {
   };
 
   const statCards = [
-    { label: isFr ? "Chiffre d'affaires" : 'Revenue', value: fmt(totalGMV, orgCurrency), icon: DollarSign, color: 'primary' as const },
+    { label: isFr ? "Chiffre d'affaires" : 'Revenue', value: fmt(totalGMV, orgCurrency), icon: DollarSign, renderIcon: <CurrencyIcon currency={orgCurrency} className="h-4 w-4 text-primary" />, color: 'primary' as const },
     { label: isFr ? 'Reçu (net)' : 'Received (net)', value: fmt(totalOrgReceived, orgCurrency), icon: TrendingUp, color: 'emerald' as const },
     { label: isFr ? 'Comm. Affiliés' : 'Affiliate Comm.', value: fmt(totalAffComm, orgCurrency), icon: Users, color: 'amber' as const },
     { label: 'Transactions', value: allTx.length.toString(), icon: BarChart3, color: 'blue' as const },
@@ -296,7 +297,7 @@ export default function AdminSales() {
               )}
             >
               <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center mb-4', colorStyles.bg)}>
-                <card.icon className={cn('h-[18px] w-[18px]', colorStyles.text)} />
+                {'renderIcon' in card && card.renderIcon ? card.renderIcon : <card.icon className={cn('h-[18px] w-[18px]', colorStyles.text)} />}
               </div>
               <p className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-none tabular-nums">
                 {card.value}

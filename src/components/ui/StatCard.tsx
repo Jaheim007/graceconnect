@@ -7,6 +7,8 @@ interface StatCardProps {
   value: string | number;
   sub?: string;
   icon: LucideIcon;
+  /** Optional custom icon renderer — overrides the `icon` prop display */
+  renderIcon?: React.ReactNode;
   /** Semantic color accent */
   color?: 'primary' | 'emerald' | 'amber' | 'blue' | 'rose' | 'muted';
   /** Click handler or navigation */
@@ -24,7 +26,7 @@ const colorMap: Record<string, { icon: string; border: string; bg: string }> = {
   muted: { icon: 'text-muted-foreground', border: 'border-border', bg: 'bg-muted/50' },
 };
 
-export function StatCard({ label, value, sub, icon: Icon, color = 'primary', onClick, delay = 0, className }: StatCardProps) {
+export function StatCard({ label, value, sub, icon: Icon, renderIcon, color = 'primary', onClick, delay = 0, className }: StatCardProps) {
   const c = colorMap[color];
   const Component = onClick ? motion.button : motion.div;
 
@@ -42,7 +44,7 @@ export function StatCard({ label, value, sub, icon: Icon, color = 'primary', onC
       )}
     >
       <div className={cn('h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center mb-2 sm:mb-3', c.bg)}>
-        <Icon className={cn('h-4 w-4', c.icon)} />
+        {renderIcon || <Icon className={cn('h-4 w-4', c.icon)} />}
       </div>
       <p className="text-[10px] sm:text-[11px] text-muted-foreground font-medium uppercase tracking-wide truncate">{label}</p>
       <p className="text-lg sm:text-2xl font-bold mt-0.5 tracking-tight truncate">{value}</p>

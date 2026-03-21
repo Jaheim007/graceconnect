@@ -10,6 +10,7 @@ import {
   PieChart, Pie, Cell, LineChart, Line, Legend, CartesianGrid,
 } from 'recharts';
 import { TrendingUp, DollarSign, Users, ShoppingBag, Heart, Activity, Download, Calendar, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { CurrencyIcon } from '@/components/ui/CurrencyIcon';
 import { Button } from '@/components/ui/button';
 import { downloadCSV } from '@/lib/csvExport';
 import { subDays, format, differenceInDays } from 'date-fns';
@@ -335,7 +336,7 @@ export default function AdminAnalyticsPage() {
   const currency = currentOrg?.currency || 'XOF';
 
   const kpis = [
-    { label: t('analytics.total_revenue'), value: fmt(stats.totalRevenue, currency), icon: DollarSign, color: 'text-emerald-500', growth: <GrowthBadge current={stats.totalRevenue} previous={stats.prev.revenue} /> },
+    { label: t('analytics.total_revenue'), value: fmt(stats.totalRevenue, currency), icon: DollarSign, useCurrencyIcon: true, color: 'text-emerald-500', growth: <GrowthBadge current={stats.totalRevenue} previous={stats.prev.revenue} /> },
     { label: t('analytics.transactions'), value: stats.totalTransactions, icon: Activity, color: 'text-blue-500', growth: <GrowthBadge current={stats.totalTransactions} previous={stats.prev.tx} /> },
     { label: t('analytics.donations_received'), value: fmt(stats.totalDonations, currency), icon: Heart, color: 'text-pink-500', growth: null },
     { label: t('analytics.product_sales'), value: fmt(stats.totalPurchases, currency), icon: ShoppingBag, color: 'text-amber-500', growth: null },
@@ -396,7 +397,7 @@ export default function AdminAnalyticsPage() {
             <motion.div key={kpi.label} variants={fadeUp} initial="hidden" animate="visible"
               className="bg-card border border-border rounded-2xl p-4 shadow-card">
               <div className="flex items-center gap-2 mb-2">
-                <kpi.icon className={`h-4 w-4 ${kpi.color}`} />
+                {'useCurrencyIcon' in kpi && kpi.useCurrencyIcon ? <CurrencyIcon currency={currency} className={`h-4 w-4 ${kpi.color}`} /> : <kpi.icon className={`h-4 w-4 ${kpi.color}`} />}
                 <p className="text-[11px] text-muted-foreground">{kpi.label}</p>
               </div>
               <div className="flex items-end gap-2">
