@@ -297,7 +297,7 @@ export default function AdminSales() {
               )}
             >
               <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center mb-4', colorStyles.bg)}>
-                <card.icon className={cn('h-[18px] w-[18px]', colorStyles.text)} />
+                {'renderIcon' in card && card.renderIcon ? card.renderIcon : <card.icon className={cn('h-[18px] w-[18px]', colorStyles.text)} />}
               </div>
               <p className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-none tabular-nums">
                 {card.value}
