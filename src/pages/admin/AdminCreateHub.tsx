@@ -5,7 +5,8 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import {
   PackageCheck, BookOpen, MonitorPlay, Megaphone, CalendarCheck2,
-  HeartHandshake, Percent, ArrowRight, Sparkles, Gift, LayoutPanelTop, GraduationCap
+  HeartHandshake, Percent, ArrowRight, Gift, LayoutPanelTop, GraduationCap,
+  Wand2, PenLine, Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
