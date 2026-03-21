@@ -426,7 +426,7 @@ export default function WriteWizard() {
   useEffect(() => {
     if (state.languageManuallySelected) return;
 
-    const localeLanguage = detectBookLanguage();
+    const localeLanguage = detectBookLanguage(locale);
     if (state.language === localeLanguage) return;
 
     setState((prev) => {
