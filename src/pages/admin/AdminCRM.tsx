@@ -30,7 +30,7 @@ const springIn = {
   hidden: { opacity: 0, y: 16, scale: 0.98 },
   visible: (i: number) => ({
     opacity: 1, y: 0, scale: 1,
-    transition: { type: 'spring', stiffness: 300, damping: 28, delay: i * 0.04 },
+    transition: { type: 'spring' as const, stiffness: 300, damping: 28, delay: i * 0.04 },
   }),
 };
 
