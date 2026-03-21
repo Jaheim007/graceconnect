@@ -142,10 +142,13 @@ export default function AdminExperiments() {
     toast.success(isFr ? 'Test supprimé' : 'Test deleted');
   };
 
-  const declareWinner = async (expId: string, winner: string) => {
-    await db.from('experiments').update({ is_active: false, description: JSON.stringify({ winner }) }).eq('id', expId);
+  const declareWinner = async (expId: string, winnerVariant: string) => {
+    await db.from('experiments').update({
+      is_active: false,
+      winner_variant: winnerVariant,
+    } as any).eq('id', expId);
     qc.invalidateQueries({ queryKey: ['experiments'] });
-    toast.success(isFr ? `🏆 ${winner} déclaré gagnant !` : `🏆 ${winner} declared winner!`);
+    toast.success(isFr ? `🏆 ${winnerVariant} déclaré gagnant !` : `🏆 ${winnerVariant} declared winner!`);
   };
 
   const openEdit = (exp: any) => {
