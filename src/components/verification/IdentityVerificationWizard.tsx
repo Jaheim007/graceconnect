@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -152,10 +152,14 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
   // Org doc types for the category
   const orgDocTypes = ORG_DOC_TYPES_BY_CATEGORY[orgCategory || 'other'] || ORG_DOC_TYPES_BY_CATEGORY.other;
 
-  // Set default org doc type
-  if (mode === 'org' && !orgDocType && orgDocTypes.length > 0) {
-    setOrgDocType(orgDocTypes[0].value);
-  }
+  useEffect(() => {
+    if (mode !== 'org' || orgDocTypes.length === 0) return;
+
+    const currentSelectionIsValid = orgDocTypes.some((doc) => doc.value === orgDocType);
+    if (!currentSelectionIsValid) {
+      setOrgDocType(orgDocTypes[0].value);
+    }
+  }, [mode, orgDocType, orgDocTypes]);
 
   const canProceed = useCallback(() => {
     switch (currentStep?.id) {
