@@ -334,16 +334,31 @@ export default function AdminCRM() {
                   <motion.div key={c.id} custom={i} variants={springIn} initial="hidden" animate="visible"
                     className="group flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/40 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
                     {/* Avatar */}
-                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-sm font-bold text-primary shrink-0">
-                      {(c.name || c.email)[0].toUpperCase()}
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-sm font-bold text-primary shrink-0 overflow-hidden">
+                      {c.avatar_url ? (
+                        <img src={c.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        (c.name || c.email || '?')[0].toUpperCase()
+                      )}
                     </div>
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
-                        {c.name || (isFr ? 'Contact' : 'Contact')}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
+                          {c.name || (isFr ? 'Contact' : 'Contact')}
+                        </p>
+                        {c._isMember && (
+                          <Badge variant="outline" className="text-[9px] rounded-md bg-primary/10 text-primary border-primary/20">
+                            {isFr ? 'Membre' : 'Member'}
+                          </Badge>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <p className="text-[11px] text-muted-foreground truncate">{maskEmail(c.email)}</p>
+                        {c.email ? (
+                          <p className="text-[11px] text-muted-foreground truncate">{maskEmail(c.email)}</p>
+                        ) : (
+                          <p className="text-[11px] text-muted-foreground italic">{isFr ? 'Membre communauté' : 'Community member'}</p>
+                        )}
                         {c.phone && <span className="text-[11px] text-muted-foreground">· {c.phone}</span>}
                       </div>
                     </div>
