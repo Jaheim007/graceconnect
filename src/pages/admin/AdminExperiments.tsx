@@ -452,6 +452,14 @@ export default function AdminExperiments() {
                         )}
                         <span className="text-[10px] text-muted-foreground">·</span>
                         <span className="text-[10px] text-muted-foreground">{exp.traffic_percent}% {isFr ? 'du trafic' : 'traffic'}</span>
+                        {exp.slot_key && (
+                          <>
+                            <span className="text-[10px] text-muted-foreground">·</span>
+                            <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-mono">
+                              {exp.slot_key}
+                            </Badge>
+                          </>
+                        )}
                       </div>
                     </div>
 
