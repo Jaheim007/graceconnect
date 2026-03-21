@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { motion } from 'framer-motion';
+import { CurrencyIcon } from '@/components/ui/CurrencyIcon';
 import { cn } from '@/lib/utils';
 import {
   Wallet, Clock, CheckCircle, XCircle, ArrowUpRight, AlertTriangle,
