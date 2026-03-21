@@ -80,7 +80,7 @@ export default function AdminCreateHub() {
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <Sparkles className="h-7 w-7 text-primary-foreground" />
+          <PenLine className="h-7 w-7 text-primary-foreground" />
         </motion.div>
         <div className="relative flex-1 min-w-0">
           <div className="flex items-center gap-2">
