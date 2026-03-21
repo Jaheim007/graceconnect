@@ -14,6 +14,7 @@ import AmbassadorsList from '@/components/admin/people/AmbassadorsList';
 
 export default function AdminPeople() {
   const { currentOrg } = useOrg();
+  const { user } = useAuth();
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
   const [search, setSearch] = useState('');
