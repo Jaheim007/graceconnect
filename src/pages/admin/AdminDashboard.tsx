@@ -15,6 +15,7 @@ import {
   TrendingUp, DollarSign, Percent, Rocket, Download,
   BarChart3, Zap
 } from 'lucide-react';
+import { CurrencyIcon } from '@/components/ui/CurrencyIcon';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 

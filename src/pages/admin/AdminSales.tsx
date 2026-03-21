@@ -202,7 +202,7 @@ export default function AdminSales() {
   };
 
   const statCards = [
-    { label: isFr ? "Chiffre d'affaires" : 'Revenue', value: fmt(totalGMV, orgCurrency), icon: DollarSign, color: 'primary' as const },
+    { label: isFr ? "Chiffre d'affaires" : 'Revenue', value: fmt(totalGMV, orgCurrency), icon: DollarSign, renderIcon: <CurrencyIcon currency={orgCurrency} className="h-4 w-4 text-primary" />, color: 'primary' as const },
     { label: isFr ? 'Reçu (net)' : 'Received (net)', value: fmt(totalOrgReceived, orgCurrency), icon: TrendingUp, color: 'emerald' as const },
     { label: isFr ? 'Comm. Affiliés' : 'Affiliate Comm.', value: fmt(totalAffComm, orgCurrency), icon: Users, color: 'amber' as const },
     { label: 'Transactions', value: allTx.length.toString(), icon: BarChart3, color: 'blue' as const },
