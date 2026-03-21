@@ -10,6 +10,7 @@ import {
   PieChart, Pie, Cell, LineChart, Line, Legend, CartesianGrid,
 } from 'recharts';
 import { TrendingUp, DollarSign, Users, ShoppingBag, Heart, Activity, Download, Calendar, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { CurrencyIcon } from '@/components/ui/CurrencyIcon';
 import { Button } from '@/components/ui/button';
 import { downloadCSV } from '@/lib/csvExport';
 import { subDays, format, differenceInDays } from 'date-fns';
