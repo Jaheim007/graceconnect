@@ -300,7 +300,7 @@ export default function AdminPayouts() {
             <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{isFr ? 'Revenus des ventes' : 'Sales Revenue'}</p>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
-                { label: isFr ? "Chiffre d'affaires" : 'Gross Revenue', value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, accent: 'text-foreground', bg: 'bg-muted/50' },
+                { label: isFr ? "Chiffre d'affaires" : 'Gross Revenue', value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, accent: 'text-foreground', bg: 'bg-muted/50', useCurrencyIcon: true },
                 { label: t('payouts.org_share'), value: fmt(fundSummary.totalOrgReceived, currency), icon: Banknote, accent: 'text-emerald-500', bg: 'bg-emerald-500/8' },
                 { label: t('payouts.platform_fees'), value: fmt(fundSummary.totalPlatformFees, currency), icon: Shield, accent: 'text-muted-foreground', bg: 'bg-muted/50' },
                 { label: t('payouts.affiliate_commissions'), value: fmt(fundSummary.totalAffiliateCommissionsPaid, currency), icon: ArrowUpRight, accent: 'text-amber-500', bg: 'bg-amber-500/8' },
