@@ -17,7 +17,7 @@ import {
   UserPlus, Mail, Download, Send, Trash2, Plus, Loader2, Heart, ShoppingBag,
   Search, Tag, Star, Filter, Users, MessageSquare, Megaphone, TrendingUp,
   ArrowUpRight, Calendar, DollarSign, Eye, EyeOff, MoreHorizontal, Globe,
-  Checkbox, UserCheck, Construction
+  CheckSquare, UserCheck, Construction
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
