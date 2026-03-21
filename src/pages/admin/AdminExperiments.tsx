@@ -559,25 +559,37 @@ export default function AdminExperiments() {
                           </div>
 
                           {/* Actions */}
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 gap-1.5"
-                              onClick={() => declareWinner(exp.id, 'Version A')}
-                            >
-                              <Trophy className="h-3.5 w-3.5" />
-                              {isFr ? 'Déclarer A gagnant' : 'Declare A winner'}
-                            </Button>
-                            <Button
-                              size="sm"
-                              className="flex-1 gap-1.5"
-                              onClick={() => declareWinner(exp.id, 'Version B')}
-                            >
-                              <Trophy className="h-3.5 w-3.5" />
-                              {isFr ? 'Déclarer B gagnant' : 'Declare B winner'}
-                            </Button>
-                          </div>
+                          {!exp.winner_variant && (
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 gap-1.5"
+                                onClick={() => declareWinner(exp.id, 'a')}
+                              >
+                                <Trophy className="h-3.5 w-3.5" />
+                                {isFr ? 'Déclarer A gagnant' : 'Declare A winner'}
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="flex-1 gap-1.5"
+                                onClick={() => declareWinner(exp.id, 'b')}
+                              >
+                                <Trophy className="h-3.5 w-3.5" />
+                                {isFr ? 'Déclarer B gagnant' : 'Declare B winner'}
+                              </Button>
+                            </div>
+                          )}
+                          {exp.winner_variant && (
+                            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center">
+                              <p className="text-sm font-medium text-emerald-700">
+                                🏆 {isFr ? 'Version' : 'Version'} {exp.winner_variant === 'a' ? 'A' : 'B'} {isFr ? 'a gagné ce test' : 'won this test'}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {isFr ? "Le contenu gagnant est maintenant utilisé par défaut." : "The winning content is now used by default."}
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </motion.div>
                     )}
