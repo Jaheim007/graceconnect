@@ -640,6 +640,20 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [tags, setTags] = useState('');
+  const [recipientMode, setRecipientMode] = useState<'all' | 'tags' | 'individual'>('all');
+  const [selectedContact, setSelectedContact] = useState('');
+
+  // Fetch contacts for recipient selection
+  const { data: allContacts = [] } = useQuery({
+    queryKey: ['crm-contacts-for-campaign', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+      const { data } = await db.from('contacts').select('id, name, email, tags')
+        .eq('organization_id', orgId).order('name', { ascending: true });
+      return data || [];
+    },
+    enabled: !!orgId,
+  });
 
   const { data: campaigns = [], isLoading } = useQuery({
     queryKey: ['crm-email-campaigns', orgId],
@@ -655,7 +669,7 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
   const createCampaign = useMutation({
     mutationFn: async () => {
       if (!orgId || !subject.trim() || !body.trim()) throw new Error(isFr ? 'Sujet et contenu requis' : 'Subject and content required');
-      const recipientTags = tags.split(',').map(t => t.trim()).filter(Boolean);
+      const recipientTags = recipientMode === 'tags' ? tags.split(',').map(t => t.trim()).filter(Boolean) : [];
       const { error } = await db.from('email_campaigns').insert({
         organization_id: orgId,
         created_by: user?.id,
@@ -668,7 +682,7 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
     },
     onSuccess: () => {
       toast({ title: `✅ ${t('crm.campaign_created')}` });
-      setSubject(''); setBody(''); setTags('');
+      setSubject(''); setBody(''); setTags(''); setSelectedContact('');
       setShowNew(false);
       qc.invalidateQueries({ queryKey: ['crm-email-campaigns', orgId] });
     },
@@ -689,8 +703,32 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
   const sentCampaigns = campaigns.filter((c: any) => c.status === 'sent');
   const draftCampaigns = campaigns.filter((c: any) => c.status === 'draft');
 
+  // All unique tags from contacts
+  const contactTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    allContacts.forEach((c: any) => (c.tags || []).forEach((t: string) => tagSet.add(t)));
+    return Array.from(tagSet).sort();
+  }, [allContacts]);
+
   return (
     <div className="space-y-5">
+      {/* Coming soon banner */}
+      <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 flex items-center gap-3">
+        <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+          <Construction className="h-5 w-5 text-amber-500" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+            {isFr ? 'Fonctionnalité en développement' : 'Feature in development'}
+          </p>
+          <p className="text-[11px] text-muted-foreground">
+            {isFr
+              ? 'Les campagnes email et SMS seront bientôt entièrement fonctionnelles. Vous pouvez déjà préparer vos brouillons.'
+              : 'Email and SMS campaigns will be fully functional soon. You can already prepare your drafts.'}
+          </p>
+        </div>
+      </div>
+
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <StatMiniCard icon={Megaphone} label={isFr ? 'Campagnes' : 'Campaigns'} value={campaigns.length} color="text-primary bg-primary/10" />
@@ -746,7 +784,84 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
+              {/* Recipient selection */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium">{isFr ? 'Destinataires' : 'Recipients'} *</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    onClick={() => setRecipientMode('all')}
+                    className={cn(
+                      'flex flex-col items-center gap-1.5 p-3 rounded-xl text-[11px] font-semibold border transition-all',
+                      recipientMode === 'all'
+                        ? 'bg-primary/10 border-primary/30 text-primary'
+                        : 'bg-card border-border text-muted-foreground hover:border-primary/20'
+                    )}
+                  >
+                    <Users className="h-5 w-5" />
+                    {isFr ? 'Tous les contacts' : 'All contacts'}
+                    <span className="text-[10px] opacity-60">({allContacts.length})</span>
+                  </button>
+                  <button
+                    onClick={() => setRecipientMode('tags')}
+                    className={cn(
+                      'flex flex-col items-center gap-1.5 p-3 rounded-xl text-[11px] font-semibold border transition-all',
+                      recipientMode === 'tags'
+                        ? 'bg-primary/10 border-primary/30 text-primary'
+                        : 'bg-card border-border text-muted-foreground hover:border-primary/20'
+                    )}
+                  >
+                    <Tag className="h-5 w-5" />
+                    {isFr ? 'Par tag' : 'By tag'}
+                  </button>
+                  <button
+                    onClick={() => setRecipientMode('individual')}
+                    className={cn(
+                      'flex flex-col items-center gap-1.5 p-3 rounded-xl text-[11px] font-semibold border transition-all',
+                      recipientMode === 'individual'
+                        ? 'bg-primary/10 border-primary/30 text-primary'
+                        : 'bg-card border-border text-muted-foreground hover:border-primary/20'
+                    )}
+                  >
+                    <UserCheck className="h-5 w-5" />
+                    {isFr ? 'Contact spécifique' : 'Specific contact'}
+                  </button>
+                </div>
+
+                {recipientMode === 'tags' && (
+                  <div className="space-y-1.5">
+                    <Input value={tags} onChange={e => setTags(e.target.value)}
+                      placeholder={isFr ? 'Tags (séparés par des virgules): vip, newsletter' : 'Tags (comma separated): vip, newsletter'}
+                      className="h-9 text-xs rounded-xl" />
+                    {contactTags.length > 0 && (
+                      <div className="flex gap-1.5 flex-wrap">
+                        {contactTags.map(tag => (
+                          <button key={tag} onClick={() => setTags(prev => prev ? `${prev}, ${tag}` : tag)}
+                            className="text-[10px] px-2 py-1 rounded-lg bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors">
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {recipientMode === 'individual' && (
+                  <Select value={selectedContact} onValueChange={setSelectedContact}>
+                    <SelectTrigger className="h-9 text-xs rounded-xl">
+                      <SelectValue placeholder={isFr ? 'Sélectionner un contact...' : 'Select a contact...'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allContacts.map((c: any) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name || c.email}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium">{t('crm.subject')} *</Label>
                 <Input value={subject} onChange={e => setSubject(e.target.value)}
@@ -758,12 +873,6 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
                 <Textarea value={body} onChange={e => setBody(e.target.value)}
                   placeholder="<h1>Hello {{name}}</h1>..."
                   rows={6} className="text-xs rounded-xl" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-medium">{t('crm.recipient_tags')}</Label>
-                <Input value={tags} onChange={e => setTags(e.target.value)}
-                  placeholder="vip, newsletter"
-                  className="h-9 text-xs rounded-xl" />
               </div>
               <div className="flex gap-2">
                 <Button size="sm" className="text-xs rounded-xl" onClick={() => createCampaign.mutate()} disabled={createCampaign.isPending}>
