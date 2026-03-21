@@ -190,8 +190,8 @@ Deno.serve(async (req) => {
 
         // ─── Author name handling ───
         const authorLine = author_name
-          ? `\n\nAUTHOR NAME — MANDATORY: The author name "${author_name}" MUST appear on the cover. Place it clearly visible, typically at the bottom, in a refined complementary font. This is NON-NEGOTIABLE — the cover is incomplete without the author name.`
-          : '';
+          ? `\n\nAUTHOR NAME — MANDATORY AND EXACT: The author name MUST be exactly "${author_name}" — spell it EXACTLY as written, character by character. Do NOT invent, replace, or modify the author name. Do NOT use placeholder names like "Dr. Sebastian" or any other fictional name. The exact text "${author_name}" MUST appear clearly visible on the cover, typically at the bottom, in a refined complementary font. This is the REAL author — using any other name is a critical error.`
+          : '\n\nAUTHOR NAME: Do NOT put any author name on the cover. Leave the author area completely blank. Do NOT invent or add any fictional author name.';
 
         const prompt = `You are a senior book cover designer at a top publishing house (Penguin, HarperCollins, Gallimard). Design a REAL, PROFESSIONAL book cover that could sit on a bookstore shelf and sell.
 
