@@ -96,6 +96,9 @@ export default function AdminExperiments() {
       b: { label: 'Version B', content: form.versionB },
     };
 
+    // Build slot_key from testType + location (e.g. "product-cta", "ambassador-message")
+    const slotKey = `${form.location?.replace('_', '-') || 'product-page'}-${form.testType || 'custom'}`;
+
     const payload = {
       name: form.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
       description: JSON.stringify({
@@ -107,6 +110,7 @@ export default function AdminExperiments() {
       variants,
       traffic_percent: form.trafficPercent,
       created_by: user?.id,
+      slot_key: slotKey,
     };
 
     try {
@@ -138,10 +142,13 @@ export default function AdminExperiments() {
     toast.success(isFr ? 'Test supprimé' : 'Test deleted');
   };
 
-  const declareWinner = async (expId: string, winner: string) => {
-    await db.from('experiments').update({ is_active: false, description: JSON.stringify({ winner }) }).eq('id', expId);
+  const declareWinner = async (expId: string, winnerVariant: string) => {
+    await db.from('experiments').update({
+      is_active: false,
+      winner_variant: winnerVariant,
+    } as any).eq('id', expId);
     qc.invalidateQueries({ queryKey: ['experiments'] });
-    toast.success(isFr ? `🏆 ${winner} déclaré gagnant !` : `🏆 ${winner} declared winner!`);
+    toast.success(isFr ? `🏆 ${winnerVariant} déclaré gagnant !` : `🏆 ${winnerVariant} declared winner!`);
   };
 
   const openEdit = (exp: any) => {
@@ -428,7 +435,9 @@ export default function AdminExperiments() {
                           {meta.displayName || exp.name}
                         </h3>
                         <Badge variant={exp.is_active ? 'default' : 'secondary'} className="text-[10px] shrink-0">
-                          {exp.is_active ? (isFr ? 'Actif' : 'Active') : (isFr ? 'En pause' : 'Paused')}
+                          {exp.winner_variant
+                            ? (isFr ? `🏆 ${exp.winner_variant === 'a' ? 'A' : 'B'} gagnant` : `🏆 ${exp.winner_variant === 'a' ? 'A' : 'B'} winner`)
+                            : exp.is_active ? (isFr ? 'Actif' : 'Active') : (isFr ? 'En pause' : 'Paused')}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
@@ -443,6 +452,14 @@ export default function AdminExperiments() {
                         )}
                         <span className="text-[10px] text-muted-foreground">·</span>
                         <span className="text-[10px] text-muted-foreground">{exp.traffic_percent}% {isFr ? 'du trafic' : 'traffic'}</span>
+                        {exp.slot_key && (
+                          <>
+                            <span className="text-[10px] text-muted-foreground">·</span>
+                            <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-mono">
+                              {exp.slot_key}
+                            </Badge>
+                          </>
+                        )}
                       </div>
                     </div>
 
@@ -550,25 +567,37 @@ export default function AdminExperiments() {
                           </div>
 
                           {/* Actions */}
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 gap-1.5"
-                              onClick={() => declareWinner(exp.id, 'Version A')}
-                            >
-                              <Trophy className="h-3.5 w-3.5" />
-                              {isFr ? 'Déclarer A gagnant' : 'Declare A winner'}
-                            </Button>
-                            <Button
-                              size="sm"
-                              className="flex-1 gap-1.5"
-                              onClick={() => declareWinner(exp.id, 'Version B')}
-                            >
-                              <Trophy className="h-3.5 w-3.5" />
-                              {isFr ? 'Déclarer B gagnant' : 'Declare B winner'}
-                            </Button>
-                          </div>
+                          {!exp.winner_variant && (
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 gap-1.5"
+                                onClick={() => declareWinner(exp.id, 'a')}
+                              >
+                                <Trophy className="h-3.5 w-3.5" />
+                                {isFr ? 'Déclarer A gagnant' : 'Declare A winner'}
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="flex-1 gap-1.5"
+                                onClick={() => declareWinner(exp.id, 'b')}
+                              >
+                                <Trophy className="h-3.5 w-3.5" />
+                                {isFr ? 'Déclarer B gagnant' : 'Declare B winner'}
+                              </Button>
+                            </div>
+                          )}
+                          {exp.winner_variant && (
+                            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center">
+                              <p className="text-sm font-medium text-emerald-700">
+                                🏆 {isFr ? 'Version' : 'Version'} {exp.winner_variant === 'a' ? 'A' : 'B'} {isFr ? 'a gagné ce test' : 'won this test'}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {isFr ? "Le contenu gagnant est maintenant utilisé par défaut." : "The winning content is now used by default."}
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </motion.div>
                     )}

@@ -2168,9 +2168,12 @@ export type Database = {
           id: string
           is_active: boolean
           name: string
+          organization_id: string | null
+          slot_key: string | null
           traffic_percent: number
           updated_at: string
           variants: Json
+          winner_variant: string | null
         }
         Insert: {
           created_at?: string
@@ -2179,9 +2182,12 @@ export type Database = {
           id?: string
           is_active?: boolean
           name: string
+          organization_id?: string | null
+          slot_key?: string | null
           traffic_percent?: number
           updated_at?: string
           variants?: Json
+          winner_variant?: string | null
         }
         Update: {
           created_at?: string
@@ -2190,11 +2196,22 @@ export type Database = {
           id?: string
           is_active?: boolean
           name?: string
+          organization_id?: string | null
+          slot_key?: string | null
           traffic_percent?: number
           updated_at?: string
           variants?: Json
+          winner_variant?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "experiments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       faq_items: {
         Row: {

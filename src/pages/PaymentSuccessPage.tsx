@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload } from '@/lib/secureDownload';
 import { verifyStripePayment } from '@/lib/api';
+import { trackEvent } from '@/hooks/useClientAnalytics';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 
@@ -185,6 +186,13 @@ export default function PaymentSuccessPage() {
         const found = await lookupTransaction();
         if (found) {
           await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
+          // Track A/B experiment conversions on successful purchase
+          try {
+            const sessionSeed = sessionStorage.getItem('sv_exp_seed');
+            if (sessionSeed) {
+              trackEvent('experiment_conversion', { product_id: found.product_id, source: 'purchase' }, user?.id);
+            }
+          } catch {}
           setTx(found); setLoading(false); return;
         }
 
