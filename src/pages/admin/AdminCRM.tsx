@@ -75,15 +75,22 @@ export default function AdminCRM() {
     enabled: !!orgId,
   });
 
-  // Members of the community
+  // Members of the community (two-step: members then profiles)
   const { data: members = [] } = useQuery({
     queryKey: ['crm-members', orgId],
     queryFn: async () => {
       if (!orgId) return [];
-      const { data } = await db.from('organization_members')
-        .select('user_id, role, joined_at, profiles(display_name, avatar_url)')
+      const { data: rows } = await db.from('organization_members')
+        .select('user_id, role, joined_at')
         .eq('organization_id', orgId);
-      return data || [];
+      if (!rows?.length) return [];
+      const userIds = rows.map((r: any) => r.user_id);
+      const { data: profiles } = await db.from('profiles')
+        .select('id, display_name, avatar_url')
+        .in('id', userIds);
+      const pMap: Record<string, any> = {};
+      (profiles || []).forEach((p: any) => { pMap[p.id] = p; });
+      return rows.map((r: any) => ({ ...r, profiles: pMap[r.user_id] || null }));
     },
     enabled: !!orgId,
   });
