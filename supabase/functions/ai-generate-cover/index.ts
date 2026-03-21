@@ -220,8 +220,10 @@ PROFESSIONAL PUBLISHING STANDARDS (CRITICAL):
 - The spine area (left edge) should be clean
 - Portrait format, 2:3 ratio, print-ready quality
 - Text must be PERFECTLY SPELLED and in the SAME LANGUAGE as the title
+- NEVER invent author names — use ONLY the author name provided above (or none if not provided)
 - The overall aesthetic should scream "professionally published" not "self-published"
-- Look at real bestseller covers for reference: clean, bold typography, restrained color palette, one strong visual concept`;
+- Look at real bestseller covers for reference: clean, bold typography, restrained color palette, one strong visual concept
+- FINAL CHECK: If an author name was specified above, verify it appears EXACTLY as written — no substitutions, no fictional names`;
 
         console.log('[ai-generate-cover] Generating with unique variation:', {
           title: title?.slice(0, 40),
