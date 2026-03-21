@@ -52,6 +52,8 @@ export default function AdminPeople() {
   });
 
   const filteredMembers = members.filter((m: any) => {
+    // Exclude the current user (org owner) from the members list
+    if (m.user_id === user?.id) return false;
     if (!search) return true;
     const name = m.profiles?.display_name || '';
     return name.toLowerCase().includes(search.toLowerCase());
