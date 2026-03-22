@@ -156,7 +156,7 @@ function analyzeCourse(modules: ModuleData[], isFr: boolean): CourseAnalysis {
   if (avgWords >= 600) strengths.push(isFr ? 'Contenu détaillé et approfondi' : 'Detailed and in-depth content');
   if (exampleRate >= 0.7) strengths.push(isFr ? 'Riche en exemples concrets' : 'Rich in concrete examples');
   if (quizRate >= 0.5) strengths.push(isFr ? 'Bon engagement interactif' : 'Good interactive engagement');
-  if (totalModules >= 4) strengths.push(isFr ? 'Structure modulaire complète' : 'Complete modular structure');
+  if (modules.length >= 4) strengths.push(isFr ? 'Structure modulaire complète' : 'Complete modular structure');
   if (totalLessons >= 10) strengths.push(isFr ? 'Volume de contenu substantiel' : 'Substantial content volume');
 
   return {
