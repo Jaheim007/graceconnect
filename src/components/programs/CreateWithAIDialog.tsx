@@ -12,8 +12,9 @@ import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
-import { Sparkles, Loader2, BookOpen, HelpCircle, Plus, ImageIcon, Users, Globe, Palette, BarChart3, Zap } from 'lucide-react';
+import { Sparkles, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Zap, Settings2, Globe } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const SUGGESTIONS_FR = [
   { icon: BookOpen, text: 'Créer un cours de 10 minutes pour former le personnel au service client' },
@@ -54,12 +55,16 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const [generateImages, setGenerateImages] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
-  const [audienceLevel, setAudienceLevel] = useState('intermediate');
+
+  // New structured fields
+  const [audience, setAudience] = useState('general');
+  const [level, setLevel] = useState('intermediate');
+  const [teachingStyle, setTeachingStyle] = useState('structured');
+  const [tone, setTone] = useState('professional');
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [worldview, setWorldview] = useState('neutral');
-  const [pedagogicalStyle, setPedagogicalStyle] = useState('professional');
   const [depthLevel, setDepthLevel] = useState('standard');
   const [interactivityLevel, setInteractivityLevel] = useState('medium');
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const standardCost = useActionCost('ai_course_structure', 'standard');
   const premiumCost = useActionCost('ai_course_structure', 'premium');
@@ -101,9 +106,11 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
             tier,
             module_count: depthLevel === 'masterclass' ? 7 : depthLevel === 'detailed' ? 6 : 5,
             generate_images: generateImages,
-            audience_level: audienceLevel,
+            audience,
+            audience_level: level,
             worldview,
-            pedagogical_style: pedagogicalStyle,
+            pedagogical_style: teachingStyle,
+            tone,
             depth_level: depthLevel,
             interactivity_level: interactivityLevel,
           }),
@@ -302,107 +309,152 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 </div>
               </div>
 
-              {/* Core settings grid */}
+              {/* Audience (WHO) */}
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                  <Users className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Public cible' : 'Target audience'}
+                </p>
+                <Select value={audience} onValueChange={setAudience}>
+                  <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="general">{isFr ? '🌍 Grand public' : '🌍 General public'}</SelectItem>
+                    <SelectItem value="students">{isFr ? '🎓 Étudiants' : '🎓 Students'}</SelectItem>
+                    <SelectItem value="professionals">{isFr ? '💼 Professionnels' : '💼 Professionals'}</SelectItem>
+                    <SelectItem value="entrepreneurs">{isFr ? '🚀 Entrepreneurs' : '🚀 Entrepreneurs'}</SelectItem>
+                    <SelectItem value="teams">{isFr ? '👥 Équipes / Employés' : '👥 Teams / Employees'}</SelectItem>
+                    <SelectItem value="creators">{isFr ? '✨ Créateurs' : '✨ Creators'}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Level + Teaching Style */}
               <div className="grid grid-cols-2 gap-3">
-                {/* Audience level */}
                 <div className="space-y-1.5">
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Users className="h-3 w-3" /> {isFr ? 'Niveau du public' : 'Audience level'}
+                  <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                    <GraduationCap className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Niveau' : 'Level'}
                   </p>
-                  <Select value={audienceLevel} onValueChange={setAudienceLevel}>
+                  <Select value={level} onValueChange={setLevel}>
                     <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="beginner">{isFr ? '🌱 Débutant' : '🌱 Beginner'}</SelectItem>
                       <SelectItem value="intermediate">{isFr ? '📚 Intermédiaire' : '📚 Intermediate'}</SelectItem>
-                      <SelectItem value="advanced">{isFr ? '🎓 Avancé' : '🎓 Advanced'}</SelectItem>
-                      <SelectItem value="professional">{isFr ? '💼 Professionnel' : '💼 Professional'}</SelectItem>
-                      <SelectItem value="academic">{isFr ? '🔬 Académique' : '🔬 Academic'}</SelectItem>
-                      <SelectItem value="youth">{isFr ? '🧒 Jeune public' : '🧒 Youth'}</SelectItem>
+                      <SelectItem value="advanced">{isFr ? '🎯 Avancé' : '🎯 Advanced'}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/* Worldview / Content frame */}
                 <div className="space-y-1.5">
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Globe className="h-3 w-3" /> {isFr ? 'Cadre du contenu' : 'Content frame'}
+                  <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                    <Palette className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Style pédagogique' : 'Teaching style'}
                   </p>
-                  <Select value={worldview} onValueChange={setWorldview}>
+                  <Select value={teachingStyle} onValueChange={setTeachingStyle}>
                     <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="neutral">{isFr ? '🌍 Neutre / Séculier' : '🌍 Neutral / Secular'}</SelectItem>
-                      <SelectItem value="christian">{isFr ? '✝️ Chrétien' : '✝️ Christian'}</SelectItem>
-                      <SelectItem value="islamic">{isFr ? '☪️ Islamique' : '☪️ Islamic'}</SelectItem>
-                      <SelectItem value="interfaith">{isFr ? '🕊️ Interconfessionnel' : '🕊️ Interfaith'}</SelectItem>
+                      <SelectItem value="structured">{isFr ? '📐 Cours structuré' : '📐 Structured course'}</SelectItem>
+                      <SelectItem value="practical">{isFr ? '🛠️ Cours pratique' : '🛠️ Practical course'}</SelectItem>
+                      <SelectItem value="storytelling">{isFr ? '📖 Basé sur des cas' : '📖 Story-based'}</SelectItem>
+                      <SelectItem value="interactive">{isFr ? '🎮 Cours interactif' : '🎮 Interactive course'}</SelectItem>
+                      <SelectItem value="corporate">{isFr ? '🏢 Formation entreprise' : '🏢 Corporate training'}</SelectItem>
+                      <SelectItem value="fast">{isFr ? '⚡ Apprentissage rapide' : '⚡ Fast learning'}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
-              {/* Advanced settings toggle */}
-              <button
-                type="button"
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
-              >
-                <Zap className="h-3 w-3" />
-                {showAdvanced
-                  ? (isFr ? 'Masquer les options avancées' : 'Hide advanced options')
-                  : (isFr ? 'Options avancées (style, profondeur, interactivité)' : 'Advanced options (style, depth, interactivity)')}
-              </button>
-
-              {showAdvanced && (
-                <div className="grid grid-cols-3 gap-3 p-3 rounded-lg bg-muted/30 border border-border">
-                  {/* Pedagogical style */}
-                  <div className="space-y-1.5">
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                      <Palette className="h-3 w-3" /> {isFr ? 'Style' : 'Style'}
-                    </p>
-                    <Select value={pedagogicalStyle} onValueChange={setPedagogicalStyle}>
-                      <SelectTrigger className="h-8 text-[11px]"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="professional">{isFr ? '💼 Professionnel' : '💼 Professional'}</SelectItem>
-                        <SelectItem value="academic">{isFr ? '🎓 Académique' : '🎓 Academic'}</SelectItem>
-                        <SelectItem value="conversational">{isFr ? '💬 Conversationnel' : '💬 Conversational'}</SelectItem>
-                        <SelectItem value="motivational">{isFr ? '🔥 Motivant' : '🔥 Motivational'}</SelectItem>
-                        <SelectItem value="practical">{isFr ? '🛠️ Pratique' : '🛠️ Practical'}</SelectItem>
-                        <SelectItem value="storytelling">{isFr ? '📖 Narratif' : '📖 Storytelling'}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Depth level */}
-                  <div className="space-y-1.5">
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                      <BarChart3 className="h-3 w-3" /> {isFr ? 'Profondeur' : 'Depth'}
-                    </p>
-                    <Select value={depthLevel} onValueChange={setDepthLevel}>
-                      <SelectTrigger className="h-8 text-[11px]"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="lightweight">{isFr ? '⚡ Léger' : '⚡ Lightweight'}</SelectItem>
-                        <SelectItem value="standard">{isFr ? '📘 Standard' : '📘 Standard'}</SelectItem>
-                        <SelectItem value="detailed">{isFr ? '📚 Détaillé' : '📚 Detailed'}</SelectItem>
-                        <SelectItem value="masterclass">{isFr ? '🏆 Masterclass' : '🏆 Masterclass'}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Interactivity */}
-                  <div className="space-y-1.5">
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                      <Zap className="h-3 w-3" /> {isFr ? 'Interactivité' : 'Interactivity'}
-                    </p>
-                    <Select value={interactivityLevel} onValueChange={setInteractivityLevel}>
-                      <SelectTrigger className="h-8 text-[11px]"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">{isFr ? '📖 Faible' : '📖 Low'}</SelectItem>
-                        <SelectItem value="medium">{isFr ? '⚡ Moyen' : '⚡ Medium'}</SelectItem>
-                        <SelectItem value="high">{isFr ? '🎮 Élevé' : '🎮 High'}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              {/* Tone */}
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                  <MessageSquare className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Ton' : 'Tone'}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { value: 'professional', label: isFr ? 'Professionnel' : 'Professional' },
+                    { value: 'friendly', label: isFr ? 'Amical' : 'Friendly' },
+                    { value: 'motivational', label: isFr ? 'Motivant' : 'Motivational' },
+                    { value: 'academic', label: isFr ? 'Académique' : 'Academic' },
+                    { value: 'conversational', label: isFr ? 'Conversationnel' : 'Conversational' },
+                  ].map(t => (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setTone(t.value)}
+                      className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
+                        tone === t.value
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-muted/40 text-muted-foreground border-border hover:bg-muted'
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
                 </div>
-              )}
+              </div>
+
+              {/* Advanced options */}
+              <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
+                <CollapsibleTrigger asChild>
+                  <button
+                    type="button"
+                    className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-colors w-full"
+                  >
+                    <Settings2 className="h-3.5 w-3.5" />
+                    {isFr ? 'Options avancées' : 'Advanced options'}
+                    <span className={`ml-auto transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>▾</span>
+                  </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-3">
+                  <div className="space-y-3 p-3 rounded-lg bg-muted/30 border border-border">
+                    <div className="grid grid-cols-3 gap-3">
+                      {/* Content context (worldview) */}
+                      <div className="space-y-1.5">
+                        <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                          <Globe className="h-3 w-3" /> {isFr ? 'Contexte' : 'Context'}
+                        </p>
+                        <Select value={worldview} onValueChange={setWorldview}>
+                          <SelectTrigger className="h-8 text-[11px]"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="neutral">{isFr ? '🌍 Neutre / Séculier' : '🌍 Neutral / Secular'}</SelectItem>
+                            <SelectItem value="christian">{isFr ? '✝️ Chrétien' : '✝️ Christian'}</SelectItem>
+                            <SelectItem value="islamic">{isFr ? '☪️ Islamique' : '☪️ Islamic'}</SelectItem>
+                            <SelectItem value="interfaith">{isFr ? '🕊️ Interconfessionnel' : '🕊️ Interfaith'}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Depth */}
+                      <div className="space-y-1.5">
+                        <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                          <BarChart3 className="h-3 w-3" /> {isFr ? 'Profondeur' : 'Depth'}
+                        </p>
+                        <Select value={depthLevel} onValueChange={setDepthLevel}>
+                          <SelectTrigger className="h-8 text-[11px]"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="lightweight">{isFr ? '⚡ Léger' : '⚡ Lightweight'}</SelectItem>
+                            <SelectItem value="standard">{isFr ? '📘 Standard' : '📘 Standard'}</SelectItem>
+                            <SelectItem value="detailed">{isFr ? '📚 Détaillé' : '📚 Detailed'}</SelectItem>
+                            <SelectItem value="masterclass">{isFr ? '🏆 Masterclass' : '🏆 Masterclass'}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Interactivity */}
+                      <div className="space-y-1.5">
+                        <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                          <Zap className="h-3 w-3" /> {isFr ? 'Interactivité' : 'Interactivity'}
+                        </p>
+                        <Select value={interactivityLevel} onValueChange={setInteractivityLevel}>
+                          <SelectTrigger className="h-8 text-[11px]"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="low">{isFr ? '📖 Faible' : '📖 Low'}</SelectItem>
+                            <SelectItem value="medium">{isFr ? '⚡ Moyen' : '⚡ Medium'}</SelectItem>
+                            <SelectItem value="high">{isFr ? '🎮 Élevé' : '🎮 High'}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Image generation option */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
