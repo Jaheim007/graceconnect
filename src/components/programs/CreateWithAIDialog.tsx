@@ -54,6 +54,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const [tier, setTier] = useState<AITier>('standard');
   const [generateImages, setGenerateImages] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const [audienceLevel, setAudienceLevel] = useState('intermediate');
 
   const standardCost = useActionCost('ai_course_structure', 'standard');
