@@ -663,6 +663,61 @@ export function ProgramForm() {
               )}
             </div>
 
+            {/* LMS Settings */}
+            <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+              <h3 className="font-semibold text-sm flex items-center gap-2">
+                <Settings className="h-4 w-4 text-primary" /> {isFr ? 'Paramètres LMS' : 'LMS Settings'}
+              </h3>
+
+              {/* Sequential lessons */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-xs">{isFr ? 'Progression séquentielle' : 'Sequential progression'}</Label>
+                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Les apprenants doivent suivre les leçons dans l\'ordre' : 'Learners must complete lessons in order'}</p>
+                </div>
+                <Switch checked={requireSequential} onCheckedChange={setRequireSequential} />
+              </div>
+
+              {/* Assessment */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-xs">{isFr ? 'Évaluation finale' : 'Final assessment'}</Label>
+                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Quiz final à la fin du cours' : 'Final quiz at end of course'}</p>
+                </div>
+                <Switch checked={assessmentEnabled} onCheckedChange={setAssessmentEnabled} />
+              </div>
+
+              {/* Gamification */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-xs">{isFr ? 'Gamification (étoiles)' : 'Gamification (stars)'}</Label>
+                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Récompenser les bonnes réponses' : 'Reward correct answers'}</p>
+                </div>
+                <Switch checked={gamificationEnabledSetting} onCheckedChange={setGamificationEnabledSetting} />
+              </div>
+
+              {/* Passing score */}
+              <div>
+                <Label className="text-xs">{isFr ? 'Score minimum de réussite' : 'Minimum passing score'}</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Select value={String(passingScore)} onValueChange={v => setPassingScore(Number(v))}>
+                    <SelectTrigger className="w-[120px] h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="50">50%</SelectItem>
+                      <SelectItem value="60">60%</SelectItem>
+                      <SelectItem value="70">70%</SelectItem>
+                      <SelectItem value="80">80%</SelectItem>
+                      <SelectItem value="90">90%</SelectItem>
+                      <SelectItem value="100">100%</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span className="text-[10px] text-muted-foreground">{isFr ? 'requis pour réussir' : 'required to pass'}</span>
+                </div>
+              </div>
+            </div>
+
             {/* Certificate */}
             <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
               <h3 className="font-semibold text-sm flex items-center gap-2">
@@ -671,10 +726,20 @@ export function ProgramForm() {
               <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-xs">{isFr ? 'Certificat de réussite' : 'Completion certificate'}</Label>
-                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Délivré après complétion' : 'Issued upon completion'}</p>
+                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Délivré après complétion du cours' : 'Issued upon course completion'}</p>
                 </div>
                 <Switch checked={certificateEnabled} onCheckedChange={setCertificateEnabled} />
               </div>
+
+              {certificateEnabled && (
+                <div className="flex items-center justify-between pl-4 border-l-2 border-primary/20">
+                  <div>
+                    <Label className="text-xs">{isFr ? 'Exiger l\'évaluation finale' : 'Require final assessment'}</Label>
+                    <p className="text-[10px] text-muted-foreground">{isFr ? 'Le score minimum doit être atteint' : 'Minimum score must be reached'}</p>
+                  </div>
+                  <Switch checked={requireAssessmentForCert} onCheckedChange={setRequireAssessmentForCert} />
+                </div>
+              )}
             </div>
           </div>
         </div>
