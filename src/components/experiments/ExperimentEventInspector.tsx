@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Eye, MousePointerClick, ShoppingCart, Search, RefreshCw } from 'lucide-react';
+import { Eye, MousePointerClick, ShoppingCart, Search, RefreshCw, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -22,15 +23,33 @@ const EVENT_COLORS: Record<string, string> = {
   experiment_conversion: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
 };
 
-/**
- * Raw event inspector for superadmins.
- * Shows experiment-related client_events with filtering.
- */
 export function ExperimentEventInspector() {
   const { isSuperadmin } = useAuth();
+  const qc = useQueryClient();
   const [experimentFilter, setExperimentFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
+  const [liveCount, setLiveCount] = useState(0);
+
+  // Subscribe to Realtime for instant event feed
+  useEffect(() => {
+    const channel = supabase
+      .channel('experiment-events-live')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'client_events' },
+        (payload: any) => {
+          const evt = payload.new;
+          if (['experiment_exposure', 'experiment_click', 'experiment_conversion'].includes(evt?.event_name)) {
+            qc.invalidateQueries({ queryKey: ['experiment-events-inspector'] });
+            setLiveCount(c => c + 1);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [qc]);
 
   const { data: events = [], isLoading, refetch } = useQuery({
     queryKey: ['experiment-events-inspector'],
@@ -43,7 +62,6 @@ export function ExperimentEventInspector() {
         .limit(500);
       return data || [];
     },
-    refetchInterval: 15_000,
   });
 
   if (!isSuperadmin) return null;
