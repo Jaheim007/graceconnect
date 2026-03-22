@@ -12,8 +12,9 @@ import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
-import { Sparkles, Loader2, BookOpen, HelpCircle, Plus, ImageIcon, Users, Globe, Palette, BarChart3, Zap } from 'lucide-react';
+import { Sparkles, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Zap, Settings2, Globe } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const SUGGESTIONS_FR = [
   { icon: BookOpen, text: 'Créer un cours de 10 minutes pour former le personnel au service client' },
@@ -54,12 +55,16 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const [generateImages, setGenerateImages] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
-  const [audienceLevel, setAudienceLevel] = useState('intermediate');
+
+  // New structured fields
+  const [audience, setAudience] = useState('general');
+  const [level, setLevel] = useState('intermediate');
+  const [teachingStyle, setTeachingStyle] = useState('structured');
+  const [tone, setTone] = useState('professional');
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [worldview, setWorldview] = useState('neutral');
-  const [pedagogicalStyle, setPedagogicalStyle] = useState('professional');
   const [depthLevel, setDepthLevel] = useState('standard');
   const [interactivityLevel, setInteractivityLevel] = useState('medium');
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const standardCost = useActionCost('ai_course_structure', 'standard');
   const premiumCost = useActionCost('ai_course_structure', 'premium');
