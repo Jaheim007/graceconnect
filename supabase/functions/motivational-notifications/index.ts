@@ -164,7 +164,7 @@ Deno.serve(async (req) => {
     if (now.getDay() === 3) { // Wednesday — mid-week boost
       const weekAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
       const { data: trendingProducts } = await db.from('product_purchases')
-        .select('product_id, digital_products(title, price, currency)')
+        .select('product_id, digital_products(title, slug, price, currency, organization_id, organizations(slug))')
         .eq('status', 'completed')
         .gte('completed_at', weekAgo)
         .limit(50);
