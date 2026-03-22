@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useProgram, useProgramModules, useEnrollment, useLessonProgress, useEnrollInProgram, useToggleLessonComplete } from '@/hooks/usePrograms';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,6 +35,9 @@ import { Breadcrumb } from '@/components/layout/Breadcrumb';
 import { ReadingProgressBar } from '@/components/ui/ReadingProgressBar';
 import { ReportContentDialog } from '@/components/reports/ReportContentDialog';
 import { ProductImageGallery } from '@/components/products/ProductImageGallery';
+import { ProductPurchaseModal } from '@/components/products/ProductPurchaseModal';
+import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
+import type { DigitalProduct } from '@/types/database';
 
 const CONTENT_ICONS: Record<string, typeof FileText> = {
   text: FileText,
@@ -44,10 +47,12 @@ const CONTENT_ICONS: Record<string, typeof FileText> = {
 };
 
 export default function ProgramDetailPage() {
+  useAffiliateCapture();
   const { programId } = useParams();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { data: program, isLoading } = useProgram(programId);
@@ -58,6 +63,7 @@ export default function ProgramDetailPage() {
   const toggleLesson = useToggleLessonComplete();
 
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
 
   const totalLessons = useMemo(() => modules.reduce((sum: number, m: any) => sum + (m.lessons?.length || 0), 0), [modules]);
@@ -141,15 +147,75 @@ export default function ProgramDetailPage() {
     : {};
   const topBarStyle = orgPrimary ? { borderBottomColor: `${orgPrimary}30` } : {};
 
+  // Check if course has a linked digital product for paid enrollment
+  const isPaidCourse = !program?.is_free && (program?.price ?? 0) > 0;
+
+  const { data: linkedProduct } = useQuery({
+    queryKey: ['course-linked-product', program?.organization_id, programId],
+    queryFn: async () => {
+      if (!program?.organization_id || !programId) return null;
+      // Find a digital product linked to this course
+      const { data } = await db.from('digital_products')
+        .select('*')
+        .eq('organization_id', program.organization_id)
+        .eq('product_type', 'course')
+        .eq('is_published', true)
+        .ilike('title', program.title)
+        .limit(1)
+        .maybeSingle();
+      return data as DigitalProduct | null;
+    },
+    enabled: !!program?.organization_id && isPaidCourse,
+  });
+
+  // Check if user already purchased this course product
+  const { data: existingPurchase } = useQuery({
+    queryKey: ['course-purchase-check', linkedProduct?.id, user?.id],
+    queryFn: async () => {
+      if (!linkedProduct?.id || !user?.id) return null;
+      const { data } = await db.from('product_purchases')
+        .select('id')
+        .eq('product_id', linkedProduct.id)
+        .eq('user_id', user.id)
+        .eq('status', 'completed')
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!linkedProduct?.id && !!user?.id,
+  });
+
+  const hasAccess = isEnrolled || !!existingPurchase;
+
   const handleEnroll = async () => {
     if (!programId) return;
     if (!user) { navigate(`/auth?returnTo=/program/${programId}`); return; }
+
+    // For paid courses with a linked product, use purchase flow
+    if (isPaidCourse && linkedProduct) {
+      setShowPurchaseModal(true);
+      return;
+    }
+
+    // Free course: direct enrollment
     try {
       await enrollMutation.mutateAsync(programId);
       toast({ title: isFr ? '🎉 Cours ajouté à vos achats !' : '🎉 Course added to your purchases!' });
     } catch {
       toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' });
     }
+  };
+
+  // After purchase, auto-enroll
+  const handlePurchaseSuccess = async () => {
+    setShowPurchaseModal(false);
+    if (programId && user && !isEnrolled) {
+      try {
+        await enrollMutation.mutateAsync(programId);
+      } catch { /* enrollment already exists */ }
+    }
+    queryClient.invalidateQueries({ queryKey: ['enrollment', programId] });
+    queryClient.invalidateQueries({ queryKey: ['course-purchase-check'] });
+    toast({ title: isFr ? '🎉 Cours acheté avec succès !' : '🎉 Course purchased successfully!' });
   };
 
   const handleToggleLesson = async (lessonId: string, completed: boolean) => {
@@ -404,12 +470,12 @@ export default function ProgramDetailPage() {
               <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
                 <span className="flex items-center gap-1"><Layers className="h-3.5 w-3.5" /> {modules.length} {isFr ? 'modules' : 'modules'}</span>
                 <span className="flex items-center gap-1"><FileText className="h-3.5 w-3.5" /> {totalLessons} {isFr ? 'leçons' : 'lessons'}</span>
-                {isEnrolled && (
+                {hasAccess && (
                   <span className="flex items-center gap-1"><CheckCircle className="h-3.5 w-3.5 text-primary" /> {completedLessons}/{totalLessons} {isFr ? 'complétées' : 'completed'}</span>
                 )}
               </div>
 
-              {isEnrolled && (
+              {hasAccess && (
                 <div className="space-y-1 mb-3">
                   <Progress value={progressPercent} className="h-2" />
                   <p className="text-[10px] text-muted-foreground">{progressPercent}% {isFr ? 'terminé' : 'completed'}</p>
@@ -452,7 +518,7 @@ export default function ProgramDetailPage() {
 
                             return (
                               <div key={lesson.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/20 transition-colors">
-                                {isEnrolled ? (
+                                {hasAccess ? (
                                   <Checkbox
                                     checked={isComplete}
                                     onCheckedChange={(checked) => handleToggleLesson(lesson.id, !!checked)}
@@ -487,7 +553,7 @@ export default function ProgramDetailPage() {
             </div>
 
             {/* Certificate — only if creator enabled it */}
-            {isEnrolled && (program as any).certificate_enabled !== false && (
+            {hasAccess && (program as any).certificate_enabled !== false && (
               <ProgramCertificate
                 programId={programId!}
                 programTitle={program.title}
@@ -599,7 +665,7 @@ export default function ProgramDetailPage() {
               </div>
 
               {/* CTA */}
-              {isEnrolled ? (
+              {hasAccess ? (
                 <div className="space-y-3">
                   <div className="space-y-1">
                     <Progress value={progressPercent} className="h-2" />
@@ -628,7 +694,7 @@ export default function ProgramDetailPage() {
                   )}
                   {program.is_free
                     ? (isFr ? 'Obtenir gratuitement' : 'Get for free')
-                    : (isFr ? 'S\'inscrire' : 'Enroll now')
+                    : (isFr ? `Acheter — ${priceDisplay}` : `Buy — ${priceDisplay}`)
                   }
                 </Button>
               )}
@@ -709,6 +775,17 @@ export default function ProgramDetailPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* Purchase modal for paid courses */}
+      {linkedProduct && (
+        <ProductPurchaseModal
+          product={linkedProduct}
+          organizationId={program.organization_id}
+          open={showPurchaseModal}
+          onClose={() => setShowPurchaseModal(false)}
+          onSuccess={handlePurchaseSuccess}
+        />
+      )}
     </div>
   );
 }
