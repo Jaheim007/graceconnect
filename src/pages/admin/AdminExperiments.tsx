@@ -633,6 +633,13 @@ export default function AdminExperiments() {
           })}
         </div>
       )}
+
+      {/* Superadmin-only Event Inspector */}
+      {isSuperadmin && experiments && experiments.length > 0 && (
+        <div className="mt-8">
+          <ExperimentEventInspector />
+        </div>
+      )}
     </AdminPageShell>
   );
 }
