@@ -662,8 +662,8 @@ MANDATORY REQUIREMENTS:
     // ─── Image generation (after structure, per lesson) ───
     let imagesGenerated = 0;
     if (generate_images && result?.modules) {
-      if (!OPENAI_API_KEY && !GEMINI_API_KEY) {
-        console.warn('[ai-generate-course] Skipping lesson images: no AI image provider configured');
+      if (!GEMINI_API_KEY) {
+        console.warn('[ai-generate-course] Skipping lesson images: no Gemini API key configured');
       } else {
         const allImageJobs: Array<{ lesson: any; imagePrompt: string }> = [];
         for (const mod of result.modules) {
