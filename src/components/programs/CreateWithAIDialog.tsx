@@ -202,7 +202,9 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
     } catch (err: any) {
       const isCreditError = handleAiError(err);
       if (!isCreditError) {
-        toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' });
+        const errorMsg = err.message || (isFr ? 'Erreur inconnue' : 'Unknown error');
+        setGenerationError(errorMsg);
+        toast({ title: isFr ? 'Erreur' : 'Error', description: errorMsg, variant: 'destructive' });
       }
     } finally {
       setGenerating(false);

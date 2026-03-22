@@ -670,7 +670,7 @@ MANDATORY REQUIREMENTS:
                 throw new Error('Not enough time remaining for image generation');
               }
 
-              const imageTimeoutMs = Math.min(20_000, Math.max(10_000, budgetMs - 15_000));
+              const imageTimeoutMs = Math.min(15_000, Math.max(8_000, budgetMs - 20_000));
               const { base64, mimeType } = await aiGenerateImageBase64({
                 geminiKey: GEMINI_API_KEY || '',
                 openaiKey: OPENAI_API_KEY || undefined,
