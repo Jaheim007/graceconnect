@@ -13,9 +13,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { ExperimentResultsPanel } from '@/components/admin/ExperimentResultsPanel';
+import { ExperimentEventInspector } from '@/components/experiments/ExperimentEventInspector';
 import {
   Plus, FlaskConical, Trash2, Edit, Pause, Play, Trophy, ChevronDown, ChevronUp,
-  Type, MessageSquare, MousePointerClick, DollarSign, Sparkles, Globe, ShoppingCart, Users, Link2, Lightbulb, Copy, ExternalLink
+  Type, MessageSquare, MousePointerClick, DollarSign, Sparkles, Globe, ShoppingCart, Users, Link2, Lightbulb, Copy, ExternalLink, CheckCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AdminPageShell } from './AdminPageShell';
