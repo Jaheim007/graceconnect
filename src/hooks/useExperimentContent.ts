@@ -2,10 +2,10 @@ import { useEffect, useRef, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { trackEvent, useTrackEvent } from '@/hooks/useClientAnalytics';
+import { pushDebugEntry } from '@/components/experiments/ExperimentDebugOverlay';
 
 /**
  * Session-sticky variant assignment.
- * Uses sessionStorage so the same visitor always sees the same variant.
  */
 function getSessionSeed(): string {
   const KEY = 'sv_exp_seed';
@@ -33,17 +33,6 @@ interface ExperimentResult {
   isExperiment: boolean;
 }
 
-/**
- * Dynamic A/B content resolver.
- *
- * Reads active experiments from the DB by slot_key,
- * assigns the visitor to a variant, tracks exposure,
- * and returns the correct content string.
- *
- * @param slotKey - The experiment slot (e.g. "product-cta", "product-title")
- * @param defaultValue - Fallback content if no active experiment
- * @param orgId - Optional organization scope
- */
 export function useExperimentContent(
   slotKey: string,
   defaultValue: string,
@@ -53,7 +42,6 @@ export function useExperimentContent(
   const exposureTracked = useRef(false);
   const trackEventFn = useTrackEvent();
 
-  // Check URL override: ?exp_<slotKey>=a or =b
   const urlForced = useMemo(() => {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -61,7 +49,6 @@ export function useExperimentContent(
     } catch { return null; }
   }, [slotKey]);
 
-  // Fetch active experiment for this slot
   const { data: experiment } = useQuery({
     queryKey: ['experiment-slot', slotKey, orgId],
     queryFn: async () => {
@@ -78,13 +65,6 @@ export function useExperimentContent(
         console.warn(`[A/B] Query error for slot "${slotKey}":`, error.message);
         return null;
       }
-      
-      if (data) {
-        console.log(`[A/B] Found experiment for slot "${slotKey}":`, data.name);
-      } else {
-        console.log(`[A/B] No active experiment for slot "${slotKey}"`);
-      }
-      
       return data;
     },
     staleTime: 60_000,
@@ -102,21 +82,17 @@ export function useExperimentContent(
       return { value: defaultValue, variant: null, experimentId: experiment.id, isExperiment: false };
     }
 
-    // URL forcing for QA
     if (urlForced && keys.includes(urlForced)) {
       const content = variants[urlForced]?.content || variants[urlForced]?.label || defaultValue;
       return { value: content, variant: urlForced as 'a' | 'b', experimentId: experiment.id, isExperiment: true };
     }
 
-    // Traffic split: should this user be in the experiment at all?
     const trafficPercent = experiment.traffic_percent || 100;
     const trafficHash = simpleHash(`traffic:${experiment.id}:${seed}`) % 100;
     if (trafficHash >= trafficPercent) {
-      // User is outside experiment → show default (Version A content)
       return { value: variants[keys[0]]?.content || defaultValue, variant: null, experimentId: experiment.id, isExperiment: false };
     }
 
-    // Variant assignment (deterministic per session + experiment)
     const variantHash = simpleHash(`variant:${experiment.id}:${seed}`);
     const chosenKey = keys[variantHash % keys.length] as 'a' | 'b';
     const content = variants[chosenKey]?.content || variants[chosenKey]?.label || defaultValue;
@@ -124,7 +100,24 @@ export function useExperimentContent(
     return { value: content, variant: chosenKey, experimentId: experiment.id, isExperiment: true };
   }, [experiment, defaultValue, seed, urlForced]);
 
-  // Track exposure once per experiment per session
+  // Push debug entry for superadmin overlay
+  useEffect(() => {
+    const trafficPercent = experiment?.traffic_percent || 100;
+    const trafficHash = simpleHash(`traffic:${experiment?.id || 'none'}:${seed}`) % 100;
+    pushDebugEntry({
+      slotKey,
+      experimentFound: !!experiment,
+      experimentName: experiment?.name,
+      assignedVariant: result.variant || 'default',
+      trafficEligible: experiment ? trafficHash < trafficPercent : false,
+      renderedContent: result.value,
+      sessionSeed: seed,
+      urlOverride: urlForced,
+      timestamp: Date.now(),
+    });
+  }, [slotKey, experiment?.id, result.variant, result.value]);
+
+  // Track exposure once
   useEffect(() => {
     if (!result.isExperiment || !result.variant || !result.experimentId || exposureTracked.current) return;
     exposureTracked.current = true;
