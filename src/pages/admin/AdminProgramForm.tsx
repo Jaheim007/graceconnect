@@ -672,6 +672,42 @@ export function ProgramForm() {
                 </Button>
               </div>
             </div>
+
+            {/* Ambassador / Affiliate section */}
+            {!isFree && price > 0 && (
+              <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+                <h3 className="font-semibold text-sm flex items-center gap-2">
+                  <Share2 className="h-4 w-4 text-primary" /> {isFr ? 'Programme Ambassadeur' : 'Ambassador Program'}
+                </h3>
+                <div className="bg-primary/5 rounded-xl p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-primary" />
+                    <p className="text-sm font-medium">{isFr ? 'Ce cours sera promu par vos ambassadeurs' : 'This course can be promoted by ambassadors'}</p>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    {isFr
+                      ? `Quand vous publiez un cours payant, il est automatiquement disponible dans le marketplace ambassadeur. Les ambassadeurs peuvent partager votre cours et gagner une commission (${currentOrg?.affiliation_commission_percent || 10}%) sur chaque vente.`
+                      : `When you publish a paid course, it's automatically available in the ambassador marketplace. Ambassadors can share your course and earn a commission (${currentOrg?.affiliation_commission_percent || 10}%) on each sale.`}
+                  </p>
+                  <div className="flex items-center gap-4 pt-2">
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-primary">{currentOrg?.affiliation_commission_percent || 10}%</p>
+                      <p className="text-[9px] text-muted-foreground">{isFr ? 'Commission' : 'Commission'}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-primary">{price.toLocaleString()} {currency}</p>
+                      <p className="text-[9px] text-muted-foreground">{isFr ? 'Prix du cours' : 'Course price'}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-emerald-600">
+                        {Math.round(price * (currentOrg?.affiliation_commission_percent || 10) / 100).toLocaleString()} {currency}
+                      </p>
+                      <p className="text-[9px] text-muted-foreground">{isFr ? 'Gain/vente' : 'Earn/sale'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
