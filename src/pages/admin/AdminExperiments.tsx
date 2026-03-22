@@ -13,9 +13,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { ExperimentResultsPanel } from '@/components/admin/ExperimentResultsPanel';
+import { ExperimentEventInspector } from '@/components/experiments/ExperimentEventInspector';
 import {
   Plus, FlaskConical, Trash2, Edit, Pause, Play, Trophy, ChevronDown, ChevronUp,
-  Type, MessageSquare, MousePointerClick, DollarSign, Sparkles, Globe, ShoppingCart, Users, Link2, Lightbulb, Copy, ExternalLink
+  Type, MessageSquare, MousePointerClick, DollarSign, Sparkles, Globe, ShoppingCart, Users, Link2, Lightbulb, Copy, ExternalLink, CheckCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AdminPageShell } from './AdminPageShell';
@@ -61,7 +62,7 @@ const emptyForm: ExperimentForm = {
 };
 
 export default function AdminExperiments() {
-  const { user } = useAuth();
+  const { user, isSuperadmin } = useAuth();
   const qc = useQueryClient();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -589,13 +590,37 @@ export default function AdminExperiments() {
                             </div>
                           )}
                           {exp.winner_variant && (
-                            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center">
-                              <p className="text-sm font-medium text-emerald-700">
-                                🏆 {isFr ? 'Version' : 'Version'} {exp.winner_variant === 'a' ? 'A' : 'B'} {isFr ? 'a gagné ce test' : 'won this test'}
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {isFr ? "Le contenu gagnant est maintenant utilisé par défaut." : "The winning content is now used by default."}
-                              </p>
+                            <div className="space-y-3">
+                              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center">
+                                <p className="text-sm font-medium text-emerald-700">
+                                  🏆 {isFr ? 'Version' : 'Version'} {exp.winner_variant === 'a' ? 'A' : 'B'} {isFr ? 'a gagné ce test' : 'won this test'}
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {isFr ? "Cliquez ci-dessous pour appliquer le contenu gagnant." : "Click below to apply the winning content."}
+                                </p>
+                              </div>
+                              <Button
+                                size="sm"
+                                className="w-full gap-2"
+                                onClick={async () => {
+                                  // "Apply Winner" — store winning content as applied_content for future default usage
+                                  const variants = exp.variants as Record<string, any>;
+                                  const winnerKey = exp.winner_variant;
+                                  const winnerContent = variants[winnerKey]?.content || variants[winnerKey]?.label || '';
+                                  await db.from('experiments').update({
+                                    description: JSON.stringify({
+                                      ...parseDescription(exp.description),
+                                      appliedWinner: true,
+                                      appliedContent: winnerContent,
+                                    }),
+                                  } as any).eq('id', exp.id);
+                                  qc.invalidateQueries({ queryKey: ['experiments'] });
+                                  toast.success(isFr ? '✅ Contenu gagnant appliqué !' : '✅ Winning content applied!');
+                                }}
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                                {isFr ? 'Appliquer le gagnant' : 'Apply Winner'}
+                              </Button>
                             </div>
                           )}
                         </div>
@@ -606,6 +631,13 @@ export default function AdminExperiments() {
               </Card>
             );
           })}
+        </div>
+      )}
+
+      {/* Superadmin-only Event Inspector */}
+      {isSuperadmin && experiments && experiments.length > 0 && (
+        <div className="mt-8">
+          <ExperimentEventInspector />
         </div>
       )}
     </AdminPageShell>
