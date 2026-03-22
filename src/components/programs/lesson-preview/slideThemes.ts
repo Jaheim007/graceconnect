@@ -8,8 +8,11 @@ export interface SlideTheme {
   gradient: string;
   accentColor: string;
   decorationType: 'swirl' | 'circles' | 'dots' | 'waves' | 'grid' | 'diagonal' | 'blob' | 'none';
-  headerAccent: string; // thin accent line color
+  headerAccent: string;
   captionGlow: string;
+  /** Semantic slide-type tag color */
+  tagBg: string;
+  tagText: string;
 }
 
 export const SLIDE_THEMES: SlideTheme[] = [
@@ -20,6 +23,8 @@ export const SLIDE_THEMES: SlideTheme[] = [
     decorationType: 'swirl',
     headerAccent: 'bg-blue-400/40',
     captionGlow: 'shadow-blue-500/10',
+    tagBg: 'bg-blue-500/20',
+    tagText: 'text-blue-300',
   },
   {
     id: 'royal-purple',
@@ -28,6 +33,8 @@ export const SLIDE_THEMES: SlideTheme[] = [
     decorationType: 'circles',
     headerAccent: 'bg-purple-400/40',
     captionGlow: 'shadow-purple-500/10',
+    tagBg: 'bg-purple-500/20',
+    tagText: 'text-purple-300',
   },
   {
     id: 'emerald-night',
@@ -36,6 +43,8 @@ export const SLIDE_THEMES: SlideTheme[] = [
     decorationType: 'waves',
     headerAccent: 'bg-emerald-400/40',
     captionGlow: 'shadow-emerald-500/10',
+    tagBg: 'bg-emerald-500/20',
+    tagText: 'text-emerald-300',
   },
   {
     id: 'sunset-amber',
@@ -44,6 +53,8 @@ export const SLIDE_THEMES: SlideTheme[] = [
     decorationType: 'diagonal',
     headerAccent: 'bg-amber-400/40',
     captionGlow: 'shadow-amber-500/10',
+    tagBg: 'bg-amber-500/20',
+    tagText: 'text-amber-300',
   },
   {
     id: 'crimson-dark',
@@ -52,6 +63,8 @@ export const SLIDE_THEMES: SlideTheme[] = [
     decorationType: 'dots',
     headerAccent: 'bg-rose-400/40',
     captionGlow: 'shadow-rose-500/10',
+    tagBg: 'bg-rose-500/20',
+    tagText: 'text-rose-300',
   },
   {
     id: 'midnight-slate',
@@ -60,6 +73,8 @@ export const SLIDE_THEMES: SlideTheme[] = [
     decorationType: 'grid',
     headerAccent: 'bg-slate-400/40',
     captionGlow: 'shadow-slate-500/10',
+    tagBg: 'bg-slate-500/20',
+    tagText: 'text-slate-300',
   },
   {
     id: 'teal-aurora',
@@ -68,6 +83,8 @@ export const SLIDE_THEMES: SlideTheme[] = [
     decorationType: 'blob',
     headerAccent: 'bg-teal-400/40',
     captionGlow: 'shadow-teal-500/10',
+    tagBg: 'bg-teal-500/20',
+    tagText: 'text-teal-300',
   },
   {
     id: 'warm-cocoa',
@@ -76,6 +93,8 @@ export const SLIDE_THEMES: SlideTheme[] = [
     decorationType: 'waves',
     headerAccent: 'bg-orange-400/40',
     captionGlow: 'shadow-orange-500/10',
+    tagBg: 'bg-orange-500/20',
+    tagText: 'text-orange-300',
   },
 ];
 
