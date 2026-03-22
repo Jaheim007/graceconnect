@@ -54,6 +54,7 @@ export function ProgramForm() {
   const { toast } = useToast();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+  const queryClient = useQueryClient();
 
   const { data: existingProgram } = useProgram(id);
   const { data: modules = [] } = useProgramModules(id);
