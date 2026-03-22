@@ -524,8 +524,7 @@ export function ProgramForm() {
                       if (mod) setSelectedModuleId(mod.id);
                     }}
                     onRefresh={() => {
-                      // Force re-fetch modules to update analysis
-                      window.location.reload();
+                      queryClient.invalidateQueries({ queryKey: ['program-modules', id] });
                     }}
                   />
                 </div>
