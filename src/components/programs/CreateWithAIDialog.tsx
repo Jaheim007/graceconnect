@@ -218,6 +218,30 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
       <DialogContent className="sm:max-w-xl" hideCloseButton={generating}>
         {generating ? (
           <CourseGenerationLoader />
+        ) : generationError ? (
+          <div className="flex flex-col items-center justify-center py-12 px-4 space-y-6 text-center">
+            <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center">
+              <Sparkles className="h-8 w-8 text-destructive" />
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-semibold">{isFr ? 'La génération a échoué' : 'Generation failed'}</p>
+              <p className="text-xs text-muted-foreground max-w-sm">{generationError}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={() => { setGenerationError(null); onOpenChange(false); }}>
+                {isFr ? 'Fermer' : 'Close'}
+              </Button>
+              <Button onClick={() => { setGenerationError(null); handleCreate(); }} className="gap-1.5">
+                <Sparkles className="h-3.5 w-3.5" />
+                {isFr ? 'Réessayer' : 'Retry'}
+              </Button>
+              {generateImages && (
+                <Button variant="secondary" onClick={() => { setGenerationError(null); setGenerateImages(false); handleCreate(); }} className="gap-1.5 text-xs">
+                  {isFr ? 'Réessayer sans images' : 'Retry without images'}
+                </Button>
+              )}
+            </div>
+          </div>
         ) : (
           <>
             <DialogHeader>
