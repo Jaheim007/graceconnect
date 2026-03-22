@@ -85,6 +85,84 @@ function extractInlineImage(parts: any[]): { base64: string; mimeType: string } 
   return null;
 }
 
+/** Generate image using Gemini Pro-level models via direct Google API (highest quality) */
+export async function geminiProImageBase64(opts: {
+  apiKey: string;
+  prompt: string;
+  timeoutMs?: number;
+}): Promise<{ base64: string; mimeType: string }> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), opts.timeoutMs ?? 120_000);
+
+  // Pro-level models for highest quality image generation
+  const candidateModels = [
+    'gemini-2.5-pro-preview-06-05',
+    'gemini-2.5-pro-exp-03-25',
+    'gemini-2.5-pro',
+  ];
+
+  let lastErr: any = null;
+
+  try {
+    for (const model of candidateModels) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${opts.apiKey}`;
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: opts.prompt }] }],
+            generationConfig: {
+              responseModalities: ['TEXT', 'IMAGE'],
+            },
+          }),
+          signal: controller.signal,
+        });
+
+        if (!res.ok) {
+          const t = await res.text();
+          const err = new Error(res.status === 429 ? 'Rate limit. Please retry.' : `Gemini Pro image error (${res.status})`);
+          (err as any).status = res.status;
+          (err as any).detail = t.slice(0, 800);
+          (err as any).model = model;
+          throw err;
+        }
+
+        const data = await res.json();
+        const parts = data?.candidates?.[0]?.content?.parts || [];
+        const image = extractInlineImage(parts);
+        if (image) return image;
+
+        const err = new Error('No image data returned by Gemini Pro');
+        (err as any).status = 502;
+        (err as any).model = model;
+        throw err;
+      } catch (err: any) {
+        lastErr = err;
+        const status = Number(err?.status || 0);
+        const detail = String(err?.detail || err?.message || '').toLowerCase();
+        const modelMissing = status === 404 || detail.includes('not found') || detail.includes('is not supported') || detail.includes('model');
+        const retryable = status >= 500 || status === 0;
+
+        if (status === 429 || status === 401 || status === 403 || status === 402) throw err;
+
+        if (modelMissing || retryable) {
+          console.warn(`[ai-gemini] Pro model ${err?.model || 'unknown'} failed (${status}), trying next model`);
+          continue;
+        }
+
+        throw err;
+      }
+    }
+
+    throw lastErr || new Error('Gemini Pro image generation failed');
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+/** Generate image using Gemini Flash-level models via direct Google API (fast, emergency fallback) */
 export async function geminiGenerateImageBase64(opts: {
   apiKey: string;
   prompt: string;
@@ -143,7 +221,6 @@ export async function geminiGenerateImageBase64(opts: {
         const modelMissing = status === 404 || detail.includes('not found') || detail.includes('model');
         const retryable = status >= 500 || status === 0;
 
-        // Never retry quota/auth errors across models
         if (status === 429 || status === 401 || status === 403 || status === 402) throw err;
 
         if (modelMissing || retryable) {
