@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { RotateCw, Star } from 'lucide-react';
+import { RotateCw, Star, Lightbulb, CheckCircle2 } from 'lucide-react';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
 import { useI18n } from '@/i18n/I18nContext';
@@ -35,14 +35,10 @@ export function FlashcardSlide({
   const isFr = locale === 'fr';
 
   const handleFlip = () => {
-    if (!flipped) {
-      setFlipped(true);
-      if (gamificationEnabled && !starGiven) {
-        setStarGiven(true);
-        onStarEarned?.();
-      }
-    } else {
-      setFlipped(false);
+    setFlipped(prev => !prev);
+    if (!flipped && gamificationEnabled && !starGiven) {
+      setStarGiven(true);
+      onStarEarned?.();
     }
   };
 
@@ -57,7 +53,7 @@ export function FlashcardSlide({
         ) : (
           <div className="h-7 w-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold text-white">F</div>
         )}
-        <span className="text-xs text-white/60 flex-1 truncate">{lessonTitle}</span>
+        <span className="text-xs text-white/70 flex-1 truncate">{lessonTitle}</span>
         <span className="text-[10px] bg-white/15 rounded-full px-2.5 py-0.5 text-white/80 font-medium">
           {slideIndex + 1} / {totalSlides}
         </span>
@@ -66,63 +62,70 @@ export function FlashcardSlide({
       {/* Flashcard */}
       <div className={cn('flex-1 flex flex-col items-center justify-center relative z-10', isMobile ? 'px-4' : 'px-8')}>
         <motion.div
-          className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-4"
+          className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-4 flex items-center gap-1.5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          {isFr ? '🧠 Carte mémoire' : '🧠 Flashcard'}
+          <Lightbulb className="h-3.5 w-3.5" />
+          {isFr ? 'Carte mémoire' : 'Flashcard'}
         </motion.div>
 
-        <motion.button
-          onClick={handleFlip}
+        {/* 3D flip container */}
+        <div
           className={cn(
-            'relative w-full rounded-2xl cursor-pointer transition-all',
-            isMobile ? 'max-w-[320px] min-h-[200px]' : 'max-w-[460px] min-h-[240px]',
-            'shadow-2xl'
+            'relative w-full cursor-pointer',
+            isMobile ? 'max-w-[320px] h-[220px]' : 'max-w-[460px] h-[260px]',
           )}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          style={{ perspective: '1000px' }}
+          onClick={handleFlip}
         >
           <motion.div
-            className={cn(
-              'w-full h-full rounded-2xl flex flex-col items-center justify-center p-6',
-              flipped
-                ? 'bg-emerald-500/20 border-2 border-emerald-400/40 backdrop-blur-sm'
-                : 'bg-white/95 border-2 border-white/80'
-            )}
+            className="w-full h-full relative"
+            style={{ transformStyle: 'preserve-3d' }}
             animate={{ rotateY: flipped ? 180 : 0 }}
-            transition={{ duration: 0.5, type: 'spring', damping: 20 }}
-            style={{ backfaceVisibility: 'hidden' }}
+            transition={{ duration: 0.6, type: 'spring', damping: 20, stiffness: 100 }}
           >
-            {!flipped ? (
-              <div className="text-center">
-                <p className={cn('font-bold text-slate-800 leading-snug', isMobile ? 'text-lg' : 'text-xl')}>
-                  {flashcard.front}
+            {/* FRONT */}
+            <div
+              className={cn(
+                'absolute inset-0 w-full h-full rounded-2xl flex flex-col items-center justify-center p-6',
+                'bg-white border-2 border-white/90 shadow-2xl'
+              )}
+              style={{ backfaceVisibility: 'hidden' }}
+            >
+              <p className={cn('font-bold text-slate-800 leading-snug text-center', isMobile ? 'text-lg' : 'text-xl')}>
+                {flashcard.front}
+              </p>
+              {flashcard.hint && (
+                <p className="text-xs text-slate-400 mt-3 italic">
+                  {isFr ? 'Indice' : 'Hint'}: {flashcard.hint}
                 </p>
-                {flashcard.hint && (
-                  <p className="text-xs text-slate-400 mt-3 italic">{isFr ? 'Indice' : 'Hint'}: {flashcard.hint}</p>
-                )}
-                <div className="flex items-center gap-1.5 justify-center mt-4 text-slate-400">
-                  <RotateCw className="h-3.5 w-3.5" />
-                  <span className="text-[10px] font-medium">{isFr ? 'Tapez pour retourner' : 'Tap to flip'}</span>
-                </div>
+              )}
+              <div className="flex items-center gap-1.5 justify-center mt-4 text-slate-400">
+                <RotateCw className="h-3.5 w-3.5" />
+                <span className="text-[10px] font-medium">{isFr ? 'Tapez pour retourner' : 'Tap to flip'}</span>
               </div>
-            ) : (
-              <motion.div
-                className="text-center"
-                style={{ transform: 'rotateY(180deg)' }}
-              >
-                <p className={cn('font-bold text-emerald-100 leading-snug', isMobile ? 'text-lg' : 'text-xl')}>
-                  {flashcard.back}
-                </p>
-                <div className="flex items-center gap-1.5 justify-center mt-4 text-emerald-300/60">
-                  <RotateCw className="h-3.5 w-3.5" />
-                  <span className="text-[10px] font-medium">{isFr ? 'Tapez pour retourner' : 'Tap to flip back'}</span>
-                </div>
-              </motion.div>
-            )}
+            </div>
+
+            {/* BACK */}
+            <div
+              className={cn(
+                'absolute inset-0 w-full h-full rounded-2xl flex flex-col items-center justify-center p-6',
+                'bg-emerald-600 border-2 border-emerald-500 shadow-2xl'
+              )}
+              style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+            >
+              <CheckCircle2 className="h-5 w-5 text-emerald-200 mb-2" />
+              <p className={cn('font-bold text-white leading-snug text-center', isMobile ? 'text-lg' : 'text-xl')}>
+                {flashcard.back}
+              </p>
+              <div className="flex items-center gap-1.5 justify-center mt-4 text-emerald-200/70">
+                <RotateCw className="h-3.5 w-3.5" />
+                <span className="text-[10px] font-medium">{isFr ? 'Tapez pour retourner' : 'Tap to flip back'}</span>
+              </div>
+            </div>
           </motion.div>
-        </motion.button>
+        </div>
 
         {/* Star reward */}
         {flipped && gamificationEnabled && starGiven && (

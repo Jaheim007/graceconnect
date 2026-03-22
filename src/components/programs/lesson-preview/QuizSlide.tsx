@@ -5,6 +5,7 @@ import { Star, CheckCircle2, XCircle, Flame, Zap } from 'lucide-react';
 import type { QuizData } from './parseContentSlides';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface QuizSlideProps {
   quiz: QuizData;
@@ -18,7 +19,6 @@ interface QuizSlideProps {
   gamificationEnabled?: boolean;
 }
 
-// Particle burst for correct answers
 function ConfettiBurst() {
   const particles = Array.from({ length: 20 }, (_, i) => ({
     id: i,
@@ -46,40 +46,17 @@ function ConfettiBurst() {
   );
 }
 
-// Fire emoji burst for wrong answers (encouraging)
-function FireBurst() {
-  return (
-    <motion.div
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{ scale: 1.2, opacity: 1 }}
-      exit={{ scale: 0, opacity: 0 }}
-      transition={{ type: 'spring', damping: 10 }}
-      className="absolute top-12 left-1/2 -translate-x-1/2 z-30"
-    >
-      <div className="flex items-center gap-1.5 bg-amber-500/20 backdrop-blur-sm border border-amber-400/30 rounded-full px-4 py-2">
-        <Flame className="h-5 w-5 text-amber-400" />
-        <span className="text-xs font-bold text-amber-300">Presque ! Continue 💪</span>
-      </div>
-    </motion.div>
-  );
-}
-
 export function QuizSlide({
-  quiz,
-  theme,
-  slideIndex,
-  totalSlides,
-  lessonTitle,
-  orgLogoUrl,
-  deviceMode,
-  onStarEarned,
-  gamificationEnabled = true,
+  quiz, theme, slideIndex, totalSlides, lessonTitle,
+  orgLogoUrl, deviceMode, onStarEarned, gamificationEnabled = true,
 }: QuizSlideProps) {
   const [selected, setSelected] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const isMobile = deviceMode === 'mobile';
   const isCorrect = selected === quiz.correctIndex;
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const handleSelect = (idx: number) => {
     if (revealed) return;
@@ -87,13 +64,10 @@ export function QuizSlide({
     setRevealed(true);
     if (idx === quiz.correctIndex) {
       setShowConfetti(true);
-      if (gamificationEnabled) {
-        onStarEarned?.();
-      }
+      if (gamificationEnabled) onStarEarned?.();
     }
   };
 
-  // Clear confetti after animation
   useEffect(() => {
     if (showConfetti) {
       const t = setTimeout(() => setShowConfetti(false), 1200);
@@ -104,8 +78,6 @@ export function QuizSlide({
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden bg-gradient-to-br', theme.gradient)}>
       <SlideDecoration theme={theme} />
-
-      {/* Confetti burst */}
       {showConfetti && <ConfettiBurst />}
 
       {/* Header */}
@@ -115,7 +87,7 @@ export function QuizSlide({
         ) : (
           <div className="h-7 w-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold text-white">Q</div>
         )}
-        <span className="text-xs text-white/60 flex-1 truncate">{lessonTitle}</span>
+        <span className="text-xs text-white/70 flex-1 truncate">{lessonTitle}</span>
         <span className="text-[10px] bg-white/15 rounded-full px-2.5 py-0.5 text-white/80 font-medium">
           {slideIndex + 1} / {totalSlides}
         </span>
@@ -138,7 +110,20 @@ export function QuizSlide({
           </motion.div>
         )}
         {revealed && !isCorrect && (
-          <FireBurst />
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1.2, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: 'spring', damping: 10 }}
+            className="absolute top-12 left-1/2 -translate-x-1/2 z-30"
+          >
+            <div className="flex items-center gap-1.5 bg-amber-500/20 backdrop-blur-sm border border-amber-400/30 rounded-full px-4 py-2">
+              <Flame className="h-5 w-5 text-amber-400" />
+              <span className="text-xs font-bold text-amber-300">
+                {isFr ? 'Presque ! Continue 💪' : 'Almost! Keep going 💪'}
+              </span>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -149,18 +134,18 @@ export function QuizSlide({
       )}>
         {/* Question */}
         <div className={cn('flex flex-col justify-center', isMobile ? '' : 'w-2/5')}>
-          <motion.div 
+          <motion.div
             className="mb-2 flex items-center gap-2"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
           >
             <Zap className="h-4 w-4 text-yellow-400" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">
-              Quiz rapide
+            <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">
+              {isFr ? 'Quiz rapide' : 'Quick Quiz'}
             </span>
           </motion.div>
-          <motion.h2 
+          <motion.h2
             className={cn('font-bold leading-snug', isMobile ? 'text-lg' : 'text-xl')}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -175,7 +160,6 @@ export function QuizSlide({
           {quiz.options.map((option, idx) => {
             const isThisCorrect = idx === quiz.correctIndex;
             const isSelected = idx === selected;
-
             return (
               <motion.button
                 key={idx}
@@ -220,7 +204,7 @@ export function QuizSlide({
         </div>
       </div>
 
-      {/* Footer feedback */}
+      {/* Footer */}
       <div className="relative z-20 border-t border-white/10 px-5 py-2.5 flex items-center justify-between">
         {revealed ? (
           <motion.div
@@ -234,12 +218,12 @@ export function QuizSlide({
             {isCorrect ? (
               <>
                 <CheckCircle2 className="h-4 w-4" />
-                Excellent ! C'est la bonne réponse ! 🎉🔥
+                {isFr ? 'Excellent ! C\'est la bonne réponse ! 🎉🔥' : 'Excellent! That\'s correct! 🎉🔥'}
               </>
             ) : (
               <>
                 <XCircle className="h-4 w-4" />
-                {quiz.explanation || 'Pas tout à fait… Continuez pour en apprendre plus !'}
+                {quiz.explanation || (isFr ? 'Pas tout à fait… Continuez pour en apprendre plus !' : 'Not quite… Keep going to learn more!')}
               </>
             )}
           </motion.div>
@@ -248,13 +232,13 @@ export function QuizSlide({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-[10px] text-white/40 uppercase font-bold tracking-widest"
+            className="text-[10px] text-white/50 uppercase font-bold tracking-widest"
           >
-            Sélectionnez la bonne réponse
+            {isFr ? 'Sélectionnez la bonne réponse' : 'Select the correct answer'}
           </motion.span>
         )}
         {revealed && isCorrect && gamificationEnabled && (
-          <motion.div 
+          <motion.div
             className="flex items-center gap-1"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}

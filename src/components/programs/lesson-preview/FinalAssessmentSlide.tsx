@@ -6,6 +6,7 @@ import type { QuizData } from './parseContentSlides';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
 import { Button } from '@/components/ui/button';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface FinalAssessmentSlideProps {
   questions: QuizData[];
@@ -20,24 +21,18 @@ interface FinalAssessmentSlideProps {
 }
 
 export function FinalAssessmentSlide({
-  questions,
-  theme,
-  slideIndex,
-  totalSlides,
-  lessonTitle,
-  orgLogoUrl,
-  deviceMode,
-  onComplete,
-  gamificationEnabled = true,
+  questions, theme, slideIndex, totalSlides, lessonTitle,
+  orgLogoUrl, deviceMode, onComplete, gamificationEnabled = true,
 }: FinalAssessmentSlideProps) {
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(new Array(questions.length).fill(null));
   const [revealed, setRevealed] = useState(false);
   const [finished, setFinished] = useState(false);
   const isMobile = deviceMode === 'mobile';
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const question = questions[currentQ];
-  const isAnswered = answers[currentQ] !== null;
   const isCorrect = answers[currentQ] === question?.correctIndex;
 
   const handleSelect = (idx: number) => {
@@ -64,79 +59,41 @@ export function FinalAssessmentSlide({
   if (finished) {
     const pct = Math.round((score / questions.length) * 100);
     const starRating = Math.round((score / questions.length) * 5);
-    
+
     return (
       <div className={cn('h-full flex flex-col text-white relative overflow-hidden bg-gradient-to-br', theme.gradient)}>
         <SlideDecoration theme={theme} />
-        
         <div className="flex-1 flex flex-col items-center justify-center px-6 relative z-10">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', damping: 10, delay: 0.2 }}
-            className="mb-6"
-          >
-            <Trophy className={cn(
-              'h-16 w-16',
-              pct >= 80 ? 'text-yellow-400' : pct >= 50 ? 'text-blue-400' : 'text-white/50'
-            )} />
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 10, delay: 0.2 }} className="mb-6">
+            <Trophy className={cn('h-16 w-16', pct >= 80 ? 'text-yellow-400' : pct >= 50 ? 'text-blue-400' : 'text-white/50')} />
           </motion.div>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="text-2xl font-bold mb-2 text-center"
-          >
-            {pct >= 80 ? '🔥 Excellent !' : pct >= 50 ? '👏 Bien joué !' : '💪 Courage !'}
+          <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-2xl font-bold mb-2 text-center">
+            {pct >= 80
+              ? (isFr ? '🔥 Excellent !' : '🔥 Excellent!')
+              : pct >= 50
+                ? (isFr ? '👏 Bien joué !' : '👏 Well done!')
+                : (isFr ? '💪 Courage !' : '💪 Keep trying!')}
           </motion.h2>
-          
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-white/70 text-sm mb-6 text-center"
-          >
-            {score} / {questions.length} réponses correctes ({pct}%)
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-white/70 text-sm mb-6 text-center">
+            {score} / {questions.length} {isFr ? 'réponses correctes' : 'correct answers'} ({pct}%)
           </motion.p>
-
-          {/* Star rating */}
           {gamificationEnabled && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="flex items-center gap-1.5 mb-6"
-            >
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="flex items-center gap-1.5 mb-6">
               {[1, 2, 3, 4, 5].map((s) => (
-                <motion.div
-                  key={s}
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ delay: 0.7 + s * 0.1, type: 'spring' }}
-                >
-                  <Star
-                    className={cn(
-                      'h-8 w-8 transition-colors',
-                      s <= starRating
-                        ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]'
-                        : 'text-white/20'
-                    )}
-                  />
+                <motion.div key={s} initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }} transition={{ delay: 0.7 + s * 0.1, type: 'spring' }}>
+                  <Star className={cn('h-8 w-8 transition-colors', s <= starRating ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]' : 'text-white/20')} />
                 </motion.div>
               ))}
             </motion.div>
           )}
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2">
             <Award className="h-4 w-4 text-primary" />
             <span className="text-xs font-medium">
-              {pct >= 80 ? 'Maîtrise confirmée !' : pct >= 50 ? 'En bonne voie !' : 'Révisez et réessayez !'}
+              {pct >= 80
+                ? (isFr ? 'Maîtrise confirmée !' : 'Mastery confirmed!')
+                : pct >= 50
+                  ? (isFr ? 'En bonne voie !' : 'On track!')
+                  : (isFr ? 'Révisez et réessayez !' : 'Review and try again!')}
             </span>
           </motion.div>
         </div>
@@ -147,8 +104,6 @@ export function FinalAssessmentSlide({
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden bg-gradient-to-br', theme.gradient)}>
       <SlideDecoration theme={theme} />
-
-      {/* Header */}
       <div className="flex items-center gap-2.5 px-5 py-3 relative z-20">
         {orgLogoUrl ? (
           <img src={orgLogoUrl} alt="" className="h-7 w-7 rounded-full object-cover ring-2 ring-white/20" />
@@ -157,7 +112,7 @@ export function FinalAssessmentSlide({
             <Trophy className="h-4 w-4" />
           </div>
         )}
-        <span className="text-xs text-white/60 flex-1 truncate">Évaluation finale</span>
+        <span className="text-xs text-white/70 flex-1 truncate">{isFr ? 'Évaluation finale' : 'Final Assessment'}</span>
         <span className="text-[10px] bg-white/15 rounded-full px-2.5 py-0.5 text-white/80 font-medium">
           Q{currentQ + 1} / {questions.length}
         </span>
@@ -171,18 +126,13 @@ export function FinalAssessmentSlide({
             className={cn(
               'h-1.5 rounded-full flex-1 transition-all duration-300',
               i < currentQ
-                ? answers[i] === questions[i].correctIndex
-                  ? 'bg-emerald-400'
-                  : 'bg-red-400'
-                : i === currentQ
-                  ? 'bg-white/60'
-                  : 'bg-white/15'
+                ? answers[i] === questions[i].correctIndex ? 'bg-emerald-400' : 'bg-red-400'
+                : i === currentQ ? 'bg-white/60' : 'bg-white/15'
             )}
           />
         ))}
       </div>
 
-      {/* Question */}
       <div className={cn('flex-1 flex flex-col relative z-10 min-h-0 overflow-y-auto', isMobile ? 'px-4 py-3 gap-3' : 'px-8 py-4 gap-4')}>
         <AnimatePresence mode="wait">
           <motion.div
@@ -195,8 +145,8 @@ export function FinalAssessmentSlide({
           >
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-400/70">
-                  🏆 Évaluation finale
+                <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-400/80">
+                  🏆 {isFr ? 'Évaluation finale' : 'Final Assessment'}
                 </span>
               </div>
               <h2 className={cn('font-bold leading-snug', isMobile ? 'text-lg' : 'text-xl')}>
@@ -240,7 +190,7 @@ export function FinalAssessmentSlide({
                               : 'border-white/20 text-white/30'
                           : 'border-slate-300 text-slate-500'
                       )}>
-                        {revealed && isThisCorrect ? <CheckCircle2 className="h-4 w-4" /> : 
+                        {revealed && isThisCorrect ? <CheckCircle2 className="h-4 w-4" /> :
                          revealed && isSelected ? <XCircle className="h-4 w-4" /> :
                          String.fromCharCode(65 + idx)}
                       </div>
@@ -251,14 +201,9 @@ export function FinalAssessmentSlide({
               })}
             </div>
 
-            {/* Explanation + Next */}
             <AnimatePresence>
               {revealed && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="space-y-3"
-                >
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
                   {question.explanation && (
                     <div className={cn(
                       'rounded-lg px-4 py-3 text-xs border',
@@ -269,12 +214,10 @@ export function FinalAssessmentSlide({
                       {isCorrect ? '✅ ' : '💡 '}{question.explanation}
                     </div>
                   )}
-                  <Button
-                    onClick={handleNext}
-                    size="sm"
-                    className="w-full gap-2 bg-white/15 hover:bg-white/25 text-white border-0"
-                  >
-                    {currentQ < questions.length - 1 ? 'Question suivante' : 'Voir les résultats'}
+                  <Button onClick={handleNext} size="sm" className="w-full gap-2 bg-white/15 hover:bg-white/25 text-white border-0">
+                    {currentQ < questions.length - 1
+                      ? (isFr ? 'Question suivante' : 'Next question')
+                      : (isFr ? 'Voir les résultats' : 'See results')}
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </motion.div>
