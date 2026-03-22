@@ -112,6 +112,15 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         if (fetchErr.name === 'AbortError') {
           throw new Error(isFr ? 'La génération a pris trop de temps. Réessayez.' : 'Generation timed out. Please try again.');
         }
+        // Network errors like "Failed to fetch" — the edge function likely timed out or crashed
+        const msg = fetchErr?.message || '';
+        if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed')) {
+          throw new Error(
+            isFr
+              ? 'La connexion au serveur a échoué. Le serveur a peut-être mis trop de temps à répondre. Essayez sans les images ou réessayez.'
+              : 'Server connection failed. The server may have taken too long. Try without images or retry.'
+          );
+        }
         throw fetchErr;
       }
 
