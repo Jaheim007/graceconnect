@@ -70,11 +70,11 @@ export function NotificationItem({ notification: n, locale, onMarkRead, onDismis
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className={cn('text-sm leading-snug line-clamp-2', !n.is_read ? 'font-semibold text-foreground' : 'text-foreground/80')}>
+        <p className={cn('text-sm leading-snug', !n.is_read ? 'font-semibold text-foreground' : 'text-foreground/80')}>
           {n.title}
         </p>
         {n.body && (
-          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{n.body}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{n.body}</p>
         )}
         <p className="text-[11px] text-muted-foreground/60 mt-1">{timeStr}</p>
       </div>
