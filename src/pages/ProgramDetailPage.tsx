@@ -470,7 +470,7 @@ export default function ProgramDetailPage() {
               <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
                 <span className="flex items-center gap-1"><Layers className="h-3.5 w-3.5" /> {modules.length} {isFr ? 'modules' : 'modules'}</span>
                 <span className="flex items-center gap-1"><FileText className="h-3.5 w-3.5" /> {totalLessons} {isFr ? 'leçons' : 'lessons'}</span>
-                {isEnrolled && (
+                {hasAccess && (
                   <span className="flex items-center gap-1"><CheckCircle className="h-3.5 w-3.5 text-primary" /> {completedLessons}/{totalLessons} {isFr ? 'complétées' : 'completed'}</span>
                 )}
               </div>
