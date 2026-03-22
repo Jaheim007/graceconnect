@@ -553,7 +553,7 @@ export default function ProgramDetailPage() {
             </div>
 
             {/* Certificate — only if creator enabled it */}
-            {isEnrolled && (program as any).certificate_enabled !== false && (
+            {hasAccess && (program as any).certificate_enabled !== false && (
               <ProgramCertificate
                 programId={programId!}
                 programTitle={program.title}
