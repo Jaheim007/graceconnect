@@ -21,6 +21,7 @@ import { LessonEnrichmentToolbar } from '@/components/programs/LessonEnrichmentT
 interface LessonEditorProps {
   lessonId: string;
   programId: string;
+  courseTitle?: string;
   onBack: () => void;
   /** When true, renders inline without AdminPageShell wrapper */
   embedded?: boolean;
