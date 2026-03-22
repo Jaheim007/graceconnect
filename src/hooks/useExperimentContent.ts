@@ -74,31 +74,32 @@ export function useExperimentContent(
 
   const result = useMemo<ExperimentResult>(() => {
     if (!experiment) {
-      return { value: defaultValue, variant: null, experimentId: null, isExperiment: false };
+      return { value: defaultValue, variant: null, experimentId: null, experimentName: null, isExperiment: false };
     }
 
+    const expName = experiment.name;
     const variants = experiment.variants as Record<string, any>;
     const keys = Object.keys(variants);
     if (keys.length < 2) {
-      return { value: defaultValue, variant: null, experimentId: experiment.id, isExperiment: false };
+      return { value: defaultValue, variant: null, experimentId: experiment.id, experimentName: expName, isExperiment: false };
     }
 
     if (urlForced && keys.includes(urlForced)) {
       const content = variants[urlForced]?.content || variants[urlForced]?.label || defaultValue;
-      return { value: content, variant: urlForced as 'a' | 'b', experimentId: experiment.id, isExperiment: true };
+      return { value: content, variant: urlForced as 'a' | 'b', experimentId: experiment.id, experimentName: expName, isExperiment: true };
     }
 
     const trafficPercent = experiment.traffic_percent || 100;
     const trafficHash = simpleHash(`traffic:${experiment.id}:${seed}`) % 100;
     if (trafficHash >= trafficPercent) {
-      return { value: variants[keys[0]]?.content || defaultValue, variant: null, experimentId: experiment.id, isExperiment: false };
+      return { value: variants[keys[0]]?.content || defaultValue, variant: null, experimentId: experiment.id, experimentName: expName, isExperiment: false };
     }
 
     const variantHash = simpleHash(`variant:${experiment.id}:${seed}`);
     const chosenKey = keys[variantHash % keys.length] as 'a' | 'b';
     const content = variants[chosenKey]?.content || variants[chosenKey]?.label || defaultValue;
 
-    return { value: content, variant: chosenKey, experimentId: experiment.id, isExperiment: true };
+    return { value: content, variant: chosenKey, experimentId: experiment.id, experimentName: expName, isExperiment: true };
   }, [experiment, defaultValue, seed, urlForced]);
 
   // Push debug entry for superadmin overlay
