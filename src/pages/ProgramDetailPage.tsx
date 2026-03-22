@@ -665,7 +665,7 @@ export default function ProgramDetailPage() {
               </div>
 
               {/* CTA */}
-              {isEnrolled ? (
+              {hasAccess ? (
                 <div className="space-y-3">
                   <div className="space-y-1">
                     <Progress value={progressPercent} className="h-2" />
@@ -694,7 +694,7 @@ export default function ProgramDetailPage() {
                   )}
                   {program.is_free
                     ? (isFr ? 'Obtenir gratuitement' : 'Get for free')
-                    : (isFr ? 'S\'inscrire' : 'Enroll now')
+                    : (isFr ? `Acheter — ${priceDisplay}` : `Buy — ${priceDisplay}`)
                   }
                 </Button>
               )}
