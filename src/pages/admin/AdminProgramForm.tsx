@@ -35,6 +35,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { LessonPreview } from '@/components/programs/LessonPreview';
+import { CourseIntelligencePanel } from '@/components/programs/CourseIntelligencePanel';
 
 const CONTENT_TYPES = [
   { value: 'text', label: 'Text', labelFr: 'Texte', icon: FileText },
