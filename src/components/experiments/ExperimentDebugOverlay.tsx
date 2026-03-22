@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bug, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bug, X, ChevronDown, ChevronUp, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DebugEntry {
@@ -20,9 +20,24 @@ interface DebugEntry {
 const debugLog: DebugEntry[] = [];
 const listeners: Set<() => void> = new Set();
 
+// Live activity feed
+interface LiveEvent {
+  type: 'exposure' | 'click' | 'conversion';
+  variant: string;
+  slotKey: string;
+  timestamp: number;
+}
+const liveEvents: LiveEvent[] = [];
+
 export function pushDebugEntry(entry: DebugEntry) {
   debugLog.unshift(entry);
   if (debugLog.length > 50) debugLog.pop();
+  listeners.forEach(fn => fn());
+}
+
+export function pushLiveEvent(event: LiveEvent) {
+  liveEvents.unshift(event);
+  if (liveEvents.length > 20) liveEvents.pop();
   listeners.forEach(fn => fn());
 }
 
@@ -33,28 +48,24 @@ function useDebugLog() {
     listeners.add(cb);
     return () => { listeners.delete(cb); };
   }, []);
-  return debugLog;
+  return { entries: debugLog, liveEvents };
 }
 
-/**
- * Floating debug overlay for superadmins.
- * Shows real-time experiment slot resolution data.
- * Only renders if user is superadmin OR ?debug=true is in URL.
- */
 export function ExperimentDebugOverlay() {
   const { isSuperadmin } = useAuth();
   const [open, setOpen] = useState(false);
   const [minimized, setMinimized] = useState(false);
-  const entries = useDebugLog();
+  const { entries, liveEvents: live } = useDebugLog();
 
   const urlDebug = typeof window !== 'undefined' &&
     new URLSearchParams(window.location.search).get('debug') === 'true';
 
   if (!isSuperadmin && !urlDebug) return null;
 
+  const lastEvent = live[0];
+
   return (
     <>
-      {/* Toggle FAB */}
       {!open && (
         <motion.button
           initial={{ scale: 0 }}
@@ -64,10 +75,14 @@ export function ExperimentDebugOverlay() {
           title="A/B Debug"
         >
           <Bug className="h-5 w-5" />
+          {live.length > 0 && (
+            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 text-[9px] text-white flex items-center justify-center font-bold animate-pulse">
+              {live.length}
+            </span>
+          )}
         </motion.button>
       )}
 
-      {/* Panel */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -76,7 +91,6 @@ export function ExperimentDebugOverlay() {
             exit={{ opacity: 0, y: 100 }}
             className="fixed bottom-4 right-4 z-[9999] w-96 max-h-[70vh] bg-card border border-border rounded-xl shadow-2xl flex flex-col overflow-hidden"
           >
-            {/* Header */}
             <div className="flex items-center justify-between px-4 py-2.5 bg-amber-500/10 border-b border-border">
               <div className="flex items-center gap-2">
                 <Bug className="h-4 w-4 text-amber-600" />
@@ -97,6 +111,25 @@ export function ExperimentDebugOverlay() {
 
             {!minimized && (
               <div className="overflow-y-auto flex-1 p-3 space-y-2">
+                {/* Live Activity */}
+                {lastEvent && (
+                  <motion.div
+                    key={lastEvent.timestamp}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-2.5 text-xs space-y-1"
+                  >
+                    <div className="flex items-center gap-1.5 font-bold text-emerald-600">
+                      <Zap className="h-3.5 w-3.5" />
+                      Last Event
+                    </div>
+                    <Row label="Type" value={lastEvent.type.toUpperCase()} />
+                    <Row label="Variant" value={lastEvent.variant.toUpperCase()} mono />
+                    <Row label="Slot" value={lastEvent.slotKey} mono />
+                    <Row label="Time" value={new Date(lastEvent.timestamp).toLocaleTimeString()} />
+                  </motion.div>
+                )}
+
                 {entries.length === 0 && (
                   <p className="text-xs text-muted-foreground text-center py-6">
                     No experiment slots resolved yet.<br />Navigate to a page with experiments.
