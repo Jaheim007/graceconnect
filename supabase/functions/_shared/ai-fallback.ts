@@ -2,15 +2,18 @@
  * AI Fallback Layer — strict provider separation:
  * 
  * TEXT: Gemini first → OpenAI fallback
- * IMAGES: OpenAI first → Gemini fallback
+ * IMAGES: Gemini Pro (direct API) → OpenAI DALL-E → Gemini Flash (emergency)
  * 
- * When OpenAI image generation fails and we fall back to Gemini,
+ * All AI calls use GEMINI_API_KEY / OPENAI_API_KEY directly.
+ * NO Lovable AI Gateway is used.
+ * 
+ * When OpenAI image generation fails and we fall back to Gemini Flash,
  * all superadmins are notified so they can check the OpenAI quota.
  * 
  * Rate-limit (429) and credit (402) errors are NOT retried — they bubble up immediately.
  */
 
-import { geminiGenerateText, extractJson, geminiGenerateImageBase64 } from './ai-gemini.ts';
+import { geminiGenerateText, extractJson, geminiProImageBase64, geminiGenerateImageBase64 } from './ai-gemini.ts';
 import { openaiChat, openaiGenerateImageBase64 } from './ai-openai.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -32,7 +35,6 @@ async function notifySuperadminsOpenAIFailure(errorMsg: string, errorStatus?: nu
 
     const db = createClient(url, key);
 
-    // Get all superadmin user IDs
     const { data: superadmins } = await db
       .from('user_platform_roles')
       .select('user_id')
@@ -59,7 +61,6 @@ async function notifySuperadminsOpenAIFailure(errorMsg: string, errorStatus?: nu
     await db.from('notifications').insert(notifications);
     console.log(`[ai-fallback] Notified ${superadmins.length} superadmin(s) about OpenAI image failure`);
   } catch (notifErr) {
-    // Never let notification errors affect the main flow
     console.warn('[ai-fallback] Failed to notify superadmins:', (notifErr as any)?.message?.slice(0, 200));
   }
 }
@@ -76,7 +77,7 @@ export async function aiGenerateText(opts: {
   maxOutputTokens?: number;
   jsonMode?: boolean;
 }): Promise<string> {
-  // Try Gemini first
+  // Try Gemini first (direct API with GEMINI_API_KEY)
   try {
     return await geminiGenerateText({
       apiKey: opts.geminiKey,
@@ -112,68 +113,7 @@ export async function aiGenerateText(opts: {
   });
 }
 
-// ─── Gemini 3 Pro Image via Lovable AI Gateway ───
-
-async function gemini3ProImageGenerate(opts: {
-  prompt: string;
-  timeoutMs?: number;
-}): Promise<{ base64: string; mimeType: string }> {
-  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-  if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
-
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), opts.timeoutMs ?? 120_000);
-
-  try {
-    const res = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-3-pro-image-preview',
-        messages: [{ role: 'user', content: opts.prompt }],
-        modalities: ['image', 'text'],
-      }),
-      signal: controller.signal,
-    });
-
-    if (!res.ok) {
-      const t = await res.text();
-      const err = new Error(res.status === 429 ? 'Rate limit on Gemini 3 Pro Image' : `Gemini 3 Pro Image error (${res.status})`);
-      (err as any).status = res.status;
-      (err as any).detail = t.slice(0, 800);
-      throw err;
-    }
-
-    const data = await res.json();
-    const imageUrl = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-    if (!imageUrl) {
-      const err = new Error('No image returned by Gemini 3 Pro Image');
-      (err as any).status = 502;
-      throw err;
-    }
-
-    // Extract base64 from data URL
-    const match = imageUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
-    if (match) {
-      return { mimeType: match[1], base64: match[2] };
-    }
-
-    // If it's a regular URL, fetch it and convert
-    const imgRes = await fetch(imageUrl);
-    if (!imgRes.ok) throw new Error('Failed to fetch generated image');
-    const buf = await imgRes.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
-    const mimeType = imgRes.headers.get('content-type') || 'image/png';
-    return { base64, mimeType };
-  } finally {
-    clearTimeout(id);
-  }
-}
-
-// ─── Image Generation with Fallback (Gemini 3 Pro → OpenAI → Gemini Flash) ───
+// ─── Image Generation with Fallback (Gemini Pro → OpenAI DALL-E → Gemini Flash) ───
 
 export async function aiGenerateImageBase64(opts: {
   geminiKey: string;
@@ -183,32 +123,35 @@ export async function aiGenerateImageBase64(opts: {
   timeoutMs?: number;
 }): Promise<{ base64: string; mimeType: string }> {
 
-  // 1️⃣ Try Gemini 3 Pro Image (highest quality) via Lovable AI Gateway
-  try {
-    console.log('[ai-fallback] Trying Gemini 3 Pro Image (highest quality)...');
-    const result = await gemini3ProImageGenerate({
-      prompt: opts.prompt,
-      timeoutMs: opts.timeoutMs,
-    });
-    console.log('[ai-fallback] ✅ Gemini 3 Pro Image succeeded');
-    return result;
-  } catch (proErr: any) {
-    if (shouldNotFallback(proErr)) throw proErr;
-    console.warn('[ai-fallback] Gemini 3 Pro Image failed:', proErr?.message?.slice(0, 200));
+  // 1️⃣ Try Gemini Pro Image (highest quality) via direct Google API
+  if (opts.geminiKey) {
+    try {
+      console.log('[ai-fallback] Trying Gemini Pro Image (direct API, highest quality)...');
+      const result = await geminiProImageBase64({
+        apiKey: opts.geminiKey,
+        prompt: opts.prompt,
+        timeoutMs: opts.timeoutMs,
+      });
+      console.log('[ai-fallback] ✅ Gemini Pro Image succeeded');
+      return result;
+    } catch (proErr: any) {
+      if (shouldNotFallback(proErr)) throw proErr;
+      console.warn('[ai-fallback] Gemini Pro Image failed:', proErr?.message?.slice(0, 200));
+    }
   }
 
-  // 2️⃣ Fallback: OpenAI DALL-E 3
+  // 2️⃣ Fallback: OpenAI DALL-E
   const openaiKey = opts.openaiKey || Deno.env.get('OPENAI_API_KEY');
   if (openaiKey) {
     try {
-      console.log('[ai-fallback] Trying OpenAI DALL-E 3...');
+      console.log('[ai-fallback] Trying OpenAI DALL-E...');
       const result = await openaiGenerateImageBase64({
         apiKey: openaiKey,
         prompt: opts.prompt,
         size: opts.size,
         timeoutMs: opts.timeoutMs,
       });
-      console.log('[ai-fallback] ✅ OpenAI DALL-E 3 succeeded');
+      console.log('[ai-fallback] ✅ OpenAI DALL-E succeeded');
       return result;
     } catch (openaiErr: any) {
       if (shouldNotFallback(openaiErr)) throw openaiErr;
@@ -221,7 +164,7 @@ export async function aiGenerateImageBase64(opts: {
 
   // 3️⃣ Last resort: Gemini Flash (direct API)
   try {
-    console.log('[ai-fallback] Trying Gemini Flash (direct API)...');
+    console.log('[ai-fallback] Trying Gemini Flash (direct API, emergency fallback)...');
     return await geminiGenerateImageBase64({
       apiKey: opts.geminiKey,
       prompt: opts.prompt,

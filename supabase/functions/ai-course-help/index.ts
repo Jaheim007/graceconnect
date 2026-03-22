@@ -1,9 +1,10 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { corsHeaders, jsonResp, requireAuth, adminClient } from '../_shared/auth.ts';
+import { geminiGenerateText } from '../_shared/ai-gemini.ts';
 
 /**
  * AI Help for course title & description generation.
- * No credit cost — lightweight text generation.
+ * No credit cost — lightweight text generation via direct Gemini API.
  */
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -12,8 +13,8 @@ serve(async (req) => {
     const auth = await requireAuth(req);
     if (auth instanceof Response) return auth;
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) return jsonResp({ error: 'AI not configured' }, 500);
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) return jsonResp({ error: 'AI not configured' }, 500);
 
     const { type, course_title, course_description, language = 'fr' } = await req.json();
 
@@ -47,33 +48,19 @@ Requirements:
 - Return ONLY the description text, nothing else`;
     }
 
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-3-flash-preview',
-        messages: [
-          { role: 'system', content: `You are a marketing copywriter specializing in online education. ${isFr ? 'Write exclusively in French.' : 'Write exclusively in English.'}` },
-          { role: 'user', content: prompt },
-        ],
-      }),
+    const result = await geminiGenerateText({
+      apiKey: GEMINI_API_KEY,
+      model: 'gemini-2.5-flash',
+      system: `You are a marketing copywriter specializing in online education. ${isFr ? 'Write exclusively in French.' : 'Write exclusively in English.'}`,
+      prompt,
     });
 
-    if (!aiResponse.ok) {
-      if (aiResponse.status === 429) return jsonResp({ error: 'Rate limit exceeded' }, 429);
-      if (aiResponse.status === 402) return jsonResp({ error: 'Credits exhausted' }, 402);
-      throw new Error('AI generation failed');
-    }
+    const cleaned = (result || '').trim().replace(/^["']|["']$/g, '');
 
-    const data = await aiResponse.json();
-    const result = (data.choices?.[0]?.message?.content || '').trim().replace(/^["']|["']$/g, '');
-
-    return jsonResp({ ok: true, result });
+    return jsonResp({ ok: true, result: cleaned });
   } catch (e: any) {
     console.error('[ai-course-help] Error:', e);
+    if (e?.status === 429) return jsonResp({ error: 'Rate limit exceeded' }, 429);
     return jsonResp({ error: e.message || 'Internal error' }, e.status || 500);
   }
 });
