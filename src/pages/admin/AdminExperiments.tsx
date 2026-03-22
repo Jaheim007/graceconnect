@@ -62,7 +62,7 @@ const emptyForm: ExperimentForm = {
 };
 
 export default function AdminExperiments() {
-  const { user } = useAuth();
+  const { user, isSuperadmin } = useAuth();
   const qc = useQueryClient();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
