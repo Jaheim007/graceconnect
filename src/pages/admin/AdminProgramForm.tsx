@@ -140,7 +140,12 @@ export function ProgramForm() {
         price: isFree ? 0 : price,
         currency,
         certificate_enabled: certificateEnabled,
-      });
+        passing_score: passingScore,
+        require_sequential_lessons: requireSequential,
+        require_assessment_for_cert: requireAssessmentForCert,
+        assessment_enabled: assessmentEnabled,
+        gamification_enabled: gamificationEnabledSetting,
+      } as any);
 
       // Auto-create/update linked digital product for paid courses (enables affiliate system)
       if (!isFree && price > 0 && isPublished) {
