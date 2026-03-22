@@ -147,15 +147,75 @@ export default function ProgramDetailPage() {
     : {};
   const topBarStyle = orgPrimary ? { borderBottomColor: `${orgPrimary}30` } : {};
 
+  // Check if course has a linked digital product for paid enrollment
+  const isPaidCourse = !program?.is_free && (program?.price ?? 0) > 0;
+
+  const { data: linkedProduct } = useQuery({
+    queryKey: ['course-linked-product', program?.organization_id, programId],
+    queryFn: async () => {
+      if (!program?.organization_id || !programId) return null;
+      // Find a digital product linked to this course
+      const { data } = await db.from('digital_products')
+        .select('*')
+        .eq('organization_id', program.organization_id)
+        .eq('product_type', 'course')
+        .eq('is_published', true)
+        .ilike('title', program.title)
+        .limit(1)
+        .maybeSingle();
+      return data as DigitalProduct | null;
+    },
+    enabled: !!program?.organization_id && isPaidCourse,
+  });
+
+  // Check if user already purchased this course product
+  const { data: existingPurchase } = useQuery({
+    queryKey: ['course-purchase-check', linkedProduct?.id, user?.id],
+    queryFn: async () => {
+      if (!linkedProduct?.id || !user?.id) return null;
+      const { data } = await db.from('product_purchases')
+        .select('id')
+        .eq('product_id', linkedProduct.id)
+        .eq('user_id', user.id)
+        .eq('status', 'completed')
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!linkedProduct?.id && !!user?.id,
+  });
+
+  const hasAccess = isEnrolled || !!existingPurchase;
+
   const handleEnroll = async () => {
     if (!programId) return;
     if (!user) { navigate(`/auth?returnTo=/program/${programId}`); return; }
+
+    // For paid courses with a linked product, use purchase flow
+    if (isPaidCourse && linkedProduct) {
+      setShowPurchaseModal(true);
+      return;
+    }
+
+    // Free course: direct enrollment
     try {
       await enrollMutation.mutateAsync(programId);
       toast({ title: isFr ? '🎉 Cours ajouté à vos achats !' : '🎉 Course added to your purchases!' });
     } catch {
       toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' });
     }
+  };
+
+  // After purchase, auto-enroll
+  const handlePurchaseSuccess = async () => {
+    setShowPurchaseModal(false);
+    if (programId && user && !isEnrolled) {
+      try {
+        await enrollMutation.mutateAsync(programId);
+      } catch { /* enrollment already exists */ }
+    }
+    queryClient.invalidateQueries({ queryKey: ['enrollment', programId] });
+    queryClient.invalidateQueries({ queryKey: ['course-purchase-check'] });
+    toast({ title: isFr ? '🎉 Cours acheté avec succès !' : '🎉 Course purchased successfully!' });
   };
 
   const handleToggleLesson = async (lessonId: string, completed: boolean) => {
