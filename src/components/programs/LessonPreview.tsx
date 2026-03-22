@@ -610,11 +610,16 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
             </AnimatePresence>
 
             {/* Bottom bar */}
-            <div className="border-t border-border px-4 py-2.5 flex items-center justify-between shrink-0 bg-card">
-              <div className="flex-1 mr-4">
-                <div className="h-1 bg-muted rounded-full overflow-hidden">
+            <div className="border-t border-border px-4 py-2.5 flex items-center justify-between shrink-0 bg-card gap-3">
+              <div className="flex items-center gap-2 text-[10px] text-muted-foreground shrink-0">
+                <span className="font-medium">{currentIndex + 1}/{total}</span>
+              </div>
+
+              <div className="flex-1">
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-primary rounded-full"
+                    className="h-full rounded-full"
+                    style={{ background: `linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))` }}
                     initial={false}
                     animate={{ width: `${((currentIndex + 1) / total) * 100}%` }}
                     transition={{ duration: 0.3 }}
@@ -626,7 +631,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
                 size="sm"
                 onClick={goNext}
                 disabled={currentIndex >= total - 1}
-                className="gap-1.5 text-xs"
+                className="gap-1.5 text-xs shrink-0"
               >
                 {currentIndex >= total - 1
                   ? (isFr ? 'Terminé' : 'Finished')
