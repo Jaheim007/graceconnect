@@ -181,7 +181,7 @@ serve(async (req) => {
     const admin = adminClient(supabaseUrl, serviceKey);
 
     const body = await req.json();
-    const { title, description, target_audience, language, tier = 'standard', module_count = 5, generate_images = false, audience_level = 'intermediate' } = body;
+    const { title, description, target_audience, language, tier = 'standard', module_count = 5, generate_images = false, audience_level = 'intermediate', worldview = 'neutral', pedagogical_style = 'professional', depth_level = 'standard', interactivity_level = 'medium' } = body;
 
     const functionStartedAt = Date.now();
     const remainingBudgetMs = () => FUNCTION_HARD_DEADLINE_MS - (Date.now() - functionStartedAt);
