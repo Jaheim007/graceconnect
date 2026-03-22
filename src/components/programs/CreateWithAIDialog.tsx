@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,7 +12,7 @@ import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
-import { Sparkles, Loader2, BookOpen, HelpCircle, Plus, ImageIcon, Users } from 'lucide-react';
+import { Sparkles, Loader2, BookOpen, HelpCircle, Plus, ImageIcon, Users, Globe, Palette, BarChart3, Zap } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
 
 const SUGGESTIONS_FR = [
@@ -56,6 +55,11 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const [generating, setGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [audienceLevel, setAudienceLevel] = useState('intermediate');
+  const [worldview, setWorldview] = useState('neutral');
+  const [pedagogicalStyle, setPedagogicalStyle] = useState('professional');
+  const [depthLevel, setDepthLevel] = useState('standard');
+  const [interactivityLevel, setInteractivityLevel] = useState('medium');
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const standardCost = useActionCost('ai_course_structure', 'standard');
   const premiumCost = useActionCost('ai_course_structure', 'premium');
@@ -76,9 +80,8 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         throw new Error(isFr ? 'Session expirée. Reconnectez-vous.' : 'Session expired. Please log in again.');
       }
 
-      // Use custom fetch with 5-minute timeout — the edge function can take 2-3 min with retries
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 300_000); // 5 minutes
+      const timeoutId = setTimeout(() => controller.abort(), 300_000);
 
       let data: any;
       let error: any;
@@ -96,9 +99,13 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
             title: prompt.trim(),
             language: isFr ? 'fr' : 'en',
             tier,
-            module_count: 5,
+            module_count: depthLevel === 'masterclass' ? 7 : depthLevel === 'detailed' ? 6 : 5,
             generate_images: generateImages,
             audience_level: audienceLevel,
+            worldview,
+            pedagogical_style: pedagogicalStyle,
+            depth_level: depthLevel,
+            interactivity_level: interactivityLevel,
           }),
           signal: controller.signal,
         });
@@ -114,13 +121,12 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         if (fetchErr.name === 'AbortError') {
           throw new Error(isFr ? 'La génération a pris trop de temps. Réessayez.' : 'Generation timed out. Please try again.');
         }
-        // Network errors like "Failed to fetch" — the edge function likely timed out or crashed
         const msg = fetchErr?.message || '';
         if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed')) {
           throw new Error(
             isFr
-              ? 'La connexion au serveur a échoué. Le serveur a peut-être mis trop de temps à répondre. Essayez sans les images ou réessayez.'
-              : 'Server connection failed. The server may have taken too long. Try without images or retry.'
+              ? 'La connexion au serveur a échoué. Essayez sans les images ou réessayez.'
+              : 'Server connection failed. Try without images or retry.'
           );
         }
         throw fetchErr;
@@ -135,7 +141,6 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
 
       refreshCredits();
 
-      // Use AI-generated marketing title/description if available
       const courseTitle = data?.course_title || prompt.trim().slice(0, 100);
       const courseDescription = data?.course_description || prompt.trim();
 
@@ -169,7 +174,6 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
           }
         }
 
-        // Save final assessment as a special lesson if provided
         if (data?.final_assessment?.questions?.length > 0) {
           const assessmentModule = await createModule.mutateAsync({
             program_id: result.id,
@@ -178,7 +182,6 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
             display_order: data.modules.length,
           });
 
-          // Embed assessment questions as QUIZ comments in content
           const quizComments = data.final_assessment.questions
             .map((q: any) => `<!-- QUIZ:${JSON.stringify(q)} -->`)
             .join('\n');
@@ -215,7 +218,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!generating) onOpenChange(v); }}>
-      <DialogContent className="sm:max-w-xl" hideCloseButton={generating}>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto" hideCloseButton={generating}>
         {generating ? (
           <CourseGenerationLoader />
         ) : generationError ? (
@@ -261,7 +264,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 value={prompt}
                 onChange={e => setPrompt(e.target.value)}
                 placeholder={isFr ? 'Décrivez ce que vous souhaitez créer...' : 'Describe what you\'d like to create...'}
-                rows={6}
+                rows={5}
                 className="resize-none"
               />
 
@@ -288,46 +291,118 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">{isFr ? 'Type de génération IA' : 'AI generation type'}</p>
                 <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    type="button"
-                    variant={tier === 'standard' ? 'default' : 'outline'}
-                    onClick={() => setTier('standard')}
-                    className="text-xs"
-                  >
+                  <Button type="button" variant={tier === 'standard' ? 'default' : 'outline'} onClick={() => setTier('standard')} className="text-xs">
                     Standard
                     <span className="ml-1 text-[10px] opacity-90">({standardCost ?? 8} {isFr ? 'crédits' : 'credits'})</span>
                   </Button>
-                  <Button
-                    type="button"
-                    variant={tier === 'premium' ? 'default' : 'outline'}
-                    onClick={() => setTier('premium')}
-                    className="text-xs"
-                  >
+                  <Button type="button" variant={tier === 'premium' ? 'default' : 'outline'} onClick={() => setTier('premium')} className="text-xs">
                     Premium
                     <span className="ml-1 text-[10px] opacity-90">({premiumCost ?? 15} {isFr ? 'crédits' : 'credits'})</span>
                   </Button>
                 </div>
               </div>
 
-              {/* Audience level selection */}
-              <div className="space-y-2">
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Users className="h-3 w-3" /> {isFr ? 'Niveau du public' : 'Audience level'}
-                </p>
-                <Select value={audienceLevel} onValueChange={setAudienceLevel}>
-                  <SelectTrigger className="h-9 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="beginner">{isFr ? '🌱 Débutant' : '🌱 Beginner'}</SelectItem>
-                    <SelectItem value="intermediate">{isFr ? '📚 Intermédiaire' : '📚 Intermediate'}</SelectItem>
-                    <SelectItem value="advanced">{isFr ? '🎓 Avancé' : '🎓 Advanced'}</SelectItem>
-                    <SelectItem value="professional">{isFr ? '💼 Professionnel' : '💼 Professional'}</SelectItem>
-                    <SelectItem value="academic">{isFr ? '🔬 Académique' : '🔬 Academic'}</SelectItem>
-                    <SelectItem value="youth">{isFr ? '🧒 Jeune public' : '🧒 Youth'}</SelectItem>
-                  </SelectContent>
-                </Select>
+              {/* Core settings grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Audience level */}
+                <div className="space-y-1.5">
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Users className="h-3 w-3" /> {isFr ? 'Niveau du public' : 'Audience level'}
+                  </p>
+                  <Select value={audienceLevel} onValueChange={setAudienceLevel}>
+                    <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="beginner">{isFr ? '🌱 Débutant' : '🌱 Beginner'}</SelectItem>
+                      <SelectItem value="intermediate">{isFr ? '📚 Intermédiaire' : '📚 Intermediate'}</SelectItem>
+                      <SelectItem value="advanced">{isFr ? '🎓 Avancé' : '🎓 Advanced'}</SelectItem>
+                      <SelectItem value="professional">{isFr ? '💼 Professionnel' : '💼 Professional'}</SelectItem>
+                      <SelectItem value="academic">{isFr ? '🔬 Académique' : '🔬 Academic'}</SelectItem>
+                      <SelectItem value="youth">{isFr ? '🧒 Jeune public' : '🧒 Youth'}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Worldview / Content frame */}
+                <div className="space-y-1.5">
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Globe className="h-3 w-3" /> {isFr ? 'Cadre du contenu' : 'Content frame'}
+                  </p>
+                  <Select value={worldview} onValueChange={setWorldview}>
+                    <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="neutral">{isFr ? '🌍 Neutre / Séculier' : '🌍 Neutral / Secular'}</SelectItem>
+                      <SelectItem value="christian">{isFr ? '✝️ Chrétien' : '✝️ Christian'}</SelectItem>
+                      <SelectItem value="islamic">{isFr ? '☪️ Islamique' : '☪️ Islamic'}</SelectItem>
+                      <SelectItem value="interfaith">{isFr ? '🕊️ Interconfessionnel' : '🕊️ Interfaith'}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+
+              {/* Advanced settings toggle */}
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+              >
+                <Zap className="h-3 w-3" />
+                {showAdvanced
+                  ? (isFr ? 'Masquer les options avancées' : 'Hide advanced options')
+                  : (isFr ? 'Options avancées (style, profondeur, interactivité)' : 'Advanced options (style, depth, interactivity)')}
+              </button>
+
+              {showAdvanced && (
+                <div className="grid grid-cols-3 gap-3 p-3 rounded-lg bg-muted/30 border border-border">
+                  {/* Pedagogical style */}
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <Palette className="h-3 w-3" /> {isFr ? 'Style' : 'Style'}
+                    </p>
+                    <Select value={pedagogicalStyle} onValueChange={setPedagogicalStyle}>
+                      <SelectTrigger className="h-8 text-[11px]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="professional">{isFr ? '💼 Professionnel' : '💼 Professional'}</SelectItem>
+                        <SelectItem value="academic">{isFr ? '🎓 Académique' : '🎓 Academic'}</SelectItem>
+                        <SelectItem value="conversational">{isFr ? '💬 Conversationnel' : '💬 Conversational'}</SelectItem>
+                        <SelectItem value="motivational">{isFr ? '🔥 Motivant' : '🔥 Motivational'}</SelectItem>
+                        <SelectItem value="practical">{isFr ? '🛠️ Pratique' : '🛠️ Practical'}</SelectItem>
+                        <SelectItem value="storytelling">{isFr ? '📖 Narratif' : '📖 Storytelling'}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Depth level */}
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <BarChart3 className="h-3 w-3" /> {isFr ? 'Profondeur' : 'Depth'}
+                    </p>
+                    <Select value={depthLevel} onValueChange={setDepthLevel}>
+                      <SelectTrigger className="h-8 text-[11px]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="lightweight">{isFr ? '⚡ Léger' : '⚡ Lightweight'}</SelectItem>
+                        <SelectItem value="standard">{isFr ? '📘 Standard' : '📘 Standard'}</SelectItem>
+                        <SelectItem value="detailed">{isFr ? '📚 Détaillé' : '📚 Detailed'}</SelectItem>
+                        <SelectItem value="masterclass">{isFr ? '🏆 Masterclass' : '🏆 Masterclass'}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Interactivity */}
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <Zap className="h-3 w-3" /> {isFr ? 'Interactivité' : 'Interactivity'}
+                    </p>
+                    <Select value={interactivityLevel} onValueChange={setInteractivityLevel}>
+                      <SelectTrigger className="h-8 text-[11px]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">{isFr ? '📖 Faible' : '📖 Low'}</SelectItem>
+                        <SelectItem value="medium">{isFr ? '⚡ Moyen' : '⚡ Medium'}</SelectItem>
+                        <SelectItem value="high">{isFr ? '🎮 Élevé' : '🎮 High'}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
 
               {/* Image generation option */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
@@ -336,9 +411,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                   <div>
                     <p className="text-xs font-medium">{isFr ? 'Générer des images par leçon' : 'Generate images per lesson'}</p>
                     <p className="text-[10px] text-muted-foreground">
-                      {isFr
-                        ? 'Les images seront basées sur le contenu de chaque leçon (crédits additionnels)'
-                        : 'Images based on each lesson content (additional credits)'}
+                      {isFr ? 'Images basées sur le contenu (crédits additionnels)' : 'Images based on content (additional credits)'}
                     </p>
                   </div>
                 </div>
