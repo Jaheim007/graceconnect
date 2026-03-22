@@ -508,6 +508,26 @@ export function ProgramForm() {
                   </div>
                 </div>
               )}
+
+              {/* Course Intelligence Panel */}
+              {modules.length > 0 && (
+                <div className="px-2 pb-2">
+                  <CourseIntelligencePanel
+                    modules={modules}
+                    courseTitle={title}
+                    programId={id!}
+                    onLessonSelect={(lessonId) => {
+                      setSelectedLessonId(lessonId);
+                      const mod = modules.find((m: any) => m.lessons?.some((l: any) => l.id === lessonId));
+                      if (mod) setSelectedModuleId(mod.id);
+                    }}
+                    onRefresh={() => {
+                      // Force re-fetch modules to update analysis
+                      window.location.reload();
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
