@@ -144,7 +144,7 @@ export function useExperimentContent(
  */
 export function useExperimentClick() {
   const trackEventFn = useTrackEvent();
-  return (experimentResult: ExperimentResult & { experimentName?: string }) => {
+  return (experimentResult: ExperimentResult) => {
     if (!experimentResult.isExperiment || !experimentResult.variant) return;
     trackEventFn('experiment_click', {
       experimentId: experimentResult.experimentName || experimentResult.experimentId,
