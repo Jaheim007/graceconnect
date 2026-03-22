@@ -563,7 +563,7 @@ export default function ProductDetailPage() {
             />
 
             <div className="md:hidden space-y-2">
-              <h1 className="text-2xl font-bold">{product.title}</h1>
+              <h1 className="text-2xl font-bold"><ExperimentTitle defaultTitle={product.title} /></h1>
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="secondary" className="text-xs capitalize gap-1">
                   {typeIcons[product.product_type || 'pdf']} {typeLabels[product.product_type || 'pdf'] || product.product_type}
