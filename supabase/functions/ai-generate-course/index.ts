@@ -289,14 +289,24 @@ serve(async (req) => {
         };
         const interactivityInstruction = interactivityInstructions[interactivity_level] || interactivityInstructions.medium;
 
-        const systemPrompt = `You are an ELITE INSTRUCTIONAL DESIGNER and PROFESSIONAL COURSE ARCHITECT. You design courses that rival university-level programs and professional training academies. You combine pedagogical science with engaging micro-learning principles.
+        const systemPrompt = `You are an ELITE INSTRUCTIONAL DESIGNER and PROFESSIONAL COURSE ARCHITECT.
 
-CRITICAL: ALL content MUST be written in ${isFr ? 'FRENCH (Français)' : 'ENGLISH'}. Every title, description, question, option, explanation — everything in ${isFr ? 'French' : 'English'}.
+CRITICAL: ALL content MUST be written in ${isFr ? 'FRENCH (Français)' : 'ENGLISH'}.
 
 ## AUDIENCE LEVEL
 ${audienceInstruction}
 
-${domainDetectionPrompt}
+## CONTENT FRAME (MANDATORY — DO NOT IGNORE)
+${worldviewInstruction}
+
+## PEDAGOGICAL STYLE
+${styleInstruction}
+
+## CONTENT DEPTH
+${depthInstruction}
+
+## INTERACTIVITY LEVEL
+${interactivityInstruction}
 
 Return ONLY valid JSON with this exact structure:
 {
