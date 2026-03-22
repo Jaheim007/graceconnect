@@ -734,10 +734,11 @@ MANDATORY REQUIREMENTS:
                 throw new Error('Not enough time remaining for image generation');
               }
 
-              // Use Gemini Flash directly for course images (fast, skips slow fallback chain)
+              // Use full fallback chain: Gemini Pro → OpenAI → Gemini Flash
               const imageTimeoutMs = Math.min(30_000, Math.max(10_000, budgetMs - 15_000));
-              const { base64, mimeType } = await geminiGenerateImageBase64({
-                apiKey: GEMINI_API_KEY || '',
+              const { base64, mimeType } = await aiGenerateImageBase64({
+                geminiKey: GEMINI_API_KEY || '',
+                openaiKey: OPENAI_API_KEY || undefined,
                 prompt: `Professional educational illustration: ${imagePrompt}. Clean, modern, flat design style. No text in the image.`,
                 timeoutMs: imageTimeoutMs,
               });
