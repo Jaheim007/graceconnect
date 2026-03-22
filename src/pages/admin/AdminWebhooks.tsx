@@ -102,10 +102,25 @@ export default function AdminWebhooks() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['org-webhooks'] }),
   });
 
+  const [testEventType, setTestEventType] = useState('purchase.completed');
+
   const testWebhook = async (webhookId: string) => {
+    const samplePayloads: Record<string, Record<string, unknown>> = {
+      'purchase.completed': { transaction_id: 'test-txn-001', reference: 'SV-TEST-001', type: 'product', amount: 5000, currency: 'XOF', product_id: 'test-product', buyer_name: 'Test Buyer', buyer_email: 'test@example.com' },
+      'donation.received': { transaction_id: 'test-txn-002', reference: 'SV-TEST-002', type: 'donation', amount: 2000, currency: 'XOF', donor_name: 'Test Donor', campaign_id: 'test-campaign' },
+      'affiliate.sale': { transaction_id: 'test-txn-003', affiliate_link_id: 'test-link', commission_amount: 500, gross_amount: 5000, currency: 'XOF' },
+      'member.joined': { user_id: 'test-user-001', role: 'member', joined_at: new Date().toISOString() },
+      'payout.requested': { payout_request_id: 'test-payout-001', payout_type: 'affiliate', amount: 10000, currency: 'XOF' },
+      'subscription.started': { subscription_id: 'test-sub-001', plan: 'pro', amount: 9900, currency: 'XOF' },
+      'test.ping': { message: 'Test from SiteViral', timestamp: new Date().toISOString() },
+    };
     try {
-      await callFn('outgoing-webhook', { org_id: orgId, event: 'test.ping', data: { message: 'Test from SiteViral', timestamp: new Date().toISOString() } });
-      toast({ title: '📤 Test envoyé !', description: isFr ? 'Vérifiez votre endpoint.' : 'Check your endpoint.' });
+      await callFn('outgoing-webhook', {
+        org_id: orgId,
+        event: testEventType,
+        data: samplePayloads[testEventType] || samplePayloads['test.ping'],
+      });
+      toast({ title: '📤 Test envoyé !', description: `${testEventType} — ${isFr ? 'Vérifiez votre endpoint.' : 'Check your endpoint.'}` });
       qc.invalidateQueries({ queryKey: ['webhook-deliveries'] });
     } catch {
       toast({ title: 'Erreur', variant: 'destructive' });
