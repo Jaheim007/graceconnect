@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useProgram, useProgramModules, useEnrollment, useLessonProgress, useEnrollInProgram, useToggleLessonComplete } from '@/hooks/usePrograms';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,6 +35,9 @@ import { Breadcrumb } from '@/components/layout/Breadcrumb';
 import { ReadingProgressBar } from '@/components/ui/ReadingProgressBar';
 import { ReportContentDialog } from '@/components/reports/ReportContentDialog';
 import { ProductImageGallery } from '@/components/products/ProductImageGallery';
+import { ProductPurchaseModal } from '@/components/products/ProductPurchaseModal';
+import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
+import type { DigitalProduct } from '@/types/database';
 
 const CONTENT_ICONS: Record<string, typeof FileText> = {
   text: FileText,
@@ -44,10 +47,12 @@ const CONTENT_ICONS: Record<string, typeof FileText> = {
 };
 
 export default function ProgramDetailPage() {
+  useAffiliateCapture();
   const { programId } = useParams();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { data: program, isLoading } = useProgram(programId);
@@ -58,6 +63,7 @@ export default function ProgramDetailPage() {
   const toggleLesson = useToggleLessonComplete();
 
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
 
   const totalLessons = useMemo(() => modules.reduce((sum: number, m: any) => sum + (m.lessons?.length || 0), 0), [modules]);
