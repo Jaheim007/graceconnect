@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate, useParams } from 'react-router-dom';
 import { onContentPublished, onContentUnpublished } from '@/lib/notifications';
@@ -35,6 +36,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { LessonPreview } from '@/components/programs/LessonPreview';
+import { CourseIntelligencePanel } from '@/components/programs/CourseIntelligencePanel';
 
 const CONTENT_TYPES = [
   { value: 'text', label: 'Text', labelFr: 'Texte', icon: FileText },
@@ -52,6 +54,7 @@ export function ProgramForm() {
   const { toast } = useToast();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+  const queryClient = useQueryClient();
 
   const { data: existingProgram } = useProgram(id);
   const { data: modules = [] } = useProgramModules(id);
@@ -505,6 +508,25 @@ export function ProgramForm() {
                       <Sparkles className="h-3 w-3" /> {isFr ? 'Générer avec IA' : 'Generate with AI'}
                     </Button>
                   </div>
+                </div>
+              )}
+
+              {/* Course Intelligence Panel */}
+              {modules.length > 0 && (
+                <div className="px-2 pb-2">
+                  <CourseIntelligencePanel
+                    modules={modules}
+                    courseTitle={title}
+                    programId={id!}
+                    onLessonSelect={(lessonId) => {
+                      setSelectedLessonId(lessonId);
+                      const mod = modules.find((m: any) => m.lessons?.some((l: any) => l.id === lessonId));
+                      if (mod) setSelectedModuleId(mod.id);
+                    }}
+                    onRefresh={() => {
+                      queryClient.invalidateQueries({ queryKey: ['program-modules', id] });
+                    }}
+                  />
                 </div>
               )}
             </div>

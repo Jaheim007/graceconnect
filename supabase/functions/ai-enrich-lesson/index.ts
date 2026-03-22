@@ -141,7 +141,7 @@ serve(async (req) => {
     const admin = adminClient(supabaseUrl, serviceKey);
 
     const body = await req.json();
-    const { lesson_title, lesson_content, course_title, action, language = 'fr', tier = 'standard' } = body;
+    const { lesson_title, lesson_content, course_title, action, language = 'fr', tier = 'standard', depth_level = 'intermediate' } = body;
 
     if (!lesson_content?.trim()) return jsonResp({ error: 'Lesson content is required' }, 400);
     if (!action || !ACTION_PROMPTS.en[action as EnrichAction]) {
@@ -164,8 +164,18 @@ serve(async (req) => {
       idempotencyKey: `enrich-${userId}-${Date.now()}`,
       metadata: { action, lesson_title },
       action: async () => {
+        const depthMap: Record<string, string> = {
+          beginner: isFr ? 'Niveau DÉBUTANT : vocabulaire simple, analogies du quotidien, pas de jargon.' : 'BEGINNER level: simple vocabulary, everyday analogies, no jargon.',
+          intermediate: isFr ? 'Niveau INTERMÉDIAIRE : concepts nuancés, exemples concrets.' : 'INTERMEDIATE level: nuanced concepts, concrete examples.',
+          advanced: isFr ? 'Niveau AVANCÉ : analyses critiques, perspectives multiples, cas complexes.' : 'ADVANCED level: critical analysis, multiple perspectives, complex cases.',
+          expert: isFr ? 'Niveau EXPERT : frameworks avancés, recherche récente, insights de praticiens seniors.' : 'EXPERT level: advanced frameworks, recent research, senior practitioner insights.',
+        };
+        const depthInstruction = depthMap[depth_level] || depthMap.intermediate;
+
         const systemPrompt = `You are an ELITE INSTRUCTIONAL DESIGNER and CONTENT ENRICHMENT SPECIALIST.
 You enhance existing course lessons to make them deeper, richer, and more valuable.
+
+AUDIENCE DEPTH: ${depthInstruction}
 
 CRITICAL RULES:
 - Write EXCLUSIVELY in ${isFr ? 'FRENCH' : 'ENGLISH'}
