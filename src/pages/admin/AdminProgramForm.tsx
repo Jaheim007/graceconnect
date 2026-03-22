@@ -103,7 +103,12 @@ export function ProgramForm() {
       setIsPublished(existingProgram.is_published || false);
       setIsFree(existingProgram.is_free ?? true);
       setPrice(existingProgram.price || 0);
-      setCertificateEnabled(existingProgram.certificate_enabled || false);
+      setCertificateEnabled((existingProgram as any).certificate_enabled || false);
+      setPassingScore((existingProgram as any).passing_score ?? 70);
+      setRequireSequential((existingProgram as any).require_sequential_lessons || false);
+      setRequireAssessmentForCert((existingProgram as any).require_assessment_for_cert || false);
+      setAssessmentEnabled((existingProgram as any).assessment_enabled !== false);
+      setGamificationEnabledSetting((existingProgram as any).gamification_enabled !== false);
     }
   }, [existingProgram]);
 
