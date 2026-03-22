@@ -7,8 +7,8 @@ import { geminiGenerateText } from '../_shared/ai-gemini.ts';
 const ACTION_KEY = 'ai_course_structure';
 const IMAGE_GEN_CONCURRENCY = 2;
 const IMAGE_BUCKET = 'media';
-const FUNCTION_HARD_DEADLINE_MS = 280_000;
-const IMAGE_MIN_REMAINING_MS = 60_000;
+const FUNCTION_HARD_DEADLINE_MS = 250_000;
+const IMAGE_MIN_REMAINING_MS = 80_000;
 
 function decodeBase64(base64: string): Uint8Array {
   const binary = atob(base64);
@@ -670,7 +670,7 @@ MANDATORY REQUIREMENTS:
                 throw new Error('Not enough time remaining for image generation');
               }
 
-              const imageTimeoutMs = Math.min(20_000, Math.max(10_000, budgetMs - 15_000));
+              const imageTimeoutMs = Math.min(15_000, Math.max(8_000, budgetMs - 20_000));
               const { base64, mimeType } = await aiGenerateImageBase64({
                 geminiKey: GEMINI_API_KEY || '',
                 openaiKey: OPENAI_API_KEY || undefined,
