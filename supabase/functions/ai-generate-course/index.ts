@@ -289,9 +289,45 @@ serve(async (req) => {
         };
         const interactivityInstruction = interactivityInstructions[interactivity_level] || interactivityInstructions.medium;
 
+        // ─── Course goal mapping ───
+        const goalInstructions: Record<string, string> = {
+          sell: isFr
+            ? 'OBJECTIF: Vendre un produit/service. Structure le cours comme un entonnoir éducatif: démontre l\'expertise, résous un problème concret, et inclus des appels à l\'action subtils. Chaque module doit renforcer la crédibilité et la valeur perçue.'
+            : 'GOAL: Sell a product/service. Structure the course as an educational funnel: demonstrate expertise, solve a concrete problem, and include subtle calls to action. Each module should reinforce credibility and perceived value.',
+          teach_skill: isFr
+            ? 'OBJECTIF: Enseigner une compétence. Priorise la progression pédagogique claire, les exercices pratiques, et la maîtrise mesurable. Le cours doit transformer le niveau de compétence de l\'apprenant.'
+            : 'GOAL: Teach a skill. Prioritize clear pedagogical progression, practical exercises, and measurable mastery. The course should transform the learner\'s skill level.',
+          train_team: isFr
+            ? 'OBJECTIF: Former une équipe. Utilise un format structuré de formation professionnelle avec des objectifs mesurables, des évaluations, des scénarios d\'entreprise, et des standards de conformité. Ton formel et orienté résultats.'
+            : 'GOAL: Train a team. Use a structured professional training format with measurable objectives, assessments, business scenarios, and compliance standards. Formal, results-oriented tone.',
+          educate: isFr
+            ? 'OBJECTIF: Éduquer un public. Rends le contenu accessible et engageant. Utilise des exemples variés, des analogies, et des histoires pour rendre les concepts mémorables.'
+            : 'GOAL: Educate an audience. Make content accessible and engaging. Use varied examples, analogies, and stories to make concepts memorable.',
+          faith: isFr
+            ? 'OBJECTIF: Enseigner la foi/spiritualité. Intègre les enseignements spirituels de manière profonde et respectueuse. Chaque leçon doit nourrir la croissance spirituelle avec des textes sacrés et des réflexions personnelles.'
+            : 'GOAL: Teach faith/spirituality. Integrate spiritual teachings deeply and respectfully. Each lesson should nourish spiritual growth with sacred texts and personal reflections.',
+          authority: isFr
+            ? 'OBJECTIF: Bâtir l\'autorité et la marque personnelle. Positionne le créateur comme expert. Inclus des insights exclusifs, des frameworks originaux, et des perspectives uniques qui démontrent une expertise profonde.'
+            : 'GOAL: Build authority/personal brand. Position the creator as an expert. Include exclusive insights, original frameworks, and unique perspectives that demonstrate deep expertise.',
+        };
+        const goalInstruction = goalInstructions[course_goal] || goalInstructions.teach_skill;
+
+        // ─── Tone mapping ───
+        const toneInstructions: Record<string, string> = {
+          professional: isFr ? 'Ton professionnel et structuré.' : 'Professional, structured tone.',
+          friendly: isFr ? 'Ton amical, chaleureux et accessible.' : 'Friendly, warm and accessible tone.',
+          motivational: isFr ? 'Ton motivant, inspirant et énergique.' : 'Motivational, inspiring and energetic tone.',
+          academic: isFr ? 'Ton académique rigoureux avec citations.' : 'Rigorous academic tone with citations.',
+          conversational: isFr ? 'Ton conversationnel et direct. Tutoiement.' : 'Conversational, direct tone.',
+        };
+        const toneInstruction = toneInstructions[tone] || toneInstructions.professional;
+
         const systemPrompt = `You are an ELITE INSTRUCTIONAL DESIGNER and PROFESSIONAL COURSE ARCHITECT.
 
 CRITICAL: ALL content MUST be written in ${isFr ? 'FRENCH (Français)' : 'ENGLISH'}.
+
+## COURSE GOAL (PRIMARY DIRECTIVE)
+${goalInstruction}
 
 ## AUDIENCE LEVEL
 ${audienceInstruction}
@@ -301,6 +337,9 @@ ${worldviewInstruction}
 
 ## PEDAGOGICAL STYLE
 ${styleInstruction}
+
+## TONE
+${toneInstruction}
 
 ## CONTENT DEPTH
 ${depthInstruction}
