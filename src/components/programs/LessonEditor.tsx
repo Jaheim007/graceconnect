@@ -244,7 +244,19 @@ export function LessonEditor({ lessonId, programId, courseTitle, onBack, embedde
           </TabsList>
 
           {/* ─── RICH TEXT CONTENT ─── */}
-          <TabsContent value="content" className="mt-4">
+          <TabsContent value="content" className="mt-4 space-y-4">
+            <LessonEnrichmentToolbar
+              lessonTitle={title}
+              lessonContent={content}
+              courseTitle={courseTitle}
+              onContentUpdate={(newContent, isReplacement) => {
+                if (isReplacement) {
+                  setContent(newContent);
+                } else {
+                  setContent(prev => prev + '\n' + newContent);
+                }
+              }}
+            />
             <div className="bg-card border border-border rounded-2xl p-5">
               <Label className="text-xs mb-2 block">{isFr ? 'Contenu de la leçon' : 'Lesson content'}</Label>
               <RichTextEditor
