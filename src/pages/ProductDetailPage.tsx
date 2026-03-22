@@ -53,6 +53,8 @@ import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { UrgencyWidget } from '@/components/products/UrgencyWidget';
 import { ContentSizeBadge } from '@/components/products/ContentSizeBadge';
 import { SmartCTA } from '@/components/products/SmartCTA';
+import { ExperimentTitle } from '@/components/products/ExperimentTitle';
+import { ExperimentDescription } from '@/components/products/ExperimentDescription';
 import { ReviewSummaryBadge } from '@/components/products/ReviewSummaryBadge';
 import { ProductImageGallery } from '@/components/products/ProductImageGallery';
 import { StickyBuyBar } from '@/components/products/StickyBuyBar';
