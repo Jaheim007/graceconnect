@@ -16,6 +16,7 @@ import {
   HelpCircle, Plus, CheckCircle2, XCircle, Paperclip, Clock, Eye
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { LessonEnrichmentToolbar } from '@/components/programs/LessonEnrichmentToolbar';
 
 interface LessonEditorProps {
   lessonId: string;
