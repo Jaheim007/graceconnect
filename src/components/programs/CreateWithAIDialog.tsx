@@ -74,18 +74,46 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         throw new Error(isFr ? 'Session expirée. Reconnectez-vous.' : 'Session expired. Please log in again.');
       }
 
-      // Don't force language from interface — let the edge function detect from prompt
-      const { data, error } = await supabase.functions.invoke('ai-generate-course', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-        body: {
-          title: prompt.trim(),
-          language: isFr ? 'fr' : 'en', // fallback only — edge function detects from prompt
-          tier,
-          module_count: 5,
-          generate_images: generateImages,
-          audience_level: audienceLevel,
-        },
-      });
+      // Use custom fetch with 5-minute timeout — the edge function can take 2-3 min with retries
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 300_000); // 5 minutes
+
+      let data: any;
+      let error: any;
+      try {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        const resp = await fetch(`${supabaseUrl}/functions/v1/ai-generate-course`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': supabaseKey,
+          },
+          body: JSON.stringify({
+            title: prompt.trim(),
+            language: isFr ? 'fr' : 'en',
+            tier,
+            module_count: 5,
+            generate_images: generateImages,
+            audience_level: audienceLevel,
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        data = await resp.json();
+        if (!resp.ok) {
+          error = new Error(data?.error || `HTTP ${resp.status}`);
+          (error as any).status = resp.status;
+        }
+      } catch (fetchErr: any) {
+        clearTimeout(timeoutId);
+        if (fetchErr.name === 'AbortError') {
+          throw new Error(isFr ? 'La génération a pris trop de temps. Réessayez.' : 'Generation timed out. Please try again.');
+        }
+        throw fetchErr;
+      }
 
       if (error) throw error;
       if (data?.error) {
