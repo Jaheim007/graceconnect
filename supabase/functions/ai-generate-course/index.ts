@@ -244,40 +244,50 @@ serve(async (req) => {
         };
         const audienceInstruction = audienceLevelMap[audience_level] || audienceLevelMap.intermediate;
 
-        // ─── Domain detection for context-aware references ───
-        const domainDetectionPrompt = `
-DOMAIN-AWARE INTELLIGENCE — CRITICAL INSTRUCTION:
-Analyze the course topic and AUTOMATICALLY detect the domain. Based on the domain, include RELEVANT authoritative references throughout the lesson content.
+        // ─── Worldview-aware content framing (CRITICAL: prevents unwanted religious content) ───
+        const worldviewInstructions: Record<string, string> = {
+          neutral: isFr
+            ? `INSTRUCTION CRITIQUE — CADRE SÉCULIER/NEUTRE: Ce cours est STRICTEMENT séculier. Tu ne dois JAMAIS inclure de versets bibliques, de références coraniques, de prières, de contenu religieux ou spirituel. Même si le sujet pourrait être abordé sous un angle religieux (ex: leadership, mariage, famille), reste STRICTEMENT neutre et professionnel. Cite des experts, chercheurs, auteurs reconnus — PAS de textes sacrés.`
+            : `CRITICAL INSTRUCTION — SECULAR/NEUTRAL FRAME: This course is STRICTLY secular. You must NEVER include Bible verses, Quranic references, prayers, religious or spiritual content. Even if the topic could be approached from a religious angle (e.g., leadership, marriage, family), stay STRICTLY neutral and professional. Cite experts, researchers, recognized authors — NOT sacred texts.`,
+          christian: isFr
+            ? `CADRE CHRÉTIEN: Intègre des versets bibliques pertinents (ex: Jean 3:16, Romains 12:2). Format: <blockquote><strong>📖 [Livre Chapitre:Verset]</strong> — "[Texte du verset]"</blockquote>. Inclus 1-2 références bibliques par leçon. Les explications théologiques doivent soutenir le point d'enseignement.`
+            : `CHRISTIAN FRAME: Include relevant Bible verse references (e.g., John 3:16, Romans 12:2). Format: <blockquote><strong>📖 [Book Chapter:Verse]</strong> — "[Verse text]"</blockquote>. Include 1-2 scripture references per lesson. Theological explanations should support the teaching point.`,
+          islamic: isFr
+            ? `CADRE ISLAMIQUE: Intègre des références du Coran (Sourate + Ayah) et des Hadiths reconnus. Format: <blockquote><strong>📖 [Sourate Nom Ayah:Numéro]</strong> — "[Texte]"</blockquote>. Aligne le contenu avec les enseignements islamiques.`
+            : `ISLAMIC FRAME: Include Quran references (Surah + Ayah) and recognized Hadith. Format: <blockquote><strong>📖 [Surah Name Ayah:Number]</strong> — "[Text]"</blockquote>. Align content with Islamic teachings.`,
+          interfaith: isFr
+            ? `CADRE INTERCONFESSIONNEL: Tu peux inclure des références de différentes traditions spirituelles si pertinent, mais sans favoriser une religion. Reste respectueux et inclusif.`
+            : `INTERFAITH FRAME: You may include references from different spiritual traditions if relevant, but without favoring any religion. Stay respectful and inclusive.`,
+        };
+        const worldviewInstruction = worldviewInstructions[worldview] || worldviewInstructions.neutral;
 
-## If the topic relates to CHRISTIANITY, theology, church leadership, or biblical teaching:
-- Include Bible verse references (e.g., John 3:16, Romans 12:2, Matthew 5:14-16)
-- Format as: <blockquote><strong>📖 [Book Chapter:Verse]</strong> — "[Verse text]"</blockquote>
-- Add contextual theological explanations of how the verse supports the teaching point
-- Include at least 1-2 scripture references per lesson where relevant
+        // ─── Pedagogical style mapping ───
+        const styleInstructions: Record<string, string> = {
+          professional: isFr ? 'Ton professionnel et structuré. Vocabulaire d\'entreprise.' : 'Professional, structured tone. Business vocabulary.',
+          academic: isFr ? 'Ton académique rigoureux. Citations et théories.' : 'Rigorous academic tone. Citations and theories.',
+          conversational: isFr ? 'Ton amical et conversationnel. Tutoiement.' : 'Friendly, conversational tone. Direct address.',
+          motivational: isFr ? 'Ton motivant et inspirant. Énergie positive.' : 'Motivational, inspiring tone. Positive energy.',
+          practical: isFr ? 'Ton pratique et orienté action. Exemples concrets.' : 'Practical, action-oriented tone. Concrete examples.',
+          storytelling: isFr ? 'Ton narratif. Utilise des histoires et anecdotes.' : 'Narrative tone. Use stories and anecdotes.',
+        };
+        const styleInstruction = styleInstructions[pedagogical_style] || styleInstructions.professional;
 
-## If the topic relates to ISLAM:
-- Include Qur'an references (Surah + Ayah, e.g., Surah Al-Baqarah 2:286)
-- Include Hadith references where appropriate (e.g., Sahih Bukhari)
-- Format as: <blockquote><strong>📖 [Surah Name Ayah:Number]</strong> — "[Text]"</blockquote>
-- Provide contextual explanations aligned with Islamic teachings
+        // ─── Depth level mapping ───
+        const depthInstructions: Record<string, string> = {
+          lightweight: isFr ? 'Contenu léger: 2-3 sections par leçon, 40-80 mots par section. Microlearning rapide.' : 'Lightweight: 2-3 sections per lesson, 40-80 words per section. Quick microlearning.',
+          standard: isFr ? 'Contenu standard: 4-6 sections par leçon, 50-120 mots par section.' : 'Standard: 4-6 sections per lesson, 50-120 words per section.',
+          detailed: isFr ? 'Contenu détaillé: 6-8 sections par leçon, 80-150 mots par section. Exemples approfondis.' : 'Detailed: 6-8 sections per lesson, 80-150 words per section. In-depth examples.',
+          masterclass: isFr ? 'Contenu masterclass: 8-10 sections par leçon, 100-200 mots par section. Études de cas complètes, frameworks, analyses critiques.' : 'Masterclass: 8-10 sections per lesson, 100-200 words per section. Full case studies, frameworks, critical analysis.',
+        };
+        const depthInstruction = depthInstructions[depth_level] || depthInstructions.standard;
 
-## If the topic is ACADEMIC or SCIENTIFIC:
-- Reference recognized experts and pioneers (e.g., Alan Turing, Isaac Newton, Geoffrey Hinton)
-- Include well-known theories and their historical context
-- Reference research concepts, methodologies, and publications
-- Format as: <blockquote><strong>📚 [Expert Name, Year]</strong> — [Key contribution or quote]</blockquote>
-
-## If the topic is BUSINESS, ENTREPRENEURSHIP, MARKETING, or TECHNOLOGY:
-- Include practical frameworks (SWOT analysis, product-market fit, marketing funnels, growth loops)
-- Reference real-world case studies and implementation strategies
-- Include actionable methodologies and step-by-step approaches
-- Format as: <blockquote><strong>💼 Framework:</strong> [Name] — [Brief description and application]</blockquote>
-
-## For ALL domains:
-- References MUST be ACCURATE — never invent verses, quotes, or sources
-- Clearly label interpretations as such
-- Respect cultural and religious sensitivity
-- When uncertain about exact text, reference the source without fabricating content`;
+        // ─── Interactivity level mapping ───
+        const interactivityInstructions: Record<string, string> = {
+          low: 'Include 1 quiz per module only. No flashcards, matching, or ordering exercises.',
+          medium: 'Include 1-2 quizzes per lesson, 1 flashcard per lesson, 1 matching per module.',
+          high: 'Include 2 quizzes per lesson, 1 flashcard per lesson, 1 matching per module, 1 ordering per module, 1 fill-in-blank per module. Maximum engagement.',
+        };
+        const interactivityInstruction = interactivityInstructions[interactivity_level] || interactivityInstructions.medium;
 
         const systemPrompt = `You are an ELITE INSTRUCTIONAL DESIGNER and PROFESSIONAL COURSE ARCHITECT. You design courses that rival university-level programs and professional training academies. You combine pedagogical science with engaging micro-learning principles.
 
