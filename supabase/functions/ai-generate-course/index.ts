@@ -1,14 +1,14 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { corsHeaders, jsonResp, requireAuth, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsWithRefund, consumeCreditsOrThrow, refundCreditsAsBonus, normalizeTier } from '../_shared/credits.ts';
-import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
-import { geminiGenerateText } from '../_shared/ai-gemini.ts';
+import { geminiGenerateText, geminiGenerateImageBase64 } from '../_shared/ai-gemini.ts';
 
 const ACTION_KEY = 'ai_course_structure';
 const IMAGE_GEN_CONCURRENCY = 2;
 const IMAGE_BUCKET = 'media';
-const FUNCTION_HARD_DEADLINE_MS = 250_000;
-const IMAGE_MIN_REMAINING_MS = 80_000;
+const FUNCTION_HARD_DEADLINE_MS = 150_000;
+const IMAGE_MIN_REMAINING_MS = 30_000;
+const MAX_COURSE_IMAGES = 5;
 
 function decodeBase64(base64: string): Uint8Array {
   const binary = atob(base64);
@@ -662,15 +662,19 @@ MANDATORY REQUIREMENTS:
     // ─── Image generation (after structure, per lesson) ───
     let imagesGenerated = 0;
     if (generate_images && result?.modules) {
-      if (!OPENAI_API_KEY && !GEMINI_API_KEY) {
-        console.warn('[ai-generate-course] Skipping lesson images: no AI image provider configured');
+      if (!GEMINI_API_KEY) {
+        console.warn('[ai-generate-course] Skipping lesson images: no Gemini API key configured');
       } else {
-        const imageJobs: Array<{ lesson: any; imagePrompt: string }> = [];
+        const allImageJobs: Array<{ lesson: any; imagePrompt: string }> = [];
         for (const mod of result.modules) {
           for (const lesson of (mod.lessons || [])) {
-            if (lesson?.image_prompt) imageJobs.push({ lesson, imagePrompt: lesson.image_prompt });
+            if (lesson?.image_prompt) allImageJobs.push({ lesson, imagePrompt: lesson.image_prompt });
           }
         }
+        // Limit images to avoid timeout — pick evenly spaced lessons
+        const imageJobs = allImageJobs.length <= MAX_COURSE_IMAGES
+          ? allImageJobs
+          : allImageJobs.filter((_, i) => i % Math.ceil(allImageJobs.length / MAX_COURSE_IMAGES) === 0).slice(0, MAX_COURSE_IMAGES);
 
         let nextJob = 0;
         let creditsExhausted = false;
@@ -729,10 +733,10 @@ MANDATORY REQUIREMENTS:
                 throw new Error('Not enough time remaining for image generation');
               }
 
-              const imageTimeoutMs = Math.min(15_000, Math.max(8_000, budgetMs - 20_000));
-              const { base64, mimeType } = await aiGenerateImageBase64({
-                geminiKey: GEMINI_API_KEY || '',
-                openaiKey: OPENAI_API_KEY || undefined,
+              // Use Gemini Flash directly for course images (fast, skips slow fallback chain)
+              const imageTimeoutMs = Math.min(30_000, Math.max(10_000, budgetMs - 15_000));
+              const { base64, mimeType } = await geminiGenerateImageBase64({
+                apiKey: GEMINI_API_KEY || '',
                 prompt: `Professional educational illustration: ${imagePrompt}. Clean, modern, flat design style. No text in the image.`,
                 timeoutMs: imageTimeoutMs,
               });
