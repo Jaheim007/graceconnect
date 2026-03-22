@@ -692,7 +692,7 @@ export default function ProductDetailPage() {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:sticky md:top-[6.5rem] md:self-start space-y-4 md:max-h-[calc(100vh-7rem)] md:overflow-y-auto scrollbar-hide">
             <div className="p-5 rounded-2xl border border-border bg-card shadow-card space-y-4">
               <div className="hidden md:block space-y-2">
-                <h1 className="text-xl font-bold leading-snug">{product.title}</h1>
+                <h1 className="text-xl font-bold leading-snug"><ExperimentTitle defaultTitle={product.title} /></h1>
                 <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant="secondary" className="text-xs capitalize gap-1">
                     {typeIcons[product.product_type || 'pdf']} {typeLabels[product.product_type || 'pdf'] || product.product_type}
