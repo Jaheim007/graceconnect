@@ -153,11 +153,7 @@ export default function AdminWebhooks() {
               variant="generic"
               title={isFr ? 'Aucun endpoint configuré' : 'No endpoints configured'}
               description={isFr ? 'Ajoutez votre premier endpoint pour recevoir les événements de votre plateforme en temps réel.' : 'Add your first endpoint to receive your platform events in real-time.'}
-              action={
-                <Button size="sm" className="gap-1.5 mt-3" onClick={() => setShowAdd(true)}>
-                  <Plus className="h-3.5 w-3.5" /> {isFr ? 'Ajouter un endpoint' : 'Add endpoint'}
-                </Button>
-              }
+              action={{ label: isFr ? 'Ajouter un endpoint' : 'Add endpoint', onClick: () => setShowAdd(true) }}
             />
           ) : (
             <div className="space-y-3">
