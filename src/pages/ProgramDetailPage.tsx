@@ -775,6 +775,17 @@ export default function ProgramDetailPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* Purchase modal for paid courses */}
+      {linkedProduct && (
+        <ProductPurchaseModal
+          product={linkedProduct}
+          organizationId={program.organization_id}
+          open={showPurchaseModal}
+          onClose={() => setShowPurchaseModal(false)}
+          onSuccess={handlePurchaseSuccess}
+        />
+      )}
     </div>
   );
 }
