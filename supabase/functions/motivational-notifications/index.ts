@@ -170,11 +170,11 @@ Deno.serve(async (req) => {
         .limit(50);
 
       // Count sales per product
-      const productSales = new Map<string, { title: string; count: number; price: number; currency: string }>();
+      const productSales = new Map<string, { title: string; count: number; price: number; currency: string; slug: string; orgSlug: string }>();
       for (const p of trendingProducts || []) {
         const prod = (p as any).digital_products;
         if (!prod || !p.product_id) continue;
-        const existing = productSales.get(p.product_id) || { title: prod.title, count: 0, price: prod.price || 0, currency: prod.currency || 'XOF' };
+        const existing = productSales.get(p.product_id) || { title: prod.title, count: 0, price: prod.price || 0, currency: prod.currency || 'XOF', slug: prod.slug || p.product_id, orgSlug: prod.organizations?.slug || prod.organization_id };
         existing.count++;
         productSales.set(p.product_id, existing);
       }
