@@ -87,8 +87,14 @@ export function ExperimentEventInspector() {
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
           🔍 Event Inspector
           <Badge variant="outline" className="text-[10px]">{filtered.length} events</Badge>
+          {liveCount > 0 && (
+            <Badge className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20 gap-1 animate-pulse" variant="outline">
+              <Zap className="h-2.5 w-2.5" />
+              Live
+            </Badge>
+          )}
         </h3>
-        <Button variant="ghost" size="sm" onClick={() => refetch()} className="gap-1.5">
+        <Button variant="ghost" size="sm" onClick={() => { refetch(); setLiveCount(0); }} className="gap-1.5">
           <RefreshCw className="h-3.5 w-3.5" />
           Refresh
         </Button>
