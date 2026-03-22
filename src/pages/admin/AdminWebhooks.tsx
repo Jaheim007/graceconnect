@@ -20,11 +20,10 @@ import { EmptyState } from '@/components/ui/EmptyState';
 const WEBHOOK_EVENTS = [
   { value: 'purchase.completed', label: 'Achat complété', labelEn: 'Purchase completed' },
   { value: 'purchase.failed', label: 'Achat échoué', labelEn: 'Purchase failed' },
-  { value: 'donation.completed', label: 'Don reçu', labelEn: 'Donation received' },
+  { value: 'donation.received', label: 'Don reçu', labelEn: 'Donation received' },
   { value: 'affiliate.sale', label: 'Vente affilié', labelEn: 'Affiliate sale' },
   { value: 'member.joined', label: 'Nouveau membre', labelEn: 'New member' },
   { value: 'payout.requested', label: 'Payout demandé', labelEn: 'Payout requested' },
-  { value: 'review.created', label: 'Nouvel avis', labelEn: 'New review' },
   { value: 'subscription.started', label: 'Abonnement créé', labelEn: 'Subscription started' },
 ];
 
