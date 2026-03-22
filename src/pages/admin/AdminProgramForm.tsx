@@ -520,6 +520,7 @@ export function ProgramForm() {
               <LessonEditor
                 lessonId={selectedLessonId}
                 programId={id!}
+                courseTitle={title}
                 onBack={() => setSelectedLessonId(null)}
                 embedded
               />
