@@ -69,6 +69,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const handleCreate = async () => {
     if (!prompt.trim() || !currentOrg || !user) return;
     setGenerating(true);
+    setGenerationError(null);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
