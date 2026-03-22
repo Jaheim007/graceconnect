@@ -665,12 +665,16 @@ MANDATORY REQUIREMENTS:
       if (!OPENAI_API_KEY && !GEMINI_API_KEY) {
         console.warn('[ai-generate-course] Skipping lesson images: no AI image provider configured');
       } else {
-        const imageJobs: Array<{ lesson: any; imagePrompt: string }> = [];
+        const allImageJobs: Array<{ lesson: any; imagePrompt: string }> = [];
         for (const mod of result.modules) {
           for (const lesson of (mod.lessons || [])) {
-            if (lesson?.image_prompt) imageJobs.push({ lesson, imagePrompt: lesson.image_prompt });
+            if (lesson?.image_prompt) allImageJobs.push({ lesson, imagePrompt: lesson.image_prompt });
           }
         }
+        // Limit images to avoid timeout — pick evenly spaced lessons
+        const imageJobs = allImageJobs.length <= MAX_COURSE_IMAGES
+          ? allImageJobs
+          : allImageJobs.filter((_, i) => i % Math.ceil(allImageJobs.length / MAX_COURSE_IMAGES) === 0).slice(0, MAX_COURSE_IMAGES);
 
         let nextJob = 0;
         let creditsExhausted = false;
