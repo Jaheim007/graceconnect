@@ -141,7 +141,7 @@ serve(async (req) => {
     const admin = adminClient(supabaseUrl, serviceKey);
 
     const body = await req.json();
-    const { lesson_title, lesson_content, course_title, action, language = 'fr', tier = 'standard' } = body;
+    const { lesson_title, lesson_content, course_title, action, language = 'fr', tier = 'standard', depth_level = 'intermediate' } = body;
 
     if (!lesson_content?.trim()) return jsonResp({ error: 'Lesson content is required' }, 400);
     if (!action || !ACTION_PROMPTS.en[action as EnrichAction]) {
