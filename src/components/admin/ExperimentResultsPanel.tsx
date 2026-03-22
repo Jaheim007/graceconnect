@@ -1,5 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { db } from '@/lib/db';
+import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Eye, MousePointerClick, ShoppingCart, Trophy, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -25,11 +27,40 @@ export function ExperimentResultsPanel({ experimentId, experimentName, variants 
   const vB = variantKeys[1] || 'b';
   const labelA = variants?.[vA]?.label || variants?.[vA]?.content || 'Version A';
   const labelB = variants?.[vB]?.label || variants?.[vB]?.content || 'Version B';
+  const qc = useQueryClient();
+
+  // Subscribe to Supabase Realtime for instant counter updates
+  useEffect(() => {
+    const channel = supabase
+      .channel(`experiment-results-${experimentName}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'client_events',
+        },
+        (payload: any) => {
+          const evt = payload.new;
+          if (
+            ['experiment_exposure', 'experiment_click', 'experiment_conversion'].includes(evt?.event_name) &&
+            evt?.event_data?.experimentId === experimentName
+          ) {
+            // Invalidate query to refetch counters instantly
+            qc.invalidateQueries({ queryKey: ['experiment-results', experimentName] });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [experimentName, qc]);
 
   const { data: metrics, isLoading } = useQuery({
     queryKey: ['experiment-results', experimentName],
     queryFn: async () => {
-      // Fetch all events for this experiment
       const { data: events } = await db
         .from('client_events')
         .select('event_name, event_data')
@@ -61,7 +92,7 @@ export function ExperimentResultsPanel({ experimentId, experimentName, variants 
 
       return { a: calcMetrics(vA), b: calcMetrics(vB) };
     },
-    refetchInterval: 30000,
+    staleTime: 5_000,
   });
 
   if (isLoading) {

@@ -2,7 +2,7 @@ import { useEffect, useRef, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { trackEvent, useTrackEvent } from '@/hooks/useClientAnalytics';
-import { pushDebugEntry } from '@/components/experiments/ExperimentDebugOverlay';
+import { pushDebugEntry, pushLiveEvent } from '@/components/experiments/ExperimentDebugOverlay';
 
 /**
  * Session-sticky variant assignment.
@@ -117,7 +117,7 @@ export function useExperimentContent(
     });
   }, [slotKey, experiment?.id, result.variant, result.value]);
 
-  // Track exposure once
+  // Track exposure once + push live event
   useEffect(() => {
     if (!result.isExperiment || !result.variant || !result.experimentId || exposureTracked.current) return;
     exposureTracked.current = true;
@@ -126,6 +126,12 @@ export function useExperimentContent(
       variant: result.variant,
       slotKey,
     });
+    pushLiveEvent({
+      type: 'exposure',
+      variant: result.variant,
+      slotKey,
+      timestamp: Date.now(),
+    });
   }, [result.isExperiment, result.variant, result.experimentId]);
 
   return result;
@@ -133,7 +139,6 @@ export function useExperimentContent(
 
 /**
  * Track an experiment click event.
- * Call this from onClick handlers on elements controlled by experiments.
  */
 export function useExperimentClick() {
   const trackEventFn = useTrackEvent();
@@ -142,6 +147,12 @@ export function useExperimentClick() {
     trackEventFn('experiment_click', {
       experimentId: experimentResult.experimentId,
       variant: experimentResult.variant,
+    });
+    pushLiveEvent({
+      type: 'click',
+      variant: experimentResult.variant,
+      slotKey: '',
+      timestamp: Date.now(),
     });
   };
 }
@@ -155,4 +166,10 @@ export function trackExperimentConversion(
   userId?: string,
 ) {
   trackEvent('experiment_conversion', { experimentId: experimentName, variant }, userId);
+  pushLiveEvent({
+    type: 'conversion',
+    variant,
+    slotKey: experimentName,
+    timestamp: Date.now(),
+  });
 }
