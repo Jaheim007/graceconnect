@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail, getUserEmail, sendEmailToOrgAdmins } from '../_shared/send-email-helper.ts';
+import { dispatchWebhook } from '../_shared/dispatch-webhook.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
