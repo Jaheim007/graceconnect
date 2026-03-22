@@ -30,6 +30,7 @@ interface ExperimentResult {
   value: string;
   variant: 'a' | 'b' | null;
   experimentId: string | null;
+  experimentName: string | null;
   isExperiment: boolean;
 }
 
