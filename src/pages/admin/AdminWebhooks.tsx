@@ -1,35 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
-import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Webhook, Save, TestTube, Loader2, Plus, Trash2, Eye, Copy, CheckCircle, RefreshCw } from 'lucide-react';
+import { Plus, Radio, Code } from 'lucide-react';
 import { AdminPageShell } from './AdminPageShell';
 import { useI18n } from '@/i18n/I18nContext';
 import { callFn } from '@/lib/api';
 import { EmptyState } from '@/components/ui/EmptyState';
-
-const WEBHOOK_EVENTS = [
-  { value: 'purchase.completed', label: 'Achat complété', labelEn: 'Purchase completed' },
-  { value: 'purchase.failed', label: 'Achat échoué', labelEn: 'Purchase failed' },
-  { value: 'donation.received', label: 'Don reçu', labelEn: 'Donation received' },
-  { value: 'affiliate.sale', label: 'Vente affilié', labelEn: 'Affiliate sale' },
-  { value: 'member.joined', label: 'Nouveau membre', labelEn: 'New member' },
-  { value: 'payout.requested', label: 'Payout demandé', labelEn: 'Payout requested' },
-  { value: 'subscription.started', label: 'Abonnement créé', labelEn: 'Subscription started' },
-];
+import { PulseHealthCards } from './webhooks/PulseHealthCards';
+import { PulseEndpointCard } from './webhooks/PulseEndpointCard';
+import { PulseAddEndpoint } from './webhooks/PulseAddEndpoint';
+import { PulseEndpointDetail } from './webhooks/PulseEndpointDetail';
+import { PulseDevTab } from './webhooks/PulseDevTab';
+import { SAMPLE_PAYLOADS } from './webhooks/pulse-constants';
 
 export default function AdminWebhooks() {
   const { currentOrg } = useOrg();
-  const { user } = useAuth();
   const { toast } = useToast();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -37,12 +26,11 @@ export default function AdminWebhooks() {
   const orgId = currentOrg?.id;
 
   const [showAdd, setShowAdd] = useState(false);
-  const [newUrl, setNewUrl] = useState('');
-  const [newName, setNewName] = useState('');
-  const [newEvents, setNewEvents] = useState<string[]>([]);
+  const [detailWh, setDetailWh] = useState<any>(null);
+  const [copiedId, setCopiedId] = useState('');
 
   // Fetch webhooks
-  const { data: webhooks = [], isLoading } = useQuery({
+  const { data: webhooks = [] } = useQuery({
     queryKey: ['org-webhooks', orgId],
     queryFn: async () => {
       if (!orgId) return [];
@@ -58,39 +46,36 @@ export default function AdminWebhooks() {
     queryFn: async () => {
       if (!orgId || !webhooks.length) return [];
       const ids = webhooks.map((w: any) => w.id);
-      const { data } = await db.from('webhook_deliveries').select('*').in('webhook_id', ids).order('created_at', { ascending: false }).limit(50);
+      const { data } = await db.from('webhook_deliveries').select('*').in('webhook_id', ids).order('created_at', { ascending: false }).limit(100);
       return data || [];
     },
     enabled: !!orgId && webhooks.length > 0,
   });
 
+  // Health metrics
+  const totalSent = deliveries.length;
+  const successCount = deliveries.filter((d: any) => d.status === 'delivered').length;
+  const failedCount = deliveries.filter((d: any) => d.status === 'failed').length;
+  const successRate = totalSent > 0 ? (successCount / totalSent) * 100 : 0;
+  const activeEndpoints = webhooks.filter((w: any) => w.is_active).length;
+
   const addWebhook = useMutation({
-    mutationFn: async () => {
-      if (!orgId || !newUrl.trim()) throw new Error('URL required');
-      await db.from('org_webhooks').insert({
-        org_id: orgId,
-        name: newName.trim() || 'Webhook',
-        url: newUrl.trim(),
-        events: newEvents,
-      });
+    mutationFn: async ({ name, url, events }: { name: string; url: string; events: string[] }) => {
+      if (!orgId || !url) throw new Error('URL required');
+      await db.from('org_webhooks').insert({ org_id: orgId, name, url, events });
     },
     onSuccess: () => {
-      toast({ title: '✅ Webhook créé' });
+      toast({ title: isFr ? '✅ Endpoint créé' : '✅ Endpoint created' });
       setShowAdd(false);
-      setNewUrl('');
-      setNewName('');
-      setNewEvents([]);
       qc.invalidateQueries({ queryKey: ['org-webhooks'] });
     },
-    onError: () => toast({ title: 'Erreur', variant: 'destructive' }),
+    onError: () => toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' }),
   });
 
   const deleteWebhook = useMutation({
-    mutationFn: async (id: string) => {
-      await db.from('org_webhooks').delete().eq('id', id);
-    },
+    mutationFn: async (id: string) => { await db.from('org_webhooks').delete().eq('id', id); },
     onSuccess: () => {
-      toast({ title: '🗑️ Webhook supprimé' });
+      toast({ title: isFr ? '🗑️ Endpoint supprimé' : '🗑️ Endpoint deleted' });
       qc.invalidateQueries({ queryKey: ['org-webhooks'] });
     },
   });
@@ -102,181 +87,165 @@ export default function AdminWebhooks() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['org-webhooks'] }),
   });
 
-  const [testEventType, setTestEventType] = useState('purchase.completed');
-
-  const testWebhook = async (webhookId: string) => {
-    const samplePayloads: Record<string, Record<string, unknown>> = {
-      'purchase.completed': { transaction_id: 'test-txn-001', reference: 'SV-TEST-001', type: 'product', amount: 5000, currency: 'XOF', product_id: 'test-product', buyer_name: 'Test Buyer', buyer_email: 'test@example.com' },
-      'donation.received': { transaction_id: 'test-txn-002', reference: 'SV-TEST-002', type: 'donation', amount: 2000, currency: 'XOF', donor_name: 'Test Donor', campaign_id: 'test-campaign' },
-      'affiliate.sale': { transaction_id: 'test-txn-003', affiliate_link_id: 'test-link', commission_amount: 500, gross_amount: 5000, currency: 'XOF' },
-      'member.joined': { user_id: 'test-user-001', role: 'member', joined_at: new Date().toISOString() },
-      'payout.requested': { payout_request_id: 'test-payout-001', payout_type: 'affiliate', amount: 10000, currency: 'XOF' },
-      'subscription.started': { subscription_id: 'test-sub-001', plan: 'pro', amount: 9900, currency: 'XOF' },
-      'test.ping': { message: 'Test from SiteViral', timestamp: new Date().toISOString() },
-    };
+  const testWebhook = async (webhookId: string, eventType: string) => {
     try {
       await callFn('outgoing-webhook', {
         org_id: orgId,
-        event: testEventType,
-        data: samplePayloads[testEventType] || samplePayloads['test.ping'],
+        event: eventType,
+        data: SAMPLE_PAYLOADS[eventType] || SAMPLE_PAYLOADS['purchase.completed'],
       });
-      toast({ title: '📤 Test envoyé !', description: `${testEventType} — ${isFr ? 'Vérifiez votre endpoint.' : 'Check your endpoint.'}` });
+      toast({ title: '📤 Test sent!', description: `${eventType} — ${isFr ? 'Vérifiez votre endpoint.' : 'Check your endpoint.'}` });
       qc.invalidateQueries({ queryKey: ['webhook-deliveries'] });
     } catch {
-      toast({ title: 'Erreur', variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' });
     }
   };
 
-  const toggleEvent = (value: string) => {
-    setNewEvents(prev => prev.includes(value) ? prev.filter(e => e !== value) : [...prev, value]);
+  const copyText = async (text: string, id: string) => {
+    await navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    toast({ title: isFr ? 'Copié !' : 'Copied!' });
+    setTimeout(() => setCopiedId(''), 2000);
   };
 
-  const [copiedSecret, setCopiedSecret] = useState('');
-  const copySecret = async (secret: string, id: string) => {
-    await navigator.clipboard.writeText(secret);
-    setCopiedSecret(id);
-    toast({ title: isFr ? 'Secret copié' : 'Secret copied' });
-    setTimeout(() => setCopiedSecret(''), 2000);
-  };
+  const getLastDelivery = (whId: string) => deliveries.find((d: any) => d.webhook_id === whId);
 
   return (
     <AdminPageShell
-      title={isFr ? 'Webhooks (Pulse)' : 'Webhooks (Pulse)'}
-      subtitle={isFr ? 'Envoyez des événements en temps réel vers Zapier, Make, n8n ou vos propres serveurs.' : 'Send real-time events to Zapier, Make, n8n or your own servers.'}
+      title="Pulse"
+      subtitle={isFr ? 'Événements en temps réel vers Zapier, Make, n8n ou vos serveurs' : 'Real-time events to Zapier, Make, n8n or your servers'}
+      actions={
+        <div className="flex items-center gap-2">
+          {webhooks.length > 0 && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-200 text-[10px] font-medium text-emerald-700">
+              <Radio className="h-3 w-3" />
+              {activeEndpoints} {isFr ? 'actif(s)' : 'active'}
+            </div>
+          )}
+          <Button size="sm" className="gap-1.5 text-xs" onClick={() => setShowAdd(true)}>
+            <Plus className="h-3.5 w-3.5" /> {isFr ? 'Ajouter un endpoint' : 'Add endpoint'}
+          </Button>
+        </div>
+      }
     >
-      <Tabs defaultValue="webhooks" className="space-y-4">
-        <TabsList className="grid grid-cols-2 w-full max-w-xs h-9">
-          <TabsTrigger value="webhooks" className="text-xs">{isFr ? 'Endpoints' : 'Endpoints'}</TabsTrigger>
+      {/* Health overview */}
+      {webhooks.length > 0 && (
+        <PulseHealthCards
+          totalSent={totalSent}
+          successRate={successRate}
+          failedCount={failedCount}
+          activeEndpoints={activeEndpoints}
+          isFr={isFr}
+        />
+      )}
+
+      <Tabs defaultValue="endpoints" className="space-y-4">
+        <TabsList className="grid grid-cols-3 w-full max-w-sm h-9">
+          <TabsTrigger value="endpoints" className="text-xs">{isFr ? 'Endpoints' : 'Endpoints'}</TabsTrigger>
           <TabsTrigger value="logs" className="text-xs">{isFr ? 'Historique' : 'Delivery logs'}</TabsTrigger>
+          <TabsTrigger value="developer" className="text-xs gap-1"><Code className="h-3 w-3" /> {isFr ? 'Développeur' : 'Developer'}</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="webhooks" className="space-y-4">
-          <div className="flex justify-end">
-            <Button size="sm" className="gap-1.5" onClick={() => setShowAdd(true)}>
-              <Plus className="h-3.5 w-3.5" /> {isFr ? 'Ajouter un webhook' : 'Add webhook'}
-            </Button>
-          </div>
-
-          {/* Add form */}
-          {showAdd && (
-            <Card className="shadow-card border-primary/20">
-              <CardContent className="pt-4 space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">{isFr ? 'Nom' : 'Name'}</Label>
-                    <Input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Mon webhook Zapier" className="h-8 text-xs" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">URL</Label>
-                    <Input value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder="https://hooks.zapier.com/..." className="h-8 text-xs" type="url" />
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs mb-2 block">{isFr ? 'Événements (vide = tous)' : 'Events (empty = all)'}</Label>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {WEBHOOK_EVENTS.map(evt => (
-                      <label key={evt.value} className="flex items-center gap-2 p-2 rounded-lg border border-border hover:bg-muted/50 cursor-pointer text-xs">
-                        <Checkbox checked={newEvents.includes(evt.value)} onCheckedChange={() => toggleEvent(evt.value)} />
-                        {isFr ? evt.label : evt.labelEn}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={() => addWebhook.mutate()} disabled={!newUrl.trim() || addWebhook.isPending} className="gap-1">
-                    {addWebhook.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-                    {isFr ? 'Créer' : 'Create'}
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => setShowAdd(false)}>{isFr ? 'Annuler' : 'Cancel'}</Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Webhook list */}
-          {webhooks.length === 0 && !showAdd ? (
-            <EmptyState variant="generic" title={isFr ? 'Aucun webhook configuré' : 'No webhooks configured'} description={isFr ? 'Ajoutez un webhook pour recevoir les événements de votre boutique en temps réel.' : 'Add a webhook to receive your store events in real-time.'} />
+        {/* Endpoints tab */}
+        <TabsContent value="endpoints" className="space-y-3">
+          {webhooks.length === 0 ? (
+            <EmptyState
+              variant="generic"
+              title={isFr ? 'Aucun endpoint configuré' : 'No endpoints configured'}
+              description={isFr ? 'Ajoutez votre premier endpoint pour recevoir les événements de votre plateforme en temps réel.' : 'Add your first endpoint to receive your platform events in real-time.'}
+              action={{ label: isFr ? 'Ajouter un endpoint' : 'Add endpoint', onClick: () => setShowAdd(true) }}
+            />
           ) : (
             <div className="space-y-3">
               {webhooks.map((wh: any) => (
-                <Card key={wh.id} className="shadow-card">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Webhook className="h-4 w-4 text-primary shrink-0" />
-                          <p className="text-sm font-semibold truncate">{wh.name}</p>
-                          <Badge variant={wh.is_active ? 'default' : 'secondary'} className="text-[10px]">
-                            {wh.is_active ? (isFr ? 'Actif' : 'Active') : (isFr ? 'Inactif' : 'Inactive')}
-                          </Badge>
-                        </div>
-                        <p className="text-[11px] text-muted-foreground truncate font-mono">{wh.url}</p>
-                        {wh.events?.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-1.5">
-                            {wh.events.map((e: string) => <Badge key={e} variant="outline" className="text-[9px]">{e}</Badge>)}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => copySecret(wh.secret, wh.id)} title={isFr ? 'Copier le secret' : 'Copy secret'}>
-                          {copiedSecret === wh.id ? <CheckCircle className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
-                        </Button>
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => testWebhook(wh.id)} title="Test">
-                          <TestTube className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => toggleWebhook.mutate({ id: wh.id, active: !wh.is_active })}>
-                          <RefreshCw className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => deleteWebhook.mutate(wh.id)}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <PulseEndpointCard
+                  key={wh.id}
+                  webhook={wh}
+                  lastDelivery={getLastDelivery(wh.id)}
+                  isFr={isFr}
+                  onToggle={() => toggleWebhook.mutate({ id: wh.id, active: !wh.is_active })}
+                  onDelete={() => deleteWebhook.mutate(wh.id)}
+                  onCopyUrl={() => copyText(wh.url, `url-${wh.id}`)}
+                  onCopySecret={() => copyText(wh.secret, `secret-${wh.id}`)}
+                  onViewDetails={() => setDetailWh(wh)}
+                  copiedId={copiedId}
+                />
               ))}
             </div>
           )}
-
-          {/* Payload format */}
-          <Card className="shadow-card bg-muted/30">
-            <CardContent className="p-4">
-              <p className="text-xs font-semibold mb-2">{isFr ? 'Format du payload' : 'Payload format'}</p>
-              <pre className="text-[10px] text-muted-foreground overflow-x-auto font-mono">{`{
-  "event": "purchase.completed",
-  "timestamp": "2026-03-19T10:00:00Z",
-  "organization_id": "uuid",
-  "data": { "amount": 5000, "currency": "XOF", ... }
-}
-
-Header: X-SiteViral-Signature (HMAC-SHA256)`}</pre>
-            </CardContent>
-          </Card>
         </TabsContent>
 
+        {/* Delivery logs tab */}
         <TabsContent value="logs" className="space-y-3">
           {deliveries.length === 0 ? (
-            <EmptyState variant="generic" title={isFr ? 'Aucune livraison' : 'No deliveries'} description={isFr ? 'Les livraisons de webhooks apparaîtront ici.' : 'Webhook deliveries will appear here.'} />
+            <EmptyState
+              variant="generic"
+              title={isFr ? 'Aucune livraison' : 'No deliveries'}
+              description={isFr ? 'Les livraisons de webhooks apparaîtront ici après le premier envoi.' : 'Webhook deliveries will appear here after the first send.'}
+            />
           ) : (
-            <div className="space-y-2">
-              {deliveries.map((d: any) => (
-                <div key={d.id} className="flex items-center gap-3 p-3 bg-card border border-border rounded-xl text-xs">
-                  <Badge variant={d.status === 'delivered' ? 'default' : d.status === 'failed' ? 'destructive' : 'secondary'} className="text-[10px] shrink-0">
-                    {d.status === 'delivered' ? '✅' : d.status === 'failed' ? '❌' : '⏳'} {d.status}
-                  </Badge>
-                  <span className="font-mono text-muted-foreground">{d.event}</span>
-                  {d.response_code && <span className="text-muted-foreground">HTTP {d.response_code}</span>}
-                  <span className="ml-auto text-muted-foreground text-[10px]">
-                    {new Date(d.created_at).toLocaleString(isFr ? 'fr-FR' : 'en-US', { dateStyle: 'short', timeStyle: 'short' })}
-                  </span>
-                </div>
-              ))}
+            <div className="border border-border rounded-xl overflow-hidden">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-muted/30 border-b border-border">
+                    <th className="text-left p-3 font-medium text-muted-foreground">{isFr ? 'Événement' : 'Event'}</th>
+                    <th className="text-left p-3 font-medium text-muted-foreground">{isFr ? 'Statut' : 'Status'}</th>
+                    <th className="text-left p-3 font-medium text-muted-foreground">HTTP</th>
+                    <th className="text-left p-3 font-medium text-muted-foreground">{isFr ? 'Endpoint' : 'Endpoint'}</th>
+                    <th className="text-right p-3 font-medium text-muted-foreground">{isFr ? 'Quand' : 'When'}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {deliveries.map((d: any) => {
+                    const wh = webhooks.find((w: any) => w.id === d.webhook_id);
+                    return (
+                      <tr key={d.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
+                        <td className="p-3 font-mono text-muted-foreground">{d.event}</td>
+                        <td className="p-3">
+                          <span className={`inline-flex items-center gap-1 text-[10px] font-medium ${d.status === 'delivered' ? 'text-emerald-600' : d.status === 'failed' ? 'text-destructive' : 'text-amber-500'}`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${d.status === 'delivered' ? 'bg-emerald-500' : d.status === 'failed' ? 'bg-destructive' : 'bg-amber-500'}`} />
+                            {d.status}
+                          </span>
+                        </td>
+                        <td className="p-3 font-mono text-muted-foreground">{d.response_code || '—'}</td>
+                        <td className="p-3 text-muted-foreground truncate max-w-[160px]">{wh?.name || '—'}</td>
+                        <td className="p-3 text-right text-muted-foreground text-[10px]">
+                          {new Date(d.created_at).toLocaleString(isFr ? 'fr-FR' : 'en-US', { dateStyle: 'short', timeStyle: 'short' })}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </TabsContent>
+
+        {/* Developer tab */}
+        <TabsContent value="developer">
+          <PulseDevTab isFr={isFr} />
+        </TabsContent>
       </Tabs>
+
+      {/* Modals */}
+      <PulseAddEndpoint
+        open={showAdd}
+        onClose={() => setShowAdd(false)}
+        onSubmit={(name, url, events) => addWebhook.mutate({ name, url, events })}
+        isPending={addWebhook.isPending}
+        isFr={isFr}
+      />
+
+      {detailWh && (
+        <PulseEndpointDetail
+          webhook={detailWh}
+          deliveries={deliveries}
+          isFr={isFr}
+          open={!!detailWh}
+          onClose={() => setDetailWh(null)}
+          onTest={testWebhook}
+        />
+      )}
     </AdminPageShell>
   );
 }
