@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail, sendEmailToOrgAdmins, getUserEmail } from './send-email-helper.ts';
+import { dispatchWebhook } from './dispatch-webhook.ts';
 
 /**
  * Centralized transaction processing core.
@@ -675,46 +676,38 @@ export async function processTransaction(
     metadata: { reference, amount: amountPaid, currency, gateway, source },
   });
 
-  // ── 13. Fire org webhook ──
-  try {
-    const { data: orgWebhook } = await db.from('organizations')
-      .select('webhook_url, webhook_events')
-      .eq('id', organization_id)
-      .maybeSingle();
+  // ── 13. Fire org webhook via outgoing-webhook Edge Function ──
+  const webhookEvent = type === 'donation' ? 'donation.received' : 'purchase.completed';
+  dispatchWebhook(db, organization_id, webhookEvent, {
+    transaction_id: transactionId,
+    reference,
+    type,
+    amount: amountPaid,
+    currency,
+    gateway,
+    platform_fee: platformFee,
+    organization_amount: organizationAmount,
+    product_id: product_id || null,
+    campaign_id: campaign_id || null,
+    buyer_name: donor_name || buyer_name || null,
+    buyer_email: donor_email || buyer_email || null,
+    affiliate_attributed: !!affiliateLinkId,
+    affiliate_commission: affiliateCommission,
+    promo_applied: !!promoCodeId,
+    discount_amount: discountAmount,
+  });
 
-    if (orgWebhook?.webhook_url) {
-      const eventName = type === 'donation' ? 'donation.completed' : 'purchase.completed';
-      const allowedEvents: string[] = orgWebhook.webhook_events || [];
-      if (allowedEvents.length === 0 || allowedEvents.includes(eventName) || allowedEvents.includes(type === 'donation' ? 'donation' : 'sale')) {
-        fetch(orgWebhook.webhook_url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            event: eventName,
-            timestamp: new Date().toISOString(),
-            organization_id,
-            data: {
-              transaction_id: transactionId,
-              reference,
-              type,
-              amount: amountPaid,
-              currency,
-              gateway,
-              platform_fee: platformFee,
-              organization_amount: organizationAmount,
-              product_id: product_id || null,
-              campaign_id: campaign_id || null,
-              buyer_name: donor_name || buyer_name || null,
-              buyer_email: donor_email || buyer_email || null,
-              affiliate_attributed: !!affiliateLinkId,
-              promo_applied: !!promoCodeId,
-            },
-          }),
-        }).catch(err => console.warn('[process-transaction] Webhook fire failed:', err));
-      }
-    }
-  } catch (whErr) {
-    console.warn('[process-transaction] Webhook lookup failed:', whErr);
+  // Fire affiliate.sale webhook if applicable
+  if (affiliateLinkId && affiliateCommission > 0) {
+    dispatchWebhook(db, organization_id, 'affiliate.sale', {
+      transaction_id: transactionId,
+      reference,
+      affiliate_link_id: affiliateLinkId,
+      affiliate_user_id: affiliateUserId,
+      commission_amount: affiliateCommission,
+      gross_amount: amountPaid,
+      currency,
+    });
   }
 
   console.log(`[process-transaction] ✅ ${gateway}/${source} ${type} processed: ${reference} — ${amountPaid} ${currency}`);

@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail, getUserEmail } from '../_shared/send-email-helper.ts';
 import { rateLimit } from '../_shared/rate-limit.ts';
+import { dispatchWebhook } from '../_shared/dispatch-webhook.ts';
 
 /**
  * request-partner-payout
@@ -135,6 +136,18 @@ Deno.serve(async (req) => {
       resource_type: 'partner_payout_request',
       resource_id: payoutReq?.id,
       metadata: { amount: totalAmount, currency, commissions_count: commissionIds.length },
+    });
+
+    // Fire payout.requested webhook for all orgs this partner manages
+    // Partner payouts are platform-level, so we dispatch to any org with webhooks
+    dispatchWebhook(db, 'platform', 'payout.requested', {
+      payout_request_id: payoutReq?.id,
+      payout_type: 'partner',
+      partner_id,
+      partner_name: partner.full_name,
+      amount: totalAmount,
+      currency,
+      commissions_count: commissionIds.length,
     });
 
     return new Response(JSON.stringify({

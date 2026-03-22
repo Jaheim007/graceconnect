@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail, getUserEmail, sendEmailToOrgAdmins } from '../_shared/send-email-helper.ts';
+import { dispatchWebhook } from '../_shared/dispatch-webhook.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -130,6 +131,16 @@ Deno.serve(async (req) => {
     }
     // Notify org admins
     sendEmailToOrgAdmins('payout_requested', organization_id, { amount: totalAmount, currency, org_name: org?.name || '' }).catch(() => {});
+
+    // Fire payout.requested webhook
+    dispatchWebhook(db, organization_id, 'payout.requested', {
+      payout_request_id: payoutReq?.id,
+      payout_type: 'affiliate',
+      user_id: userId,
+      amount: totalAmount,
+      currency,
+      sales_count: payableSales.length,
+    });
 
     return new Response(JSON.stringify({
       ok: true,
