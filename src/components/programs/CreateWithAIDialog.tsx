@@ -12,7 +12,7 @@ import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
-import { Sparkles, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Zap, Settings2, Globe } from 'lucide-react';
+import { Sparkles, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Zap, Settings2, Globe, Target } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
@@ -36,6 +36,15 @@ const SUGGESTIONS_EN = [
 
 type AITier = 'standard' | 'premium';
 
+const COURSE_GOALS = [
+  { value: 'sell', emoji: '💰', labelFr: 'Vendre un produit ou service', labelEn: 'Sell a product or service' },
+  { value: 'teach_skill', emoji: '🎓', labelFr: 'Enseigner une compétence', labelEn: 'Teach a skill' },
+  { value: 'train_team', emoji: '🏢', labelFr: 'Former une équipe', labelEn: 'Train a team' },
+  { value: 'educate', emoji: '📢', labelFr: 'Éduquer un public', labelEn: 'Educate an audience' },
+  { value: 'faith', emoji: '✝️', labelFr: 'Enseigner la foi / spiritualité', labelEn: 'Teach faith or spirituality' },
+  { value: 'authority', emoji: '🚀', labelFr: 'Bâtir son autorité / marque', labelEn: 'Build authority / personal brand' },
+];
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -56,13 +65,13 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const [generating, setGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
-  // New structured fields
+  const [courseGoal, setCourseGoal] = useState('teach_skill');
   const [audience, setAudience] = useState('general');
   const [level, setLevel] = useState('intermediate');
   const [teachingStyle, setTeachingStyle] = useState('structured');
   const [tone, setTone] = useState('professional');
+  const [contentOrientation, setContentOrientation] = useState('neutral');
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [worldview, setWorldview] = useState('neutral');
   const [depthLevel, setDepthLevel] = useState('standard');
   const [interactivityLevel, setInteractivityLevel] = useState('medium');
 
@@ -74,6 +83,16 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const createLesson = useCreateLesson();
 
   const suggestions = isFr ? SUGGESTIONS_FR : SUGGESTIONS_EN;
+
+  // Auto-set content orientation when faith goal is selected
+  const handleGoalChange = (goal: string) => {
+    setCourseGoal(goal);
+    if (goal === 'faith' && contentOrientation === 'neutral') {
+      setContentOrientation('christian');
+    } else if (goal !== 'faith' && contentOrientation !== 'neutral') {
+      // Don't force reset — user may have intentionally chosen
+    }
+  };
 
   const handleCreate = async () => {
     if (!prompt.trim() || !currentOrg || !user) return;
@@ -106,9 +125,10 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
             tier,
             module_count: depthLevel === 'masterclass' ? 7 : depthLevel === 'detailed' ? 6 : 5,
             generate_images: generateImages,
+            course_goal: courseGoal,
             audience,
             audience_level: level,
-            worldview,
+            worldview: contentOrientation,
             pedagogical_style: teachingStyle,
             tone,
             depth_level: depthLevel,
@@ -267,11 +287,12 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
             </DialogHeader>
 
             <div className="space-y-4 pt-2">
+              {/* 1. Course idea */}
               <Textarea
                 value={prompt}
                 onChange={e => setPrompt(e.target.value)}
                 placeholder={isFr ? 'Décrivez ce que vous souhaitez créer...' : 'Describe what you\'d like to create...'}
-                rows={5}
+                rows={4}
                 className="resize-none"
               />
 
@@ -294,6 +315,30 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 })}
               </div>
 
+              {/* 2. Course Goal (NEW PRIMARY FIELD) */}
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                  <Target className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Objectif du cours' : 'Course goal'}
+                </p>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {COURSE_GOALS.map(g => (
+                    <button
+                      key={g.value}
+                      type="button"
+                      onClick={() => handleGoalChange(g.value)}
+                      className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg border text-xs transition-all ${
+                        courseGoal === g.value
+                          ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                          : 'bg-muted/30 text-muted-foreground border-border hover:bg-muted/60 hover:text-foreground'
+                      }`}
+                    >
+                      <span>{g.emoji}</span>
+                      <span className="leading-tight">{isFr ? g.labelFr : g.labelEn}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Tier selection */}
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">{isFr ? 'Type de génération IA' : 'AI generation type'}</p>
@@ -309,7 +354,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 </div>
               </div>
 
-              {/* Audience (WHO) */}
+              {/* 3. Audience (WHO) */}
               <div className="space-y-1.5">
                 <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
                   <Users className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Public cible' : 'Target audience'}
@@ -327,7 +372,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 </Select>
               </div>
 
-              {/* Level + Teaching Style */}
+              {/* 4. Level + 5. Teaching Style */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
@@ -361,7 +406,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 </div>
               </div>
 
-              {/* Tone */}
+              {/* 6. Tone */}
               <div className="space-y-1.5">
                 <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
                   <MessageSquare className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Ton' : 'Tone'}
@@ -390,6 +435,22 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 </div>
               </div>
 
+              {/* 7. Content Orientation (VISIBLE, not hidden) */}
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                  <Globe className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Orientation du contenu' : 'Content orientation'}
+                </p>
+                <Select value={contentOrientation} onValueChange={setContentOrientation}>
+                  <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="neutral">{isFr ? '🌍 Neutre / Séculier' : '🌍 Neutral / Secular'}</SelectItem>
+                    <SelectItem value="christian">{isFr ? '✝️ Chrétien' : '✝️ Christian'}</SelectItem>
+                    <SelectItem value="islamic">{isFr ? '☪️ Islamique' : '☪️ Islamic'}</SelectItem>
+                    <SelectItem value="interfaith">{isFr ? '🕊️ Interconfessionnel' : '🕊️ Interfaith'}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Advanced options */}
               <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
                 <CollapsibleTrigger asChild>
@@ -404,23 +465,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-3">
                   <div className="space-y-3 p-3 rounded-lg bg-muted/30 border border-border">
-                    <div className="grid grid-cols-3 gap-3">
-                      {/* Content context (worldview) */}
-                      <div className="space-y-1.5">
-                        <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                          <Globe className="h-3 w-3" /> {isFr ? 'Contexte' : 'Context'}
-                        </p>
-                        <Select value={worldview} onValueChange={setWorldview}>
-                          <SelectTrigger className="h-8 text-[11px]"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="neutral">{isFr ? '🌍 Neutre / Séculier' : '🌍 Neutral / Secular'}</SelectItem>
-                            <SelectItem value="christian">{isFr ? '✝️ Chrétien' : '✝️ Christian'}</SelectItem>
-                            <SelectItem value="islamic">{isFr ? '☪️ Islamique' : '☪️ Islamic'}</SelectItem>
-                            <SelectItem value="interfaith">{isFr ? '🕊️ Interconfessionnel' : '🕊️ Interfaith'}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
+                    <div className="grid grid-cols-2 gap-3">
                       {/* Depth */}
                       <div className="space-y-1.5">
                         <p className="text-[10px] text-muted-foreground flex items-center gap-1">
