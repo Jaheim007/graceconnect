@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail, getUserEmail } from '../_shared/send-email-helper.ts';
 import { rateLimit } from '../_shared/rate-limit.ts';
+import { dispatchWebhook } from '../_shared/dispatch-webhook.ts';
 
 /**
  * request-partner-payout
