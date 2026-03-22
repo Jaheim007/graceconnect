@@ -128,6 +128,42 @@ export function ProgramForm() {
         currency,
         certificate_enabled: certificateEnabled,
       });
+
+      // Auto-create/update linked digital product for paid courses (enables affiliate system)
+      if (!isFree && price > 0 && isPublished) {
+        try {
+          const { data: existingProduct } = await supabase.from('digital_products')
+            .select('id')
+            .eq('organization_id', currentOrg.id)
+            .eq('product_type', 'course')
+            .ilike('title', title.trim())
+            .maybeSingle();
+
+          const productPayload = {
+            title: title.trim(),
+            description: description.trim()?.replace(/<[^>]*>/g, '').slice(0, 500) || `${isFr ? 'Cours' : 'Course'}: ${title.trim()}`,
+            cover_image_url: coverUrl || null,
+            price,
+            currency,
+            is_free: false,
+            is_published: true,
+            publication_status: 'published',
+            product_type: 'course',
+            organization_id: currentOrg.id,
+            created_by: user.id,
+            ai_generated: false,
+          };
+
+          if (existingProduct) {
+            await supabase.from('digital_products').update(productPayload).eq('id', existingProduct.id);
+          } else {
+            await supabase.from('digital_products').insert(productPayload);
+          }
+        } catch (e) {
+          console.warn('[AdminProgramForm] Auto-product sync error (non-fatal):', e);
+        }
+      }
+
       if (currentOrg) {
         if (!wasPublished && isPublished) onContentPublished(currentOrg.id, currentOrg.name, 'program', title.trim(), id, {}, user.id);
         if (wasPublished && !isPublished) onContentUnpublished(currentOrg.id, currentOrg.name, 'program', title.trim());
