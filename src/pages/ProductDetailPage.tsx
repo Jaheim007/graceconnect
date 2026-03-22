@@ -581,8 +581,8 @@ export default function ProductDetailPage() {
                   {t('product.description')}
                 </h2>
                 <div className="p-5 rounded-2xl border border-border bg-card shadow-sm">
-                  <FormattedText
-                    text={product.description}
+                  <ExperimentDescription
+                    defaultDescription={product.description}
                     className="text-sm text-muted-foreground leading-relaxed break-words prose prose-sm max-w-none"
                   />
                 </div>
