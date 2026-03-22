@@ -206,7 +206,7 @@ Deno.serve(async (req) => {
               title: `🔥 Produit tendance à partager !`,
               body: `« ${topProduct.title} » se vend très bien cette semaine (${topProduct.count} ventes). Partage-le pour gagner ! 💰`,
               notification_type: 'trending_suggestion',
-              action_url: '/gagner',
+              action_url: `/org/${topProduct.orgSlug}/p/${topProduct.slug}`,
             });
             trendingNotifs++;
           }
