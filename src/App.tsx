@@ -21,6 +21,7 @@ import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { FloatingProofToast } from "@/components/social-proof/FloatingProofToast";
 import { GlobalActivityBar } from "@/components/social-proof/GlobalActivityBar";
+import { ExperimentDebugOverlay } from "@/components/experiments/ExperimentDebugOverlay";
 
 /** Redirect /store/:slug → /org/:slug/store */
 function StoreRedirect() {
