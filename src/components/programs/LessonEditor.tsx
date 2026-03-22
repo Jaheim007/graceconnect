@@ -27,7 +27,7 @@ interface LessonEditorProps {
   embedded?: boolean;
 }
 
-export function LessonEditor({ lessonId, programId, onBack, embedded = false }: LessonEditorProps) {
+export function LessonEditor({ lessonId, programId, courseTitle, onBack, embedded = false }: LessonEditorProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { toast } = useToast();
