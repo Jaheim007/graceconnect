@@ -66,6 +66,11 @@ export function ProgramForm() {
   const [isFree, setIsFree] = useState(true);
   const [price, setPrice] = useState(0);
   const [certificateEnabled, setCertificateEnabled] = useState(false);
+  const [passingScore, setPassingScore] = useState(70);
+  const [requireSequential, setRequireSequential] = useState(false);
+  const [requireAssessmentForCert, setRequireAssessmentForCert] = useState(false);
+  const [assessmentEnabled, setAssessmentEnabled] = useState(true);
+  const [gamificationEnabledSetting, setGamificationEnabledSetting] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('edit');
 
