@@ -138,6 +138,18 @@ Deno.serve(async (req) => {
       metadata: { amount: totalAmount, currency, commissions_count: commissionIds.length },
     });
 
+    // Fire payout.requested webhook for all orgs this partner manages
+    // Partner payouts are platform-level, so we dispatch to any org with webhooks
+    dispatchWebhook(db, 'platform', 'payout.requested', {
+      payout_request_id: payoutReq?.id,
+      payout_type: 'partner',
+      partner_id,
+      partner_name: partner.full_name,
+      amount: totalAmount,
+      currency,
+      commissions_count: commissionIds.length,
+    });
+
     return new Response(JSON.stringify({
       ok: true,
       payout_request_id: payoutReq?.id,
