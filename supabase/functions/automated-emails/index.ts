@@ -1152,7 +1152,7 @@ Deno.serve(async (req) => {
 
       // Find recently published high-commission products
       const { data: recentHighProducts } = await db.from('digital_products')
-        .select('id, title, slug, price, currency, cover_image_url, organizations!inner(id, name, slug, affiliation_enabled, affiliation_commission_percent)')
+        .select('id, title, slug, price, currency, cover_image_url, created_by, organizations!inner(id, name, slug, affiliation_enabled, affiliation_commission_percent)')
         .eq('is_published', true)
         .eq('is_express_demo', false)
         .eq('organizations.affiliation_enabled', true)

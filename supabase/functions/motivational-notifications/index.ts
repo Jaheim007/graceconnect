@@ -164,17 +164,17 @@ Deno.serve(async (req) => {
     if (now.getDay() === 3) { // Wednesday — mid-week boost
       const weekAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
       const { data: trendingProducts } = await db.from('product_purchases')
-        .select('product_id, digital_products(title, price, currency)')
+        .select('product_id, digital_products(title, slug, price, currency, organization_id, organizations(slug))')
         .eq('status', 'completed')
         .gte('completed_at', weekAgo)
         .limit(50);
 
       // Count sales per product
-      const productSales = new Map<string, { title: string; count: number; price: number; currency: string }>();
+      const productSales = new Map<string, { title: string; count: number; price: number; currency: string; slug: string; orgSlug: string }>();
       for (const p of trendingProducts || []) {
         const prod = (p as any).digital_products;
         if (!prod || !p.product_id) continue;
-        const existing = productSales.get(p.product_id) || { title: prod.title, count: 0, price: prod.price || 0, currency: prod.currency || 'XOF' };
+        const existing = productSales.get(p.product_id) || { title: prod.title, count: 0, price: prod.price || 0, currency: prod.currency || 'XOF', slug: prod.slug || p.product_id, orgSlug: prod.organizations?.slug || prod.organization_id };
         existing.count++;
         productSales.set(p.product_id, existing);
       }
@@ -206,7 +206,7 @@ Deno.serve(async (req) => {
               title: `🔥 Produit tendance à partager !`,
               body: `« ${topProduct.title} » se vend très bien cette semaine (${topProduct.count} ventes). Partage-le pour gagner ! 💰`,
               notification_type: 'trending_suggestion',
-              action_url: '/gagner',
+              action_url: `/org/${topProduct.orgSlug}/p/${topProduct.slug}`,
             });
             trendingNotifs++;
           }
