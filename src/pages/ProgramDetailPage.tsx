@@ -475,7 +475,7 @@ export default function ProgramDetailPage() {
                 )}
               </div>
 
-              {isEnrolled && (
+              {hasAccess && (
                 <div className="space-y-1 mb-3">
                   <Progress value={progressPercent} className="h-2" />
                   <p className="text-[10px] text-muted-foreground">{progressPercent}% {isFr ? 'terminé' : 'completed'}</p>
