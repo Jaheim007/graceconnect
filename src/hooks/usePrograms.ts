@@ -217,7 +217,7 @@ export function useCreateProgram() {
 export function useUpdateProgram() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...payload }: { id: string; title?: string; description?: string; cover_image_url?: string; is_published?: boolean; price?: number; currency?: string; is_free?: boolean; certificate_enabled?: boolean }) => {
+    mutationFn: async ({ id, ...payload }: { id: string; title?: string; description?: string; cover_image_url?: string; is_published?: boolean; price?: number; currency?: string; is_free?: boolean; certificate_enabled?: boolean; passing_score?: number; require_sequential_lessons?: boolean; require_assessment_for_cert?: boolean; assessment_enabled?: boolean; gamification_enabled?: boolean }) => {
       const { error } = await db.from('programs').update(payload as any).eq('id', id);
       if (error) throw error;
     },

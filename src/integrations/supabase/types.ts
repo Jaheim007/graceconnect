@@ -4556,6 +4556,8 @@ export type Database = {
           assessment_score: number | null
           assessment_total: number | null
           completed_at: string | null
+          completed_lessons: string[] | null
+          completed_modules: string[] | null
           created_at: string
           id: string
           last_slide_index: number
@@ -4570,6 +4572,8 @@ export type Database = {
           assessment_score?: number | null
           assessment_total?: number | null
           completed_at?: string | null
+          completed_lessons?: string[] | null
+          completed_modules?: string[] | null
           created_at?: string
           id?: string
           last_slide_index?: number
@@ -4584,6 +4588,8 @@ export type Database = {
           assessment_score?: number | null
           assessment_total?: number | null
           completed_at?: string | null
+          completed_lessons?: string[] | null
+          completed_modules?: string[] | null
           created_at?: string
           id?: string
           last_slide_index?: number
@@ -4741,6 +4747,7 @@ export type Database = {
       }
       programs: {
         Row: {
+          assessment_enabled: boolean | null
           certificate_enabled: boolean | null
           certificate_template: string | null
           cover_image_url: string | null
@@ -4749,13 +4756,17 @@ export type Database = {
           currency: string | null
           description: string | null
           enrollment_count: number | null
+          gamification_enabled: boolean | null
           id: string
           is_featured: boolean | null
           is_free: boolean | null
           is_published: boolean | null
           organization_id: string
+          passing_score: number | null
           price: number | null
           publication_status: string
+          require_assessment_for_cert: boolean | null
+          require_sequential_lessons: boolean | null
           reviewed_at: string | null
           reviewed_by: string | null
           scheduled_at: string | null
@@ -4764,6 +4775,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          assessment_enabled?: boolean | null
           certificate_enabled?: boolean | null
           certificate_template?: string | null
           cover_image_url?: string | null
@@ -4772,13 +4784,17 @@ export type Database = {
           currency?: string | null
           description?: string | null
           enrollment_count?: number | null
+          gamification_enabled?: boolean | null
           id?: string
           is_featured?: boolean | null
           is_free?: boolean | null
           is_published?: boolean | null
           organization_id: string
+          passing_score?: number | null
           price?: number | null
           publication_status?: string
+          require_assessment_for_cert?: boolean | null
+          require_sequential_lessons?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           scheduled_at?: string | null
@@ -4787,6 +4803,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          assessment_enabled?: boolean | null
           certificate_enabled?: boolean | null
           certificate_template?: string | null
           cover_image_url?: string | null
@@ -4795,13 +4812,17 @@ export type Database = {
           currency?: string | null
           description?: string | null
           enrollment_count?: number | null
+          gamification_enabled?: boolean | null
           id?: string
           is_featured?: boolean | null
           is_free?: boolean | null
           is_published?: boolean | null
           organization_id?: string
+          passing_score?: number | null
           price?: number | null
           publication_status?: string
+          require_assessment_for_cert?: boolean | null
+          require_sequential_lessons?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           scheduled_at?: string | null

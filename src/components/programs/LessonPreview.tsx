@@ -452,11 +452,34 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
       <div className="flex flex-1 min-h-0">
         {/* Sidebar */}
         {showSidebar && (
-          <div className="w-56 border-r border-border bg-card overflow-y-auto shrink-0">
-            {lessonGroups.map((group: any) => (
-              <div key={group.moduleId} className="py-2">
-                <div className="px-3 py-1.5">
+          <div className="w-60 border-r border-border bg-card overflow-y-auto shrink-0">
+            {/* Course progress summary */}
+            {isLearner && (
+              <div className="px-3 py-3 border-b border-border">
+                <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    {isFr ? 'Progression' : 'Progress'}
+                  </span>
+                  <span className="text-[10px] font-bold text-foreground">
+                    {Math.round(((currentIndex + 1) / total) * 100)}%
+                  </span>
+                </div>
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all duration-300"
+                    style={{ width: `${((currentIndex + 1) / total) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {lessonGroups.map((group: any, gi: number) => (
+              <div key={group.moduleId} className="py-2">
+                <div className="px-3 py-1.5 flex items-center gap-2">
+                  <span className="h-5 w-5 rounded-md bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary shrink-0">
+                    {gi + 1}
+                  </span>
+                  <span className="text-[10px] font-semibold text-foreground uppercase tracking-wider truncate">
                     {group.moduleTitle}
                   </span>
                 </div>
@@ -464,6 +487,11 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
                   const isActive = current?.lessonId === lesson.id;
                   const lessonSlideIdx = allSlides.findIndex(s => s.lessonId === lesson.id && s.slideInLesson === 0);
                   const isLocked = isLearner && !canGoTo(lessonSlideIdx);
+                  // Check if lesson was visited (all its slides are <= maxReachedIndex)
+                  const lastSlideOfLesson = [...allSlides].reverse().find(s => s.lessonId === lesson.id);
+                  const lastSlideIdx = lastSlideOfLesson ? allSlides.indexOf(lastSlideOfLesson) : -1;
+                  const isCompleted = isLearner && lastSlideIdx >= 0 && maxReachedIndex >= lastSlideIdx;
+
                   return (
                     <button
                       key={lesson.id}
@@ -474,14 +502,24 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
                       className={cn(
                         'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors text-xs',
                         isActive
-                          ? 'bg-primary/10 text-primary border-l-2 border-primary'
+                          ? 'bg-primary/10 text-primary border-l-2 border-primary font-medium'
                           : isLocked
                             ? 'text-muted-foreground/50 cursor-not-allowed'
                             : 'hover:bg-muted/50 text-foreground'
                       )}
                     >
+                      {isCompleted && !isLocked ? (
+                        <span className="h-4 w-4 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                          <svg className="h-2.5 w-2.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </span>
+                      ) : isLocked ? (
+                        <span className="text-[9px] shrink-0">🔒</span>
+                      ) : (
+                        <span className="h-4 w-4 rounded-full border border-border shrink-0" />
+                      )}
                       <span className="flex-1 truncate">{lesson.title}</span>
-                      {isLocked && <span className="text-[9px]">🔒</span>}
                       {!isLocked && lesson.duration && (
                         <span className="text-[9px] text-muted-foreground shrink-0">{lesson.duration}m</span>
                       )}
@@ -510,7 +548,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
                     className={cn(
                       'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors text-xs',
                       current?.slide.type === 'final-assessment'
-                        ? 'bg-primary/10 text-primary border-l-2 border-primary'
+                        ? 'bg-primary/10 text-primary border-l-2 border-primary font-medium'
                         : isLocked
                           ? 'text-muted-foreground/50 cursor-not-allowed'
                           : 'hover:bg-muted/50 text-foreground'
@@ -572,11 +610,16 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
             </AnimatePresence>
 
             {/* Bottom bar */}
-            <div className="border-t border-border px-4 py-2.5 flex items-center justify-between shrink-0 bg-card">
-              <div className="flex-1 mr-4">
-                <div className="h-1 bg-muted rounded-full overflow-hidden">
+            <div className="border-t border-border px-4 py-2.5 flex items-center justify-between shrink-0 bg-card gap-3">
+              <div className="flex items-center gap-2 text-[10px] text-muted-foreground shrink-0">
+                <span className="font-medium">{currentIndex + 1}/{total}</span>
+              </div>
+
+              <div className="flex-1">
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-primary rounded-full"
+                    className="h-full rounded-full"
+                    style={{ background: `linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))` }}
                     initial={false}
                     animate={{ width: `${((currentIndex + 1) / total) * 100}%` }}
                     transition={{ duration: 0.3 }}
@@ -588,7 +631,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
                 size="sm"
                 onClick={goNext}
                 disabled={currentIndex >= total - 1}
-                className="gap-1.5 text-xs"
+                className="gap-1.5 text-xs shrink-0"
               >
                 {currentIndex >= total - 1
                   ? (isFr ? 'Terminé' : 'Finished')
