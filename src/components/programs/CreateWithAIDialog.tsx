@@ -102,6 +102,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
     if (!prompt.trim() || !currentOrg || !user) return;
     const shouldGenerateImages = generateImagesOverride ?? generateImages;
     setGenerating(true);
+    setGenerationPhase('generating');
     setGenerationError(null);
     try {
       const { data: { session } } = await supabase.auth.getSession();
