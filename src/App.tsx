@@ -479,7 +479,7 @@ const App = () => (
                   <Route path="viral-tools" element={<AdminViralTools />} />
                   <Route path="offerings" element={<AdminOfferings />} />
                   <Route path="programs" element={<AdminPrograms />} />
-                  <Route path="programs/new" element={<AdminProgramForm />} />
+                  <Route path="programs/new" element={<AdminPrograms />} />
                   <Route path="programs/:id/edit" element={<AdminProgramForm />} />
                   <Route path="learner-progress" element={<AdminLearnerProgress />} />
                   {/* AI Studio */}

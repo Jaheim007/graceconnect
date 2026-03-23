@@ -94,7 +94,7 @@ export default function AdminCreateHub() {
 
       {/* AI Course CTA — Create a course */}
       <Link
-        to="/admin/programs/new"
+        to="/admin/programs"
         className="relative flex items-center gap-4 p-5 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-accent/5 to-emerald-500/5 hover:border-emerald-500/50 transition-all group overflow-hidden"
       >
         <motion.div
