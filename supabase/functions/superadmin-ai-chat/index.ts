@@ -146,7 +146,7 @@ Deno.serve(async (req) => {
     const payoutCompleted = payoutList.filter((p: any) => p.status === 'completed' || p.status === 'paid');
     const payoutTotalPending = payoutPending.reduce((s, p: any) => s + (p.amount || 0), 0);
 
-    const payoutDetail = payoutList.slice(0, 20).map((p: any) => `  - ${(p.amount || 0).toLocaleString()} ${p.currency || 'XOF'} | Statut: **${p.status}** | Type: ${p.payout_type || 'org'} | Org: ${orgNameMap[p.organization_id] || p.organization_id} | Date: ${p.created_at?.slice(0, 10)}`).join('\n');
+    const payoutDetail = payoutList.slice(0, 20).map((p: any) => `  - ${(p.amount || 0).toLocaleString()} ${p.currency || 'XOF'} | Statut: **${p.status}** | Type: ${p.payout_type || 'org'} | Org: ${orgNameMap[p.organization_id] || p.organization_id} | Date: ${p.requested_at?.slice(0, 10) || 'N/A'}`).join('\n');
 
     // Org details (all)
     const orgDetail = orgs.map((o: any) => `  - **${o.name}** | Plan: ${o.plan_type} | KYC: ${o.kyc_status || 'none'} | Actif: ${o.is_active ? '✅' : '❌'} | Suspendu: ${o.is_suspended ? '⚠️' : 'Non'} | Pays: ${o.country || 'N/A'} | Créé: ${o.created_at?.slice(0, 10)}`).join('\n');
