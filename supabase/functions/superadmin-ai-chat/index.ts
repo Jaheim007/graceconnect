@@ -192,8 +192,13 @@ ${orgDetail || '  None'}
   - Donations: ${totalDonations.toLocaleString()} FCFA (${donations.length} transactions)
   - Product sales: ${totalPurchases.toLocaleString()} FCFA (${purchases.length} transactions)
 - **Platform revenue (10% commission)**: ~${Math.round(totalGMV * 0.1).toLocaleString()} FCFA
-- **Affiliate program**: ${affiliateSales.length} sales, ${totalAffiliateGross.toLocaleString()} FCFA gross, ${totalAffiliateCommissions.toLocaleString()} FCFA commissions paid
+- **Affiliate program**: ${affiliateLinks.length} total links, ${activeAmbassadors.length} ambassadors with earnings, ${affiliateSales.length} sales recorded
+  - Total clicks: ${totalAffiliateClicks} | Total conversions: ${totalAffiliateConversions}
+  - Gross affiliate sales: ${totalAffiliateGross.toLocaleString()} FCFA | Commissions earned: ${totalAffiliateCommissions.toLocaleString()} FCFA
 - **AI Credits**: ${creditTxs.length} recent transactions (${creditDebits.length} debits, ${creditCredits.length} credits)
+
+### 🏅 Top Ambassadors (by earnings):
+${topAmbassadors || '  No ambassadors with earnings yet'}
 
 ### 🏆 Top Organizations by Revenue:
 ${topOrgsByRevenue || '  No revenue data'}
