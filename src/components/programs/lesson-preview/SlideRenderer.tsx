@@ -200,7 +200,7 @@ export function SlideRenderer({
   const bgStyle: React.CSSProperties = c?.bgColor ? { background: c.bgColor } : {};
   const backgroundImageUrl = c?.bgImageUrl || lessonImageUrl;
   const hasBgImage = !!backgroundImageUrl;
-  const layout = 'text-only';
+  const layout: string = c?.layout || 'text-only';
   const captionStyle = c?.captionStyle || 'light';
   const captionPos = c?.captionPosition || 'bottom';
   const imgPos = c?.imagePosition || 'middle';
