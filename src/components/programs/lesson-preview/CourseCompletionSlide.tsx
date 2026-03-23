@@ -10,6 +10,7 @@ import { useSaveCertificate, useSaveSlideProgress, useCertificate } from '@/hook
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Button } from '@/components/ui/button';
+import { LessonImageBackdrop } from './LessonImageBackdrop';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 interface CourseCompletionSlideProps {
@@ -22,6 +23,7 @@ interface CourseCompletionSlideProps {
   programId?: string;
   orgLogoUrl?: string | null;
   deviceMode: 'mobile' | 'tablet' | 'desktop';
+  lessonImageUrl?: string;
   gamificationEnabled?: boolean;
   mode?: 'creator' | 'learner';
 }
@@ -68,6 +70,7 @@ export function CourseCompletionSlide({
   programId,
   orgLogoUrl,
   deviceMode,
+  lessonImageUrl,
   gamificationEnabled = true,
   mode = 'creator',
 }: CourseCompletionSlideProps) {
@@ -112,6 +115,7 @@ export function CourseCompletionSlide({
 
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden bg-gradient-to-br', theme.gradient)}>
+      <LessonImageBackdrop imageUrl={lessonImageUrl} overlayClassName="bg-gradient-to-br from-black/75 via-black/55 to-black/30" />
       <SlideDecoration theme={theme} />
       <FloatingParticles />
 
