@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
       svcClient.from('product_purchases').select('amount, status, currency, buyer_name, buyer_email, created_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(200),
       svcClient.from('organization_members').select('id', { count: 'exact', head: true }),
       svcClient.from('platform_metrics_daily').select('*').order('metric_date', { ascending: false }).limit(7),
-      svcClient.from('kyc_submissions').select('id, status, organization_id, submission_type, created_at, full_name, reviewed_at, ai_confidence_score').order('created_at', { ascending: false }).limit(500),
+      svcClient.from('kyc_submissions').select('id, status, organization_id, verification_type, submitted_at, reviewed_at, ai_confidence_score, bank_account_name').order('submitted_at', { ascending: false }).limit(500),
       svcClient.from('payout_requests').select('id, status, amount, currency, organization_id, created_at, payout_type').order('created_at', { ascending: false }).limit(50),
       svcClient.from('content_reports').select('status, content_type, reason, created_at').eq('status', 'pending'),
       svcClient.from('affiliate_sales').select('id, status, commission_amount, currency, created_at', { count: 'exact' }),
@@ -68,8 +68,9 @@ Deno.serve(async (req) => {
 
     const kycDetail = kycList.map((k: any) => {
       const orgName = orgNameMap[k.organization_id] || k.organization_id;
+      const name = k.bank_account_name || orgName;
       const aiScore = k.ai_confidence_score ? `Score IA: ${k.ai_confidence_score}%` : '';
-      return `  - ${k.full_name || 'N/A'} | Statut: ${k.status} | Type: ${k.submission_type || 'N/A'} | Org: ${orgName} | Date: ${k.created_at?.slice(0, 10)} ${aiScore}`;
+      return `  - ${name} | Statut: ${k.status} | Type: ${k.verification_type || 'N/A'} | Org: ${orgName} | Date: ${k.submitted_at?.slice(0, 10)} ${aiScore}`;
     }).join('\n');
 
     // Payout details
