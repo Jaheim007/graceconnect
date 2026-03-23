@@ -69,17 +69,17 @@ Deno.serve(async (req) => {
     const totalAffiliateConversions = affiliateLinks.reduce((s, l: any) => s + (l.conversions || 0), 0);
     const activeAmbassadors = affiliateLinks.filter((l: any) => (l.total_earned || 0) > 0);
 
+    // Org name map (must be before topAmbassadors)
+    const revenueByOrg: Record<string, { name: string; donations: number; purchases: number; total: number }> = {};
+    const orgNameMap: Record<string, string> = {};
+    orgs.forEach((o: any) => { orgNameMap[o.id] = o.name; });
+
     // Top ambassadors detail
     const topAmbassadors = affiliateLinks
       .filter((l: any) => (l.total_earned || 0) > 0 || (l.conversions || 0) > 0)
       .slice(0, 10)
       .map((l: any, i: number) => `  ${i + 1}. Code: **${l.code}** | Clics: ${l.clicks || 0} | Conversions: ${l.conversions || 0} | Gagné: ${(l.total_earned || 0).toLocaleString()} FCFA | Org: ${orgNameMap[l.organization_id] || l.organization_id}`)
       .join('\n');
-
-    // Revenue by org
-    const revenueByOrg: Record<string, { name: string; donations: number; purchases: number; total: number }> = {};
-    const orgNameMap: Record<string, string> = {};
-    orgs.forEach((o: any) => { orgNameMap[o.id] = o.name; });
 
     donations.forEach((d: any) => {
       const orgId = d.organization_id;
