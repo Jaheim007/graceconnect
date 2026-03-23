@@ -60,6 +60,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const { user } = useAuth();
   const { toast } = useToast();
   const { handleAiError, refreshCredits } = useCreditGuard();
+  const queryClient = useQueryClient();
 
   const [prompt, setPrompt] = useState('');
   const [tier, setTier] = useState<AITier>('standard');
