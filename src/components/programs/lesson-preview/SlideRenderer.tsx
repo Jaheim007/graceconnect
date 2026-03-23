@@ -26,16 +26,13 @@ interface SlideRendererProps {
 }
 
 const captionClasses: Record<CaptionStyle, string> = {
-  default: 'bg-card/95 backdrop-blur-sm text-foreground',
-  light: 'bg-white/95 text-slate-900',
-  dark: 'bg-slate-900/95 text-white',
-  'transparent-light': 'bg-black/40 backdrop-blur-sm text-white',
-  'transparent-dark': 'bg-white/85 backdrop-blur-sm text-slate-900',
+  light: 'bg-background/95 backdrop-blur-sm text-foreground',
+  dark: 'bg-foreground/92 backdrop-blur-sm text-background',
 };
 
 /** Whether a caption style produces light (dark text) or dark (white text) */
 function isLightCaption(style: CaptionStyle): boolean {
-  return style === 'light' || style === 'transparent-dark';
+  return style === 'light';
 }
 
 const captionPositionClasses: Record<CaptionPosition, string> = {
@@ -111,8 +108,6 @@ function ScrollableContent({
     return () => { el.removeEventListener('scroll', checkScroll); ro.disconnect(); };
   }, [checkScroll, children]);
 
-  const isTransparent = captionStyle === 'transparent-light' || captionStyle === 'transparent-dark';
-
   return (
     <div className="relative max-w-2xl w-full max-h-[75%]">
       <div
@@ -120,9 +115,7 @@ function ScrollableContent({
         className={cn(
           'rounded-xl w-full overflow-y-auto h-full',
           'scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
-          isTransparent
-            ? cn(captionClassMap[captionStyle], 'px-1 py-1')
-            : cn(captionClassMap[captionStyle], 'px-6 py-5 shadow-xl border border-white/10', theme.captionGlow)
+          cn(captionClassMap[captionStyle], 'px-6 py-5 shadow-xl border border-white/10', theme.captionGlow)
         )}
       >
         {children}
@@ -205,9 +198,10 @@ export function SlideRenderer({
   }
 
   const bgStyle: React.CSSProperties = c?.bgColor ? { background: c.bgColor } : {};
-  const hasBgImage = !!c?.bgImageUrl;
-  const layout = c?.layout || 'text-only';
-  const captionStyle = c?.captionStyle || 'default';
+  const backgroundImageUrl = c?.bgImageUrl || lessonImageUrl;
+  const hasBgImage = !!backgroundImageUrl;
+  const layout: string = c?.layout || 'text-only';
+  const captionStyle = c?.captionStyle || 'light';
   const captionPos = c?.captionPosition || 'bottom';
   const imgPos = c?.imagePosition || 'middle';
 
@@ -280,7 +274,7 @@ export function SlideRenderer({
 
   // ── Title Card ──
   if (slide.type === 'title-card') {
-    const titleBgImage = lessonImageUrl || c?.bgImageUrl;
+    const titleBgImage = c?.bgImageUrl || lessonImageUrl;
     const hasTitleBg = !!titleBgImage;
 
     return (
@@ -374,7 +368,7 @@ export function SlideRenderer({
   // Default: Text-only
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
-      {hasBgImage && <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />}
+      {hasBgImage && <img src={backgroundImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />}
       {hasBgImage && <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20 z-[1]" />}
       <SlideDecoration theme={theme} />
       <div className="relative z-20"><Header /></div>

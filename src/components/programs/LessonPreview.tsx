@@ -3,6 +3,8 @@ import { useProgramModules, useProgram } from '@/hooks/usePrograms';
 import { useI18n } from '@/i18n/I18nContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import {
   ChevronLeft, ChevronRight,
   Monitor, Tablet, Smartphone, X, List, Settings2, Star, Trophy, Sparkles
@@ -36,12 +38,22 @@ function extractFirstImageUrl(html: string | null): string | undefined {
 }
 
 /** Extract the first image found across all lessons in a module */
-function extractModuleImageUrl(lessons: any[]): string | undefined {
-  for (const lesson of lessons) {
-    const url = extractFirstImageUrl(lesson.content);
-    if (url) return url;
+function stripHtmlToText(html: string | null): string {
+  return String(html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function extractLessonMedia(html: string | null): { lessonImageUrl?: string; cleanedHtml: string } {
+  if (!html) return { cleanedHtml: '' };
+
+  const heroMatch = html.match(/<div[^>]*class=["'][^"']*lesson-hero-image[^"']*["'][^>]*>[\s\S]*?<\/div>/i);
+  if (!heroMatch) {
+    return { lessonImageUrl: extractFirstImageUrl(html), cleanedHtml: html };
   }
-  return undefined;
+
+  return {
+    lessonImageUrl: extractFirstImageUrl(heroMatch[0]),
+    cleanedHtml: html.replace(heroMatch[0], '').trim(),
+  };
 }
 
 interface FlatSlide {
@@ -52,12 +64,13 @@ interface FlatSlide {
   slide: ContentSlide;
   lessonIndex: number;
   slideInLesson: number;
-  moduleImageUrl?: string;
+  lessonImageUrl?: string;
 }
 
 export function LessonPreview({ programId, initialLessonId, onClose, headerActions, mode = 'creator' }: LessonPreviewProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+  const { toast } = useToast();
   const { data: program } = useProgram(programId);
   const { data: modules = [] } = useProgramModules(programId);
   const isLearner = mode === 'learner';
@@ -66,6 +79,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showSidebar, setShowSidebar] = useState(!isLearner || window.innerWidth >= 1024);
   const [showCustomizer, setShowCustomizer] = useState(!isLearner);
+  const [isGeneratingSlideImage, setIsGeneratingSlideImage] = useState(false);
 
   // Per-slide customizations keyed by slide index
   const [slideCustomizations, setSlideCustomizations] = useState<Record<number, SlideCustomization>>({});
@@ -134,9 +148,10 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
     for (const mod of modules) {
       const modLessons = (mod as any).lessons || [];
-      const moduleImage = extractModuleImageUrl(modLessons);
 
       for (const lesson of modLessons) {
+        const { lessonImageUrl, cleanedHtml } = extractLessonMedia(lesson.content || '');
+
         slides.push({
           lessonId: lesson.id,
           lessonTitle: lesson.title,
@@ -145,10 +160,10 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           slide: { type: 'title-card', bodyHtml: lesson.description || '' },
           lessonIndex: lessonIdx,
           slideInLesson: 0,
-          moduleImageUrl: moduleImage,
+          lessonImageUrl,
         });
 
-        const contentSlides = parseContentIntoSlides(lesson.content || '');
+        const contentSlides = parseContentIntoSlides(cleanedHtml);
         contentSlides.forEach((cs, si) => {
           slides.push({
             lessonId: lesson.id,
@@ -158,7 +173,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
             slide: cs,
             lessonIndex: lessonIdx,
             slideInLesson: si + 1,
-            moduleImageUrl: moduleImage,
+            lessonImageUrl,
           });
         });
 
@@ -202,6 +217,76 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
   const current = allSlides[currentIndex];
   const total = allSlides.length;
+
+  const applyCustomizationToAll = useCallback((partial: Partial<SlideCustomization>) => {
+    setSlideCustomizations((prev) => {
+      const next = { ...prev };
+
+      allSlides.forEach((slide, index) => {
+        if (slide.slide.type === 'final-assessment' || slide.slide.type === 'course-completion') return;
+        next[index] = {
+          ...(prev[index] || DEFAULT_CUSTOMIZATION),
+          ...partial,
+          layout: 'text-only',
+        };
+      });
+
+      return next;
+    });
+  }, [allSlides]);
+
+  const handleGenerateSlideBackground = useCallback(async () => {
+    if (!current || !(program as any)?.organization_id) return;
+
+    setIsGeneratingSlideImage(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error(isFr ? 'Session expirée. Reconnectez-vous.' : 'Session expired. Please sign in again.');
+      }
+
+      const contextText = stripHtmlToText(current.slide.bodyHtml).slice(0, 220);
+      const description = [current.moduleTitle, current.lessonTitle, current.slide.heading, contextText]
+        .filter(Boolean)
+        .join('. ');
+
+      const { data, error } = await supabase.functions.invoke('ai-generate-course-cover', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: {
+          title: current.slide.heading || current.lessonTitle,
+          description,
+          tier: 'standard',
+          org_id: (program as any).organization_id,
+        },
+      });
+
+      if (error) throw error;
+      if (!data?.url) throw new Error(isFr ? 'Aucune image n’a été générée.' : 'No image was generated.');
+
+      setSlideCustomizations((prev) => ({
+        ...prev,
+        [currentIndex]: {
+          ...(prev[currentIndex] || DEFAULT_CUSTOMIZATION),
+          bgImageUrl: data.url,
+          imagePosition: 'cover',
+          layout: 'text-only',
+        },
+      }));
+
+      toast({
+        title: isFr ? 'Image de fond générée' : 'Background image generated',
+        description: isFr ? 'Le visuel a été ajouté derrière la diapositive.' : 'The visual was added behind the slide.',
+      });
+    } catch (error: any) {
+      toast({
+        title: isFr ? 'Erreur' : 'Error',
+        description: error?.message || (isFr ? 'Impossible de générer l’image.' : 'Could not generate the image.'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGeneratingSlideImage(false);
+    }
+  }, [current, currentIndex, isFr, program, toast]);
 
   const totalQuizzes = useMemo(() => 
     allSlides.filter(s => s.slide.type === 'quiz').length, 
@@ -351,7 +436,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
         orgLogoUrl={orgLogoUrl}
         deviceMode={deviceMode}
         customization={currentCustomization}
-        lessonImageUrl={current.moduleImageUrl}
+          lessonImageUrl={current.lessonImageUrl}
         onStarEarned={() => {
           if (gamificationEnabled) {
             setStarsEarned(s => s + 1);
@@ -646,10 +731,10 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
         {!isLearner && showCustomizer && current?.slide.type !== 'final-assessment' && current?.slide.type !== 'course-completion' && (
           <SlideCustomizationPanel
             customization={currentCustomization}
-            onChange={(c) => setSlideCustomizations(prev => ({ ...prev, [currentIndex]: c }))}
-            onGenerateImage={() => {
-              // TODO: wire AI image generation
-            }}
+            onChange={(c) => setSlideCustomizations(prev => ({ ...prev, [currentIndex]: { ...c, layout: 'text-only' } }))}
+            onApplyToAll={applyCustomizationToAll}
+            onGenerateImage={handleGenerateSlideBackground}
+            isGenerating={isGeneratingSlideImage}
           />
         )}
       </div>
