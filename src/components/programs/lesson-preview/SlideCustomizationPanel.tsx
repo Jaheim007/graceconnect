@@ -4,10 +4,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { useI18n } from '@/i18n/I18nContext';
-import { Sparkles, Image as ImageIcon, Type, Palette, Layout, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Image as ImageIcon, Type, Palette, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type CaptionStyle = 'default' | 'light' | 'dark' | 'transparent-light' | 'transparent-dark';
+export type CaptionStyle = 'light' | 'dark';
 export type CaptionPosition = 'top' | 'middle' | 'bottom';
 export type ImagePosition = 'top' | 'middle' | 'bottom' | 'cover';
 export type SlideLayout = 'text-only' | 'image-top' | 'image-left' | 'image-right' | 'image-cover' | 'split';
@@ -24,7 +24,7 @@ export interface SlideCustomization {
 export const DEFAULT_CUSTOMIZATION: SlideCustomization = {
   bgColor: '',
   bgImageUrl: '',
-  captionStyle: 'default',
+  captionStyle: 'light',
   captionPosition: 'bottom',
   imagePosition: 'middle',
   layout: 'text-only',
@@ -44,22 +44,39 @@ const BG_PRESETS = [
 interface Props {
   customization: SlideCustomization;
   onChange: (c: SlideCustomization) => void;
+  onApplyToAll?: (partial: Partial<SlideCustomization>) => void;
   onGenerateImage?: () => void;
   isGenerating?: boolean;
 }
 
-export function SlideCustomizationPanel({ customization, onChange, onGenerateImage, isGenerating }: Props) {
+export function SlideCustomizationPanel({ customization, onChange, onApplyToAll, onGenerateImage, isGenerating }: Props) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     content: true,
     caption: true,
     background: true,
-    layout: true,
   });
 
   const toggle = (key: string) => setExpandedSections(s => ({ ...s, [key]: !s[key] }));
   const update = (partial: Partial<SlideCustomization>) => onChange({ ...customization, ...partial });
+
+  const ApplyToAllButton = ({ partial, disabled }: { partial: Partial<SlideCustomization>; disabled?: boolean }) => {
+    if (!onApplyToAll) return null;
+
+    return (
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className="h-7 justify-start px-0 text-[11px] font-medium text-primary hover:bg-transparent hover:text-primary/80"
+        onClick={() => onApplyToAll(partial)}
+        disabled={disabled}
+      >
+        {isFr ? 'Appliquer à toutes' : 'Apply to all'}
+      </Button>
+    );
+  };
 
   const Section = ({ id, icon: Icon, title, children }: { id: string; icon: any; title: string; children: React.ReactNode }) => (
     <div className="border-b border-border last:border-0">
@@ -84,19 +101,24 @@ export function SlideCustomizationPanel({ customization, onChange, onGenerateIma
         <p className="text-[10px] text-muted-foreground mt-0.5">{isFr ? 'Style de la diapositive' : 'Slide style'}</p>
       </div>
 
-      {/* CONTENT / IMAGE */}
-      <Section id="content" icon={ImageIcon} title="Content">
+      {/* BACKGROUND IMAGE */}
+      <Section id="content" icon={ImageIcon} title={isFr ? 'Image de fond' : 'Background image'}>
+        <p className="text-[11px] leading-relaxed text-muted-foreground">
+          {isFr ? 'Cette image reste derrière le texte de la diapositive.' : 'This image stays behind the slide text.'}
+        </p>
+
         <ImageUploader
           value={customization.bgImageUrl}
-          onChange={(url) => update({ bgImageUrl: url })}
+          onChange={(url) => update({ bgImageUrl: url, layout: 'text-only' })}
           folder="programs/slides"
           label=""
           aspectRatio="video"
         />
+        <ApplyToAllButton partial={{ bgImageUrl: customization.bgImageUrl, layout: 'text-only' }} />
         
         <div>
           <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {isFr ? 'Position de l\'image' : 'Image Position'}
+            {isFr ? 'Position de l\'image de fond' : 'Background image position'}
           </Label>
           <Select value={customization.imagePosition} onValueChange={(v) => update({ imagePosition: v as ImagePosition })}>
             <SelectTrigger className="mt-1 h-9 text-xs">
@@ -110,6 +132,7 @@ export function SlideCustomizationPanel({ customization, onChange, onGenerateIma
             </SelectContent>
           </Select>
         </div>
+        <ApplyToAllButton partial={{ imagePosition: customization.imagePosition, layout: 'text-only' }} />
 
         {onGenerateImage && (
           <Button
@@ -138,14 +161,12 @@ export function SlideCustomizationPanel({ customization, onChange, onGenerateIma
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="default">Default</SelectItem>
-              <SelectItem value="light">Light</SelectItem>
-              <SelectItem value="dark">Dark</SelectItem>
-              <SelectItem value="transparent-light">Transparent Light Text</SelectItem>
-              <SelectItem value="transparent-dark">Transparent Dark Text</SelectItem>
+              <SelectItem value="light">{isFr ? 'Clair' : 'Light'}</SelectItem>
+              <SelectItem value="dark">{isFr ? 'Sombre' : 'Dark'}</SelectItem>
             </SelectContent>
           </Select>
         </div>
+        <ApplyToAllButton partial={{ captionStyle: customization.captionStyle }} />
 
         <div>
           <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -162,6 +183,7 @@ export function SlideCustomizationPanel({ customization, onChange, onGenerateIma
             </SelectContent>
           </Select>
         </div>
+        <ApplyToAllButton partial={{ captionPosition: customization.captionPosition }} />
       </Section>
 
       {/* BACKGROUND */}
@@ -186,33 +208,7 @@ export function SlideCustomizationPanel({ customization, onChange, onGenerateIma
         >
           {isFr ? 'Réinitialiser' : 'Reset to default'}
         </button>
-      </Section>
-
-      {/* LAYOUT */}
-      <Section id="layout" icon={Layout} title="Layout">
-        <div className="grid grid-cols-3 gap-2">
-          {([
-            { key: 'text-only', label: isFr ? 'Texte' : 'Text' },
-            { key: 'image-top', label: isFr ? 'Image haut' : 'Img Top' },
-            { key: 'image-left', label: isFr ? 'Image gauche' : 'Img Left' },
-            { key: 'image-right', label: isFr ? 'Image droite' : 'Img Right' },
-            { key: 'image-cover', label: 'Cover' },
-            { key: 'split', label: 'Split' },
-          ] as const).map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => update({ layout: key })}
-              className={cn(
-                'rounded-lg border-2 px-2 py-2.5 text-[10px] font-medium transition-all',
-                customization.layout === key
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground'
-              )}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <ApplyToAllButton partial={{ bgColor: customization.bgColor }} />
       </Section>
     </div>
   );
