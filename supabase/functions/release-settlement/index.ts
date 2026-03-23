@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { sendEmailToOrgAdmins } from '../_shared/send-email-helper.ts';
+
 
 /**
  * release-settlement: Release held funds for vendor payouts after 72h hold period.
