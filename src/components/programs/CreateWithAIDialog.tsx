@@ -66,6 +66,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const [tier, setTier] = useState<AITier>('standard');
   const [generateImages, setGenerateImages] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generationPhase, setGenerationPhase] = useState<'generating' | 'saving' | 'done'>('generating');
   const [generationError, setGenerationError] = useState<string | null>(null);
 
   const [courseGoal, setCourseGoal] = useState('teach_skill');
@@ -101,6 +102,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
     if (!prompt.trim() || !currentOrg || !user) return;
     const shouldGenerateImages = generateImagesOverride ?? generateImages;
     setGenerating(true);
+    setGenerationPhase('generating');
     setGenerationError(null);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -172,9 +174,16 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
 
       refreshCredits();
 
+      // Phase 2: Save to database
+      setGenerationPhase('saving');
+
       const courseTitle = data?.course_title || prompt.trim().slice(0, 100);
       const courseDescription = data?.course_description || prompt.trim();
       const deferredImageJobs: Array<{ id: string; title: string; imagePrompt: string }> = [];
+
+      if (!data?.modules?.length) {
+        throw new Error(isFr ? 'L\'IA n\'a généré aucun module. Réessayez.' : 'AI generated no modules. Please retry.');
+      }
 
       const result = await createProgram.mutateAsync({
         organization_id: currentOrg.id,
@@ -303,15 +312,24 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         });
       }
 
+      // Phase 3: Done
+      setGenerationPhase('done');
+
       toast({
         title: isFr ? '✅ Cours créé avec l\'IA !' : '✅ Course created with AI!',
         description: shouldGenerateImages
           ? (isFr ? 'Les images des leçons se génèrent maintenant en arrière-plan.' : 'Lesson images are now generating in the background.')
           : undefined,
       });
+
+      // Brief delay to show success state
+      await new Promise(resolve => setTimeout(resolve, 1200));
+
       onOpenChange(false);
       setPrompt('');
+      setGenerating(false);
       onCreated(result.id);
+      return; // skip the finally block's setGenerating
     } catch (err: any) {
       const isCreditError = handleAiError(err);
       if (!isCreditError) {
@@ -330,7 +348,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
     <Dialog open={open} onOpenChange={(v) => { if (!generating) onOpenChange(v); }}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto" hideCloseButton={generating}>
         {generating ? (
-          <CourseGenerationLoader />
+          <CourseGenerationLoader phase={generationPhase} />
         ) : generationError ? (
           <div className="flex flex-col items-center justify-center py-12 px-4 space-y-6 text-center">
             <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center">
