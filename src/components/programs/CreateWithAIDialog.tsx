@@ -97,8 +97,9 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
     }
   };
 
-  const handleCreate = async () => {
+  const handleCreate = async (generateImagesOverride?: boolean) => {
     if (!prompt.trim() || !currentOrg || !user) return;
+    const shouldGenerateImages = generateImagesOverride ?? generateImages;
     setGenerating(true);
     setGenerationError(null);
     try {
@@ -127,7 +128,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
             language: isFr ? 'fr' : 'en',
             tier,
             module_count: depthLevel === 'masterclass' ? 7 : depthLevel === 'detailed' ? 6 : 5,
-            generate_images: generateImages,
+            generate_images: shouldGenerateImages,
             course_goal: courseGoal,
             audience,
             audience_level: level,
@@ -203,7 +204,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
               programId: result.id,
             });
 
-            if (generateImages && lesson?.image_prompt && lessonResult?.data?.id) {
+            if (shouldGenerateImages && lesson?.image_prompt && lessonResult?.data?.id) {
               deferredImageJobs.push({
                 id: lessonResult.data.id,
                 title: lesson.title,
@@ -237,7 +238,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         }
       }
 
-      if (generateImages && deferredImageJobs.length > 0) {
+      if (shouldGenerateImages && deferredImageJobs.length > 0) {
         void queueDeferredCourseLessonImages({
           programId: result.id,
           lessonJobs: deferredImageJobs,
@@ -304,7 +305,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
 
       toast({
         title: isFr ? '✅ Cours créé avec l\'IA !' : '✅ Course created with AI!',
-        description: generateImages
+        description: shouldGenerateImages
           ? (isFr ? 'Les images des leçons se génèrent maintenant en arrière-plan.' : 'Lesson images are now generating in the background.')
           : undefined,
       });
@@ -348,7 +349,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 {isFr ? 'Réessayer' : 'Retry'}
               </Button>
               {generateImages && (
-                <Button variant="secondary" onClick={() => { setGenerationError(null); setGenerateImages(false); handleCreate(); }} className="gap-1.5 text-xs">
+                <Button variant="secondary" onClick={() => { setGenerationError(null); setGenerateImages(false); void handleCreate(false); }} className="gap-1.5 text-xs">
                   {isFr ? 'Réessayer sans images' : 'Retry without images'}
                 </Button>
               )}
