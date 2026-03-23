@@ -222,26 +222,40 @@ serve(async (req) => {
       idempotencyKey: `course-${userId}-${Date.now()}`,
       metadata: { title, module_count, generate_images, detected_language: detectedLang },
       action: async () => {
+        // ─── Target audience (WHO) mapping ───
+        const audienceMap: Record<string, string> = {
+          general: isFr
+            ? 'PUBLIC CIBLE: Grand public. Utilise des exemples universels et accessibles. Évite le jargon spécialisé.'
+            : 'TARGET AUDIENCE: General public. Use universal, accessible examples. Avoid specialized jargon.',
+          students: isFr
+            ? 'PUBLIC CIBLE: Étudiants. Inclus des références académiques, des exercices de mémorisation, et structure le contenu comme un programme universitaire.'
+            : 'TARGET AUDIENCE: Students. Include academic references, memorization exercises, and structure content like a university program.',
+          professionals: isFr
+            ? 'PUBLIC CIBLE: Professionnels. Utilise des exemples du monde de l\'entreprise, des études de cas business, des KPIs et des frameworks professionnels.'
+            : 'TARGET AUDIENCE: Professionals. Use corporate examples, business case studies, KPIs and professional frameworks.',
+          entrepreneurs: isFr
+            ? 'PUBLIC CIBLE: Entrepreneurs. Oriente le contenu vers la croissance, la stratégie, le ROI. Inclus des exemples de startups et de scaling.'
+            : 'TARGET AUDIENCE: Entrepreneurs. Orient content toward growth, strategy, ROI. Include startup and scaling examples.',
+          teams: isFr
+            ? 'PUBLIC CIBLE: Équipes/Employés. Format de formation interne. Inclus des scénarios d\'équipe, des exercices collaboratifs, et des standards de conformité.'
+            : 'TARGET AUDIENCE: Teams/Employees. Internal training format. Include team scenarios, collaborative exercises, and compliance standards.',
+          creators: isFr
+            ? 'PUBLIC CIBLE: Créateurs de contenu. Axe sur la monétisation, le personal branding, la créativité, et les outils de production.'
+            : 'TARGET AUDIENCE: Content creators. Focus on monetization, personal branding, creativity, and production tools.',
+        };
+        const audienceTargetInstruction = audienceMap[audience] || audienceMap.general;
+
         // ─── Audience level complexity mapping ───
         const audienceLevelMap: Record<string, string> = {
           beginner: isFr
-            ? 'Débutant — Utilise un vocabulaire simple, des analogies du quotidien, et explique chaque concept comme si c\'était la première fois. Pas de jargon technique sans définition.'
-            : 'Beginner — Use simple vocabulary, everyday analogies, and explain every concept as if for the first time. No technical jargon without definition.',
+            ? 'NIVEAU: Débutant — Utilise un vocabulaire simple, des analogies du quotidien, et explique chaque concept comme si c\'était la première fois. Pas de jargon technique sans définition.'
+            : 'LEVEL: Beginner — Use simple vocabulary, everyday analogies, and explain every concept as if for the first time. No technical jargon without definition.',
           intermediate: isFr
-            ? 'Intermédiaire — Suppose une connaissance de base du sujet. Introduis des concepts plus nuancés avec des exemples concrets.'
-            : 'Intermediate — Assume basic knowledge of the subject. Introduce more nuanced concepts with concrete examples.',
+            ? 'NIVEAU: Intermédiaire — Suppose une connaissance de base du sujet. Introduis des concepts plus nuancés avec des exemples concrets.'
+            : 'LEVEL: Intermediate — Assume basic knowledge of the subject. Introduce more nuanced concepts with concrete examples.',
           advanced: isFr
-            ? 'Avancé — Suppose une bonne maîtrise. Approfondis avec des analyses critiques, des cas complexes, et des perspectives multiples.'
-            : 'Advanced — Assume strong mastery. Deepen with critical analysis, complex cases, and multiple perspectives.',
-          professional: isFr
-            ? 'Professionnel — Orienté mise en pratique immédiate. Inclus des frameworks, méthodologies, et études de cas réels du milieu professionnel.'
-            : 'Professional — Oriented toward immediate practical application. Include frameworks, methodologies, and real-world professional case studies.',
-          academic: isFr
-            ? 'Académique — Rigueur intellectuelle maximale. Cite des théories reconnues, des chercheurs, et des publications. Encourage l\'esprit critique.'
-            : 'Academic — Maximum intellectual rigor. Cite recognized theories, researchers, and publications. Encourage critical thinking.',
-          youth: isFr
-            ? 'Jeune public — Langage très accessible, ludique, avec des exemples tirés de la vie des jeunes. Ton encourageant et dynamique.'
-            : 'Youth audience — Very accessible, fun language with examples from young people\'s lives. Encouraging and dynamic tone.',
+            ? 'NIVEAU: Avancé — Suppose une bonne maîtrise. Approfondis avec des analyses critiques, des cas complexes, et des perspectives multiples.'
+            : 'LEVEL: Advanced — Assume strong mastery. Deepen with critical analysis, complex cases, and multiple perspectives.',
         };
         const audienceInstruction = audienceLevelMap[audience_level] || audienceLevelMap.intermediate;
 
