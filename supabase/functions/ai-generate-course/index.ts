@@ -289,10 +289,10 @@ serve(async (req) => {
 
         // ─── Depth level mapping ───
         const depthInstructions: Record<string, string> = {
-          lightweight: isFr ? 'Contenu léger: 2-3 sections par leçon, 40-80 mots par section. Microlearning rapide.' : 'Lightweight: 2-3 sections per lesson, 40-80 words per section. Quick microlearning.',
-          standard: isFr ? 'Contenu standard: 4-6 sections par leçon, 50-120 mots par section.' : 'Standard: 4-6 sections per lesson, 50-120 words per section.',
-          detailed: isFr ? 'Contenu détaillé: 6-8 sections par leçon, 80-150 mots par section. Exemples approfondis.' : 'Detailed: 6-8 sections per lesson, 80-150 words per section. In-depth examples.',
-          masterclass: isFr ? 'Contenu masterclass: 8-10 sections par leçon, 100-200 mots par section. Études de cas complètes, frameworks, analyses critiques.' : 'Masterclass: 8-10 sections per lesson, 100-200 words per section. Full case studies, frameworks, critical analysis.',
+          lightweight: isFr ? 'Contenu léger: 3-4 sections par leçon, 50-80 mots par section. Microlearning rapide.' : 'Lightweight: 3-4 sections per lesson, 50-80 words per section. Quick microlearning.',
+          standard: isFr ? 'Contenu standard: 5-7 sections par leçon, 80-150 mots par section. Chaque leçon doit atteindre au minimum 600 mots au total.' : 'Standard: 5-7 sections per lesson, 80-150 words per section. Each lesson MUST reach at least 600 words total.',
+          detailed: isFr ? 'Contenu détaillé: 7-9 sections par leçon, 120-200 mots par section. Exemples approfondis, études de cas. Minimum 900 mots par leçon.' : 'Detailed: 7-9 sections per lesson, 120-200 words per section. In-depth examples, case studies. Minimum 900 words per lesson.',
+          masterclass: isFr ? 'Contenu masterclass: 9-12 sections par leçon, 150-250 mots par section. Études de cas complètes, frameworks, analyses critiques. Minimum 1200 mots par leçon.' : 'Masterclass: 9-12 sections per lesson, 150-250 words per section. Full case studies, frameworks, critical analysis. Minimum 1200 words per lesson.',
         };
         const depthInstruction = depthInstructions[depth_level] || depthInstructions.standard;
 
