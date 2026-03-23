@@ -162,7 +162,7 @@ Deno.serve(async (req) => {
     // Metrics trend
     const metricsData = metricsRes.data || [];
     const metricsSummary = metricsData.slice(0, 7).map((m: any) =>
-      `  - ${m.metric_date}: Utilisateurs actifs: ${m.active_users || 'N/A'}, Revenus: ${m.total_revenue || 'N/A'}, Nouvelles orgs: ${m.new_organizations || 'N/A'}`
+      `  - ${m.metric_date}: Nouveaux utilisateurs: ${m.new_users ?? 'N/A'}, Revenus: ${m.total_revenue ?? 'N/A'}, GMV: ${m.gmv ?? 'N/A'}, Nouvelles orgs: ${m.new_orgs ?? 'N/A'}, Orgs actives: ${m.active_orgs ?? 'N/A'}`
     ).join('\n');
 
     const today = new Date().toISOString().slice(0, 10);
