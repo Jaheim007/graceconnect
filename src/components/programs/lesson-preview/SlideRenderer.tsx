@@ -388,8 +388,8 @@ export function SlideRenderer({
           <SlideTag />
           {slide.heading && (
             <div className="mb-4">
-              <AccentLine />
-              <h2 className={cn('font-bold leading-snug', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>
+              <AccentLine light={lightMode} />
+              <h2 className={cn('font-bold leading-snug', lightMode ? 'text-slate-900' : 'text-white', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>
             </div>
           )}
           {slide.bodyHtml && (
