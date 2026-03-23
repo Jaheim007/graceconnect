@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
     }
 
     // Fetch comprehensive platform data for superadmin
-    const [orgsRes, donationsRes, purchasesRes, membersRes, metricsRes, kycRes, payoutsRes, reportsRes, affiliateRes, partnersRes, productsRes, usersRes, creditRes, eventsRes] = await Promise.all([
+    const [orgsRes, donationsRes, purchasesRes, membersRes, metricsRes, kycRes, payoutsRes, reportsRes, affiliateRes, affiliateLinksRes, partnersRes, productsRes, usersRes, creditRes, eventsRes] = await Promise.all([
       svcClient.from('organizations').select('id, name, plan_type, kyc_status, is_active, is_suspended, category, country, created_at', { count: 'exact' }),
       svcClient.from('donations').select('amount, status, currency, donor_name, donor_email, organization_id, created_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(500),
       svcClient.from('product_purchases').select('amount, status, currency, buyer_name, buyer_email, product_id, organization_id, created_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(500),
@@ -40,7 +40,8 @@ Deno.serve(async (req) => {
       svcClient.from('kyc_submissions').select('id, status, organization_id, verification_type, submitted_at, reviewed_at, ai_confidence_score, bank_account_name').order('submitted_at', { ascending: false }).limit(500),
       svcClient.from('payout_requests').select('id, status, amount, currency, organization_id, created_at, payout_type, reviewed_at, paid_at').order('created_at', { ascending: false }).limit(100),
       svcClient.from('content_reports').select('status, content_type, reason, created_at').eq('status', 'pending'),
-      svcClient.from('affiliate_sales').select('id, status, commission_amount, gross_amount, currency, affiliate_user_id, organization_id, created_at', { count: 'exact' }),
+      svcClient.from('affiliate_sales').select('id, status, commission_amount, gross_amount, commission_percent, affiliate_user_id, organization_id, created_at', { count: 'exact' }),
+      svcClient.from('affiliate_links').select('id, code, user_id, clicks, conversions, total_earned, is_active, organization_id').eq('is_active', true).order('total_earned', { ascending: false }).limit(50),
       svcClient.from('partners').select('id, full_name, status, created_at'),
       svcClient.from('digital_products').select('id, title, organization_id, is_published, sales_count, price, currency, product_type, created_at', { count: 'exact' }),
       svcClient.from('profiles').select('id, full_name, created_at', { count: 'exact' }),
@@ -55,6 +56,7 @@ Deno.serve(async (req) => {
     const payoutList = payoutsRes.data || [];
     const products = productsRes.data || [];
     const affiliateSales = affiliateRes.data || [];
+    const affiliateLinks = affiliateLinksRes.data || [];
     const creditTxs = creditRes.data || [];
 
     // --- Compute executive metrics ---
@@ -63,6 +65,16 @@ Deno.serve(async (req) => {
     const totalGMV = totalDonations + totalPurchases;
     const totalAffiliateCommissions = affiliateSales.reduce((s, a: any) => s + (a.commission_amount || 0), 0);
     const totalAffiliateGross = affiliateSales.reduce((s, a: any) => s + (a.gross_amount || 0), 0);
+    const totalAffiliateClicks = affiliateLinks.reduce((s, l: any) => s + (l.clicks || 0), 0);
+    const totalAffiliateConversions = affiliateLinks.reduce((s, l: any) => s + (l.conversions || 0), 0);
+    const activeAmbassadors = affiliateLinks.filter((l: any) => (l.total_earned || 0) > 0);
+
+    // Top ambassadors detail
+    const topAmbassadors = affiliateLinks
+      .filter((l: any) => (l.total_earned || 0) > 0 || (l.conversions || 0) > 0)
+      .slice(0, 10)
+      .map((l: any, i: number) => `  ${i + 1}. Code: **${l.code}** | Clics: ${l.clicks || 0} | Conversions: ${l.conversions || 0} | Gagné: ${(l.total_earned || 0).toLocaleString()} FCFA | Org: ${orgNameMap[l.organization_id] || l.organization_id}`)
+      .join('\n');
 
     // Revenue by org
     const revenueByOrg: Record<string, { name: string; donations: number; purchases: number; total: number }> = {};
@@ -180,8 +192,13 @@ ${orgDetail || '  None'}
   - Donations: ${totalDonations.toLocaleString()} FCFA (${donations.length} transactions)
   - Product sales: ${totalPurchases.toLocaleString()} FCFA (${purchases.length} transactions)
 - **Platform revenue (10% commission)**: ~${Math.round(totalGMV * 0.1).toLocaleString()} FCFA
-- **Affiliate program**: ${affiliateSales.length} sales, ${totalAffiliateGross.toLocaleString()} FCFA gross, ${totalAffiliateCommissions.toLocaleString()} FCFA commissions paid
+- **Affiliate program**: ${affiliateLinks.length} total links, ${activeAmbassadors.length} ambassadors with earnings, ${affiliateSales.length} sales recorded
+  - Total clicks: ${totalAffiliateClicks} | Total conversions: ${totalAffiliateConversions}
+  - Gross affiliate sales: ${totalAffiliateGross.toLocaleString()} FCFA | Commissions earned: ${totalAffiliateCommissions.toLocaleString()} FCFA
 - **AI Credits**: ${creditTxs.length} recent transactions (${creditDebits.length} debits, ${creditCredits.length} credits)
+
+### 🏅 Top Ambassadors (by earnings):
+${topAmbassadors || '  No ambassadors with earnings yet'}
 
 ### 🏆 Top Organizations by Revenue:
 ${topOrgsByRevenue || '  No revenue data'}
