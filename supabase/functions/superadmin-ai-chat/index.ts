@@ -68,8 +68,9 @@ Deno.serve(async (req) => {
 
     const kycDetail = kycList.map((k: any) => {
       const orgName = orgNameMap[k.organization_id] || k.organization_id;
+      const name = k.bank_account_name || orgName;
       const aiScore = k.ai_confidence_score ? `Score IA: ${k.ai_confidence_score}%` : '';
-      return `  - ${k.full_name || 'N/A'} | Statut: ${k.status} | Type: ${k.submission_type || 'N/A'} | Org: ${orgName} | Date: ${k.created_at?.slice(0, 10)} ${aiScore}`;
+      return `  - ${name} | Statut: ${k.status} | Type: ${k.verification_type || 'N/A'} | Org: ${orgName} | Date: ${k.submitted_at?.slice(0, 10)} ${aiScore}`;
     }).join('\n');
 
     // Payout details
