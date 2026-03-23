@@ -30,6 +30,7 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
   const { user } = useAuth();
   const { toast } = useToast();
   const { handleAiError, refreshCredits } = useCreditGuard();
+  const queryClient = useQueryClient();
 
   const [file, setFile] = useState<File | null>(null);
   const [tier, setTier] = useState<AITier>('standard');
