@@ -11,8 +11,8 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
 
     const supabase = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
     const { data: { user } } = await supabase.auth.getUser();
@@ -238,24 +238,24 @@ ${metricsSummary || '  No metrics available'}
     - ⚡ ACTION PLAN (5-10 clear actions with expected impact)`;
 
 
-    // Stream via OpenAI GPT-4o for best executive-grade analysis
+    // Stream via Lovable AI Gateway (GPT-5) for best executive-grade analysis
     const openaiMessages = [
       { role: 'system', content: systemPrompt },
       ...messages.map((m: any) => ({ role: m.role, content: m.content })),
     ];
 
-    // Retry logic for OpenAI rate limits (429)
+    // Retry logic for rate limits (429)
     let openaiResp: Response | null = null;
     const maxRetries = 3;
     for (let attempt = 0; attempt < maxRetries; attempt++) {
-      openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
+      openaiResp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'openai/gpt-5',
           messages: openaiMessages,
           stream: true,
           temperature: 0.4,
@@ -275,9 +275,12 @@ ${metricsSummary || '  No metrics available'}
     if (!openaiResp || !openaiResp.ok || !openaiResp.body) {
       const status = openaiResp?.status || 500;
       const errText = await openaiResp?.text().catch(() => '') || '';
-      console.error('OpenAI error:', status, errText);
+      console.error('AI Gateway error:', status, errText);
       if (status === 429) {
         return jsonResp({ error: 'Le service IA est temporairement surchargé. Veuillez réessayer dans 30 secondes.' }, 429);
+      }
+      if (status === 402) {
+        return jsonResp({ error: 'Crédits IA insuffisants. Veuillez recharger votre compte.' }, 402);
       }
       return jsonResp({ error: `AI error (${status})` }, 502);
     }
