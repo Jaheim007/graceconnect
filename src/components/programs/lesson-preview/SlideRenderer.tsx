@@ -243,11 +243,18 @@ export function SlideRenderer({
     />
   );
 
+  const lightMode = isLightCaption(captionStyle);
+
   const SlideTag = () => {
     if (!slideTag) return null;
     const Icon = slideTag.icon;
     return (
-      <div className={cn('inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider mb-3', theme.tagBg, theme.tagText)}>
+      <div className={cn(
+        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider mb-3',
+        lightMode
+          ? 'bg-slate-800 text-white'
+          : cn(theme.tagBg, theme.tagText)
+      )}>
         <Icon className="h-3 w-3" />
         {slideTag.label}
       </div>
