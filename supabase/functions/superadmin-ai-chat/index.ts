@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
       svcClient.from('product_purchases').select('amount, status, currency, buyer_name, buyer_email, created_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(200),
       svcClient.from('organization_members').select('id', { count: 'exact', head: true }),
       svcClient.from('platform_metrics_daily').select('*').order('metric_date', { ascending: false }).limit(7),
-      svcClient.from('kyc_submissions').select('id, status, organization_id, submission_type, created_at, full_name, reviewed_at').order('created_at', { ascending: false }).limit(50),
+      svcClient.from('kyc_submissions').select('id, status, organization_id, submission_type, created_at, full_name, reviewed_at, ai_analysis_result').order('created_at', { ascending: false }).limit(500),
       svcClient.from('payout_requests').select('id, status, amount, currency, organization_id, created_at, payout_type').order('created_at', { ascending: false }).limit(50),
       svcClient.from('content_reports').select('status, content_type, reason, created_at').eq('status', 'pending'),
       svcClient.from('affiliate_sales').select('id, status, commission_amount, currency, created_at', { count: 'exact' }),
@@ -66,7 +66,11 @@ Deno.serve(async (req) => {
     const kycApproved = kycList.filter((k: any) => k.status === 'approved');
     const kycRejected = kycList.filter((k: any) => k.status === 'rejected');
 
-    const kycDetail = kycList.map((k: any) => `  - ${k.full_name || 'N/A'} | Statut: ${k.status} | Type: ${k.submission_type || 'N/A'} | Org: ${orgNameMap[k.organization_id] || k.organization_id} | Date: ${k.created_at?.slice(0, 10)}`).join('\n');
+    const kycDetail = kycList.map((k: any) => {
+      const orgName = orgNameMap[k.organization_id] || k.organization_id;
+      const aiScore = k.ai_analysis_result?.score ? `Score IA: ${k.ai_analysis_result.score}%` : '';
+      return `  - ${k.full_name || 'N/A'} | Statut: ${k.status} | Type: ${k.submission_type || 'N/A'} | Org: ${orgName} | Date: ${k.created_at?.slice(0, 10)} ${aiScore}`;
+    }).join('\n');
 
     // Payout details
     const payoutDetail = payoutList.map((p: any) => `  - ${p.amount} ${p.currency} | Statut: ${p.status} | Type: ${p.payout_type || 'org'} | Org: ${orgNameMap[p.organization_id] || p.organization_id} | Date: ${p.created_at?.slice(0, 10)}`).join('\n');
