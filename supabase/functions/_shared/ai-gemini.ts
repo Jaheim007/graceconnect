@@ -85,7 +85,7 @@ function extractInlineImage(parts: any[]): { base64: string; mimeType: string } 
   return null;
 }
 
-/** Generate image using Gemini Pro-level models via direct Google API (highest quality) */
+/** Generate image using Gemini's highest-quality direct Google API models */
 export async function geminiProImageBase64(opts: {
   apiKey: string;
   prompt: string;
@@ -94,10 +94,10 @@ export async function geminiProImageBase64(opts: {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), opts.timeoutMs ?? 120_000);
 
-  // Pro-level models — use stable names first, then previews
   const candidateModels = [
-    'gemini-2.0-flash-exp',
-    'gemini-2.5-flash-preview-04-17',
+    'gemini-3-pro-image-preview',
+    'gemini-3.1-flash-image-preview',
+    'gemini-2.5-flash-image',
   ];
 
   let lastErr: any = null;
@@ -161,7 +161,7 @@ export async function geminiProImageBase64(opts: {
   }
 }
 
-/** Generate image using Gemini Flash-level models via direct Google API (fast, emergency fallback) */
+/** Generate image using Gemini Flash-level direct Google API models (emergency fallback) */
 export async function geminiGenerateImageBase64(opts: {
   apiKey: string;
   prompt: string;
@@ -171,8 +171,8 @@ export async function geminiGenerateImageBase64(opts: {
   const id = setTimeout(() => controller.abort(), opts.timeoutMs ?? 90_000);
 
   const candidateModels = [
-    'gemini-2.0-flash-exp-image-generation',
-    'gemini-2.0-flash-exp',
+    'gemini-3.1-flash-image-preview',
+    'gemini-2.5-flash-image',
   ];
 
   let lastErr: any = null;

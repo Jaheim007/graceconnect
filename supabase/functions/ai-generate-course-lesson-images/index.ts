@@ -95,6 +95,8 @@ Deno.serve(async (req) => {
     let skipped = 0;
     let failed = 0;
     let creditsExhausted = false;
+    const generatedLessonIds: string[] = [];
+    const failedLessonIds: string[] = [];
 
     const refundImageCredits = async (amount: number) => {
       if (amount <= 0) return;
@@ -147,6 +149,7 @@ Deno.serve(async (req) => {
         }
         console.error(`[ai-generate-course-lesson-images] Credit error for lesson ${lesson.id}:`, error?.message);
         failed += 1;
+        failedLessonIds.push(lesson.id);
         continue;
       }
 
@@ -162,7 +165,8 @@ Deno.serve(async (req) => {
         const { base64, mimeType } = await aiGenerateImageBase64({
           geminiKey: GEMINI_API_KEY || '',
           openaiKey: OPENAI_API_KEY || undefined,
-          prompt: `Professional educational lesson illustration, wide landscape 16:9 format. Scene: ${requestLesson.image_prompt}. Style: clean modern flat design, vibrant colors, no text or labels or watermarks. Suitable as a lesson header image.`,
+          prompt: `Professional educational lesson illustration in wide 16:9 landscape format. Scene: ${requestLesson.image_prompt}. Style: clean modern flat design, vibrant colors, no text or labels or watermarks. Suitable as a lesson header image with safe margins on the left and right edges.`,
+          size: '1792x1024',
           timeoutMs,
         });
 
@@ -189,8 +193,10 @@ Deno.serve(async (req) => {
         if (updateErr) throw updateErr;
 
         imagesGenerated += 1;
+        generatedLessonIds.push(lesson.id);
       } catch (error: any) {
         failed += 1;
+        failedLessonIds.push(lesson.id);
         await refundImageCredits(imgDebited);
 
         const status = Number(error?.status || 0);
@@ -206,6 +212,8 @@ Deno.serve(async (req) => {
     return jsonResp({
       ok: true,
       images_generated: imagesGenerated,
+      generated_lesson_ids: generatedLessonIds,
+      failed_lesson_ids: failedLessonIds,
       skipped,
       failed,
     });

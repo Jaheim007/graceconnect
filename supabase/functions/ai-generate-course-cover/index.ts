@@ -26,7 +26,7 @@ serve(async (req) => {
       idempotencyKey: `course-cover-${userId}-${Date.now()}`,
       metadata: { title, type: 'course_cover' },
       action: async () => {
-        const prompt = `Create a professional, modern course cover image (1280x720 landscape).
+        const prompt = `Create a professional, modern course cover image in wide 16:9 landscape format for a learning platform.
 Title: "${title}"
 ${description ? `Topic: ${description.replace(/<[^>]*>/g, '').slice(0, 200)}` : ''}
 
@@ -36,11 +36,13 @@ Requirements:
 - NO text or words in the image — purely visual/graphic
 - Abstract or illustrative representation of the topic
 - Suitable as a course thumbnail/banner
-- High quality, visually striking composition`;
+- High quality, visually striking composition
+- Framed for a 1280x720 style cover without important content near the edges`;
 
         const { base64, mimeType } = await aiGenerateImageBase64({
           geminiKey: GEMINI_API_KEY || '',
           prompt,
+          size: '1792x1024',
           timeoutMs: 120_000,
         });
 

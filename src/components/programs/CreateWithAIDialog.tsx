@@ -243,14 +243,56 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
           lessonJobs: deferredImageJobs,
           sessionToken: session.access_token,
           tier,
-        }).then(({ error: imageError, data: imageData }) => {
+        }).then(async ({ error: imageError, data: imageData }) => {
+          const generatedLessonIds = Array.isArray(imageData?.generated_lesson_ids)
+            ? imageData.generated_lesson_ids
+            : [];
+
+          if (imageData?.images_generated > 0) {
+            await Promise.all([
+              queryClient.invalidateQueries({ queryKey: ['program', result.id] }),
+              queryClient.invalidateQueries({ queryKey: ['program-modules', result.id] }),
+              ...generatedLessonIds.map((lessonId: string) =>
+                queryClient.invalidateQueries({ queryKey: ['lesson', lessonId] })
+              ),
+            ]);
+          }
+
           if (imageError || imageData?.error) {
             toast({
-              title: isFr ? 'Cours créé, mais certaines images de leçon ont échoué' : 'Course created, but some lesson images failed',
-              description: isFr ? 'Le contenu du cours est prêt. Vous pouvez régénérer les visuels plus tard si nécessaire.' : 'The course content is ready. You can regenerate visuals later if needed.',
+              title: isFr ? 'Cours créé, mais les images de leçon ont échoué' : 'Course created, but lesson images failed',
+              description: isFr ? 'Le contenu du cours est prêt. Vous pouvez relancer les visuels plus tard.' : 'The course content is ready. You can retry the visuals later.',
               variant: 'destructive',
             });
+            return;
           }
+
+          if (imageData?.images_generated > 0 && !imageData?.failed) {
+            toast({
+              title: isFr ? 'Images de leçon générées' : 'Lesson images generated',
+              description: isFr
+                ? `${imageData.images_generated} visuel(x) ont été ajoutés au cours.`
+                : `${imageData.images_generated} visual(s) were added to the course.`,
+            });
+            return;
+          }
+
+          if (imageData?.images_generated > 0) {
+            toast({
+              title: isFr ? 'Images partiellement générées' : 'Images partially generated',
+              description: isFr
+                ? `${imageData.images_generated} visuel(x) ajoutés, ${imageData.failed || 0} échec(s).`
+                : `${imageData.images_generated} visual(s) added, ${imageData.failed || 0} failed.`,
+              variant: 'destructive',
+            });
+            return;
+          }
+
+          toast({
+            title: isFr ? 'Cours créé, mais aucune image n’a été ajoutée' : 'Course created, but no images were added',
+            description: isFr ? 'Le contenu du cours est prêt, mais les visuels devront être relancés.' : 'The course content is ready, but the visuals will need to be retried.',
+            variant: 'destructive',
+          });
         }).catch(() => {
           toast({
             title: isFr ? 'Cours créé, mais les images n’ont pas pu être finalisées' : 'Course created, but images could not be finalized',
