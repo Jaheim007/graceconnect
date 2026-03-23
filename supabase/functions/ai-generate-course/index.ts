@@ -344,7 +344,10 @@ CRITICAL: ALL content MUST be written in ${isFr ? 'FRENCH (Français)' : 'ENGLIS
 ## COURSE GOAL (PRIMARY DIRECTIVE)
 ${goalInstruction}
 
-## AUDIENCE LEVEL
+## TARGET AUDIENCE (WHO THIS COURSE IS FOR)
+${audienceTargetInstruction}
+
+## DIFFICULTY LEVEL
 ${audienceInstruction}
 
 ## CONTENT FRAME (MANDATORY — DO NOT IGNORE)
