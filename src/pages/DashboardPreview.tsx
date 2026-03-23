@@ -331,7 +331,7 @@ function SalesTab({ data }: { data: DemoData }) {
                     <p className="text-[10px] text-muted-foreground truncate">{sale.org}</p>
                   </div>
                   <div className="col-span-2 text-right">
-                    <span className="text-xs font-bold text-emerald-600">{fmtCurrency(sale.price, sale.currency)}</span>
+                    <span className="text-xs font-bold text-emerald-600">{fmtCurrency(sale.price, cur)}</span>
                   </div>
                   <div className="col-span-2 text-right">
                     <div className="flex items-center justify-end gap-1.5">

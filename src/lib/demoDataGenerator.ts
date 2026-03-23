@@ -1,27 +1,39 @@
 /**
  * Generates randomized demo data for /dashboard-preview.
- * Each call produces a fresh set of metrics, sales, projects, ambassadors, etc.
+ * Each call produces a fresh set of realistic metrics for a small-to-medium org.
+ * 
+ * Rules:
+ * - 3-month window only (Jan–Mar)
+ * - Single currency per dashboard (no mixing)
+ * - All KPIs are internally consistent
+ * - CFA is weighted more heavily in random selection
  */
 
 import { GLOBAL_NAMES, GLOBAL_CITIES, PRODUCT_TITLES, ORG_NAMES } from './global-names';
 
-// ── Supported currencies with realistic multipliers ──
+// ── Supported currencies with realistic ranges for small-to-mid orgs ──
 const CURRENCIES = [
-  { code: 'XOF', symbol: 'FCFA', min: 2_000, max: 50_000, revenueMin: 5_000_000, revenueMax: 35_000_000 },
-  { code: 'USD', symbol: '$', min: 5, max: 100, revenueMin: 5_000, revenueMax: 50_000 },
-  { code: 'XAF', symbol: 'FCFA', min: 2_000, max: 45_000, revenueMin: 4_000_000, revenueMax: 30_000_000 },
-  { code: 'GHS', symbol: 'GH₵', min: 20, max: 500, revenueMin: 20_000, revenueMax: 200_000 },
-  { code: 'KES', symbol: 'KSh', min: 500, max: 10_000, revenueMin: 500_000, revenueMax: 5_000_000 },
-  { code: 'NGN', symbol: '₦', min: 2_000, max: 50_000, revenueMin: 2_000_000, revenueMax: 25_000_000 },
-  { code: 'ZAR', symbol: 'R', min: 50, max: 1_500, revenueMin: 50_000, revenueMax: 500_000 },
-  { code: 'RWF', symbol: 'FRw', min: 3_000, max: 80_000, revenueMin: 3_000_000, revenueMax: 40_000_000 },
-  { code: 'UGX', symbol: 'USh', min: 10_000, max: 200_000, revenueMin: 10_000_000, revenueMax: 100_000_000 },
-  { code: 'TZS', symbol: 'TSh', min: 5_000, max: 150_000, revenueMin: 5_000_000, revenueMax: 80_000_000 },
-  { code: 'GNF', symbol: 'FG', min: 20_000, max: 500_000, revenueMin: 20_000_000, revenueMax: 200_000_000 },
-  { code: 'CDF', symbol: 'FC', min: 5_000, max: 100_000, revenueMin: 5_000_000, revenueMax: 60_000_000 },
-  { code: 'EUR', symbol: '€', min: 5, max: 80, revenueMin: 4_000, revenueMax: 40_000 },
-  { code: 'CAD', symbol: 'CA$', min: 7, max: 120, revenueMin: 6_000, revenueMax: 55_000 },
-  { code: 'GBP', symbol: '£', min: 4, max: 70, revenueMin: 3_500, revenueMax: 35_000 },
+  // CFA currencies weighted more (will be duplicated in pool)
+  { code: 'XOF', symbol: 'FCFA', txMin: 3_000, txMax: 30_000, revMin: 1_000_000, revMax: 10_000_000, locale: 'fr-FR' },
+  { code: 'XAF', symbol: 'FCFA', txMin: 3_000, txMax: 25_000, revMin: 1_000_000, revMax: 8_000_000, locale: 'fr-FR' },
+  { code: 'USD', symbol: '$', txMin: 5, txMax: 50, revMin: 1_000, revMax: 10_000, locale: 'en-US' },
+  { code: 'EUR', symbol: '€', txMin: 5, txMax: 45, revMin: 1_000, revMax: 10_000, locale: 'fr-FR' },
+  { code: 'GBP', symbol: '£', txMin: 4, txMax: 40, revMin: 1_000, revMax: 10_000, locale: 'en-GB' },
+  { code: 'GHS', symbol: 'GH₵', txMin: 20, txMax: 200, revMin: 10_000, revMax: 100_000, locale: 'en-GH' },
+  { code: 'KES', symbol: 'KSh', txMin: 500, txMax: 5_000, revMin: 200_000, revMax: 2_000_000, locale: 'en-KE' },
+  { code: 'NGN', symbol: '₦', txMin: 2_000, txMax: 20_000, revMin: 800_000, revMax: 8_000_000, locale: 'en-NG' },
+];
+
+// Weighted pool: CFA appears more often
+const CURRENCY_POOL = [
+  ...Array(4).fill(CURRENCIES[0]), // XOF x4
+  ...Array(3).fill(CURRENCIES[1]), // XAF x3
+  CURRENCIES[2], // USD
+  CURRENCIES[3], // EUR
+  CURRENCIES[4], // GBP
+  ...Array(2).fill(CURRENCIES[5]), // GHS x2
+  ...Array(2).fill(CURRENCIES[6]), // KES x2
+  ...Array(2).fill(CURRENCIES[7]), // NGN x2
 ];
 
 const PRODUCT_TYPES: Array<{ type: string; label: string }> = [
@@ -35,7 +47,7 @@ const PRODUCT_TYPES: Array<{ type: string; label: string }> = [
   { type: 'ebook', label: 'Devotional' },
 ];
 
-const MONTHS_FR = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+const MONTHS_3 = ['Jan', 'Feb', 'Mar'];
 
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -119,42 +131,50 @@ export interface DemoData {
 }
 
 export function generateDemoData(): DemoData {
-  // Pick main org
   const orgName = pick(ORG_NAMES);
-  const orgCurrency = pick(CURRENCIES);
+  const orgCurrency = pick(CURRENCY_POOL);
 
-  // Pick 4-6 additional orgs
-  const otherOrgs = uniquePicks(ORG_NAMES.filter(n => n !== orgName), randInt(4, 6));
+  // Consistent multi-org list (all using SAME currency for this dashboard)
+  const otherOrgs = uniquePicks(ORG_NAMES.filter(n => n !== orgName), randInt(3, 5));
   const orgs = [
     { name: orgName, currency: orgCurrency.code },
-    ...otherOrgs.map(name => ({ name, currency: pick(CURRENCIES).code })),
+    ...otherOrgs.map(name => ({ name, currency: orgCurrency.code })),
   ];
 
-  // Metrics
-  const totalRevenue = randInt(orgCurrency.revenueMin, orgCurrency.revenueMax);
-  const totalTransactions = randInt(800, 5_000);
-  const totalCustomers = randInt(150, 1_200);
-  const totalProducts = randInt(12, 80);
+  // ── Build consistent KPIs ──
+  const totalCustomers = randInt(150, 800);
+  const avgPurchasesPerCustomer = randFloat(1.5, 6, 1);
+  const totalTransactions = Math.round(totalCustomers * avgPurchasesPerCustomer);
+  const avgTransactionValue = randInt(orgCurrency.txMin, orgCurrency.txMax);
+  const totalRevenue = totalTransactions * avgTransactionValue;
+  const totalProducts = randInt(10, 80);
+
   const metrics = {
     totalRevenue,
     totalTransactions,
     totalCustomers,
     totalProducts,
-    growthPercent: randFloat(8, 45),
-    revenueGrowth: randFloat(12, 55),
-    customerGrowth: randFloat(5, 38),
-    transactionGrowth: randFloat(8, 42),
+    growthPercent: randFloat(10, 40),
+    revenueGrowth: randFloat(10, 40),
+    customerGrowth: randFloat(10, 35),
+    transactionGrowth: randFloat(10, 38),
   };
 
-  // Revenue chart — upward trend with organic variation
-  const baseRevenue = totalRevenue / 18;
-  const revenueChart = MONTHS_FR.map((month, i) => {
-    const trend = 0.6 + (i / 11) * 0.8; // 0.6 → 1.4
-    const jitter = 0.75 + Math.random() * 0.5; // 0.75 → 1.25
-    return { month, revenue: Math.round(baseRevenue * trend * jitter) };
-  });
+  // ── 3-month revenue chart with smooth growth ──
+  // Jan = base, Feb = +10-30%, Mar = +10-25%
+  const janShare = randFloat(0.25, 0.30, 2);
+  const febGrowth = randFloat(1.10, 1.30, 2);
+  const janRevenue = Math.round(totalRevenue * janShare);
+  const febRevenue = Math.round(janRevenue * febGrowth);
+  const marRevenue = totalRevenue - janRevenue - febRevenue;
 
-  // Sales — 12-20 transactions with mixed currencies
+  const revenueChart = [
+    { month: 'Jan', revenue: janRevenue },
+    { month: 'Feb', revenue: febRevenue },
+    { month: 'Mar', revenue: marRevenue },
+  ];
+
+  // ── Sales — ALL in same currency ──
   const salesCount = randInt(12, 20);
   const usedNames = new Set<string>();
   const sales = Array.from({ length: salesCount }, (_, i) => {
@@ -162,11 +182,11 @@ export function generateDemoData(): DemoData {
     do { buyer = pick(GLOBAL_NAMES); } while (usedNames.has(buyer));
     usedNames.add(buyer);
     const city = pick(GLOBAL_CITIES);
-    const saleCurrency = pick(CURRENCIES);
     const productInfo = pick(PRODUCT_TYPES);
     const org = pick(orgs);
-    const daysAgo = randInt(0, 14);
-    const d = new Date();
+    // Sales spread across last 90 days (Jan–Mar)
+    const daysAgo = randInt(0, 82);
+    const d = new Date(2026, 2, 23); // March 23
     d.setDate(d.getDate() - daysAgo);
     d.setHours(randInt(6, 22), randInt(0, 59));
 
@@ -175,8 +195,8 @@ export function generateDemoData(): DemoData {
       product: pick(PRODUCT_TITLES),
       type: productInfo.type,
       typeLabel: productInfo.label,
-      price: randInt(saleCurrency.min, saleCurrency.max),
-      currency: saleCurrency.code,
+      price: randInt(orgCurrency.txMin, orgCurrency.txMax),
+      currency: orgCurrency.code, // SAME currency everywhere
       status: 'completed',
       buyer,
       buyerCity: city.city,
@@ -186,7 +206,7 @@ export function generateDemoData(): DemoData {
     };
   }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  // AI Projects — 4-7
+  // ── AI Projects ──
   const projectCount = randInt(4, 7);
   const statuses = ['published', 'published', 'published', 'draft', 'generating'];
   const aiProjects = uniquePicks(PRODUCT_TITLES, projectCount).map((title, i) => {
@@ -198,7 +218,7 @@ export function generateDemoData(): DemoData {
       status,
       pages: status === 'generating' ? 0 : randInt(24, 180),
       createdAt: (() => {
-        const d = new Date();
+        const d = new Date(2026, 2, 23);
         d.setDate(d.getDate() - randInt(1, 90));
         return d.toISOString().split('T')[0];
       })(),
@@ -206,35 +226,34 @@ export function generateDemoData(): DemoData {
     };
   });
 
-  // Ambassador
+  // ── Ambassador (same currency) ──
   const ambCount = randInt(4, 7);
-  const topAmbassadors = uniquePicks(GLOBAL_NAMES, ambCount).map(() => {
-    const earned = randInt(Math.round(orgCurrency.revenueMin * 0.02), Math.round(orgCurrency.revenueMax * 0.05));
-    return {
-      name: pick(GLOBAL_NAMES),
-      earned,
-      sales: randInt(15, 120),
-    };
+  const topAmbassadors = uniquePicks(GLOBAL_NAMES, ambCount).map(name => {
+    const earned = randInt(
+      Math.round(totalRevenue * 0.01),
+      Math.round(totalRevenue * 0.08)
+    );
+    return { name, earned, sales: randInt(8, 65) };
   }).sort((a, b) => b.earned - a.earned);
 
-  const totalAmbEarned = topAmbassadors.reduce((s, a) => s + a.earned, 0) + randInt(orgCurrency.revenueMin, orgCurrency.revenueMax * 0.1);
-  const totalClicks = randInt(5_000, 30_000);
-  const totalConversions = randInt(200, 1_500);
+  const totalAmbEarned = topAmbassadors.reduce((s, a) => s + a.earned, 0);
+  const totalClicks = randInt(2_000, 15_000);
+  const totalConversions = randInt(80, 600);
 
   const ambassador = {
     totalEarned: totalAmbEarned,
-    currency: orgCurrency.code,
+    currency: orgCurrency.code, // SAME currency
     totalClicks,
     totalConversions,
-    conversionRate: randFloat(1.5, 6.5),
-    activeLinks: randInt(8, 45),
+    conversionRate: randFloat(2.0, 5.5),
+    activeLinks: randInt(6, 30),
     topAmbassadors,
   };
 
-  // Viral Tools
+  // ── Viral Tools ──
   const viralTopLinks = uniquePicks(PRODUCT_TITLES, 4).map(name => {
-    const clicks = randInt(500, 8_000);
-    const conversions = randInt(20, Math.round(clicks * 0.08));
+    const clicks = randInt(200, 4_000);
+    const conversions = randInt(10, Math.round(clicks * 0.06));
     return {
       name,
       clicks,
@@ -244,10 +263,10 @@ export function generateDemoData(): DemoData {
   }).sort((a, b) => b.clicks - a.clicks);
 
   const viralTools = {
-    totalShares: randInt(1_500, 12_000),
-    referralLinks: randInt(50, 400),
-    emailsSent: randInt(800, 8_000),
-    landingPages: randInt(4, 30),
+    totalShares: randInt(800, 6_000),
+    referralLinks: randInt(20, 200),
+    emailsSent: randInt(400, 4_000),
+    landingPages: randInt(3, 20),
     topLinks: viralTopLinks,
   };
 
