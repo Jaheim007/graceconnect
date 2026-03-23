@@ -312,15 +312,24 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         });
       }
 
+      // Phase 3: Done
+      setGenerationPhase('done');
+
       toast({
         title: isFr ? '✅ Cours créé avec l\'IA !' : '✅ Course created with AI!',
         description: shouldGenerateImages
           ? (isFr ? 'Les images des leçons se génèrent maintenant en arrière-plan.' : 'Lesson images are now generating in the background.')
           : undefined,
       });
+
+      // Brief delay to show success state
+      await new Promise(resolve => setTimeout(resolve, 1200));
+
       onOpenChange(false);
       setPrompt('');
+      setGenerating(false);
       onCreated(result.id);
+      return; // skip the finally block's setGenerating
     } catch (err: any) {
       const isCreditError = handleAiError(err);
       if (!isCreditError) {
