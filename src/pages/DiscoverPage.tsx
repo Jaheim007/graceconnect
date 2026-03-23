@@ -255,7 +255,7 @@ export default function DiscoverPage() {
         </div>
       </div>
 
-      <div className="container max-w-6xl py-6">
+      <div className="container max-w-6xl px-4 py-6">
         {/* Contextual banners */}
         {!isSearching && user && <NotificationDigest />}
         {!isSearching && !user && <DiscoverCTABanner />}
