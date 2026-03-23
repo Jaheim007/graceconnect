@@ -608,7 +608,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 <Button variant="outline" onClick={() => onOpenChange(false)}>
                   {isFr ? 'Annuler' : 'Cancel'}
                 </Button>
-                <Button onClick={handleCreate} disabled={!prompt.trim()} className="gap-1.5">
+                <Button onClick={() => void handleCreate()} disabled={!prompt.trim()} className="gap-1.5">
                   <Sparkles className="h-3.5 w-3.5" />
                   {isFr ? 'Créer' : 'Create'}
                 </Button>
