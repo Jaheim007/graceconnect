@@ -174,9 +174,16 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
 
       refreshCredits();
 
+      // Phase 2: Save to database
+      setGenerationPhase('saving');
+
       const courseTitle = data?.course_title || prompt.trim().slice(0, 100);
       const courseDescription = data?.course_description || prompt.trim();
       const deferredImageJobs: Array<{ id: string; title: string; imagePrompt: string }> = [];
+
+      if (!data?.modules?.length) {
+        throw new Error(isFr ? 'L\'IA n\'a généré aucun module. Réessayez.' : 'AI generated no modules. Please retry.');
+      }
 
       const result = await createProgram.mutateAsync({
         organization_id: currentOrg.id,
