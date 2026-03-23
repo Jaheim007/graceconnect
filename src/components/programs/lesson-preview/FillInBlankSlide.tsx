@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Star, CheckCircle2, XCircle, Zap, PenLine } from 'lucide-react';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
+import { LessonImageBackdrop } from './LessonImageBackdrop';
 
 export interface FillInBlankData {
   sentence: string; // e.g. "The ___ is the powerhouse of the cell"
@@ -20,6 +21,7 @@ interface FillInBlankSlideProps {
   lessonTitle: string;
   orgLogoUrl?: string | null;
   deviceMode: 'mobile' | 'tablet' | 'desktop';
+  lessonImageUrl?: string;
   onStarEarned?: () => void;
   gamificationEnabled?: boolean;
 }
@@ -57,6 +59,7 @@ export function FillInBlankSlide({
   lessonTitle,
   orgLogoUrl,
   deviceMode,
+  lessonImageUrl,
   onStarEarned,
   gamificationEnabled = true,
 }: FillInBlankSlideProps) {
@@ -94,6 +97,7 @@ export function FillInBlankSlide({
 
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden bg-gradient-to-br', theme.gradient)}>
+      <LessonImageBackdrop imageUrl={lessonImageUrl} />
       <SlideDecoration theme={theme} />
       {showConfetti && <ConfettiBurst />}
 

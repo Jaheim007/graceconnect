@@ -5,6 +5,7 @@ import { Star, CheckCircle2, XCircle, Trophy, ChevronRight, Award } from 'lucide
 import type { QuizData } from './parseContentSlides';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
+import { LessonImageBackdrop } from './LessonImageBackdrop';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 
@@ -16,13 +17,14 @@ interface FinalAssessmentSlideProps {
   lessonTitle: string;
   orgLogoUrl?: string | null;
   deviceMode: 'mobile' | 'tablet' | 'desktop';
+  lessonImageUrl?: string;
   onComplete: (score: number, total: number) => void;
   gamificationEnabled?: boolean;
 }
 
 export function FinalAssessmentSlide({
   questions, theme, slideIndex, totalSlides, lessonTitle,
-  orgLogoUrl, deviceMode, onComplete, gamificationEnabled = true,
+  orgLogoUrl, deviceMode, lessonImageUrl, onComplete, gamificationEnabled = true,
 }: FinalAssessmentSlideProps) {
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(new Array(questions.length).fill(null));
@@ -62,6 +64,7 @@ export function FinalAssessmentSlide({
 
     return (
       <div className={cn('h-full flex flex-col text-white relative overflow-hidden bg-gradient-to-br', theme.gradient)}>
+        <LessonImageBackdrop imageUrl={lessonImageUrl} />
         <SlideDecoration theme={theme} />
         <div className="flex-1 flex flex-col items-center justify-center px-6 relative z-10">
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 10, delay: 0.2 }} className="mb-6">
@@ -103,6 +106,7 @@ export function FinalAssessmentSlide({
 
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden bg-gradient-to-br', theme.gradient)}>
+      <LessonImageBackdrop imageUrl={lessonImageUrl} />
       <SlideDecoration theme={theme} />
       <div className="flex items-center gap-2.5 px-5 py-3 relative z-20">
         {orgLogoUrl ? (

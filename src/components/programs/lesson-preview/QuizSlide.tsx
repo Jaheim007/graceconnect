@@ -5,6 +5,7 @@ import { Star, CheckCircle2, XCircle, Flame, Zap } from 'lucide-react';
 import type { QuizData } from './parseContentSlides';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
+import { LessonImageBackdrop } from './LessonImageBackdrop';
 import { useI18n } from '@/i18n/I18nContext';
 
 interface QuizSlideProps {
@@ -15,6 +16,7 @@ interface QuizSlideProps {
   lessonTitle: string;
   orgLogoUrl?: string | null;
   deviceMode: 'mobile' | 'tablet' | 'desktop';
+  lessonImageUrl?: string;
   onStarEarned?: () => void;
   gamificationEnabled?: boolean;
 }
@@ -48,7 +50,7 @@ function ConfettiBurst() {
 
 export function QuizSlide({
   quiz, theme, slideIndex, totalSlides, lessonTitle,
-  orgLogoUrl, deviceMode, onStarEarned, gamificationEnabled = true,
+  orgLogoUrl, deviceMode, lessonImageUrl, onStarEarned, gamificationEnabled = true,
 }: QuizSlideProps) {
   const [selected, setSelected] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -77,6 +79,7 @@ export function QuizSlide({
 
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden bg-gradient-to-br', theme.gradient)}>
+      <LessonImageBackdrop imageUrl={lessonImageUrl} />
       <SlideDecoration theme={theme} />
       {showConfetti && <ConfettiBurst />}
 

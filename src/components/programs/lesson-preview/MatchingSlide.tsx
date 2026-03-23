@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Star, CheckCircle2, XCircle, Link2 } from 'lucide-react';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
+import { LessonImageBackdrop } from './LessonImageBackdrop';
 import { useI18n } from '@/i18n/I18nContext';
 
 export interface MatchingData {
@@ -18,13 +19,14 @@ interface MatchingSlideProps {
   lessonTitle: string;
   orgLogoUrl?: string | null;
   deviceMode: 'mobile' | 'tablet' | 'desktop';
+  lessonImageUrl?: string;
   onStarEarned?: () => void;
   gamificationEnabled?: boolean;
 }
 
 export function MatchingSlide({
   matching, theme, slideIndex, totalSlides, lessonTitle,
-  orgLogoUrl, deviceMode, onStarEarned, gamificationEnabled = true,
+  orgLogoUrl, deviceMode, lessonImageUrl, onStarEarned, gamificationEnabled = true,
 }: MatchingSlideProps) {
   const isMobile = deviceMode === 'mobile';
   const { locale } = useI18n();
@@ -74,6 +76,7 @@ export function MatchingSlide({
 
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden bg-gradient-to-br', theme.gradient)}>
+      <LessonImageBackdrop imageUrl={lessonImageUrl} />
       <SlideDecoration theme={theme} />
 
       {/* Header */}

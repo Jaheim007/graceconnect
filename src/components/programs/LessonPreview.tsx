@@ -145,12 +145,14 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   const allSlides: FlatSlide[] = useMemo(() => {
     const slides: FlatSlide[] = [];
     let lessonIdx = 0;
+    let lastLessonImageUrl: string | undefined;
 
     for (const mod of modules) {
       const modLessons = (mod as any).lessons || [];
 
       for (const lesson of modLessons) {
         const { lessonImageUrl, cleanedHtml } = extractLessonMedia(lesson.content || '');
+        if (lessonImageUrl) lastLessonImageUrl = lessonImageUrl;
 
         slides.push({
           lessonId: lesson.id,
@@ -191,6 +193,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
         slide: { type: 'final-assessment', bodyHtml: '' },
         lessonIndex: lessonIdx,
         slideInLesson: 0,
+        lessonImageUrl: lastLessonImageUrl,
       });
     }
 
@@ -203,6 +206,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
       slide: { type: 'course-completion', bodyHtml: '' },
       lessonIndex: lessonIdx + 1,
       slideInLesson: 0,
+      lessonImageUrl: lastLessonImageUrl,
     });
 
     return slides;
@@ -394,6 +398,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           lessonTitle={current.lessonTitle}
           orgLogoUrl={orgLogoUrl}
           deviceMode={deviceMode}
+          lessonImageUrl={current.lessonImageUrl}
           gamificationEnabled={gamificationEnabled}
           onComplete={(score, t) => {
             setAssessmentScore(score);
@@ -419,6 +424,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           programId={programId}
           orgLogoUrl={orgLogoUrl}
           deviceMode={deviceMode}
+          lessonImageUrl={current.lessonImageUrl}
           gamificationEnabled={gamificationEnabled}
           mode={mode}
         />

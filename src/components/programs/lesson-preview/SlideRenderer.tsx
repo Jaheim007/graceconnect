@@ -156,6 +156,7 @@ export function SlideRenderer({
       <QuizSlide
         quiz={slide.quiz} theme={theme} slideIndex={slideIndex} totalSlides={totalSlides}
         lessonTitle={lessonTitle} orgLogoUrl={orgLogoUrl} deviceMode={deviceMode}
+        lessonImageUrl={lessonImageUrl}
         onStarEarned={onStarEarned} gamificationEnabled={gamificationEnabled}
       />
     );
@@ -165,6 +166,7 @@ export function SlideRenderer({
       <FlashcardSlide
         flashcard={slide.flashcard} theme={theme} slideIndex={slideIndex} totalSlides={totalSlides}
         lessonTitle={lessonTitle} orgLogoUrl={orgLogoUrl} deviceMode={deviceMode}
+        lessonImageUrl={lessonImageUrl}
         onStarEarned={onStarEarned} gamificationEnabled={gamificationEnabled}
       />
     );
@@ -174,6 +176,7 @@ export function SlideRenderer({
       <MatchingSlide
         matching={slide.matching} theme={theme} slideIndex={slideIndex} totalSlides={totalSlides}
         lessonTitle={lessonTitle} orgLogoUrl={orgLogoUrl} deviceMode={deviceMode}
+        lessonImageUrl={lessonImageUrl}
         onStarEarned={onStarEarned} gamificationEnabled={gamificationEnabled}
       />
     );
@@ -183,6 +186,7 @@ export function SlideRenderer({
       <OrderingSlide
         ordering={slide.ordering} theme={theme} slideIndex={slideIndex} totalSlides={totalSlides}
         lessonTitle={lessonTitle} orgLogoUrl={orgLogoUrl} deviceMode={deviceMode}
+        lessonImageUrl={lessonImageUrl}
         onStarEarned={onStarEarned} gamificationEnabled={gamificationEnabled}
       />
     );
@@ -192,6 +196,7 @@ export function SlideRenderer({
       <FillInBlankSlide
         fillInBlank={slide.fillInBlank} theme={theme} slideIndex={slideIndex} totalSlides={totalSlides}
         lessonTitle={lessonTitle} orgLogoUrl={orgLogoUrl} deviceMode={deviceMode}
+        lessonImageUrl={lessonImageUrl}
         onStarEarned={onStarEarned} gamificationEnabled={gamificationEnabled}
       />
     );
