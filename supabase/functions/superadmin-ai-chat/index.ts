@@ -275,9 +275,12 @@ ${metricsSummary || '  No metrics available'}
     if (!openaiResp || !openaiResp.ok || !openaiResp.body) {
       const status = openaiResp?.status || 500;
       const errText = await openaiResp?.text().catch(() => '') || '';
-      console.error('OpenAI error:', status, errText);
+      console.error('AI Gateway error:', status, errText);
       if (status === 429) {
         return jsonResp({ error: 'Le service IA est temporairement surchargé. Veuillez réessayer dans 30 secondes.' }, 429);
+      }
+      if (status === 402) {
+        return jsonResp({ error: 'Crédits IA insuffisants. Veuillez recharger votre compte.' }, 402);
       }
       return jsonResp({ error: `AI error (${status})` }, 502);
     }
