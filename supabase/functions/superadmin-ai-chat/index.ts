@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
 
     const kycDetail = kycList.map((k: any) => {
       const orgName = orgNameMap[k.organization_id] || k.organization_id;
-      const aiScore = k.ai_analysis_result?.score ? `Score IA: ${k.ai_analysis_result.score}%` : '';
+      const aiScore = k.ai_confidence_score ? `Score IA: ${k.ai_confidence_score}%` : '';
       return `  - ${k.full_name || 'N/A'} | Statut: ${k.status} | Type: ${k.submission_type || 'N/A'} | Org: ${orgName} | Date: ${k.created_at?.slice(0, 10)} ${aiScore}`;
     }).join('\n');
 
