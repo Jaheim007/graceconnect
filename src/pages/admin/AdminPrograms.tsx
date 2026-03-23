@@ -166,9 +166,11 @@ export default function AdminPrograms() {
               >
                 {/* Cover image */}
                 {prog.cover_image_url ? (
-                  <img src={prog.cover_image_url} alt="" className="h-32 w-full object-cover" />
+                  <div className="aspect-video w-full overflow-hidden">
+                    <img src={prog.cover_image_url} alt="" className="w-full h-full object-cover" />
+                  </div>
                 ) : (
-                  <div className="h-32 w-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                  <div className="aspect-video w-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
                     <BookOpen className="h-10 w-10 text-primary/30" />
                   </div>
                 )}
