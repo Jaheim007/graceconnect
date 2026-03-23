@@ -66,7 +66,11 @@ Deno.serve(async (req) => {
     const kycApproved = kycList.filter((k: any) => k.status === 'approved');
     const kycRejected = kycList.filter((k: any) => k.status === 'rejected');
 
-    const kycDetail = kycList.map((k: any) => `  - ${k.full_name || 'N/A'} | Statut: ${k.status} | Type: ${k.submission_type || 'N/A'} | Org: ${orgNameMap[k.organization_id] || k.organization_id} | Date: ${k.created_at?.slice(0, 10)}`).join('\n');
+    const kycDetail = kycList.map((k: any) => {
+      const orgName = orgNameMap[k.organization_id] || k.organization_id;
+      const aiScore = k.ai_analysis_result?.score ? `Score IA: ${k.ai_analysis_result.score}%` : '';
+      return `  - ${k.full_name || 'N/A'} | Statut: ${k.status} | Type: ${k.submission_type || 'N/A'} | Org: ${orgName} | Date: ${k.created_at?.slice(0, 10)} ${aiScore}`;
+    }).join('\n');
 
     // Payout details
     const payoutDetail = payoutList.map((p: any) => `  - ${p.amount} ${p.currency} | Statut: ${p.status} | Type: ${p.payout_type || 'org'} | Org: ${orgNameMap[p.organization_id] || p.organization_id} | Date: ${p.created_at?.slice(0, 10)}`).join('\n');
