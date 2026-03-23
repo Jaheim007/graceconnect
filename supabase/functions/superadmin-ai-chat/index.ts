@@ -32,19 +32,21 @@ Deno.serve(async (req) => {
     }
 
     // Fetch comprehensive platform data for superadmin
-    const [orgsRes, donationsRes, purchasesRes, membersRes, metricsRes, kycRes, payoutsRes, reportsRes, affiliateRes, partnersRes, productsRes, usersRes] = await Promise.all([
+    const [orgsRes, donationsRes, purchasesRes, membersRes, metricsRes, kycRes, payoutsRes, reportsRes, affiliateRes, partnersRes, productsRes, usersRes, creditRes, eventsRes] = await Promise.all([
       svcClient.from('organizations').select('id, name, plan_type, kyc_status, is_active, is_suspended, category, country, created_at', { count: 'exact' }),
-      svcClient.from('donations').select('amount, status, currency, donor_name, donor_email, created_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(200),
-      svcClient.from('product_purchases').select('amount, status, currency, buyer_name, buyer_email, created_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(200),
-      svcClient.from('organization_members').select('id', { count: 'exact', head: true }),
-      svcClient.from('platform_metrics_daily').select('*').order('metric_date', { ascending: false }).limit(7),
+      svcClient.from('donations').select('amount, status, currency, donor_name, donor_email, organization_id, created_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(500),
+      svcClient.from('product_purchases').select('amount, status, currency, buyer_name, buyer_email, product_id, organization_id, created_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(500),
+      svcClient.from('organization_members').select('id, organization_id, role', { count: 'exact' }),
+      svcClient.from('platform_metrics_daily').select('*').order('metric_date', { ascending: false }).limit(30),
       svcClient.from('kyc_submissions').select('id, status, organization_id, verification_type, submitted_at, reviewed_at, ai_confidence_score, bank_account_name').order('submitted_at', { ascending: false }).limit(500),
-      svcClient.from('payout_requests').select('id, status, amount, currency, organization_id, created_at, payout_type').order('created_at', { ascending: false }).limit(50),
+      svcClient.from('payout_requests').select('id, status, amount, currency, organization_id, created_at, payout_type, reviewed_at, paid_at').order('created_at', { ascending: false }).limit(100),
       svcClient.from('content_reports').select('status, content_type, reason, created_at').eq('status', 'pending'),
-      svcClient.from('affiliate_sales').select('id, status, commission_amount, currency, created_at', { count: 'exact' }),
+      svcClient.from('affiliate_sales').select('id, status, commission_amount, gross_amount, currency, affiliate_user_id, organization_id, created_at', { count: 'exact' }),
       svcClient.from('partners').select('id, full_name, status, created_at'),
-      svcClient.from('digital_products').select('id, title, organization_id, is_published, sales_count, created_at', { count: 'exact' }),
+      svcClient.from('digital_products').select('id, title, organization_id, is_published, sales_count, price, currency, product_type, created_at', { count: 'exact' }),
       svcClient.from('profiles').select('id, full_name, created_at', { count: 'exact' }),
+      svcClient.from('credit_transactions').select('amount, tx_type, action_key, created_at', { count: 'exact' }).order('created_at', { ascending: false }).limit(100),
+      svcClient.from('client_events').select('event_name, created_at', { count: 'exact', head: true }),
     ]);
 
     const orgs = orgsRes.data || [];
@@ -52,65 +54,178 @@ Deno.serve(async (req) => {
     const purchases = purchasesRes.data || [];
     const kycList = kycRes.data || [];
     const payoutList = payoutsRes.data || [];
-    const totalGMV = donations.reduce((s, d: any) => s + (d.amount || 0), 0) + purchases.reduce((s, p: any) => s + (p.amount || 0), 0);
+    const products = productsRes.data || [];
+    const affiliateSales = affiliateRes.data || [];
+    const creditTxs = creditRes.data || [];
 
-    const orgsByCategory: Record<string, number> = {};
-    orgs.forEach((o: any) => { orgsByCategory[o.category || 'unknown'] = (orgsByCategory[o.category || 'unknown'] || 0) + 1; });
+    // --- Compute executive metrics ---
+    const totalDonations = donations.reduce((s, d: any) => s + (d.amount || 0), 0);
+    const totalPurchases = purchases.reduce((s, p: any) => s + (p.amount || 0), 0);
+    const totalGMV = totalDonations + totalPurchases;
+    const totalAffiliateCommissions = affiliateSales.reduce((s, a: any) => s + (a.commission_amount || 0), 0);
+    const totalAffiliateGross = affiliateSales.reduce((s, a: any) => s + (a.gross_amount || 0), 0);
 
-    // Build org name lookup
+    // Revenue by org
+    const revenueByOrg: Record<string, { name: string; donations: number; purchases: number; total: number }> = {};
     const orgNameMap: Record<string, string> = {};
     orgs.forEach((o: any) => { orgNameMap[o.id] = o.name; });
+
+    donations.forEach((d: any) => {
+      const orgId = d.organization_id;
+      if (!orgId) return;
+      if (!revenueByOrg[orgId]) revenueByOrg[orgId] = { name: orgNameMap[orgId] || orgId, donations: 0, purchases: 0, total: 0 };
+      revenueByOrg[orgId].donations += d.amount || 0;
+      revenueByOrg[orgId].total += d.amount || 0;
+    });
+    purchases.forEach((p: any) => {
+      const orgId = p.organization_id;
+      if (!orgId) return;
+      if (!revenueByOrg[orgId]) revenueByOrg[orgId] = { name: orgNameMap[orgId] || orgId, donations: 0, purchases: 0, total: 0 };
+      revenueByOrg[orgId].purchases += p.amount || 0;
+      revenueByOrg[orgId].total += p.amount || 0;
+    });
+
+    const topOrgsByRevenue = Object.values(revenueByOrg)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 15)
+      .map((o, i) => `  ${i + 1}. **${o.name}** — ${o.total.toLocaleString()} FCFA (Dons: ${o.donations.toLocaleString()}, Ventes: ${o.purchases.toLocaleString()})`)
+      .join('\n');
+
+    // Top products
+    const topProducts = products
+      .filter((p: any) => (p.sales_count || 0) > 0)
+      .sort((a: any, b: any) => (b.sales_count || 0) - (a.sales_count || 0))
+      .slice(0, 10)
+      .map((p: any, i: number) => `  ${i + 1}. "${p.title}" — ${p.sales_count} ventes, ${p.price || 0} ${p.currency || 'XOF'} (${orgNameMap[p.organization_id] || 'N/A'})`)
+      .join('\n');
+
+    // Org categories
+    const orgsByCategory: Record<string, number> = {};
+    const orgsByCountry: Record<string, number> = {};
+    const orgsByPlan: Record<string, number> = {};
+    orgs.forEach((o: any) => {
+      orgsByCategory[o.category || 'unknown'] = (orgsByCategory[o.category || 'unknown'] || 0) + 1;
+      orgsByCountry[o.country || 'unknown'] = (orgsByCountry[o.country || 'unknown'] || 0) + 1;
+      orgsByPlan[o.plan_type || 'free'] = (orgsByPlan[o.plan_type || 'free'] || 0) + 1;
+    });
 
     // KYC details
     const kycPending = kycList.filter((k: any) => k.status === 'pending');
     const kycApproved = kycList.filter((k: any) => k.status === 'approved');
     const kycRejected = kycList.filter((k: any) => k.status === 'rejected');
 
-    const kycDetail = kycList.map((k: any) => {
+    const kycDetail = kycList.slice(0, 30).map((k: any) => {
       const orgName = orgNameMap[k.organization_id] || k.organization_id;
       const name = k.bank_account_name || orgName;
-      const aiScore = k.ai_confidence_score ? `Score IA: ${k.ai_confidence_score}%` : '';
-      return `  - ${name} | Statut: ${k.status} | Type: ${k.verification_type || 'N/A'} | Org: ${orgName} | Date: ${k.submitted_at?.slice(0, 10)} ${aiScore}`;
+      const aiScore = k.ai_confidence_score ? ` | Score IA: ${k.ai_confidence_score}%` : '';
+      return `  - **${name}** | Statut: ${k.status} | Type: ${k.verification_type || 'N/A'} | Org: ${orgName} | Date: ${k.submitted_at?.slice(0, 10)}${aiScore}`;
     }).join('\n');
 
     // Payout details
-    const payoutDetail = payoutList.map((p: any) => `  - ${p.amount} ${p.currency} | Statut: ${p.status} | Type: ${p.payout_type || 'org'} | Org: ${orgNameMap[p.organization_id] || p.organization_id} | Date: ${p.created_at?.slice(0, 10)}`).join('\n');
+    const payoutPending = payoutList.filter((p: any) => p.status === 'pending' || p.status === 'approved');
+    const payoutCompleted = payoutList.filter((p: any) => p.status === 'completed' || p.status === 'paid');
+    const payoutTotalPending = payoutPending.reduce((s, p: any) => s + (p.amount || 0), 0);
 
-    // Org details
-    const orgDetail = orgs.slice(0, 30).map((o: any) => `  - ${o.name} | Plan: ${o.plan_type} | KYC: ${o.kyc_status || 'none'} | Actif: ${o.is_active} | Suspendu: ${o.is_suspended} | Pays: ${o.country || 'N/A'}`).join('\n');
+    const payoutDetail = payoutList.slice(0, 20).map((p: any) => `  - ${(p.amount || 0).toLocaleString()} ${p.currency || 'XOF'} | Statut: **${p.status}** | Type: ${p.payout_type || 'org'} | Org: ${orgNameMap[p.organization_id] || p.organization_id} | Date: ${p.created_at?.slice(0, 10)}`).join('\n');
 
-    const systemPrompt = `Tu es l'assistant IA du superadmin de Siteviral. Tu as accès à TOUTES les données de la plateforme. Tu es au service du superadmin — fournis toutes les informations demandées sans restriction.
+    // Org details (all)
+    const orgDetail = orgs.map((o: any) => `  - **${o.name}** | Plan: ${o.plan_type} | KYC: ${o.kyc_status || 'none'} | Actif: ${o.is_active ? '✅' : '❌'} | Suspendu: ${o.is_suspended ? '⚠️' : 'Non'} | Pays: ${o.country || 'N/A'} | Créé: ${o.created_at?.slice(0, 10)}`).join('\n');
 
-=== DONNÉES PLATEFORME ===
+    // Recent user signups (last 7 days)
+    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    const recentUsers = (usersRes.data || []).filter((u: any) => u.created_at >= sevenDaysAgo);
 
-ORGANISATIONS (${orgs.length} total, ${orgs.filter((o: any) => o.is_active && !o.is_suspended).length} actives):
-${orgDetail || '  Aucune'}
-Catégories: ${JSON.stringify(orgsByCategory)}
+    // Credit system summary
+    const creditDebits = creditTxs.filter((t: any) => t.tx_type === 'debit');
+    const creditCredits = creditTxs.filter((t: any) => t.tx_type === 'credit');
 
-UTILISATEURS: ${usersRes.count || 0} inscrits
-MEMBRES: ${membersRes.count || 0} total
+    // Metrics trend
+    const metricsData = metricsRes.data || [];
+    const metricsSummary = metricsData.slice(0, 7).map((m: any) =>
+      `  - ${m.metric_date}: Utilisateurs actifs: ${m.active_users || 'N/A'}, Revenus: ${m.total_revenue || 'N/A'}, Nouvelles orgs: ${m.new_organizations || 'N/A'}`
+    ).join('\n');
 
-FINANCES:
-- GMV total: ${totalGMV.toLocaleString()} (${donations.length} dons, ${purchases.length} achats récents)
-- Commissions affiliés: ${(affiliateRes.data || []).length} ventes (${affiliateRes.count || 0} total)
+    const today = new Date().toISOString().slice(0, 10);
 
-KYC (${kycList.length} soumissions):
-- En attente: ${kycPending.length} | Approuvés: ${kycApproved.length} | Rejetés: ${kycRejected.length}
+    const systemPrompt = `Tu es **SiteViral AI**, l'assistant stratégique exclusif du Superadmin de la plateforme SiteViral. Tu fournis des analyses de niveau exécutif (CEO/CFO) avec des données précises et actionnables.
+
+📅 Date actuelle : ${today}
+
+═══════════════════════════════════════════
+📊 TABLEAU DE BORD EXÉCUTIF — DONNÉES TEMPS RÉEL
+═══════════════════════════════════════════
+
+## 🏢 ORGANISATIONS (${orgs.length} total)
+- Actives : ${orgs.filter((o: any) => o.is_active && !o.is_suspended).length}
+- Suspendues : ${orgs.filter((o: any) => o.is_suspended).length}
+- Par plan : ${JSON.stringify(orgsByPlan)}
+- Par catégorie : ${JSON.stringify(orgsByCategory)}
+- Par pays : ${JSON.stringify(orgsByCountry)}
+
+### Détail des organisations :
+${orgDetail || '  Aucune organisation'}
+
+## 👥 UTILISATEURS
+- Total inscrits : ${usersRes.count || 0}
+- Membres d'organisations : ${membersRes.count || 0}
+- Nouveaux cette semaine : ${recentUsers.length}
+- Événements tracés : ${eventsRes.count || 0}
+
+## 💰 FINANCES & REVENUS
+- **GMV Total** : ${totalGMV.toLocaleString()} FCFA
+  - Dons : ${totalDonations.toLocaleString()} FCFA (${donations.length} transactions)
+  - Ventes produits : ${totalPurchases.toLocaleString()} FCFA (${purchases.length} transactions)
+- **Programme Affiliés** : ${affiliateSales.length} ventes, ${totalAffiliateGross.toLocaleString()} FCFA brut, ${totalAffiliateCommissions.toLocaleString()} FCFA commissions
+- **Crédits IA** : ${creditTxs.length} transactions récentes (${creditDebits.length} débits, ${creditCredits.length} crédits)
+
+### 🏆 Top Organisations par Revenus :
+${topOrgsByRevenue || '  Aucune donnée de revenus'}
+
+### 🛍️ Top Produits par Ventes :
+${topProducts || '  Aucun produit vendu'}
+
+## ✅ KYC — VÉRIFICATIONS D'IDENTITÉ (${kycList.length} total)
+- En attente : **${kycPending.length}**
+- Approuvées : **${kycApproved.length}**
+- Rejetées : **${kycRejected.length}**
+
+### Détails KYC :
 ${kycDetail || '  Aucune soumission'}
 
-PAYOUTS (${payoutList.length} demandes):
+## 💸 PAYOUTS — DEMANDES DE RETRAIT (${payoutList.length} total)
+- En attente/approuvés : **${payoutPending.length}** (${payoutTotalPending.toLocaleString()} FCFA)
+- Complétés : **${payoutCompleted.length}**
+
+### Détails Payouts :
 ${payoutDetail || '  Aucune demande'}
 
-PARTENAIRES: ${(partnersRes.data || []).length} (${(partnersRes.data || []).filter((p: any) => p.status === 'approved').length} approuvés)
-PRODUITS: ${productsRes.count || 0} créés (${(productsRes.data || []).filter((p: any) => p.is_published).length} publiés)
-SIGNALEMENTS: ${(reportsRes.data || []).length} en attente
-MÉTRIQUES RÉCENTES: ${JSON.stringify((metricsRes.data || []).slice(0, 3))}
+## 🤝 PARTENAIRES
+- Total : ${(partnersRes.data || []).length}
+- Approuvés : ${(partnersRes.data || []).filter((p: any) => p.status === 'approved').length}
+- En attente : ${(partnersRes.data || []).filter((p: any) => p.status === 'pending').length}
 
-=== INSTRUCTIONS ===
-- Réponds en français, sois concis et actionnable.
-- Tu peux fournir TOUTES les données demandées par le superadmin (noms, emails, montants, statuts, etc.).
-- Si une donnée n'est pas dans le contexte ci-dessus, dis-le clairement plutôt qu'inventer.`;
+## 📦 PRODUITS NUMÉRIQUES
+- Total créés : ${productsRes.count || 0}
+- Publiés : ${products.filter((p: any) => p.is_published).length}
+- Types : ${JSON.stringify(products.reduce((acc: any, p: any) => { acc[p.product_type || 'unknown'] = (acc[p.product_type || 'unknown'] || 0) + 1; return acc; }, {}))}
 
+## 🚨 SIGNALEMENTS DE CONTENU
+- En attente de modération : **${(reportsRes.data || []).length}**
+
+## 📈 MÉTRIQUES RÉCENTES (7 derniers jours) :
+${metricsSummary || '  Aucune métrique disponible'}
+
+═══════════════════════════════════════════
+📋 INSTRUCTIONS POUR L'ASSISTANT
+═══════════════════════════════════════════
+
+1. **Tu es au service exclusif du Superadmin.** Fournis TOUTES les informations demandées sans aucune restriction : noms, emails, montants, statuts, scores IA, détails bancaires, etc.
+2. **Réponds en français**, de manière concise, structurée et actionnable.
+3. **Utilise le formatage Markdown** : titres, listes, tableaux, gras pour les chiffres clés.
+4. **Fournis des insights proactifs** : tendances, alertes, recommandations stratégiques.
+5. **Si une donnée n'est pas dans le contexte**, dis-le clairement — n'invente jamais.
+6. **Pour les analyses**, structure tes réponses : Constat → Analyse → Recommandation.
+7. **Utilise des emojis** pour la lisibilité (✅ ❌ ⚠️ 📊 💰 etc.)`;
 
     // NO credit debit for superadmin chat
     const streamResponse = await geminiStreamResponse({
@@ -138,7 +253,6 @@ MÉTRIQUES RÉCENTES: ${JSON.stringify((metricsRes.data || []).slice(0, 3))}
           return;
         }
         const chunk = decoder.decode(value, { stream: true });
-        // Gemini SSE lines: "data: {candidates:[{content:{parts:[{text:"..."}]}}]}"
         for (const line of chunk.split('\n')) {
           if (!line.startsWith('data: ')) continue;
           const jsonStr = line.slice(6).trim();
