@@ -1,6 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, jsonResp } from '../_shared/auth.ts';
-import { geminiStreamResponse } from '../_shared/ai-gemini.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -12,8 +11,8 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-    if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY not configured');
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY not configured');
 
     const supabase = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
     const { data: { user } } = await supabase.auth.getUser();
@@ -227,48 +226,34 @@ ${metricsSummary || '  Aucune métrique disponible'}
 6. **Pour les analyses**, structure tes réponses : Constat → Analyse → Recommandation.
 7. **Utilise des emojis** pour la lisibilité (✅ ❌ ⚠️ 📊 💰 etc.)`;
 
-    // NO credit debit for superadmin chat
-    const streamResponse = await geminiStreamResponse({
-      apiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
-      system: systemPrompt, messages,
+    // Stream via OpenAI GPT-4o for best executive-grade analysis
+    const openaiMessages = [
+      { role: 'system', content: systemPrompt },
+      ...messages.map((m: any) => ({ role: m.role, content: m.content })),
+    ];
+
+    const openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: openaiMessages,
+        stream: true,
+        temperature: 0.4,
+        max_tokens: 4096,
+      }),
     });
 
-    if (streamResponse.status !== 200 || !streamResponse.body) {
-      const headers = new Headers(streamResponse.headers);
-      Object.entries(corsHeaders).forEach(([k, v]) => headers.set(k, v));
-      return new Response(streamResponse.body, { status: streamResponse.status, headers });
+    if (!openaiResp.ok || !openaiResp.body) {
+      const errText = await openaiResp.text().catch(() => '');
+      console.error('OpenAI error:', openaiResp.status, errText);
+      return jsonResp({ error: `AI error (${openaiResp.status})` }, 502);
     }
 
-    // Transform Gemini SSE → OpenAI-compatible SSE for the client
-    const reader = streamResponse.body.getReader();
-    const decoder = new TextDecoder();
-    const encoder = new TextEncoder();
-
-    const transformedStream = new ReadableStream({
-      async pull(controller) {
-        const { done, value } = await reader.read();
-        if (done) {
-          controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-          controller.close();
-          return;
-        }
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split('\n')) {
-          if (!line.startsWith('data: ')) continue;
-          const jsonStr = line.slice(6).trim();
-          if (!jsonStr) continue;
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (text) {
-              const openaiChunk = { choices: [{ delta: { content: text } }] };
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify(openaiChunk)}\n\n`));
-            }
-          } catch { /* partial JSON, skip */ }
-        }
-      },
-    });
-
+    // OpenAI already sends OpenAI-compatible SSE, pass through directly
     const headers = new Headers({
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
@@ -276,7 +261,7 @@ ${metricsSummary || '  Aucune métrique disponible'}
     });
     Object.entries(corsHeaders).forEach(([k, v]) => headers.set(k, v));
 
-    return new Response(transformedStream, { status: 200, headers });
+    return new Response(openaiResp.body, { status: 200, headers });
   } catch (e) {
     console.error('superadmin-ai-chat error:', e);
     return jsonResp({ error: e instanceof Error ? e.message : 'Unknown error' }, 500);
