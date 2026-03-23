@@ -244,25 +244,42 @@ ${metricsSummary || '  No metrics available'}
       ...messages.map((m: any) => ({ role: m.role, content: m.content })),
     ];
 
-    const openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: openaiMessages,
-        stream: true,
-        temperature: 0.4,
-        max_tokens: 4096,
-      }),
-    });
+    // Retry logic for OpenAI rate limits (429)
+    let openaiResp: Response | null = null;
+    const maxRetries = 3;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: openaiMessages,
+          stream: true,
+          temperature: 0.4,
+          max_tokens: 4096,
+        }),
+      });
 
-    if (!openaiResp.ok || !openaiResp.body) {
-      const errText = await openaiResp.text().catch(() => '');
-      console.error('OpenAI error:', openaiResp.status, errText);
-      return jsonResp({ error: `AI error (${openaiResp.status})` }, 502);
+      if (openaiResp.status === 429 && attempt < maxRetries - 1) {
+        const retryAfter = parseInt(openaiResp.headers.get('retry-after') || '0') || (2 ** attempt * 2);
+        console.warn(`[superadmin-ai] Rate limited, retry ${attempt + 1} in ${retryAfter}s`);
+        await new Promise(r => setTimeout(r, retryAfter * 1000));
+        continue;
+      }
+      break;
+    }
+
+    if (!openaiResp || !openaiResp.ok || !openaiResp.body) {
+      const status = openaiResp?.status || 500;
+      const errText = await openaiResp?.text().catch(() => '') || '';
+      console.error('OpenAI error:', status, errText);
+      if (status === 429) {
+        return jsonResp({ error: 'Le service IA est temporairement surchargé. Veuillez réessayer dans 30 secondes.' }, 429);
+      }
+      return jsonResp({ error: `AI error (${status})` }, 502);
     }
 
     // OpenAI already sends OpenAI-compatible SSE, pass through directly
