@@ -50,7 +50,7 @@ export function StickyFilterBar({ sortBy, setSortBy, priceFilter, setPriceFilter
       <div ref={sentinelRef} className="h-0" />
       <div className={`flex flex-wrap items-center gap-1.5 sm:gap-2 mb-4 transition-all duration-200 ${isSticky ? 'sticky top-0 z-30 bg-background/95 backdrop-blur-sm py-2 px-1 -mx-1 border-b border-border/50 shadow-sm' : ''}`}>
         <Select value={sortBy} onValueChange={(v) => setSortBy(v as ProductSort)}>
-          <SelectTrigger className="h-8 w-auto min-w-[130px] text-xs gap-1">
+          <SelectTrigger className="h-8 w-auto min-w-[100px] sm:min-w-[130px] text-xs gap-1">
             <ArrowUpDown className="h-3 w-3" />
             <SelectValue />
           </SelectTrigger>
