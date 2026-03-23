@@ -250,15 +250,15 @@ export default function AdminSales() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="flex items-center justify-between gap-3 mb-1">
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight">
             {isFr ? 'Mes Ventes' : 'My Sales'}
           </h1>
           <div className="flex items-center gap-2 shrink-0">
             <Button
               onClick={() => navigate('/admin/payouts')}
-              className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-bold shadow-elevated rounded-xl h-10 px-5 text-sm"
+              className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-bold shadow-elevated rounded-xl h-9 sm:h-10 px-3 sm:px-5 text-xs sm:text-sm"
             >
-              <Wallet className="h-4 w-4" /> {isFr ? 'Retraits' : 'Payouts'}
+              <Wallet className="h-4 w-4" /> <span className="hidden sm:inline">{isFr ? 'Retraits' : 'Payouts'}</span>
             </Button>
             <Button
               onClick={handleExport}
@@ -299,7 +299,7 @@ export default function AdminSales() {
               <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center mb-4', colorStyles.bg)}>
                 {'renderIcon' in card && card.renderIcon ? card.renderIcon : <card.icon className={cn('h-[18px] w-[18px]', colorStyles.text)} />}
               </div>
-              <p className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-none tabular-nums">
+              <p className="text-lg sm:text-2xl lg:text-3xl font-extrabold tracking-tight leading-none tabular-nums">
                 {card.value}
               </p>
               <p className="text-[11px] sm:text-xs text-muted-foreground mt-2 font-semibold uppercase tracking-wider">
@@ -498,7 +498,7 @@ export default function AdminSales() {
                 </div>
 
                 {/* Row 2: Details grid */}
-                <div className="flex items-center gap-3 text-[11px] text-muted-foreground border-t border-border/40 pt-2.5 mt-1">
+                <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] text-muted-foreground border-t border-border/40 pt-2.5 mt-1 flex-wrap">
                   {/* Received */}
                   <div className="flex items-center gap-1">
                     <ArrowUpRight className="h-3 w-3 text-emerald-500" />

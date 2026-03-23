@@ -255,7 +255,7 @@ export default function DiscoverPage() {
         </div>
       </div>
 
-      <div className="container max-w-6xl py-6">
+      <div className="container max-w-6xl px-4 py-6">
         {/* Contextual banners */}
         {!isSearching && user && <NotificationDigest />}
         {!isSearching && !user && <DiscoverCTABanner />}
@@ -387,7 +387,7 @@ export default function DiscoverPage() {
                   <EmptyState variant="search" title={t('discover.no_products')} />
                 ) : (
                   <>
-                    <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                       {products.map((p: any) => (
                         <motion.div key={p.id} variants={fadeUp} onDoubleClick={() => setQuickViewProduct(p)}>
                           <ProductCard product={p} hideCommission hideShare />
