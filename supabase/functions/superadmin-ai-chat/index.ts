@@ -238,24 +238,24 @@ ${metricsSummary || '  No metrics available'}
     - ⚡ ACTION PLAN (5-10 clear actions with expected impact)`;
 
 
-    // Stream via OpenAI GPT-4o for best executive-grade analysis
+    // Stream via Lovable AI Gateway (GPT-5) for best executive-grade analysis
     const openaiMessages = [
       { role: 'system', content: systemPrompt },
       ...messages.map((m: any) => ({ role: m.role, content: m.content })),
     ];
 
-    // Retry logic for OpenAI rate limits (429)
+    // Retry logic for rate limits (429)
     let openaiResp: Response | null = null;
     const maxRetries = 3;
     for (let attempt = 0; attempt < maxRetries; attempt++) {
-      openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
+      openaiResp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'openai/gpt-5',
           messages: openaiMessages,
           stream: true,
           temperature: 0.4,
