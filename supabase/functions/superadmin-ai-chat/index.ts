@@ -11,8 +11,8 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY not configured');
 
     const supabase = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
     const { data: { user } } = await supabase.auth.getUser();
@@ -238,54 +238,88 @@ ${metricsSummary || '  No metrics available'}
     - ⚡ ACTION PLAN (5-10 clear actions with expected impact)`;
 
 
-    // Stream via Lovable AI Gateway (GPT-5) for best executive-grade analysis
-    const openaiMessages = [
-      { role: 'system', content: systemPrompt },
-      ...messages.map((m: any) => ({ role: m.role, content: m.content })),
-    ];
+    // Stream via Gemini Direct API (gemini-2.5-pro for best executive-grade analysis)
+    const geminiModel = 'gemini-2.5-pro';
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
 
-    // Retry logic for rate limits (429)
-    let openaiResp: Response | null = null;
-    const maxRetries = 3;
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      openaiResp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'openai/gpt-5',
-          messages: openaiMessages,
-          stream: true,
-          temperature: 0.4,
-          max_tokens: 4096,
-        }),
-      });
+    const geminiContents = messages.map((m: any) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }],
+    }));
 
-      if (openaiResp.status === 429 && attempt < maxRetries - 1) {
-        const retryAfter = parseInt(openaiResp.headers.get('retry-after') || '0') || (2 ** attempt * 2);
-        console.warn(`[superadmin-ai] Rate limited, retry ${attempt + 1} in ${retryAfter}s`);
-        await new Promise(r => setTimeout(r, retryAfter * 1000));
-        continue;
-      }
-      break;
-    }
+    const geminiBody = {
+      system_instruction: { parts: [{ text: systemPrompt }] },
+      contents: geminiContents,
+      generationConfig: {
+        temperature: 0.4,
+        maxOutputTokens: 8192,
+      },
+    };
 
-    if (!openaiResp || !openaiResp.ok || !openaiResp.body) {
-      const status = openaiResp?.status || 500;
-      const errText = await openaiResp?.text().catch(() => '') || '';
-      console.error('AI Gateway error:', status, errText);
+    const geminiResp = await fetch(geminiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(geminiBody),
+    });
+
+    if (!geminiResp.ok || !geminiResp.body) {
+      const status = geminiResp?.status || 500;
+      const errText = await geminiResp?.text().catch(() => '') || '';
+      console.error('Gemini API error:', status, errText.slice(0, 500));
       if (status === 429) {
         return jsonResp({ error: 'Le service IA est temporairement surchargé. Veuillez réessayer dans 30 secondes.' }, 429);
-      }
-      if (status === 402) {
-        return jsonResp({ error: 'Crédits IA insuffisants. Veuillez recharger votre compte.' }, 402);
       }
       return jsonResp({ error: `AI error (${status})` }, 502);
     }
 
-    // OpenAI already sends OpenAI-compatible SSE, pass through directly
+    // Transform Gemini SSE → OpenAI-compatible SSE for the frontend
+    const reader = geminiResp.body.getReader();
+    const decoder = new TextDecoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        let buffer = '';
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+
+            let idx: number;
+            while ((idx = buffer.indexOf('\n')) !== -1) {
+              let line = buffer.slice(0, idx);
+              buffer = buffer.slice(idx + 1);
+              if (line.endsWith('\r')) line = line.slice(0, -1);
+
+              if (!line.startsWith('data: ') || line.trim() === '') continue;
+              const jsonStr = line.slice(6).trim();
+              if (!jsonStr || jsonStr === '[DONE]') continue;
+
+              try {
+                const parsed = JSON.parse(jsonStr);
+                const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                  // Emit OpenAI-compatible SSE chunk
+                  const openaiChunk = {
+                    choices: [{ delta: { content: text }, index: 0 }],
+                  };
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify(openaiChunk)}\n\n`));
+                }
+              } catch { /* partial JSON, skip */ }
+            }
+          }
+
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+          controller.close();
+        } catch (err) {
+          console.error('[superadmin-ai] Stream error:', err);
+          controller.close();
+        }
+      },
+    });
+
     const headers = new Headers({
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
@@ -293,7 +327,7 @@ ${metricsSummary || '  No metrics available'}
     });
     Object.entries(corsHeaders).forEach(([k, v]) => headers.set(k, v));
 
-    return new Response(openaiResp.body, { status: 200, headers });
+    return new Response(stream, { status: 200, headers });
   } catch (e) {
     console.error('superadmin-ai-chat error:', e);
     return jsonResp({ error: e instanceof Error ? e.message : 'Unknown error' }, 500);
