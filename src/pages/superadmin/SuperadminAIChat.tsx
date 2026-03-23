@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import ReactMarkdown from 'react-markdown';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
@@ -89,16 +90,16 @@ export default function SuperadminAIChat() {
         }
       }
     } catch (e) {
-      toast({ title: 'Erreur', description: 'Impossible de contacter l\'IA', variant: 'destructive' });
+      toast({ title: 'Erreur', description: "Impossible de contacter l'IA", variant: 'destructive' });
     }
     setIsLoading(false);
   };
 
   const suggestions = [
-    "Analyse mes métriques et dis-moi ce qui va bien et ce qu'il faut améliorer",
-    "Quelles organisations ont le plus de revenus ?",
-    "Quelles vérifications d'identité sont en attente et quels payouts traiter ?",
-    "Propose 5 idées pour augmenter la croissance de la plateforme",
+    "Donne-moi un résumé exécutif complet de l'état de la plateforme",
+    "Quelles organisations génèrent le plus de revenus ? Détaille le top 10",
+    "Analyse les KYC en attente et les payouts à traiter avec recommandations",
+    "Identifie les risques et opportunités de croissance de la plateforme",
   ];
 
   return (
@@ -110,7 +111,7 @@ export default function SuperadminAIChat() {
           </div>
           <div>
             <h1 className="text-lg font-bold">AI Insights</h1>
-            <p className="text-xs text-muted-foreground">Discutez avec l'IA pour analyser votre plateforme</p>
+            <p className="text-xs text-muted-foreground">Analyse exécutive temps réel de votre plateforme</p>
           </div>
         </div>
         {messages.length > 0 && (
@@ -150,13 +151,19 @@ export default function SuperadminAIChat() {
             )}
             <div
               className={cn(
-                'max-w-[80%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap',
+                'max-w-[85%] rounded-2xl px-4 py-2.5 text-sm',
                 m.role === 'user'
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'bg-primary text-primary-foreground whitespace-pre-wrap'
                   : 'bg-card border border-border'
               )}
             >
-              {m.content}
+              {m.role === 'assistant' ? (
+                <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_table]:text-xs [&_th]:px-2 [&_td]:px-2 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5">
+                  <ReactMarkdown>{m.content}</ReactMarkdown>
+                </div>
+              ) : (
+                m.content
+              )}
             </div>
           </div>
         ))}
