@@ -12,6 +12,7 @@ import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
+import { queueDeferredCourseLessonImages } from '@/lib/programImageGeneration';
 import { Sparkles, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Zap, Settings2, Globe, Target } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -152,8 +153,8 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed')) {
           throw new Error(
             isFr
-              ? 'La connexion au serveur a échoué. Essayez sans les images ou réessayez.'
-              : 'Server connection failed. Try without images or retry.'
+              ? 'La connexion au serveur a échoué. Réessayez.'
+              : 'Server connection failed. Please retry.'
           );
         }
         throw fetchErr;
@@ -170,6 +171,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
 
       const courseTitle = data?.course_title || prompt.trim().slice(0, 100);
       const courseDescription = data?.course_description || prompt.trim();
+      const deferredImageJobs: Array<{ id: string; title: string; imagePrompt: string }> = [];
 
       const result = await createProgram.mutateAsync({
         organization_id: currentOrg.id,
@@ -189,7 +191,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
           });
           for (let li = 0; li < (mod.lessons || []).length; li++) {
             const lesson = mod.lessons[li];
-            await createLesson.mutateAsync({
+            const lessonResult = await createLesson.mutateAsync({
               module_id: modResult.id,
               title: lesson.title,
               content_type: lesson.content_type || 'text',
@@ -198,6 +200,14 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
               display_order: li,
               programId: result.id,
             });
+
+            if (generateImages && lesson?.image_prompt && lessonResult?.data?.id) {
+              deferredImageJobs.push({
+                id: lessonResult.data.id,
+                title: lesson.title,
+                imagePrompt: lesson.image_prompt,
+              });
+            }
           }
         }
 
@@ -225,7 +235,35 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         }
       }
 
-      toast({ title: isFr ? '✅ Cours créé avec l\'IA !' : '✅ Course created with AI!' });
+      if (generateImages && deferredImageJobs.length > 0) {
+        void queueDeferredCourseLessonImages({
+          programId: result.id,
+          lessonJobs: deferredImageJobs,
+          sessionToken: session.access_token,
+          tier,
+        }).then(({ error: imageError, data: imageData }) => {
+          if (imageError || imageData?.error) {
+            toast({
+              title: isFr ? 'Cours créé, mais certaines images de leçon ont échoué' : 'Course created, but some lesson images failed',
+              description: isFr ? 'Le contenu du cours est prêt. Vous pouvez régénérer les visuels plus tard si nécessaire.' : 'The course content is ready. You can regenerate visuals later if needed.',
+              variant: 'destructive',
+            });
+          }
+        }).catch(() => {
+          toast({
+            title: isFr ? 'Cours créé, mais les images n’ont pas pu être finalisées' : 'Course created, but images could not be finalized',
+            description: isFr ? 'Le cours a bien été créé. Les visuels pourront être régénérés plus tard.' : 'The course was created successfully. Visuals can be regenerated later.',
+            variant: 'destructive',
+          });
+        });
+      }
+
+      toast({
+        title: isFr ? '✅ Cours créé avec l\'IA !' : '✅ Course created with AI!',
+        description: generateImages
+          ? (isFr ? 'Les images des leçons se génèrent maintenant en arrière-plan.' : 'Lesson images are now generating in the background.')
+          : undefined,
+      });
       onOpenChange(false);
       setPrompt('');
       onCreated(result.id);
