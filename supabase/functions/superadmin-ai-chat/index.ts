@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
     const { messages } = await req.json();
     if (!Array.isArray(messages) || messages.length > 50) return jsonResp({ error: 'Invalid messages' }, 400);
     for (const msg of messages) {
-      if (!msg || !['user', 'assistant'].includes(msg.role) || typeof msg.content !== 'string' || msg.content.length > 5000) {
+      if (!msg || !['user', 'assistant'].includes(msg.role) || typeof msg.content !== 'string' || msg.content.length > 15000) {
         return jsonResp({ error: 'Invalid message format' }, 400);
       }
     }
