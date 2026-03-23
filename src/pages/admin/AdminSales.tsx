@@ -250,7 +250,7 @@ export default function AdminSales() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="flex items-center justify-between gap-3 mb-1">
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight">
             {isFr ? 'Mes Ventes' : 'My Sales'}
           </h1>
           <div className="flex items-center gap-2 shrink-0">
