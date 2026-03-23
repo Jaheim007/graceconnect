@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
     const activeAmbassadors = affiliateLinks.filter((l: any) => (l.total_earned || 0) > 0);
 
     // Org name map (must be before topAmbassadors)
-    const revenueByOrg: Record<string, { name: string; donations: number; purchases: number; total: number }> = {};
+    const revenueByOrg: Record<string, { name: string; donations: number; purchases: number; total: number; donationCount: number; purchaseCount: number }> = {};
     const orgNameMap: Record<string, string> = {};
     orgs.forEach((o: any) => { orgNameMap[o.id] = o.name; });
 
@@ -84,30 +84,39 @@ Deno.serve(async (req) => {
     donations.forEach((d: any) => {
       const orgId = d.organization_id;
       if (!orgId) return;
-      if (!revenueByOrg[orgId]) revenueByOrg[orgId] = { name: orgNameMap[orgId] || orgId, donations: 0, purchases: 0, total: 0 };
+      if (!revenueByOrg[orgId]) revenueByOrg[orgId] = { name: orgNameMap[orgId] || orgId, donations: 0, purchases: 0, total: 0, donationCount: 0, purchaseCount: 0 };
       revenueByOrg[orgId].donations += d.amount || 0;
+      revenueByOrg[orgId].donationCount += 1;
       revenueByOrg[orgId].total += d.amount || 0;
     });
     purchases.forEach((p: any) => {
       const orgId = p.organization_id;
       if (!orgId) return;
-      if (!revenueByOrg[orgId]) revenueByOrg[orgId] = { name: orgNameMap[orgId] || orgId, donations: 0, purchases: 0, total: 0 };
+      if (!revenueByOrg[orgId]) revenueByOrg[orgId] = { name: orgNameMap[orgId] || orgId, donations: 0, purchases: 0, total: 0, donationCount: 0, purchaseCount: 0 };
       revenueByOrg[orgId].purchases += p.amount || 0;
+      revenueByOrg[orgId].purchaseCount += 1;
       revenueByOrg[orgId].total += p.amount || 0;
+    });
+
+    // Count actual sales per product from purchases table
+    const salesByProductId: Record<string, number> = {};
+    purchases.forEach((p: any) => {
+      if (p.product_id) salesByProductId[p.product_id] = (salesByProductId[p.product_id] || 0) + 1;
     });
 
     const topOrgsByRevenue = Object.values(revenueByOrg)
       .sort((a, b) => b.total - a.total)
       .slice(0, 15)
-      .map((o, i) => `  ${i + 1}. **${o.name}** — ${o.total.toLocaleString()} FCFA (Dons: ${o.donations.toLocaleString()}, Ventes: ${o.purchases.toLocaleString()})`)
+      .map((o, i) => `  ${i + 1}. **${o.name}** — ${o.total.toLocaleString()} FCFA (Ventes produits: ${o.purchases.toLocaleString()} FCFA / ${o.purchaseCount} transactions, Dons: ${o.donations.toLocaleString()} FCFA / ${o.donationCount} transactions)`)
       .join('\n');
 
-    // Top products
+    // Top products — use actual purchase count from transactions, fallback to sales_count
     const topProducts = products
-      .filter((p: any) => (p.sales_count || 0) > 0)
-      .sort((a: any, b: any) => (b.sales_count || 0) - (a.sales_count || 0))
+      .map((p: any) => ({ ...p, actualSales: salesByProductId[p.id] || p.sales_count || 0 }))
+      .filter((p: any) => p.actualSales > 0)
+      .sort((a: any, b: any) => b.actualSales - a.actualSales)
       .slice(0, 10)
-      .map((p: any, i: number) => `  ${i + 1}. "${p.title}" — ${p.sales_count} ventes, ${p.price || 0} ${p.currency || 'XOF'} (${orgNameMap[p.organization_id] || 'N/A'})`)
+      .map((p: any, i: number) => `  ${i + 1}. "${p.title}" — ${p.actualSales} ventes confirmées, Prix: ${p.price || 0} ${p.currency || 'XOF'} (${orgNameMap[p.organization_id] || 'N/A'})`)
       .join('\n');
 
     // Org categories
