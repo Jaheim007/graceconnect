@@ -56,6 +56,7 @@ Deno.serve(async (req) => {
     const payoutList = payoutsRes.data || [];
     const products = productsRes.data || [];
     const affiliateSales = affiliateRes.data || [];
+    const affiliateLinks = affiliateLinksRes.data || [];
     const creditTxs = creditRes.data || [];
 
     // --- Compute executive metrics ---
@@ -64,6 +65,16 @@ Deno.serve(async (req) => {
     const totalGMV = totalDonations + totalPurchases;
     const totalAffiliateCommissions = affiliateSales.reduce((s, a: any) => s + (a.commission_amount || 0), 0);
     const totalAffiliateGross = affiliateSales.reduce((s, a: any) => s + (a.gross_amount || 0), 0);
+    const totalAffiliateClicks = affiliateLinks.reduce((s, l: any) => s + (l.clicks || 0), 0);
+    const totalAffiliateConversions = affiliateLinks.reduce((s, l: any) => s + (l.conversions || 0), 0);
+    const activeAmbassadors = affiliateLinks.filter((l: any) => (l.total_earned || 0) > 0);
+
+    // Top ambassadors detail
+    const topAmbassadors = affiliateLinks
+      .filter((l: any) => (l.total_earned || 0) > 0 || (l.conversions || 0) > 0)
+      .slice(0, 10)
+      .map((l: any, i: number) => `  ${i + 1}. Code: **${l.code}** | Clics: ${l.clicks || 0} | Conversions: ${l.conversions || 0} | Gagné: ${(l.total_earned || 0).toLocaleString()} FCFA | Org: ${orgNameMap[l.organization_id] || l.organization_id}`)
+      .join('\n');
 
     // Revenue by org
     const revenueByOrg: Record<string, { name: string; donations: number; purchases: number; total: number }> = {};
