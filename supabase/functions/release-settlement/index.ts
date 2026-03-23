@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { sendEmailToOrgAdmins } from '../_shared/send-email-helper.ts';
+
 
 /**
  * release-settlement: Release held funds for vendor payouts after 72h hold period.
@@ -154,13 +154,9 @@ Deno.serve(async (req) => {
         },
       });
 
-      // Notify org admins (fire-and-forget)
-      sendEmailToOrgAdmins('payout_approved', orgId, {
-        amount: totalReleased,
-        currency: txs[0]?.currency || 'XOF',
-        org_name: org.name || '',
-        transaction_count: txs.length,
-      }).catch(() => {});
+      // Settlement release is an automated internal process (72h hold expiry).
+      // No email is sent here — emails are only sent when a user explicitly
+      // requests a payout via request-payout or request-affiliate-payout.
     }
 
     // Compute next cursor for pagination
