@@ -363,7 +363,7 @@ export function SlideRenderer({
         <div className={cn('flex-1 flex flex-col relative z-10 px-5 py-4', captionPositionClasses[captionPos])}>
           <div className={cn('rounded-xl px-5 py-5 border border-white/10', captionClasses[captionStyle])}>
             <SlideTag />
-            {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>}
+            {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', lightMode ? 'text-slate-900' : 'text-white', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>}
             {slide.bodyHtml && <div className={proseClasses} dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />}
           </div>
         </div>
