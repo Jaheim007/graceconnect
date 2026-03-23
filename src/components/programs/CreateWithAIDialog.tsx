@@ -66,6 +66,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const [tier, setTier] = useState<AITier>('standard');
   const [generateImages, setGenerateImages] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generationPhase, setGenerationPhase] = useState<'generating' | 'saving' | 'done'>('generating');
   const [generationError, setGenerationError] = useState<string | null>(null);
 
   const [courseGoal, setCourseGoal] = useState('teach_skill');
