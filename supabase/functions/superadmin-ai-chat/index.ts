@@ -67,11 +67,51 @@ Réponds en français, sois concis et actionnable. Ne révèle jamais de donnée
       system: systemPrompt, messages,
     });
 
-    // Add CORS headers to stream response
-    const headers = new Headers(streamResponse.headers);
+    if (streamResponse.status !== 200 || !streamResponse.body) {
+      const headers = new Headers(streamResponse.headers);
+      Object.entries(corsHeaders).forEach(([k, v]) => headers.set(k, v));
+      return new Response(streamResponse.body, { status: streamResponse.status, headers });
+    }
+
+    // Transform Gemini SSE → OpenAI-compatible SSE for the client
+    const reader = streamResponse.body.getReader();
+    const decoder = new TextDecoder();
+    const encoder = new TextEncoder();
+
+    const transformedStream = new ReadableStream({
+      async pull(controller) {
+        const { done, value } = await reader.read();
+        if (done) {
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+          controller.close();
+          return;
+        }
+        const chunk = decoder.decode(value, { stream: true });
+        // Gemini SSE lines: "data: {candidates:[{content:{parts:[{text:"..."}]}}]}"
+        for (const line of chunk.split('\n')) {
+          if (!line.startsWith('data: ')) continue;
+          const jsonStr = line.slice(6).trim();
+          if (!jsonStr) continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+              const openaiChunk = { choices: [{ delta: { content: text } }] };
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify(openaiChunk)}\n\n`));
+            }
+          } catch { /* partial JSON, skip */ }
+        }
+      },
+    });
+
+    const headers = new Headers({
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+    });
     Object.entries(corsHeaders).forEach(([k, v]) => headers.set(k, v));
 
-    return new Response(streamResponse.body, { status: streamResponse.status, headers });
+    return new Response(transformedStream, { status: 200, headers });
   } catch (e) {
     console.error('superadmin-ai-chat error:', e);
     return jsonResp({ error: e instanceof Error ? e.message : 'Unknown error' }, 500);
