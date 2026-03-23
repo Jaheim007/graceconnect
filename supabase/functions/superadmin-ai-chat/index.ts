@@ -38,13 +38,13 @@ Deno.serve(async (req) => {
       svcClient.from('organization_members').select('id, organization_id, role', { count: 'exact' }),
       svcClient.from('platform_metrics_daily').select('*').order('metric_date', { ascending: false }).limit(30),
       svcClient.from('kyc_submissions').select('id, status, organization_id, verification_type, submitted_at, reviewed_at, ai_confidence_score, bank_account_name').order('submitted_at', { ascending: false }).limit(500),
-      svcClient.from('payout_requests').select('id, status, amount, currency, organization_id, created_at, payout_type, reviewed_at, paid_at').order('created_at', { ascending: false }).limit(100),
+      svcClient.from('payout_requests').select('id, status, amount, currency, organization_id, requested_at, payout_type, processed_at').order('requested_at', { ascending: false }).limit(100),
       svcClient.from('content_reports').select('status, content_type, reason, created_at').eq('status', 'pending'),
       svcClient.from('affiliate_sales').select('id, status, commission_amount, gross_amount, commission_percent, affiliate_user_id, organization_id, created_at', { count: 'exact' }),
       svcClient.from('affiliate_links').select('id, code, user_id, clicks, conversions, total_earned, is_active, organization_id').eq('is_active', true).order('total_earned', { ascending: false }).limit(50),
       svcClient.from('partners').select('id, full_name, status, created_at'),
       svcClient.from('digital_products').select('id, title, organization_id, is_published, sales_count, price, currency, product_type, created_at', { count: 'exact' }),
-      svcClient.from('profiles').select('id, full_name, created_at', { count: 'exact' }),
+      svcClient.from('profiles').select('id, display_name, created_at', { count: 'exact' }),
       svcClient.from('credit_transactions').select('amount, tx_type, action_key, created_at', { count: 'exact' }).order('created_at', { ascending: false }).limit(100),
       svcClient.from('client_events').select('event_name, created_at', { count: 'exact', head: true }),
     ]);
@@ -146,7 +146,7 @@ Deno.serve(async (req) => {
     const payoutCompleted = payoutList.filter((p: any) => p.status === 'completed' || p.status === 'paid');
     const payoutTotalPending = payoutPending.reduce((s, p: any) => s + (p.amount || 0), 0);
 
-    const payoutDetail = payoutList.slice(0, 20).map((p: any) => `  - ${(p.amount || 0).toLocaleString()} ${p.currency || 'XOF'} | Statut: **${p.status}** | Type: ${p.payout_type || 'org'} | Org: ${orgNameMap[p.organization_id] || p.organization_id} | Date: ${p.created_at?.slice(0, 10)}`).join('\n');
+    const payoutDetail = payoutList.slice(0, 20).map((p: any) => `  - ${(p.amount || 0).toLocaleString()} ${p.currency || 'XOF'} | Statut: **${p.status}** | Type: ${p.payout_type || 'org'} | Org: ${orgNameMap[p.organization_id] || p.organization_id} | Date: ${p.requested_at?.slice(0, 10) || 'N/A'}`).join('\n');
 
     // Org details (all)
     const orgDetail = orgs.map((o: any) => `  - **${o.name}** | Plan: ${o.plan_type} | KYC: ${o.kyc_status || 'none'} | Actif: ${o.is_active ? '✅' : '❌'} | Suspendu: ${o.is_suspended ? '⚠️' : 'Non'} | Pays: ${o.country || 'N/A'} | Créé: ${o.created_at?.slice(0, 10)}`).join('\n');
@@ -162,7 +162,7 @@ Deno.serve(async (req) => {
     // Metrics trend
     const metricsData = metricsRes.data || [];
     const metricsSummary = metricsData.slice(0, 7).map((m: any) =>
-      `  - ${m.metric_date}: Utilisateurs actifs: ${m.active_users || 'N/A'}, Revenus: ${m.total_revenue || 'N/A'}, Nouvelles orgs: ${m.new_organizations || 'N/A'}`
+      `  - ${m.metric_date}: Nouveaux utilisateurs: ${m.new_users ?? 'N/A'}, Revenus: ${m.total_revenue ?? 'N/A'}, GMV: ${m.gmv ?? 'N/A'}, Nouvelles orgs: ${m.new_orgs ?? 'N/A'}, Orgs actives: ${m.active_orgs ?? 'N/A'}`
     ).join('\n');
 
     const today = new Date().toISOString().slice(0, 10);
