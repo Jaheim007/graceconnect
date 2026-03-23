@@ -182,7 +182,7 @@ function DashboardTab({ data }: { data: DemoData }) {
             <div className="flex items-center justify-between mb-1">
               <div>
                 <h3 className="text-sm font-bold">Revenue Overview</h3>
-                <p className="text-[10px] text-muted-foreground">Last 12 months · {cur}</p>
+                <p className="text-[10px] text-muted-foreground">Last 3 months (Jan–Mar) · {cur}</p>
               </div>
               <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 px-2 py-1 rounded-full">
                 <ArrowUpRight className="h-3 w-3" />
