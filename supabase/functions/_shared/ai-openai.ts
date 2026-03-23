@@ -86,12 +86,12 @@ export async function openaiGenerateImageBase64(opts: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-image-1',
+        model: 'dall-e-3',
         prompt: opts.prompt,
         n: 1,
-        size: opts.size || '1024x1536',
-        quality: 'high',
-        output_format: 'png',
+        size: opts.size || '1024x1024',
+        quality: 'standard',
+        response_format: 'b64_json',
       }),
       signal: controller.signal,
     });
