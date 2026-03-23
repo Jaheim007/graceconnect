@@ -29,9 +29,14 @@ const captionClasses: Record<CaptionStyle, string> = {
   default: 'bg-card/95 backdrop-blur-sm text-foreground',
   light: 'bg-white/95 text-slate-900',
   dark: 'bg-slate-900/95 text-white',
-  'transparent-light': 'bg-transparent text-white [text-shadow:_0_1px_8px_rgba(0,0,0,0.6)]',
-  'transparent-dark': 'bg-transparent text-slate-900 [text-shadow:_0_1px_8px_rgba(255,255,255,0.5)]',
+  'transparent-light': 'bg-black/40 backdrop-blur-sm text-white',
+  'transparent-dark': 'bg-white/85 backdrop-blur-sm text-slate-900',
 };
+
+/** Whether a caption style produces light (dark text) or dark (white text) */
+function isLightCaption(style: CaptionStyle): boolean {
+  return style === 'light' || style === 'transparent-dark';
+}
 
 const captionPositionClasses: Record<CaptionPosition, string> = {
   top: 'justify-start pt-4',
