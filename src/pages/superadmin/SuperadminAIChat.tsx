@@ -59,7 +59,12 @@ export default function SuperadminAIChat() {
 
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({ error: 'Erreur réseau' }));
-        toast({ title: 'Erreur AI', description: err.error, variant: 'destructive' });
+        const isRateLimit = resp.status === 429;
+        toast({
+          title: isRateLimit ? '⏳ IA surchargée' : 'Erreur AI',
+          description: isRateLimit ? 'Veuillez réessayer dans 30 secondes.' : err.error,
+          variant: 'destructive',
+        });
         setIsLoading(false);
         return;
       }
