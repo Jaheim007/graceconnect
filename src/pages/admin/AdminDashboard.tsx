@@ -193,7 +193,7 @@ export default function AdminDashboard() {
             {t('admin.overview_of')} <span className="font-medium text-foreground">{currentOrg?.name}</span>
           </p>
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+        <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
           <Button size="sm" variant="outline" onClick={handleExportCSV} className="gap-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3 shrink-0">
             <Download className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> CSV
           </Button>

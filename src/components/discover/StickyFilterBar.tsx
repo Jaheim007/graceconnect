@@ -75,7 +75,7 @@ export function StickyFilterBar({ sortBy, setSortBy, priceFilter, setPriceFilter
         </div>
 
         <Select value={typeFilter || '_all'} onValueChange={(v) => setTypeFilter(v === '_all' ? '' : v as ProductTypeFilter)}>
-          <SelectTrigger className="h-8 w-auto min-w-[110px] text-xs gap-1">
+          <SelectTrigger className="h-8 w-auto min-w-[90px] sm:min-w-[110px] text-xs gap-1">
             <SlidersHorizontal className="h-3 w-3" />
             <SelectValue placeholder="Type" />
           </SelectTrigger>

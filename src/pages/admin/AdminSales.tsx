@@ -498,7 +498,7 @@ export default function AdminSales() {
                 </div>
 
                 {/* Row 2: Details grid */}
-                <div className="flex items-center gap-3 text-[11px] text-muted-foreground border-t border-border/40 pt-2.5 mt-1">
+                <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] text-muted-foreground border-t border-border/40 pt-2.5 mt-1 flex-wrap">
                   {/* Received */}
                   <div className="flex items-center gap-1">
                     <ArrowUpRight className="h-3 w-3 text-emerald-500" />
