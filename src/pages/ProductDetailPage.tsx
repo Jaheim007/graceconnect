@@ -260,7 +260,7 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-screen bg-background">
         <div className="container max-w-5xl py-8 px-4">
-          <div className="grid md:grid-cols-[1fr_340px] gap-8">
+          <div className="grid md:grid-cols-[1fr_320px] lg:grid-cols-[1fr_340px] gap-8">
             <div className="h-96 rounded-2xl skeleton-shimmer" />
             <div className="space-y-4">
               <div className="h-8 w-2/3 rounded-lg skeleton-shimmer" />
