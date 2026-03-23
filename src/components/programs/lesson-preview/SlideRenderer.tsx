@@ -29,9 +29,14 @@ const captionClasses: Record<CaptionStyle, string> = {
   default: 'bg-card/95 backdrop-blur-sm text-foreground',
   light: 'bg-white/95 text-slate-900',
   dark: 'bg-slate-900/95 text-white',
-  'transparent-light': 'bg-transparent text-white [text-shadow:_0_1px_8px_rgba(0,0,0,0.6)]',
-  'transparent-dark': 'bg-transparent text-slate-900 [text-shadow:_0_1px_8px_rgba(255,255,255,0.5)]',
+  'transparent-light': 'bg-black/40 backdrop-blur-sm text-white',
+  'transparent-dark': 'bg-white/85 backdrop-blur-sm text-slate-900',
 };
+
+/** Whether a caption style produces light (dark text) or dark (white text) */
+function isLightCaption(style: CaptionStyle): boolean {
+  return style === 'light' || style === 'transparent-dark';
+}
 
 const captionPositionClasses: Record<CaptionPosition, string> = {
   top: 'justify-start pt-4',
@@ -231,18 +236,25 @@ export function SlideRenderer({
     </div>
   );
 
-  const AccentLine = ({ className }: { className?: string }) => (
+  const AccentLine = ({ className, light }: { className?: string; light?: boolean }) => (
     <div
       className={cn('h-0.5 rounded-full opacity-60 mb-3', className)}
-      style={{ background: theme.accentColor, width: '3rem' }}
+      style={{ background: light ? 'hsl(220, 60%, 30%)' : theme.accentColor, width: '3rem' }}
     />
   );
+
+  const lightMode = isLightCaption(captionStyle);
 
   const SlideTag = () => {
     if (!slideTag) return null;
     const Icon = slideTag.icon;
     return (
-      <div className={cn('inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider mb-3', theme.tagBg, theme.tagText)}>
+      <div className={cn(
+        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider mb-3',
+        lightMode
+          ? 'bg-slate-800 text-white'
+          : cn(theme.tagBg, theme.tagText)
+      )}>
         <Icon className="h-3 w-3" />
         {slideTag.label}
       </div>
@@ -260,8 +272,8 @@ export function SlideRenderer({
     'prose-img:rounded-lg prose-img:max-h-[140px] prose-img:w-auto prose-img:mx-auto prose-img:object-contain',
     'prose-video:rounded-lg prose-video:max-h-[160px] prose-video:w-full',
     'prose-iframe:rounded-lg prose-iframe:max-h-[160px] prose-iframe:w-full',
-    captionStyle === 'light' || captionStyle === 'transparent-dark'
-      ? 'prose-headings:text-slate-900 prose-p:text-slate-700 prose-li:text-slate-700 prose-strong:text-slate-900 prose-blockquote:text-slate-600 prose-blockquote:border-slate-300'
+    lightMode
+      ? 'prose-headings:text-slate-900 prose-p:text-slate-700 prose-li:text-slate-700 prose-strong:text-slate-900 prose-blockquote:text-slate-600 prose-blockquote:border-slate-300 prose-blockquote:bg-slate-100/50 prose-a:text-blue-600'
       : 'prose-invert prose-headings:text-white prose-p:text-white/90 prose-li:text-white/90 prose-strong:text-white prose-blockquote:text-white/70 prose-blockquote:border-white/30',
     isMobile ? 'prose-sm' : 'prose-base'
   );
@@ -308,7 +320,7 @@ export function SlideRenderer({
         <div className={cn('flex-1 flex flex-col relative z-10 px-6', captionPositionClasses[captionPos])}>
           <div className={cn('rounded-xl px-5 py-6 max-w-lg backdrop-blur-sm', captionClasses[captionStyle], 'border border-white/10', theme.captionGlow)}>
             <SlideTag />
-            {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>}
+            {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', lightMode ? 'text-slate-900' : 'text-white', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>}
             {slide.bodyHtml && <div className={proseClasses} dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />}
           </div>
         </div>
@@ -330,7 +342,7 @@ export function SlideRenderer({
           <div className={cn('flex flex-col p-5', isMobile ? 'flex-1' : 'w-1/2', captionPositionClasses[captionPos])}>
             <div className={cn('rounded-xl px-4 py-5 border border-white/10', captionClasses[captionStyle])}>
               <SlideTag />
-              {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', isMobile ? 'text-lg' : 'text-2xl')}>{slide.heading}</h2>}
+              {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', lightMode ? 'text-slate-900' : 'text-white', isMobile ? 'text-lg' : 'text-2xl')}>{slide.heading}</h2>}
               {slide.bodyHtml && <div className={proseClasses} dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />}
             </div>
           </div>
@@ -351,7 +363,7 @@ export function SlideRenderer({
         <div className={cn('flex-1 flex flex-col relative z-10 px-5 py-4', captionPositionClasses[captionPos])}>
           <div className={cn('rounded-xl px-5 py-5 border border-white/10', captionClasses[captionStyle])}>
             <SlideTag />
-            {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>}
+            {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', lightMode ? 'text-slate-900' : 'text-white', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>}
             {slide.bodyHtml && <div className={proseClasses} dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />}
           </div>
         </div>
@@ -376,8 +388,8 @@ export function SlideRenderer({
           <SlideTag />
           {slide.heading && (
             <div className="mb-4">
-              <AccentLine />
-              <h2 className={cn('font-bold leading-snug', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>
+              <AccentLine light={lightMode} />
+              <h2 className={cn('font-bold leading-snug', lightMode ? 'text-slate-900' : 'text-white', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>
             </div>
           )}
           {slide.bodyHtml && (
