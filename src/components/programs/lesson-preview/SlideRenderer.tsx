@@ -272,8 +272,8 @@ export function SlideRenderer({
     'prose-img:rounded-lg prose-img:max-h-[140px] prose-img:w-auto prose-img:mx-auto prose-img:object-contain',
     'prose-video:rounded-lg prose-video:max-h-[160px] prose-video:w-full',
     'prose-iframe:rounded-lg prose-iframe:max-h-[160px] prose-iframe:w-full',
-    captionStyle === 'light' || captionStyle === 'transparent-dark'
-      ? 'prose-headings:text-slate-900 prose-p:text-slate-700 prose-li:text-slate-700 prose-strong:text-slate-900 prose-blockquote:text-slate-600 prose-blockquote:border-slate-300'
+    lightMode
+      ? 'prose-headings:text-slate-900 prose-p:text-slate-700 prose-li:text-slate-700 prose-strong:text-slate-900 prose-blockquote:text-slate-600 prose-blockquote:border-slate-300 prose-blockquote:bg-slate-100/50 prose-a:text-blue-600'
       : 'prose-invert prose-headings:text-white prose-p:text-white/90 prose-li:text-white/90 prose-strong:text-white prose-blockquote:text-white/70 prose-blockquote:border-white/30',
     isMobile ? 'prose-sm' : 'prose-base'
   );
