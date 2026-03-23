@@ -10,6 +10,7 @@ import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
+import { queueDeferredCourseLessonImages } from '@/lib/programImageGeneration';
 import { Sparkles, ArrowRight, Loader2, FileText, ImageIcon } from 'lucide-react';
 
 interface Props {
@@ -92,6 +93,7 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
       }
 
       refreshCredits();
+      const deferredImageJobs: Array<{ id: string; title: string; imagePrompt: string }> = [];
 
       const result = await createProgram.mutateAsync({
         organization_id: currentOrg.id,
@@ -110,7 +112,7 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
           });
           for (let li = 0; li < (mod.lessons || []).length; li++) {
             const lesson = mod.lessons[li];
-            await createLesson.mutateAsync({
+            const lessonResult = await createLesson.mutateAsync({
               module_id: modResult.id,
               title: lesson.title,
               content_type: lesson.content_type || 'text',
@@ -119,11 +121,33 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
               display_order: li,
               programId: result.id,
             });
+
+            if (generateImages && lesson?.image_prompt && lessonResult?.data?.id) {
+              deferredImageJobs.push({
+                id: lessonResult.data.id,
+                title: lesson.title,
+                imagePrompt: lesson.image_prompt,
+              });
+            }
           }
         }
       }
 
-      toast({ title: isFr ? '✅ Document converti en cours !' : '✅ Document converted to course!' });
+      if (generateImages && deferredImageJobs.length > 0) {
+        void queueDeferredCourseLessonImages({
+          programId: result.id,
+          lessonJobs: deferredImageJobs,
+          sessionToken: session.access_token,
+          tier,
+        });
+      }
+
+      toast({
+        title: isFr ? '✅ Document converti en cours !' : '✅ Document converted to course!',
+        description: generateImages
+          ? (isFr ? 'Les images des leçons se génèrent maintenant en arrière-plan.' : 'Lesson images are now generating in the background.')
+          : undefined,
+      });
       onOpenChange(false);
       setFile(null);
       onCreated(result.id);
