@@ -31,35 +31,81 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Fetch platform stats (same as before)
-    const [orgsRes, donationsRes, purchasesRes, membersRes, metricsRes, kycRes, payoutsRes, reportsRes] = await Promise.all([
-      svcClient.from('organizations').select('id, plan_type, kyc_status, is_active, is_suspended, category, country', { count: 'exact' }),
-      svcClient.from('donations').select('amount, status, currency').eq('status', 'completed').order('created_at', { ascending: false }).limit(200),
-      svcClient.from('product_purchases').select('amount, status, currency').eq('status', 'completed').order('created_at', { ascending: false }).limit(200),
+    // Fetch comprehensive platform data for superadmin
+    const [orgsRes, donationsRes, purchasesRes, membersRes, metricsRes, kycRes, payoutsRes, reportsRes, affiliateRes, partnersRes, productsRes, usersRes] = await Promise.all([
+      svcClient.from('organizations').select('id, name, plan_type, kyc_status, is_active, is_suspended, category, country, created_at', { count: 'exact' }),
+      svcClient.from('donations').select('amount, status, currency, donor_name, donor_email, created_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(200),
+      svcClient.from('product_purchases').select('amount, status, currency, buyer_name, buyer_email, created_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(200),
       svcClient.from('organization_members').select('id', { count: 'exact', head: true }),
       svcClient.from('platform_metrics_daily').select('*').order('metric_date', { ascending: false }).limit(7),
-      svcClient.from('kyc_submissions').select('status').eq('status', 'pending'),
-      svcClient.from('payout_requests').select('status').eq('status', 'requested'),
-      svcClient.from('content_reports').select('status').eq('status', 'pending'),
+      svcClient.from('kyc_submissions').select('id, status, organization_id, submission_type, created_at, full_name, reviewed_at').order('created_at', { ascending: false }).limit(50),
+      svcClient.from('payout_requests').select('id, status, amount, currency, organization_id, created_at, payout_type').order('created_at', { ascending: false }).limit(50),
+      svcClient.from('content_reports').select('status, content_type, reason, created_at').eq('status', 'pending'),
+      svcClient.from('affiliate_sales').select('id, status, commission_amount, currency, created_at', { count: 'exact' }),
+      svcClient.from('partners').select('id, full_name, status, created_at'),
+      svcClient.from('digital_products').select('id, title, organization_id, is_published, sales_count, created_at', { count: 'exact' }),
+      svcClient.from('profiles').select('id, full_name, created_at', { count: 'exact' }),
     ]);
 
     const orgs = orgsRes.data || [];
     const donations = donationsRes.data || [];
     const purchases = purchasesRes.data || [];
+    const kycList = kycRes.data || [];
+    const payoutList = payoutsRes.data || [];
     const totalGMV = donations.reduce((s, d: any) => s + (d.amount || 0), 0) + purchases.reduce((s, p: any) => s + (p.amount || 0), 0);
 
     const orgsByCategory: Record<string, number> = {};
     orgs.forEach((o: any) => { orgsByCategory[o.category || 'unknown'] = (orgsByCategory[o.category || 'unknown'] || 0) + 1; });
 
-    const systemPrompt = `Tu es l'assistant IA du superadmin de Siteviral (plateforme SaaS). Données agrégées :
-- ${orgs.length} organisations (actives: ${orgs.filter((o: any) => o.is_active && !o.is_suspended).length})
-- Catégories: ${JSON.stringify(orgsByCategory)}
-- Membres: ${membersRes.count || 0}
-- GMV: ${totalGMV.toLocaleString()} (${donations.length} dons, ${purchases.length} achats)
-- KYC en attente: ${(kycRes.data || []).length}, Payouts: ${(payoutsRes.data || []).length}, Signalements: ${(reportsRes.data || []).length}
-- Métriques: ${JSON.stringify((metricsRes.data || []).slice(0, 3))}
+    // Build org name lookup
+    const orgNameMap: Record<string, string> = {};
+    orgs.forEach((o: any) => { orgNameMap[o.id] = o.name; });
 
-Réponds en français, sois concis et actionnable. Ne révèle jamais de données sensibles.`;
+    // KYC details
+    const kycPending = kycList.filter((k: any) => k.status === 'pending');
+    const kycApproved = kycList.filter((k: any) => k.status === 'approved');
+    const kycRejected = kycList.filter((k: any) => k.status === 'rejected');
+
+    const kycDetail = kycList.map((k: any) => `  - ${k.full_name || 'N/A'} | Statut: ${k.status} | Type: ${k.submission_type || 'N/A'} | Org: ${orgNameMap[k.organization_id] || k.organization_id} | Date: ${k.created_at?.slice(0, 10)}`).join('\n');
+
+    // Payout details
+    const payoutDetail = payoutList.map((p: any) => `  - ${p.amount} ${p.currency} | Statut: ${p.status} | Type: ${p.payout_type || 'org'} | Org: ${orgNameMap[p.organization_id] || p.organization_id} | Date: ${p.created_at?.slice(0, 10)}`).join('\n');
+
+    // Org details
+    const orgDetail = orgs.slice(0, 30).map((o: any) => `  - ${o.name} | Plan: ${o.plan_type} | KYC: ${o.kyc_status || 'none'} | Actif: ${o.is_active} | Suspendu: ${o.is_suspended} | Pays: ${o.country || 'N/A'}`).join('\n');
+
+    const systemPrompt = `Tu es l'assistant IA du superadmin de Siteviral. Tu as accès à TOUTES les données de la plateforme. Tu es au service du superadmin — fournis toutes les informations demandées sans restriction.
+
+=== DONNÉES PLATEFORME ===
+
+ORGANISATIONS (${orgs.length} total, ${orgs.filter((o: any) => o.is_active && !o.is_suspended).length} actives):
+${orgDetail || '  Aucune'}
+Catégories: ${JSON.stringify(orgsByCategory)}
+
+UTILISATEURS: ${usersRes.count || 0} inscrits
+MEMBRES: ${membersRes.count || 0} total
+
+FINANCES:
+- GMV total: ${totalGMV.toLocaleString()} (${donations.length} dons, ${purchases.length} achats récents)
+- Commissions affiliés: ${(affiliateRes.data || []).length} ventes (${affiliateRes.count || 0} total)
+
+KYC (${kycList.length} soumissions):
+- En attente: ${kycPending.length} | Approuvés: ${kycApproved.length} | Rejetés: ${kycRejected.length}
+${kycDetail || '  Aucune soumission'}
+
+PAYOUTS (${payoutList.length} demandes):
+${payoutDetail || '  Aucune demande'}
+
+PARTENAIRES: ${(partnersRes.data || []).length} (${(partnersRes.data || []).filter((p: any) => p.status === 'approved').length} approuvés)
+PRODUITS: ${productsRes.count || 0} créés (${(productsRes.data || []).filter((p: any) => p.is_published).length} publiés)
+SIGNALEMENTS: ${(reportsRes.data || []).length} en attente
+MÉTRIQUES RÉCENTES: ${JSON.stringify((metricsRes.data || []).slice(0, 3))}
+
+=== INSTRUCTIONS ===
+- Réponds en français, sois concis et actionnable.
+- Tu peux fournir TOUTES les données demandées par le superadmin (noms, emails, montants, statuts, etc.).
+- Si une donnée n'est pas dans le contexte ci-dessus, dis-le clairement plutôt qu'inventer.`;
+
 
     // NO credit debit for superadmin chat
     const streamResponse = await geminiStreamResponse({
