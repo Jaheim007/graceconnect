@@ -236,10 +236,10 @@ export function SlideRenderer({
     </div>
   );
 
-  const AccentLine = ({ className }: { className?: string }) => (
+  const AccentLine = ({ className, light }: { className?: string; light?: boolean }) => (
     <div
       className={cn('h-0.5 rounded-full opacity-60 mb-3', className)}
-      style={{ background: theme.accentColor, width: '3rem' }}
+      style={{ background: light ? 'hsl(220, 60%, 30%)' : theme.accentColor, width: '3rem' }}
     />
   );
 
