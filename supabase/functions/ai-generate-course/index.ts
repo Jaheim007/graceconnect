@@ -222,26 +222,40 @@ serve(async (req) => {
       idempotencyKey: `course-${userId}-${Date.now()}`,
       metadata: { title, module_count, generate_images, detected_language: detectedLang },
       action: async () => {
+        // ─── Target audience (WHO) mapping ───
+        const audienceMap: Record<string, string> = {
+          general: isFr
+            ? 'PUBLIC CIBLE: Grand public. Utilise des exemples universels et accessibles. Évite le jargon spécialisé.'
+            : 'TARGET AUDIENCE: General public. Use universal, accessible examples. Avoid specialized jargon.',
+          students: isFr
+            ? 'PUBLIC CIBLE: Étudiants. Inclus des références académiques, des exercices de mémorisation, et structure le contenu comme un programme universitaire.'
+            : 'TARGET AUDIENCE: Students. Include academic references, memorization exercises, and structure content like a university program.',
+          professionals: isFr
+            ? 'PUBLIC CIBLE: Professionnels. Utilise des exemples du monde de l\'entreprise, des études de cas business, des KPIs et des frameworks professionnels.'
+            : 'TARGET AUDIENCE: Professionals. Use corporate examples, business case studies, KPIs and professional frameworks.',
+          entrepreneurs: isFr
+            ? 'PUBLIC CIBLE: Entrepreneurs. Oriente le contenu vers la croissance, la stratégie, le ROI. Inclus des exemples de startups et de scaling.'
+            : 'TARGET AUDIENCE: Entrepreneurs. Orient content toward growth, strategy, ROI. Include startup and scaling examples.',
+          teams: isFr
+            ? 'PUBLIC CIBLE: Équipes/Employés. Format de formation interne. Inclus des scénarios d\'équipe, des exercices collaboratifs, et des standards de conformité.'
+            : 'TARGET AUDIENCE: Teams/Employees. Internal training format. Include team scenarios, collaborative exercises, and compliance standards.',
+          creators: isFr
+            ? 'PUBLIC CIBLE: Créateurs de contenu. Axe sur la monétisation, le personal branding, la créativité, et les outils de production.'
+            : 'TARGET AUDIENCE: Content creators. Focus on monetization, personal branding, creativity, and production tools.',
+        };
+        const audienceTargetInstruction = audienceMap[audience] || audienceMap.general;
+
         // ─── Audience level complexity mapping ───
         const audienceLevelMap: Record<string, string> = {
           beginner: isFr
-            ? 'Débutant — Utilise un vocabulaire simple, des analogies du quotidien, et explique chaque concept comme si c\'était la première fois. Pas de jargon technique sans définition.'
-            : 'Beginner — Use simple vocabulary, everyday analogies, and explain every concept as if for the first time. No technical jargon without definition.',
+            ? 'NIVEAU: Débutant — Utilise un vocabulaire simple, des analogies du quotidien, et explique chaque concept comme si c\'était la première fois. Pas de jargon technique sans définition.'
+            : 'LEVEL: Beginner — Use simple vocabulary, everyday analogies, and explain every concept as if for the first time. No technical jargon without definition.',
           intermediate: isFr
-            ? 'Intermédiaire — Suppose une connaissance de base du sujet. Introduis des concepts plus nuancés avec des exemples concrets.'
-            : 'Intermediate — Assume basic knowledge of the subject. Introduce more nuanced concepts with concrete examples.',
+            ? 'NIVEAU: Intermédiaire — Suppose une connaissance de base du sujet. Introduis des concepts plus nuancés avec des exemples concrets.'
+            : 'LEVEL: Intermediate — Assume basic knowledge of the subject. Introduce more nuanced concepts with concrete examples.',
           advanced: isFr
-            ? 'Avancé — Suppose une bonne maîtrise. Approfondis avec des analyses critiques, des cas complexes, et des perspectives multiples.'
-            : 'Advanced — Assume strong mastery. Deepen with critical analysis, complex cases, and multiple perspectives.',
-          professional: isFr
-            ? 'Professionnel — Orienté mise en pratique immédiate. Inclus des frameworks, méthodologies, et études de cas réels du milieu professionnel.'
-            : 'Professional — Oriented toward immediate practical application. Include frameworks, methodologies, and real-world professional case studies.',
-          academic: isFr
-            ? 'Académique — Rigueur intellectuelle maximale. Cite des théories reconnues, des chercheurs, et des publications. Encourage l\'esprit critique.'
-            : 'Academic — Maximum intellectual rigor. Cite recognized theories, researchers, and publications. Encourage critical thinking.',
-          youth: isFr
-            ? 'Jeune public — Langage très accessible, ludique, avec des exemples tirés de la vie des jeunes. Ton encourageant et dynamique.'
-            : 'Youth audience — Very accessible, fun language with examples from young people\'s lives. Encouraging and dynamic tone.',
+            ? 'NIVEAU: Avancé — Suppose une bonne maîtrise. Approfondis avec des analyses critiques, des cas complexes, et des perspectives multiples.'
+            : 'LEVEL: Advanced — Assume strong mastery. Deepen with critical analysis, complex cases, and multiple perspectives.',
         };
         const audienceInstruction = audienceLevelMap[audience_level] || audienceLevelMap.intermediate;
 
@@ -275,10 +289,10 @@ serve(async (req) => {
 
         // ─── Depth level mapping ───
         const depthInstructions: Record<string, string> = {
-          lightweight: isFr ? 'Contenu léger: 2-3 sections par leçon, 40-80 mots par section. Microlearning rapide.' : 'Lightweight: 2-3 sections per lesson, 40-80 words per section. Quick microlearning.',
-          standard: isFr ? 'Contenu standard: 4-6 sections par leçon, 50-120 mots par section.' : 'Standard: 4-6 sections per lesson, 50-120 words per section.',
-          detailed: isFr ? 'Contenu détaillé: 6-8 sections par leçon, 80-150 mots par section. Exemples approfondis.' : 'Detailed: 6-8 sections per lesson, 80-150 words per section. In-depth examples.',
-          masterclass: isFr ? 'Contenu masterclass: 8-10 sections par leçon, 100-200 mots par section. Études de cas complètes, frameworks, analyses critiques.' : 'Masterclass: 8-10 sections per lesson, 100-200 words per section. Full case studies, frameworks, critical analysis.',
+          lightweight: isFr ? 'Contenu léger: 3-4 sections par leçon, 50-80 mots par section. Microlearning rapide.' : 'Lightweight: 3-4 sections per lesson, 50-80 words per section. Quick microlearning.',
+          standard: isFr ? 'Contenu standard: 5-7 sections par leçon, 80-150 mots par section. Chaque leçon doit atteindre au minimum 600 mots au total.' : 'Standard: 5-7 sections per lesson, 80-150 words per section. Each lesson MUST reach at least 600 words total.',
+          detailed: isFr ? 'Contenu détaillé: 7-9 sections par leçon, 120-200 mots par section. Exemples approfondis, études de cas. Minimum 900 mots par leçon.' : 'Detailed: 7-9 sections per lesson, 120-200 words per section. In-depth examples, case studies. Minimum 900 words per lesson.',
+          masterclass: isFr ? 'Contenu masterclass: 9-12 sections par leçon, 150-250 mots par section. Études de cas complètes, frameworks, analyses critiques. Minimum 1200 mots par leçon.' : 'Masterclass: 9-12 sections per lesson, 150-250 words per section. Full case studies, frameworks, critical analysis. Minimum 1200 words per lesson.',
         };
         const depthInstruction = depthInstructions[depth_level] || depthInstructions.standard;
 
@@ -330,7 +344,10 @@ CRITICAL: ALL content MUST be written in ${isFr ? 'FRENCH (Français)' : 'ENGLIS
 ## COURSE GOAL (PRIMARY DIRECTIVE)
 ${goalInstruction}
 
-## AUDIENCE LEVEL
+## TARGET AUDIENCE (WHO THIS COURSE IS FOR)
+${audienceTargetInstruction}
+
+## DIFFICULTY LEVEL
 ${audienceInstruction}
 
 ## CONTENT FRAME (MANDATORY — DO NOT IGNORE)
