@@ -94,11 +94,10 @@ export async function geminiProImageBase64(opts: {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), opts.timeoutMs ?? 120_000);
 
-  // Pro-level models for highest quality image generation
+  // Pro-level models — use stable names first, then previews
   const candidateModels = [
-    'gemini-2.5-pro-preview-06-05',
-    'gemini-2.5-pro-exp-03-25',
-    'gemini-2.5-pro',
+    'gemini-2.0-flash-exp',
+    'gemini-2.5-flash-preview-04-17',
   ];
 
   let lastErr: any = null;
@@ -172,9 +171,8 @@ export async function geminiGenerateImageBase64(opts: {
   const id = setTimeout(() => controller.abort(), opts.timeoutMs ?? 90_000);
 
   const candidateModels = [
-    'gemini-2.5-flash-image',
-    'gemini-2.0-flash-preview-image-generation',
     'gemini-2.0-flash-exp-image-generation',
+    'gemini-2.0-flash-exp',
   ];
 
   let lastErr: any = null;

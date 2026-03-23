@@ -1,12 +1,12 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { corsHeaders, jsonResp, requireAuth, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsOrThrow, refundCreditsAsBonus, normalizeTier } from '../_shared/credits.ts';
 import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 
 const IMAGE_BUCKET = 'media';
 const MAX_LESSON_IMAGES = 5;
-const FUNCTION_HARD_DEADLINE_MS = 120_000;
-const IMAGE_MIN_REMAINING_MS = 12_000;
+const FUNCTION_HARD_DEADLINE_MS = 150_000;
+const IMAGE_MIN_REMAINING_MS = 15_000;
+const PER_IMAGE_TIMEOUT_MS = 60_000;
 
 function decodeBase64(base64: string): Uint8Array {
   const binary = atob(base64);
@@ -29,7 +29,7 @@ function escapeAttribute(value: string): string {
     .replace(/>/g, '&gt;');
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
@@ -44,9 +44,9 @@ serve(async (req) => {
     if (!Array.isArray(lessons)) return jsonResp({ error: 'lessons must be an array' }, 400);
 
     const creditTier = normalizeTier(tier);
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-    if (!OPENAI_API_KEY && !GEMINI_API_KEY) return jsonResp({ error: 'No AI image provider configured' }, 500);
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    if (!GEMINI_API_KEY && !OPENAI_API_KEY) return jsonResp({ error: 'No AI image provider configured' }, 500);
 
     const { data: program, error: programErr } = await admin
       .from('programs')
@@ -145,7 +145,9 @@ serve(async (req) => {
           skipped += 1;
           continue;
         }
-        throw error;
+        console.error(`[ai-generate-course-lesson-images] Credit error for lesson ${lesson.id}:`, error?.message);
+        failed += 1;
+        continue;
       }
 
       try {
@@ -156,11 +158,11 @@ serve(async (req) => {
           continue;
         }
 
-        const timeoutMs = Math.min(20_000, Math.max(8_000, budgetMs - 8_000));
+        const timeoutMs = Math.min(PER_IMAGE_TIMEOUT_MS, Math.max(15_000, budgetMs - IMAGE_MIN_REMAINING_MS));
         const { base64, mimeType } = await aiGenerateImageBase64({
           geminiKey: GEMINI_API_KEY || '',
           openaiKey: OPENAI_API_KEY || undefined,
-          prompt: `Professional educational lesson illustration in 16:9 landscape format: ${requestLesson.image_prompt}. Clean, modern, purposeful visual. No text, labels, letters, or watermarks. Suitable as a lesson header image.`,
+          prompt: `Professional educational lesson illustration, wide landscape 16:9 format. Scene: ${requestLesson.image_prompt}. Style: clean modern flat design, vibrant colors, no text or labels or watermarks. Suitable as a lesson header image.`,
           timeoutMs,
         });
 
