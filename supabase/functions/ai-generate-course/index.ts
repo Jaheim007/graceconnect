@@ -8,6 +8,7 @@ const ACTION_KEY = 'ai_course_structure';
 const IMAGE_GEN_CONCURRENCY = 2;
 const IMAGE_BUCKET = 'media';
 const FUNCTION_HARD_DEADLINE_MS = 150_000;
+const MAX_SAFE_MODULE_COUNT = 5;
 const IMAGE_MIN_REMAINING_MS = 30_000;
 const MAX_COURSE_IMAGES = 5;
 const RESPONSE_RESERVE_MS = 8_000;
@@ -190,6 +191,8 @@ serve(async (req) => {
     const { title, description, target_audience, language, tier = 'standard', module_count = 5, generate_images = false, course_goal = 'teach_skill', audience, audience_level = 'intermediate', worldview = 'neutral', pedagogical_style = 'professional', tone = 'professional', depth_level = 'standard', interactivity_level = 'medium' } = body;
 
     const functionStartedAt = Date.now();
+    // Hard cap module count to prevent Gemini from generating too much content and timing out
+    const safeModuleCount = Math.min(Math.max(module_count, 2), MAX_SAFE_MODULE_COUNT);
     const remainingBudgetMs = () => FUNCTION_HARD_DEADLINE_MS - (Date.now() - functionStartedAt);
     const getSafeTimeoutMs = (preferredTimeoutMs: number, reserveMs = RESPONSE_RESERVE_MS, minMs = MIN_PROVIDER_TIMEOUT_MS) => {
       const safeTimeoutMs = Math.min(preferredTimeoutMs, Math.max(0, remainingBudgetMs() - reserveMs));
@@ -442,13 +445,9 @@ Return ONLY valid JSON with this exact structure:
 Quiz, Flashcard, Matching, etc. (see gamification rules below)
 
 ## COURSE ARCHITECTURE:
-- Create ${module_count} modules following a clear pedagogical progression:
-  * Module 1: Foundations & Introduction
-  * Module 2-${Math.max(2, module_count - 2)}: Core Concepts (progressive complexity)
-  * Module ${Math.max(3, module_count - 1)}: Practical Applications & Case Studies
-  * Module ${module_count}: Synthesis, Exercises & Next Steps
-        - Each module: exactly 2 lessons by default. Only add a 3rd lesson if absolutely necessary for clarity.
-- Each lesson: 5-15 minutes of reading time
+- Create EXACTLY ${safeModuleCount} modules. DO NOT create more.
+- Each module: EXACTLY 2 lessons. No exceptions.
+- Each lesson: 5-10 minutes of reading time
 - "course_title" should be a MARKETING-READY title (compelling, concise, professional) — NOT the raw prompt
 - "course_description" should be a marketing description explaining what the learner will gain
 - "image_prompt" for each lesson should be a vivid description in ENGLISH for AI image generation
@@ -476,11 +475,8 @@ Quiz, Flashcard, Matching, etc. (see gamification rules below)
 - Each quiz: 3-4 options, one correct (correctIndex 0-based)
 
 ## FINAL ASSESSMENT:
-        - 6-8 comprehensive multiple-choice questions covering ALL modules
-- Questions should test understanding AND application, not just memorization
-- Each question MUST have exactly 4 options
-- Mix difficulty: 30% easy, 40% medium, 30% hard
-- Include scenario-based questions that require applying learned concepts
+        - EXACTLY 4 multiple-choice questions covering key modules
+- Each question: 4 options, test understanding + application
 
 ## CONTENT STYLE:
 - ALL text in ${isFr ? 'FRENCH' : 'ENGLISH'}
@@ -490,25 +486,24 @@ Quiz, Flashcard, Matching, etc. (see gamification rules below)
 - The quiz JSON must be valid JSON inside the HTML comment`;
 
 
-        const userPrompt = `Design a PROFESSIONAL, IN-DEPTH course as an expert instructional designer:
+        const userPrompt = `Design a PROFESSIONAL course as an expert instructional designer:
 
 COURSE TOPIC: ${title}
 ${description ? `ADDITIONAL CONTEXT: ${description}` : ''}
 ${target_audience ? `TARGET AUDIENCE: ${target_audience}` : ''}
 AUDIENCE LEVEL: ${audience_level}
-NUMBER OF MODULES: ${module_count}
+NUMBER OF MODULES: ${safeModuleCount} (EXACTLY — do NOT create more)
+LESSONS PER MODULE: 2 (EXACTLY — do NOT create more)
 
 MANDATORY REQUIREMENTS:
 - Write ALL content in ${isFr ? 'FRENCH (Français)' : 'ENGLISH'} — the user's prompt is in ${isFr ? 'French' : 'English'}.
 - Generate a compelling "course_title" (marketing-ready) and "course_description" (2-3 sentences).
 - For each lesson include an "image_prompt" in English for AI image generation.
-- Each lesson MUST follow the full structure: Introduction → Detailed Explanation → Example/Case Study → Key Takeaways → Reflection Question → Interactive elements.
-- DETECT THE DOMAIN and include appropriate references (Bible verses for Christian topics, Qur'an for Islamic topics, expert citations for academic topics, frameworks for business topics).
-- Include a final_assessment with 8-10 comprehensive questions.
-- Each lesson should have 4-6 sections with substantive content (50-120 words per section).
+- Each lesson: Introduction → Core Content → Key Takeaways → 1 Quiz comment.
+- Include a final_assessment with EXACTLY 4 questions.
+- Each lesson: 3-4 HTML sections, 40-80 words per section.
 - Return ONLY valid JSON with no markdown fences.
-- 2-3 lessons per module, each with rich pedagogical content.
-- Make it feel like a professional training program — deep, structured, and actionable.`;
+- Keep the total JSON compact to avoid truncation.`;
 
         const openaiModel = creditTier === 'premium' && !generate_images
           ? 'gpt-4o'
@@ -634,16 +629,14 @@ MANDATORY REQUIREMENTS:
           throw new Error('No AI provider available');
         };
 
-        const primaryMaxTokens = depth_level === 'masterclass'
-          ? 18_000
-          : depth_level === 'detailed'
-            ? 15_000
-            : 12_000;
+        // Token budget scaled to module count to prevent truncation
+        const tokensPerModule = depth_level === 'masterclass' ? 2800 : depth_level === 'detailed' ? 2400 : 2000;
+        const primaryMaxTokens = Math.min(safeModuleCount * tokensPerModule + 1500, 12_000);
 
         const aiData = await requestCourseCompletion(
           userPrompt,
           primaryMaxTokens,
-          creditTier === 'premium' ? 90_000 : 75_000,
+          creditTier === 'premium' ? 75_000 : 60_000,
         );
         const content = aiData.choices?.[0]?.message?.content || '';
 
@@ -654,17 +647,17 @@ MANDATORY REQUIREMENTS:
           parsed = await repairCourseJsonWithAi({
             apiKey: GEMINI_API_KEY || undefined,
             rawContent: content,
-            moduleCount: module_count,
+            moduleCount: safeModuleCount,
             language: isFr ? 'fr' : 'en',
-            timeoutMs: Math.min(20_000, Math.max(10_000, remainingBudgetMs() - RESPONSE_RESERVE_MS)),
-            maxOutputTokens: 7000,
+            timeoutMs: Math.min(25_000, Math.max(12_000, remainingBudgetMs() - RESPONSE_RESERVE_MS)),
+            maxOutputTokens: 6000,
           });
         }
 
         if (!parsed) {
           console.warn('[ai-generate-course] Primary output still invalid, retrying with compact constraints');
-          const retryPrompt = `${userPrompt}\n\nRETRY MODE (MANDATORY):\n- Return STRICT valid JSON only.\n- Keep response compact to avoid truncation.\n- EXACTLY 2 lessons per module.\n- EXACTLY 3 sections per lesson (Introduction, Core Content, Key Takeaways).\n- EXACTLY 1 quiz comment per lesson.\n- EXACTLY 6 final assessment questions.\n- Still include domain-appropriate references where relevant.`;
-          const retryData = await requestCourseCompletion(retryPrompt, 7_000, 35_000);
+          const retryPrompt = `Create a course on "${title}" with ${Math.min(safeModuleCount, 3)} modules, 2 lessons each. ${isFr ? 'Write ALL content in FRENCH.' : 'Write ALL content in ENGLISH.'}\n\nRETRY (MANDATORY):\n- Return STRICT valid JSON only — no markdown fences.\n- 3 sections per lesson (Intro h2, Core h3, Key Takeaways h3).\n- 1 quiz HTML comment per lesson.\n- 4 final assessment questions.\n- Include image_prompt in English per lesson.\n- Structure: {"course_title":"...","course_description":"...","modules":[{"title":"...","description":"...","emoji":"🎯","lessons":[{"title":"...","content_type":"text","duration_minutes":10,"description":"...","image_prompt":"...","content":"<h2>...</h2><p>...</p>"}]}],"final_assessment":{"title":"...","description":"...","questions":[{"question":"...","options":["A","B","C","D"],"correctIndex":0,"explanation":"..."}]}}`;
+          const retryData = await requestCourseCompletion(retryPrompt, 5_000, 28_000);
           const retryContent = retryData.choices?.[0]?.message?.content || '';
           parsed = tryParseCourseJson(retryContent);
 
@@ -673,7 +666,7 @@ MANDATORY REQUIREMENTS:
             parsed = await repairCourseJsonWithAi({
               apiKey: GEMINI_API_KEY || undefined,
               rawContent: retryContent || content,
-              moduleCount: module_count,
+              moduleCount: Math.min(safeModuleCount, 3),
               language: isFr ? 'fr' : 'en',
               timeoutMs: Math.min(18_000, Math.max(10_000, remainingBudgetMs() - RESPONSE_RESERVE_MS)),
               maxOutputTokens: 6000,
