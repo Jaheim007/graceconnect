@@ -10,6 +10,8 @@ const IMAGE_BUCKET = 'media';
 const FUNCTION_HARD_DEADLINE_MS = 150_000;
 const IMAGE_MIN_REMAINING_MS = 30_000;
 const MAX_COURSE_IMAGES = 5;
+const RESPONSE_RESERVE_MS = 8_000;
+const MIN_PROVIDER_TIMEOUT_MS = 15_000;
 
 function decodeBase64(base64: string): Uint8Array {
   const binary = atob(base64);
@@ -151,6 +153,8 @@ async function repairCourseJsonWithAi(opts: {
   rawContent: string;
   moduleCount: number;
   language: 'fr' | 'en';
+  timeoutMs?: number;
+  maxOutputTokens?: number;
 }): Promise<any | null> {
   if (!opts.apiKey || !opts.rawContent?.trim()) return null;
 
@@ -160,8 +164,9 @@ async function repairCourseJsonWithAi(opts: {
       model: 'gemini-2.5-flash',
       system: `You repair malformed course JSON only. Return ONLY valid JSON. Preserve existing lesson HTML and text whenever possible. If the payload was truncated, complete the unfinished JSON minimally without adding extra fluff. All visible text must stay in ${opts.language === 'fr' ? 'French' : 'English'}. image_prompt fields must stay in English.`,
       prompt: `Repair this malformed course JSON into a valid object with this exact top-level shape: {"course_title":"...","course_description":"...","modules":[{"title":"...","description":"...","emoji":"🎯","lessons":[{"title":"...","content_type":"text","duration_minutes":10,"description":"...","image_prompt":"...","content":"<h2>...</h2>"}]}],"final_assessment":{"title":"...","description":"...","questions":[{"question":"...","options":["...","...","...","..."],"correctIndex":0,"explanation":"..."}]}}. Target up to ${opts.moduleCount} modules. Keep all valid content you can recover, close unfinished HTML tags when obvious, and do not wrap the answer in markdown fences.\n\n${opts.rawContent.slice(0, 120000)}`,
-      maxOutputTokens: 12000,
+      maxOutputTokens: opts.maxOutputTokens ?? 7000,
       jsonMode: true,
+      timeoutMs: opts.timeoutMs,
     });
 
     return tryParseCourseJson(repairedRaw);
@@ -186,6 +191,15 @@ serve(async (req) => {
 
     const functionStartedAt = Date.now();
     const remainingBudgetMs = () => FUNCTION_HARD_DEADLINE_MS - (Date.now() - functionStartedAt);
+    const getSafeTimeoutMs = (preferredTimeoutMs: number, reserveMs = RESPONSE_RESERVE_MS, minMs = MIN_PROVIDER_TIMEOUT_MS) => {
+      const safeTimeoutMs = Math.min(preferredTimeoutMs, Math.max(0, remainingBudgetMs() - reserveMs));
+      if (safeTimeoutMs < minMs) {
+        const err = new Error('Generation exceeded the server time budget. Please retry.');
+        (err as any).status = 504;
+        throw err;
+      }
+      return safeTimeoutMs;
+    };
 
     if (!title?.trim()) return jsonResp({ error: 'Title is required' }, 400);
 
@@ -433,7 +447,7 @@ Quiz, Flashcard, Matching, etc. (see gamification rules below)
   * Module 2-${Math.max(2, module_count - 2)}: Core Concepts (progressive complexity)
   * Module ${Math.max(3, module_count - 1)}: Practical Applications & Case Studies
   * Module ${module_count}: Synthesis, Exercises & Next Steps
-- Each module: 2-3 lessons
+        - Each module: exactly 2 lessons by default. Only add a 3rd lesson if absolutely necessary for clarity.
 - Each lesson: 5-15 minutes of reading time
 - "course_title" should be a MARKETING-READY title (compelling, concise, professional) — NOT the raw prompt
 - "course_description" should be a marketing description explaining what the learner will gain
@@ -444,7 +458,8 @@ Quiz, Flashcard, Matching, etc. (see gamification rules below)
 - Include SPECIFIC examples, not generic statements
 - Use data points, statistics, or concrete numbers when relevant
 - Reference domain-appropriate authorities (see domain detection above)
-- Each section should be 50-120 words (richer than a summary, digestible for mobile)
+        - Each section should be 45-100 words (specific and useful, but compact enough to avoid truncation)
+        - Favor specificity over length — do not pad with repetitive filler
 
 ## SLIDE COMPATIBILITY:
 - Each h2/h3 section doubles as a potential slide
@@ -461,7 +476,7 @@ Quiz, Flashcard, Matching, etc. (see gamification rules below)
 - Each quiz: 3-4 options, one correct (correctIndex 0-based)
 
 ## FINAL ASSESSMENT:
-- 8-10 comprehensive multiple-choice questions covering ALL modules
+        - 6-8 comprehensive multiple-choice questions covering ALL modules
 - Questions should test understanding AND application, not just memorization
 - Each question MUST have exactly 4 options
 - Mix difficulty: 30% easy, 40% medium, 30% hard
@@ -503,13 +518,7 @@ MANDATORY REQUIREMENTS:
           : 'gemini-2.5-flash';
 
         const requestCourseCompletion = async (promptText: string, maxTokens: number, preferredTimeoutMs: number) => {
-          const budgetMs = remainingBudgetMs();
-          const safeTimeoutMs = Math.min(preferredTimeoutMs, Math.max(15_000, budgetMs - 8_000));
-          if (safeTimeoutMs <= 15_000) {
-            const err = new Error('Server timeout budget reached. Please retry with a shorter prompt.');
-            (err as any).status = 504;
-            throw err;
-          }
+          const safeTimeoutMs = getSafeTimeoutMs(preferredTimeoutMs);
 
           const messages = [
             { role: 'system', content: systemPrompt },
@@ -529,6 +538,7 @@ MANDATORY REQUIREMENTS:
                   prompt: promptText,
                   maxOutputTokens: maxTokens,
                   jsonMode: true,
+                  timeoutMs: safeTimeoutMs,
                 });
 
                 return {
@@ -624,7 +634,17 @@ MANDATORY REQUIREMENTS:
           throw new Error('No AI provider available');
         };
 
-        const aiData = await requestCourseCompletion(userPrompt, 30_000, 120_000);
+        const primaryMaxTokens = depth_level === 'masterclass'
+          ? 18_000
+          : depth_level === 'detailed'
+            ? 15_000
+            : 12_000;
+
+        const aiData = await requestCourseCompletion(
+          userPrompt,
+          primaryMaxTokens,
+          creditTier === 'premium' ? 90_000 : 75_000,
+        );
         const content = aiData.choices?.[0]?.message?.content || '';
 
         let parsed: any = tryParseCourseJson(content);
@@ -636,13 +656,15 @@ MANDATORY REQUIREMENTS:
             rawContent: content,
             moduleCount: module_count,
             language: isFr ? 'fr' : 'en',
+            timeoutMs: Math.min(20_000, Math.max(10_000, remainingBudgetMs() - RESPONSE_RESERVE_MS)),
+            maxOutputTokens: 7000,
           });
         }
 
         if (!parsed) {
           console.warn('[ai-generate-course] Primary output still invalid, retrying with compact constraints');
           const retryPrompt = `${userPrompt}\n\nRETRY MODE (MANDATORY):\n- Return STRICT valid JSON only.\n- Keep response compact to avoid truncation.\n- EXACTLY 2 lessons per module.\n- EXACTLY 3 sections per lesson (Introduction, Core Content, Key Takeaways).\n- EXACTLY 1 quiz comment per lesson.\n- EXACTLY 6 final assessment questions.\n- Still include domain-appropriate references where relevant.`;
-          const retryData = await requestCourseCompletion(retryPrompt, 8_000, 50_000);
+          const retryData = await requestCourseCompletion(retryPrompt, 7_000, 35_000);
           const retryContent = retryData.choices?.[0]?.message?.content || '';
           parsed = tryParseCourseJson(retryContent);
 
@@ -653,6 +675,8 @@ MANDATORY REQUIREMENTS:
               rawContent: retryContent || content,
               moduleCount: module_count,
               language: isFr ? 'fr' : 'en',
+              timeoutMs: Math.min(18_000, Math.max(10_000, remainingBudgetMs() - RESPONSE_RESERVE_MS)),
+              maxOutputTokens: 6000,
             });
           }
 

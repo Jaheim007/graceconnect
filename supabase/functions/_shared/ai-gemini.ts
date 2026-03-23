@@ -6,9 +6,12 @@ export async function geminiGenerateText(opts: {
   temperature?: number;
   maxOutputTokens?: number;
   jsonMode?: boolean;
+  timeoutMs?: number;
 }): Promise<string> {
   const model = opts.model || 'gemini-2.5-flash';
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${opts.apiKey}`;
+  const controller = typeof opts.timeoutMs === 'number' ? new AbortController() : null;
+  const timeoutId = controller ? setTimeout(() => controller.abort(), opts.timeoutMs) : null;
 
   const body: any = {
     contents: [{ role: 'user', parts: [{ text: opts.prompt }] }],
@@ -23,22 +26,34 @@ export async function geminiGenerateText(opts: {
     body.system_instruction = { parts: [{ text: opts.system }] };
   }
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      ...(controller ? { signal: controller.signal } : {}),
+    });
 
-  if (!res.ok) {
-    const t = await res.text();
-    const err = new Error(res.status === 429 ? 'Rate limit. Please retry.' : `Gemini error (${res.status})`);
-    (err as any).status = res.status;
-    (err as any).detail = t.slice(0, 800);
-    throw err;
+    if (!res.ok) {
+      const t = await res.text();
+      const err = new Error(res.status === 429 ? 'Rate limit. Please retry.' : `Gemini error (${res.status})`);
+      (err as any).status = res.status;
+      (err as any).detail = t.slice(0, 800);
+      throw err;
+    }
+
+    const data = await res.json();
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  } catch (error: any) {
+    if (error?.name === 'AbortError') {
+      const err = new Error('Gemini request timed out');
+      (err as any).status = 504;
+      throw err;
+    }
+    throw error;
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
   }
-
-  const data = await res.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
 export function extractJson(text: string): any | null {
