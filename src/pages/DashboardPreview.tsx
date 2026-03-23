@@ -232,7 +232,7 @@ function DashboardTab({ data }: { data: DemoData }) {
                   <p className="text-[10px] text-muted-foreground">{sale.buyer} · {sale.buyerFlag} {sale.buyerCity}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-xs font-bold text-emerald-600">{fmtCurrency(sale.price, sale.currency)}</p>
+                  <p className="text-xs font-bold text-emerald-600">{fmtCurrency(sale.price, cur)}</p>
                   <p className="text-[9px] text-muted-foreground">{new Date(sale.date).toLocaleDateString('fr-FR')}</p>
                 </div>
               </div>
