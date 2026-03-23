@@ -348,7 +348,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
     <Dialog open={open} onOpenChange={(v) => { if (!generating) onOpenChange(v); }}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto" hideCloseButton={generating}>
         {generating ? (
-          <CourseGenerationLoader />
+          <CourseGenerationLoader phase={generationPhase} />
         ) : generationError ? (
           <div className="flex flex-col items-center justify-center py-12 px-4 space-y-6 text-center">
             <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center">
