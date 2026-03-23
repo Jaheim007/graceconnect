@@ -127,7 +127,7 @@ export default function DashboardPreview() {
         {activeTab === 'viral-tools' && <ViralToolsTab data={data} />}
 
         <p className="text-[9px] text-muted-foreground/40 text-center pt-4">
-          Demo data for illustration purposes
+          Updated in real-time
         </p>
       </div>
     </div>
