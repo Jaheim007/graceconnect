@@ -101,17 +101,7 @@ export default function ProductDetailPage() {
     video: t('product.type_video'), course: t('product.type_course'), link: t('product.type_link'),
   };
 
-  const { data: affiliateCode } = useQuery({
-    queryKey: ['my-affiliate-code', user?.id, slug],
-    queryFn: async () => {
-      if (!user || !slug) return null;
-      const { data: org } = await db.from('organizations').select('id').eq('slug', slug).maybeSingle();
-      if (!org) return null;
-      const { data: link } = await db.from('affiliate_links').select('code').eq('user_id', user.id).eq('organization_id', org.id).eq('is_active', true).maybeSingle();
-      return link?.code || null;
-    },
-    enabled: !!user && !!slug,
-  });
+  const { affiliateCode, ensureAffiliateCode } = useAutoAffiliateCode(product?.organization_id);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ['product-detail', productId || productSlug],
