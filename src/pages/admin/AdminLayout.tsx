@@ -8,7 +8,8 @@ import { db } from '@/lib/db';
 import {
   BarChart3, Play, Megaphone, CalendarDays, Heart, ShoppingBag,
   Users, Link2, FileCheck, Settings, ChevronDown, ArrowLeft, Loader2,
-  Camera, Tag, Clock, CreditCard, TrendingUp, MailCheck, Bell, HandHeart, Receipt, GraduationCap, Wallet, PenLine, MoreHorizontal
+  Camera, Tag, Clock, CreditCard, TrendingUp, MailCheck, Bell, HandHeart, Receipt, GraduationCap, Wallet, PenLine, MoreHorizontal,
+  Home, Package, Plus, Share2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -65,12 +66,12 @@ const groupLabels: Record<string, { label: string; icon: typeof BarChart3 }> = {
   more: { label: 'Plus', icon: MoreHorizontal },
 };
 
-// Mobile: only show the 5 most critical links + a "Plus" dropdown
+// Mobile: keep the same primary navigation everywhere
 const mobilePrimaryLinks = [
-  { to: '/admin', label: 'Aperçu', icon: BarChart3, end: true },
-  { to: '/admin/products', label: 'Produits', icon: ShoppingBag },
-  { to: '/admin/sales', label: 'Ventes', icon: Receipt },
-  { to: '/admin/members', label: 'Membres', icon: Users },
+  { to: '/dashboard', label: 'Home', icon: Home, end: true },
+  { to: '/resources', label: 'Purchases', icon: Package },
+  { to: '/admin/create', label: 'Create', icon: Plus },
+  { to: '/affiliation', label: 'Share', icon: Share2 },
 ];
 
 export default function AdminLayout() {
@@ -165,7 +166,7 @@ export default function AdminLayout() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Mobile horizontal nav — only essential items */}
+        {/* Mobile horizontal nav — same primary items as the global app nav */}
         <nav className="flex lg:hidden items-center gap-0.5 ml-1 overflow-x-auto scrollbar-hide flex-1">
           {mobilePrimaryLinks.map(({ to, label, icon: Icon, end }) => (
             <NavLink
@@ -189,7 +190,7 @@ export default function AdminLayout() {
             <DropdownMenuTrigger asChild>
               <button className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
                 <MoreHorizontal className="h-3 w-3" />
-                <span className="hidden xs:inline">Plus</span>
+                <span className="hidden xs:inline">More</span>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
