@@ -71,10 +71,10 @@ export function BottomNav() {
       case 'purchases':
         return [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Cours' : 'Courses' },
-          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases', center: true },
-          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-          { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
+          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
+          { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
+          { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
+          { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
         ];
       case 'sell':
         return [
@@ -103,10 +103,10 @@ export function BottomNav() {
       default:
         return [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Cours' : 'Courses' },
-          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases', center: true },
-          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-          { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
+          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
+          { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
+          { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
+          { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
         ];
     }
   };
