@@ -16,7 +16,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format, startOfDay, startOfWeek, startOfMonth, subDays, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart3, ArrowUpRight, ArrowDownRight, CreditCard, Smartphone, Gift, ShoppingCart, SlidersHorizontal, X } from 'lucide-react';
+import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart3, ArrowUpRight, ArrowDownRight, CreditCard, Smartphone, Gift, ShoppingCart, SlidersHorizontal, X, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
