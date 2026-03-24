@@ -179,9 +179,9 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
 
   // Ready step
   stepContent.push(
-    <motion.div key="ready" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-5 text-center">
-      <div className="h-16 w-16 mx-auto rounded-full bg-green-500/10 flex items-center justify-center">
-        <Sparkles className="h-8 w-8 text-green-500" />
+    <motion.div key="ready" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-5 text-center px-2">
+      <div className="h-14 w-14 mx-auto rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+        <Zap className="h-7 w-7 text-primary" />
       </div>
       <h2 className="text-xl font-bold">🎉 Votre plateforme est prête !</h2>
       <p className="text-sm text-muted-foreground">
