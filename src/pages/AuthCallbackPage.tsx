@@ -40,44 +40,62 @@ export default function AuthCallbackPage() {
       }
     };
 
-    // Step 1: If URL has a ?code= param (PKCE flow), exchange it explicitly
-    const url = new URL(window.location.href);
-    const code = url.searchParams.get('code');
-
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
-        if (error) {
-          console.error('Code exchange failed:', error.message);
-          // Fallback: try getSession in case Supabase auto-handled it
-          supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) handleRedirect(session);
-            else navigate('/auth', { replace: true });
-          });
-        } else if (data.session) {
-          handleRedirect(data.session);
-        }
-      });
-    } else {
-      // No code param — check hash fragments (implicit flow) or existing session
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) handleRedirect(session);
-      });
-    }
-
-    // Step 2: Also listen for auth state changes as fallback
+    // Listen for auth state changes FIRST (before any async work)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') && session) {
         handleRedirect(session);
       }
     });
 
-    // Step 3: Safety timeout — redirect to auth if nothing happens in 10s
+    const attemptSessionRecovery = async () => {
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get('code');
+
+      if (code) {
+        // PKCE flow: exchange code for session
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+        if (!error && data.session) {
+          handleRedirect(data.session);
+          return;
+        }
+        // Code exchange failed — might already be consumed by Supabase internally
+        console.warn('Code exchange failed, checking existing session...', error?.message);
+      }
+
+      // Check for hash fragments (implicit flow) or existing session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        handleRedirect(session);
+        return;
+      }
+
+      // Retry: wait a bit and check again (Supabase may still be processing)
+      for (let i = 0; i < 5; i++) {
+        await new Promise(r => setTimeout(r, 2000));
+        if (handled.current) return;
+        const { data: { session: retrySession } } = await supabase.auth.getSession();
+        if (retrySession) {
+          handleRedirect(retrySession);
+          return;
+        }
+      }
+
+      // All retries failed — redirect to auth
+      if (!handled.current) {
+        console.warn('Auth callback: all session recovery attempts failed, redirecting to /auth');
+        navigate('/auth', { replace: true });
+      }
+    };
+
+    attemptSessionRecovery();
+
+    // Safety timeout — 20s (increased from 10s for slow mobile connections)
     const timeout = setTimeout(() => {
       if (!handled.current) {
         console.warn('Auth callback timeout — redirecting to /auth');
         navigate('/auth', { replace: true });
       }
-    }, 10_000);
+    }, 20_000);
 
     return () => {
       subscription.unsubscribe();
