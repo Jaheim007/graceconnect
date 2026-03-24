@@ -71,10 +71,10 @@ export function BottomNav() {
       case 'purchases':
         return [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Cours' : 'Courses' },
-          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases', center: true },
-          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-          { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
+          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
+          { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
+          { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
+          { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
         ];
       case 'sell':
         return [
@@ -103,10 +103,10 @@ export function BottomNav() {
       default:
         return [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Cours' : 'Courses' },
-          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases', center: true },
-          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-          { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
+          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
+          { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
+          { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
+          { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
         ];
     }
   };
@@ -204,6 +204,27 @@ export function BottomNav() {
                       active ? 'text-primary' : 'text-foreground'
                     )}>{label}</span>
                   </Link>
+                );
+              }
+
+              // ═══ MORE BUTTON (opens sheet) ═══
+              if (to === '#more') {
+                return (
+                  <button
+                    key="more"
+                    onClick={() => setMoreOpen(true)}
+                    aria-label={label}
+                    className={cn(
+                      'flex flex-col items-center justify-center gap-1 flex-1 py-2 min-h-[48px] min-w-[48px] transition-all duration-200 relative',
+                      moreOpen ? 'text-primary' : 'text-muted-foreground'
+                    )}
+                  >
+                    <Icon className={cn('h-5 w-5', moreOpen && 'stroke-[2.5]')} />
+                    <span className={cn(
+                      'text-[10px] font-medium leading-none',
+                      moreOpen && 'font-bold'
+                    )}>{label}</span>
+                  </button>
                 );
               }
 
