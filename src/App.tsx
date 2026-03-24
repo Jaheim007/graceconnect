@@ -19,6 +19,7 @@ import { GDPRBanner } from "@/components/layout/GDPRBanner";
 import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
 import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { SkipLink } from "@/components/layout/SkipLink";
+import { ShortcutRedirect } from "@/components/layout/ShortcutRedirect";
 import { FloatingProofToast } from "@/components/social-proof/FloatingProofToast";
 import { GlobalActivityBar } from "@/components/social-proof/GlobalActivityBar";
 import { ExperimentDebugOverlay } from "@/components/experiments/ExperimentDebugOverlay";
@@ -418,6 +419,9 @@ const App = () => (
                   <Route path="/watch/:id" element={<WatchPage />} />
                   <Route path="/notifications" element={<NotificationsPage />} />
                   <Route path="/notification-preferences" element={<NotificationPreferencesPage />} />
+                  <Route path="/wallet" element={<ShortcutRedirect kind="wallet" />} />
+                  <Route path="/settings" element={<ShortcutRedirect kind="settings" />} />
+                  <Route path="/kyc" element={<ShortcutRedirect kind="kyc" />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/resources" element={<ResourcesPage />} />
                   <Route path="/my-donations" element={<MyDonationsPage />} />
