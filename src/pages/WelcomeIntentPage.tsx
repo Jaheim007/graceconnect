@@ -1,72 +1,95 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { PenLine, Share2, Upload, ShoppingBag, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Store, Share2, Sparkles, ArrowRight } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { useI18n } from '@/i18n/I18nContext';
+import { useUserMode, UserMode } from '@/contexts/UserModeContext';
 
 export default function WelcomeIntentPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const { t } = useI18n();
-  const intentParam = searchParams.get('intent');
+  const { t, locale } = useI18n();
+  const { setMode } = useUserMode();
+  const isFr = locale === 'fr';
 
-  const intents = [
+  const intents: Array<{
+    key: UserMode;
+    icon: typeof ShoppingBag;
+    emoji: string;
+    title: string;
+    desc: string;
+    color: string;
+    iconBg: string;
+    iconColor: string;
+    badge: string | null;
+    route: string;
+  }> = [
     {
-      key: 'writer',
-      icon: PenLine,
-      emoji: '✏️',
-      title: t('welcome.write'),
-      desc: t('welcome.write_desc'),
+      key: 'purchases',
+      icon: ShoppingBag,
+      emoji: '📦',
+      title: isFr ? 'Mes Achats' : 'My Purchases',
+      desc: isFr ? 'Voir et gérer mes achats, télécharger mes ressources' : 'View and manage my purchases, download my resources',
       color: 'border-primary/30 hover:border-primary',
       iconBg: 'bg-primary/10',
       iconColor: 'text-primary',
       badge: null,
-      route: '/ecrire',
+      route: '/dashboard',
     },
     {
-      key: 'ambassador',
+      key: 'sell',
+      icon: Store,
+      emoji: '🛒',
+      title: isFr ? 'Vendre mon contenu' : 'Sell my content',
+      desc: isFr ? 'Je veux vendre mes ebooks, cours ou fichiers numériques' : 'I want to sell my ebooks, courses or digital files',
+      color: 'border-blue-500/30 hover:border-blue-500',
+      iconBg: 'bg-blue-500/10',
+      iconColor: 'text-blue-500',
+      badge: null,
+      route: '/dashboard',
+    },
+    {
+      key: 'earn',
       icon: Share2,
-      emoji: '💰',
-      title: t('welcome.earn'),
-      desc: t('welcome.earn_desc'),
+      emoji: '🔗',
+      title: isFr ? 'Gagner en partageant' : 'Earn by sharing',
+      desc: isFr ? 'Partager des produits et gagner des commissions' : 'Share products and earn commissions',
       color: 'border-emerald-500/30 hover:border-emerald-500',
       iconBg: 'bg-emerald-500/10',
       iconColor: 'text-emerald-500',
-      badge: t('welcome.earn_badge'),
-      route: '/gagner',
+      badge: isFr ? '5-50% commission' : '5-50% commission',
+      route: '/dashboard',
     },
     {
-      key: 'creator',
-      icon: Upload,
-      emoji: '📤',
-      title: t('welcome.import'),
-      desc: t('welcome.import_desc'),
-      color: 'border-accent/30 hover:border-accent',
-      iconBg: 'bg-accent/10',
-      iconColor: 'text-accent',
-      badge: null,
-      route: '/migrer',
-    },
-    {
-      key: 'buyer',
-      icon: ShoppingBag,
-      emoji: '🛒',
-      title: t('welcome.explore'),
-      desc: t('welcome.explore_desc'),
-      color: 'border-border hover:border-primary/30',
-      iconBg: 'bg-muted',
-      iconColor: 'text-muted-foreground',
-      badge: null,
-      route: '/discover',
+      key: 'create',
+      icon: Sparkles,
+      emoji: '✨',
+      title: isFr ? 'Créer avec l\'IA' : 'Create with AI',
+      desc: isFr ? 'Écrire un livre ou créer un cours en 5 minutes avec l\'IA' : 'Write a book or create a course in 5 minutes with AI',
+      color: 'border-purple-500/30 hover:border-purple-500',
+      iconBg: 'bg-purple-500/10',
+      iconColor: 'text-purple-500',
+      badge: isFr ? 'Nouveau' : 'New',
+      route: '/dashboard',
     },
   ];
 
+  const handleSelect = (intent: typeof intents[0]) => {
+    setMode(intent.key);
+    // Save intent to profile
+    if (user) {
+      import('@/lib/db').then(({ db }) => {
+        db.from('profiles').update({ onboarding_intent: intent.key }).eq('id', user.id);
+      });
+    }
+    navigate(intent.route);
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <SEOHead title={`${t('welcome.title')} — SiteViral`} description={t('welcome.subtitle')} noindex />
+      <SEOHead title={`${isFr ? 'Bienvenue' : 'Welcome'} — SiteViral`} description={isFr ? 'Choisissez votre espace' : 'Choose your space'} noindex />
       <div className="w-full max-w-md">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -83,10 +106,10 @@ export default function WelcomeIntentPage() {
             <SiteLogo size="xl" linked={false} />
           </motion.div>
           <h1 className="text-2xl sm:text-3xl font-extrabold mb-2">
-            {t('welcome.title')}{user?.user_metadata?.display_name ? ` ${user.user_metadata.display_name}` : ''} !
+            {isFr ? 'Bienvenue' : 'Welcome'}{user?.user_metadata?.display_name ? ` ${user.user_metadata.display_name}` : ''} ! 🎉
           </h1>
           <p className="text-muted-foreground text-sm">
-            {t('welcome.subtitle')}
+            {isFr ? 'Que souhaitez-vous faire aujourd\'hui ?' : 'What would you like to do today?'}
           </p>
         </motion.div>
 
@@ -97,14 +120,7 @@ export default function WelcomeIntentPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 + i * 0.08, duration: 0.3 }}
-              onClick={() => {
-                if (user) {
-                  import('@/lib/db').then(({ db }) => {
-                    db.from('profiles').update({ onboarding_intent: intent.key }).eq('id', user.id);
-                  });
-                }
-                navigate(intent.route);
-              }}
+              onClick={() => handleSelect(intent)}
               className={`relative w-full flex items-center gap-4 p-5 rounded-2xl border-2 ${intent.color} bg-card text-left transition-all duration-200 hover:shadow-elevated group`}
             >
               {intent.badge && (
