@@ -596,7 +596,7 @@ export function SuperadminTransactions() {
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
           {allTx.length} transaction{allTx.length !== 1 ? 's' : ''}
-          {filter !== 'all' && <> · {filter === 'purchase' ? 'Achats' : 'Dons'}</>}
+          {filter !== 'all' && <> · {filter === 'purchase' ? 'Achats' : filter === 'credit' ? 'Crédits IA' : 'Dons'}</>}
         </p>
       </div>
 
