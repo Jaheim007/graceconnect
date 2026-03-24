@@ -92,7 +92,7 @@ export function Sidebar() {
       { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
     ];
 
-    const sellItems: NavItem[] = [
+    const sellItems: NavItem[] = hasOrgs && canManageCurrentOrg ? [
       ...(myPageItem ? [myPageItem] : []),
       { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
       { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
@@ -104,6 +104,11 @@ export function Sidebar() {
       { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
       { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
       { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
+    ] : [
+      { to: '/create-org', icon: Plus, label: isFr ? 'Créer ma plateforme' : 'Create my platform' },
+      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
+      { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
+      { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
     ];
 
     const earnItems: NavItem[] = [
@@ -117,7 +122,7 @@ export function Sidebar() {
       { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
     ];
 
-    const createItems: NavItem[] = [
+    const createItems: NavItem[] = hasOrgs && canManageCurrentOrg ? [
       ...(myPageItem ? [myPageItem] : []),
       { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
       { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
@@ -129,6 +134,11 @@ export function Sidebar() {
       { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
       { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
       { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
+    ] : [
+      { to: '/create-org', icon: Sparkles, label: isFr ? 'Créer ma plateforme' : 'Create my platform' },
+      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
+      { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
+      { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
     ];
 
     switch (mode) {

@@ -72,7 +72,7 @@ export default function DashboardRouter() {
       if (manageableOrg) {
         return <Navigate to="/admin" replace />;
       }
-      // No org yet → redirect to create org
+      // No org yet → redirect to create platform
       return <Navigate to="/create-org" replace />;
 
     case 'earn':

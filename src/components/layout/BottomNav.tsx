@@ -79,8 +79,8 @@ export function BottomNav() {
       case 'sell':
         return [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes' : 'Sales' },
-          { to: '/admin/create', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
+          { to: hasManagedOrgs ? '/admin/sales' : '/create-org', icon: Wallet, label: isFr ? 'Ventes' : 'Sales' },
+          { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
           { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
         ];
@@ -95,8 +95,8 @@ export function BottomNav() {
       case 'create':
         return [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes' : 'Sales' },
-          { to: '/admin/create', icon: Sparkles, label: 'Studio', center: true },
+          { to: hasManagedOrgs ? '/admin/sales' : '/create-org', icon: Wallet, label: isFr ? 'Ventes' : 'Sales' },
+          { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Sparkles, label: 'Studio', center: true },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
           { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
         ];
