@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
-import { Activity, Heart, ShoppingBag, Users, Shield, UserPlus, FileText } from 'lucide-react';
+import { Activity, Heart, ShoppingBag, Users, Shield, UserPlus, FileText, Coins } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { motion } from 'framer-motion';
@@ -20,13 +20,14 @@ export default function SuperadminActivityFeed() {
   const { data: activities = [], isLoading } = useQuery({
     queryKey: ['sa-activity-feed'],
     queryFn: async () => {
-      const [donations, purchases, profiles, kyc, members, reports] = await Promise.all([
+      const [donations, purchases, profiles, kyc, members, reports, creditPurchases] = await Promise.all([
         db.from('donations').select('id, donor_name, donor_email, amount, status, created_at, currency').order('created_at', { ascending: false }).limit(30),
         db.from('product_purchases').select('id, amount, status, created_at, currency, buyer_name, buyer_email, digital_products(title)').order('created_at', { ascending: false }).limit(30),
         db.from('profiles').select('id, display_name, created_at').order('created_at', { ascending: false }).limit(20),
         db.from('kyc_submissions').select('id, status, submitted_at, organization_id').order('submitted_at', { ascending: false }).limit(20),
         db.from('organization_members').select('id, role, joined_at, user_id, organizations(name), profiles(display_name)').order('joined_at', { ascending: false }).limit(20),
         db.from('content_reports').select('id, content_type, reason, status, created_at').order('created_at', { ascending: false }).limit(20),
+        db.from('credit_purchases').select('id, user_id, pack_key, credits_amount, price_amount, price_currency, payment_gateway, status, created_at').order('created_at', { ascending: false }).limit(30),
       ]);
 
       // Resolve auth emails for profiles without display_name
@@ -101,6 +102,32 @@ export default function SuperadminActivityFeed() {
         timestamp: r.created_at,
       }));
 
+      // Resolve credit purchase user names
+      const creditUserIds = (creditPurchases.data || []).map((c: any) => c.user_id).filter(Boolean);
+      let creditUserNames: Record<string, string> = {};
+      if (creditUserIds.length > 0) {
+        const { data: creditProfiles } = await db.from('profiles').select('id, display_name').in('id', creditUserIds);
+        (creditProfiles || []).forEach((p: any) => { if (p.display_name) creditUserNames[p.id] = p.display_name; });
+        // Fallback to emails from purchases/donations for users without display_name
+        const missingIds = creditUserIds.filter((id: string) => !creditUserNames[id]);
+        if (missingIds.length > 0) {
+          const { data: fallbackEmails } = await db.from('product_purchases').select('user_id, buyer_email').in('user_id', missingIds).limit(100);
+          (fallbackEmails || []).forEach((r: any) => { if (r.buyer_email && !creditUserNames[r.user_id]) creditUserNames[r.user_id] = r.buyer_email.split('@')[0]; });
+        }
+      }
+
+      (creditPurchases.data || []).forEach((c: any) => {
+        const userName = creditUserNames[c.user_id] || (isFr ? 'Utilisateur' : 'User');
+        const gateway = c.payment_gateway === 'stripe' ? 'Stripe' : 'Paystack';
+        items.push({
+          id: `crd-${c.id}`, type: 'credit_purchase',
+          title: isFr ? `Achat de crédits par ${userName}` : `Credit purchase by ${userName}`,
+          subtitle: `${c.credits_amount} crédits — ${fmt(c.price_amount, c.price_currency || 'XOF')} (${gateway})`,
+          status: c.status,
+          timestamp: c.created_at,
+        });
+      });
+
       return items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     },
     refetchInterval: 30000,
@@ -108,7 +135,7 @@ export default function SuperadminActivityFeed() {
 
   interface ActivityItem {
     id: string;
-    type: 'donation' | 'purchase' | 'signup' | 'kyc' | 'member' | 'report';
+    type: 'donation' | 'purchase' | 'signup' | 'kyc' | 'member' | 'report' | 'credit_purchase';
     title: string;
     subtitle: string;
     amount?: number;
@@ -123,6 +150,7 @@ export default function SuperadminActivityFeed() {
     kyc: { icon: Shield, color: 'text-amber-500', bg: 'bg-amber-500/10' },
     member: { icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
     report: { icon: FileText, color: 'text-red-500', bg: 'bg-red-500/10' },
+    credit_purchase: { icon: Coins, color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
   };
 
   return (
