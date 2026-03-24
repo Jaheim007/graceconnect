@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { DigitalProduct } from '@/types/database';
 import { ReportContentDialog } from '@/components/reports/ReportContentDialog';
 import { stripHtml } from '@/lib/formatText';
-import { useShortLink } from '@/hooks/useShortLink';
 import { useAutoAffiliateCode } from '@/hooks/useAutoAffiliateCode';
+import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import { formatPrice } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -59,7 +59,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   const organizationId = (product as any).organization_id;
   const orgSlug = (product as any).organization_slug || '';
 
-  const { affiliateCode } = useAutoAffiliateCode(organizationId);
+  const { affiliateCode, ensureAffiliateCode } = useAutoAffiliateCode(organizationId);
 
   const { data: orgData } = useQuery({
     queryKey: ['org-slug-for-card', organizationId],
@@ -83,15 +83,47 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   );
   const detailPath = resolvedSlug ? buildDetailPath(resolvedSlug) : '';
 
-  const refSuffix = affiliateCode ? `?ref=${affiliateCode}` : '';
-  const shareTargetPath = `${detailPath || '/marketplace'}${refSuffix}`;
+  const shareFallbackUrl = `${window.location.origin}${detailPath || '/marketplace'}${affiliateCode && detailPath ? `?ref=${affiliateCode}` : ''}`;
+  const resolveShareUrl = async () => {
+    if (!detailPath) {
+      toast({
+        title: isFr ? 'Lien indisponible' : 'Link unavailable',
+        description: isFr ? 'Impossible de générer le lien de partage pour ce produit.' : 'Unable to generate a share link for this product.',
+        variant: 'destructive',
+      });
+      return null;
+    }
 
-  const { shareUrl: socialShareUrl } = useShortLink({
-    targetPath: shareTargetPath,
-    title: product.title,
-    description: stripHtml(product.description || '').slice(0, 155) || undefined,
-    image: product.cover_image_url || undefined,
-  });
+    if (!user) return `${window.location.origin}${detailPath}`;
+
+    const code = affiliateCode ?? await ensureAffiliateCode();
+    if (!code) {
+      toast({
+        title: isFr ? 'Lien ambassadeur indisponible' : 'Ambassador link unavailable',
+        description: isFr ? 'Impossible d’activer votre commission pour ce partage.' : 'Unable to activate your commission for this share.',
+        variant: 'destructive',
+      });
+      return null;
+    }
+
+    const targetPath = `${detailPath}?ref=${code}`;
+
+    try {
+      return await getOrCreateShortLink({
+        targetPath,
+        title: product.title,
+        description: stripHtml(product.description || '').slice(0, 155) || undefined,
+        image: product.cover_image_url || undefined,
+      });
+    } catch {
+      return buildSocialShareUrl({
+        targetUrl: `${window.location.origin}${targetPath}`,
+        title: product.title,
+        description: stripHtml(product.description || '').slice(0, 155) || undefined,
+        image: product.cover_image_url || undefined,
+      });
+    }
+  };
 
   const canPreview = !!(product as any).file_url && ['pdf', 'ebook'].includes((product.product_type || '').toLowerCase());
   const commissionPercent = (product as any).commission_percent;
@@ -338,7 +370,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
               </Button>
             )}
 
-            {!hideShare && <ShareWidget url={socialShareUrl} title={product.title} description={product.description || undefined} />}
+            {!hideShare && <ShareWidget url={shareFallbackUrl} resolveUrl={resolveShareUrl} title={product.title} description={product.description || undefined} />}
 
             {isPurchased ? (
               <Button
