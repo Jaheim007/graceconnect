@@ -63,10 +63,10 @@ export function BottomNav() {
     switch (mode) {
       case 'purchases':
         return [
-          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
           { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
-          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
           { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Cours' : 'Courses' },
+          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+          { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
           { to: '__more__', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
         ];
       case 'sell':
