@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Bell, Sun, Moon, LogOut, User, Settings, Shield, Plus, Search } from 'lucide-react';
+import { Bell, Sun, Moon, LogOut, User, Settings, Shield, Plus, Search, ArrowLeftRight } from 'lucide-react';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
