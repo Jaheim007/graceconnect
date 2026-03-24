@@ -73,8 +73,8 @@ export default function SuperadminExports() {
     const { data } = await db.from('donations').select('*').order('created_at', { ascending: false });
     if (!data?.length) { toast({ title: 'Aucune donnée' }); return; }
     downloadCSV('donations',
-      ['ID', 'Donateur', 'Email', 'Montant', 'Devise', 'Statut', 'Org ID', 'Réf', 'Comm plateforme', 'Comm affilié', 'Montant org', 'Créé le'],
-      data.map((d: any) => [d.id, d.donor_name, d.donor_email, d.amount, d.currency, d.status, d.organization_id, d.paystack_reference, d.platform_fee, d.affiliate_commission, d.organization_amount, d.created_at])
+      ['ID', 'Donateur', 'Email', 'Montant', 'Devise', 'Statut', 'Passerelle', 'Org ID', 'Réf', 'Comm plateforme', 'Comm affilié', 'Montant org', 'Créé le'],
+      data.map((d: any) => [d.id, d.donor_name, d.donor_email, d.amount, d.currency, d.status, d.gateway || 'N/A', d.organization_id, d.paystack_reference, d.platform_fee, d.affiliate_commission, d.organization_amount, d.created_at])
     );
     toast({ title: 'Export donations ✅' });
   };
@@ -83,8 +83,8 @@ export default function SuperadminExports() {
     const { data } = await db.from('product_purchases').select('*').order('created_at', { ascending: false });
     if (!data?.length) { toast({ title: 'Aucune donnée' }); return; }
     downloadCSV('purchases',
-      ['ID', 'User ID', 'Produit ID', 'Montant', 'Devise', 'Statut', 'Org ID', 'Réf', 'Comm plateforme', 'Comm affilié', 'Montant org', 'Créé le'],
-      data.map((p: any) => [p.id, p.user_id, p.product_id, p.amount, p.currency, p.status, p.organization_id, p.paystack_reference, p.platform_fee, p.affiliate_commission, p.organization_amount, p.created_at])
+      ['ID', 'User ID', 'Produit ID', 'Montant', 'Devise', 'Statut', 'Passerelle', 'Org ID', 'Réf', 'Comm plateforme', 'Comm affilié', 'Montant org', 'Créé le'],
+      data.map((p: any) => [p.id, p.user_id, p.product_id, p.amount, p.currency, p.status, p.payment_gateway || 'N/A', p.organization_id, p.paystack_reference, p.platform_fee, p.affiliate_commission, p.organization_amount, p.created_at])
     );
     toast({ title: 'Export achats ✅' });
   };
@@ -128,7 +128,7 @@ export default function SuperadminExports() {
       db.from('organization_members').select('user_id, organization_id, role').eq('role', 'owner'),
       db.from('organizations').select('id, name, slug, category, kyc_status, plan_type, created_at'),
       db.from('digital_products').select('id, title, price, currency, product_type, organization_id, sales_count, is_published, created_at'),
-      db.from('product_purchases').select('product_id, amount, status, organization_id').eq('status', 'completed'),
+      db.from('product_purchases').select('product_id, amount, status, organization_id, payment_gateway').eq('status', 'completed'),
       db.from('kyc_submissions').select('organization_id, status, kyc_level, submitted_at'),
       db.from('profiles').select('id, display_name'),
     ]);
@@ -143,11 +143,12 @@ export default function SuperadminExports() {
       if (!productsByOrg.has(p.organization_id)) productsByOrg.set(p.organization_id, []);
       productsByOrg.get(p.organization_id)!.push(p);
     });
-    const purchasesByProduct = new Map<string, { count: number; revenue: number }>();
+    const purchasesByProduct = new Map<string, { count: number; revenue: number; gateways: Set<string> }>();
     (purchases || []).forEach((p: any) => {
-      const cur = purchasesByProduct.get(p.product_id) || { count: 0, revenue: 0 };
+      const cur = purchasesByProduct.get(p.product_id) || { count: 0, revenue: 0, gateways: new Set<string>() };
       cur.count++;
       cur.revenue += p.amount || 0;
+      if (p.payment_gateway) cur.gateways.add(p.payment_gateway);
       purchasesByProduct.set(p.product_id, cur);
     });
     const kycByOrg = new Map((kyc || []).map((k: any) => [k.organization_id, k]));
