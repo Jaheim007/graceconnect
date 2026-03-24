@@ -44,8 +44,8 @@ export function BottomNav() {
   const consumerItems = [
     { to: '/dashboard', icon: Home, label: t('bottom.home') },
     { to: '/marketplace', icon: Store, label: t('bottom.discover') },
+    { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases') || 'Mes achats' },
     { to: '/ecrire', icon: PenLine, label: t('bottom.write'), accent: true },
-    { to: '/gagner', icon: Wallet, label: t('bottom.earn') },
     { to: '__more__', icon: MoreHorizontal, label: t('bottom.more') },
   ];
 
