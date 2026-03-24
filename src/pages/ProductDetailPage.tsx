@@ -35,6 +35,7 @@ import { useBundleItems, useProductRecommendations } from '@/hooks/useBundlesAnd
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ProductCard } from '@/components/products/ProductCard';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
+import { useAutoAffiliateCode } from '@/hooks/useAutoAffiliateCode';
 import { CrossSellWidget } from '@/components/products/CrossSellWidget';
 import { SubscriptionUpsellPrompt } from '@/components/subscriptions/SubscriptionUpsellPrompt';
 import { Breadcrumb } from '@/components/layout/Breadcrumb';
