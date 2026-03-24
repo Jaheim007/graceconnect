@@ -1,18 +1,16 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  CheckCircle, Download, BookOpen, ArrowRight, ShieldCheck,
-  Store, User, Package, CreditCard, Calendar, Hash, Loader2, AlertCircle,
-  PartyPopper, Share2, Users,
+  Download, BookOpen, ArrowRight, ShieldCheck,
+  Loader2, PartyPopper, Users, Check, Rocket, X,
+  Package, Star,
 } from 'lucide-react';
-import { PostPurchaseCelebration } from '@/components/growth/PostPurchaseCelebration';
 import { UpsellSection } from '@/components/payment/UpsellSection';
 import { ContextualFeedback } from '@/components/feedback/ContextualFeedback';
+import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -21,6 +19,8 @@ import { verifyStripePayment } from '@/lib/api';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { formatCurrency } from '@/lib/currency';
+import { toast } from 'sonner';
 
 interface TransactionDetails {
   type: 'product' | 'donation';
@@ -37,10 +37,12 @@ interface TransactionDetails {
   external_link?: string | null;
   cover_image_url?: string | null;
   org_name: string;
+  org_slug?: string;
   org_logo?: string | null;
   leader_name?: string | null;
   leader_title?: string | null;
   campaign_title?: string;
+  commission_rate?: number;
 }
 
 const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
@@ -67,18 +69,26 @@ export default function PaymentSuccessPage() {
   const [error, setError] = useState('');
   const [retryCount, setRetryCount] = useState(0);
 
+  // Ambassador state
+  const [enrolling, setEnrolling] = useState(false);
+  const [enrolled, setEnrolled] = useState(false);
+  const [affiliateCode, setAffiliateCode] = useState<string | null>(null);
+
   const referenceRef = useRef(rawReference);
   const reference = rawReference;
   const abortRef = useRef(false);
   const MAX_RETRIES = 8;
 
+  const [downloading, setDownloading] = useState(false);
+  const [reading, setReading] = useState(false);
+
   const lookupTransaction = useCallback(async (ref?: string): Promise<TransactionDetails | null> => {
     const searchRef = ref || referenceRef.current;
-    
+
     if (searchRef) {
       const { data: purchase } = await db
         .from('product_purchases')
-        .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, logo_url, leader_name, leader_title))')
+        .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, slug, logo_url, leader_name, leader_title, commission_rate))')
         .eq('paystack_reference', searchRef)
         .limit(1)
         .maybeSingle();
@@ -93,14 +103,15 @@ export default function PaymentSuccessPage() {
           product_type: product?.product_type, product_id: product?.id,
           organization_id: product?.organization_id, file_url: product?.file_url,
           external_link: product?.external_link, cover_image_url: product?.cover_image_url,
-          org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_logo: org?.logo_url,
-          leader_name: org?.leader_name, leader_title: org?.leader_title,
+          org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_slug: org?.slug,
+          org_logo: org?.logo_url, leader_name: org?.leader_name, leader_title: org?.leader_title,
+          commission_rate: org?.commission_rate ?? 10,
         };
       }
 
       const { data: donation } = await db
         .from('donations')
-        .select('*, donation_campaigns(title), organizations(name, logo_url, leader_name, leader_title)')
+        .select('*, donation_campaigns(title), organizations(name, slug, logo_url, leader_name, leader_title)')
         .eq('paystack_reference', searchRef)
         .limit(1)
         .maybeSingle();
@@ -112,8 +123,8 @@ export default function PaymentSuccessPage() {
           currency: donation.currency || 'XOF', status: donation.status,
           created_at: donation.completed_at || donation.created_at,
           campaign_title: donation.donation_campaigns?.title,
-          org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_logo: org?.logo_url,
-          leader_name: org?.leader_name, leader_title: org?.leader_title,
+          org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_slug: org?.slug,
+          org_logo: org?.logo_url, leader_name: org?.leader_name, leader_title: org?.leader_title,
         };
       }
     }
@@ -122,7 +133,7 @@ export default function PaymentSuccessPage() {
       const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
       const { data: recentPurchase } = await db
         .from('product_purchases')
-        .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, logo_url, leader_name, leader_title))')
+        .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, slug, logo_url, leader_name, leader_title, commission_rate))')
         .eq('user_id', user.id).eq('status', 'completed').gte('completed_at', fiveMinAgo)
         .order('completed_at', { ascending: false }).limit(1).maybeSingle();
 
@@ -136,15 +147,16 @@ export default function PaymentSuccessPage() {
           created_at: recentPurchase.completed_at || recentPurchase.created_at, product_title: product?.title,
           product_type: product?.product_type, product_id: product?.id,
           file_url: product?.file_url, external_link: product?.external_link,
-          cover_image_url: product?.cover_image_url,
-          org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_logo: org?.logo_url,
-          leader_name: org?.leader_name, leader_title: org?.leader_title,
+          cover_image_url: product?.cover_image_url, organization_id: product?.organization_id,
+          org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_slug: org?.slug,
+          org_logo: org?.logo_url, leader_name: org?.leader_name, leader_title: org?.leader_title,
+          commission_rate: org?.commission_rate ?? 10,
         };
       }
 
       const { data: recentDonation } = await db
         .from('donations')
-        .select('*, donation_campaigns(title), organizations(name, logo_url, leader_name, leader_title)')
+        .select('*, donation_campaigns(title), organizations(name, slug, logo_url, leader_name, leader_title)')
         .eq('user_id', user.id).eq('status', 'completed').gte('completed_at', fiveMinAgo)
         .order('completed_at', { ascending: false }).limit(1).maybeSingle();
 
@@ -156,8 +168,8 @@ export default function PaymentSuccessPage() {
           currency: recentDonation.currency || 'XOF', status: recentDonation.status,
           created_at: recentDonation.completed_at || recentDonation.created_at,
           campaign_title: recentDonation.donation_campaigns?.title,
-          org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_logo: org?.logo_url,
-          leader_name: org?.leader_name, leader_title: org?.leader_title,
+          org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_slug: org?.slug,
+          org_logo: org?.logo_url, leader_name: org?.leader_name, leader_title: org?.leader_title,
         };
       }
     }
@@ -186,7 +198,6 @@ export default function PaymentSuccessPage() {
         const found = await lookupTransaction();
         if (found) {
           await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
-          // Track A/B experiment conversions on successful purchase
           try {
             const sessionSeed = sessionStorage.getItem('sv_exp_seed');
             if (sessionSeed) {
@@ -238,14 +249,6 @@ export default function PaymentSuccessPage() {
     }
   }
 
-  const fmtAmount = (n: number, cur: string) => fmtCurrency(n, cur);
-
-  const fmtDate = (d: string) =>
-    new Date(d).toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-  const [downloading, setDownloading] = useState(false);
-  const [reading, setReading] = useState(false);
-
   const handleDownload = async () => {
     if (!tx?.product_id || !tx?.file_url) return;
     setDownloading(true);
@@ -270,6 +273,40 @@ export default function PaymentSuccessPage() {
     } finally { setReading(false); }
   };
 
+  const commissionPercent = tx?.commission_rate ?? 10;
+  const potentialEarning = tx ? Math.round((tx.amount * commissionPercent) / 100) : 0;
+  const fmt = (n: number) => tx ? formatCurrency(n, tx.currency) : `${n}`;
+
+  const shareUrl = tx?.org_slug
+    ? `${window.location.origin}/org/${tx.org_slug}${affiliateCode ? `?ref=${affiliateCode}` : ''}`
+    : window.location.origin;
+
+  const enrollAsAmbassador = async () => {
+    if (!user || enrolling || !tx?.org_slug) return;
+    setEnrolling(true);
+    try {
+      const { data: orgData } = await db.from('organizations').select('id').eq('slug', tx.org_slug).single();
+      if (!orgData) throw new Error('Org not found');
+      const { error } = await db.rpc('self_enroll_affiliate', { _org_id: orgData.id });
+      if (error) throw error;
+      const { data: linkData } = await db.from('affiliate_links').select('code').eq('user_id', user.id).eq('organization_id', orgData.id).maybeSingle();
+      if (linkData?.code) {
+        setAffiliateCode(linkData.code);
+        setEnrolled(true);
+        toast.success(isFr ? '🎉 Tu es maintenant ambassadeur !' : '🎉 You are now an ambassador!');
+      }
+    } catch (err: any) {
+      const { data: existing } = await db.from('affiliate_links').select('code').eq('user_id', user!.id).limit(1).maybeSingle();
+      if (existing?.code) {
+        setAffiliateCode(existing.code);
+        setEnrolled(true);
+      } else {
+        toast.error(isFr ? "Erreur lors de l'inscription" : 'Error during enrollment');
+      }
+    } finally { setEnrolling(false); }
+  };
+
+  // ── Loading state ──
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -286,6 +323,7 @@ export default function PaymentSuccessPage() {
     );
   }
 
+  // ── Error / pending state ──
   if (error || !tx) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -312,220 +350,257 @@ export default function PaymentSuccessPage() {
     );
   }
 
+  // ── Main celebration page (unified for Paystack & Stripe) ──
   const isProduct = tx.type === 'product';
   const isBook = isPdfLikeFile(tx.file_url, tx.product_type);
   const isCompleted = tx.status === 'completed';
+  const showAmbassador = isProduct && isCompleted && tx.amount > 0;
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 overflow-y-auto">
       <SEOHead title={isFr ? 'Paiement réussi — Siteviral' : 'Payment successful — Siteviral'} noindex />
 
-      {/* Confetti burst */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
-        {Array.from({ length: 50 }).map((_, i) => {
-          const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96E6A1', '#FFA07A', '#DDA0DD', '#FFD700', '#87CEEB'];
-          const color = colors[i % colors.length];
-          const size = 6 + Math.random() * 8;
-          return (
-            <motion.div key={i} className="absolute"
-              style={{ left: `${Math.random() * 100}%`, top: -10, width: size, height: size, backgroundColor: color, borderRadius: Math.random() > 0.5 ? '50%' : '2px' }}
-              initial={{ y: -20, opacity: 1, rotate: 0 }}
-              animate={{ y: [0, 400 + Math.random() * 300], x: [0, (Math.random() - 0.5) * 150], opacity: [1, 1, 0], rotate: Math.random() * 720 }}
-              transition={{ duration: 2.5 + Math.random(), delay: i * 0.04, ease: 'easeOut' }}
-            />
-          );
-        })}
-      </div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+        className="w-full max-w-md bg-card border-2 border-primary/20 rounded-3xl overflow-hidden relative"
+      >
+        {/* Confetti burst */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-20">
+          {Array.from({ length: 40 }).map((_, i) => {
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96E6A1', '#FFA07A', '#DDA0DD', '#FFD700', '#87CEEB'];
+            const color = colors[i % colors.length];
+            const size = 6 + Math.random() * 6;
+            return (
+              <motion.div key={i} className="absolute pointer-events-none"
+                style={{ left: `${Math.random() * 100}%`, top: -10, width: size, height: size, backgroundColor: color, borderRadius: Math.random() > 0.5 ? '50%' : '2px' }}
+                initial={{ y: -20, opacity: 1, rotate: 0 }}
+                animate={{ y: [0, 300 + Math.random() * 200], x: [0, (Math.random() - 0.5) * 120], opacity: [1, 1, 0], rotate: Math.random() * 720 }}
+                transition={{ duration: 2 + Math.random(), delay: i * 0.05, ease: 'easeOut' }}
+              />
+            );
+          })}
+        </div>
 
-      {/* Watermark Background */}
-      <div className="absolute inset-0 pointer-events-none select-none overflow-hidden opacity-[0.03]">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="absolute text-foreground font-bold whitespace-nowrap"
-            style={{ fontSize: '2.5rem', transform: 'rotate(-30deg)', top: `${15 + i * 18}%`, left: '-5%', width: '120%', letterSpacing: '0.1em' }}>
-            {tx.leader_name || tx.org_name} • {tx.product_title || tx.campaign_title || 'Siteviral'} • {tx.org_name}
-          </div>
-        ))}
-      </div>
-
-      <div className="relative z-10 max-w-lg mx-auto px-4 py-8 sm:py-16">
-        {/* Success Header */}
-        <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 20 }} className="text-center mb-8">
-          <div className="relative inline-flex mb-4">
-            <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-xl animate-pulse" />
-            <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg">
-              <PartyPopper className="h-10 w-10 text-white" />
-            </div>
-          </div>
-          <h1 className="text-2xl font-bold text-foreground">
-            {isProduct ? (isFr ? '🎉 Achat confirmé !' : '🎉 Purchase confirmed!') : (isFr ? '🙏 Don confirmé !' : '🙏 Donation confirmed!')}
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {isProduct
-              ? (isFr ? 'Votre produit numérique est prêt.' : 'Your digital product is ready.')
-              : (isFr ? 'Merci pour votre générosité !' : 'Thank you for your generosity!')}
-          </p>
-        </motion.div>
-
-        {/* Transaction Card */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="rounded-2xl border border-border bg-card shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4 flex items-center gap-3">
-            {tx.org_logo ? (
-              <img src={tx.org_logo} alt={tx.org_name} className="w-12 h-12 rounded-xl object-cover border border-border" />
-            ) : (
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center"><Store className="h-6 w-6 text-primary" /></div>
-            )}
-            <div className="min-w-0">
-              <p className="font-semibold text-foreground text-sm truncate">{tx.org_name}</p>
-              {tx.leader_name && <p className="text-xs text-muted-foreground truncate">{tx.leader_title ? `${tx.leader_title} — ` : ''}{tx.leader_name}</p>}
-            </div>
-            <Badge variant={isCompleted ? 'default' : 'secondary'}
-              className={`ml-auto shrink-0 text-[10px] ${isCompleted ? 'bg-green-500/10 text-green-600 border-green-500/20' : ''}`}>
-              {isCompleted ? (isFr ? 'Confirmé' : 'Confirmed') : (isFr ? 'En cours' : 'Pending')}
-            </Badge>
-          </div>
+        {/* Celebration header */}
+        <div className="bg-gradient-to-br from-primary/10 via-emerald-500/10 to-amber-500/10 p-6 text-center relative z-10">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+            className="text-5xl mb-3"
+          >
+            🎉
+          </motion.div>
 
           {isProduct && tx.cover_image_url && (
-            <div className="px-4 pt-4"><img src={tx.cover_image_url} alt={tx.product_title} className="w-full h-40 object-cover rounded-xl" /></div>
+            <div className="w-20 h-28 mx-auto mb-3 rounded-lg overflow-hidden shadow-lg border border-border">
+              <img src={tx.cover_image_url} alt="" className="w-full h-full object-cover" />
+            </div>
           )}
 
-          <div className="p-4 space-y-3">
-            <div className="flex items-start gap-2">
-              <Package className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-              <div>
-                <p className="text-xs text-muted-foreground">{isProduct ? (isFr ? 'Produit numérique' : 'Digital product') : (isFr ? 'Campagne' : 'Campaign')}</p>
-                <p className="font-semibold text-foreground">{tx.product_title || tx.campaign_title || '—'}</p>
-                {tx.product_type && <Badge variant="outline" className="text-[10px] mt-1 capitalize">{tx.product_type}</Badge>}
-              </div>
-            </div>
+          <h2 className="text-xl font-black text-foreground">
+            {isProduct
+              ? (isFr ? "Bravo, c'est à toi !" : "Congrats, it's yours!")
+              : (isFr ? 'Merci pour ta générosité ! 🙏' : 'Thank you for your generosity! 🙏')}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isProduct
+              ? (isFr
+                ? `« ${tx.product_title} » est dans ta bibliothèque 📚`
+                : `"${tx.product_title}" is in your library 📚`)
+              : (isFr
+                ? `Ton don pour « ${tx.campaign_title || tx.org_name} » est confirmé`
+                : `Your donation to "${tx.campaign_title || tx.org_name}" is confirmed`)}
+          </p>
+        </div>
 
-            <Separator />
-
-            <div className="grid grid-cols-2 gap-3">
-              <DetailRow icon={CreditCard} label={isFr ? 'Montant' : 'Amount'} value={fmtAmount(tx.amount, tx.currency)} highlight />
-              <DetailRow icon={Hash} label={isFr ? 'Référence' : 'Reference'} value={tx.reference.length > 18 ? tx.reference.slice(0, 18) + '…' : tx.reference} />
-              <DetailRow icon={Calendar} label="Date" value={fmtDate(tx.created_at)} />
-              <DetailRow icon={ShieldCheck} label={isFr ? 'Sécurité' : 'Security'} value={gateway === 'stripe' ? 'Stripe ✓' : 'Paystack ✓'} />
-            </div>
-
-            <div className="mt-3 rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border border-primary/10 p-3 text-center">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{isFr ? 'Acheté auprès de' : 'Purchased from'}</p>
-              <p className="font-bold text-foreground text-sm">{tx.leader_name || tx.org_name}</p>
-              {tx.leader_name && tx.leader_title && <p className="text-xs text-muted-foreground">{tx.leader_title}</p>}
-              <p className="text-xs text-primary font-medium mt-0.5">{tx.org_name}</p>
-            </div>
-          </div>
-
-          {isProduct && isCompleted && (
-            <div className="p-4 pt-0 space-y-2">
-              <Separator className="mb-3" />
-              {tx.file_url && (
-                <>
-                  <Button onClick={handleDownload} disabled={downloading} className="w-full gap-2 bg-primary text-primary-foreground">
-                    {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                    {downloading ? (isFr ? 'Téléchargement…' : 'Downloading…') : (isFr ? 'Télécharger' : 'Download')}
-                  </Button>
-                  {isBook && (
-                    <Button onClick={handleRead} disabled={reading} variant="outline" className="w-full gap-2">
-                      {reading ? <Loader2 className="h-4 w-4 animate-spin" /> : <BookOpen className="h-4 w-4" />}
-                      {reading ? (isFr ? 'Ouverture…' : 'Opening…') : (isFr ? 'Lire maintenant' : 'Read now')}
-                    </Button>
+        {/* Content section */}
+        <AnimatePresence mode="wait">
+          {!enrolled ? (
+            <motion.div key="main" exit={{ opacity: 0, y: -10 }} className="p-6 space-y-5 relative z-10">
+              {/* Action buttons for products */}
+              {isProduct && isCompleted && (
+                <div className="space-y-2">
+                  {tx.file_url && (
+                    <>
+                      <Button onClick={handleDownload} disabled={downloading} className="w-full gap-2 h-11 font-semibold">
+                        {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                        {downloading ? (isFr ? 'Téléchargement…' : 'Downloading…') : (isFr ? 'Télécharger' : 'Download')}
+                      </Button>
+                      {isBook && (
+                        <Button onClick={handleRead} disabled={reading} variant="outline" className="w-full gap-2 h-11">
+                          {reading ? <Loader2 className="h-4 w-4 animate-spin" /> : <BookOpen className="h-4 w-4" />}
+                          {reading ? (isFr ? 'Ouverture…' : 'Opening…') : (isFr ? 'Lire maintenant' : 'Read now')}
+                        </Button>
+                      )}
+                    </>
                   )}
+                  {tx.external_link && (
+                    <a href={tx.external_link} target="_blank" rel="noreferrer" className="block">
+                      <Button variant="outline" className="w-full gap-2 h-11">
+                        <ArrowRight className="h-4 w-4" /> {isFr ? 'Accéder au contenu' : 'Access content'}
+                      </Button>
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* Ambassador earning section */}
+              {showAmbassador && (
+                <>
+                  <div className="text-center">
+                    <h3 className="text-lg font-extrabold">
+                      {isFr ? '💰 Gagne en partageant' : '💰 Earn by sharing'}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {isFr ? (
+                        <>Tu as aimé <strong>{tx.product_title}</strong> ?<br />Partage et gagne <span className="font-bold text-emerald-500">{commissionPercent}%</span> sur chaque vente.</>
+                      ) : (
+                        <>Loved <strong>{tx.product_title}</strong>?<br />Share and earn <span className="font-bold text-emerald-500">{commissionPercent}%</span> on every sale.</>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-emerald-500/5 border border-emerald-500/20 p-5">
+                    <div className="grid grid-cols-2 gap-4 text-center">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{isFr ? 'Par vente' : 'Per sale'}</p>
+                        <p className="text-2xl font-black text-emerald-500">{fmt(potentialEarning)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{isFr ? '10 amis achètent' : '10 friends buy'}</p>
+                        <p className="text-2xl font-black text-foreground">{fmt(potentialEarning * 10)}</p>
+                      </div>
+                    </div>
+                    <div className="border-t border-emerald-500/20 mt-4 pt-3 text-center">
+                      <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                        <Users className="h-3.5 w-3.5" />
+                        {isFr
+                          ? <>Simulation : 10 amis achètent = <strong className="text-foreground">{fmt(potentialEarning * 10)}</strong> pour toi</>
+                          : <>Simulation: 10 friends buy = <strong className="text-foreground">{fmt(potentialEarning * 10)}</strong> for you</>
+                        }
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={enrollAsAmbassador}
+                    disabled={enrolling || !tx.org_slug}
+                    size="lg"
+                    className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white h-13 text-base font-bold rounded-xl"
+                  >
+                    {enrolling ? (
+                      <span className="animate-pulse">{isFr ? 'Inscription…' : 'Enrolling…'}</span>
+                    ) : (
+                      <>
+                        <Rocket className="h-5 w-5" />
+                        {isFr ? 'Oui, je veux gagner !' : 'Yes, I want to earn!'}
+                      </>
+                    )}
+                  </Button>
+
+                  <button
+                    onClick={() => navigate('/')}
+                    className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2"
+                  >
+                    {isFr ? 'Non merci, peut-être plus tard' : 'No thanks, maybe later'}
+                  </button>
                 </>
               )}
-              {tx.external_link && (
-                <a href={tx.external_link} target="_blank" rel="noreferrer" className="block">
-                  <Button variant="outline" className="w-full gap-2"><ArrowRight className="h-4 w-4" /> {isFr ? 'Accéder au contenu' : 'Access content'}</Button>
-                </a>
+
+              {/* For donations or free products — show share & navigation */}
+              {(!showAmbassador) && (
+                <div className="space-y-3">
+                  {isCompleted && (
+                    <SocialShareKit
+                      url={shareUrl}
+                      title={tx.product_title || tx.campaign_title || tx.org_name}
+                      context="post-purchase"
+                    />
+                  )}
+                  {user && (
+                    <Button onClick={() => navigate('/resources')} variant="outline" className="w-full gap-2">
+                      <Package className="h-4 w-4" /> {isFr ? 'Mes achats' : 'My purchases'}
+                    </Button>
+                  )}
+                  <Button onClick={() => navigate('/')} variant="ghost" className="w-full text-muted-foreground">
+                    {isFr ? "Retour à l'accueil" : 'Back to home'}
+                  </Button>
+                </div>
               )}
-            </div>
-          )}
-
-          <div className="bg-muted/30 px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              {isFr ? 'Paiement sécurisé — Siteviral' : 'Secure payment — Siteviral'}
-            </div>
-            {user && (
-              <Button size="sm" variant="ghost" className="text-xs gap-1 text-primary" onClick={() => navigate('/resources')}>
-                {isFr ? 'Mes achats' : 'My purchases'} <ArrowRight className="h-3 w-3" />
-              </Button>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Bottom actions */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-6 space-y-3">
-          {isCompleted && (
-            <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-              <p className="text-sm font-bold text-center">{isFr ? 'Partagez votre expérience 🔥' : 'Share your experience 🔥'}</p>
-              <div className="grid grid-cols-3 gap-2">
-                <button onClick={() => {
-                  const text = isProduct
-                    ? (isFr ? `Je viens d'acheter "${tx.product_title}" sur ${tx.org_name} via Siteviral ! 🎉` : `I just purchased "${tx.product_title}" from ${tx.org_name} on Siteviral! 🎉`)
-                    : (isFr ? `Je viens de soutenir "${tx.campaign_title || tx.org_name}" via Siteviral ! 🙏` : `I just supported "${tx.campaign_title || tx.org_name}" on Siteviral! 🙏`);
-                  window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\nhttps://siteviral.com`)}`, '_blank');
-                }} className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors">
-                  <span className="text-lg">💬</span>
-                  <span className="text-[10px] font-medium text-muted-foreground">WhatsApp</span>
-                </button>
-                <button onClick={() => {
-                  const text = isProduct
-                    ? (isFr ? `Je viens d'acheter "${tx.product_title}" sur ${tx.org_name} ! 🎉` : `I just purchased "${tx.product_title}" from ${tx.org_name}! 🎉`)
-                    : (isFr ? `Je viens de soutenir "${tx.campaign_title || tx.org_name}" ! 🙏` : `I just supported "${tx.campaign_title || tx.org_name}"! 🙏`);
-                  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
-                }} className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border bg-sky-500/5 hover:bg-sky-500/10 transition-colors">
-                  <span className="text-lg">𝕏</span>
-                  <span className="text-[10px] font-medium text-muted-foreground">Twitter</span>
-                </button>
-                <button onClick={() => { navigator.clipboard.writeText(window.location.href); alert(isFr ? 'Lien copié !' : 'Link copied!'); }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border bg-blue-500/5 hover:bg-blue-500/10 transition-colors">
-                  <span className="text-lg">🔗</span>
-                  <span className="text-[10px] font-medium text-muted-foreground">{isFr ? 'Copier' : 'Copy'}</span>
-                </button>
+            </motion.div>
+          ) : (
+            /* Ambassador enrolled — show share tools */
+            <motion.div
+              key="share"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-6 space-y-5 relative z-10"
+            >
+              <div className="text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 300 }}
+                  className="h-12 w-12 rounded-full bg-emerald-500 flex items-center justify-center mx-auto mb-3"
+                >
+                  <Check className="h-6 w-6 text-white" />
+                </motion.div>
+                <h3 className="text-lg font-extrabold">{isFr ? 'Tu es ambassadeur ! 🎉' : "You're an ambassador! 🎉"}</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {isFr ? 'Partage maintenant pour commencer à gagner' : 'Share now to start earning'}
+                </p>
               </div>
-            </div>
-          )}
 
-          {isCompleted && isProduct && tx.organization_id && (
-            <UpsellSection productId={tx.product_id} orgId={tx.organization_id} currentProductId={tx.product_id} />
-          )}
+              <SocialShareKit
+                url={shareUrl}
+                title={tx.product_title || tx.org_name}
+                context="ambassador"
+                price={tx.amount}
+                commissionRate={commissionPercent}
+              />
 
-          {isCompleted && isProduct && (
-            <PostPurchaseCelebration
-              productTitle={tx.product_title || (isFr ? 'Produit' : 'Product')}
-              productId={tx.product_id} orgName={tx.org_name} orgSlug={undefined}
-              amount={tx.amount} currency={tx.currency} coverImage={tx.cover_image_url}
-            />
-          )}
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={() => navigate('/gagner')}
+              >
+                {isFr ? 'Voir mes gains' : 'View my earnings'} <ArrowRight className="h-4 w-4" />
+              </Button>
 
-          {isCompleted && (
-            <ContextualFeedback context="post_purchase" question={isFr ? 'Comment s\'est passé votre achat ?' : 'How was your purchase experience?'} />
+              {user && (
+                <Button onClick={() => navigate('/resources')} variant="ghost" className="w-full gap-2 text-muted-foreground">
+                  <Package className="h-4 w-4" /> {isFr ? 'Mes achats' : 'My purchases'}
+                </Button>
+              )}
+            </motion.div>
           )}
+        </AnimatePresence>
 
-          {user && (
-            <Button onClick={() => navigate('/resources')} variant="outline" className="w-full gap-2">
-              <Package className="h-4 w-4" /> {isFr ? 'Accéder à mes achats' : 'Go to my purchases'}
-            </Button>
+        {/* Footer disclaimer */}
+        <div className="px-6 pb-4 relative z-10">
+          <div className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground mb-2">
+            <ShieldCheck className="h-3 w-3" />
+            {isFr ? 'Paiement sécurisé — Siteviral' : 'Secure payment — Siteviral'}
+          </div>
+          {showAmbassador && !enrolled && (
+            <p className="text-[10px] text-muted-foreground text-center">
+              {isFr
+                ? "Aucun investissement. Tu gagnes uniquement quand quelqu'un achète via ton lien."
+                : 'No investment. You only earn when someone buys through your link.'}
+            </p>
           )}
-          <Button onClick={() => navigate('/')} variant="ghost" className="w-full text-muted-foreground">
-            {isFr ? 'Retour à l\'accueil' : 'Back to home'}
-          </Button>
-        </motion.div>
-      </div>
-    </div>
-  );
-}
+        </div>
+      </motion.div>
 
-function DetailRow({ icon: Icon, label, value, highlight }: { icon: React.ElementType; label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className="flex items-start gap-2">
-      <Icon className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
-      <div className="min-w-0">
-        <p className="text-[10px] text-muted-foreground">{label}</p>
-        <p className={`text-sm truncate ${highlight ? 'font-bold text-primary' : 'text-foreground'}`}>{value}</p>
-      </div>
+      {/* Upsell below the card */}
+      {isCompleted && isProduct && tx.organization_id && (
+        <div className="w-full max-w-md mt-4">
+          <UpsellSection productId={tx.product_id} orgId={tx.organization_id} currentProductId={tx.product_id} />
+        </div>
+      )}
     </div>
   );
 }
