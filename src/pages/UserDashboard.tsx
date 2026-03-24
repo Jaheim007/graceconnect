@@ -122,8 +122,26 @@ export default function UserDashboard() {
           </div>
         </motion.div>
 
+        {/* ═══ MINI FINANCIAL SUMMARY (mobile) ═══ */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }} className="lg:hidden">
+          <div className="grid grid-cols-3 gap-2">
+            <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 text-center">
+              <p className="text-lg font-bold text-primary">{purchases.length}</p>
+              <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Achats' : 'Purchases'}</p>
+            </div>
+            <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/10 p-3 text-center">
+              <p className="text-lg font-bold text-emerald-600">{fmt(purchases.reduce((s: number, p: any) => s + (p.amount || 0), 0))}</p>
+              <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dépensé' : 'Spent'}</p>
+            </div>
+            <div className="rounded-xl bg-rose-500/5 border border-rose-500/10 p-3 text-center">
+              <p className="text-lg font-bold text-rose-600">{donations.length}</p>
+              <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dons' : 'Donations'}</p>
+            </div>
+          </div>
+        </motion.div>
+
         {/* ═══ QUICK START PATHS ═══ */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }}>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }}>
           <QuickStartPaths />
         </motion.div>
 
