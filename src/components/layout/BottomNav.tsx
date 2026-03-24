@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Plus, Wallet, Store, PenLine, UserPlus, MoreHorizontal, Shield, Bell, Settings, Heart, BookOpen, HelpCircle, Award, User, Building2, ShieldCheck, FileText, CreditCard } from 'lucide-react';
+import { Home, Plus, Wallet, Store, PenLine, UserPlus, MoreHorizontal, Shield, Bell, Settings, Heart, BookOpen, HelpCircle, Award, User, Building2, ShieldCheck, FileText, CreditCard, Package, BarChart3, Eye, Users, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -54,7 +54,7 @@ export function BottomNav() {
   const creatorItems = [
     { to: '/dashboard', icon: Home, label: t('bottom.home') },
     { to: '/admin/create', icon: Plus, label: t('sidebar.create'), accent: true },
-    { to: '/admin/sales', icon: Wallet, label: t('sidebar.sales') },
+    { to: '/admin/sales', icon: Wallet, label: t('sidebar.sales_payouts') || 'Ventes & revenus' },
     { to: '/marketplace', icon: Store, label: t('bottom.discover') },
     { to: '__more__', icon: MoreHorizontal, label: t('bottom.more') },
   ];
@@ -62,7 +62,7 @@ export function BottomNav() {
   const consumerItems = [
     { to: '/dashboard', icon: Home, label: t('bottom.home') },
     { to: '/marketplace', icon: Store, label: t('bottom.discover') },
-    { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases') || 'Mes achats' },
+    { to: '/resources', icon: Package, label: t('sidebar.purchases') || 'Mes achats' },
     { to: '/ecrire', icon: PenLine, label: t('bottom.write'), accent: true },
     { to: '__more__', icon: MoreHorizontal, label: t('bottom.more') },
   ];
@@ -74,10 +74,19 @@ export function BottomNav() {
       items: [
         { to: '/profile', icon: User, label: t('bottom.profile') || 'Profil' },
         { to: '/notifications', icon: Bell, label: t('sidebar.notifications') },
-        { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases') },
-        { to: getShortcutRoute('wallet', shortcutContext), icon: CreditCard, label: t('sidebar.transactions') || 'Portefeuille' },
+        { to: '/resources', icon: Package, label: t('sidebar.purchases') || 'Mes achats' },
+        { to: getShortcutRoute('wallet', shortcutContext), icon: Wallet, label: t('sidebar.sales_payouts') || 'Ventes & revenus' },
       ],
     },
+    ...(canManageCurrentOrg ? [{
+      label: t('sidebar.creator_space') || 'Ma plateforme',
+      items: [
+        { to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') || 'Analytics' },
+        ...(currentOrg ? [{ to: `/org/${currentOrg.slug}/store`, icon: Eye, label: t('sidebar.my_page') || 'Ma page' }] : []),
+        { to: '/admin/people', icon: Users, label: t('sidebar.people') || 'Membres' },
+        { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
+      ],
+    }] : []),
     {
       label: t('sidebar.earn') || 'Gagner',
       items: [

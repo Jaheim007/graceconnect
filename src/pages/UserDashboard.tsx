@@ -122,8 +122,8 @@ export default function UserDashboard() {
           </div>
         </motion.div>
 
-        {/* ═══ MINI FINANCIAL SUMMARY (mobile) ═══ */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }} className="lg:hidden">
+        {/* ═══ MINI FINANCIAL SUMMARY ═══ */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }}>
           <div className="grid grid-cols-3 gap-2">
             <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 text-center">
               <p className="text-lg font-bold text-primary">{purchases.length}</p>
