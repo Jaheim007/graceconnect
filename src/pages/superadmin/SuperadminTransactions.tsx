@@ -464,6 +464,9 @@ export function SuperadminTransactions() {
             <TabsTrigger value="donation" className="rounded-lg text-xs px-4 data-[state=active]:shadow-sm gap-1.5">
               <Gift className="h-3.5 w-3.5" /> Dons
             </TabsTrigger>
+            <TabsTrigger value="credit" className="rounded-lg text-xs px-4 data-[state=active]:shadow-sm gap-1.5">
+              <Zap className="h-3.5 w-3.5" /> Crédits
+            </TabsTrigger>
           </TabsList>
         </Tabs>
 
