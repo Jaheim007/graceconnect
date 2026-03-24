@@ -270,7 +270,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
       return;
     }
 
-    const affiliateCode = getAffiliateCode();
+    // Robust affiliate resolution: cookie/localStorage first, then fallback to URL ?ref= param
+    const affiliateCode = getAffiliateCode() || new URLSearchParams(window.location.search).get('ref') || null;
 
     try {
       await openPayment({
