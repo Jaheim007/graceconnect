@@ -1,5 +1,10 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Plus, Wallet, Store, PenLine, UserPlus, MoreHorizontal, Shield, Bell, Settings, Heart, BookOpen, HelpCircle, Award, User, Building2, ShieldCheck, FileText, CreditCard, Package, BarChart3, Eye, Users, Zap } from 'lucide-react';
+import {
+  Home, Plus, Wallet, Store, MoreHorizontal, Shield, Bell, Settings,
+  Heart, HelpCircle, Award, User, Building2, ShieldCheck, FileText,
+  Package, BarChart3, Eye, Users, Zap, UserPlus, Share2, Star, Sparkles,
+  Rss, Bookmark, GraduationCap, Coins, ArrowLeftRight, LogOut
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -10,18 +15,20 @@ import { getShortcutRoute } from '@/lib/navigation/shortcutRoutes';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { useUserMode, MODE_LABELS } from '@/contexts/UserModeContext';
 
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isSuperadmin } = useAuth();
+  const { user, isSuperadmin, signOut } = useAuth();
   const { currentOrg, canManage, userOrgs } = useOrg();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
   const hasManagedOrgs = userOrgs.some((org) => canManage(org.id));
   const [moreOpen, setMoreOpen] = useState(false);
+  const { mode } = useUserMode();
+  const isFr = locale === 'fr';
 
-  // Badge: unread notifications count
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['unread-count', user?.id],
     queryFn: async () => {
@@ -43,78 +50,116 @@ export function BottomNav() {
     isSuperadmin,
   };
 
+  // ═══ GUEST NAV ═══
   const guestItems = [
-    { to: '/', icon: Home, label: t('bottom.home') },
-    { to: '/discover', icon: Store, label: t('bottom.explore') },
-    { to: '/ecrire', icon: PenLine, label: t('bottom.write'), accent: true },
-    { to: '/gagner', icon: Wallet, label: t('bottom.earn') },
-    { to: '/auth?mode=signup', icon: UserPlus, label: t('bottom.signup') },
+    { to: '/', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+    { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+    { to: '/gagner', icon: Wallet, label: isFr ? 'Gagner' : 'Earn' },
+    { to: '/auth?mode=signup', icon: UserPlus, label: isFr ? 'Inscription' : 'Sign up' },
   ];
 
-  const creatorItems = [
-    { to: '/dashboard', icon: Home, label: t('bottom.home') },
-    { to: '/admin/create', icon: Plus, label: t('sidebar.create'), accent: true },
-    { to: '/admin/sales', icon: Wallet, label: t('sidebar.sales_payouts') || 'Ventes & revenus' },
-    { to: '/marketplace', icon: Store, label: t('bottom.discover') },
-    { to: '__more__', icon: MoreHorizontal, label: t('bottom.more') },
-  ];
+  // ═══ MODE-SPECIFIC BOTTOM NAV ═══
+  const getModeBottomItems = () => {
+    switch (mode) {
+      case 'purchases':
+        return [
+          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
+          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+          { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Cours' : 'Courses' },
+          { to: '__more__', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+        ];
+      case 'sell':
+        return [
+          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+          { to: '/admin/create', icon: Plus, label: isFr ? 'Créer' : 'Create', accent: true },
+          { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes' : 'Sales' },
+          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+          { to: '__more__', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+        ];
+      case 'earn':
+        return [
+          { to: '/spotlight', icon: Star, label: 'Spotlight' },
+          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+          { to: '/affiliation', icon: Share2, label: isFr ? 'Liens' : 'Links' },
+          { to: '/feed', icon: Rss, label: isFr ? 'Réseau' : 'Network' },
+          { to: '__more__', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+        ];
+      case 'create':
+        return [
+          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+          { to: '/admin/create', icon: Sparkles, label: 'Studio', accent: true },
+          { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes' : 'Sales' },
+          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+          { to: '__more__', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+        ];
+      default:
+        return [
+          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
+          { to: '__more__', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+        ];
+    }
+  };
 
-  const consumerItems = [
-    { to: '/dashboard', icon: Home, label: t('bottom.home') },
-    { to: '/marketplace', icon: Store, label: t('bottom.discover') },
-    { to: '/resources', icon: Package, label: t('sidebar.purchases') || 'Mes achats' },
-    { to: '/ecrire', icon: PenLine, label: t('bottom.write'), accent: true },
-    { to: '__more__', icon: MoreHorizontal, label: t('bottom.more') },
-  ];
+  // ═══ MORE MENU ═══
+  const getMoreSections = () => {
+    const sections = [
+      {
+        label: isFr ? 'Mon espace' : 'My Space',
+        items: [
+          { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
+          { to: '/notifications', icon: Bell, label: isFr ? 'Notifications' : 'Notifications' },
+          { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
+          { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
+          { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
+        ],
+      },
+    ];
 
-  // ── More menu sections ──
-  const moreSections = [
-    {
-      label: t('sidebar.my_space') || 'Mon espace',
-      items: [
-        { to: '/profile', icon: User, label: t('bottom.profile') || 'Profil' },
-        { to: '/notifications', icon: Bell, label: t('sidebar.notifications') },
-        { to: '/resources', icon: Package, label: t('sidebar.purchases') || 'Mes achats' },
-        { to: getShortcutRoute('wallet', shortcutContext), icon: Wallet, label: t('sidebar.sales_payouts') || 'Ventes & revenus' },
-      ],
-    },
-    ...(canManageCurrentOrg ? [{
-      label: t('sidebar.creator_space') || 'Ma plateforme',
-      items: [
-        { to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') || 'Analytics' },
-        ...(currentOrg ? [{ to: `/org/${currentOrg.slug}/store`, icon: Eye, label: t('sidebar.my_page') || 'Ma page' }] : []),
-        { to: '/admin/people', icon: Users, label: t('sidebar.people') || 'Membres' },
-        { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
-      ],
-    }] : []),
-    {
-      label: t('sidebar.earn') || 'Gagner',
-      items: [
-        { to: '/ambassador', icon: Heart, label: t('sidebar.my_affiliations') },
-        { to: '/leaderboard', icon: Award, label: t('sidebar.leaderboard') },
-      ],
-    },
-    {
-      label: t('sidebar.management') || 'Gestion',
-      items: [
-        ...(hasManagedOrgs
-          ? [{ to: '/admin', icon: Building2, label: t('sidebar.my_platforms') || 'Mes plateformes' }]
-          : [{ to: '/create-org', icon: Plus, label: t('topbar.create_org') }]),
-        { to: getShortcutRoute('kyc', shortcutContext), icon: ShieldCheck, label: t('sidebar.kyc') || 'Vérification KYC' },
-        { to: getShortcutRoute('settings', shortcutContext), icon: Settings, label: t('bottom.settings') || 'Paramètres' },
-      ],
-    },
-    {
-      label: t('sidebar.help') || 'Aide',
-      items: [
-        { to: '/help', icon: HelpCircle, label: t('sidebar.help') },
-        { to: '/changelog', icon: FileText, label: 'Changelog' },
-        ...(isSuperadmin ? [{ to: '/superadmin', icon: Shield, label: t('sidebar.superadmin') }] : []),
-      ],
-    },
-  ];
+    // Creator/AI sections
+    if (mode === 'sell' || mode === 'create') {
+      sections.push({
+        label: isFr ? 'Ma plateforme' : 'My Platform',
+        items: [
+          ...(currentOrg ? [{ to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' }] : []),
+          { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
+          { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
+          { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
+          ...(hasManagedOrgs
+            ? []
+            : [{ to: '/create-org', icon: Plus, label: isFr ? 'Créer plateforme' : 'Create Platform' }]),
+        ],
+      });
+    }
 
-  const navItems = !user ? guestItems : canManageCurrentOrg ? creatorItems : consumerItems;
+    // Earn section
+    if (mode === 'earn') {
+      sections.push({
+        label: isFr ? 'Gagner' : 'Earn',
+        items: [
+          { to: '/affiliation', icon: Share2, label: isFr ? 'Mes liens' : 'My Links' },
+          { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
+        ],
+      });
+    }
+
+    // Management
+    sections.push({
+      label: isFr ? 'Gestion' : 'Management',
+      items: [
+        { to: getShortcutRoute('kyc', shortcutContext), icon: ShieldCheck, label: isFr ? 'Vérification' : 'Verification' },
+        { to: getShortcutRoute('settings', shortcutContext), icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
+        ...(isSuperadmin ? [{ to: '/superadmin', icon: Shield, label: 'Superadmin' }] : []),
+      ],
+    });
+
+    return sections;
+  };
+
+  const navItems = !user ? guestItems : getModeBottomItems();
+  const moreSections = getMoreSections();
 
   return (
     <>
@@ -177,7 +222,9 @@ export function BottomNav() {
         <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
           <SheetContent side="bottom" className="rounded-t-2xl px-3 pb-10 pt-3 max-h-[75vh]">
             <SheetHeader className="pb-3">
-              <SheetTitle className="text-sm font-bold">{t('bottom.more') || 'Plus'}</SheetTitle>
+              <SheetTitle className="text-sm font-bold">
+                {mode ? `${MODE_LABELS[mode].emoji} ${isFr ? MODE_LABELS[mode].fr : MODE_LABELS[mode].en}` : (isFr ? 'Plus' : 'More')}
+              </SheetTitle>
             </SheetHeader>
 
             <div className="space-y-4 overflow-y-auto">
@@ -212,6 +259,25 @@ export function BottomNav() {
                   {idx < moreSections.length - 1 && <Separator className="mt-3" />}
                 </div>
               ))}
+
+              {/* Switch mode + Logout */}
+              <Separator />
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => { setMoreOpen(false); navigate('/welcome'); }}
+                  className="flex items-center gap-2 p-3 rounded-xl bg-muted hover:bg-accent transition-colors"
+                >
+                  <ArrowLeftRight className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs font-medium">{isFr ? 'Mon Espace' : 'My Space'}</span>
+                </button>
+                <button
+                  onClick={() => { setMoreOpen(false); signOut(); }}
+                  className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="text-xs font-medium">{isFr ? 'Déconnexion' : 'Sign out'}</span>
+                </button>
+              </div>
             </div>
           </SheetContent>
         </Sheet>
