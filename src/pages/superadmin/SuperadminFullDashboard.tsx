@@ -107,7 +107,7 @@ export default function SuperadminFullDashboard() {
         totalOrgs: t?.total_orgs || 0, activeOrgs: t.active_orgs || 0, suspendedOrgs: t.suspended_orgs || 0,
         totalMembers: t.total_members || 0, totalUsers: t.total_users || 0,
         gmv: t.gmv || 0, donationGMV: t.donation_gmv || 0, purchaseGMV: t.purchase_gmv || 0, creditGMV: t.credit_gmv || 0, creditCount: t.credit_count || 0,
-        platformFees: t.platform_fees || 0, affiliateCommissions: t.affiliate_commissions || 0,
+        platformFees: t.platform_fees || 0, platformFeesSales: t.platform_fees_sales || 0, affiliateCommissions: t.affiliate_commissions || 0,
         orgReceived: t.org_received || 0, totalTransactions: t.total_transactions || 0,
         allTransactions: t.all_transactions || 0, pendingKYC: t.pending_kyc || 0,
         approvedKYC: t.approved_kyc || 0, pendingPayouts: t.pending_payouts || 0,
@@ -171,11 +171,13 @@ export default function SuperadminFullDashboard() {
       />
 
       {/* ═══ 2. HERO KPI METRICS ═══ */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
         <MetricCard label="GMV Total" value={fmt(stats?.gmv || 0)} sub={`${fmtNum(stats?.totalTransactions || 0)} transactions`} icon={DollarSign} accentColor="primary" delay={0} />
-        <MetricCard label="Platform Revenue" value={fmt(stats?.platformFees || 0)} sub={`Take ${stats?.takeRate || 0}%`} icon={TrendingUp} accentColor="emerald" delay={0.05} />
+        <MetricCard label="Commission 10%" value={fmt(stats?.platformFeesSales || 0)} sub={`Take ${stats?.takeRate || 0}%`} icon={TrendingUp} accentColor="emerald" delay={0.05} />
         <MetricCard label="Crédits IA" value={fmt(stats?.creditGMV || 0)} sub={`${fmtNum(stats?.creditCount || 0)} achats`} icon={Zap} accentColor="amber" delay={0.1} />
-        <MetricCard label="Org Received" value={fmt(stats?.orgReceived || 0)} sub="Net after fees" icon={Building2} accentColor="violet" delay={0.15} />
+        <MetricCard label="Revenu total plateforme" value={fmt(stats?.platformFees || 0)} sub="Commission + Crédits" icon={Wallet} accentColor="emerald" delay={0.12} />
+        <MetricCard label="Orgs reçoivent" value={fmt(stats?.orgReceived || 0)} sub="Net après frais" icon={Building2} accentColor="violet" delay={0.15} />
+        <MetricCard label="Ambassadeurs" value={fmt(stats?.affiliateCommissions || 0)} sub="Commissions versées" icon={Handshake} accentColor="cyan" delay={0.18} />
       </div>
 
       {/* ═══ QUICK STATS ROW ═══ */}
