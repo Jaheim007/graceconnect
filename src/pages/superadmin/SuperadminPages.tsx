@@ -484,14 +484,32 @@ export function SuperadminReports() {
 
       const [profilesRes, productsRes] = await Promise.all([
         reporterIds.length > 0
-          ? db.from('profiles').select('id, display_name, avatar_url, email').in('id', reporterIds)
+          ? db.from('profiles').select('id, display_name, avatar_url').in('id', reporterIds)
           : Promise.resolve({ data: [] }),
         contentProductIds.length > 0
           ? db.from('digital_products').select('id, title, cover_image_url, price, currency, organization_id, slug, organizations(name)').in('id', contentProductIds)
           : Promise.resolve({ data: [] }),
       ]);
 
-      const profilesMap = Object.fromEntries((profilesRes.data || []).map((p: any) => [p.id, p]));
+      // Resolve emails for reporters without display_name
+      const blankReporterIds = (profilesRes.data || []).filter((p: any) => !p.display_name || !p.display_name.trim()).map((p: any) => p.id);
+      const emailMap: Record<string, string> = {};
+      if (blankReporterIds.length > 0) {
+        const [pe, de] = await Promise.all([
+          db.from('product_purchases').select('user_id, buyer_email').in('user_id', blankReporterIds).limit(50),
+          db.from('donations').select('user_id, donor_email').in('user_id', blankReporterIds).limit(50),
+        ]);
+        (pe.data || []).forEach((r: any) => { if (r.buyer_email && r.user_id) emailMap[r.user_id] = r.buyer_email; });
+        (de.data || []).forEach((r: any) => { if (r.donor_email && r.user_id) emailMap[r.user_id] = r.donor_email; });
+      }
+
+      const deriveName = (email: string) => email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+      const profilesMap = Object.fromEntries((profilesRes.data || []).map((p: any) => [p.id, {
+        ...p,
+        display_name: (p.display_name && p.display_name.trim()) ? p.display_name : emailMap[p.id] ? deriveName(emailMap[p.id]) : null,
+        _email: emailMap[p.id] || null,
+      }]));
       const productsMap = Object.fromEntries((productsRes.data || []).map((p: any) => [p.id, p]));
 
       return data.map((r: any) => ({
@@ -625,8 +643,8 @@ export function SuperadminReports() {
                       </div>
                     )}
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold truncate">{r.reporter?.display_name || 'Utilisateur'}</p>
-                      <p className="text-[11px] text-muted-foreground truncate">{r.reporter?.email || r.reporter_user_id?.slice(0, 8)}</p>
+                      <p className="text-sm font-semibold truncate">{r.reporter?.display_name || r.reporter_user_id?.slice(0, 8)}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{r.reporter?._email || r.reporter_user_id?.slice(0, 8)}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
