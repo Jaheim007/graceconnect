@@ -13,7 +13,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     try {
       const startedAt = sessionStorage.getItem('sv_oauth_pending_since');
       if (!startedAt) return false;
-      return Date.now() - Number(startedAt) < 25_000;
+      return Date.now() - Number(startedAt) < 45_000;
     } catch {
       return false;
     }

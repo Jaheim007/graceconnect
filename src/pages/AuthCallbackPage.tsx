@@ -17,7 +17,6 @@ export default function AuthCallbackPage() {
     const handleRedirect = async (session: any) => {
       if (!session || handled.current) return;
       handled.current = true;
-      clearOAuthPending();
 
       const savedIntent = sessionStorage.getItem('sv_auth_intent');
       if (savedIntent === 'ambassador' || savedIntent === 'creator') {
@@ -81,7 +80,7 @@ export default function AuthCallbackPage() {
 
       if (await recoverSessionOnce()) return;
 
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 12; i++) {
         await new Promise((resolve) => setTimeout(resolve, 1500));
         if (handled.current) return;
         if (await recoverSessionOnce()) return;
@@ -102,7 +101,7 @@ export default function AuthCallbackPage() {
         console.warn('Auth callback timeout — redirecting to /auth');
         navigate('/auth', { replace: true });
       }
-    }, 25_000);
+    }, 45_000);
 
     return () => {
       subscription.unsubscribe();
