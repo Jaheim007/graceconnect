@@ -1,10 +1,11 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   Home, Eye, Settings, ChevronLeft, ChevronRight, Shield,
   FileCheck, LogOut, BarChart3, Building2, Users, Wallet,
-  PenLine, Store, Package, User, Heart, Handshake, Plus, Share2,
-  Sparkles, Coins, GraduationCap, Bookmark, Star, Zap, Rss
+  Store, Package, User, Handshake, Plus, Share2,
+  Sparkles, Coins, GraduationCap, Bookmark, Star, Zap, Rss,
+  ArrowLeftRight, ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -16,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useMyPartner } from '@/hooks/usePartner';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { useUserMode, MODE_LABELS, UserMode } from '@/contexts/UserModeContext';
 
 interface NavItem {
   to: string;
@@ -27,17 +29,19 @@ interface NavItem {
 
 export function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const { user, isSuperadmin, signOut } = useAuth();
   const { currentOrg, canManage, userOrgs } = useOrg();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { data: myPartner } = useMyPartner();
   const isApprovedPartner = myPartner?.status === 'approved';
+  const { mode, setMode } = useUserMode();
+  const isFr = locale === 'fr';
 
   const hasOrgs = userOrgs.length > 0;
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
 
-  // Check KYC status for verification badge
   const { data: kycStatus } = useQuery({
     queryKey: ['sidebar-kyc-status', currentOrg?.id],
     queryFn: async () => {
@@ -55,15 +59,13 @@ export function Sidebar() {
 
   const kycIncomplete = !kycStatus || kycStatus === 'none' || kycStatus === 'pending';
 
-  // Single "My Page" link for the current org
   const myPageItem: NavItem | null = (() => {
     if (!currentOrg || !canManageCurrentOrg) return null;
-    return { to: `/org/${currentOrg.slug}/store`, icon: Eye, label: t('sidebar.my_page'), desc: t('sidebar.my_page_desc') };
+    return { to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' };
   })();
 
   const isSA = location.pathname.startsWith('/superadmin');
 
-  // ═══ SUPERADMIN NAV ═══
   const superadminNav: NavItem[] = [
     { to: '/superadmin', icon: Shield, label: t('sidebar.overview') },
     { to: '/superadmin/orgs', icon: Users, label: t('sidebar.organizations') },
@@ -74,6 +76,67 @@ export function Sidebar() {
   const isActive = (to: string) => {
     if (to === '/admin' || to === '/dashboard' || to === '/superadmin') return location.pathname === to;
     return location.pathname.startsWith(to);
+  };
+
+  // ═══ MODE-SPECIFIC NAV ITEMS ═══
+  const getModeNavItems = (): NavItem[] => {
+    const common: NavItem[] = [
+      { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+    ];
+
+    const purchasesItems: NavItem[] = [
+      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
+      { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
+      { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+      { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
+    ];
+
+    const sellItems: NavItem[] = [
+      ...(myPageItem ? [myPageItem] : []),
+      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
+      { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
+      { to: '/admin/create', icon: Plus, label: 'Viral AI Studio' },
+      { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
+      { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
+      { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
+      { to: '/admin/analytics', icon: BarChart3, label: isFr ? 'Analytics' : 'Analytics' },
+      { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
+      { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
+      { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
+    ];
+
+    const earnItems: NavItem[] = [
+      { to: '/spotlight', icon: Star, label: isFr ? 'Spotlight' : 'Spotlight' },
+      { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
+      { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
+      { to: '/feed', icon: Rss, label: isFr ? 'Mon Réseau' : 'My Network' },
+      { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
+      { to: '/affiliation', icon: Share2, label: isFr ? 'Mes liens' : 'My Links' },
+      { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
+    ];
+
+    const createItems: NavItem[] = [
+      ...(myPageItem ? [myPageItem] : []),
+      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
+      { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
+      { to: '/admin/create', icon: Sparkles, label: 'Viral AI Studio' },
+      { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
+      { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
+      { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
+      { to: '/admin/analytics', icon: BarChart3, label: isFr ? 'Analytics' : 'Analytics' },
+      { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
+      { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
+      { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
+    ];
+
+    switch (mode) {
+      case 'purchases': return [...common, ...purchasesItems];
+      case 'sell': return [...common, ...sellItems];
+      case 'earn': return [...common, ...earnItems];
+      case 'create': return [...common, ...createItems];
+      default: return [...common, ...purchasesItems];
+    }
   };
 
   const renderNavItem = (item: NavItem) => {
@@ -126,9 +189,7 @@ export function Sidebar() {
     );
   };
 
-  const renderSeparator = () => (
-    <div className="mx-3 my-2 border-t border-border/50" />
-  );
+  const modeLabel = mode ? MODE_LABELS[mode] : null;
 
   return (
     <aside
@@ -147,76 +208,29 @@ export function Sidebar() {
           superadminNav.map(renderNavItem)
         ) : (
           <>
-            {/* ═══ CREATOR ZONE ═══ */}
-            {hasOrgs && canManageCurrentOrg ? (
+            {/* Mode label */}
+            {modeLabel && !collapsed && (
+              <div className="px-3 pt-3 pb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
+                  {modeLabel.emoji} {isFr ? modeLabel.fr : modeLabel.en}
+                </span>
+              </div>
+            )}
+
+            {/* Org switcher for sell/create modes */}
+            {(mode === 'sell' || mode === 'create') && hasOrgs && canManageCurrentOrg && (
+              <OrgSwitcher variant="sidebar" collapsed={collapsed} />
+            )}
+
+            {/* Mode-specific nav */}
+            <div className="mt-1 space-y-0.5">
+              {getModeNavItems().map(renderNavItem)}
+            </div>
+
+            {isApprovedPartner && (
               <>
-                {renderSectionLabel(t('sidebar.creator_space'), 'text-primary')}
-                <OrgSwitcher variant="sidebar" collapsed={collapsed} />
-                <div className="mt-3 space-y-0.5">
-                  {renderNavItem({ to: '/dashboard', icon: Home, label: t('sidebar.home'), desc: t('sidebar.home_desc') })}
-                  {myPageItem && renderNavItem(myPageItem)}
-                  {renderNavItem({ to: '/resources', icon: Package, label: t('sidebar.purchases'), desc: t('sidebar.purchases_desc') })}
-                  {renderNavItem({ to: '/my-programs', icon: GraduationCap, label: t('sidebar.my_courses'), desc: t('sidebar.my_courses_desc') })}
-                  {renderNavItem({ to: '/admin/create', icon: Plus, label: 'Viral AI Studio', desc: t('sidebar.create_desc') })}
-                  {renderNavItem({ to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools', desc: t('sidebar.viral_tools_desc') })}
-                  {renderNavItem({ to: '/credits', icon: Coins, label: t('sidebar.credits'), desc: t('sidebar.credits_desc') })}
-                  {renderNavItem({ to: '/admin/sales', icon: Wallet, label: t('sidebar.sales_payouts'), desc: t('sidebar.sales_payouts_desc') })}
-                  {renderNavItem({ to: '/admin/people', icon: Users, label: t('sidebar.people'), desc: t('sidebar.people_desc') })}
-                  {renderNavItem({ to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') })}
-                  {renderNavItem({ to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification'), badge: kycIncomplete })}
-                  {renderNavItem({ to: '/admin/settings', icon: Settings, label: t('sidebar.settings') })}
-                </div>
-
-                {isApprovedPartner && (
-                  <>
-                    {renderSeparator()}
-                    {renderNavItem({ to: '/partner', icon: Handshake, label: t('sidebar.partner_space'), desc: t('sidebar.partner_space_desc') })}
-                  </>
-                )}
-
-                {/* ═══ CONSUMER ZONE ═══ */}
-                {renderSeparator()}
-                <div className="space-y-0.5">
-                  {renderNavItem({ to: '/feed', icon: Rss, label: t('sidebar.my_network'), desc: t('sidebar.my_network_desc') })}
-                  {renderNavItem({ to: '/spotlight', icon: Star, label: t('sidebar.spotlight'), desc: t('sidebar.spotlight_desc') })}
-                  {renderNavItem({ to: '/discover', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
-                  {renderNavItem({ to: user ? '/affiliation' : '/gagner', icon: Share2, label: t('sidebar.earn_sharing'), desc: t('sidebar.earn_sharing_desc') })}
-                  {renderNavItem({ to: '/bookmarks', icon: Bookmark, label: t('sidebar.bookmarks'), desc: t('sidebar.bookmarks_desc') })}
-                  {renderNavItem({ to: '/profile', icon: User, label: t('sidebar.profile'), desc: t('sidebar.profile_desc') })}
-                </div>
-              </>
-            ) : (
-              <>
-                {/* ═══ NON-CREATOR: simple nav ═══ */}
-                {renderSectionLabel(t('sidebar.my_space'))}
-                <div className="space-y-0.5">
-                  {renderNavItem({ to: '/dashboard', icon: Home, label: t('sidebar.home'), desc: t('sidebar.home_desc') })}
-                  {renderNavItem({ to: '/resources', icon: Package, label: t('sidebar.purchases'), desc: t('sidebar.purchases_desc') })}
-                  {renderNavItem({ to: '/my-programs', icon: GraduationCap, label: t('sidebar.my_courses'), desc: t('sidebar.my_courses_desc') })}
-                  {renderNavItem({ to: '/feed', icon: Rss, label: t('sidebar.my_network'), desc: t('sidebar.my_network_desc') })}
-                  {renderNavItem({ to: '/discover', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
-                  {renderNavItem({ to: '/spotlight', icon: Star, label: t('sidebar.spotlight'), desc: t('sidebar.spotlight_desc') })}
-                  {renderNavItem({ to: '/my-donations', icon: Heart, label: t('sidebar.my_donations'), desc: t('sidebar.my_donations_desc') })}
-                  {renderNavItem({ to: '/credits', icon: Coins, label: t('sidebar.credits'), desc: t('sidebar.credits_desc') })}
-                  {renderNavItem({ to: '/bookmarks', icon: Bookmark, label: t('sidebar.bookmarks'), desc: t('sidebar.bookmarks_desc') })}
-                  {renderNavItem({ to: '/profile', icon: User, label: t('sidebar.profile'), desc: t('sidebar.profile_desc') })}
-                </div>
-
-                {/* Write/Sell/Earn section */}
-                {renderSeparator()}
-                {renderSectionLabel(t('sidebar.write_sell_earn'), 'text-emerald-500')}
-                <div className="space-y-0.5">
-                  {renderNavItem({ to: '/ecrire', icon: PenLine, label: t('sidebar.write'), desc: t('sidebar.write_desc') })}
-                  {renderNavItem({ to: user ? '/create-org' : '/vendre', icon: Store, label: t('sidebar.sell_action'), desc: t('sidebar.sell_action_desc') })}
-                  {renderNavItem({ to: user ? '/affiliation' : '/gagner', icon: Wallet, label: t('sidebar.earn_sharing'), desc: t('sidebar.earn_sharing_desc') })}
-                </div>
-
-                {isApprovedPartner && (
-                  <>
-                    {renderSeparator()}
-                    {renderNavItem({ to: '/partner', icon: Handshake, label: t('sidebar.partner_space'), desc: t('sidebar.partner_space_desc') })}
-                  </>
-                )}
+                <div className="mx-3 my-2 border-t border-border/50" />
+                {renderNavItem({ to: '/partner', icon: Handshake, label: t('sidebar.partner_space') || 'Partenaire' })}
               </>
             )}
           </>
@@ -229,8 +243,20 @@ export function Sidebar() {
         )}
       </nav>
 
-      {/* Footer */}
+      {/* Footer: Switch mode + Sign out */}
       <div className={cn('border-t border-border space-y-0.5', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
+        {/* Switch mode button */}
+        <button
+          onClick={() => navigate('/welcome')}
+          className={cn(
+            'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-muted-foreground hover:bg-sidebar-accent hover:text-foreground',
+            collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
+          )}
+        >
+          <ArrowLeftRight className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>{isFr ? 'Mon Espace' : 'My Space'}</span>}
+        </button>
+
         <button
           onClick={signOut}
           className={cn(

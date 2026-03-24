@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { OrgProvider } from "@/contexts/OrgContext";
 // ModeContext removed — was dead code (useMode() not consumed anywhere)
 import { I18nProvider } from "@/i18n/I18nContext";
+import { UserModeProvider } from "@/contexts/UserModeContext";
 
 // Layout (always loaded)
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -274,6 +275,7 @@ const App = () => (
       <TooltipProvider>
         <AuthProvider>
           <OrgProvider>
+            <UserModeProvider>
             <ErrorBoundary>
             <Toaster />
             <Sonner />
@@ -538,6 +540,7 @@ const App = () => (
             <ExperimentDebugOverlay />
             </BrowserRouter>
             </ErrorBoundary>
+            </UserModeProvider>
           </OrgProvider>
         </AuthProvider>
       </TooltipProvider>
