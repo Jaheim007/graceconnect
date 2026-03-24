@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Download, ExternalLink, ShoppingBag, FileText, Link2, Music, BookOpen, Eye,
-  Star, Package, Receipt, GraduationCap, Play,
+  Package, Receipt, GraduationCap, Play, Zap, Heart,
 } from 'lucide-react';
 import { downloadInvoice } from '@/lib/invoice';
 import { format } from 'date-fns';
@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { LessonPlayerOverlay } from '@/components/programs/LessonPlayerOverlay';
+import { formatCurrency } from '@/lib/currency';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -78,11 +79,45 @@ export default function ResourcesPage() {
     enabled: !!user,
   });
 
-  // Fetch org names for grouping (include program org IDs too)
+  // Fetch credit purchases
+  const { data: creditPurchases = [], isLoading: loadingCredits } = useQuery({
+    queryKey: ['my-credit-purchases', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await db
+        .from('credit_purchases')
+        .select('id, pack_key, credits_amount, price_amount, price_currency, payment_gateway, status, created_at, completed_at')
+        .eq('user_id', user.id)
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  // Fetch user donations
+  const { data: myDonations = [], isLoading: loadingDonations } = useQuery({
+    queryKey: ['my-donations', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await db
+        .from('donations')
+        .select('id, amount, currency, status, created_at, completed_at, organization_id, donor_name, donation_campaigns(title), organizations(name, logo_url, slug)')
+        .eq('user_id', user.id)
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  // Fetch org names for grouping
   const purchaseOrgIds = purchases?.map(p => p.product.organization_id) || [];
   const programOrgIds = enrolledPrograms.map(e => e.program?.organization_id).filter(Boolean);
   const orgIds = [...new Set([...purchaseOrgIds, ...programOrgIds])];
-  
+
   const { data: orgs } = useQuery({
     queryKey: ['purchase-orgs', orgIds.join(',')],
     queryFn: async () => {
@@ -97,7 +132,7 @@ export default function ResourcesPage() {
 
   // Group purchases by org
   const grouped = new Map<string, { purchases: typeof purchases; programs: EnrolledProgram[] }>();
-  
+
   purchases?.forEach(p => {
     const orgId = p.product.organization_id;
     if (!grouped.has(orgId)) grouped.set(orgId, { purchases: [], programs: [] });
@@ -116,8 +151,6 @@ export default function ResourcesPage() {
   const handleFileAction = async (purchase: (typeof purchases extends (infer T)[] | undefined ? T : never), mode: 'download' | 'inline') => {
     if (!purchase.product.file_url || !user) return;
     setDownloading(purchase.id);
-
-    // Pre-open window synchronously (in click handler) to avoid popup blockers on mobile
     const preWindow = mode === 'inline' ? preOpenWindow() : null;
 
     try {
@@ -140,7 +173,6 @@ export default function ResourcesPage() {
       });
     } catch (error) {
       console.error('[ResourcesPage] secure file action error:', error);
-      // Close pre-opened window on error
       if (preWindow && !preWindow.closed) preWindow.close();
       toast({
         title: t('common.error'),
@@ -154,7 +186,6 @@ export default function ResourcesPage() {
     }
   };
 
-  // Course player fullscreen overlay
   if (activeCourseId) {
     return (
       <LessonPlayerOverlay
@@ -164,7 +195,7 @@ export default function ResourcesPage() {
     );
   }
 
-  if (isLoading || loadingPrograms) {
+  if (isLoading || loadingPrograms || loadingCredits || loadingDonations) {
     return (
       <div className="max-w-4xl mx-auto p-4 space-y-4">
         <h1 className="text-2xl font-bold">{t('page.purchases')}</h1>
@@ -172,6 +203,8 @@ export default function ResourcesPage() {
       </div>
     );
   }
+
+  const hasAnything = totalItems > 0 || creditPurchases.length > 0 || myDonations.length > 0;
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
@@ -185,34 +218,125 @@ export default function ResourcesPage() {
       </div>
 
       {/* Stats bar */}
-      {totalItems > 0 && (
-        <div className="grid grid-cols-3 gap-3">
+      {hasAnything && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="bg-card border border-border rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-primary">{totalItems}</p>
             <p className="text-[10px] text-muted-foreground">{isFr ? 'Produits acquis' : 'Products acquired'}</p>
           </div>
           <div className="bg-card border border-border rounded-xl p-3 text-center">
-            <p className="text-2xl font-bold text-primary">{grouped.size}</p>
-            <p className="text-[10px] text-muted-foreground">{isFr ? 'Plateformes' : 'Platforms'}</p>
-          </div>
-          <div className="bg-card border border-border rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-primary">{enrolledPrograms.length}</p>
             <p className="text-[10px] text-muted-foreground">{isFr ? 'Cours inscrits' : 'Courses enrolled'}</p>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-3 text-center">
+            <p className="text-2xl font-bold text-amber-500">{creditPurchases.length}</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Achats crédits' : 'Credit purchases'}</p>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-3 text-center">
+            <p className="text-2xl font-bold text-pink-500">{myDonations.length}</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Dons effectués' : 'Donations made'}</p>
           </div>
         </div>
       )}
 
       <PageTour pageId="purchases" steps={TOUR_STEPS} />
 
-      {totalItems === 0 ? (
+      {!hasAnything ? (
         <EmptyState variant="purchases" title={t('page.purchases_empty')} description={t('page.purchases_empty_desc')} />
       ) : (
         <div className="space-y-6">
+          {/* ─── Credit Purchases ─── */}
+          {creditPurchases.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                  <Zap className="h-4 w-4 text-amber-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">{isFr ? 'Crédits IA achetés' : 'AI Credits Purchased'}</p>
+                  <p className="text-[10px] text-muted-foreground">{creditPurchases.length} {isFr ? 'achat(s)' : 'purchase(s)'}</p>
+                </div>
+              </div>
+              <div className="space-y-2 pl-2 border-l-2 border-amber-500/20">
+                {creditPurchases.map((cp: any) => (
+                  <div key={cp.id} className="flex gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors">
+                    <div className="shrink-0 w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                      <Zap className="h-5 w-5 text-amber-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm">{cp.credits_amount} {isFr ? 'crédits' : 'credits'}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-[10px] gap-1">
+                          <Zap className="h-2.5 w-2.5" /> {cp.pack_key}
+                        </Badge>
+                        <Badge variant="secondary" className="text-[10px]">
+                          {cp.payment_gateway === 'stripe' ? 'Stripe' : 'Paystack'}
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground">
+                          {format(new Date(cp.completed_at || cp.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="shrink-0 flex items-center">
+                      <span className="text-sm font-semibold">{formatCurrency(cp.price_amount, cp.price_currency || 'XOF')}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ─── Donations ─── */}
+          {myDonations.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-lg bg-pink-500/10 flex items-center justify-center">
+                  <Heart className="h-4 w-4 text-pink-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">{isFr ? 'Mes dons' : 'My Donations'}</p>
+                  <p className="text-[10px] text-muted-foreground">{myDonations.length} {isFr ? 'don(s)' : 'donation(s)'}</p>
+                </div>
+              </div>
+              <div className="space-y-2 pl-2 border-l-2 border-pink-500/20">
+                {myDonations.map((don: any) => (
+                  <div key={don.id} className="flex gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors">
+                    <div className="shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-muted">
+                      {don.organizations?.logo_url ? (
+                        <img src={don.organizations.logo_url} alt={don.organizations?.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          <Heart className="h-5 w-5" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm truncate">
+                        {don.donation_campaigns?.title || don.organizations?.name || (isFr ? 'Don' : 'Donation')}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-[10px] gap-1">
+                          <Heart className="h-2.5 w-2.5" /> {isFr ? 'Don' : 'Donation'}
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground">
+                          {format(new Date(don.completed_at || don.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="shrink-0 flex items-center">
+                      <span className="text-sm font-semibold">{formatCurrency(don.amount, don.currency || 'XOF')}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ─── Products & Courses by Org ─── */}
           {[...grouped.entries()].map(([orgId, { purchases: orgPurchases, programs: orgPrograms }]) => {
             const org = orgMap.get(orgId);
             return (
               <div key={orgId} className="space-y-3">
-                {/* Org header */}
                 <button
                   onClick={() => org?.slug && navigate(`/org/${org.slug}`)}
                   className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
@@ -232,9 +356,7 @@ export default function ResourcesPage() {
                   </div>
                 </button>
 
-                {/* Products & Courses */}
                 <div className="space-y-2 pl-2 border-l-2 border-primary/10">
-                  {/* Enrolled Programs */}
                   {orgPrograms.map((enrollment) => (
                     <div key={enrollment.id} className="flex gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors">
                       <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-muted">
@@ -262,11 +384,7 @@ export default function ResourcesPage() {
                         </div>
                       </div>
                       <div className="shrink-0 flex flex-col gap-1.5 justify-center">
-                        <Button
-                          size="sm"
-                          className="gap-1 h-7 text-[11px]"
-                          onClick={() => setActiveCourseId(enrollment.program_id)}
-                        >
+                        <Button size="sm" className="gap-1 h-7 text-[11px]" onClick={() => setActiveCourseId(enrollment.program_id)}>
                           <Play className="h-3 w-3" />
                           {isFr ? 'Suivre le cours' : 'Start course'}
                         </Button>
@@ -274,7 +392,6 @@ export default function ResourcesPage() {
                     </div>
                   ))}
 
-                  {/* Digital product purchases */}
                   {orgPurchases?.map((purchase) => (
                     <div key={purchase.id} className="flex gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors">
                       <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-muted">
