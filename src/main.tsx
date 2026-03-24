@@ -66,6 +66,21 @@ const savedLocale = localStorage.getItem('sv_locale') || navigator.language.slic
 document.documentElement.lang = ['en', 'fr'].includes(savedLocale) ? savedLocale : 'fr';
 
 // ── PWA Service Worker Registration with Update Prompt ──
+const clearLegacySupabaseRestCache = async () => {
+  if (!('caches' in window)) return;
+
+  try {
+    const cacheKeys = await caches.keys();
+    await Promise.all(
+      cacheKeys
+        .filter((key) => key === 'supabase-rest')
+        .map((key) => caches.delete(key))
+    );
+  } catch {
+    // Non-fatal cleanup
+  }
+};
+
 const registerSW = async () => {
   if ('serviceWorker' in navigator && import.meta.env.PROD) {
     try {
@@ -106,6 +121,7 @@ const registerSW = async () => {
     }
   }
 };
+void clearLegacySupabaseRestCache();
 registerSW();
 
 createRoot(document.getElementById("root")!).render(<App />);

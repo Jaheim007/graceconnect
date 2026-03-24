@@ -52,15 +52,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const fetchPlatformRole = async (userId: string) => {
-    try {
-      const { data } = await supabase
-        .from('user_platform_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .maybeSingle();
-      setIsSuperadmin(data?.role === 'superadmin');
-    } catch {
-      setIsSuperadmin(false);
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        const { data, error } = await supabase
+          .from('user_platform_roles')
+          .select('role')
+          .eq('user_id', userId);
+
+        if (error) throw error;
+
+        setIsSuperadmin((data || []).some((row) => row.role === 'superadmin'));
+        return;
+      } catch {
+        if (attempt === 2) {
+          setIsSuperadmin(false);
+          return;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 600 * (attempt + 1)));
+      }
     }
   };
 

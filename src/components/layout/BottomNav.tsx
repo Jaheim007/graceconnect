@@ -6,6 +6,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import { getShortcutRoute } from '@/lib/navigation/shortcutRoutes';
 import { useState } from 'react';
 
 export function BottomNav() {
@@ -15,7 +16,14 @@ export function BottomNav() {
   const { currentOrg, canManage, userOrgs } = useOrg();
   const { t } = useI18n();
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
+  const hasManagedOrgs = userOrgs.some((org) => canManage(org.id));
   const [moreOpen, setMoreOpen] = useState(false);
+
+  const shortcutContext = {
+    canManageCurrentOrg,
+    hasOrganizations: userOrgs.length > 0,
+    isSuperadmin,
+  };
 
   const guestItems = [
     { to: '/', icon: Home, label: t('bottom.home') },
@@ -49,7 +57,7 @@ export function BottomNav() {
         { to: '/profile', icon: User, label: t('bottom.profile') || 'Profil' },
         { to: '/notifications', icon: Bell, label: t('sidebar.notifications') },
         { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases') },
-        { to: '/wallet', icon: CreditCard, label: t('sidebar.transactions') || 'Portefeuille' },
+        { to: getShortcutRoute('wallet', shortcutContext), icon: CreditCard, label: t('sidebar.transactions') || 'Portefeuille' },
       ],
     },
     {
@@ -62,11 +70,11 @@ export function BottomNav() {
     {
       label: t('sidebar.management') || 'Gestion',
       items: [
-        ...(userOrgs.length > 0
+        ...(hasManagedOrgs
           ? [{ to: '/admin', icon: Building2, label: t('sidebar.my_platforms') || 'Mes plateformes' }]
           : [{ to: '/create-org', icon: Plus, label: t('topbar.create_org') }]),
-        { to: '/kyc', icon: ShieldCheck, label: t('sidebar.kyc') || 'Vérification KYC' },
-        { to: '/settings', icon: Settings, label: t('bottom.settings') || 'Paramètres' },
+        { to: getShortcutRoute('kyc', shortcutContext), icon: ShieldCheck, label: t('sidebar.kyc') || 'Vérification KYC' },
+        { to: getShortcutRoute('settings', shortcutContext), icon: Settings, label: t('bottom.settings') || 'Paramètres' },
       ],
     },
     {

@@ -154,21 +154,16 @@ export default defineConfig(({ mode }) => ({
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}"],
         navigateFallback: "/index.html",
-        navigateFallbackDenylist: [/^\/~oauth/, /^\/share-target/],
+        navigateFallbackDenylist: [/^\/~oauth/, /^\/auth\/callback/, /^\/canva\/callback/, /^\/share-target/],
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
         offlineGoogleAnalytics: false,
         runtimeCaching: [
           {
-            // Supabase API: network first with offline fallback
+            // Supabase REST responses contain user-specific data; never cache them.
             urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "supabase-rest",
-              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 10 },
-              networkTimeoutSeconds: 5,
-            },
+            handler: "NetworkOnly",
           },
           {
             // Supabase storage: cache first (immutable assets)
