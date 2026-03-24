@@ -275,6 +275,7 @@ const App = () => (
       <TooltipProvider>
         <AuthProvider>
           <OrgProvider>
+            <UserModeProvider>
             <ErrorBoundary>
             <Toaster />
             <Sonner />
