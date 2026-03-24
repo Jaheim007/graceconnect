@@ -1,8 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home, Plus, Wallet, Store, MoreHorizontal, Shield, Bell, Settings,
-  Heart, HelpCircle, Award, User, Building2, ShieldCheck, FileText,
-  Package, BarChart3, Eye, Users, Zap, UserPlus, Share2, Star, Sparkles,
+  User, ShieldCheck, Package, BarChart3, Eye, Users, Zap, UserPlus, Share2, Star, Sparkles,
   Rss, Bookmark, GraduationCap, Coins, ArrowLeftRight, LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -16,6 +15,14 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useUserMode, MODE_LABELS } from '@/contexts/UserModeContext';
+
+interface NavItemDef {
+  to: string;
+  icon: typeof Home;
+  label: string;
+  center?: boolean;
+  accent?: boolean;
+}
 
 export function BottomNav() {
   const location = useLocation();
@@ -51,74 +58,76 @@ export function BottomNav() {
   };
 
   // ═══ GUEST NAV ═══
-  const guestItems = [
+  const guestItems: NavItemDef[] = [
     { to: '/', icon: Home, label: isFr ? 'Accueil' : 'Home' },
     { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
     { to: '/gagner', icon: Wallet, label: isFr ? 'Gagner' : 'Earn' },
     { to: '/auth?mode=signup', icon: UserPlus, label: isFr ? 'Inscription' : 'Sign up' },
   ];
 
-  // ═══ MODE-SPECIFIC BOTTOM NAV ═══
-  const getModeBottomItems = () => {
+  // ═══ MODE-SPECIFIC BOTTOM NAV (5 items with center button) ═══
+  const getModeBottomItems = (): NavItemDef[] => {
     switch (mode) {
       case 'purchases':
         return [
-          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
+          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
           { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Cours' : 'Courses' },
+          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases', center: true },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-          { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
-          { to: '__more__', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+          { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
         ];
       case 'sell':
         return [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: '/admin/create', icon: Plus, label: isFr ? 'Créer' : 'Create', accent: true },
           { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes' : 'Sales' },
+          { to: '/admin/create', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-          { to: '__more__', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+          { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
         ];
       case 'earn':
         return [
-          { to: '/spotlight', icon: Star, label: 'Spotlight' },
+          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-          { to: '/affiliation', icon: Share2, label: isFr ? 'Liens' : 'Links' },
+          { to: '/affiliation', icon: Share2, label: isFr ? 'Liens' : 'Links', center: true },
           { to: '/feed', icon: Rss, label: isFr ? 'Réseau' : 'Network' },
-          { to: '__more__', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+          { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
         ];
       case 'create':
         return [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: '/admin/create', icon: Sparkles, label: 'Studio', accent: true },
           { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes' : 'Sales' },
+          { to: '/admin/create', icon: Sparkles, label: 'Studio', center: true },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-          { to: '__more__', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+          { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
         ];
       default:
         return [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+          { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Cours' : 'Courses' },
+          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases', center: true },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
-          { to: '__more__', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+          { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
         ];
     }
   };
 
-  // ═══ MORE MENU ═══
+  // ═══ MORE MENU (accessible from Profile long-press or swipe-up) ═══
   const getMoreSections = () => {
     const sections = [
       {
         label: isFr ? 'Mon espace' : 'My Space',
         items: [
+          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
           { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
-          { to: '/notifications', icon: Bell, label: isFr ? 'Notifications' : 'Notifications' },
+          { to: '/notifications', icon: Bell, label: 'Notifications' },
           { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
           { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
+          { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
           { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
         ],
       },
     ];
 
-    // Creator/AI sections
     if (mode === 'sell' || mode === 'create') {
       sections.push({
         label: isFr ? 'Ma plateforme' : 'My Platform',
@@ -134,18 +143,17 @@ export function BottomNav() {
       });
     }
 
-    // Earn section
     if (mode === 'earn') {
       sections.push({
         label: isFr ? 'Gagner' : 'Earn',
         items: [
+          { to: '/spotlight', icon: Star, label: 'Spotlight' },
           { to: '/affiliation', icon: Share2, label: isFr ? 'Mes liens' : 'My Links' },
           { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
         ],
       });
     }
 
-    // Management
     sections.push({
       label: isFr ? 'Gestion' : 'Management',
       items: [
@@ -163,61 +171,71 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur-sm lg:hidden">
-        <div className="flex items-center justify-around h-14 px-1 max-w-lg mx-auto">
-          {navItems.map(({ to, icon: Icon, label, ...rest }) => {
-            const isMore = to === '__more__';
-            const active = isMore
-              ? false
-              : to === '/'
+      {/* ═══ BOTTOM NAV BAR ═══ */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden">
+        {/* Floating bar container */}
+        <div className="mx-3 mb-2 rounded-2xl bg-card/95 backdrop-blur-md border border-border shadow-lg shadow-black/10">
+          <div className="flex items-center justify-around h-16 px-1 max-w-lg mx-auto relative">
+            {navItems.map(({ to, icon: Icon, label, center }) => {
+              const active = to === '/'
                 ? location.pathname === '/'
                 : location.pathname.startsWith(to.split('?')[0]);
-            const isAccent = 'accent' in rest && (rest as any).accent;
 
-            if (isMore) {
+              // ═══ CENTER BUTTON (elevated, prominent) ═══
+              if (center) {
+                return (
+                  <Link
+                    key={to}
+                    to={to}
+                    aria-current={active ? 'page' : undefined}
+                    aria-label={label}
+                    className="flex flex-col items-center justify-center gap-0.5 flex-1 min-h-[48px] min-w-[48px] -mt-5 relative"
+                  >
+                    <div className={cn(
+                      'h-14 w-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-200',
+                      active
+                        ? 'bg-primary shadow-primary/40 scale-105'
+                        : 'bg-primary/90 shadow-primary/25 hover:scale-105'
+                    )}>
+                      <Icon className="h-6 w-6 text-primary-foreground" />
+                    </div>
+                    <span className={cn(
+                      'text-[10px] font-bold leading-none mt-0.5',
+                      active ? 'text-primary' : 'text-foreground'
+                    )}>{label}</span>
+                  </Link>
+                );
+              }
+
+              // ═══ REGULAR NAV ITEM ═══
               return (
-                <button
-                  key="more"
-                  onClick={() => setMoreOpen(true)}
+                <Link
+                  key={to}
+                  to={to}
+                  aria-current={active ? 'page' : undefined}
                   aria-label={label}
-                  className="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 min-h-[48px] min-w-[48px] transition-colors text-muted-foreground relative"
-                >
-                  <Icon className="h-5 w-5" />
-                  {unreadCount > 0 && (
-                    <span className="absolute top-1.5 right-[calc(50%-2px)] h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
+                  className={cn(
+                    'flex flex-col items-center justify-center gap-1 flex-1 py-2 min-h-[48px] min-w-[48px] transition-all duration-200 relative',
+                    active ? 'text-primary' : 'text-muted-foreground'
                   )}
-                  <span className="text-[10px] font-medium leading-none">{label}</span>
-                </button>
-              );
-            }
-
-            return (
-              <Link
-                key={to}
-                to={to}
-                aria-current={active ? 'page' : undefined}
-                aria-label={label}
-                className={cn(
-                  'flex flex-col items-center justify-center gap-0.5 flex-1 py-2 min-h-[48px] min-w-[48px] transition-colors relative',
-                  isAccent ? 'text-primary' : active ? 'text-primary' : 'text-muted-foreground'
-                )}
-              >
-                {isAccent ? (
-                  <div className="h-9 w-9 -mt-4 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-                    <Icon className="h-5 w-5 text-primary-foreground" />
-                  </div>
-                ) : (
+                >
                   <Icon className={cn('h-5 w-5', active && 'stroke-[2.5]')} />
-                )}
-                <span className={cn('text-[10px] font-medium leading-none', isAccent && 'font-bold text-primary')}>{label}</span>
-                {active && !isAccent && <div className="absolute -bottom-0.5 w-6 h-0.5 rounded-full bg-primary" />}
-              </Link>
-            );
-          })}
+                  <span className={cn(
+                    'text-[10px] font-medium leading-none',
+                    active && 'font-bold'
+                  )}>{label}</span>
+                  {active && <div className="absolute bottom-1 w-5 h-0.5 rounded-full bg-primary" />}
+                </Link>
+              );
+            })}
+          </div>
         </div>
+
+        {/* Safe area spacer for iOS */}
+        <div className="h-safe-area-inset-bottom bg-transparent" />
       </nav>
 
-      {/* More sheet */}
+      {/* ═══ MORE SHEET (opened from Profile page or swipe) ═══ */}
       {user && (
         <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
           <SheetContent side="bottom" className="rounded-t-2xl px-3 pb-10 pt-3 max-h-[75vh]">
