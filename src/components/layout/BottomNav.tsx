@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Plus, Wallet, Store, PenLine, UserPlus, MoreHorizontal, Shield, Bell, Settings, Heart, BookOpen, HelpCircle, Award, User, Building2, ShieldCheck, FileText, CreditCard } from 'lucide-react';
+import { Home, Plus, Wallet, Store, PenLine, UserPlus, MoreHorizontal, Shield, Bell, Settings, Heart, BookOpen, HelpCircle, Award, User, Building2, ShieldCheck, FileText, CreditCard, Package, BarChart3, Eye, Users, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
