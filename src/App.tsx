@@ -540,6 +540,7 @@ const App = () => (
             <ExperimentDebugOverlay />
             </BrowserRouter>
             </ErrorBoundary>
+            </UserModeProvider>
           </OrgProvider>
         </AuthProvider>
       </TooltipProvider>
