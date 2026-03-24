@@ -10,9 +10,14 @@ export default function AuthCallbackPage() {
   const handled = useRef(false);
 
   useEffect(() => {
+    const clearOAuthPending = () => {
+      try { sessionStorage.removeItem('sv_oauth_pending_since'); } catch {}
+    };
+
     const handleRedirect = async (session: any) => {
       if (!session || handled.current) return;
       handled.current = true;
+      clearOAuthPending();
 
       const savedIntent = sessionStorage.getItem('sv_auth_intent');
       if (savedIntent === 'ambassador' || savedIntent === 'creator') {
@@ -33,14 +38,28 @@ export default function AuthCallbackPage() {
       const now = Date.now();
       const isNewUser = now - createdAt < 60_000;
 
-      if (isNewUser) {
-        navigate('/welcome', { replace: true });
-      } else {
-        navigate('/dashboard', { replace: true });
-      }
+      navigate(isNewUser ? '/welcome' : '/dashboard', { replace: true });
     };
 
-    // Listen for auth state changes FIRST (before any async work)
+    const recoverSessionOnce = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await handleRedirect(session);
+        return true;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: { session: syncedSession } } = await supabase.auth.getSession();
+        if (syncedSession) {
+          await handleRedirect(syncedSession);
+          return true;
+        }
+      }
+
+      return false;
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') && session) {
         handleRedirect(session);
@@ -52,50 +71,38 @@ export default function AuthCallbackPage() {
       const code = url.searchParams.get('code');
 
       if (code) {
-        // PKCE flow: exchange code for session
         const { data, error } = await supabase.auth.exchangeCodeForSession(code);
         if (!error && data.session) {
-          handleRedirect(data.session);
+          await handleRedirect(data.session);
           return;
         }
-        // Code exchange failed — might already be consumed by Supabase internally
-        console.warn('Code exchange failed, checking existing session...', error?.message);
+        console.warn('OAuth code exchange did not return a session immediately, retrying recovery...', error?.message);
       }
 
-      // Check for hash fragments (implicit flow) or existing session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        handleRedirect(session);
-        return;
-      }
+      if (await recoverSessionOnce()) return;
 
-      // Retry: wait a bit and check again (Supabase may still be processing)
-      for (let i = 0; i < 5; i++) {
-        await new Promise(r => setTimeout(r, 2000));
+      for (let i = 0; i < 8; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
         if (handled.current) return;
-        const { data: { session: retrySession } } = await supabase.auth.getSession();
-        if (retrySession) {
-          handleRedirect(retrySession);
-          return;
-        }
+        if (await recoverSessionOnce()) return;
       }
 
-      // All retries failed — redirect to auth
       if (!handled.current) {
-        console.warn('Auth callback: all session recovery attempts failed, redirecting to /auth');
+        clearOAuthPending();
+        console.warn('Auth callback: session still unavailable after retries, redirecting to /auth');
         navigate('/auth', { replace: true });
       }
     };
 
     attemptSessionRecovery();
 
-    // Safety timeout — 20s (increased from 10s for slow mobile connections)
     const timeout = setTimeout(() => {
       if (!handled.current) {
+        clearOAuthPending();
         console.warn('Auth callback timeout — redirecting to /auth');
         navigate('/auth', { replace: true });
       }
-    }, 20_000);
+    }, 25_000);
 
     return () => {
       subscription.unsubscribe();

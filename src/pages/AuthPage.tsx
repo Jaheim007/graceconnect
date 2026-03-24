@@ -61,35 +61,47 @@ export default function AuthPage() {
   const [facebookLoading, setFacebookLoading] = useState(false);
   const [linkedinLoading, setLinkedinLoading] = useState(false);
 
+  const markOAuthPending = () => {
+    try {
+      sessionStorage.setItem('sv_oauth_pending_since', String(Date.now()));
+      if (returnTo) sessionStorage.setItem('sv_auth_returnTo', returnTo);
+    } catch {}
+  };
+
   const handleGoogle = async () => {
     setError('');
     setGoogleLoading(true);
-    // Persist returnTo for Google OAuth (callback page will read it)
-    if (returnTo) {
-      try { sessionStorage.setItem('sv_auth_returnTo', returnTo); } catch {}
-    }
+    markOAuthPending();
     const { error: err } = await signInWithGoogle(returnTo || undefined);
-    if (err) { setError(err.message); setGoogleLoading(false); }
+    if (err) {
+      try { sessionStorage.removeItem('sv_oauth_pending_since'); } catch {}
+      setError(err.message);
+      setGoogleLoading(false);
+    }
   };
 
   const handleFacebook = async () => {
     setError('');
     setFacebookLoading(true);
-    if (returnTo) {
-      try { sessionStorage.setItem('sv_auth_returnTo', returnTo); } catch {}
-    }
+    markOAuthPending();
     const { error: err } = await signInWithFacebook(returnTo || undefined);
-    if (err) { setError(err.message); setFacebookLoading(false); }
+    if (err) {
+      try { sessionStorage.removeItem('sv_oauth_pending_since'); } catch {}
+      setError(err.message);
+      setFacebookLoading(false);
+    }
   };
 
   const handleLinkedin = async () => {
     setError('');
     setLinkedinLoading(true);
-    if (returnTo) {
-      try { sessionStorage.setItem('sv_auth_returnTo', returnTo); } catch {}
-    }
+    markOAuthPending();
     const { error: err } = await signInWithLinkedin(returnTo || undefined);
-    if (err) { setError(err.message); setLinkedinLoading(false); }
+    if (err) {
+      try { sessionStorage.removeItem('sv_oauth_pending_since'); } catch {}
+      setError(err.message);
+      setLinkedinLoading(false);
+    }
   };
 
   const handleSendOtp = async (e: React.FormEvent) => {
