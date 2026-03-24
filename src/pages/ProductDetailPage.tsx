@@ -101,7 +101,7 @@ export default function ProductDetailPage() {
     video: t('product.type_video'), course: t('product.type_course'), link: t('product.type_link'),
   };
 
-  // affiliateCode is resolved after product loads (see below after orgId)
+  // placeholder — hook moved after orgId
 
   const { data: product, isLoading } = useQuery({
     queryKey: ['product-detail', productId || productSlug],
@@ -140,6 +140,7 @@ export default function ProductDetailPage() {
 
   // Fetch org page settings for theme colors + org-level pixels
   const orgId = product?.organization_id;
+  const { affiliateCode, ensureAffiliateCode } = useAutoAffiliateCode(orgId);
   const { data: pageSettings } = useQuery({
     queryKey: ['org-page-settings-product', orgId],
     queryFn: async () => {
