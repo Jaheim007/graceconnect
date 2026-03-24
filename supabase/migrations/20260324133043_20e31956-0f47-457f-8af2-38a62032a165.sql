@@ -1,0 +1,2 @@
+INSERT INTO credit_lots (user_id, lot_type, initial_amount, remaining, source, expires_at)
+VALUES ('53cc405b-8169-4c9f-ab14-960faaec2163', 'bonus', 500, 500, 'admin_grant', now() + interval '365 days')
