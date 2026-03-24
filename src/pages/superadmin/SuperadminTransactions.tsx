@@ -327,7 +327,7 @@ export function SuperadminTransactions() {
 
   /* ─── Filtering ─── */
   const allTx = useMemo(() => {
-    let merged = [...purchases, ...donations].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    let merged = [...purchases, ...donations, ...creditPurchases].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     if (filter !== 'all') merged = merged.filter(t => t.type === filter);
     if (statusFilter !== 'all') merged = merged.filter(t => t.status === statusFilter);
     if (gatewayFilter !== 'all') merged = merged.filter(t => t.gateway === gatewayFilter);
@@ -349,7 +349,7 @@ export function SuperadminTransactions() {
       );
     }
     return merged;
-  }, [purchases, donations, filter, statusFilter, gatewayFilter, search, periodFilter, customDateFrom, customDateTo]);
+  }, [purchases, donations, creditPurchases, filter, statusFilter, gatewayFilter, search, periodFilter, customDateFrom, customDateTo]);
 
   /* ─── Stats ─── */
   const dateRange = getDateRange(periodFilter, customDateFrom, customDateTo);
