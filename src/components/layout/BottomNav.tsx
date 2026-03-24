@@ -8,6 +8,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Separator } from '@/components/ui/separator';
 import { getShortcutRoute } from '@/lib/navigation/shortcutRoutes';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 
 export function BottomNav() {
   const location = useLocation();
@@ -18,6 +20,23 @@ export function BottomNav() {
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
   const hasManagedOrgs = userOrgs.some((org) => canManage(org.id));
   const [moreOpen, setMoreOpen] = useState(false);
+
+  // Badge: count unseen purchases (last 24h)
+  const { data: recentPurchaseCount = 0 } = useQuery({
+    queryKey: ['recent-purchases-badge', user?.id],
+    queryFn: async () => {
+      if (!user) return 0;
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { count } = await db.from('product_purchases')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('status', 'completed')
+        .gte('created_at', since);
+      return count || 0;
+    },
+    enabled: !!user,
+    staleTime: 60_000,
+  });
 
   const shortcutContext = {
     canManageCurrentOrg,
@@ -108,9 +127,12 @@ export function BottomNav() {
                   key="more"
                   onClick={() => setMoreOpen(true)}
                   aria-label={label}
-                  className="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 min-h-[48px] min-w-[48px] transition-colors text-muted-foreground"
+                  className="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 min-h-[48px] min-w-[48px] transition-colors text-muted-foreground relative"
                 >
                   <Icon className="h-5 w-5" />
+                  {recentPurchaseCount > 0 && (
+                    <span className="absolute top-1.5 right-[calc(50%-2px)] h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
+                  )}
                   <span className="text-[10px] font-medium leading-none">{label}</span>
                 </button>
               );
