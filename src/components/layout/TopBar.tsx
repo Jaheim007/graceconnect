@@ -105,7 +105,7 @@ export function TopBar() {
               </div>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate('/profile')}><User className="h-3.5 w-3.5 mr-2" /> {t('topbar.profile') || (locale === 'fr' ? 'Profil' : 'Profile')}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/profile')}><User className="h-3.5 w-3.5 mr-2" /> {t('topbar.profile')}</DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/welcome')}><ArrowLeftRight className="h-3.5 w-3.5 mr-2" /> {t('topbar.my_space')}</DropdownMenuItem>
             {isSuperadmin && (
               <DropdownMenuItem onClick={() => navigate('/superadmin')}><Shield className="h-3.5 w-3.5 mr-2" /> {t('topbar.superadmin')}</DropdownMenuItem>
