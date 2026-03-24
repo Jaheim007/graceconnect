@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Bell, Sun, Moon, LogOut, User, Settings, Shield, Plus, Search, ArrowLeftRight } from 'lucide-react';
+import { Bell, Sun, Moon, LogOut, User, Settings, Shield, Plus, Search, ArrowLeftRight, Building2, Check } from 'lucide-react';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,67 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { CreditBalance } from '@/components/credits/CreditBalance';
-import { OrgSwitcher } from '@/components/org/OrgSwitcher';
 import { GlobalPreferencesSelector } from '@/components/global/GlobalPreferencesSelector';
+import { brandUrl } from '@/lib/storageUrl';
+import { cn } from '@/lib/utils';
+import { Organization } from '@/types/database';
+
+function OrgSwitcherInline() {
+  const { currentOrg, userOrgs, setCurrentOrg, getRoleFor } = useOrg();
+  const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
+  const managedOrgs = userOrgs.filter((o) => {
+    const role = getRoleFor(o.id);
+    return role === 'owner' || role === 'admin';
+  });
+
+  if (managedOrgs.length <= 1) return null;
+
+  const handleSelect = (org: Organization) => {
+    const role = getRoleFor(org.id);
+    setCurrentOrg(org);
+    if (role === 'owner' || role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate(`/org/${org.slug}`);
+    }
+  };
+
+  return (
+    <div className="space-y-0.5">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-2 py-1">
+        {isFr ? 'Changer de plateforme' : 'Switch Platform'}
+      </p>
+      {managedOrgs.map((org) => {
+        const isActive = org.id === currentOrg?.id;
+        const logo = brandUrl(org.logo_url);
+        const initials = org.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        return (
+          <button
+            key={org.id}
+            onClick={() => handleSelect(org)}
+            className={cn(
+              'w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm transition-colors',
+              isActive ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted text-foreground'
+            )}
+          >
+            <div className="h-5 w-5 rounded overflow-hidden shrink-0">
+              {logo ? (
+                <img src={logo} alt={org.name} className="h-full w-full object-cover" />
+              ) : (
+                <div className="h-full w-full bg-primary/20 flex items-center justify-center text-[8px] font-bold text-primary">{initials}</div>
+              )}
+            </div>
+            <span className="truncate flex-1 text-xs">{org.name}</span>
+            {isActive && <Check className="h-3 w-3 text-primary shrink-0" />}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
