@@ -16,12 +16,12 @@ import { Calendar } from '@/components/ui/calendar';
 import { format, startOfDay, startOfWeek, startOfMonth, subDays, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart3, ArrowUpRight, ArrowDownRight, CreditCard, Smartphone, Gift, ShoppingCart, SlidersHorizontal, X } from 'lucide-react';
+import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart3, ArrowUpRight, ArrowDownRight, CreditCard, Smartphone, Gift, ShoppingCart, SlidersHorizontal, X, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-type TxFilter = 'all' | 'purchase' | 'donation';
+type TxFilter = 'all' | 'purchase' | 'donation' | 'credit';
 type StatusFilter = 'all' | 'completed' | 'pending' | 'failed';
 type GatewayFilter = 'all' | 'stripe' | 'paystack' | 'free';
 type PeriodFilter = 'all' | 'today' | '7d' | '30d' | '90d' | 'this_month' | 'this_week' | 'custom';
@@ -281,11 +281,53 @@ export function SuperadminTransactions() {
     },
   });
 
-  const isLoading = loadingP || loadingD;
+  /* ─── Data fetching (credit purchases) ─── */
+  const { data: creditPurchases = [], isLoading: loadingC } = useQuery({
+    queryKey: ['sa-all-credits'],
+    queryFn: async () => {
+      const { data, error } = await db.from('credit_purchases')
+        .select('id, user_id, pack_key, credits_amount, price_amount, price_currency, payment_gateway, payment_reference, status, created_at, completed_at')
+        .order('created_at', { ascending: false })
+        .limit(2000);
+      if (error) { console.error('sa-credits error:', error); return []; }
+
+      const userIds = [...new Set((data || []).map((r: any) => r.user_id).filter(Boolean))];
+      let profileMap: Record<string, any> = {};
+      if (userIds.length > 0) {
+        const { data: profiles } = await db.from('profiles').select('id, display_name, phone').in('id', userIds);
+        (profiles || []).forEach((p: any) => { profileMap[p.id] = p; });
+      }
+
+      return (data || []).map((r: any) => ({
+        ...r,
+        amount: r.price_amount,
+        currency: r.price_currency || 'XOF',
+        type: 'credit' as const,
+        label: `Pack crédits: ${r.pack_key} (${r.credits_amount} crédits)`,
+        org_name: 'Plateforme',
+        gateway: r.payment_gateway === 'stripe' ? 'stripe' : 'paystack',
+        buyer_display: profileMap[r.user_id]?.display_name || '—',
+        buyer_phone: profileMap[r.user_id]?.phone || null,
+        buyer_email: null,
+        buyer_name: null,
+        donor_name: null,
+        donor_email: null,
+        paystack_reference: r.payment_reference,
+        platform_fee: r.price_amount,
+        affiliate_commission: 0,
+        organization_amount: 0,
+        affiliate_link_id: null,
+        affiliate_name: null,
+        settlement_status: null,
+      }));
+    },
+  });
+
+  const isLoading = loadingP || loadingD || loadingC;
 
   /* ─── Filtering ─── */
   const allTx = useMemo(() => {
-    let merged = [...purchases, ...donations].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    let merged = [...purchases, ...donations, ...creditPurchases].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     if (filter !== 'all') merged = merged.filter(t => t.type === filter);
     if (statusFilter !== 'all') merged = merged.filter(t => t.status === statusFilter);
     if (gatewayFilter !== 'all') merged = merged.filter(t => t.gateway === gatewayFilter);
@@ -307,7 +349,7 @@ export function SuperadminTransactions() {
       );
     }
     return merged;
-  }, [purchases, donations, filter, statusFilter, gatewayFilter, search, periodFilter, customDateFrom, customDateTo]);
+  }, [purchases, donations, creditPurchases, filter, statusFilter, gatewayFilter, search, periodFilter, customDateFrom, customDateTo]);
 
   /* ─── Stats ─── */
   const dateRange = getDateRange(periodFilter, customDateFrom, customDateTo);
@@ -421,6 +463,9 @@ export function SuperadminTransactions() {
             </TabsTrigger>
             <TabsTrigger value="donation" className="rounded-lg text-xs px-4 data-[state=active]:shadow-sm gap-1.5">
               <Gift className="h-3.5 w-3.5" /> Dons
+            </TabsTrigger>
+            <TabsTrigger value="credit" className="rounded-lg text-xs px-4 data-[state=active]:shadow-sm gap-1.5">
+              <Zap className="h-3.5 w-3.5" /> Crédits
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -551,7 +596,7 @@ export function SuperadminTransactions() {
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
           {allTx.length} transaction{allTx.length !== 1 ? 's' : ''}
-          {filter !== 'all' && <> · {filter === 'purchase' ? 'Achats' : 'Dons'}</>}
+          {filter !== 'all' && <> · {filter === 'purchase' ? 'Achats' : filter === 'credit' ? 'Crédits IA' : 'Dons'}</>}
         </p>
       </div>
 
@@ -594,11 +639,11 @@ export function SuperadminTransactions() {
                   <TableCell className="py-3">
                     <span className={cn(
                       'inline-flex items-center justify-center h-8 w-8 rounded-lg text-xs font-bold',
-                      tx.type === 'purchase'
-                        ? 'bg-primary/10 text-primary'
+                      tx.type === 'purchase' ? 'bg-primary/10 text-primary'
+                        : tx.type === 'credit' ? 'bg-amber-500/10 text-amber-500'
                         : 'bg-pink-500/10 text-pink-500'
                     )}>
-                      {tx.type === 'purchase' ? <ShoppingCart className="h-3.5 w-3.5" /> : <Gift className="h-3.5 w-3.5" />}
+                      {tx.type === 'purchase' ? <ShoppingCart className="h-3.5 w-3.5" /> : tx.type === 'credit' ? <Zap className="h-3.5 w-3.5" /> : <Gift className="h-3.5 w-3.5" />}
                     </span>
                   </TableCell>
                   <TableCell className="py-3">
