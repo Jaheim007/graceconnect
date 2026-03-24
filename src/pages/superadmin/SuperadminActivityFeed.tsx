@@ -23,11 +23,23 @@ export default function SuperadminActivityFeed() {
       const [donations, purchases, profiles, kyc, members, reports] = await Promise.all([
         db.from('donations').select('id, donor_name, donor_email, amount, status, created_at, currency').order('created_at', { ascending: false }).limit(30),
         db.from('product_purchases').select('id, amount, status, created_at, currency, buyer_name, buyer_email, digital_products(title)').order('created_at', { ascending: false }).limit(30),
-        db.from('profiles').select('id, display_name, email, created_at').order('created_at', { ascending: false }).limit(20),
+        db.from('profiles').select('id, display_name, created_at').order('created_at', { ascending: false }).limit(20),
         db.from('kyc_submissions').select('id, status, submitted_at, organization_id').order('submitted_at', { ascending: false }).limit(20),
-        db.from('organization_members').select('id, role, joined_at, user_id, organizations(name), profiles(display_name, email)').order('joined_at', { ascending: false }).limit(20),
+        db.from('organization_members').select('id, role, joined_at, user_id, organizations(name), profiles(display_name)').order('joined_at', { ascending: false }).limit(20),
         db.from('content_reports').select('id, content_type, reason, status, created_at').order('created_at', { ascending: false }).limit(20),
       ]);
+
+      // Resolve auth emails for profiles without display_name
+      const blankProfileIds = (profiles.data || []).filter((p: any) => !p.display_name || !p.display_name.trim()).map((p: any) => p.id);
+      let authEmailMap: Record<string, string> = {};
+      if (blankProfileIds.length > 0) {
+        // Fetch emails from auth via a join through organization_members or product_purchases
+        // Since we can't query auth.users directly from client, we look for emails in transactions
+        const { data: purchaseEmails } = await db.from('product_purchases').select('user_id, buyer_email').in('user_id', blankProfileIds).limit(100);
+        const { data: donationEmails } = await db.from('donations').select('user_id, donor_email').in('user_id', blankProfileIds).limit(100);
+        (purchaseEmails || []).forEach((r: any) => { if (r.buyer_email && r.user_id) authEmailMap[r.user_id] = r.buyer_email; });
+        (donationEmails || []).forEach((r: any) => { if (r.donor_email && r.user_id) authEmailMap[r.user_id] = r.donor_email; });
+      }
 
       const items: ActivityItem[] = [];
 
@@ -59,7 +71,7 @@ export default function SuperadminActivityFeed() {
       });
 
       (profiles.data || []).forEach((p: any) => {
-        const name = resolveName(p.display_name, p.email);
+        const name = resolveName(p.display_name, authEmailMap[p.id]);
         items.push({
           id: `sig-${p.id}`, type: 'signup',
           title: isFr ? 'Nouvel utilisateur' : 'New user',
@@ -74,7 +86,7 @@ export default function SuperadminActivityFeed() {
       }));
 
       (members.data || []).forEach((m: any) => {
-        const memberName = resolveName(m.profiles?.display_name, m.profiles?.email, 'Membre', 'Member');
+        const memberName = resolveName(m.profiles?.display_name, authEmailMap[m.user_id], 'Membre', 'Member');
         items.push({
           id: `mem-${m.id}`, type: 'member',
           title: isFr ? 'Nouveau membre' : 'New member',
