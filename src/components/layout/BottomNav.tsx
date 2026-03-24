@@ -21,21 +21,20 @@ export function BottomNav() {
   const hasManagedOrgs = userOrgs.some((org) => canManage(org.id));
   const [moreOpen, setMoreOpen] = useState(false);
 
-  // Badge: count unseen purchases (last 24h)
-  const { data: recentPurchaseCount = 0 } = useQuery({
-    queryKey: ['recent-purchases-badge', user?.id],
+  // Badge: unread notifications count
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['unread-count', user?.id],
     queryFn: async () => {
       if (!user) return 0;
-      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-      const { count } = await db.from('product_purchases')
-        .select('id', { count: 'exact', head: true })
+      const { count } = await db.from('user_notifications')
+        .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
-        .eq('status', 'completed')
-        .gte('created_at', since);
+        .eq('is_read', false);
       return count || 0;
     },
     enabled: !!user,
-    staleTime: 60_000,
+    staleTime: 30_000,
+    refetchInterval: 30_000,
   });
 
   const shortcutContext = {
@@ -130,7 +129,7 @@ export function BottomNav() {
                   className="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 min-h-[48px] min-w-[48px] transition-colors text-muted-foreground relative"
                 >
                   <Icon className="h-5 w-5" />
-                  {recentPurchaseCount > 0 && (
+                  {unreadCount > 0 && (
                     <span className="absolute top-1.5 right-[calc(50%-2px)] h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
                   )}
                   <span className="text-[10px] font-medium leading-none">{label}</span>
