@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
-import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Gift, Share2, Copy, Check, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAutoAffiliateCode } from '@/hooks/useAutoAffiliateCode';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ShareToEarnCTAProps {
@@ -22,40 +21,10 @@ export function ShareToEarnCTA({ productId, organizationId, organizationSlug, pr
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { toast } = useToast();
-  const qc = useQueryClient();
   const [copied, setCopied] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
-  const { data: affiliateLink, isLoading: loadingLink } = useQuery({
-    queryKey: ['my-aff-link', user?.id, organizationId],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data } = await db
-        .from('affiliate_links')
-        .select('code, is_active')
-        .eq('user_id', user.id)
-        .eq('organization_id', organizationId)
-        .eq('is_active', true)
-        .maybeSingle();
-      return data;
-    },
-    enabled: !!user,
-    staleTime: 60_000,
-  });
-
-  const enrollMutation = useMutation({
-    mutationFn: async () => {
-      if (!user) throw new Error('Not logged in');
-      const { error } = await db.rpc('self_enroll_affiliate', { _org_id: organizationId });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['my-aff-link'] });
-      toast({ title: isFr ? '🎉 Inscrit comme ambassadeur !' : '🎉 Enrolled as ambassador!' });
-    },
-    onError: (e: any) => {
-      toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
-    },
-  });
+  const { affiliateCode, ensureAffiliateCode } = useAutoAffiliateCode(organizationId);
 
   if (!user) return null;
 
@@ -63,22 +32,42 @@ export function ShareToEarnCTA({ productId, organizationId, organizationSlug, pr
     ? `/org/${organizationSlug}/p/${productSlug}`
     : `/org/${organizationSlug}/product/${productId}`;
 
-  const shareUrl = affiliateLink
-    ? `${window.location.origin}${productPath}?ref=${affiliateLink.code}`
-    : '';
+  const buildShareUrl = (code: string) =>
+    `${window.location.origin}${productPath}?ref=${code}`;
+
+  const getOrEnrollAndShare = async () => {
+    setSharing(true);
+    try {
+      const code = await ensureAffiliateCode();
+      if (!code) {
+        toast({ title: isFr ? 'Erreur' : 'Error', description: isFr ? 'Impossible de créer le lien' : 'Could not create link', variant: 'destructive' });
+        return null;
+      }
+      return buildShareUrl(code);
+    } finally {
+      setSharing(false);
+    }
+  };
 
   const copyLink = async () => {
-    await navigator.clipboard.writeText(shareUrl);
+    const url = affiliateCode ? buildShareUrl(affiliateCode) : await getOrEnrollAndShare();
+    if (!url) return;
+    await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     toast({ title: isFr ? 'Lien copié !' : 'Link copied!' });
   };
 
-  const shareNative = () => {
+  const shareNative = async () => {
+    const url = affiliateCode ? buildShareUrl(affiliateCode) : await getOrEnrollAndShare();
+    if (!url) return;
     if (navigator.share) {
-      navigator.share({ url: shareUrl, title: isFr ? 'Découvrez ce produit' : 'Check this out' });
+      navigator.share({ url, title: isFr ? 'Découvrez ce produit' : 'Check this out' });
     } else {
-      copyLink();
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast({ title: isFr ? 'Lien copié !' : 'Link copied!' });
     }
   };
 
@@ -101,33 +90,21 @@ export function ShareToEarnCTA({ productId, organizationId, organizationSlug, pr
           )}
         </div>
 
-        {affiliateLink ? (
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="flex-1 h-8 text-xs gap-1.5" onClick={copyLink}>
-              {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-              {copied ? (isFr ? 'Copié !' : 'Copied!') : (isFr ? 'Copier le lien' : 'Copy link')}
-            </Button>
-            <Button size="sm" className="flex-1 h-8 text-xs gap-1.5" onClick={shareNative}>
-              <Share2 className="h-3 w-3" />
-              {isFr ? 'Partager' : 'Share'}
-            </Button>
-          </div>
-        ) : (
-          <Button
-            size="sm"
-            className="w-full h-8 text-xs gap-1.5 font-semibold"
-            onClick={() => enrollMutation.mutate()}
-            disabled={enrollMutation.isPending || loadingLink}
-          >
-            {enrollMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Gift className="h-3 w-3" />}
-            {isFr ? 'Devenir ambassadeur en 1 clic' : 'Become an ambassador in 1 click'}
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" className="flex-1 h-8 text-xs gap-1.5" onClick={copyLink} disabled={sharing}>
+            {sharing ? <Loader2 className="h-3 w-3 animate-spin" /> : copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+            {copied ? (isFr ? 'Copié !' : 'Copied!') : (isFr ? 'Copier le lien' : 'Copy link')}
           </Button>
-        )}
+          <Button size="sm" className="flex-1 h-8 text-xs gap-1.5" onClick={shareNative} disabled={sharing}>
+            {sharing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Share2 className="h-3 w-3" />}
+            {isFr ? 'Partager' : 'Share'}
+          </Button>
+        </div>
 
         <p className="text-[10px] text-muted-foreground">
           {isFr
-            ? 'Partagez ce produit et gagnez une commission sur chaque vente.'
-            : 'Share this product and earn a commission on every sale.'}
+            ? 'Partagez ce produit et gagnez une commission sur chaque vente. Inscription automatique.'
+            : 'Share this product and earn a commission on every sale. Auto-enrolled.'}
         </p>
       </motion.div>
     </AnimatePresence>
