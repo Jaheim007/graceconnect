@@ -383,6 +383,10 @@ export default function SuperadminExports() {
       db.from('affiliate_links').select('*', { count: 'exact', head: true }),
     ]);
 
+    // Credit purchases
+    const { data: completedCredits } = await db.from('credit_purchases').select('price_amount').eq('status', 'completed');
+    const totalCreditsRevenue = (completedCredits || []).reduce((s, c: any) => s + (c.price_amount || 0), 0);
+
     const totalSalesRevenue = (completedPurchases || []).reduce((s, p: any) => s + (p.amount || 0), 0);
     const totalDonationsRevenue = (completedDonations || []).reduce((s, d: any) => s + (d.amount || 0), 0);
 
@@ -394,7 +398,9 @@ export default function SuperadminExports() {
       ['Revenu ventes (FCFA)', totalSalesRevenue.toString()],
       ['Dons complétés', (completedDonations || []).length.toString()],
       ['Revenu dons (FCFA)', totalDonationsRevenue.toString()],
-      ['GMV total (FCFA)', (totalSalesRevenue + totalDonationsRevenue).toString()],
+      ['Achats crédits IA complétés', (completedCredits || []).length.toString()],
+      ['Revenu crédits IA (FCFA)', totalCreditsRevenue.toString()],
+      ['GMV total (FCFA)', (totalSalesRevenue + totalDonationsRevenue + totalCreditsRevenue).toString()],
       ['Soumissions KYC', (kycSubmitted || 0).toString()],
       ['KYC approuvés', (kycApproved || 0).toString()],
       ['Demandes de retrait', (payoutRequests || 0).toString()],
