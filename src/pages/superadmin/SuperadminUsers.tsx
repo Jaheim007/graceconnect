@@ -37,8 +37,8 @@ export default function SuperadminUsers() {
         db.from('profiles').select('*').order('created_at', { ascending: false }),
         db.from('organization_members').select('user_id, organization_id, role, organizations(name)'),
         db.from('user_platform_roles').select('user_id, role'),
-        db.from('product_purchases').select('user_id, amount, status').eq('status', 'completed'),
-        db.from('donations').select('user_id, amount, status').eq('status', 'completed'),
+        db.from('product_purchases').select('user_id, amount, status, buyer_email').eq('status', 'completed'),
+        db.from('donations').select('user_id, amount, status, donor_email').eq('status', 'completed'),
         db.from('affiliate_links').select('user_id, total_earned, clicks, conversions, is_active'),
       ]);
 
@@ -51,11 +51,15 @@ export default function SuperadminUsers() {
       const roleMap: Record<string, string> = {};
       (roles.data || []).forEach((r: any) => { roleMap[r.user_id] = r.role; });
 
+      // Build email map from transactions for profiles missing display_name
+      const emailMap: Record<string, string> = {};
+
       const purchaseMap: Record<string, { count: number; total: number }> = {};
       (purchases.data || []).forEach((p: any) => {
         if (!purchaseMap[p.user_id]) purchaseMap[p.user_id] = { count: 0, total: 0 };
         purchaseMap[p.user_id].count++;
         purchaseMap[p.user_id].total += p.amount || 0;
+        if (p.buyer_email && p.user_id) emailMap[p.user_id] = p.buyer_email;
       });
 
       const donationMap: Record<string, { count: number; total: number }> = {};
@@ -64,6 +68,7 @@ export default function SuperadminUsers() {
         if (!donationMap[d.user_id]) donationMap[d.user_id] = { count: 0, total: 0 };
         donationMap[d.user_id].count++;
         donationMap[d.user_id].total += d.amount || 0;
+        if (d.donor_email && d.user_id) emailMap[d.user_id] = d.donor_email;
       });
 
       const affiliateMap: Record<string, { links: number; earned: number; clicks: number }> = {};
@@ -74,14 +79,25 @@ export default function SuperadminUsers() {
         affiliateMap[a.user_id].clicks += a.clicks || 0;
       });
 
-      return (profiles.data || []).map((p: any) => ({
-        ...p,
-        memberships: memberMap[p.id] || [],
-        platformRole: roleMap[p.id] || null,
-        purchases: purchaseMap[p.id] || { count: 0, total: 0 },
-        donations: donationMap[p.id] || { count: 0, total: 0 },
-        affiliate: affiliateMap[p.id] || { links: 0, earned: 0, clicks: 0 },
-      }));
+      // Helper: derive display name from email prefix
+      const deriveName = (email: string) => email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+      return (profiles.data || []).map((p: any) => {
+        // If display_name is blank, try to derive from known email
+        const resolvedName = (p.display_name && p.display_name.trim())
+          ? p.display_name
+          : emailMap[p.id] ? deriveName(emailMap[p.id]) : null;
+        return {
+          ...p,
+          display_name: resolvedName || p.display_name,
+          _resolved_email: emailMap[p.id] || null,
+          memberships: memberMap[p.id] || [],
+          platformRole: roleMap[p.id] || null,
+          purchases: purchaseMap[p.id] || { count: 0, total: 0 },
+          donations: donationMap[p.id] || { count: 0, total: 0 },
+          affiliate: affiliateMap[p.id] || { links: 0, earned: 0, clicks: 0 },
+        };
+      });
     },
   });
 
@@ -288,7 +304,7 @@ export default function SuperadminUsers() {
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold truncate">{u.display_name || 'Sans nom'}</p>
+                      <p className="text-sm font-semibold truncate">{u.display_name || u._resolved_email?.split('@')[0] || u.id.slice(0, 8)}</p>
                       {u.platformRole && (
                         <Badge className="text-[9px] bg-primary/10 text-primary border-0 capitalize gap-0.5">
                           <Shield className="h-2.5 w-2.5" />

@@ -89,20 +89,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch { return null; }
       })();
 
-      // First: try insert (new user)
-      const insertPayload: Record<string, unknown> = {
-        id: userId,
-        display_name: displayName || null,
-        ...(detectedCountry ? { country: detectedCountry } : {}),
-      };
-      const { error: insertError } = await supabase.from('profiles').upsert(
-        { id: userId, display_name: displayName || null, ...(detectedCountry ? { country: detectedCountry } : {}) } as any,
+      // Derive a usable name: OAuth full_name > email prefix
+      const derivedName = (() => {
+        if (displayName && displayName.trim()) return displayName.trim();
+        // Fallback: extract a readable name from the user's email
+        const email = user?.email || session?.user?.email;
+        if (email) {
+          const prefix = email.split('@')[0];
+          // Capitalize first letter, replace dots/underscores with spaces
+          return prefix
+            .replace(/[._]/g, ' ')
+            .replace(/\b\w/g, c => c.toUpperCase());
+        }
+        return null;
+      })();
+
+      await supabase.from('profiles').upsert(
+        { id: userId, display_name: derivedName || null, ...(detectedCountry ? { country: detectedCountry } : {}) } as any,
         { onConflict: 'id', ignoreDuplicates: true }
       );
 
-      // Second: if user already exists AND we have a name from OAuth, 
-      // patch display_name if it's currently null/empty
-      if (displayName && displayName.trim()) {
+      // If user already exists AND we have a name, patch display_name if it's currently null/empty
+      if (derivedName) {
         const { data: existing } = await supabase
           .from('profiles')
           .select('display_name')
@@ -110,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .maybeSingle();
         if (existing && (!existing.display_name || existing.display_name.trim() === '')) {
           await supabase.from('profiles')
-            .update({ display_name: displayName.trim() })
+            .update({ display_name: derivedName })
             .eq('id', userId);
         }
       }
