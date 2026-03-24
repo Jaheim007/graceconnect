@@ -88,7 +88,7 @@ export default function PaymentSuccessPage() {
     if (searchRef) {
       const { data: purchase } = await db
         .from('product_purchases')
-        .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, slug, logo_url, leader_name, leader_title, commission_rate))')
+        .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, slug, logo_url, leader_name, leader_title))')
         .eq('paystack_reference', searchRef)
         .limit(1)
         .maybeSingle();
@@ -105,7 +105,7 @@ export default function PaymentSuccessPage() {
           external_link: product?.external_link, cover_image_url: product?.cover_image_url,
           org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_slug: org?.slug,
           org_logo: org?.logo_url, leader_name: org?.leader_name, leader_title: org?.leader_title,
-          commission_rate: org?.commission_rate ?? 10,
+          commission_rate: 10,
         };
       }
 
@@ -133,7 +133,7 @@ export default function PaymentSuccessPage() {
       const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
       const { data: recentPurchase } = await db
         .from('product_purchases')
-        .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, slug, logo_url, leader_name, leader_title, commission_rate))')
+        .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, slug, logo_url, leader_name, leader_title))')
         .eq('user_id', user.id).eq('status', 'completed').gte('completed_at', fiveMinAgo)
         .order('completed_at', { ascending: false }).limit(1).maybeSingle();
 
@@ -150,7 +150,7 @@ export default function PaymentSuccessPage() {
           cover_image_url: product?.cover_image_url, organization_id: product?.organization_id,
           org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_slug: org?.slug,
           org_logo: org?.logo_url, leader_name: org?.leader_name, leader_title: org?.leader_title,
-          commission_rate: org?.commission_rate ?? 10,
+          commission_rate: 10,
         };
       }
 
