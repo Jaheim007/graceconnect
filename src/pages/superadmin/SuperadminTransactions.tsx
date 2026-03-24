@@ -639,11 +639,11 @@ export function SuperadminTransactions() {
                   <TableCell className="py-3">
                     <span className={cn(
                       'inline-flex items-center justify-center h-8 w-8 rounded-lg text-xs font-bold',
-                      tx.type === 'purchase'
-                        ? 'bg-primary/10 text-primary'
+                      tx.type === 'purchase' ? 'bg-primary/10 text-primary'
+                        : tx.type === 'credit' ? 'bg-amber-500/10 text-amber-500'
                         : 'bg-pink-500/10 text-pink-500'
                     )}>
-                      {tx.type === 'purchase' ? <ShoppingCart className="h-3.5 w-3.5" /> : <Gift className="h-3.5 w-3.5" />}
+                      {tx.type === 'purchase' ? <ShoppingCart className="h-3.5 w-3.5" /> : tx.type === 'credit' ? <Zap className="h-3.5 w-3.5" /> : <Gift className="h-3.5 w-3.5" />}
                     </span>
                   </TableCell>
                   <TableCell className="py-3">
