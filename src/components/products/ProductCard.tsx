@@ -3,6 +3,7 @@ import { DigitalProduct } from '@/types/database';
 import { ReportContentDialog } from '@/components/reports/ReportContentDialog';
 import { stripHtml } from '@/lib/formatText';
 import { useShortLink } from '@/hooks/useShortLink';
+import { useAutoAffiliateCode } from '@/hooks/useAutoAffiliateCode';
 import { formatPrice } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -58,16 +59,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   const organizationId = (product as any).organization_id;
   const orgSlug = (product as any).organization_slug || '';
 
-  const { data: affiliateCode } = useQuery({
-    queryKey: ['my-aff-code', user?.id, organizationId],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data: link } = await db.from('affiliate_links').select('code').eq('user_id', user.id).eq('organization_id', organizationId).eq('is_active', true).maybeSingle();
-      return link?.code || null;
-    },
-    enabled: !!user && !!organizationId,
-    staleTime: 1000 * 60 * 10,
-  });
+  const { affiliateCode } = useAutoAffiliateCode(organizationId);
 
   const { data: orgData } = useQuery({
     queryKey: ['org-slug-for-card', organizationId],
