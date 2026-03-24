@@ -35,6 +35,7 @@ import { useBundleItems, useProductRecommendations } from '@/hooks/useBundlesAnd
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ProductCard } from '@/components/products/ProductCard';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
+import { useAutoAffiliateCode } from '@/hooks/useAutoAffiliateCode';
 import { CrossSellWidget } from '@/components/products/CrossSellWidget';
 import { SubscriptionUpsellPrompt } from '@/components/subscriptions/SubscriptionUpsellPrompt';
 import { Breadcrumb } from '@/components/layout/Breadcrumb';
@@ -100,17 +101,7 @@ export default function ProductDetailPage() {
     video: t('product.type_video'), course: t('product.type_course'), link: t('product.type_link'),
   };
 
-  const { data: affiliateCode } = useQuery({
-    queryKey: ['my-affiliate-code', user?.id, slug],
-    queryFn: async () => {
-      if (!user || !slug) return null;
-      const { data: org } = await db.from('organizations').select('id').eq('slug', slug).maybeSingle();
-      if (!org) return null;
-      const { data: link } = await db.from('affiliate_links').select('code').eq('user_id', user.id).eq('organization_id', org.id).eq('is_active', true).maybeSingle();
-      return link?.code || null;
-    },
-    enabled: !!user && !!slug,
-  });
+  // placeholder — hook moved after orgId
 
   const { data: product, isLoading } = useQuery({
     queryKey: ['product-detail', productId || productSlug],
@@ -149,6 +140,7 @@ export default function ProductDetailPage() {
 
   // Fetch org page settings for theme colors + org-level pixels
   const orgId = product?.organization_id;
+  const { affiliateCode, ensureAffiliateCode } = useAutoAffiliateCode(orgId);
   const { data: pageSettings } = useQuery({
     queryKey: ['org-page-settings-product', orgId],
     queryFn: async () => {
@@ -198,16 +190,24 @@ export default function ProductDetailPage() {
     }
   }, [product]);
 
-  const buildShareUrl = () => {
+  const buildShareUrl = (refCode?: string | null) => {
     const pSlug = (product as any)?.slug;
     const basePath = pSlug ? `/org/${slug}/p/${pSlug}` : `/org/${slug}/product/${product?.id}`;
     let url = `https://siteviral.com${basePath}`;
-    if (affiliateCode) url += `?ref=${affiliateCode}`;
+    const code = refCode ?? affiliateCode;
+    if (code) url += `?ref=${code}`;
     return url;
   };
 
+  /** Auto-enroll as ambassador, then build share path with ?ref= */
+  const getSharePath = async () => {
+    const code = await ensureAffiliateCode();
+    const fullUrl = buildShareUrl(code);
+    return fullUrl.replace('https://siteviral.com', '').replace(window.location.origin, '');
+  };
+
   const handleCopyLink = async () => {
-    const path = buildShareUrl().replace('https://siteviral.com', '').replace(window.location.origin, '');
+    const path = await getSharePath();
     let url: string;
     try {
       url = await getOrCreateShortLink({
@@ -218,7 +218,7 @@ export default function ProductDetailPage() {
       });
     } catch {
       url = buildSocialShareUrl({
-        targetUrl: buildShareUrl(),
+        targetUrl: `https://siteviral.com${path}`,
         title: product?.title || 'Produit Siteviral',
         description: stripHtml(product?.description || '').slice(0, 155) || '',
         image: product?.cover_image_url || undefined,
@@ -231,23 +231,23 @@ export default function ProductDetailPage() {
   };
 
   const handleShareWhatsApp = async () => {
-    const path = buildShareUrl().replace('https://siteviral.com', '').replace(window.location.origin, '');
+    const path = await getSharePath();
     let url: string;
     try {
       url = await getOrCreateShortLink({ targetPath: path, title: product?.title || 'Produit Siteviral' });
     } catch {
-      url = buildSocialShareUrl({ targetUrl: buildShareUrl(), title: product?.title || 'Produit Siteviral' });
+      url = buildSocialShareUrl({ targetUrl: `https://siteviral.com${path}`, title: product?.title || 'Produit Siteviral' });
     }
     window.open(`https://wa.me/?text=${encodeURIComponent(`${product?.title} — ${url}`)}`, '_blank');
   };
 
   const handleShare = async () => {
-    const path = buildShareUrl().replace('https://siteviral.com', '').replace(window.location.origin, '');
+    const path = await getSharePath();
     let url: string;
     try {
       url = await getOrCreateShortLink({ targetPath: path, title: product?.title || 'Produit Siteviral' });
     } catch {
-      url = buildSocialShareUrl({ targetUrl: buildShareUrl(), title: product?.title || 'Produit Siteviral' });
+      url = buildSocialShareUrl({ targetUrl: `https://siteviral.com${path}`, title: product?.title || 'Produit Siteviral' });
     }
     if (navigator.share) {
       await navigator.share({ title: product?.title, url });
