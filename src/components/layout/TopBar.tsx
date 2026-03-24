@@ -61,10 +61,7 @@ export function TopBar() {
         <Search className="h-4 w-4" />
       </Button>
 
-      {/* Org switcher (mobile) */}
-      {user && currentOrg && userOrgs.length > 1 && (
-        <OrgSwitcher variant="topbar" />
-      )}
+      {/* Org switcher moved to profile dropdown */}
 
       {/* Credits */}
       <CreditBalance />
@@ -107,6 +104,14 @@ export function TopBar() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate('/profile')}><User className="h-3.5 w-3.5 mr-2" /> {t('topbar.profile')}</DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/welcome')}><ArrowLeftRight className="h-3.5 w-3.5 mr-2" /> {t('topbar.my_space')}</DropdownMenuItem>
+            {userOrgs.length > 1 && (
+              <>
+                <DropdownMenuSeparator />
+                <div className="px-1">
+                  <OrgSwitcherInline />
+                </div>
+              </>
+            )}
             {isSuperadmin && (
               <DropdownMenuItem onClick={() => navigate('/superadmin')}><Shield className="h-3.5 w-3.5 mr-2" /> {t('topbar.superadmin')}</DropdownMenuItem>
             )}
