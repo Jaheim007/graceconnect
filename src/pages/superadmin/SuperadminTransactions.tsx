@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-type TxFilter = 'all' | 'purchase' | 'donation';
+type TxFilter = 'all' | 'purchase' | 'donation' | 'credit';
 type StatusFilter = 'all' | 'completed' | 'pending' | 'failed';
 type GatewayFilter = 'all' | 'stripe' | 'paystack' | 'free';
 type PeriodFilter = 'all' | 'today' | '7d' | '30d' | '90d' | 'this_month' | 'this_week' | 'custom';
@@ -281,7 +281,49 @@ export function SuperadminTransactions() {
     },
   });
 
-  const isLoading = loadingP || loadingD;
+  /* ─── Data fetching (credit purchases) ─── */
+  const { data: creditPurchases = [], isLoading: loadingC } = useQuery({
+    queryKey: ['sa-all-credits'],
+    queryFn: async () => {
+      const { data, error } = await db.from('credit_purchases')
+        .select('id, user_id, pack_key, credits_amount, price_amount, price_currency, payment_gateway, payment_reference, status, created_at, completed_at')
+        .order('created_at', { ascending: false })
+        .limit(2000);
+      if (error) { console.error('sa-credits error:', error); return []; }
+
+      const userIds = [...new Set((data || []).map((r: any) => r.user_id).filter(Boolean))];
+      let profileMap: Record<string, any> = {};
+      if (userIds.length > 0) {
+        const { data: profiles } = await db.from('profiles').select('id, display_name, phone').in('id', userIds);
+        (profiles || []).forEach((p: any) => { profileMap[p.id] = p; });
+      }
+
+      return (data || []).map((r: any) => ({
+        ...r,
+        amount: r.price_amount,
+        currency: r.price_currency || 'XOF',
+        type: 'credit' as const,
+        label: `Pack crédits: ${r.pack_key} (${r.credits_amount} crédits)`,
+        org_name: 'Plateforme',
+        gateway: r.payment_gateway === 'stripe' ? 'stripe' : 'paystack',
+        buyer_display: profileMap[r.user_id]?.display_name || '—',
+        buyer_phone: profileMap[r.user_id]?.phone || null,
+        buyer_email: null,
+        buyer_name: null,
+        donor_name: null,
+        donor_email: null,
+        paystack_reference: r.payment_reference,
+        platform_fee: r.price_amount,
+        affiliate_commission: 0,
+        organization_amount: 0,
+        affiliate_link_id: null,
+        affiliate_name: null,
+        settlement_status: null,
+      }));
+    },
+  });
+
+  const isLoading = loadingP || loadingD || loadingC;
 
   /* ─── Filtering ─── */
   const allTx = useMemo(() => {
