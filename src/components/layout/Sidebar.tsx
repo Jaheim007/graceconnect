@@ -89,6 +89,7 @@ export function Sidebar() {
       { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
       { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
       { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
+      { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
     ];
 
     const sellItems: NavItem[] = [
