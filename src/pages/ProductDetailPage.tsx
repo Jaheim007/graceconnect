@@ -101,7 +101,7 @@ export default function ProductDetailPage() {
     video: t('product.type_video'), course: t('product.type_course'), link: t('product.type_link'),
   };
 
-  const { affiliateCode, ensureAffiliateCode } = useAutoAffiliateCode(product?.organization_id);
+  // affiliateCode is resolved after product loads (see below after orgId)
 
   const { data: product, isLoading } = useQuery({
     queryKey: ['product-detail', productId || productSlug],
