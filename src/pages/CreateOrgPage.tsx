@@ -115,7 +115,7 @@ export default function CreateOrgPage() {
         sendEmailNotification('org_created', user.email, { org_name: data.name }, orgId);
       }
 
-      toast({ title: isFr ? '🎉 Espace créé !' : '🎉 Space created!', description: data.name });
+      toast({ title: isFr ? '🎉 Plateforme créée !' : '🎉 Platform created!', description: data.name });
       setShowOnboarding(true);
     } catch (err: any) {
       const msg = err?.message || String(err);
@@ -139,8 +139,8 @@ export default function CreateOrgPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <SEOHead title="Créer mon espace — Siteviral" description="Crée ton espace en 30 secondes. Vends, collecte des dons, et active tes ambassadeurs." noindex />
-      <OrgOnboardingWizard open={showOnboarding} onClose={() => { setShowOnboarding(false); navigate('/admin'); }} />
+      <SEOHead title="Créer ma plateforme — Siteviral" description="Crée ta plateforme en 30 secondes. Vends, collecte des dons, et active tes ambassadeurs." noindex />
+      <OrgOnboardingWizard open={showOnboarding} onClose={() => { setShowOnboarding(false); navigate('/admin/products/new'); }} />
 
       <div className="w-full max-w-md">
         {/* Header */}
@@ -149,8 +149,8 @@ export default function CreateOrgPage() {
             <Building2 className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">Crée ton espace</h1>
-            <p className="text-xs text-muted-foreground">Étape {step + 1}/{totalSteps} — 30 secondes</p>
+            <h1 className="text-xl font-bold">{isFr ? 'Crée ta plateforme' : 'Create your platform'}</h1>
+            <p className="text-xs text-muted-foreground">{isFr ? 'Étape' : 'Step'} {step + 1}/{totalSteps} — 30 {isFr ? 'secondes' : 'seconds'}</p>
           </div>
         </div>
 
@@ -171,7 +171,7 @@ export default function CreateOrgPage() {
               {/* Step 0: Type */}
               {step === 0 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">Quel type d'espace ?</h2>
+                  <h2 className="text-lg font-semibold">{isFr ? 'Quel type de plateforme ?' : 'What type of platform?'}</h2>
                   <div className="grid grid-cols-2 gap-3">
                     {TYPES.map(type => (
                       <button
@@ -200,7 +200,7 @@ export default function CreateOrgPage() {
               {/* Step 1: Name only */}
               {step === 1 && (
                 <div className="space-y-5">
-                  <h2 className="text-lg font-semibold">Comment s'appelle ton espace ?</h2>
+                  <h2 className="text-lg font-semibold">{isFr ? 'Comment s\'appelle ta plateforme ?' : 'What is your platform called?'}</h2>
                   <div className="space-y-2">
                     <Label>Nom *</Label>
                     <Input
@@ -257,7 +257,7 @@ export default function CreateOrgPage() {
                       <span className="animate-pulse">Création en cours…</span>
                     ) : (
                       <>
-                        <Rocket className="h-5 w-5" /> Créer mon espace
+                        <Rocket className="h-5 w-5" /> {isFr ? 'Créer ma plateforme' : 'Create my platform'}
                       </>
                     )}
                   </Button>
