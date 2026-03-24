@@ -86,6 +86,7 @@ export default function ProductDetailPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
   const [copied, setCopied] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
