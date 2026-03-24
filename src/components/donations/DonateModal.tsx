@@ -97,7 +97,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
     }
     setIsSubmitting(true);
 
-    const affiliateCode = getAffiliateCode();
+    const affiliateCode = getAffiliateCode() || new URLSearchParams(window.location.search).get('ref') || null;
 
     try {
       await openPayment({

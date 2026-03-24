@@ -86,7 +86,7 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
     }
     setIsSubmitting(true);
 
-    const affiliateCode = getAffiliateCode();
+    const affiliateCode = getAffiliateCode() || new URLSearchParams(window.location.search).get('ref') || null;
 
     try {
       await openPayment({
