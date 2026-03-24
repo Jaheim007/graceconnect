@@ -79,7 +79,7 @@ export default function DashboardRouter() {
       return <AmbassadorDashboard />;
 
     case 'purchases':
-      return <Navigate to="/resources" replace />;
+      return <UserDashboard />;
 
     default:
       return <UserDashboard />;
