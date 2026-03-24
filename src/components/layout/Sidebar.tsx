@@ -86,7 +86,6 @@ export function Sidebar() {
 
     const purchasesItems: NavItem[] = [
       { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-      { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
       { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
       { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
       { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
@@ -95,19 +94,17 @@ export function Sidebar() {
     const sellItems: NavItem[] = hasOrgs && canManageCurrentOrg ? [
       ...(myPageItem ? [myPageItem] : []),
       { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-      { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
       { to: '/admin/create', icon: Plus, label: 'Viral AI Studio' },
       { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
       { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
       { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
+      { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
       { to: '/admin/analytics', icon: BarChart3, label: isFr ? 'Analytics' : 'Analytics' },
       { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
-      { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
       { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
     ] : [
       { to: '/create-org', icon: Plus, label: isFr ? 'Créer ma plateforme' : 'Create my platform' },
       { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-      { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
       { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
     ];
 
@@ -115,7 +112,6 @@ export function Sidebar() {
       { to: '/spotlight', icon: Star, label: isFr ? 'Spotlight' : 'Spotlight' },
       { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
       { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-      { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
       { to: '/feed', icon: Rss, label: isFr ? 'Mon Réseau' : 'My Network' },
       { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
       { to: '/affiliation', icon: Share2, label: isFr ? 'Mes liens' : 'My Links' },
@@ -125,19 +121,17 @@ export function Sidebar() {
     const createItems: NavItem[] = hasOrgs && canManageCurrentOrg ? [
       ...(myPageItem ? [myPageItem] : []),
       { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-      { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
       { to: '/admin/create', icon: Sparkles, label: 'Viral AI Studio' },
       { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
       { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
       { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
+      { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
       { to: '/admin/analytics', icon: BarChart3, label: isFr ? 'Analytics' : 'Analytics' },
       { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
-      { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
       { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
     ] : [
       { to: '/create-org', icon: Sparkles, label: isFr ? 'Créer ma plateforme' : 'Create my platform' },
       { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-      { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
       { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
     ];
 

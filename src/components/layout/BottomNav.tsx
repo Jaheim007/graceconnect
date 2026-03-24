@@ -65,51 +65,14 @@ export function BottomNav() {
     { to: '/auth?mode=signup', icon: UserPlus, label: isFr ? 'Inscription' : 'Sign up' },
   ];
 
-  // ═══ MODE-SPECIFIC BOTTOM NAV (5 items with center button) ═══
-  const getModeBottomItems = (): NavItemDef[] => {
-    switch (mode) {
-      case 'purchases':
-        return [
-          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
-          { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
-          { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
-          { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
-        ];
-      case 'sell':
-        return [
-          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: hasManagedOrgs ? '/admin/sales' : '/create-org', icon: Wallet, label: isFr ? 'Ventes' : 'Sales' },
-          { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
-          { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
-          { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
-        ];
-      case 'earn':
-        return [
-          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-          { to: '/affiliation', icon: Share2, label: isFr ? 'Liens' : 'Links', center: true },
-          { to: '/feed', icon: Rss, label: isFr ? 'Réseau' : 'Network' },
-          { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
-        ];
-      case 'create':
-        return [
-          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: hasManagedOrgs ? '/admin/sales' : '/create-org', icon: Wallet, label: isFr ? 'Ventes' : 'Sales' },
-          { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Sparkles, label: 'Studio', center: true },
-          { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
-          { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
-        ];
-      default:
-        return [
-          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
-          { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
-          { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
-          { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
-        ];
-    }
-  };
+  // ═══ UNIFIED BOTTOM NAV (same for ALL modes) ═══
+  const getModeBottomItems = (): NavItemDef[] => [
+    { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+    { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
+    { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
+    { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
+    { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+  ];
 
   // ═══ MORE MENU (accessible from Profile long-press or swipe-up) ═══
   const getMoreSections = () => {
@@ -121,7 +84,6 @@ export function BottomNav() {
           { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
           { to: '/notifications', icon: Bell, label: 'Notifications' },
           { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-          { to: '/my-programs', icon: GraduationCap, label: isFr ? 'Mes cours' : 'My Courses' },
           { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
           { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
         ],
@@ -158,6 +120,7 @@ export function BottomNav() {
       label: isFr ? 'Gestion' : 'Management',
       items: [
         { to: getShortcutRoute('kyc', shortcutContext), icon: ShieldCheck, label: isFr ? 'Vérification' : 'Verification' },
+        { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
         { to: getShortcutRoute('settings', shortcutContext), icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
         ...(isSuperadmin ? [{ to: '/superadmin', icon: Shield, label: 'Superadmin' }] : []),
       ],
