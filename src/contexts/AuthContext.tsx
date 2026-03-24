@@ -150,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Safety timeout — mobile OAuth can be slow; don't unblock too early
     const timeout = setTimeout(() => {
       if (mounted) setLoading(false);
-    }, 12_000);
+    }, 20_000);
 
     // Listen FIRST so we never miss the auth event emitted during OAuth callback hydration
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
