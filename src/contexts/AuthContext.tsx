@@ -114,61 +114,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Safety timeout — if Supabase never responds, unblock the app after 5s
+    const applySession = (nextSession: Session | null) => {
+      if (!mounted) return;
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+
+      if (nextSession?.user) {
+        try { sessionStorage.removeItem('sv_oauth_pending_since'); } catch {}
+        upsertProfile(nextSession.user.id, nextSession.user.user_metadata?.full_name);
+        fetchPlatformRole(nextSession.user.id);
+      } else {
+        setProfile(null);
+        setIsSuperadmin(false);
+      }
+    };
+
+    // Safety timeout — mobile OAuth can be slow; don't unblock too early
     const timeout = setTimeout(() => {
       if (mounted) setLoading(false);
-    }, 5000);
+    }, 12_000);
 
-    // Get the initial session FIRST — set loading=false immediately after
+    // Listen FIRST so we never miss the auth event emitted during OAuth callback hydration
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      if (!mounted) return;
+
+      applySession(newSession);
+
+      if (newSession?.user && event === 'SIGNED_IN' && newSession.user.email) {
+        const createdAt = new Date(newSession.user.created_at).getTime();
+        const now = Date.now();
+        if (now - createdAt < 60_000) {
+          sendEmailNotification('welcome', newSession.user.email, {
+            name: newSession.user.user_metadata?.full_name || newSession.user.email.split('@')[0],
+          }).catch(() => {});
+        }
+      }
+
+      if (['INITIAL_SESSION', 'SIGNED_IN', 'SIGNED_OUT', 'TOKEN_REFRESHED', 'USER_UPDATED'].includes(event)) {
+        clearTimeout(timeout);
+        setLoading(false);
+      }
+    });
+
+    // Then hydrate any already available session
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       if (!mounted) return;
+      applySession(s);
       clearTimeout(timeout);
-      if (s) {
-        setSession(s);
-        setUser(s.user);
-        // Fire-and-forget — don't block loading on these
-        upsertProfile(s.user.id, s.user.user_metadata?.full_name);
-        fetchPlatformRole(s.user.id);
-      }
-      // Always resolve loading after getSession — never block on profile fetch
       setLoading(false);
     }).catch(() => {
       clearTimeout(timeout);
       if (mounted) setLoading(false);
     });
-
-    // Listen for subsequent auth changes (login, logout, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
-        if (!mounted) return;
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-
-        if (newSession?.user) {
-          upsertProfile(newSession.user.id, newSession.user.user_metadata?.full_name);
-          fetchPlatformRole(newSession.user.id);
-
-          // Send welcome email on first sign-up only (not repeat logins)
-          if (event === 'SIGNED_IN' && newSession.user.email) {
-            const createdAt = new Date(newSession.user.created_at).getTime();
-            const now = Date.now();
-            // Only send if account was created within last 60 seconds
-            if (now - createdAt < 60_000) {
-              sendEmailNotification('welcome', newSession.user.email, {
-                name: newSession.user.user_metadata?.full_name || newSession.user.email.split('@')[0],
-              }).catch(() => {});
-            }
-          }
-        } else {
-          setProfile(null);
-          setIsSuperadmin(false);
-        }
-
-        if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
-          setLoading(false);
-        }
-      }
-    );
 
     return () => {
       mounted = false;
@@ -189,7 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (!error && isCustomDomain && data?.url) {
-      window.location.href = data.url;
+      window.location.assign(data.url);
     }
 
     return { error: error as Error | null };
@@ -207,7 +204,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (!error && isCustomDomain && data?.url) {
-      window.location.href = data.url;
+      window.location.assign(data.url);
     }
 
     return { error: error as Error | null };
@@ -225,7 +222,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (!error && isCustomDomain && data?.url) {
-      window.location.href = data.url;
+      window.location.assign(data.url);
     }
 
     return { error: error as Error | null };
@@ -249,6 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    try { sessionStorage.removeItem('sv_oauth_pending_since'); } catch {}
     await supabase.auth.signOut();
     setProfile(null);
     setIsSuperadmin(false);

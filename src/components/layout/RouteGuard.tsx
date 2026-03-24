@@ -8,7 +8,19 @@ import { Loader2 } from 'lucide-react';
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const location = useLocation();
-  if (loading) return <FullPageLoader />;
+
+  const oauthPending = (() => {
+    try {
+      const startedAt = sessionStorage.getItem('sv_oauth_pending_since');
+      if (!startedAt) return false;
+      return Date.now() - Number(startedAt) < 25_000;
+    } catch {
+      return false;
+    }
+  })();
+
+  if (loading || oauthPending) return <FullPageLoader />;
+
   if (!user) {
     // Preserve current URL (including search params like ?partner=CODE) so user returns after auth
     const returnTo = location.pathname + location.search;
