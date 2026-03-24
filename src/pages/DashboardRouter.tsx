@@ -7,26 +7,28 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PenLine, Share2, Upload, Store, ArrowRight, Plus } from 'lucide-react';
 import { FirstWinChecklist } from '@/components/dashboard/FirstWinChecklist';
 import { PremiumCard } from '@/components/ui/PremiumCard';
-
 import { TrendingProducts } from '@/components/discover/TrendingProducts';
 import { GrowthTipsWidget } from '@/components/growth/GrowthTipsWidget';
 import AmbassadorDashboard from '@/pages/AmbassadorDashboard';
 import UserDashboard from '@/pages/UserDashboard';
 import { useI18n } from '@/i18n/I18nContext';
 import { motion } from 'framer-motion';
+import { useUserMode } from '@/contexts/UserModeContext';
 
 /**
- * Smart Dashboard — context-aware home based on user state:
- * 1. Creator (has orgs with manage role) → redirect to /admin (AdminDashboard = smart creator home)
- * 2. Ambassador (has affiliate links) → AmbassadorDashboard
- * 3. New user (no activity) → Welcome actions + FirstWinChecklist
- * 4. Simple buyer → UserDashboard (purchases, discover)
+ * Smart Dashboard — now mode-aware:
+ * 1. No mode selected → redirect to /welcome
+ * 2. Mode "purchases" → UserDashboard (purchases focused)
+ * 3. Mode "sell" or "create" → redirect to /admin or create-org
+ * 4. Mode "earn" → AmbassadorDashboard
  */
 export default function DashboardRouter() {
   const { user } = useAuth();
   const { userOrgs, canManage, isLoadingOrgs } = useOrg();
+  const { mode } = useUserMode();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
-  // Check if user has affiliate links or purchases
   const { data: userState, isLoading: stateLoading } = useQuery({
     queryKey: ['dashboard-state', user?.id],
     queryFn: async () => {
@@ -46,7 +48,6 @@ export default function DashboardRouter() {
     staleTime: 60_000,
   });
 
-  // Show loader while loading
   if (isLoadingOrgs || stateLoading) {
     return (
       <div className="container max-w-2xl px-4 py-8 space-y-4">
@@ -57,143 +58,28 @@ export default function DashboardRouter() {
     );
   }
 
-  // 1. Creator → redirect to /admin (AdminDashboard is the smart creator home)
+  // No mode selected → redirect to mode selection
+  if (!mode) {
+    return <Navigate to="/welcome" replace />;
+  }
+
   const manageableOrg = userOrgs.find(o => canManage(o.id));
-  if (manageableOrg) {
-    return <Navigate to="/admin" replace />;
+
+  // Mode-based routing
+  switch (mode) {
+    case 'sell':
+    case 'create':
+      if (manageableOrg) {
+        return <Navigate to="/admin" replace />;
+      }
+      // No org yet → redirect to create org
+      return <Navigate to="/create-org" replace />;
+
+    case 'earn':
+      return <AmbassadorDashboard />;
+
+    case 'purchases':
+    default:
+      return <UserDashboard />;
   }
-
-  // 2. Ambassador (has affiliate links but no org to manage)
-  if (userState?.hasAffiliateLinks) {
-    return <AmbassadorDashboard />;
-  }
-
-  // 3. New user (no activity at all)
-  const isNewUser = !userState?.hasPurchases && !userState?.hasAffiliateLinks;
-  if (isNewUser) {
-    return <NewUserDashboard hasBook={userState?.hasBook || false} />;
-  }
-
-  // 4. Simple buyer
-  return <UserDashboard />;
-}
-
-function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
-  const { user } = useAuth();
-  const { userOrgs } = useOrg();
-  const { t } = useI18n();
-  const name = user?.user_metadata?.display_name || user?.email?.split('@')[0] || '';
-
-  const actions = [
-    {
-      icon: PenLine,
-      title: t('dash.write_first'),
-      desc: t('dash.write_first_desc'),
-      to: '/ecrire',
-      color: 'border-primary/20 hover:border-primary/50',
-      iconColor: 'text-primary bg-primary/10',
-    },
-    {
-      icon: Share2,
-      title: t('dash.earn_sharing'),
-      desc: t('dash.earn_sharing_desc'),
-      to: '/affiliation',
-      color: 'border-emerald-500/20 hover:border-emerald-500/50',
-      iconColor: 'text-emerald-500 bg-emerald-500/10',
-    },
-    {
-      icon: Upload,
-      title: t('dash.import_content'),
-      desc: t('dash.import_content_desc'),
-      to: '/migrer',
-      color: 'border-accent/20 hover:border-accent/50',
-      iconColor: 'text-accent bg-accent/10',
-    },
-    {
-      icon: Plus,
-      title: t('dash.create_platform'),
-      desc: t('dash.create_platform_desc'),
-      to: '/create-org',
-      color: 'border-blue-500/20 hover:border-blue-500/50',
-      iconColor: 'text-blue-500 bg-blue-500/10',
-    },
-    {
-      icon: Store,
-      title: t('dash.discover_resources'),
-      desc: t('dash.discover_resources_desc'),
-      to: '/discover',
-      color: 'border-border hover:border-primary/30',
-      iconColor: 'text-muted-foreground bg-muted',
-    },
-  ];
-
-  return (
-    <div className="container max-w-2xl px-4 py-8 space-y-6">
-      {/* ═══ WELCOME ═══ */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-extrabold tracking-tight">
-          {t('dash.welcome')}{name ? ` ${name}` : ''} ! 🎉
-        </h1>
-        <p className="text-muted-foreground text-sm mt-1">{t('dash.what_today')}</p>
-      </motion.div>
-
-      {/* ═══ FIRST WIN CHECKLIST ═══ */}
-      <FirstWinChecklist
-        hasBook={hasBook}
-        hasAffiliateLink={false}
-        hasPurchase={false}
-        hasOrg={userOrgs.length > 0}
-      />
-
-      {/* ═══ ACTION CARDS ═══ */}
-      <div className="grid gap-3">
-        {actions.map((a, i) => (
-          <PremiumCard key={a.to} variant="default" delay={i * 0.04} noPadding className="p-0">
-            <Link
-              to={a.to}
-              className={`flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-2xl border ${a.color} transition-all hover:shadow-elevated group`}
-            >
-              <div className={`h-11 w-11 rounded-xl ${a.iconColor} flex items-center justify-center shrink-0`}>
-                <a.icon className="h-5 w-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-sm">{a.title}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">{a.desc}</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </PremiumCard>
-        ))}
-      </div>
-
-      {/* ═══ TRENDING PRODUCTS ═══ */}
-      <TrendingProducts limit={4} />
-
-      {/* ═══ GROWTH TIPS ═══ */}
-      <GrowthTipsWidget category="all" />
-
-      {/* ═══ QUICK STATS ═══ */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="flex items-center justify-center gap-4 sm:gap-6 pt-4 text-center"
-      >
-        <div>
-          <p className="text-xl sm:text-2xl font-extrabold text-primary">5 min</p>
-          <p className="text-[10px] text-muted-foreground">{t('dash.time_to_write')}</p>
-        </div>
-        <div className="h-8 w-px bg-border" />
-        <div>
-          <p className="text-xl sm:text-2xl font-extrabold text-accent">0 FCFA</p>
-          <p className="text-[10px] text-muted-foreground">{t('dash.to_start')}</p>
-        </div>
-        <div className="h-8 w-px bg-border" />
-        <div>
-          <p className="text-xl sm:text-2xl font-extrabold text-emerald-500">5-50%</p>
-          <p className="text-[10px] text-muted-foreground">{t('dash.ambassador_commission')}</p>
-        </div>
-      </motion.div>
-    </div>
-  );
 }
