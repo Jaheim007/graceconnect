@@ -21,35 +21,51 @@ export default function SuperadminActivityFeed() {
     queryKey: ['sa-activity-feed'],
     queryFn: async () => {
       const [donations, purchases, profiles, kyc, members, reports] = await Promise.all([
-        db.from('donations').select('id, donor_name, amount, status, created_at, currency').order('created_at', { ascending: false }).limit(30),
-        db.from('product_purchases').select('id, amount, status, created_at, currency, buyer_name').order('created_at', { ascending: false }).limit(30),
-        db.from('profiles').select('id, display_name, created_at').order('created_at', { ascending: false }).limit(20),
+        db.from('donations').select('id, donor_name, donor_email, amount, status, created_at, currency').order('created_at', { ascending: false }).limit(30),
+        db.from('product_purchases').select('id, amount, status, created_at, currency, buyer_name, buyer_email, digital_products(title)').order('created_at', { ascending: false }).limit(30),
+        db.from('profiles').select('id, display_name, email, created_at').order('created_at', { ascending: false }).limit(20),
         db.from('kyc_submissions').select('id, status, submitted_at, organization_id').order('submitted_at', { ascending: false }).limit(20),
-        db.from('organization_members').select('id, role, joined_at, organizations(name)').order('joined_at', { ascending: false }).limit(20),
+        db.from('organization_members').select('id, role, joined_at, user_id, organizations(name), profiles(display_name, email)').order('joined_at', { ascending: false }).limit(20),
         db.from('content_reports').select('id, content_type, reason, status, created_at').order('created_at', { ascending: false }).limit(20),
       ]);
 
       const items: ActivityItem[] = [];
 
+      const resolveName = (name?: string | null, email?: string | null, fallbackFr?: string, fallbackEn?: string): string => {
+        if (name && name.trim() && name.trim().toLowerCase() !== 'acheteur' && name.trim().toLowerCase() !== 'buyer') return name.trim();
+        if (email) return email.split('@')[0];
+        return isFr ? (fallbackFr || 'Utilisateur inconnu') : (fallbackEn || 'Unknown user');
+      };
+
       (donations.data || []).forEach((d: any) => items.push({
         id: `don-${d.id}`, type: 'donation',
-        title: isFr ? `Don de ${d.donor_name || 'Anonyme'}` : `Donation from ${d.donor_name || 'Anonymous'}`,
+        title: isFr ? `Don de ${resolveName(d.donor_name, d.donor_email, 'Donateur anonyme', 'Anonymous donor')}` : `Donation from ${resolveName(d.donor_name, d.donor_email, 'Anonymous donor', 'Anonymous donor')}`,
         subtitle: `${fmt(d.amount, d.currency || 'XOF')}`, amount: d.amount, status: d.status,
         timestamp: d.created_at,
       }));
 
-      (purchases.data || []).forEach((p: any) => items.push({
-        id: `pur-${p.id}`, type: 'purchase',
-        title: isFr ? `Achat de ${p.buyer_name || 'Acheteur'}` : `Purchase by ${p.buyer_name || 'Buyer'}`,
-        subtitle: `${fmt(p.amount, p.currency || 'XOF')}`, amount: p.amount, status: p.status,
-        timestamp: p.created_at,
-      }));
+      (purchases.data || []).forEach((p: any) => {
+        const buyerName = resolveName(p.buyer_name, p.buyer_email, 'Acheteur inconnu', 'Unknown buyer');
+        const productTitle = p.digital_products?.title;
+        const subtitle = productTitle
+          ? `${fmt(p.amount, p.currency || 'XOF')} — ${productTitle}`
+          : `${fmt(p.amount, p.currency || 'XOF')}`;
+        items.push({
+          id: `pur-${p.id}`, type: 'purchase',
+          title: isFr ? `Achat de ${buyerName}` : `Purchase by ${buyerName}`,
+          subtitle, amount: p.amount, status: p.status,
+          timestamp: p.created_at,
+        });
+      });
 
-      (profiles.data || []).forEach((p: any) => items.push({
-        id: `sig-${p.id}`, type: 'signup',
-        title: isFr ? 'Nouvel utilisateur' : 'New user',
-        subtitle: p.display_name || (isFr ? 'Sans nom' : 'No name'), timestamp: p.created_at,
-      }));
+      (profiles.data || []).forEach((p: any) => {
+        const name = resolveName(p.display_name, p.email);
+        items.push({
+          id: `sig-${p.id}`, type: 'signup',
+          title: isFr ? 'Nouvel utilisateur' : 'New user',
+          subtitle: name, timestamp: p.created_at,
+        });
+      });
 
       (kyc.data || []).forEach((k: any) => items.push({
         id: `kyc-${k.id}`, type: 'kyc',
@@ -57,11 +73,14 @@ export default function SuperadminActivityFeed() {
         subtitle: `${isFr ? 'Statut' : 'Status'}: ${k.status}`, status: k.status, timestamp: k.submitted_at,
       }));
 
-      (members.data || []).forEach((m: any) => items.push({
-        id: `mem-${m.id}`, type: 'member',
-        title: isFr ? 'Nouveau membre' : 'New member',
-        subtitle: `${m.organizations?.name || '?'} (${m.role})`, timestamp: m.joined_at,
-      }));
+      (members.data || []).forEach((m: any) => {
+        const memberName = resolveName(m.profiles?.display_name, m.profiles?.email, 'Membre', 'Member');
+        items.push({
+          id: `mem-${m.id}`, type: 'member',
+          title: isFr ? 'Nouveau membre' : 'New member',
+          subtitle: `${memberName} → ${m.organizations?.name || '?'} (${m.role})`, timestamp: m.joined_at,
+        });
+      });
 
       (reports.data || []).forEach((r: any) => items.push({
         id: `rep-${r.id}`, type: 'report',
