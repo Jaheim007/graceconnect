@@ -21,7 +21,7 @@ export function TopBar() {
   const { currentOrg, userOrgs } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
   const avatarUrl = profile?.avatar_url || googleAvatar;
