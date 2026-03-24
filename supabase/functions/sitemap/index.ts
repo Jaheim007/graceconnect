@@ -6,9 +6,10 @@ const staticPages = [
   // Core pages
   { loc: "/", priority: "1.0", changefreq: "daily" },
   { loc: "/discover", priority: "0.9", changefreq: "daily" },
-  { loc: "/marketplace", priority: "0.9", changefreq: "daily" },
+  { loc: "/spotlight", priority: "0.8", changefreq: "daily" },
   { loc: "/ambassador", priority: "0.8", changefreq: "weekly" },
-  { loc: "/affiliation", priority: "0.8", changefreq: "weekly" },
+  { loc: "/affiliate-program", priority: "0.7", changefreq: "weekly" },
+  { loc: "/ambassador-program", priority: "0.7", changefreq: "weekly" },
   { loc: "/features", priority: "0.7", changefreq: "monthly" },
   { loc: "/about", priority: "0.6", changefreq: "monthly" },
   { loc: "/install", priority: "0.6", changefreq: "monthly" },
@@ -18,7 +19,6 @@ const staticPages = [
   { loc: "/resources", priority: "0.5", changefreq: "monthly" },
   { loc: "/changelog", priority: "0.4", changefreq: "monthly" },
   { loc: "/gagner", priority: "0.7", changefreq: "weekly" },
-  { loc: "/gagner-info", priority: "0.7", changefreq: "monthly" },
   { loc: "/vendre", priority: "0.7", changefreq: "monthly" },
   { loc: "/ecrire", priority: "0.7", changefreq: "monthly" },
   { loc: "/migrer", priority: "0.6", changefreq: "monthly" },
@@ -87,6 +87,7 @@ const staticPages = [
   { loc: "/presse", priority: "0.4", changefreq: "monthly" },
   { loc: "/etudes-de-cas", priority: "0.5", changefreq: "monthly" },
   { loc: "/partenaires", priority: "0.4", changefreq: "monthly" },
+  { loc: "/tutoriels", priority: "0.5", changefreq: "monthly" },
   { loc: "/status", priority: "0.3", changefreq: "daily" },
   { loc: "/help", priority: "0.4", changefreq: "monthly" },
 
@@ -114,6 +115,7 @@ const ORG_SUB_PAGES = [
   { suffix: "/donate", priority: "0.6" },
   { suffix: "/photos", priority: "0.5" },
   { suffix: "/offerings", priority: "0.5" },
+  { suffix: "/dons", priority: "0.5" },
 ];
 
 Deno.serve(async () => {
