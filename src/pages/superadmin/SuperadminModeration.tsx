@@ -128,9 +128,16 @@ function ModerationDialog({
   target: { type: string; id: string; title: string; orgId: string } | null;
 }) {
   const [action, setAction] = useState('warn');
+  const [subject, setSubject] = useState('');
   const [reason, setReason] = useState('');
+  const [description, setDescription] = useState('');
   const [category, setCategory] = useState('other');
   const moderate = useModerateContent();
+
+  // Auto-fill subject based on action
+  const defaultSubject = ACTION_LABELS[action]?.label
+    ? `${ACTION_LABELS[action].label} – ${target?.title || ''}`
+    : '';
 
   const handleSubmit = async () => {
     if (!target || !reason.trim()) {
@@ -147,15 +154,20 @@ function ModerationDialog({
       });
 
       // Send moderation email to org admins (best-effort)
+      // Email uses the moderator's exact text — no auto-translation
       sendEmailNotification('moderation_action', '', {
         content_title: target.title,
         action,
         reason_category: category,
         reason: reason.trim(),
+        subject: (subject.trim() || defaultSubject),
+        description: description.trim(),
       }, target.orgId).catch(() => {});
 
       toast.success(`Action "${ACTION_LABELS[action]?.label}" effectuée`);
       setReason('');
+      setSubject('');
+      setDescription('');
       setAction('warn');
       onClose();
     } catch (e: any) {
@@ -206,12 +218,31 @@ function ModerationDialog({
           </div>
 
           <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Motif (visible par le créateur)</label>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Objet de l'email</label>
+            <Input
+              value={subject}
+              onChange={e => setSubject(e.target.value)}
+              placeholder={defaultSubject}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Motif court (notification in-app)</label>
             <Textarea
               value={reason}
               onChange={e => setReason(e.target.value)}
               placeholder="Ex: Ce contenu semble être une copie non autorisée..."
-              rows={3}
+              rows={2}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Description détaillée (email)</label>
+            <Textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="Détaillez les raisons de cette action, les prochaines étapes, etc."
+              rows={4}
             />
           </div>
 
