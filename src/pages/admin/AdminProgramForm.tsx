@@ -532,6 +532,7 @@ export function ProgramForm() {
                             onClick={() => {
                               setSelectedLessonId(lesson.id);
                               setSelectedModuleId(mod.id);
+                              setEditingQuizModuleId(null);
                             }}
                             className={cn(
                               'w-full flex items-center gap-2 px-3 rounded-lg text-left transition-colors group/lesson',
