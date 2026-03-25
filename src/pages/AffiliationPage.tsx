@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { requestAffiliatePayout } from '@/lib/api';
 import { AffiliateShareTools } from '@/components/affiliate/AffiliateShareTools';
-import AffiliatePayoutSettings from '@/components/affiliate/AffiliatePayoutSettings';
+
 import { ProductAffiliateLinkGen } from '@/components/affiliate/ProductAffiliateLinkGen';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/seo/SEOHead';
