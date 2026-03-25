@@ -75,10 +75,13 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   const { data: modules = [] } = useProgramModules(programId);
   const isLearner = mode === 'learner';
 
-  const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop');
+  const initialViewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+  const [viewportWidth, setViewportWidth] = useState(initialViewportWidth);
+  const [deviceMode, setDeviceMode] = useState<DeviceMode>(() => (initialViewportWidth < 768 ? 'mobile' : 'desktop'));
   const [currentIndex, setCurrentIndex] = useState(0);
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const [showSidebar, setShowSidebar] = useState(!isMobile && (!isLearner || window.innerWidth >= 1024));
+  const isMobileViewport = viewportWidth < 768;
+  const isCompactCreatorPreview = !isLearner && isMobileViewport;
+  const [showSidebar, setShowSidebar] = useState(() => !isMobileViewport && (!isLearner || initialViewportWidth >= 1024));
   const [showCustomizer, setShowCustomizer] = useState(false);
   const [isGeneratingSlideImage, setIsGeneratingSlideImage] = useState(false);
 
@@ -108,17 +111,30 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const lastSavedRef = useRef<number>(-1);
   useEffect(() => {
-    if (!isLearner) return;
-    const updateDevice = () => {
+    const updateViewport = () => {
       const w = window.innerWidth;
-      if (w < 768) setDeviceMode('mobile');
-      else if (w < 1024) setDeviceMode('tablet');
-      else setDeviceMode('desktop');
+      setViewportWidth(w);
+
+      if (isLearner) {
+        if (w < 768) setDeviceMode('mobile');
+        else if (w < 1024) setDeviceMode('tablet');
+        else setDeviceMode('desktop');
+      } else if (w < 768) {
+        setDeviceMode('mobile');
+      }
     };
-    updateDevice();
-    window.addEventListener('resize', updateDevice);
-    return () => window.removeEventListener('resize', updateDevice);
+
+    updateViewport();
+    window.addEventListener('resize', updateViewport);
+    return () => window.removeEventListener('resize', updateViewport);
   }, [isLearner]);
+
+  useEffect(() => {
+    if (isMobileViewport) {
+      setShowSidebar(false);
+      setShowCustomizer(false);
+    }
+  }, [isMobileViewport]);
   
   // Final assessment state
   const [assessmentScore, setAssessmentScore] = useState<number | undefined>();
