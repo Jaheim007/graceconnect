@@ -473,88 +473,115 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   return (
     <div className="flex flex-col h-full bg-muted/30">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          {orgLogoUrl && (
-            <img src={orgLogoUrl} alt="" className="h-6 w-6 rounded-full object-cover" />
-          )}
-          <span className="text-sm font-semibold truncate">{program?.title || ''}</span>
-          <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-            {currentIndex + 1} / {total}
-          </span>
-          {gamificationEnabled && starsEarned > 0 && (
-            <motion.span 
-              className="flex items-center gap-1 text-[10px] font-medium bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              key={starsEarned}
-            >
-              <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-              {starsEarned}
-            </motion.span>
-          )}
-        </div>
-
-        {/* Creator-only: Device toggle + gamification toggle */}
-        {!isLearner && (
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden sm:flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-yellow-500" />
-              <span className="text-[10px] text-muted-foreground hidden sm:inline">
-                {isFr ? 'Étoiles' : 'Stars'}
-              </span>
-              <Switch 
-                checked={gamificationEnabled} 
-                onCheckedChange={setGamificationEnabled}
-                className="scale-75"
-              />
+      <div className="border-b border-border bg-card shrink-0">
+        <div className="flex items-start justify-between gap-3 px-3 py-2 sm:px-4">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 min-w-0">
+              {orgLogoUrl && (
+                <img src={orgLogoUrl} alt="" className="h-6 w-6 rounded-full object-cover shrink-0" />
+              )}
+              <span className="text-sm font-semibold truncate">{program?.title || ''}</span>
             </div>
 
-            <div className="hidden md:flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
-              {([
-                { key: 'mobile' as DeviceMode, Icon: Smartphone },
-                { key: 'tablet' as DeviceMode, Icon: Tablet },
-                { key: 'desktop' as DeviceMode, Icon: Monitor },
-              ]).map(({ key, Icon }) => (
-                <button
-                  key={key}
-                  onClick={() => setDeviceMode(key)}
-                  className={cn(
-                    'p-1.5 rounded-md transition-colors',
-                    deviceMode === key
-                      ? 'bg-background shadow-sm text-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
+            <div className="mt-1 flex items-center gap-2 min-w-0">
+              <span className="text-[11px] text-muted-foreground truncate">{current?.lessonTitle || ''}</span>
+
+              {!isCompactCreatorPreview && (
+                <span className="shrink-0 whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                  {currentIndex + 1}/{total}
+                </span>
+              )}
+
+              {!isCompactCreatorPreview && gamificationEnabled && starsEarned > 0 && (
+                <motion.span
+                  className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-foreground shrink-0"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  key={starsEarned}
                 >
-                  <Icon className="h-4 w-4" />
-                </button>
-              ))}
+                  <Star className="h-3 w-3 fill-current" />
+                  {starsEarned}
+                </motion.span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 shrink-0">
+            {!isLearner && (
+              <>
+                <div className="hidden sm:flex items-center gap-1.5 mr-1">
+                  <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-[10px] text-muted-foreground hidden sm:inline">
+                    {isFr ? 'Étoiles' : 'Stars'}
+                  </span>
+                  <Switch
+                    checked={gamificationEnabled}
+                    onCheckedChange={setGamificationEnabled}
+                    className="scale-75"
+                  />
+                </div>
+
+                <div className="hidden md:flex items-center gap-0.5 bg-muted rounded-lg p-0.5 mr-1">
+                  {([
+                    { key: 'mobile' as DeviceMode, Icon: Smartphone },
+                    { key: 'tablet' as DeviceMode, Icon: Tablet },
+                    { key: 'desktop' as DeviceMode, Icon: Monitor },
+                  ]).map(({ key, Icon }) => (
+                    <button
+                      key={key}
+                      onClick={() => setDeviceMode(key)}
+                      className={cn(
+                        'p-1.5 rounded-md transition-colors',
+                        deviceMode === key
+                          ? 'bg-background shadow-sm text-foreground'
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {headerActions}
+
+            {!isLearner && (
+              <Button
+                variant={showCustomizer ? 'default' : 'ghost'}
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={() => setShowCustomizer(!showCustomizer)}
+              >
+                <Settings2 className="h-4 w-4" />
+              </Button>
+            )}
+
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => setShowSidebar(!showSidebar)}>
+              <List className="h-4 w-4" />
+            </Button>
+
+            {onClose && (
+              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={onClose}>
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {isCompactCreatorPreview && (
+          <div className="px-3 pb-2">
+            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+              <motion.div
+                className="h-full rounded-full"
+                style={{ background: `linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))` }}
+                initial={false}
+                animate={{ width: `${progressPercent}%` }}
+                transition={{ duration: 0.3 }}
+              />
             </div>
           </div>
         )}
-
-        <div className="flex items-center gap-1">
-          {headerActions}
-          {/* Creator-only: Customizer toggle */}
-          {!isLearner && (
-            <Button
-              variant={showCustomizer ? 'default' : 'ghost'}
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setShowCustomizer(!showCustomizer)}
-            >
-              <Settings2 className="h-4 w-4" />
-            </Button>
-          )}
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowSidebar(!showSidebar)}>
-            <List className="h-4 w-4" />
-          </Button>
-          {onClose && (
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
       </div>
 
       {/* Main area */}
