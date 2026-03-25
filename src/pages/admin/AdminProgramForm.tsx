@@ -555,9 +555,12 @@ export function ProgramForm() {
             {/* Mobile: back to lessons list button */}
             {selectedLessonId && (
               <div className="md:hidden flex items-center gap-2 px-3 py-2 border-b border-border bg-card">
-                <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-7" onClick={() => setSelectedLessonId(null)}>
-                  <ArrowLeft className="h-3 w-3" /> {isFr ? 'Leçons' : 'Lessons'}
+                <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => setSelectedLessonId(null)}>
+                  <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Toutes les leçons' : 'All lessons'}
                 </Button>
+                <span className="text-xs text-muted-foreground truncate flex-1">
+                  {modules.find((m: any) => m.id === selectedModuleId)?.title}
+                </span>
               </div>
             )}
             {showAIGenerator ? (
