@@ -50,7 +50,7 @@ export default function WelcomeIntentPage() {
       iconBg: 'bg-purple-500/10',
       iconColor: 'text-purple-500',
       badge: isFr ? 'Nouveau' : 'New',
-      route: '/admin/create',
+      route: hasManagedOrgs ? '/admin/create' : '/create-org',
     },
     {
       key: 'sell',
@@ -62,7 +62,7 @@ export default function WelcomeIntentPage() {
       iconBg: 'bg-blue-500/10',
       iconColor: 'text-blue-500',
       badge: null,
-      route: '/admin/create',
+      route: hasManagedOrgs ? '/admin/create' : '/create-org',
     },
   ];
 
