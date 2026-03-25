@@ -76,18 +76,6 @@ export default function WelcomeIntentPage() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <SEOHead title={`${isFr ? 'Bienvenue' : 'Welcome'} — SiteViral`} description={isFr ? 'Choisissez votre espace' : 'Choose your space'} noindex />
       <div className="w-full max-w-md">
-        {/* Skip button on top, prominent */}
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.05 }}
-          onClick={() => navigate('/dashboard')}
-          className="mb-6 w-full flex items-center justify-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors py-2.5 rounded-xl border border-primary/20 hover:border-primary/40 bg-primary/5"
-        >
-          <SkipForward className="h-4 w-4" />
-          {isFr ? 'Passer cette étape' : 'Skip this step'}
-        </motion.button>
-
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
