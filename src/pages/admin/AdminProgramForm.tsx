@@ -339,37 +339,42 @@ export function ProgramForm() {
   return (
     <div className="h-[calc(100dvh-60px)] flex flex-col">
       {/* ─── TOP BAR ─── */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-card shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate('/admin/programs')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div className="flex items-center gap-2 min-w-0">
+      <div className="border-b border-border bg-card shrink-0">
+        {/* Row 1: Back + title + save */}
+        <div className="flex items-center justify-between px-3 py-2 gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate('/admin/programs')}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
             <Input
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="h-8 text-sm font-semibold border-none bg-transparent px-1 hover:bg-muted/50 focus:bg-muted/50 transition-colors max-w-[280px]"
+              className="h-8 text-sm font-semibold border-none bg-transparent px-1 hover:bg-muted/50 focus:bg-muted/50 transition-colors min-w-0 flex-1"
             />
             <Badge variant={isPublished ? 'default' : 'secondary'} className="text-[9px] shrink-0">
               {isPublished ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
             </Badge>
           </div>
+          <Button size="sm" onClick={handleSave} disabled={saving || !title.trim()} className="gap-1.5 h-8 text-xs shrink-0">
+            {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+            <span className="hidden sm:inline">{isFr ? 'Enregistrer' : 'Save'}</span>
+          </Button>
         </div>
 
-        {/* Top bar nav */}
-        <div className="flex items-center gap-1">
-          <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5 overflow-x-auto">
+        {/* Row 2: Tabs */}
+        <div className="flex items-center px-3 pb-2 overflow-x-auto">
+          <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5 w-full">
             {[
               { key: 'edit', label: isFr ? 'Éditer' : 'Edit' },
               { key: 'preview', label: isFr ? 'Aperçu' : 'Preview' },
-              { key: 'settings', label: isFr ? 'Paramètres' : 'Set up' },
+              { key: 'settings', label: isFr ? 'Paramètres' : 'Settings' },
               { key: 'publish', label: isFr ? 'Publier' : 'Publish' },
             ].map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
                 className={cn(
-                  'px-3 py-1 rounded-md text-xs font-medium transition-colors',
+                  'flex-1 px-2 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap text-center',
                   activeTab === tab.key
                     ? 'bg-background shadow-sm text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
@@ -379,16 +384,6 @@ export function ProgramForm() {
               </button>
             ))}
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] text-muted-foreground hidden sm:block">
-            {saving ? (isFr ? 'Enregistrement...' : 'Saving...') : (isFr ? '✓ Enregistré' : '✓ Saved')}
-          </span>
-          <Button size="sm" onClick={handleSave} disabled={saving || !title.trim()} className="gap-1.5 h-8 text-xs">
-            {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-            {isFr ? 'Enregistrer' : 'Save'}
-          </Button>
         </div>
       </div>
 
