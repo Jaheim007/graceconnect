@@ -66,11 +66,10 @@ export default function AdminCreateHub() {
       </div>
 
       {/* Stats bar */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         {[
           { value: String(counts?.products ?? 0), label: 'Produits', color: 'text-primary' },
           { value: String(counts?.programs ?? 0), label: 'Formations', color: 'text-emerald-500' },
-          { value: String(counts?.media ?? 0), label: 'Médias', color: 'text-blue-500' },
           { value: fmt(counts?.revenue ?? 0, currentOrg?.currency), label: 'Revenus', color: 'text-amber-500' },
         ].map((s, i) => (
           <motion.div
