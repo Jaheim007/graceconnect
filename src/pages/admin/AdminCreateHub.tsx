@@ -15,7 +15,7 @@ import { useState } from 'react';
 
 /* ── Secondary items (hidden behind "More" on mobile) ── */
 const secondaryItems = [
-  { to: '/admin/media', icon: MonitorPlay, labelKey: 'create_hub.media', descKey: 'create_hub.media_desc', color: 'text-blue-500 bg-blue-500/10 border-blue-500/20' },
+  { to: '/admin/media', icon: MonitorPlay, labelKey: 'create_hub.media', descKey: 'create_hub.media_desc', color: 'text-blue-500 bg-blue-500/10 border-blue-500/20', countKey: 'media' as const },
   { to: '/admin/campaigns', icon: HeartHandshake, labelKey: 'create_hub.campaigns', descKey: 'create_hub.campaigns_desc', color: 'text-rose-500 bg-rose-500/10 border-rose-500/20' },
   { to: '/admin/events', icon: CalendarCheck2, labelKey: 'create_hub.events', descKey: 'create_hub.events_desc', color: 'text-purple-500 bg-purple-500/10 border-purple-500/20' },
   { to: '/admin/announcements', icon: Megaphone, labelKey: 'create_hub.announcements', descKey: 'create_hub.announcements_desc', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
@@ -206,7 +206,14 @@ export default function AdminCreateHub() {
                       <item.icon className={cn('h-4 w-4', textColor)} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-xs">{t(item.labelKey)}</h3>
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="font-semibold text-xs">{t(item.labelKey)}</h3>
+                        {'countKey' in item && item.countKey && counts?.[item.countKey] != null && (
+                          <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded-full', bgColor, textColor)}>
+                            {counts[item.countKey]}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-[10px] text-muted-foreground line-clamp-1">{t(item.descKey)}</p>
                     </div>
                     <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
