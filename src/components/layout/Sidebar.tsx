@@ -83,7 +83,6 @@ export function Sidebar() {
     const items: NavItem[] = [
       { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
       { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
-      { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
     ];
 
     if (hasOrgs && canManageCurrentOrg) {

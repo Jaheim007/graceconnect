@@ -152,73 +152,73 @@ export default function UserDashboard() {
         <DashboardSection
           title={isFr ? 'Mes achats' : 'My purchases'}
           icon={Package}
-          actions={purchases.length > 0 ? (
+          actions={purchases.length > 0 || programProgress.length > 0 ? (
             <button onClick={() => navigate('/resources')} className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
               {isFr ? 'Tout voir' : 'View all'} <ArrowRight className="h-3 w-3" />
             </button>
           ) : undefined}
         >
           <PremiumCard variant="default" delay={0.05} noPadding className="p-4">
-            {purchases.length === 0 ? (
+            {purchases.length === 0 && programProgress.length === 0 ? (
               <div className="text-center py-6">
                 <div className="h-12 w-12 rounded-xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
                   <Package className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <p className="text-sm text-muted-foreground mb-3">{isFr ? "Tu n'as pas encore d'achat" : 'No purchases yet'}</p>
-                <Button size="sm" className="gap-2" onClick={() => navigate('/marketplace')}>
-                  <Store className="h-3.5 w-3.5" /> {isFr ? 'Découvrir les produits' : 'Discover products'}
+                <Button size="sm" className="gap-2" onClick={() => navigate('/discover')}>
+                  <Store className="h-3.5 w-3.5" /> {isFr ? 'Découvrir des produits' : 'Discover products'}
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-3">
-                {purchases.slice(0, 6).map((purchase: any) => {
-                  const product = purchase.digital_products;
-                  return (
-                    <button key={purchase.id} onClick={() => navigate('/resources')} className="group text-left">
-                      <div className="aspect-[3/4] rounded-xl bg-muted overflow-hidden mb-1.5 ring-1 ring-border">
-                        {product?.cover_image_url ? (
-                          <img src={product.cover_image_url} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                        ) : (
-                          <div className="h-full w-full flex items-center justify-center">
-                            <BookOpen className="h-6 w-6 text-muted-foreground" />
+              <div className="space-y-4">
+                {/* Digital products */}
+                {purchases.length > 0 && (
+                  <div className="grid grid-cols-3 gap-3">
+                    {purchases.slice(0, 3).map((purchase: any) => {
+                      const product = purchase.digital_products;
+                      return (
+                        <button key={purchase.id} onClick={() => navigate('/resources')} className="group text-left">
+                          <div className="aspect-[3/4] rounded-xl bg-muted overflow-hidden mb-1.5 ring-1 ring-border">
+                            {product?.cover_image_url ? (
+                              <img src={product.cover_image_url} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            ) : (
+                              <div className="h-full w-full flex items-center justify-center">
+                                <BookOpen className="h-6 w-6 text-muted-foreground" />
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                      <p className="text-[11px] font-medium truncate">{product?.title || 'Produit'}</p>
-                    </button>
-                  );
-                })}
+                          <p className="text-[11px] font-medium truncate">{product?.title || 'Produit'}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                {/* Enrolled courses */}
+                {programProgress.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                      <GraduationCap className="h-3.5 w-3.5" /> {isFr ? 'Mes formations' : 'My courses'}
+                    </p>
+                    {programProgress.slice(0, 2).map((prog: any) => {
+                      const pct = prog.totalLessons > 0 ? Math.round((prog.completedLessons / prog.totalLessons) * 100) : 0;
+                      return (
+                        <button key={prog.id} onClick={() => navigate(`/programs/${prog.program_id}`)} className="w-full text-left p-2.5 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-xs font-medium truncate flex-1 mr-2">{prog.programs?.title}</p>
+                            <span className={cn('text-[10px] font-bold', pct === 100 ? 'text-emerald-600' : 'text-primary')}>{pct}%</span>
+                          </div>
+                          <Progress value={pct} className="h-1.5" />
+                          <p className="text-[10px] text-muted-foreground mt-1">{prog.completedLessons}/{prog.totalLessons} {isFr ? 'leçons' : 'lessons'}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
           </PremiumCard>
         </DashboardSection>
 
-        {/* ═══ MY PROGRAMS ═══ */}
-        {programProgress.length > 0 && (
-          <DashboardSection
-            title={isFr ? 'Mes formations' : 'My courses'}
-            icon={GraduationCap}
-          >
-            <div className="space-y-2">
-              {programProgress.map((prog: any) => {
-                const pct = prog.totalLessons > 0 ? Math.round((prog.completedLessons / prog.totalLessons) * 100) : 0;
-                return (
-                  <PremiumCard key={prog.id} variant="default" noPadding className="p-3.5">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm font-medium truncate">{prog.programs?.title || 'Formation'}</p>
-                      <span className={cn(
-                        'text-xs font-bold px-2 py-0.5 rounded-full',
-                        pct >= 80 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary'
-                      )}>{pct}%</span>
-                    </div>
-                    <Progress value={pct} className="h-1.5" />
-                    <p className="text-[10px] text-muted-foreground mt-1.5">{prog.completedLessons}/{prog.totalLessons} {isFr ? 'leçons' : 'lessons'}</p>
-                  </PremiumCard>
-                );
-              })}
-            </div>
-          </DashboardSection>
-        )}
 
         {/* ═══ MY DONATIONS ═══ */}
         {donations.length > 0 && (
