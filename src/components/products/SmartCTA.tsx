@@ -140,10 +140,10 @@ function ProductCTAButton({
   isPwyw: boolean; isFree: boolean; minPrice: number; displayPrice: number; currency: string; onBuy: () => void;
 }) {
   const defaultLabel = isPwyw
-    ? `💰 ${formatPrice(minPrice, false, currency)}+`
+    ? `💰 ${isFr ? 'Prix libre' : 'Name your price'}${minPrice > 0 ? ` · ${formatPrice(minPrice, false, currency)}+` : ''}`
     : isFree
-      ? 'Obtenir gratuitement'
-      : `Acheter — ${formatPrice(displayPrice, false, currency)}`;
+      ? (isFr ? 'Obtenir gratuitement' : 'Get for free')
+      : `${isFr ? 'Acheter' : 'Buy'} — ${formatPrice(displayPrice, false, currency)}`;
 
   const ctaExperiment = useExperimentContent('cta', defaultLabel);
   const trackClick = useExperimentClick();
