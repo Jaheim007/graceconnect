@@ -88,6 +88,7 @@ export function Sidebar() {
     if (hasOrgs && canManageCurrentOrg) {
       items.push(
         ...[
+          { to: '/admin', icon: BarChart3, label: isFr ? 'Vue d\'ensemble' : 'Overview' },
           currentOrg ? { to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' } : null,
           { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
           { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },

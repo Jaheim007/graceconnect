@@ -98,6 +98,7 @@ export function BottomNav() {
       sections.push({
         label: isFr ? 'Ma plateforme' : 'My Platform',
         items: [
+          { to: '/admin', icon: BarChart3, label: isFr ? 'Vue d\'ensemble' : 'Overview' },
           ...(currentOrg ? [{ to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' }] : []),
           { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
           { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
