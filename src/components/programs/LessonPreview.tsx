@@ -220,6 +220,22 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
         lessonIdx++;
       }
+
+      // Add module quiz slide if quiz exists for this module
+      const modQuiz = moduleQuizzes.find((q: any) => q.module_id === (mod as any).id);
+      if (modQuiz && modQuiz.questions?.length > 0) {
+        slides.push({
+          lessonId: `__module_quiz_${(mod as any).id}__`,
+          lessonTitle: `${isFr ? 'Quiz' : 'Quiz'} — ${(mod as any).title}`,
+          moduleTitle: (mod as any).title,
+          moduleId: (mod as any).id,
+          slide: { type: 'module-quiz' as any, bodyHtml: '' },
+          lessonIndex: lessonIdx,
+          slideInLesson: 0,
+          lessonImageUrl: lastLessonImageUrl,
+          moduleQuiz: modQuiz,
+        });
+      }
     }
 
     // Add final assessment slide if there are quiz questions
