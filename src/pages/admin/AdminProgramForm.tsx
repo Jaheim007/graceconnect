@@ -398,8 +398,8 @@ export function ProgramForm() {
           {/* LEFT: Lessons sidebar — on mobile: show only when no lesson selected */}
           {(!isMobileViewport || !selectedLessonId) && (
             <div className={cn(
-              'border-b md:border-b-0 md:border-r border-border bg-card flex flex-col shrink-0 overflow-hidden',
-              'flex-1 md:flex-none md:w-64 lg:w-72',
+              'border-b md:border-b-0 md:border-r border-border bg-card flex flex-col shrink-0',
+              isMobileViewport ? 'flex-1 overflow-y-auto' : 'overflow-hidden md:w-64 lg:w-72',
             )}>
               <div className="flex items-center justify-between p-3 border-b border-border">
                 <span className="text-sm font-semibold">{isFr ? 'Leçons' : 'Lessons'}</span>
