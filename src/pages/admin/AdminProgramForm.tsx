@@ -90,7 +90,7 @@ export function ProgramForm() {
   const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
   const [editingModuleTitle, setEditingModuleTitle] = useState('');
   const [applyingAI, setApplyingAI] = useState(false);
-  const [generatingTitle, setGeneratingTitle] = useState(false);
+  const [editingQuizModuleId, setEditingQuizModuleId] = useState<string | null>(null);
   const [generatingDesc, setGeneratingDesc] = useState(false);
   const [generatingCover, setGeneratingCover] = useState(false);
 
