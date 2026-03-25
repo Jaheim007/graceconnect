@@ -154,18 +154,23 @@ export default function ProgramDetailPage() {
     queryKey: ['course-linked-product', program?.organization_id, programId],
     queryFn: async () => {
       if (!program?.organization_id || !programId) return null;
-      // Find a digital product linked to this course
+
+      const normalizedTitle = program.title.trim();
+
+      // Find the published course product that mirrors this program pricing.
       const { data } = await db.from('digital_products')
         .select('*')
         .eq('organization_id', program.organization_id)
         .eq('product_type', 'course')
         .eq('is_published', true)
-        .ilike('title', program.title)
+        .eq('price', program.price ?? 0)
+        .eq('currency', program.currency || 'XOF')
+        .ilike('title', normalizedTitle)
         .limit(1)
         .maybeSingle();
       return data as DigitalProduct | null;
     },
-    enabled: !!program?.organization_id && isPaidCourse,
+    enabled: !!program?.organization_id && !!program?.title && isPaidCourse,
   });
 
   // Check if user already purchased this course product
@@ -191,8 +196,19 @@ export default function ProgramDetailPage() {
     if (!user) { navigate(`/auth?returnTo=/program/${programId}`); return; }
 
     // For paid courses with a linked product, use purchase flow
-    if (isPaidCourse && linkedProduct) {
-      setShowPurchaseModal(true);
+    if (isPaidCourse) {
+      if (linkedProduct) {
+        setShowPurchaseModal(true);
+        return;
+      }
+
+      toast({
+        title: isFr ? 'Paiement indisponible' : 'Payment unavailable',
+        description: isFr
+          ? 'Ce cours payant n’est pas encore synchronisé avec le checkout. Réessayez dans un instant.'
+          : 'This paid course is not yet synced with checkout. Please try again in a moment.',
+        variant: 'destructive',
+      });
       return;
     }
 

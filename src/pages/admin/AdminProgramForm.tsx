@@ -76,6 +76,7 @@ export function ProgramForm() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('edit');
   const isMobile = useIsMobile();
+  const isMobileViewport = isMobile || (typeof window !== 'undefined' && window.innerWidth < 768);
 
   // Lesson selection
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
@@ -115,16 +116,17 @@ export function ProgramForm() {
     }
   }, [existingProgram]);
 
-  // Auto-select first lesson
+  // Auto-select first lesson on desktop only.
+  // On mobile, users must be able to stay on the full lesson list screen.
   useEffect(() => {
-    if (!selectedLessonId && modules.length > 0) {
+    if (isMobileViewport || selectedLessonId || modules.length === 0) return;
+
       const firstMod = modules[0];
       if (firstMod?.lessons?.length > 0) {
         setSelectedLessonId(firstMod.lessons[0].id);
         setSelectedModuleId(firstMod.id);
       }
-    }
-  }, [modules, selectedLessonId]);
+  }, [isMobileViewport, modules, selectedLessonId]);
 
   const currency = currentOrg?.currency || 'XOF';
 
@@ -153,6 +155,7 @@ export function ProgramForm() {
       // Auto-create/update linked digital product for paid courses (enables affiliate system)
       if (!isFree && price > 0 && isPublished) {
         try {
+          const externalLink = `${window.location.origin}/program/${id}`;
           const { data: existingProduct } = await supabase.from('digital_products')
             .select('id')
             .eq('organization_id', currentOrg.id)
@@ -164,6 +167,7 @@ export function ProgramForm() {
             title: title.trim(),
             description: description.trim()?.replace(/<[^>]*>/g, '').slice(0, 500) || `${isFr ? 'Cours' : 'Course'}: ${title.trim()}`,
             cover_image_url: coverUrl || null,
+            external_link: externalLink,
             price,
             currency,
             is_free: false,
@@ -288,7 +292,6 @@ export function ProgramForm() {
   };
 
   const totalLessons = modules.reduce((s: number, m: any) => s + (m.lessons?.length || 0), 0);
-  const isMobileViewport = isMobile || (typeof window !== 'undefined' && window.innerWidth < 768);
   const showMobilePreviewOverlay = activeTab === 'preview' && !!id && isMobileViewport;
 
   const handleAIHelp = async (type: 'title' | 'description') => {
@@ -573,7 +576,10 @@ export function ProgramForm() {
               {/* Mobile: back to lessons list button */}
               {selectedLessonId && isMobileViewport && (
                 <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-card">
-                  <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => setSelectedLessonId(null)}>
+                  <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => {
+                    setSelectedLessonId(null);
+                    setSelectedModuleId(null);
+                  }}>
                     <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Toutes les leçons' : 'All lessons'}
                   </Button>
                   <span className="text-xs text-muted-foreground truncate flex-1">
@@ -590,7 +596,10 @@ export function ProgramForm() {
                   lessonId={selectedLessonId}
                   programId={id!}
                   courseTitle={title}
-                  onBack={() => setSelectedLessonId(null)}
+                  onBack={() => {
+                    setSelectedLessonId(null);
+                    setSelectedModuleId(null);
+                  }}
                   embedded
                 />
               ) : (
