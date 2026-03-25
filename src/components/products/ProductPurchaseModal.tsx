@@ -254,7 +254,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
     if (isSubmitting) return;
     setIsSubmitting(true);
 
-    if (product.is_free || finalPrice === 0) {
+    if (product.is_free && finalPrice === 0) {
       try {
         const { data: claimData, error: claimErr } = await db.functions.invoke('claim-free-product', {
           body: { product_id: product.id, organization_id: organizationId },

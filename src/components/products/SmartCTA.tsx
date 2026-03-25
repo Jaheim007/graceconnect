@@ -70,7 +70,7 @@ export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: S
   }
 
   const isPwyw = !!(product as any)?.is_pwyw;
-  const isFree = !isPwyw && (product?.is_free || product?.price === 0);
+  const isFree = !isPwyw && !!product?.is_free;
   const hasSale = !isPwyw && !isFree && product?.sale_price && product?.sale_price < product?.price;
   const displayPrice = hasSale ? product.sale_price : product.price;
   const currency = product?.currency || 'XOF';
