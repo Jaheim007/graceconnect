@@ -77,8 +77,9 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showSidebar, setShowSidebar] = useState(!isLearner || window.innerWidth >= 1024);
-  const [showCustomizer, setShowCustomizer] = useState(!isLearner);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [showSidebar, setShowSidebar] = useState(!isMobile && (!isLearner || window.innerWidth >= 1024));
+  const [showCustomizer, setShowCustomizer] = useState(false);
   const [isGeneratingSlideImage, setIsGeneratingSlideImage] = useState(false);
 
   // Per-slide customizations keyed by slide index
