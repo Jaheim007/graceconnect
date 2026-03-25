@@ -209,15 +209,10 @@ export default function ProductDetailPage() {
     let targetPath = basePath;
     if (user) {
       const code = affiliateCode ?? await ensureAffiliateCode();
-      if (!code) {
-        toast({
-          title: isFr ? 'Lien ambassadeur indisponible' : 'Ambassador link unavailable',
-          description: isFr ? 'Impossible d’activer votre commission pour ce partage.' : 'Unable to activate your commission for this share.',
-          variant: 'destructive',
-        });
-        return null;
+      if (code) {
+        targetPath = `${basePath}?ref=${code}`;
       }
-      targetPath = `${basePath}?ref=${code}`;
+      // If no code, share without affiliate ref (no commission but still works)
     }
 
     try {
