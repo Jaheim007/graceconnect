@@ -308,31 +308,31 @@ export default function ResourcesPage() {
               </div>
               <div className="space-y-2 pl-2 border-l-2 border-pink-500/20">
                 {myDonations.map((don: any) => (
-                  <div key={don.id} className="flex gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors">
-                    <div className="shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-muted">
-                      {don.organizations?.logo_url ? (
-                        <img src={don.organizations.logo_url} alt={don.organizations?.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                          <Heart className="h-5 w-5" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm truncate">
-                        {don.donation_campaigns?.title || don.organizations?.name || (isFr ? 'Don' : 'Donation')}
-                      </h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-[10px] gap-1">
-                          <Heart className="h-2.5 w-2.5" /> {isFr ? 'Don' : 'Donation'}
-                        </Badge>
-                        <span className="text-[10px] text-muted-foreground">
-                          {format(new Date(don.completed_at || don.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
-                        </span>
+                  <div key={don.id} className="p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="shrink-0 w-10 h-10 rounded-lg overflow-hidden bg-muted">
+                        {don.organizations?.logo_url ? (
+                          <img src={don.organizations.logo_url} alt={don.organizations?.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            <Heart className="h-4 w-4" />
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    <div className="shrink-0 flex items-center">
-                      <span className="text-sm font-semibold">{formatCurrency(don.amount, don.currency || 'XOF')}</span>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm truncate">
+                          {don.donation_campaigns?.title || don.organizations?.name || (isFr ? 'Don' : 'Donation')}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                          <Badge variant="outline" className="text-[10px] gap-1 shrink-0">
+                            <Heart className="h-2.5 w-2.5" /> {isFr ? 'Don' : 'Donation'}
+                          </Badge>
+                          <span className="text-[10px] text-muted-foreground">
+                            {format(new Date(don.completed_at || don.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-sm font-semibold shrink-0">{formatCurrency(don.amount, don.currency || 'XOF')}</span>
                     </div>
                   </div>
                 ))}
