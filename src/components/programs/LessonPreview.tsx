@@ -480,8 +480,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
         {/* Creator-only: Device toggle + gamification toggle */}
         {!isLearner && (
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden sm:flex items-center gap-1.5">
               <Sparkles className="h-3.5 w-3.5 text-yellow-500" />
               <span className="text-[10px] text-muted-foreground hidden sm:inline">
                 {isFr ? 'Étoiles' : 'Stars'}
@@ -493,7 +493,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
               />
             </div>
 
-            <div className="flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
+            <div className="hidden md:flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
               {([
                 { key: 'mobile' as DeviceMode, Icon: Smartphone },
                 { key: 'tablet' as DeviceMode, Icon: Tablet },
