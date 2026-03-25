@@ -735,7 +735,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
               onClick={goPrev}
               className={cn(
                 'absolute z-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors',
-                isCompactCreatorPreview ? 'left-2 h-9 w-9' : 'left-3 h-10 w-10'
+                isCompactCreatorPreview ? 'left-2 bottom-16 h-9 w-9' : 'left-3 bottom-20 h-10 w-10'
               )}
             >
               <ChevronLeft className="h-5 w-5" />
@@ -746,7 +746,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
               onClick={goNext}
               className={cn(
                 'absolute z-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors',
-                isCompactCreatorPreview ? 'right-2 h-9 w-9' : 'right-3 h-10 w-10'
+                isCompactCreatorPreview ? 'right-2 bottom-16 h-9 w-9' : 'right-3 bottom-20 h-10 w-10'
               )}
             >
               <ChevronRight className="h-5 w-5" />

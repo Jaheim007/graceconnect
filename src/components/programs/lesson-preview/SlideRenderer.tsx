@@ -27,8 +27,8 @@ interface SlideRendererProps {
 }
 
 const captionClasses: Record<CaptionStyle, string> = {
-  light: 'bg-background/98 backdrop-blur-md text-foreground shadow-lg border border-border/50',
-  dark: 'bg-foreground/95 backdrop-blur-md text-background shadow-lg border border-white/10',
+  light: 'bg-white text-slate-900 shadow-2xl border-2 border-white/80 ring-1 ring-black/5',
+  dark: 'bg-slate-900/95 backdrop-blur-md text-white shadow-2xl border border-white/10',
 };
 
 /** Whether a caption style produces light (dark text) or dark (white text) */
@@ -113,11 +113,11 @@ function ScrollableContent({
     <div className="relative max-w-2xl w-full max-h-[75%]">
       <div
         ref={scrollRef}
-        className={cn(
-          'rounded-xl w-full overflow-y-auto h-full',
-          'scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
-          cn(captionClassMap[captionStyle], 'px-6 py-5 shadow-xl border border-white/10', theme.captionGlow)
-        )}
+          className={cn(
+            'rounded-xl w-full overflow-y-auto h-full',
+            'scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
+            cn(captionClassMap[captionStyle], 'px-6 py-5', theme.captionGlow)
+          )}
       >
         {children}
       </div>
@@ -126,8 +126,8 @@ function ScrollableContent({
           onClick={() => scrollRef.current?.scrollBy({ top: 120, behavior: 'smooth' })}
           className="absolute bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce z-20"
         >
-          <ChevronDown className="h-5 w-5 text-white/70 drop-shadow-md" />
-          <ChevronDown className="h-5 w-5 -mt-3 text-white/40 drop-shadow-md" />
+          <ChevronDown className={cn('h-5 w-5 drop-shadow-md', captionStyle === 'light' ? 'text-slate-600' : 'text-white/70')} />
+          <ChevronDown className={cn('h-5 w-5 -mt-3 drop-shadow-md', captionStyle === 'light' ? 'text-slate-400' : 'text-white/40')} />
         </button>
       )}
     </div>

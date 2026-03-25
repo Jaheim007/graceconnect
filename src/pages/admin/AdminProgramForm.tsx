@@ -398,8 +398,7 @@ export function ProgramForm() {
           {/* LEFT: Lessons sidebar — full width on mobile, fixed on desktop */}
           <div className={cn(
             'border-b md:border-b-0 md:border-r border-border bg-card flex flex-col shrink-0 overflow-hidden transition-all',
-            // On mobile: collapsible — show full when no lesson selected, hide when editing a lesson
-            selectedLessonId ? 'max-h-0 md:max-h-none md:w-64 lg:w-72' : 'max-h-[50dvh] md:max-h-none md:w-64 lg:w-72',
+            selectedLessonId ? 'max-h-0 md:max-h-none md:w-64 lg:w-72' : 'flex-1 md:flex-none md:max-h-none md:w-64 lg:w-72',
           )}>
             <div className="flex items-center justify-between p-3 border-b border-border">
               <span className="text-sm font-semibold">{isFr ? 'Leçons' : 'Lessons'}</span>
@@ -556,9 +555,12 @@ export function ProgramForm() {
             {/* Mobile: back to lessons list button */}
             {selectedLessonId && (
               <div className="md:hidden flex items-center gap-2 px-3 py-2 border-b border-border bg-card">
-                <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-7" onClick={() => setSelectedLessonId(null)}>
-                  <ArrowLeft className="h-3 w-3" /> {isFr ? 'Leçons' : 'Lessons'}
+                <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => setSelectedLessonId(null)}>
+                  <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Toutes les leçons' : 'All lessons'}
                 </Button>
+                <span className="text-xs text-muted-foreground truncate flex-1">
+                  {modules.find((m: any) => m.id === selectedModuleId)?.title}
+                </span>
               </div>
             )}
             {showAIGenerator ? (
@@ -677,12 +679,10 @@ export function ProgramForm() {
                 </div>
                 <Switch checked={isFree} onCheckedChange={setIsFree} />
               </div>
-              {!isFree && (
-                <div>
-                  <Label className="text-xs">{isFr ? 'Prix' : 'Price'} ({currency})</Label>
-                  <Input type="number" min={0} value={price} onChange={e => setPrice(Number(e.target.value))} className="h-9 w-[200px]" />
-                </div>
-              )}
+              <div className={cn(isFree && 'opacity-40 pointer-events-none')}>
+                <Label className="text-xs">{isFr ? 'Prix' : 'Price'} ({currency})</Label>
+                <Input type="number" min={0} value={isFree ? 0 : price} onChange={e => setPrice(Number(e.target.value))} className="h-9 w-[200px]" disabled={isFree} />
+              </div>
             </div>
 
             {/* LMS Settings */}
