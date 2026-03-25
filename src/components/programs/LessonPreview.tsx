@@ -75,10 +75,13 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   const { data: modules = [] } = useProgramModules(programId);
   const isLearner = mode === 'learner';
 
-  const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop');
+  const initialViewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+  const [viewportWidth, setViewportWidth] = useState(initialViewportWidth);
+  const [deviceMode, setDeviceMode] = useState<DeviceMode>(() => (initialViewportWidth < 768 ? 'mobile' : 'desktop'));
   const [currentIndex, setCurrentIndex] = useState(0);
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const [showSidebar, setShowSidebar] = useState(!isMobile && (!isLearner || window.innerWidth >= 1024));
+  const isMobileViewport = viewportWidth < 768;
+  const isCompactCreatorPreview = !isLearner && isMobileViewport;
+  const [showSidebar, setShowSidebar] = useState(() => !isMobileViewport && (!isLearner || initialViewportWidth >= 1024));
   const [showCustomizer, setShowCustomizer] = useState(false);
   const [isGeneratingSlideImage, setIsGeneratingSlideImage] = useState(false);
 
@@ -108,17 +111,30 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const lastSavedRef = useRef<number>(-1);
   useEffect(() => {
-    if (!isLearner) return;
-    const updateDevice = () => {
+    const updateViewport = () => {
       const w = window.innerWidth;
-      if (w < 768) setDeviceMode('mobile');
-      else if (w < 1024) setDeviceMode('tablet');
-      else setDeviceMode('desktop');
+      setViewportWidth(w);
+
+      if (isLearner) {
+        if (w < 768) setDeviceMode('mobile');
+        else if (w < 1024) setDeviceMode('tablet');
+        else setDeviceMode('desktop');
+      } else if (w < 768) {
+        setDeviceMode('mobile');
+      }
     };
-    updateDevice();
-    window.addEventListener('resize', updateDevice);
-    return () => window.removeEventListener('resize', updateDevice);
+
+    updateViewport();
+    window.addEventListener('resize', updateViewport);
+    return () => window.removeEventListener('resize', updateViewport);
   }, [isLearner]);
+
+  useEffect(() => {
+    if (isMobileViewport) {
+      setShowSidebar(false);
+      setShowCustomizer(false);
+    }
+  }, [isMobileViewport]);
   
   // Final assessment state
   const [assessmentScore, setAssessmentScore] = useState<number | undefined>();
@@ -222,6 +238,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
   const current = allSlides[currentIndex];
   const total = allSlides.length;
+  const progressPercent = total ? ((currentIndex + 1) / total) * 100 : 0;
 
   const applyCustomizationToAll = useCallback((partial: Partial<SlideCustomization>) => {
     setSlideCustomizations((prev) => {
@@ -456,88 +473,115 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   return (
     <div className="flex flex-col h-full bg-muted/30">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          {orgLogoUrl && (
-            <img src={orgLogoUrl} alt="" className="h-6 w-6 rounded-full object-cover" />
-          )}
-          <span className="text-sm font-semibold truncate">{program?.title || ''}</span>
-          <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-            {currentIndex + 1} / {total}
-          </span>
-          {gamificationEnabled && starsEarned > 0 && (
-            <motion.span 
-              className="flex items-center gap-1 text-[10px] font-medium bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              key={starsEarned}
-            >
-              <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-              {starsEarned}
-            </motion.span>
-          )}
-        </div>
-
-        {/* Creator-only: Device toggle + gamification toggle */}
-        {!isLearner && (
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden sm:flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-yellow-500" />
-              <span className="text-[10px] text-muted-foreground hidden sm:inline">
-                {isFr ? 'Étoiles' : 'Stars'}
-              </span>
-              <Switch 
-                checked={gamificationEnabled} 
-                onCheckedChange={setGamificationEnabled}
-                className="scale-75"
-              />
+      <div className="border-b border-border bg-card shrink-0">
+        <div className="flex items-start justify-between gap-3 px-3 py-2 sm:px-4">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 min-w-0">
+              {orgLogoUrl && (
+                <img src={orgLogoUrl} alt="" className="h-6 w-6 rounded-full object-cover shrink-0" />
+              )}
+              <span className="text-sm font-semibold truncate">{program?.title || ''}</span>
             </div>
 
-            <div className="hidden md:flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
-              {([
-                { key: 'mobile' as DeviceMode, Icon: Smartphone },
-                { key: 'tablet' as DeviceMode, Icon: Tablet },
-                { key: 'desktop' as DeviceMode, Icon: Monitor },
-              ]).map(({ key, Icon }) => (
-                <button
-                  key={key}
-                  onClick={() => setDeviceMode(key)}
-                  className={cn(
-                    'p-1.5 rounded-md transition-colors',
-                    deviceMode === key
-                      ? 'bg-background shadow-sm text-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
+            <div className="mt-1 flex items-center gap-2 min-w-0">
+              <span className="text-[11px] text-muted-foreground truncate">{current?.lessonTitle || ''}</span>
+
+              {!isCompactCreatorPreview && (
+                <span className="shrink-0 whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                  {currentIndex + 1}/{total}
+                </span>
+              )}
+
+              {!isCompactCreatorPreview && gamificationEnabled && starsEarned > 0 && (
+                <motion.span
+                  className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-foreground shrink-0"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  key={starsEarned}
                 >
-                  <Icon className="h-4 w-4" />
-                </button>
-              ))}
+                  <Star className="h-3 w-3 fill-current" />
+                  {starsEarned}
+                </motion.span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 shrink-0">
+            {!isLearner && (
+              <>
+                <div className="hidden sm:flex items-center gap-1.5 mr-1">
+                  <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-[10px] text-muted-foreground hidden sm:inline">
+                    {isFr ? 'Étoiles' : 'Stars'}
+                  </span>
+                  <Switch
+                    checked={gamificationEnabled}
+                    onCheckedChange={setGamificationEnabled}
+                    className="scale-75"
+                  />
+                </div>
+
+                <div className="hidden md:flex items-center gap-0.5 bg-muted rounded-lg p-0.5 mr-1">
+                  {([
+                    { key: 'mobile' as DeviceMode, Icon: Smartphone },
+                    { key: 'tablet' as DeviceMode, Icon: Tablet },
+                    { key: 'desktop' as DeviceMode, Icon: Monitor },
+                  ]).map(({ key, Icon }) => (
+                    <button
+                      key={key}
+                      onClick={() => setDeviceMode(key)}
+                      className={cn(
+                        'p-1.5 rounded-md transition-colors',
+                        deviceMode === key
+                          ? 'bg-background shadow-sm text-foreground'
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {headerActions}
+
+            {!isLearner && (
+              <Button
+                variant={showCustomizer ? 'default' : 'ghost'}
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={() => setShowCustomizer(!showCustomizer)}
+              >
+                <Settings2 className="h-4 w-4" />
+              </Button>
+            )}
+
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => setShowSidebar(!showSidebar)}>
+              <List className="h-4 w-4" />
+            </Button>
+
+            {onClose && (
+              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={onClose}>
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {isCompactCreatorPreview && (
+          <div className="px-3 pb-2">
+            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+              <motion.div
+                className="h-full rounded-full"
+                style={{ background: `linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))` }}
+                initial={false}
+                animate={{ width: `${progressPercent}%` }}
+                transition={{ duration: 0.3 }}
+              />
             </div>
           </div>
         )}
-
-        <div className="flex items-center gap-1">
-          {headerActions}
-          {/* Creator-only: Customizer toggle */}
-          {!isLearner && (
-            <Button
-              variant={showCustomizer ? 'default' : 'ghost'}
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setShowCustomizer(!showCustomizer)}
-            >
-              <Settings2 className="h-4 w-4" />
-            </Button>
-          )}
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowSidebar(!showSidebar)}>
-            <List className="h-4 w-4" />
-          </Button>
-          {onClose && (
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
       </div>
 
       {/* Main area */}
@@ -676,13 +720,16 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
         {/* Viewport */}
         <div className={cn(
-          'flex-1 flex items-center justify-center relative overflow-hidden',
-          isLearner ? 'p-0' : 'p-4'
+          'flex-1 relative overflow-hidden',
+          isLearner || isCompactCreatorPreview ? 'flex items-stretch justify-stretch p-0' : 'flex items-center justify-center p-4'
         )}>
           {currentIndex > 0 && (
             <button
               onClick={goPrev}
-              className="absolute left-3 z-10 h-10 w-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors"
+              className={cn(
+                'absolute z-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors',
+                isCompactCreatorPreview ? 'left-2 h-9 w-9' : 'left-3 h-10 w-10'
+              )}
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -690,7 +737,10 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           {currentIndex < total - 1 && (
             <button
               onClick={goNext}
-              className="absolute right-3 z-10 h-10 w-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors"
+              className={cn(
+                'absolute z-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors',
+                isCompactCreatorPreview ? 'right-2 h-9 w-9' : 'right-3 h-10 w-10'
+              )}
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -698,10 +748,10 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
           <div
             className={cn(
-              'overflow-hidden transition-all duration-300 flex flex-col',
-              isLearner ? 'w-full h-full' : cn('rounded-2xl shadow-2xl border border-border', deviceMode === 'mobile' && 'rounded-[2rem]')
+              'overflow-hidden transition-all duration-300 flex flex-col bg-card',
+              isLearner || isCompactCreatorPreview ? 'w-full h-full' : cn('rounded-2xl shadow-2xl border border-border', deviceMode === 'mobile' && 'rounded-[2rem]')
             )}
-            style={isLearner ? {} : {
+            style={isLearner || isCompactCreatorPreview ? {} : {
               width: deviceStyles[deviceMode].w,
               maxWidth: deviceStyles[deviceMode].maxW,
               height: deviceStyles[deviceMode].h,
@@ -721,10 +771,15 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
             </AnimatePresence>
 
             {/* Bottom bar */}
-            <div className="border-t border-border px-4 py-2.5 flex items-center justify-between shrink-0 bg-card gap-3">
-              <div className="flex items-center gap-2 text-[10px] text-muted-foreground shrink-0">
-                <span className="font-medium">{currentIndex + 1}/{total}</span>
-              </div>
+            <div className={cn(
+              'border-t border-border flex items-center justify-between shrink-0 bg-card',
+              isCompactCreatorPreview ? 'gap-2 px-3 py-2' : 'gap-3 px-4 py-2.5'
+            )}>
+              {!isCompactCreatorPreview && (
+                <div className="flex items-center gap-2 text-[10px] text-muted-foreground shrink-0">
+                  <span className="font-medium">{currentIndex + 1}/{total}</span>
+                </div>
+              )}
 
               <div className="flex-1">
                 <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -732,7 +787,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
                     className="h-full rounded-full"
                     style={{ background: `linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))` }}
                     initial={false}
-                    animate={{ width: `${((currentIndex + 1) / total) * 100}%` }}
+                    animate={{ width: `${progressPercent}%` }}
                     transition={{ duration: 0.3 }}
                   />
                 </div>
@@ -742,7 +797,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
                 size="sm"
                 onClick={goNext}
                 disabled={currentIndex >= total - 1}
-                className="gap-1.5 text-xs shrink-0"
+                className={cn('gap-1.5 shrink-0', isCompactCreatorPreview ? 'h-9 px-3 text-xs' : 'text-xs')}
               >
                 {currentIndex >= total - 1
                   ? (isFr ? 'Terminé' : 'Finished')
