@@ -70,23 +70,26 @@ export function Sidebar() {
     return location.pathname.startsWith(to);
   };
 
-  // ═══ UNIFIED NAV — same for all users ═══
-  const getNavItems = (): NavItem[] => {
+  // ═══ PRIMARY NAV — top items visible to all ═══
+  const primaryItems: NavItem[] = [
+    { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+    { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
+    { to: hasOrgs && canManageCurrentOrg ? '/admin/create' : '/create-org', icon: Sparkles, label: 'Viral AI Studio' },
+    { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
+  ];
+
+  // ═══ SECONDARY NAV — grouped below a separator ═══
+  const getSecondaryItems = (): NavItem[] => {
     const items: NavItem[] = [
-      { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
       { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-      { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
       { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
       { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
     ];
 
-    // Creator/Seller section (if they have an org)
     if (hasOrgs && canManageCurrentOrg) {
       items.push(
         ...[
           currentOrg ? { to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' } : null,
-          { to: '/admin/create', icon: Plus, label: 'Viral AI Studio' },
           { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
           { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
           { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
@@ -95,10 +98,6 @@ export function Sidebar() {
           { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
           { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
         ].filter(Boolean) as NavItem[]
-      );
-    } else {
-      items.push(
-        { to: '/create-org', icon: Sparkles, label: isFr ? 'Créer ma plateforme' : 'Create my platform' },
       );
     }
 
