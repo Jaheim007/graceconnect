@@ -294,9 +294,10 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
                   : 'bg-background/90 backdrop-blur-sm text-foreground border border-border/50'
               )}>
                 <span>
-                  {isPwyw && minPrice > 0 ? (
+                  {isPwyw ? (
                     <>
-                      💰 {isFr ? 'Dès' : 'From'} {fmt(minPrice)}
+                      💰 {isFr ? 'Prix libre' : 'Name your price'}
+                      {minPrice > 0 && <> · {isFr ? 'Dès' : 'From'} {fmt(minPrice)}</>}
                     </>
                   ) : (
                     <>

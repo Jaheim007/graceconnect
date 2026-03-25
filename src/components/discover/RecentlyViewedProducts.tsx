@@ -38,7 +38,7 @@ export function RecentlyViewedProducts() {
       if (recentIds.length === 0) return [];
       const { data } = await db
         .from('digital_products')
-        .select('id, title, cover_image_url, price, is_free, currency, slug, organization_id, organizations(slug, name)')
+        .select('id, title, cover_image_url, price, is_free, is_pwyw, min_price, sale_price, sale_ends_at, currency, slug, organization_id, organizations(slug, name)')
         .in('id', recentIds.slice(0, 8))
         .eq('is_published', true);
       if (!data) return [];
