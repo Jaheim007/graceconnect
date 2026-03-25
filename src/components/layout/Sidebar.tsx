@@ -2,10 +2,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   Home, Eye, Settings, ChevronLeft, ChevronRight, Shield,
-  FileCheck, LogOut, BarChart3, Building2, Users, Wallet,
+  FileCheck, LogOut, BarChart3, Users, Wallet,
   Store, Package, User, Handshake, Plus, Share2,
-  Sparkles, Coins, GraduationCap, Bookmark, Star, Zap, Rss,
-  ArrowLeftRight, ShoppingBag
+  Sparkles, Coins, Zap, Bookmark
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -17,7 +16,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useMyPartner } from '@/hooks/usePartner';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { useUserMode, MODE_LABELS, UserMode } from '@/contexts/UserModeContext';
 
 interface NavItem {
   to: string;
@@ -36,7 +34,6 @@ export function Sidebar() {
   const { t, locale } = useI18n();
   const { data: myPartner } = useMyPartner();
   const isApprovedPartner = myPartner?.status === 'approved';
-  const { mode, setMode } = useUserMode();
   const isFr = locale === 'fr';
 
   const hasOrgs = userOrgs.length > 0;
@@ -59,11 +56,6 @@ export function Sidebar() {
 
   const kycIncomplete = !kycStatus || kycStatus === 'none' || kycStatus === 'pending';
 
-  const myPageItem: NavItem | null = (() => {
-    if (!currentOrg || !canManageCurrentOrg) return null;
-    return { to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' };
-  })();
-
   const isSA = location.pathname.startsWith('/superadmin');
 
   const superadminNav: NavItem[] = [
@@ -78,70 +70,39 @@ export function Sidebar() {
     return location.pathname.startsWith(to);
   };
 
-  // ═══ MODE-SPECIFIC NAV ITEMS ═══
-  const getModeNavItems = (): NavItem[] => {
-    const common: NavItem[] = [
+  // ═══ UNIFIED NAV — same for all users ═══
+  const getNavItems = (): NavItem[] => {
+    const items: NavItem[] = [
       { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-    ];
-
-    const purchasesItems: NavItem[] = [
       { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
       { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+      { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
       { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
       { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
     ];
 
-    const sellItems: NavItem[] = hasOrgs && canManageCurrentOrg ? [
-      ...(myPageItem ? [myPageItem] : []),
-      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-      { to: '/admin/create', icon: Plus, label: 'Viral AI Studio' },
-      { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
-      { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
-      { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
-      { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
-      { to: '/admin/analytics', icon: BarChart3, label: isFr ? 'Analytics' : 'Analytics' },
-      { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
-      { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
-    ] : [
-      { to: '/create-org', icon: Plus, label: isFr ? 'Créer ma plateforme' : 'Create my platform' },
-      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-      { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-    ];
-
-    const earnItems: NavItem[] = [
-      { to: '/spotlight', icon: Star, label: isFr ? 'Spotlight' : 'Spotlight' },
-      { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-      { to: '/feed', icon: Rss, label: isFr ? 'Mon Réseau' : 'My Network' },
-      { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
-      { to: '/affiliation', icon: Share2, label: isFr ? 'Mes liens' : 'My Links' },
-      { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
-    ];
-
-    const createItems: NavItem[] = hasOrgs && canManageCurrentOrg ? [
-      ...(myPageItem ? [myPageItem] : []),
-      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-      { to: '/admin/create', icon: Sparkles, label: 'Viral AI Studio' },
-      { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
-      { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
-      { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
-      { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
-      { to: '/admin/analytics', icon: BarChart3, label: isFr ? 'Analytics' : 'Analytics' },
-      { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
-      { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
-    ] : [
-      { to: '/create-org', icon: Sparkles, label: isFr ? 'Créer ma plateforme' : 'Create my platform' },
-      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-      { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-    ];
-
-    switch (mode) {
-      case 'purchases': return [...common, ...purchasesItems];
-      case 'sell': return [...common, ...sellItems];
-      case 'earn': return [...common, ...earnItems];
-      case 'create': return [...common, ...createItems];
-      default: return [...common, ...purchasesItems];
+    // Creator/Seller section (if they have an org)
+    if (hasOrgs && canManageCurrentOrg) {
+      items.push(
+        ...[
+          currentOrg ? { to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' } : null,
+          { to: '/admin/create', icon: Plus, label: 'Viral AI Studio' },
+          { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
+          { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
+          { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
+          { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
+          { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
+          { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
+          { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
+        ].filter(Boolean) as NavItem[]
+      );
+    } else {
+      items.push(
+        { to: '/create-org', icon: Sparkles, label: isFr ? 'Créer ma plateforme' : 'Create my platform' },
+      );
     }
+
+    return items;
   };
 
   const renderNavItem = (item: NavItem) => {
@@ -185,17 +146,6 @@ export function Sidebar() {
     return link;
   };
 
-  const renderSectionLabel = (label: string, color?: string) => {
-    if (collapsed) return null;
-    return (
-      <div className="px-3 pt-5 pb-1.5">
-        <span className={cn('text-[10px] font-bold uppercase tracking-widest', color || 'text-muted-foreground')}>{label}</span>
-      </div>
-    );
-  };
-
-  const modeLabel = mode ? MODE_LABELS[mode] : null;
-
   return (
     <aside
       className={cn(
@@ -213,23 +163,14 @@ export function Sidebar() {
           superadminNav.map(renderNavItem)
         ) : (
           <>
-            {/* Mode label */}
-            {modeLabel && !collapsed && (
-              <div className="px-3 pt-3 pb-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
-                  {modeLabel.emoji} {isFr ? modeLabel.fr : modeLabel.en}
-                </span>
-              </div>
-            )}
-
-            {/* Org switcher for sell/create modes */}
-            {(mode === 'sell' || mode === 'create') && hasOrgs && canManageCurrentOrg && (
+            {/* Org switcher for creators */}
+            {hasOrgs && canManageCurrentOrg && (
               <OrgSwitcher variant="sidebar" collapsed={collapsed} />
             )}
 
-            {/* Mode-specific nav */}
+            {/* Unified nav */}
             <div className="mt-1 space-y-0.5">
-              {getModeNavItems().map(renderNavItem)}
+              {getNavItems().map(renderNavItem)}
             </div>
 
             {isApprovedPartner && (
@@ -248,20 +189,8 @@ export function Sidebar() {
         )}
       </nav>
 
-      {/* Footer: Switch mode + Sign out */}
+      {/* Footer: Sign out */}
       <div className={cn('border-t border-border space-y-0.5', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
-        {/* Switch mode button */}
-        <button
-          onClick={() => navigate('/welcome')}
-          className={cn(
-            'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-muted-foreground hover:bg-sidebar-accent hover:text-foreground',
-            collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
-          )}
-        >
-          <ArrowLeftRight className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>{isFr ? 'Mon Espace' : 'My Space'}</span>}
-        </button>
-
         <button
           onClick={signOut}
           className={cn(
