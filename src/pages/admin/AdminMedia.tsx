@@ -72,37 +72,43 @@ export default function AdminMedia() {
               <motion.div
                 key={m.id}
                 variants={fadeUp}
-                className="flex items-center gap-4 p-4 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group"
+                className="p-3 sm:p-4 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group space-y-2.5"
               >
-                <div className="h-16 w-28 rounded-lg bg-muted overflow-hidden shrink-0">
-                  {m.thumbnail_url ? <img src={m.thumbnail_url} alt={m.title} className="w-full h-full object-cover" /> : <div className="w-full h-full hero-gradient" />}
+                {/* Row 1: thumbnail + title */}
+                <div className="flex items-start gap-3">
+                  <div className="h-14 w-20 rounded-lg bg-muted overflow-hidden shrink-0">
+                    {m.thumbnail_url ? <img src={m.thumbnail_url} alt={m.title} className="w-full h-full object-cover" /> : <div className="w-full h-full hero-gradient" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium leading-snug line-clamp-2">{m.title}</p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-base font-medium truncate">{m.title}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="outline" className="text-xs px-2 capitalize border-0 bg-muted">{m.media_type}</Badge>
+                {/* Row 2: badges + actions */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <Badge variant="outline" className="text-[11px] px-2 capitalize border-0 bg-muted">{m.media_type}</Badge>
                     <Badge
                       variant="outline"
                       className={cn(
-                        'text-xs px-2 border-0',
+                        'text-[11px] px-2 border-0',
                         m.is_published ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-muted text-muted-foreground'
                       )}
                     >
                       {m.is_published ? t('admin_media.published') : t('admin_media.draft')}
                     </Badge>
                   </div>
-                </div>
-                <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-9 w-9" title={m.is_published ? 'Dépublier' : 'Publier'}
-                    onClick={() => handleTogglePublish(m)}>
-                    {m.is_published ? <Eye className="h-4 w-4 text-green-500" /> : <EyeOff className="h-4 w-4 text-muted-foreground" />}
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate(`/admin/media/${m.id}/edit`)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive" onClick={() => setDeleteTarget({ id: m.id, title: m.title })}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-0.5 shrink-0">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" title={m.is_published ? 'Dépublier' : 'Publier'}
+                      onClick={() => handleTogglePublish(m)}>
+                      {m.is_published ? <Eye className="h-3.5 w-3.5 text-green-500" /> : <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />}
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/admin/media/${m.id}/edit`)}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleteTarget({ id: m.id, title: m.title })}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             ))}
