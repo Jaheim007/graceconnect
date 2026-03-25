@@ -97,16 +97,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
     if (!user) return `${window.location.origin}${detailPath}`;
 
     const code = affiliateCode ?? await ensureAffiliateCode();
-    if (!code) {
-      toast({
-        title: isFr ? 'Lien ambassadeur indisponible' : 'Ambassador link unavailable',
-        description: isFr ? 'Impossible d’activer votre commission pour ce partage.' : 'Unable to activate your commission for this share.',
-        variant: 'destructive',
-      });
-      return null;
-    }
-
-    const targetPath = `${detailPath}?ref=${code}`;
+    const targetPath = code ? `${detailPath}?ref=${code}` : detailPath;
 
     try {
       return await getOrCreateShortLink({
