@@ -4807,6 +4807,7 @@ export type Database = {
           assessment_enabled: boolean | null
           certificate_enabled: boolean | null
           certificate_template: string | null
+          content_language: string | null
           cover_image_url: string | null
           created_at: string
           created_by: string | null
@@ -4835,6 +4836,7 @@ export type Database = {
           assessment_enabled?: boolean | null
           certificate_enabled?: boolean | null
           certificate_template?: string | null
+          content_language?: string | null
           cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
@@ -4863,6 +4865,7 @@ export type Database = {
           assessment_enabled?: boolean | null
           certificate_enabled?: boolean | null
           certificate_template?: string | null
+          content_language?: string | null
           cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
