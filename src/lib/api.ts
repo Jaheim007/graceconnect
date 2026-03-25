@@ -209,7 +209,7 @@ export type EmailTemplate =
   | 'weekly_recap_user' | 'daily_recap_admin' | 'daily_recap_superadmin'
   | 'monthly_recap_org' | 'weekly_ambassador_recap'
   // Superadmin
-  | 'fraud_alert' | 'new_org_alert'
+  | 'fraud_alert' | 'new_org_alert' | 'moderation_action'
   // Misc
   | 'flash_sale_alert' | 'promo_code_used' | 'org_verified'
   | 'waitlist_spot_available' | 'referral_reward';

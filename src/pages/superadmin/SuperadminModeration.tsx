@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
+import { sendEmailNotification } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -144,6 +145,42 @@ function ModerationDialog({
         reason: reason.trim(),
         reason_category: category,
       });
+
+      // Send moderation email to the content owner
+      try {
+        // Resolve the owner's email via org
+        const { data: org } = await db
+          .from('organizations')
+          .select('owner_id, name')
+          .eq('id', target.orgId)
+          .single();
+
+        if (org?.owner_id) {
+          const { data: authData } = await db.rpc('get_user_email_for_notification' as any, { _user_id: org.owner_id });
+          const ownerEmail = typeof authData === 'string' ? authData : null;
+
+          // Fallback: get display name from profile
+          const { data: profile } = await db
+            .from('profiles')
+            .select('display_name')
+            .eq('id', org.owner_id)
+            .single();
+
+          if (ownerEmail) {
+            sendEmailNotification('moderation_action', ownerEmail, {
+              name: profile?.display_name || '',
+              content_title: target.title,
+              action,
+              reason_category: category,
+              reason: reason.trim(),
+              org_name: org.name || '',
+            }, target.orgId).catch(() => {});
+          }
+        }
+      } catch {
+        // Email is best-effort, don't block the flow
+      }
+
       toast.success(`Action "${ACTION_LABELS[action]?.label}" effectuée`);
       setReason('');
       setAction('warn');
