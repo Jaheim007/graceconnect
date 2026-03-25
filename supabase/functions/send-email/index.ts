@@ -845,7 +845,7 @@ Deno.serve(async (req) => {
         lang = await resolveUserLang(supabaseAdmin, recipient);
       }
 
-      let tpl: { subject: string; html: string };
+      let tpl: { subject: string; html: string; fromOverride?: string };
       try {
         tpl = buildTemplate(template, data, lang);
       } catch {
@@ -856,7 +856,7 @@ Deno.serve(async (req) => {
         method: 'POST',
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Siteviral <noreply@siteviral.com>',
+          from: tpl.fromOverride || 'Siteviral <noreply@siteviral.com>',
           to: [recipient],
           subject: tpl.subject,
           html: tpl.html,
