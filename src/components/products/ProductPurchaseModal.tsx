@@ -532,7 +532,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 >
                   {isPwyw
                     ? `${isFr ? 'Payer' : 'Pay'} ${fmt(pwywValue > 0 ? pwywValue : minPrice)}`
-                    : (product.is_free || finalPrice === 0)
+                    : product.is_free
                       ? (isFr ? 'Accéder gratuitement' : 'Access for free')
                       : `${isFr ? 'Payer' : 'Pay'} ${fmt(finalPrice)}`}
                 </Button>
@@ -599,7 +599,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 )}
                 <div className="flex justify-between font-semibold">
                   <span>{isFr ? 'Total à payer' : 'Total to pay'}</span>
-                  <span className="text-primary">{product.is_free || finalPrice === 0 ? (isFr ? 'Gratuit' : 'Free') : fmt(finalPrice)}</span>
+                  <span className="text-primary">{product.is_free ? (isFr ? 'Gratuit' : 'Free') : fmt(finalPrice)}</span>
                 </div>
                 {!product.is_free && finalPrice > 0 && (
                   <p className="text-[10px] text-muted-foreground mt-1.5">
@@ -613,7 +613,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               <Button variant="outline" onClick={() => setStep('confirm')} className="flex-1">{isFr ? 'Retour' : 'Back'}</Button>
               <Button onClick={handlePurchase} disabled={isSubmitting} className="flex-1 bg-primary text-primary-foreground">
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
-                {product.is_free || finalPrice === 0 ? (isFr ? 'Confirmer' : 'Confirm') : `${isFr ? 'Payer' : 'Pay'} ${fmt(finalPrice)}`}
+                {product.is_free ? (isFr ? 'Confirmer' : 'Confirm') : `${isFr ? 'Payer' : 'Pay'} ${fmt(finalPrice)}`}
               </Button>
             </div>
           </>
