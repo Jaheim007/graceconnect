@@ -68,6 +68,7 @@ interface FlatSlide {
   lessonIndex: number;
   slideInLesson: number;
   lessonImageUrl?: string;
+  moduleQuiz?: any; // populated for module-quiz slides
 }
 
 export function LessonPreview({ programId, initialLessonId, onClose, headerActions, mode = 'creator' }: LessonPreviewProps) {
