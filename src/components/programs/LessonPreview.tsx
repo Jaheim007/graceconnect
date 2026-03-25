@@ -720,13 +720,16 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
         {/* Viewport */}
         <div className={cn(
-          'flex-1 flex items-center justify-center relative overflow-hidden',
-          isLearner ? 'p-0' : 'p-4'
+          'flex-1 relative overflow-hidden',
+          isLearner || isCompactCreatorPreview ? 'flex items-stretch justify-stretch p-0' : 'flex items-center justify-center p-4'
         )}>
           {currentIndex > 0 && (
             <button
               onClick={goPrev}
-              className="absolute left-3 z-10 h-10 w-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors"
+              className={cn(
+                'absolute z-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors',
+                isCompactCreatorPreview ? 'left-2 h-9 w-9' : 'left-3 h-10 w-10'
+              )}
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -734,7 +737,10 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           {currentIndex < total - 1 && (
             <button
               onClick={goNext}
-              className="absolute right-3 z-10 h-10 w-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors"
+              className={cn(
+                'absolute z-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors',
+                isCompactCreatorPreview ? 'right-2 h-9 w-9' : 'right-3 h-10 w-10'
+              )}
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -742,10 +748,10 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
           <div
             className={cn(
-              'overflow-hidden transition-all duration-300 flex flex-col',
-              isLearner ? 'w-full h-full' : cn('rounded-2xl shadow-2xl border border-border', deviceMode === 'mobile' && 'rounded-[2rem]')
+              'overflow-hidden transition-all duration-300 flex flex-col bg-card',
+              isLearner || isCompactCreatorPreview ? 'w-full h-full' : cn('rounded-2xl shadow-2xl border border-border', deviceMode === 'mobile' && 'rounded-[2rem]')
             )}
-            style={isLearner ? {} : {
+            style={isLearner || isCompactCreatorPreview ? {} : {
               width: deviceStyles[deviceMode].w,
               maxWidth: deviceStyles[deviceMode].maxW,
               height: deviceStyles[deviceMode].h,
@@ -765,10 +771,15 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
             </AnimatePresence>
 
             {/* Bottom bar */}
-            <div className="border-t border-border px-4 py-2.5 flex items-center justify-between shrink-0 bg-card gap-3">
-              <div className="flex items-center gap-2 text-[10px] text-muted-foreground shrink-0">
-                <span className="font-medium">{currentIndex + 1}/{total}</span>
-              </div>
+            <div className={cn(
+              'border-t border-border flex items-center justify-between shrink-0 bg-card',
+              isCompactCreatorPreview ? 'gap-2 px-3 py-2' : 'gap-3 px-4 py-2.5'
+            )}>
+              {!isCompactCreatorPreview && (
+                <div className="flex items-center gap-2 text-[10px] text-muted-foreground shrink-0">
+                  <span className="font-medium">{currentIndex + 1}/{total}</span>
+                </div>
+              )}
 
               <div className="flex-1">
                 <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -776,7 +787,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
                     className="h-full rounded-full"
                     style={{ background: `linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))` }}
                     initial={false}
-                    animate={{ width: `${((currentIndex + 1) / total) * 100}%` }}
+                    animate={{ width: `${progressPercent}%` }}
                     transition={{ duration: 0.3 }}
                   />
                 </div>
@@ -786,7 +797,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
                 size="sm"
                 onClick={goNext}
                 disabled={currentIndex >= total - 1}
-                className="gap-1.5 text-xs shrink-0"
+                className={cn('gap-1.5 shrink-0', isCompactCreatorPreview ? 'h-9 px-3 text-xs' : 'text-xs')}
               >
                 {currentIndex >= total - 1
                   ? (isFr ? 'Terminé' : 'Finished')
