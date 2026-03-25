@@ -577,6 +577,25 @@ export function ProgramForm() {
                             )}
                           </div>
                         </div>
+
+                        {/* Module quiz button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingQuizModuleId(mod.id);
+                            setSelectedLessonId(null);
+                            setSelectedModuleId(mod.id);
+                          }}
+                          className={cn(
+                            'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors text-[11px]',
+                            editingQuizModuleId === mod.id
+                              ? 'bg-primary/10 text-primary font-medium'
+                              : 'hover:bg-muted/50 text-muted-foreground'
+                          )}
+                        >
+                          <HelpCircle className="h-3 w-3 shrink-0" />
+                          <span className="flex-1">{isFr ? 'Quiz & Flashcards' : 'Quiz & Flashcards'}</span>
+                        </button>
                       </>
                     )}
                   </div>
