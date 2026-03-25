@@ -725,24 +725,25 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
         unpublish: '⛔', delete: '🗑️', warn: '⚠️', suspend_org: '🚫',
       };
       const emoji = actionEmojis[String(d.action)] || '⚠️';
-      const emailSubject = d.subject ? String(d.subject) : `${emoji} Modération – "${d.content_title}"`;
+      const emailSubject = d.subject ? String(d.subject) : `${emoji} Moderation – "${d.content_title}"`;
       const descriptionHtml = d.description
         ? `<div style="background:#222;border-radius:8px;padding:16px;margin:16px 0;color:#ddd;font-size:14px;line-height:1.6;white-space:pre-wrap">${d.description}</div>`
         : '';
       const reasonHtml = d.reason
-        ? `<p style="color:#ccc;font-size:13px;margin:12px 0"><strong style="color:#eee">Motif :</strong> ${d.reason}</p>`
+        ? `<p style="color:#ccc;font-size:13px;margin:12px 0"><strong style="color:#eee">Reason:</strong> ${d.reason}</p>`
         : '';
 
       return {
         subject: emailSubject,
         html: wrap(`
           <h1 style="color:${red}">${emoji} ${emailSubject}</h1>
-          <p style="color:#ccc">Contenu concerné : <strong style="color:#eee">"${d.content_title}"</strong></p>
+          <p style="color:#ccc">Content affected: <strong style="color:#eee">"${d.content_title}"</strong></p>
           ${reasonHtml}
           ${descriptionHtml}
-          <p style="color:#999;font-size:12px;margin-top:20px">Si vous pensez que cette décision est injuste, contactez notre support.</p>
-          ${cta('https://siteviral.com/admin/products', 'Voir mes contenus')}
+          <p style="color:#999;font-size:12px;margin-top:20px">If you believe this decision was made in error, please contact our support team at <a href="mailto:support@siteviral.com" style="color:#999">support@siteviral.com</a> or <a href="mailto:team@siteviral.com" style="color:#999">team@siteviral.com</a>.</p>
+          ${cta('https://siteviral.com/admin/products', 'View my content')}
         `, lang),
+        fromOverride: 'Siteviral Team <team@siteviral.com>',
       };
     }
 
@@ -844,7 +845,7 @@ Deno.serve(async (req) => {
         lang = await resolveUserLang(supabaseAdmin, recipient);
       }
 
-      let tpl: { subject: string; html: string };
+      let tpl: { subject: string; html: string; fromOverride?: string };
       try {
         tpl = buildTemplate(template, data, lang);
       } catch {
@@ -855,7 +856,7 @@ Deno.serve(async (req) => {
         method: 'POST',
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Siteviral <noreply@siteviral.com>',
+          from: tpl.fromOverride || 'Siteviral <noreply@siteviral.com>',
           to: [recipient],
           subject: tpl.subject,
           html: tpl.html,
