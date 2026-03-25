@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ShoppingBag, Store, Share2, Sparkles, ArrowRight, SkipForward } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { useI18n } from '@/i18n/I18nContext';
 
