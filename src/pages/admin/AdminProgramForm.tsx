@@ -24,13 +24,14 @@ import {
   Plus, Save, Loader2, BookOpen, Layers, FileText, Video, Music,
   Link2, Trash2, GripVertical, ChevronDown, ChevronRight, Clock,
   Settings, Eye, Sparkles, DollarSign, Award, ArrowLeft,
-  MoreVertical, Lock, PenLine, ImageIcon, Wand2, Users, Share2
+  MoreVertical, Lock, PenLine, ImageIcon, Wand2, Users, Share2, HelpCircle
 } from 'lucide-react';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useI18n } from '@/i18n/I18nContext';
 import { LessonEditor } from '@/components/programs/LessonEditor';
 import { AICourseGenerator } from '@/components/programs/AICourseGenerator';
+import { ModuleQuizEditor } from '@/components/programs/ModuleQuizEditor';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
