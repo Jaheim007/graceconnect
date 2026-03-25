@@ -436,7 +436,7 @@ export default function ProgramDetailPage() {
       )}
 
       {/* Main content */}
-      <div className="container max-w-5xl px-4 py-6 pb-24 md:pb-6">
+      <div className={cn("container max-w-5xl px-4 py-6 md:pb-6", !hasAccess ? "pb-28" : "pb-24")}>
         <div className="grid md:grid-cols-[1fr_340px] gap-6 md:gap-8">
           {/* Left column */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -791,6 +791,43 @@ export default function ProgramDetailPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* Mobile sticky bottom CTA bar */}
+      {!hasAccess && (
+        <motion.div
+          initial={{ y: 60, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="fixed bottom-0 left-0 right-0 z-40 md:hidden border-t border-border bg-card/95 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.15)] px-4 py-3"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <span className={cn('text-xl font-bold', program.is_free ? 'text-emerald-500' : 'text-primary')}>
+                {priceDisplay}
+              </span>
+              {!program.is_free && (program.price ?? 0) > 0 && (
+                <LocalPriceHint amount={program.price ?? 0} currency={program.currency || 'XOF'} className="text-[10px] block" />
+              )}
+            </div>
+            <Button
+              size="lg"
+              className="gap-2 font-semibold shadow-lg px-6"
+              onClick={handleEnroll}
+              disabled={enrollMutation.isPending}
+            >
+              {enrollMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {program.is_free
+                ? (isFr ? 'Obtenir' : 'Get free')
+                : (isFr ? 'Acheter' : 'Buy now')
+              }
+            </Button>
+          </div>
+        </motion.div>
+      )}
 
       {/* Purchase modal for paid courses */}
       {linkedProduct && (
