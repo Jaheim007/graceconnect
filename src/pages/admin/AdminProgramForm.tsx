@@ -86,6 +86,8 @@ export function ProgramForm() {
   const [newLessonTitle, setNewLessonTitle] = useState('');
   const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [collapsedModules, setCollapsedModules] = useState<Set<string>>(new Set());
+  const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
+  const [editingModuleTitle, setEditingModuleTitle] = useState('');
   const [applyingAI, setApplyingAI] = useState(false);
   const [generatingTitle, setGeneratingTitle] = useState(false);
   const [generatingDesc, setGeneratingDesc] = useState(false);
@@ -244,6 +246,21 @@ export function ProgramForm() {
       await deleteModule.mutateAsync({ moduleId, programId: id });
     } catch {
       toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' });
+    }
+  };
+
+  const handleRenameModule = async (moduleId: string) => {
+    if (!id || !editingModuleTitle.trim()) {
+      setEditingModuleId(null);
+      return;
+    }
+    try {
+      await updateModule.mutateAsync({ id: moduleId, programId: id, title: editingModuleTitle.trim() });
+      toast({ title: isFr ? '✅ Module renommé' : '✅ Module renamed' });
+    } catch {
+      toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' });
+    } finally {
+      setEditingModuleId(null);
     }
   };
 
@@ -409,7 +426,7 @@ export function ProgramForm() {
                 <div className="p-3 border-b border-border bg-muted/30">
                   <div className="flex items-center gap-2 mb-2">
                     <Layers className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-semibold">{isFr ? 'Structure du cours' : 'Course structure'}</span>
+                    <span className="text-sm font-semibold">{isFr ? 'Structure de la formation' : 'Formation structure'}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span>{modules.length} module{modules.length !== 1 ? 's' : ''}</span>
@@ -446,6 +463,7 @@ export function ProgramForm() {
                     <div
                       className="flex items-center gap-1.5 px-2 py-1.5 group cursor-pointer hover:bg-muted/30 rounded-md"
                       onClick={() => {
+                        if (editingModuleId === mod.id) return;
                         setCollapsedModules(prev => {
                           const next = new Set(prev);
                           if (next.has(mod.id)) next.delete(mod.id);
@@ -460,10 +478,39 @@ export function ProgramForm() {
                         <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" />
                       )}
                       <BookOpen className="h-3 w-3 text-muted-foreground shrink-0" />
-                      <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide flex-1 truncate">
-                        {mod.title}
-                      </span>
+
+                      {editingModuleId === mod.id ? (
+                        <Input
+                          autoFocus
+                          value={editingModuleTitle}
+                          onChange={e => setEditingModuleTitle(e.target.value)}
+                          onBlur={() => handleRenameModule(mod.id)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') handleRenameModule(mod.id);
+                            if (e.key === 'Escape') setEditingModuleId(null);
+                          }}
+                          onClick={e => e.stopPropagation()}
+                          className="h-5 text-[11px] font-semibold uppercase tracking-wide px-1 py-0 border-primary"
+                        />
+                      ) : (
+                        <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide flex-1 truncate">
+                          {mod.title}
+                        </span>
+                      )}
+
                       <span className="text-[9px] text-muted-foreground/60">{(mod.lessons || []).length}</span>
+                      <Button
+                        variant="ghost" size="icon"
+                        className="h-5 w-5 opacity-0 group-hover:opacity-100 text-primary"
+                        title={isFr ? 'Renommer' : 'Rename'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingModuleId(mod.id);
+                          setEditingModuleTitle(mod.title);
+                        }}
+                      >
+                        <PenLine className="h-2.5 w-2.5" />
+                      </Button>
                       <Button
                         variant="ghost" size="icon"
                         className="h-5 w-5 opacity-0 group-hover:opacity-100 text-destructive"
