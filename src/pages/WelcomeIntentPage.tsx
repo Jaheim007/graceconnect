@@ -10,8 +10,10 @@ import { useI18n } from '@/i18n/I18nContext';
 export default function WelcomeIntentPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { userOrgs, canManage } = useOrg();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+  const hasManagedOrgs = userOrgs.some((org) => canManage(org.id));
 
   const intents = [
     {
