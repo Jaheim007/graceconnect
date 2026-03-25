@@ -79,6 +79,23 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   const { data: modules = [] } = useProgramModules(programId);
   const isLearner = mode === 'learner';
 
+  // Fetch all module quizzes for this program
+  const moduleIds = useMemo(() => modules.map((m: any) => m.id), [modules]);
+  const { data: moduleQuizzes = [] } = useQuery({
+    queryKey: ['all-module-quizzes', programId, moduleIds],
+    enabled: moduleIds.length > 0,
+    queryFn: async () => {
+      if (!moduleIds.length) return [];
+      const { data } = await db.from('program_quizzes')
+        .select('*, quiz_questions(*)')
+        .in('module_id', moduleIds);
+      return (data || []).map((q: any) => ({
+        ...q,
+        questions: (q.quiz_questions || []).sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0)),
+      }));
+    },
+  });
+
   const initialViewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
   const [viewportWidth, setViewportWidth] = useState(initialViewportWidth);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>(() => (initialViewportWidth < 768 ? 'mobile' : 'desktop'));
