@@ -2,47 +2,22 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Navigate, Link } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PenLine, Share2, Upload, Store, ArrowRight, Plus } from 'lucide-react';
-import { FirstWinChecklist } from '@/components/dashboard/FirstWinChecklist';
-import { PremiumCard } from '@/components/ui/PremiumCard';
-import { TrendingProducts } from '@/components/discover/TrendingProducts';
-import { GrowthTipsWidget } from '@/components/growth/GrowthTipsWidget';
-import AmbassadorDashboard from '@/pages/AmbassadorDashboard';
 import UserDashboard from '@/pages/UserDashboard';
-import { useI18n } from '@/i18n/I18nContext';
-import { motion } from 'framer-motion';
-import { useUserMode } from '@/contexts/UserModeContext';
 
 /**
- * Smart Dashboard — now mode-aware:
- * 1. No mode selected → redirect to /welcome
- * 2. Mode "purchases" → UserDashboard (purchases focused)
- * 3. Mode "sell" or "create" → redirect to /admin or create-org
- * 4. Mode "earn" → AmbassadorDashboard
+ * Unified Dashboard — no more mode-based routing.
+ * Everyone sees the same dashboard.
  */
 export default function DashboardRouter() {
   const { user } = useAuth();
-  const { userOrgs, canManage, isLoadingOrgs } = useOrg();
-  const { mode } = useUserMode();
-  const { locale } = useI18n();
-  const isFr = locale === 'fr';
+  const { isLoadingOrgs } = useOrg();
 
-  const { data: userState, isLoading: stateLoading } = useQuery({
+  const { isLoading: stateLoading } = useQuery({
     queryKey: ['dashboard-state', user?.id],
     queryFn: async () => {
-      if (!user) return { hasAffiliateLinks: false, hasPurchases: false, hasBook: false };
-      const [affiliateRes, purchaseRes, bookRes] = await Promise.all([
-        db.from('affiliate_links').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-        db.from('product_purchases').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'completed'),
-        db.from('ai_content_projects').select('id', { count: 'exact', head: true }).eq('created_by', user.id),
-      ]);
-      return {
-        hasAffiliateLinks: (affiliateRes.count || 0) > 0,
-        hasPurchases: (purchaseRes.count || 0) > 0,
-        hasBook: (bookRes.count || 0) > 0,
-      };
+      if (!user) return null;
+      return true;
     },
     enabled: !!user,
     staleTime: 60_000,
@@ -58,30 +33,5 @@ export default function DashboardRouter() {
     );
   }
 
-  // No mode selected → redirect to mode selection
-  if (!mode) {
-    return <Navigate to="/welcome" replace />;
-  }
-
-  const manageableOrg = userOrgs.find(o => canManage(o.id));
-
-  // Mode-based routing
-  switch (mode) {
-    case 'sell':
-    case 'create':
-      if (manageableOrg) {
-        return <Navigate to="/admin" replace />;
-      }
-      // No org yet → redirect to create platform
-      return <Navigate to="/create-org" replace />;
-
-    case 'earn':
-      return <AmbassadorDashboard />;
-
-    case 'purchases':
-      return <UserDashboard />;
-
-    default:
-      return <UserDashboard />;
-  }
+  return <UserDashboard />;
 }

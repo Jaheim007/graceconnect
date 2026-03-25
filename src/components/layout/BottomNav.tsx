@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home, Plus, Wallet, Store, MoreHorizontal, Shield, Bell, Settings,
   User, ShieldCheck, Package, BarChart3, Eye, Users, Zap, UserPlus, Share2, Star, Sparkles,
-  Rss, Bookmark, GraduationCap, Coins, ArrowLeftRight, LogOut
+  Bookmark, Coins, LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,14 +14,12 @@ import { getShortcutRoute } from '@/lib/navigation/shortcutRoutes';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { useUserMode, MODE_LABELS } from '@/contexts/UserModeContext';
 
 interface NavItemDef {
   to: string;
   icon: typeof Home;
   label: string;
   center?: boolean;
-  accent?: boolean;
 }
 
 export function BottomNav() {
@@ -33,7 +31,6 @@ export function BottomNav() {
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
   const hasManagedOrgs = userOrgs.some((org) => canManage(org.id));
   const [moreOpen, setMoreOpen] = useState(false);
-  const { mode } = useUserMode();
   const isFr = locale === 'fr';
 
   const { data: unreadCount = 0 } = useQuery({
@@ -65,8 +62,8 @@ export function BottomNav() {
     { to: '/auth?mode=signup', icon: UserPlus, label: isFr ? 'Inscription' : 'Sign up' },
   ];
 
-  // ═══ UNIFIED BOTTOM NAV (same for ALL modes) ═══
-  const getModeBottomItems = (): NavItemDef[] => [
+  // ═══ UNIFIED BOTTOM NAV (same for ALL users) ═══
+  const bottomItems: NavItemDef[] = [
     { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
     { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
     { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
@@ -74,7 +71,7 @@ export function BottomNav() {
     { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
   ];
 
-  // ═══ MORE MENU (accessible from Profile long-press or swipe-up) ═══
+  // ═══ MORE MENU ═══
   const getMoreSections = () => {
     const sections = [
       {
@@ -88,32 +85,32 @@ export function BottomNav() {
           { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
         ],
       },
-    ];
-
-    if (mode === 'sell' || mode === 'create') {
-      sections.push({
-        label: isFr ? 'Ma plateforme' : 'My Platform',
-        items: [
-          ...(currentOrg ? [{ to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' }] : []),
-          
-          { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
-          { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
-          { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
-          { to: getShortcutRoute('wallet', shortcutContext), icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
-          ...(hasManagedOrgs
-            ? []
-            : [{ to: '/create-org', icon: Plus, label: isFr ? 'Créer plateforme' : 'Create Platform' }]),
-        ],
-      });
-    }
-
-    if (mode === 'earn') {
-      sections.push({
+      {
         label: isFr ? 'Gagner' : 'Earn',
         items: [
           { to: '/spotlight', icon: Star, label: 'Spotlight' },
           { to: '/affiliation', icon: Share2, label: isFr ? 'Mes liens' : 'My Links' },
-          { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
+          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+        ],
+      },
+    ];
+
+    if (hasManagedOrgs) {
+      sections.push({
+        label: isFr ? 'Ma plateforme' : 'My Platform',
+        items: [
+          ...(currentOrg ? [{ to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' }] : []),
+          { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
+          { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
+          { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
+          { to: getShortcutRoute('wallet', shortcutContext), icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
+        ],
+      });
+    } else {
+      sections.push({
+        label: isFr ? 'Créer' : 'Create',
+        items: [
+          { to: '/create-org', icon: Sparkles, label: isFr ? 'Créer plateforme' : 'Create Platform' },
         ],
       });
     }
@@ -122,7 +119,6 @@ export function BottomNav() {
       label: isFr ? 'Gestion' : 'Management',
       items: [
         { to: getShortcutRoute('kyc', shortcutContext), icon: ShieldCheck, label: isFr ? 'Vérification' : 'Verification' },
-        { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
         { to: getShortcutRoute('settings', shortcutContext), icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
         ...(isSuperadmin ? [{ to: '/superadmin', icon: Shield, label: 'Superadmin' }] : []),
       ],
@@ -131,14 +127,13 @@ export function BottomNav() {
     return sections;
   };
 
-  const navItems = !user ? guestItems : getModeBottomItems();
+  const navItems = !user ? guestItems : bottomItems;
   const moreSections = getMoreSections();
 
   return (
     <>
       {/* ═══ BOTTOM NAV BAR ═══ */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden">
-        {/* Floating bar container */}
         <div className="mx-3 mb-2 rounded-2xl bg-card/95 backdrop-blur-md border border-border shadow-lg shadow-black/10">
           <div className="flex items-center justify-around h-16 px-1 max-w-lg mx-auto relative">
             {navItems.map(({ to, icon: Icon, label, center }) => {
@@ -146,7 +141,6 @@ export function BottomNav() {
                 ? location.pathname === '/'
                 : location.pathname.startsWith(to.split('?')[0]);
 
-              // ═══ CENTER BUTTON (elevated, prominent) ═══
               if (center) {
                 return (
                   <Link
@@ -172,7 +166,6 @@ export function BottomNav() {
                 );
               }
 
-              // ═══ MORE BUTTON (opens sheet) ═══
               if (to === '#more') {
                 return (
                   <button
@@ -193,7 +186,6 @@ export function BottomNav() {
                 );
               }
 
-              // ═══ REGULAR NAV ITEM ═══
               return (
                 <Link
                   key={to}
@@ -216,18 +208,16 @@ export function BottomNav() {
             })}
           </div>
         </div>
-
-        {/* Safe area spacer for iOS */}
         <div className="h-safe-area-inset-bottom bg-transparent" />
       </nav>
 
-      {/* ═══ MORE SHEET (opened from Profile page or swipe) ═══ */}
+      {/* ═══ MORE SHEET ═══ */}
       {user && (
         <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
           <SheetContent side="bottom" className="rounded-t-2xl px-3 pb-10 pt-3 max-h-[75vh]">
             <SheetHeader className="pb-3">
               <SheetTitle className="text-sm font-bold">
-                {mode ? `${MODE_LABELS[mode].emoji} ${isFr ? MODE_LABELS[mode].fr : MODE_LABELS[mode].en}` : (isFr ? 'Plus' : 'More')}
+                {isFr ? 'Plus' : 'More'}
               </SheetTitle>
             </SheetHeader>
 
@@ -264,24 +254,15 @@ export function BottomNav() {
                 </div>
               ))}
 
-              {/* Switch mode + Logout */}
+              {/* Logout */}
               <Separator />
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => { setMoreOpen(false); navigate('/welcome'); }}
-                  className="flex items-center gap-2 p-3 rounded-xl bg-muted hover:bg-accent transition-colors"
-                >
-                  <ArrowLeftRight className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs font-medium">{isFr ? 'Mon Espace' : 'My Space'}</span>
-                </button>
-                <button
-                  onClick={() => { setMoreOpen(false); signOut(); }}
-                  className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span className="text-xs font-medium">{isFr ? 'Déconnexion' : 'Sign out'}</span>
-                </button>
-              </div>
+              <button
+                onClick={() => { setMoreOpen(false); signOut(); }}
+                className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors w-full"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="text-xs font-medium">{isFr ? 'Déconnexion' : 'Sign out'}</span>
+              </button>
             </div>
           </SheetContent>
         </Sheet>

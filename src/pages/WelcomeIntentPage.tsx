@@ -1,31 +1,18 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Store, Share2, Sparkles, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Store, Share2, Sparkles, ArrowRight, SkipForward } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useAuth } from '@/contexts/AuthContext';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { useI18n } from '@/i18n/I18nContext';
-import { useUserMode, UserMode } from '@/contexts/UserModeContext';
 
 export default function WelcomeIntentPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t, locale } = useI18n();
-  const { setMode } = useUserMode();
+  const { locale } = useI18n();
   const isFr = locale === 'fr';
 
-  const intents: Array<{
-    key: UserMode;
-    icon: typeof ShoppingBag;
-    emoji: string;
-    title: string;
-    desc: string;
-    color: string;
-    iconBg: string;
-    iconColor: string;
-    badge: string | null;
-    route: string;
-  }> = [
+  const intents = [
     {
       key: 'purchases',
       icon: ShoppingBag,
@@ -35,8 +22,8 @@ export default function WelcomeIntentPage() {
       color: 'border-primary/30 hover:border-primary',
       iconBg: 'bg-primary/10',
       iconColor: 'text-primary',
-      badge: null,
-      route: '/dashboard',
+      badge: null as string | null,
+      route: '/resources',
     },
     {
       key: 'earn',
@@ -48,7 +35,7 @@ export default function WelcomeIntentPage() {
       iconBg: 'bg-emerald-500/10',
       iconColor: 'text-emerald-500',
       badge: isFr ? '5-50% commission' : '5-50% commission',
-      route: '/dashboard',
+      route: '/affiliation',
     },
     {
       key: 'create',
@@ -60,7 +47,7 @@ export default function WelcomeIntentPage() {
       iconBg: 'bg-purple-500/10',
       iconColor: 'text-purple-500',
       badge: isFr ? 'Nouveau' : 'New',
-      route: '/dashboard',
+      route: '/admin/create',
     },
     {
       key: 'sell',
@@ -72,13 +59,11 @@ export default function WelcomeIntentPage() {
       iconBg: 'bg-blue-500/10',
       iconColor: 'text-blue-500',
       badge: null,
-      route: '/dashboard',
+      route: '/admin',
     },
   ];
 
   const handleSelect = (intent: typeof intents[0]) => {
-    setMode(intent.key);
-    // Save intent to profile
     if (user) {
       import('@/lib/db').then(({ db }) => {
         db.from('profiles').update({ onboarding_intent: intent.key }).eq('id', user.id);
@@ -91,6 +76,18 @@ export default function WelcomeIntentPage() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <SEOHead title={`${isFr ? 'Bienvenue' : 'Welcome'} — SiteViral`} description={isFr ? 'Choisissez votre espace' : 'Choose your space'} noindex />
       <div className="w-full max-w-md">
+        {/* Skip button on top, prominent */}
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.05 }}
+          onClick={() => navigate('/dashboard')}
+          className="mb-6 w-full flex items-center justify-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors py-2.5 rounded-xl border border-primary/20 hover:border-primary/40 bg-primary/5"
+        >
+          <SkipForward className="h-4 w-4" />
+          {isFr ? 'Passer cette étape' : 'Skip this step'}
+        </motion.button>
+
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -139,16 +136,6 @@ export default function WelcomeIntentPage() {
             </motion.button>
           ))}
         </div>
-
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          onClick={() => navigate('/dashboard')}
-          className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
-        >
-          {isFr ? 'Passer cette étape →' : 'Skip this step →'}
-        </motion.button>
       </div>
     </div>
   );
