@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { useNavigate } from 'react-router-dom';
-import { formatPrice } from '@/lib/currency';
+import { formatPrice, getProductPriceLabel } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { ShoppingBag, ArrowRight, Sparkles } from 'lucide-react';

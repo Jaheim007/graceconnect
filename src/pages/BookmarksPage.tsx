@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
-import { formatPrice } from '@/lib/currency';
+import { formatPrice, getProductPriceLabel } from '@/lib/currency';
 
 const CONTENT_ICONS: Record<string, any> = {
   product: ShoppingBag,
