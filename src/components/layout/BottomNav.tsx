@@ -78,7 +78,6 @@ export function BottomNav() {
         label: isFr ? 'Mon espace' : 'My Space',
         items: [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
           { to: '/notifications', icon: Bell, label: 'Notifications' },
           { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
           { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },

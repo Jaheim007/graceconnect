@@ -20,11 +20,7 @@ export function useNewUserRedirect() {
     const skip = ['/welcome', '/auth', '/create-org', '/admin', '/superadmin', '/payment', '/go/', '/org/', '/resources', '/my-programs', '/discover', '/profile', '/bookmarks', '/affiliation', '/spotlight', '/feed', '/credits'];
     if (skip.some(p => location.pathname.startsWith(p))) return;
 
-    // Check if user has visited before
-    const hasVisited = localStorage.getItem('sv_has_visited');
-    if (!hasVisited) {
-      localStorage.setItem('sv_has_visited', 'true');
-      navigate('/welcome', { replace: true });
-    }
+    // Always redirect to /welcome on login
+    navigate('/welcome', { replace: true });
   }, [user, navigate, location.pathname]);
 }
