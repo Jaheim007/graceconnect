@@ -7,6 +7,7 @@ import { formatPrice } from '@/lib/currency';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useExperimentContent, useExperimentClick } from '@/hooks/useExperimentContent';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface SmartCTAProps {
   product: any;
