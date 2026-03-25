@@ -255,7 +255,7 @@ export function ProgramForm() {
       return;
     }
     try {
-      await updateModule.mutateAsync({ moduleId, programId: id, title: editingModuleTitle.trim() });
+      await updateModule.mutateAsync({ id: moduleId, programId: id, title: editingModuleTitle.trim() });
       toast({ title: isFr ? '✅ Module renommé' : '✅ Module renamed' });
     } catch {
       toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' });
