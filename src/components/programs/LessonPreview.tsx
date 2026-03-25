@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
   ChevronLeft, ChevronRight,
-  Monitor, Tablet, Smartphone, X, List, Settings2, Star, Trophy, Sparkles
+  Monitor, Tablet, Smartphone, X, List, Settings2, Star, Trophy, Sparkles, HelpCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parseContentIntoSlides, ContentSlide, type QuizData } from './lesson-preview/parseContentSlides';
@@ -15,9 +15,12 @@ import { SlideRenderer } from './lesson-preview/SlideRenderer';
 import { SlideCustomizationPanel, DEFAULT_CUSTOMIZATION, type SlideCustomization } from './lesson-preview/SlideCustomizationPanel';
 import { FinalAssessmentSlide } from './lesson-preview/FinalAssessmentSlide';
 import { CourseCompletionSlide } from './lesson-preview/CourseCompletionSlide';
+import { ModuleQuizPlayer } from './ModuleQuizPlayer';
 import { useSaveSlideProgress, useSaveLessonCompletion, useEnrollmentProgress } from '@/hooks/useLearnerProgress';
+import { useModuleQuiz } from '@/hooks/useModuleQuiz';
 import { getSlideTheme } from './lesson-preview/slideThemes';
 import { Switch } from '@/components/ui/switch';
+import { db } from '@/lib/db';
 
 interface LessonPreviewProps {
   programId: string;
