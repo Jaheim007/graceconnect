@@ -398,9 +398,23 @@ export function ProgramForm() {
           {/* LEFT: Lessons sidebar — on mobile: show only when no lesson selected */}
           {(!isMobileViewport || !selectedLessonId) && (
             <div className={cn(
-              'border-b md:border-b-0 md:border-r border-border bg-card flex flex-col shrink-0 overflow-hidden',
-              'flex-1 md:flex-none md:w-64 lg:w-72',
+              'border-b md:border-b-0 md:border-r border-border bg-card flex flex-col shrink-0',
+              isMobileViewport ? 'flex-1 overflow-y-auto' : 'overflow-hidden md:w-64 lg:w-72',
             )}>
+              {/* Mobile course overview header */}
+              {isMobileViewport && (
+                <div className="p-3 border-b border-border bg-muted/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Layers className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold">{isFr ? 'Structure du cours' : 'Course structure'}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <span>{modules.length} module{modules.length !== 1 ? 's' : ''}</span>
+                    <span>•</span>
+                    <span>{totalLessons} {isFr ? 'leçon' : 'lesson'}{totalLessons !== 1 ? 's' : ''}</span>
+                  </div>
+                </div>
+              )}
               <div className="flex items-center justify-between p-3 border-b border-border">
                 <span className="text-sm font-semibold">{isFr ? 'Leçons' : 'Lessons'}</span>
                 <div className="flex items-center gap-1">
@@ -468,7 +482,8 @@ export function ProgramForm() {
                               setSelectedModuleId(mod.id);
                             }}
                             className={cn(
-                              'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors group/lesson',
+                              'w-full flex items-center gap-2 px-3 rounded-lg text-left transition-colors group/lesson',
+                              isMobileViewport ? 'py-3 min-h-[48px]' : 'py-2',
                               selectedLessonId === lesson.id
                                 ? 'bg-primary/10 text-primary'
                                 : 'hover:bg-muted/50 text-foreground'
