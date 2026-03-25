@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback, type ReactNode } from 'react';
 import { useProgramModules, useProgram } from '@/hooks/usePrograms';
+import { useQuery } from '@tanstack/react-query';
 import { useI18n } from '@/i18n/I18nContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
