@@ -238,6 +238,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
   const current = allSlides[currentIndex];
   const total = allSlides.length;
+  const progressPercent = total ? ((currentIndex + 1) / total) * 100 : 0;
 
   const applyCustomizationToAll = useCallback((partial: Partial<SlideCustomization>) => {
     setSlideCustomizations((prev) => {
