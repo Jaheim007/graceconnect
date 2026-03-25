@@ -438,9 +438,23 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     if (!current) return null;
     const theme = getSlideTheme(currentIndex);
 
+    // Module quiz
+    if ((current.slide.type as string) === 'module-quiz' && current.moduleQuiz) {
+      return (
+        <ModuleQuizPlayer
+          quiz={current.moduleQuiz}
+          moduleTitle={current.moduleTitle}
+          gamificationEnabled={gamificationEnabled}
+          onComplete={(passed, score, total, stars) => {
+            if (stars > 0) setStarsEarned(s => s + stars);
+            if (passed || !isLearner) goNext();
+          }}
+        />
+      );
+    }
+
     // Final assessment
     if (current.slide.type === 'final-assessment') {
-      // Select up to 10 questions for the final assessment
       const assessmentQuestions = allQuizQuestions.length > 10
         ? allQuizQuestions.sort(() => 0.5 - Math.random()).slice(0, 10)
         : allQuizQuestions;
