@@ -242,7 +242,15 @@ export default function ResourcesPage() {
       <PageTour pageId="purchases" steps={TOUR_STEPS} />
 
       {!hasAnything ? (
-        <EmptyState variant="purchases" title={t('page.purchases_empty')} description={t('page.purchases_empty_desc')} />
+        <EmptyState
+          variant="purchases"
+          title={t('page.purchases_empty')}
+          description={t('page.purchases_empty_desc')}
+          action={{
+            label: isFr ? 'Découvrir des produits' : 'Discover products',
+            onClick: () => navigate('/discover'),
+          }}
+        />
       ) : (
         <div className="space-y-6">
           {/* ─── Credit Purchases ─── */}
