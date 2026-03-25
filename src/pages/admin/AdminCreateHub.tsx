@@ -88,7 +88,7 @@ export default function AdminCreateHub() {
       {/* AI Writer CTA — Write a book */}
       <Link
         to="/ecrire"
-        className="relative flex items-center gap-4 p-4 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/5 hover:border-primary/50 transition-all group overflow-hidden"
+        className="relative flex items-center gap-3 p-3.5 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/5 hover:border-primary/50 transition-all group overflow-hidden"
       >
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent"
@@ -96,18 +96,18 @@ export default function AdminCreateHub() {
           transition={{ duration: 3, repeat: Infinity, ease: 'linear', repeatDelay: 2 }}
         />
         <motion.div
-          className="relative h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0 shadow-lg shadow-primary/30"
+          className="relative h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0 shadow-lg shadow-primary/30"
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <PenLine className="h-6 w-6 text-primary-foreground" />
+          <PenLine className="h-5 w-5 text-primary-foreground" />
         </motion.div>
         <div className="relative flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h3 className="font-bold text-sm">{t('create_hub.ai_writer')}</h3>
-            <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-primary/20 text-primary">AI</span>
+          <div className="flex items-center gap-1.5">
+            <h3 className="font-bold text-sm leading-tight">{t('create_hub.ai_writer')}</h3>
+            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-primary/20 text-primary whitespace-nowrap">AI</span>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t('create_hub.ai_writer_desc')}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{t('create_hub.ai_writer_desc')}</p>
         </div>
         <ArrowRight className="relative h-4 w-4 text-primary shrink-0 group-hover:translate-x-1 transition-transform" />
       </Link>
@@ -115,7 +115,7 @@ export default function AdminCreateHub() {
       {/* AI Course CTA — Create a formation */}
       <Link
         to="/admin/programs"
-        className="relative flex items-center gap-4 p-4 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-accent/5 to-emerald-500/5 hover:border-emerald-500/50 transition-all group overflow-hidden"
+        className="relative flex items-center gap-3 p-3.5 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-accent/5 to-emerald-500/5 hover:border-emerald-500/50 transition-all group overflow-hidden"
       >
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/5 to-transparent"
@@ -123,24 +123,24 @@ export default function AdminCreateHub() {
           transition={{ duration: 3.5, repeat: Infinity, ease: 'linear', repeatDelay: 2.5 }}
         />
         <motion.div
-          className="relative h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/30"
+          className="relative h-11 w-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/30"
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <GraduationCap className="h-6 w-6 text-white" />
+          <GraduationCap className="h-5 w-5 text-white" />
         </motion.div>
         <div className="relative flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h3 className="font-bold text-sm">{t('create_hub.ai_course')}</h3>
-            <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-500">AI</span>
+          <div className="flex items-center gap-1.5">
+            <h3 className="font-bold text-sm leading-tight">{t('create_hub.ai_course')}</h3>
+            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-500 whitespace-nowrap">AI</span>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t('create_hub.ai_course_desc')}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{t('create_hub.ai_course_desc')}</p>
         </div>
         <ArrowRight className="relative h-4 w-4 text-emerald-500 shrink-0 group-hover:translate-x-1 transition-transform" />
       </Link>
 
       {/* Primary grid: Add product + Add formation */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2.5">
         {[
           { to: '/admin/products', icon: PackageCheck, labelKey: 'create_hub.products', descKey: 'create_hub.products_desc', color: 'text-primary bg-primary/10 border-primary/20' },
           { to: '/admin/programs', icon: BookOpen, labelKey: 'create_hub.programs', descKey: 'create_hub.programs_desc', color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' },
@@ -156,7 +156,7 @@ export default function AdminCreateHub() {
               <Link
                 to={item.to}
                 className={cn(
-                  'flex items-center gap-3 p-4 rounded-2xl border transition-all group hover:shadow-md hover:-translate-y-0.5',
+                  'flex flex-col gap-2.5 p-3.5 rounded-2xl border transition-all group hover:shadow-md hover:-translate-y-0.5',
                   borderColor
                 )}
               >
@@ -164,8 +164,8 @@ export default function AdminCreateHub() {
                   <item.icon className={cn('h-5 w-5', textColor)} />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-xs">{t(item.labelKey)}</h3>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{t(item.descKey)}</p>
+                  <h3 className="font-bold text-xs leading-tight">{t(item.labelKey)}</h3>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{t(item.descKey)}</p>
                 </div>
               </Link>
             </motion.div>
