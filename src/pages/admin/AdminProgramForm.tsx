@@ -155,6 +155,7 @@ export function ProgramForm() {
       // Auto-create/update linked digital product for paid courses (enables affiliate system)
       if (!isFree && price > 0 && isPublished) {
         try {
+          const externalLink = `${window.location.origin}/program/${id}`;
           const { data: existingProduct } = await supabase.from('digital_products')
             .select('id')
             .eq('organization_id', currentOrg.id)
@@ -166,6 +167,7 @@ export function ProgramForm() {
             title: title.trim(),
             description: description.trim()?.replace(/<[^>]*>/g, '').slice(0, 500) || `${isFr ? 'Cours' : 'Course'}: ${title.trim()}`,
             cover_image_url: coverUrl || null,
+            external_link: externalLink,
             price,
             currency,
             is_free: false,
