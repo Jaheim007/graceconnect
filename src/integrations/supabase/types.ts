@@ -2832,6 +2832,41 @@ export type Database = {
           },
         ]
       }
+      module_flashcards: {
+        Row: {
+          back_text: string
+          created_at: string
+          display_order: number | null
+          front_text: string
+          id: string
+          module_id: string
+        }
+        Insert: {
+          back_text: string
+          created_at?: string
+          display_order?: number | null
+          front_text: string
+          id?: string
+          module_id: string
+        }
+        Update: {
+          back_text?: string
+          created_at?: string
+          display_order?: number | null
+          front_text?: string
+          id?: string
+          module_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_flashcards_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "program_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           affiliate: boolean
@@ -4683,7 +4718,9 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          max_quiz_attempts: number | null
           order_index: number
+          pass_percentage: number | null
           program_id: string
           title: string
         }
@@ -4691,7 +4728,9 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          max_quiz_attempts?: number | null
           order_index?: number
+          pass_percentage?: number | null
           program_id: string
           title: string
         }
@@ -4699,7 +4738,9 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          max_quiz_attempts?: number | null
           order_index?: number
+          pass_percentage?: number | null
           program_id?: string
           title?: string
         }
@@ -4717,22 +4758,31 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          lesson_id: string
+          lesson_id: string | null
+          max_attempts: number | null
+          module_id: string | null
           passing_score: number
+          quiz_type: string
           title: string
         }
         Insert: {
           created_at?: string
           id?: string
-          lesson_id: string
+          lesson_id?: string | null
+          max_attempts?: number | null
+          module_id?: string | null
           passing_score?: number
+          quiz_type?: string
           title: string
         }
         Update: {
           created_at?: string
           id?: string
-          lesson_id?: string
+          lesson_id?: string | null
+          max_attempts?: number | null
+          module_id?: string | null
           passing_score?: number
+          quiz_type?: string
           title?: string
         }
         Relationships: [
@@ -4741,6 +4791,13 @@ export type Database = {
             columns: ["lesson_id"]
             isOneToOne: false
             referencedRelation: "program_lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_quizzes_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "program_modules"
             referencedColumns: ["id"]
           },
         ]
@@ -4951,29 +5008,38 @@ export type Database = {
       quiz_attempts: {
         Row: {
           answers: Json | null
+          attempt_number: number | null
           completed_at: string
+          correct_count: number | null
           id: string
           passed: boolean
           quiz_id: string
           score: number
+          total_questions: number | null
           user_id: string
         }
         Insert: {
           answers?: Json | null
+          attempt_number?: number | null
           completed_at?: string
+          correct_count?: number | null
           id?: string
           passed?: boolean
           quiz_id: string
           score?: number
+          total_questions?: number | null
           user_id: string
         }
         Update: {
           answers?: Json | null
+          attempt_number?: number | null
           completed_at?: string
+          correct_count?: number | null
           id?: string
           passed?: boolean
           quiz_id?: string
           score?: number
+          total_questions?: number | null
           user_id?: string
         }
         Relationships: [
@@ -4989,29 +5055,38 @@ export type Database = {
       quiz_questions: {
         Row: {
           correct_index: number
+          correct_text: string | null
           created_at: string
           display_order: number | null
+          explanation: string | null
           id: string
           options: Json
           question: string
+          question_type: string
           quiz_id: string
         }
         Insert: {
           correct_index?: number
+          correct_text?: string | null
           created_at?: string
           display_order?: number | null
+          explanation?: string | null
           id?: string
           options?: Json
           question: string
+          question_type?: string
           quiz_id: string
         }
         Update: {
           correct_index?: number
+          correct_text?: string | null
           created_at?: string
           display_order?: number | null
+          explanation?: string | null
           id?: string
           options?: Json
           question?: string
+          question_type?: string
           quiz_id?: string
         }
         Relationships: [
