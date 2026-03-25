@@ -219,32 +219,6 @@ export default function UserDashboard() {
           </PremiumCard>
         </DashboardSection>
 
-        {/* ═══ MY PROGRAMS ═══ */}
-        {programProgress.length > 0 && (
-          <DashboardSection
-            title={isFr ? 'Mes formations' : 'My courses'}
-            icon={GraduationCap}
-          >
-            <div className="space-y-2">
-              {programProgress.map((prog: any) => {
-                const pct = prog.totalLessons > 0 ? Math.round((prog.completedLessons / prog.totalLessons) * 100) : 0;
-                return (
-                  <PremiumCard key={prog.id} variant="default" noPadding className="p-3.5">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm font-medium truncate">{prog.programs?.title || 'Formation'}</p>
-                      <span className={cn(
-                        'text-xs font-bold px-2 py-0.5 rounded-full',
-                        pct >= 80 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary'
-                      )}>{pct}%</span>
-                    </div>
-                    <Progress value={pct} className="h-1.5" />
-                    <p className="text-[10px] text-muted-foreground mt-1.5">{prog.completedLessons}/{prog.totalLessons} {isFr ? 'leçons' : 'lessons'}</p>
-                  </PremiumCard>
-                );
-              })}
-            </div>
-          </DashboardSection>
-        )}
 
         {/* ═══ MY DONATIONS ═══ */}
         {donations.length > 0 && (
