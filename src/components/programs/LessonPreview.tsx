@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback, type ReactNode } from 'react';
 import { useProgramModules, useProgram } from '@/hooks/usePrograms';
+import { useQuery } from '@tanstack/react-query';
 import { useI18n } from '@/i18n/I18nContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -7,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
   ChevronLeft, ChevronRight,
-  Monitor, Tablet, Smartphone, X, List, Settings2, Star, Trophy, Sparkles
+  Monitor, Tablet, Smartphone, X, List, Settings2, Star, Trophy, Sparkles, HelpCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parseContentIntoSlides, ContentSlide, type QuizData } from './lesson-preview/parseContentSlides';
@@ -15,9 +16,12 @@ import { SlideRenderer } from './lesson-preview/SlideRenderer';
 import { SlideCustomizationPanel, DEFAULT_CUSTOMIZATION, type SlideCustomization } from './lesson-preview/SlideCustomizationPanel';
 import { FinalAssessmentSlide } from './lesson-preview/FinalAssessmentSlide';
 import { CourseCompletionSlide } from './lesson-preview/CourseCompletionSlide';
+import { ModuleQuizPlayer } from './ModuleQuizPlayer';
 import { useSaveSlideProgress, useSaveLessonCompletion, useEnrollmentProgress } from '@/hooks/useLearnerProgress';
+import { useModuleQuiz } from '@/hooks/useModuleQuiz';
 import { getSlideTheme } from './lesson-preview/slideThemes';
 import { Switch } from '@/components/ui/switch';
+import { db } from '@/lib/db';
 
 interface LessonPreviewProps {
   programId: string;
@@ -65,6 +69,7 @@ interface FlatSlide {
   lessonIndex: number;
   slideInLesson: number;
   lessonImageUrl?: string;
+  moduleQuiz?: any; // populated for module-quiz slides
 }
 
 export function LessonPreview({ programId, initialLessonId, onClose, headerActions, mode = 'creator' }: LessonPreviewProps) {
@@ -74,6 +79,23 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   const { data: program } = useProgram(programId);
   const { data: modules = [] } = useProgramModules(programId);
   const isLearner = mode === 'learner';
+
+  // Fetch all module quizzes for this program
+  const moduleIds = useMemo(() => modules.map((m: any) => m.id), [modules]);
+  const { data: moduleQuizzes = [] } = useQuery({
+    queryKey: ['all-module-quizzes', programId, moduleIds],
+    enabled: moduleIds.length > 0,
+    queryFn: async () => {
+      if (!moduleIds.length) return [];
+      const { data } = await db.from('program_quizzes')
+        .select('*, quiz_questions(*)')
+        .in('module_id', moduleIds);
+      return (data || []).map((q: any) => ({
+        ...q,
+        questions: (q.quiz_questions || []).sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0)),
+      }));
+    },
+  });
 
   const initialViewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
   const [viewportWidth, setViewportWidth] = useState(initialViewportWidth);
@@ -198,6 +220,22 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
         lessonIdx++;
       }
+
+      // Add module quiz slide if quiz exists for this module
+      const modQuiz = moduleQuizzes.find((q: any) => q.module_id === (mod as any).id);
+      if (modQuiz && modQuiz.questions?.length > 0) {
+        slides.push({
+          lessonId: `__module_quiz_${(mod as any).id}__`,
+          lessonTitle: `${isFr ? 'Quiz' : 'Quiz'} — ${(mod as any).title}`,
+          moduleTitle: (mod as any).title,
+          moduleId: (mod as any).id,
+          slide: { type: 'module-quiz' as any, bodyHtml: '' },
+          lessonIndex: lessonIdx,
+          slideInLesson: 0,
+          lessonImageUrl: lastLessonImageUrl,
+          moduleQuiz: modQuiz,
+        });
+      }
     }
 
     // Add final assessment slide if there are quiz questions
@@ -227,7 +265,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     });
 
     return slides;
-  }, [modules, allQuizQuestions.length, isFr]);
+  }, [modules, allQuizQuestions.length, isFr, moduleQuizzes]);
 
   useEffect(() => {
     if (initialLessonId && allSlides.length > 0) {
@@ -400,9 +438,23 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     if (!current) return null;
     const theme = getSlideTheme(currentIndex);
 
+    // Module quiz
+    if ((current.slide.type as string) === 'module-quiz' && current.moduleQuiz) {
+      return (
+        <ModuleQuizPlayer
+          quiz={current.moduleQuiz}
+          moduleTitle={current.moduleTitle}
+          gamificationEnabled={gamificationEnabled}
+          onComplete={(passed, score, total, stars) => {
+            if (stars > 0) setStarsEarned(s => s + stars);
+            if (passed || !isLearner) goNext();
+          }}
+        />
+      );
+    }
+
     // Final assessment
     if (current.slide.type === 'final-assessment') {
-      // Select up to 10 questions for the final assessment
       const assessmentQuestions = allQuizQuestions.length > 10
         ? allQuizQuestions.sort(() => 0.5 - Math.random()).slice(0, 10)
         : allQuizQuestions;

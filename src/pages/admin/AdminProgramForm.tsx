@@ -24,13 +24,14 @@ import {
   Plus, Save, Loader2, BookOpen, Layers, FileText, Video, Music,
   Link2, Trash2, GripVertical, ChevronDown, ChevronRight, Clock,
   Settings, Eye, Sparkles, DollarSign, Award, ArrowLeft,
-  MoreVertical, Lock, PenLine, ImageIcon, Wand2, Users, Share2
+  MoreVertical, Lock, PenLine, ImageIcon, Wand2, Users, Share2, HelpCircle
 } from 'lucide-react';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useI18n } from '@/i18n/I18nContext';
 import { LessonEditor } from '@/components/programs/LessonEditor';
 import { AICourseGenerator } from '@/components/programs/AICourseGenerator';
+import { ModuleQuizEditor } from '@/components/programs/ModuleQuizEditor';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
@@ -89,6 +90,7 @@ export function ProgramForm() {
   const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
   const [editingModuleTitle, setEditingModuleTitle] = useState('');
   const [applyingAI, setApplyingAI] = useState(false);
+  const [editingQuizModuleId, setEditingQuizModuleId] = useState<string | null>(null);
   const [generatingTitle, setGeneratingTitle] = useState(false);
   const [generatingDesc, setGeneratingDesc] = useState(false);
   const [generatingCover, setGeneratingCover] = useState(false);
@@ -530,6 +532,7 @@ export function ProgramForm() {
                             onClick={() => {
                               setSelectedLessonId(lesson.id);
                               setSelectedModuleId(mod.id);
+                              setEditingQuizModuleId(null);
                             }}
                             className={cn(
                               'w-full flex items-center gap-2 px-3 rounded-lg text-left transition-colors group/lesson',
@@ -575,6 +578,25 @@ export function ProgramForm() {
                             )}
                           </div>
                         </div>
+
+                        {/* Module quiz button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingQuizModuleId(mod.id);
+                            setSelectedLessonId(null);
+                            setSelectedModuleId(mod.id);
+                          }}
+                          className={cn(
+                            'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors text-[11px]',
+                            editingQuizModuleId === mod.id
+                              ? 'bg-primary/10 text-primary font-medium'
+                              : 'hover:bg-muted/50 text-muted-foreground'
+                          )}
+                        >
+                          <HelpCircle className="h-3 w-3 shrink-0" />
+                          <span className="flex-1">{isFr ? 'Quiz & Flashcards' : 'Quiz & Flashcards'}</span>
+                        </button>
                       </>
                     )}
                   </div>
@@ -637,6 +659,24 @@ export function ProgramForm() {
               {showAIGenerator ? (
                 <div className="p-4 sm:p-6 max-w-2xl mx-auto">
                   <AICourseGenerator onGenerated={handleAIGenerated} onCancel={() => setShowAIGenerator(false)} />
+                </div>
+              ) : editingQuizModuleId ? (
+                <div className="p-4 sm:p-6 max-w-2xl mx-auto">
+                  {isMobileViewport && (
+                    <div className="mb-3">
+                      <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => {
+                        setEditingQuizModuleId(null);
+                      }}>
+                        <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Retour' : 'Back'}
+                      </Button>
+                    </div>
+                  )}
+                  <ModuleQuizEditor
+                    moduleId={editingQuizModuleId}
+                    moduleTitle={modules.find((m: any) => m.id === editingQuizModuleId)?.title || ''}
+                    programId={id!}
+                    courseTitle={title}
+                  />
                 </div>
               ) : selectedLessonId ? (
                 <LessonEditor
