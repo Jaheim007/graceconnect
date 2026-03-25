@@ -73,7 +73,7 @@ export function LandingNav() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem onClick={() => navigate('/dashboard')} className="text-xs gap-2">
-                  <User className="h-3.5 w-3.5" /> {t('sidebar.home') || 'Mon espace'}
+                  <User className="h-3.5 w-3.5" /> {t('sidebar.home') || 'Dashboard'}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()} className="text-xs gap-2 text-destructive">
@@ -122,7 +122,7 @@ export function LandingNav() {
               {user ? (
                 <div className="pt-2 border-t border-border/40 mt-2 space-y-2">
                   <Button variant="outline" className="w-full gap-2" onClick={() => { navigate('/dashboard'); setMenuOpen(false); }}>
-                    <User className="h-3.5 w-3.5" /> {t('sidebar.home') || 'Mon espace'}
+                    <User className="h-3.5 w-3.5" /> {t('sidebar.home') || 'Dashboard'}
                   </Button>
                 </div>
               ) : (
