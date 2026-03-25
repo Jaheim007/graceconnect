@@ -713,7 +713,7 @@ export default function ProductDetailPage() {
                 {(product as any).is_pwyw && !product.is_free ? (
                   <div className="space-y-1">
                     <span className="text-lg font-semibold text-primary">
-                      💰 Pay What You Want
+                      💰 {locale === 'fr' ? 'Prix libre' : 'Name your price'}
                     </span>
                     <p className="text-sm text-muted-foreground">
                       {locale === 'fr' ? 'À partir de' : 'Starting from'}{' '}

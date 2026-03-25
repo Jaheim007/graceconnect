@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { useNavigate } from 'react-router-dom';
-import { formatPrice } from '@/lib/currency';
+import { formatPrice, getProductPriceLabel } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { ShoppingBag, ArrowRight, Sparkles } from 'lucide-react';
@@ -94,9 +94,7 @@ export function PostPurchaseRecommendations({ organizationId, productId, product
                 </div>
                 <p className="text-[11px] font-medium mt-1 line-clamp-2">{p.title}</p>
                 <p className="text-[10px] text-muted-foreground">
-                  {p.is_pwyw && (p.min_price || 0) > 0
-                    ? `💰 ${isFr ? 'Dès' : 'From'} ${formatPrice(p.min_price, false, p.currency)}`
-                    : formatPrice(p.price, p.is_free, p.currency)}
+                  {getProductPriceLabel(p as any, isFr ? 'fr' : 'en').text}
                 </p>
               </button>
             );

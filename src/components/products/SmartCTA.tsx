@@ -7,6 +7,7 @@ import { formatPrice } from '@/lib/currency';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useExperimentContent, useExperimentClick } from '@/hooks/useExperimentContent';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface SmartCTAProps {
   product: any;
@@ -70,7 +71,7 @@ export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: S
 
   const isPwyw = !!(product as any)?.is_pwyw;
   const isFree = !isPwyw && (product?.is_free || product?.price === 0);
-  const hasSale = !isPwyw && product?.sale_price && product?.sale_price < product?.price;
+  const hasSale = !isPwyw && !isFree && product?.sale_price && product?.sale_price < product?.price;
   const displayPrice = hasSale ? product.sale_price : product.price;
   const currency = product?.currency || 'XOF';
   const minPrice = (product as any)?.min_price || 0;
@@ -139,11 +140,13 @@ function ProductCTAButton({
 }: {
   isPwyw: boolean; isFree: boolean; minPrice: number; displayPrice: number; currency: string; onBuy: () => void;
 }) {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const defaultLabel = isPwyw
-    ? `💰 ${formatPrice(minPrice, false, currency)}+`
+    ? `💰 ${isFr ? 'Prix libre' : 'Name your price'}${minPrice > 0 ? ` · ${formatPrice(minPrice, false, currency)}+` : ''}`
     : isFree
-      ? 'Obtenir gratuitement'
-      : `Acheter — ${formatPrice(displayPrice, false, currency)}`;
+      ? (isFr ? 'Obtenir gratuitement' : 'Get for free')
+      : `${isFr ? 'Acheter' : 'Buy'} — ${formatPrice(displayPrice, false, currency)}`;
 
   const ctaExperiment = useExperimentContent('cta', defaultLabel);
   const trackClick = useExperimentClick();

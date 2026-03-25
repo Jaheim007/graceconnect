@@ -2,7 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { formatPrice } from '@/lib/currency';
+import { formatPrice, getProductPriceLabel } from '@/lib/currency';
 import { ShoppingBag, X, GitCompareArrows, Star, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -113,11 +113,14 @@ function CompareTable({ items, onRemove, onClear }: { items: CompareProduct[]; o
     {
       label: isFr ? 'Prix' : 'Price',
       icon: <ShoppingBag className="h-3.5 w-3.5" />,
-      render: (p) => (
-        <span className={cn('font-bold', p.is_free ? 'text-emerald-500' : 'text-primary')}>
-          {formatPrice(p.price, p.is_free, p.currency)}
-        </span>
-      ),
+      render: (p) => {
+        const label = getProductPriceLabel(p as any, isFr ? 'fr' : 'en');
+        return (
+          <span className={cn('font-bold', label.isFree ? 'text-emerald-500' : label.isPwyw ? 'text-amber-600' : 'text-primary')}>
+            {label.text}
+          </span>
+        );
+      },
     },
     {
       label: 'Type',

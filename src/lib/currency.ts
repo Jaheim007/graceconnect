@@ -87,3 +87,46 @@ export function formatPrice(
 export function getCurrencyInfo(code: string) {
   return SUPPORTED_CURRENCIES.find(c => c.code === code);
 }
+
+/**
+ * Returns the correct display label for a product price, handling PWYW correctly.
+ * PWYW products MUST never show "Gratuit/Free" — they show "Prix libre · Dès X".
+ */
+export function getProductPriceLabel(product: {
+  is_free?: boolean | null;
+  is_pwyw?: boolean;
+  min_price?: number | null;
+  price?: number | null;
+  sale_price?: number | null;
+  sale_ends_at?: string | null;
+  currency?: string | null;
+}, locale: string = 'fr'): { text: string; isFree: boolean; isPwyw: boolean } {
+  const isFr = locale === 'fr';
+  const isPwyw = !!product.is_pwyw;
+  const minPrice = product.min_price || 0;
+  const currency = product.currency || 'XOF';
+
+  if (isPwyw) {
+    const tag = isFr ? 'Prix libre' : 'Name your price';
+    if (minPrice > 0) {
+      return {
+        text: `${tag} · ${isFr ? 'Dès' : 'From'} ${formatCurrency(minPrice, currency)}`,
+        isFree: false,
+        isPwyw: true,
+      };
+    }
+    return { text: tag, isFree: false, isPwyw: true };
+  }
+
+  const isFree = !!product.is_free || (product.price || 0) === 0;
+  if (isFree) {
+    return { text: isFr ? 'Gratuit' : 'Free', isFree: true, isPwyw: false };
+  }
+
+  // Check for active sale
+  const hasSale = product.sale_price != null && product.sale_price > 0 &&
+    (!product.sale_ends_at || new Date(product.sale_ends_at) > new Date());
+  const displayPrice = hasSale ? product.sale_price! : (product.price || 0);
+
+  return { text: formatCurrency(displayPrice, currency), isFree: false, isPwyw: false };
+}

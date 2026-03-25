@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
-import { formatPrice } from '@/lib/currency';
+import { formatPrice, getProductPriceLabel } from '@/lib/currency';
 
 const CONTENT_ICONS: Record<string, any> = {
   product: ShoppingBag,
@@ -112,11 +112,14 @@ export default function BookmarksPage() {
                             {org?.name}
                           </p>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-primary">
-                              {product.is_free
-                                ? (isFr ? 'Gratuit' : 'Free')
-                                : formatPrice(product.sale_price || product.price || 0, org?.currency || 'XOF')}
-                            </span>
+                            {(() => {
+                              const label = getProductPriceLabel(product as any, locale);
+                              return (
+                                <span className={cn('text-xs font-bold', label.isFree ? 'text-emerald-500' : label.isPwyw ? 'text-amber-600' : 'text-primary')}>
+                                  {label.text}
+                                </span>
+                              );
+                            })()}
                             <span className="text-[10px] text-muted-foreground">
                               {dateFmt(item.created_at)}
                             </span>

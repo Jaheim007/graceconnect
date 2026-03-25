@@ -4,7 +4,8 @@ import { useI18n } from '@/i18n/I18nContext';
 import { Clock, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { formatPrice } from '@/lib/currency';
+import { getProductPriceLabel } from '@/lib/currency';
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
 const RV_KEY = 'sv_recently_viewed';
@@ -37,7 +38,7 @@ export function RecentlyViewedProducts() {
       if (recentIds.length === 0) return [];
       const { data } = await db
         .from('digital_products')
-        .select('id, title, cover_image_url, price, is_free, currency, slug, organization_id, organizations(slug, name)')
+        .select('id, title, cover_image_url, price, is_free, is_pwyw, min_price, sale_price, sale_ends_at, currency, slug, organization_id, organizations(slug, name)')
         .in('id', recentIds.slice(0, 8))
         .eq('is_published', true);
       if (!data) return [];
@@ -82,8 +83,8 @@ export function RecentlyViewedProducts() {
                   )}
                 </div>
                 <p className="text-xs font-medium mt-1.5 line-clamp-1">{p.title}</p>
-                <p className="text-[10px] text-muted-foreground">
-                  {formatPrice(p.price, p.is_free, p.currency)}
+                <p className={cn('text-[10px]', (p as any).is_pwyw ? 'text-amber-600 font-medium' : 'text-muted-foreground')}>
+                  {getProductPriceLabel(p as any, locale).text}
                 </p>
               </button>
             );
