@@ -121,7 +121,7 @@ export function TopBar() {
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate('/profile')}><User className="h-3.5 w-3.5 mr-2" /> {t('topbar.profile')}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/welcome')}><ArrowLeftRight className="h-3.5 w-3.5 mr-2" /> {t('topbar.my_space')}</DropdownMenuItem>
+              
               {managedOrgs.length >= 1 && (
                 <DropdownMenuItem onClick={() => setSwitchDialogOpen(true)}>
                   <Building2 className="h-3.5 w-3.5 mr-2" />
