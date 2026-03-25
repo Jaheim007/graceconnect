@@ -358,7 +358,7 @@ export function ProgramForm() {
 
         {/* Top bar nav */}
         <div className="flex items-center gap-1">
-          <div className="hidden sm:flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
+          <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5 overflow-x-auto">
             {[
               { key: 'edit', label: isFr ? 'Éditer' : 'Edit' },
               { key: 'preview', label: isFr ? 'Aperçu' : 'Preview' },
