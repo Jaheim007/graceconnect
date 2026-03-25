@@ -21,6 +21,7 @@ interface SlideRendererProps {
   deviceMode: 'mobile' | 'tablet' | 'desktop';
   customization?: SlideCustomization;
   lessonImageUrl?: string;
+  showHeaderCounter?: boolean;
   onStarEarned?: () => void;
   gamificationEnabled?: boolean;
 }
@@ -143,6 +144,7 @@ export function SlideRenderer({
   deviceMode,
   customization,
   lessonImageUrl,
+  showHeaderCounter = true,
   onStarEarned,
   gamificationEnabled,
 }: SlideRendererProps) {
@@ -229,9 +231,11 @@ export function SlideRenderer({
           <span className="text-[10px] text-white/50 block truncate">{moduleTitle}</span>
         )}
       </div>
-      <span className="text-[10px] bg-white/15 rounded-full px-2.5 py-0.5 text-white/80 font-medium shrink-0">
-        {slideIndex + 1} / {totalSlides}
-      </span>
+      {showHeaderCounter && (
+        <span className="text-[10px] bg-white/15 rounded-full px-2.5 py-0.5 text-white/80 font-medium shrink-0">
+          {slideIndex + 1} / {totalSlides}
+        </span>
+      )}
     </div>
   );
 
