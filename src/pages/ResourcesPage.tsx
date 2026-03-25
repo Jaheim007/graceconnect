@@ -267,26 +267,26 @@ export default function ResourcesPage() {
               </div>
               <div className="space-y-2 pl-2 border-l-2 border-amber-500/20">
                 {creditPurchases.map((cp: any) => (
-                  <div key={cp.id} className="flex gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors">
-                    <div className="shrink-0 w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                      <Zap className="h-5 w-5 text-amber-500" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm">{cp.credits_amount} {isFr ? 'crédits' : 'credits'}</h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-[10px] gap-1">
-                          <Zap className="h-2.5 w-2.5" /> {cp.pack_key}
-                        </Badge>
-                        <Badge variant="secondary" className="text-[10px]">
-                          {cp.payment_gateway === 'stripe' ? 'Stripe' : 'Paystack'}
-                        </Badge>
-                        <span className="text-[10px] text-muted-foreground">
-                          {format(new Date(cp.completed_at || cp.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
-                        </span>
+                  <div key={cp.id} className="p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="shrink-0 w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                        <Zap className="h-4 w-4 text-amber-500" />
                       </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm">{cp.credits_amount} {isFr ? 'crédits' : 'credits'}</h3>
+                      </div>
+                      <span className="text-sm font-semibold shrink-0">{formatCurrency(cp.price_amount, cp.price_currency || 'XOF')}</span>
                     </div>
-                    <div className="shrink-0 flex items-center">
-                      <span className="text-sm font-semibold">{formatCurrency(cp.price_amount, cp.price_currency || 'XOF')}</span>
+                    <div className="flex flex-wrap items-center gap-1.5 pl-[52px]">
+                      <Badge variant="outline" className="text-[10px] gap-1 shrink-0">
+                        <Zap className="h-2.5 w-2.5" /> {cp.pack_key}
+                      </Badge>
+                      <Badge variant="secondary" className="text-[10px] shrink-0">
+                        {cp.payment_gateway === 'stripe' ? 'Stripe' : 'Paystack'}
+                      </Badge>
+                      <span className="text-[10px] text-muted-foreground">
+                        {format(new Date(cp.completed_at || cp.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
+                      </span>
                     </div>
                   </div>
                 ))}

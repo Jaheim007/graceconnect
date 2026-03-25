@@ -405,9 +405,6 @@ export default function AffiliationPage() {
         {/* TAB: Results */}
         {activeTab === 'resultats' && (
           <div className="space-y-4">
-            {/* Payout settings */}
-            <AffiliatePayoutSettings />
-
             {/* Summary cards */}
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-card border border-border p-4 shadow-card">
