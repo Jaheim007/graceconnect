@@ -392,11 +392,15 @@ export function ProgramForm() {
         </div>
       </div>
 
-      {/* ─── MAIN 3-PANEL LAYOUT ─── */}
+      {/* ─── MAIN LAYOUT — stacked on mobile, side-by-side on desktop ─── */}
       {activeTab === 'edit' && (
-        <div className="flex flex-1 min-h-0">
-          {/* LEFT: Lessons sidebar */}
-          <div className="w-64 lg:w-72 border-r border-border bg-card flex flex-col shrink-0 overflow-hidden">
+        <div className="flex flex-col md:flex-row flex-1 min-h-0">
+          {/* LEFT: Lessons sidebar — full width on mobile, fixed on desktop */}
+          <div className={cn(
+            'border-b md:border-b-0 md:border-r border-border bg-card flex flex-col shrink-0 overflow-hidden transition-all',
+            // On mobile: collapsible — show full when no lesson selected, hide when editing a lesson
+            selectedLessonId ? 'max-h-0 md:max-h-none md:w-64 lg:w-72' : 'max-h-[50dvh] md:max-h-none md:w-64 lg:w-72',
+          )}>
             <div className="flex items-center justify-between p-3 border-b border-border">
               <span className="text-sm font-semibold">{isFr ? 'Leçons' : 'Lessons'}</span>
               <div className="flex items-center gap-1">
@@ -547,10 +551,18 @@ export function ProgramForm() {
             </div>
           </div>
 
-          {/* CENTER: Lesson content editor */}
+          {/* CENTER: Lesson content editor — full width on mobile */}
           <div className="flex-1 min-w-0 overflow-y-auto bg-muted/30">
+            {/* Mobile: back to lessons list button */}
+            {selectedLessonId && (
+              <div className="md:hidden flex items-center gap-2 px-3 py-2 border-b border-border bg-card">
+                <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-7" onClick={() => setSelectedLessonId(null)}>
+                  <ArrowLeft className="h-3 w-3" /> {isFr ? 'Leçons' : 'Lessons'}
+                </Button>
+              </div>
+            )}
             {showAIGenerator ? (
-              <div className="p-6 max-w-2xl mx-auto">
+              <div className="p-4 sm:p-6 max-w-2xl mx-auto">
                 <AICourseGenerator onGenerated={handleAIGenerated} onCancel={() => setShowAIGenerator(false)} />
               </div>
             ) : selectedLessonId ? (
