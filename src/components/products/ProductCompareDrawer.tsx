@@ -113,11 +113,14 @@ function CompareTable({ items, onRemove, onClear }: { items: CompareProduct[]; o
     {
       label: isFr ? 'Prix' : 'Price',
       icon: <ShoppingBag className="h-3.5 w-3.5" />,
-      render: (p) => (
-        <span className={cn('font-bold', p.is_free ? 'text-emerald-500' : 'text-primary')}>
-          {formatPrice(p.price, p.is_free, p.currency)}
-        </span>
-      ),
+      render: (p) => {
+        const label = getProductPriceLabel(p as any, isFr ? 'fr' : 'en');
+        return (
+          <span className={cn('font-bold', label.isFree ? 'text-emerald-500' : label.isPwyw ? 'text-amber-600' : 'text-primary')}>
+            {label.text}
+          </span>
+        );
+      },
     },
     {
       label: 'Type',

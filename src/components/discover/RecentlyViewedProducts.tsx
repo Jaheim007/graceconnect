@@ -82,8 +82,8 @@ export function RecentlyViewedProducts() {
                   )}
                 </div>
                 <p className="text-xs font-medium mt-1.5 line-clamp-1">{p.title}</p>
-                <p className="text-[10px] text-muted-foreground">
-                  {formatPrice(p.price, p.is_free, p.currency)}
+                <p className={cn('text-[10px]', (p as any).is_pwyw ? 'text-amber-600 font-medium' : 'text-muted-foreground')}>
+                  {getProductPriceLabel(p as any, locale).text}
                 </p>
               </button>
             );
