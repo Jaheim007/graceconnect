@@ -1,5 +1,6 @@
 import { ArrowLeft, Rocket, Sparkles, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 
 import { useI18n } from '@/i18n/I18nContext';
