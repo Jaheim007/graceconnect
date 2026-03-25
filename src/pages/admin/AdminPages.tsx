@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, Eye, EyeOff, Megaphone, CalendarDays, PackageOpen } from 'lucide-react';
+import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, Eye, EyeOff, Megaphone, CalendarDays, PackageOpen, Building2, Save, HandHeart, User } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -1216,265 +1216,295 @@ export function AdminSettings() {
   };
 
   return (
-    <AdminPageShell title={isFr ? 'Paramètres' : 'Settings'} backRoute="/admin/create">
-      <div className="space-y-4">
+    <AdminPageShell title={isFr ? 'Paramètres' : 'Settings'} backRoute="/admin">
+      <div className="space-y-5">
 
-        {/* ── PROFILE ── */}
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-          <h2 className="font-semibold text-sm">{isFr ? 'Profil de l\'organisation' : 'Organization profile'}</h2>
-
-          {/* Banner upload */}
-          <div className="space-y-2">
-            <Label className="text-xs font-medium">{isFr ? 'Image de bannière' : 'Banner image'}</Label>
-            <div
-              className="relative h-32 rounded-xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer group"
-              onClick={() => document.getElementById('banner-upload')?.click()}
-            >
-              {bannerUrl
-                ? <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover" />
-                : <div className="w-full h-full flex flex-col items-center justify-center gap-1">
-                    <span className="text-2xl">🖼️</span>
-                    <span className="text-xs text-muted-foreground">{isFr ? 'Cliquez pour télécharger la bannière (16:9 recommandé)' : 'Click to upload banner (16:9 recommended)'}</span>
-                  </div>
-              }
-              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="text-white text-xs font-medium">{isFr ? 'Changer la bannière' : 'Change banner'}</span>
-              </div>
-              <input id="banner-upload" type="file" accept="image/*" className="hidden"
-                onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadImage(f, 'banner'); }} />
+        {/* ── 1. PROFILE ── */}
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="px-5 pt-5 pb-3 flex items-center gap-2.5 border-b border-border/60">
+            <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Building2 className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-sm">{isFr ? 'Profil de l\'organisation' : 'Organization profile'}</h2>
+              <p className="text-[11px] text-muted-foreground">{isFr ? 'Identité visuelle et informations publiques' : 'Visual identity & public information'}</p>
             </div>
           </div>
+          <div className="p-5 space-y-4">
+            {/* Banner upload */}
+            <div className="space-y-2">
+              <Label className="text-xs font-medium">{isFr ? 'Image de bannière' : 'Banner image'}</Label>
+              <div
+                className="relative h-32 rounded-xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer group"
+                onClick={() => document.getElementById('banner-upload')?.click()}
+              >
+                {bannerUrl
+                  ? <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover" />
+                  : <div className="w-full h-full flex flex-col items-center justify-center gap-1">
+                      <span className="text-2xl">🖼️</span>
+                      <span className="text-xs text-muted-foreground">{isFr ? 'Cliquez pour télécharger (16:9 recommandé)' : 'Click to upload (16:9 recommended)'}</span>
+                    </div>
+                }
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="text-white text-xs font-medium">{isFr ? 'Changer la bannière' : 'Change banner'}</span>
+                </div>
+                <input id="banner-upload" type="file" accept="image/*" className="hidden"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadImage(f, 'banner'); }} />
+              </div>
+            </div>
 
-          {/* Logo upload */}
-          <div className="space-y-2">
-            <Label className="text-xs font-medium">{isFr ? 'Logo / Photo de profil' : 'Logo / Profile photo'}</Label>
+            {/* Logo upload */}
+            <div className="space-y-2">
+              <Label className="text-xs font-medium">{isFr ? 'Logo / Photo de profil' : 'Logo / Profile photo'}</Label>
+              <div className="flex items-center gap-4">
+                <div
+                  className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer flex items-center justify-center group shrink-0"
+                  onClick={() => document.getElementById('logo-upload')?.click()}
+                >
+                  {logoUrl
+                    ? <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                    : <span className="text-xl">🏛️</span>
+                  }
+                  <input id="logo-upload" type="file" accept="image/*" className="hidden"
+                    onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadImage(f, 'logo'); }} />
+                </div>
+                <p className="text-xs text-muted-foreground">{isFr ? 'Image carrée recommandée. Apparaîtra comme avatar.' : 'Square image recommended. Will appear as your avatar.'}</p>
+              </div>
+            </div>
+
+            {/* Text fields */}
+            <div className="grid gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="org-name" className="text-xs font-medium">{isFr ? 'Nom de l\'organisation' : 'Organization name'}</Label>
+                <Input id="org-name" value={orgName} onChange={e => setOrgName(e.target.value)} className="h-9 text-sm" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="org-desc" className="text-xs font-medium">Description</Label>
+                <textarea
+                  id="org-desc"
+                  rows={3}
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder={isFr ? 'Décrivez votre organisation aux visiteurs…' : 'Describe your organization to visitors…'}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="org-website" className="text-xs font-medium">{isFr ? 'Site web' : 'Website'}</Label>
+                  <Input id="org-website" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://yourchurch.com" className="h-9 text-sm" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="org-whatsapp" className="text-xs font-medium">{isFr ? 'Numéro WhatsApp' : 'WhatsApp number'}</Label>
+                  <Input id="org-whatsapp" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+225 07 00 00 00 00" className="h-9 text-sm" />
+                </div>
+              </div>
+            </div>
+
+            {/* Editable slug */}
+            <div className="space-y-2 border-t border-border/60 pt-3">
+              <Label htmlFor="org-slug" className="text-xs font-medium">{isFr ? 'Lien public personnalisé' : 'Custom public link'}</Label>
+              <div className="flex items-center gap-0 bg-muted/50 rounded-lg overflow-hidden border border-border">
+                <span className="text-[11px] text-muted-foreground px-3 py-2 shrink-0 bg-muted/80 border-r border-border">
+                  siteviral.com/org/
+                </span>
+                <Input
+                  id="org-slug"
+                  value={orgSlug}
+                  onChange={e => handleSlugChange(e.target.value)}
+                  className="h-9 text-sm border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                  placeholder="mon-eglise"
+                />
+              </div>
+              {slugError && <p className="text-xs text-destructive">{slugError}</p>}
+              <p className="text-[11px] text-muted-foreground">
+                {isFr ? 'C\'est le lien à partager pour que les membres rejoignent votre communauté.' : 'This is the link to share for members to join your community.'}
+              </p>
+            </div>
+
+            {/* Currency & country */}
+            <div className="grid gap-3 border-t border-border/60 pt-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="org-currency" className="text-xs font-medium">{isFr ? 'Devise' : 'Currency'}</Label>
+                  <CurrencySelector value={orgCurrency} onChange={(c) => setOrgCurrency(c)} className="h-9 text-sm" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="org-country" className="text-xs font-medium">{isFr ? 'Pays' : 'Country'}</Label>
+                  <Input id="org-country" value={orgCountry} onChange={e => setOrgCountry(e.target.value)} placeholder="Ex: CI, SN, FR…" className="h-9 text-sm" />
+                </div>
+              </div>
+              <div className="flex justify-between text-xs px-1">
+                <span className="text-muted-foreground">Plan</span>
+                <span className="font-medium capitalize">{currentOrg?.plan_type || 'Free'}</span>
+              </div>
+            </div>
+
+            <Button
+              size="sm"
+              className="w-full sm:w-auto gap-1.5"
+              onClick={handleSaveProfile}
+              disabled={savingProfile}
+            >
+              <Save className="h-3.5 w-3.5" />
+              {savingProfile ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder le profil' : 'Save profile')}
+            </Button>
+          </div>
+        </div>
+
+        {/* ── 2. AFFILIATION (moved up — essential) ── */}
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="px-5 pt-5 pb-3 flex items-center gap-2.5 border-b border-border/60">
+            <div className="h-8 w-8 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+              <Users className="h-4 w-4 text-emerald-600" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-sm">{isFr ? 'Programme d\'affiliation' : 'Affiliate program'}</h2>
+              <p className="text-[11px] text-muted-foreground">{isFr ? 'Commissions sur les ventes via liens de parrainage' : 'Commissions on sales via referral links'}</p>
+            </div>
+          </div>
+          <div className="p-5 space-y-4">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
+              <div>
+                <Label htmlFor="affiliation-toggle" className="text-sm font-medium cursor-pointer">{isFr ? 'Activer l\'affiliation' : 'Enable affiliation'}</Label>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{isFr ? 'Les membres pourront gagner des commissions' : 'Members will be able to earn commissions'}</p>
+              </div>
+              <Switch id="affiliation-toggle" checked={affiliationEnabled} onCheckedChange={setAffiliationEnabled} />
+            </div>
+
+            {affiliationEnabled && (
+              <div className="space-y-2 pl-1">
+                <Label htmlFor="commission-pct" className="text-xs font-medium">{isFr ? 'Taux de commission (%)' : 'Commission rate (%)'}</Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    id="commission-pct"
+                    type="number"
+                    min={1}
+                    max={80}
+                    value={commissionPercent}
+                    onChange={e => setCommissionPercent(e.target.value)}
+                    className="h-9 text-sm w-24"
+                  />
+                  <span className="text-xs text-muted-foreground">{isFr ? '% par vente via lien affilié' : '% per sale via affiliate link'}</span>
+                </div>
+              </div>
+            )}
+
+            <Button
+              size="sm"
+              className="w-full sm:w-auto gap-1.5"
+              onClick={handleSaveAffiliation}
+              disabled={savingAffiliation}
+            >
+              <Save className="h-3.5 w-3.5" />
+              {savingAffiliation ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder' : 'Save')}
+            </Button>
+          </div>
+        </div>
+
+        {/* ── 3. DONATIONS MODULE (moved up — essential) ── */}
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="px-5 pt-5 pb-3 flex items-center gap-2.5 border-b border-border/60">
+            <div className="h-8 w-8 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+              <HandHeart className="h-4 w-4 text-amber-600" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-sm">{isFr ? 'Module Dons' : 'Donations module'}</h2>
+              <p className="text-[11px] text-muted-foreground">{isFr ? 'Dîmes, offrandes et contributions libres' : 'Tithes, offerings & free contributions'}</p>
+            </div>
+          </div>
+          <div className="p-5 space-y-4">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
+              <div>
+                <Label htmlFor="offerings-toggle" className="text-sm font-medium cursor-pointer">{isFr ? 'Activer le module Dons' : 'Enable donations'}</Label>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{isFr ? 'Les membres pourront faire des dons en ligne' : 'Members can make donations online'}</p>
+              </div>
+              <Switch id="offerings-toggle" checked={offeringsEnabled} onCheckedChange={setOfferingsEnabled} />
+            </div>
+            <Button
+              size="sm"
+              className="w-full sm:w-auto gap-1.5"
+              onClick={handleSaveOfferings}
+              disabled={savingOfferings}
+            >
+              <Save className="h-3.5 w-3.5" />
+              {savingOfferings ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder' : 'Save')}
+            </Button>
+          </div>
+        </div>
+
+        {/* ── 4. LEADER BIOGRAPHY ── */}
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="px-5 pt-5 pb-3 flex items-center gap-2.5 border-b border-border/60">
+            <div className="h-8 w-8 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
+              <User className="h-4 w-4 text-violet-600" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-sm">{isFr ? 'Biographie du Leader' : 'Leader biography'}</h2>
+              <p className="text-[11px] text-muted-foreground">{isFr ? 'Présentez le leader sur votre page publique' : 'Present the leader on your public page'}</p>
+            </div>
+          </div>
+          <div className="p-5 space-y-4">
             <div className="flex items-center gap-4">
               <div
-                className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer flex items-center justify-center group shrink-0"
-                onClick={() => document.getElementById('logo-upload')?.click()}
+                className="h-20 w-20 rounded-2xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer flex items-center justify-center group shrink-0"
+                onClick={() => document.getElementById('leader-upload')?.click()}
               >
-                {logoUrl
-                  ? <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
-                  : <span className="text-xl">🏛️</span>
+                {leaderImageUrl
+                  ? <img src={leaderImageUrl} alt="Leader" className="w-full h-full object-cover" />
+                  : <span className="text-2xl">👤</span>
                 }
-                <input id="logo-upload" type="file" accept="image/*" className="hidden"
-                  onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadImage(f, 'logo'); }} />
+                <input id="leader-upload" type="file" accept="image/*" className="hidden"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadLeaderImage(f); }} />
               </div>
-              <p className="text-xs text-muted-foreground">{isFr ? 'Image carrée recommandée. Apparaîtra comme avatar de votre organisation sur la plateforme.' : 'Square image recommended. Will appear as your organization avatar on the platform.'}</p>
+              <p className="text-xs text-muted-foreground">{isFr ? 'Photo du leader (carrée recommandée)' : 'Leader photo (square recommended)'}</p>
             </div>
-          </div>
 
-          {/* Text fields */}
-          <div className="grid gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="org-name" className="text-xs font-medium">{isFr ? 'Nom de l\'organisation' : 'Organization name'}</Label>
-              <Input id="org-name" value={orgName} onChange={e => setOrgName(e.target.value)} className="h-8 text-xs" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="org-desc" className="text-xs font-medium">Description</Label>
-              <textarea
-                id="org-desc"
-                rows={3}
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                placeholder={isFr ? 'Décrivez votre organisation aux visiteurs…' : 'Describe your organization to visitors…'}
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
-            <div className="grid sm:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="org-website" className="text-xs font-medium">{isFr ? 'Site web' : 'Website'}</Label>
-                <Input id="org-website" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://yourchurch.com" className="h-8 text-xs" />
+            <div className="grid gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="leader-name" className="text-xs font-medium">{isFr ? 'Nom du leader' : 'Leader name'}</Label>
+                  <Input id="leader-name" value={leaderName} onChange={e => setLeaderName(e.target.value)} placeholder="Ex: Pasteur Jean Dupont" className="h-9 text-sm" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="leader-title" className="text-xs font-medium">{isFr ? 'Titre / Fonction' : 'Title / Role'}</Label>
+                  <Input id="leader-title" value={leaderTitle} onChange={e => setLeaderTitle(e.target.value)} placeholder="Ex: Pasteur Principal…" className="h-9 text-sm" />
+                </div>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="org-whatsapp" className="text-xs font-medium">{isFr ? 'Numéro WhatsApp' : 'WhatsApp number'}</Label>
-                <Input id="org-whatsapp" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+225 07 00 00 00 00" className="h-8 text-xs" />
-              </div>
-            </div>
-          </div>
-
-          {/* Editable slug */}
-          <div className="space-y-2 border-t border-border/60 pt-3">
-            <Label htmlFor="org-slug" className="text-xs font-medium">{isFr ? 'Lien public personnalisé' : 'Custom public link'}</Label>
-            <div className="flex items-center gap-0 bg-muted/50 rounded-lg overflow-hidden border border-border">
-              <span className="text-[11px] text-muted-foreground px-3 py-2 shrink-0 bg-muted/80 border-r border-border">
-                siteviral.com/org/
-              </span>
-              <Input
-                id="org-slug"
-                value={orgSlug}
-                onChange={e => handleSlugChange(e.target.value)}
-                className="h-8 text-xs border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-                placeholder="mon-eglise"
-              />
-            </div>
-            {slugError && <p className="text-xs text-destructive">{slugError}</p>}
-            <p className="text-[11px] text-muted-foreground">
-              {isFr ? 'C\'est le lien à partager pour que les membres rejoignent votre communauté.' : 'This is the link to share for members to join your community.'}
-            </p>
-          </div>
-
-          {/* Editable currency & country + read-only plan */}
-          <div className="grid gap-3 border-t border-border/60 pt-3">
-            <div className="grid sm:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="org-currency" className="text-xs font-medium">{isFr ? 'Devise' : 'Currency'}</Label>
-                <CurrencySelector value={orgCurrency} onChange={(c) => setOrgCurrency(c)} className="h-8 text-xs" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="org-country" className="text-xs font-medium">{isFr ? 'Pays' : 'Country'}</Label>
-                <Input id="org-country" value={orgCountry} onChange={e => setOrgCountry(e.target.value)} placeholder="Ex: CI, SN, FR…" className="h-8 text-xs" />
-              </div>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Plan</span>
-              <span className="font-medium capitalize">{currentOrg?.plan_type || 'Free'}</span>
-            </div>
-          </div>
-
-          <Button
-            size="sm"
-            className="bg-primary text-primary-foreground"
-            onClick={handleSaveProfile}
-            disabled={savingProfile}
-          >
-            {savingProfile ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder le profil' : 'Save profile')}
-          </Button>
-        </div>
-
-        {/* ── LEADER BIOGRAPHY ── */}
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-          <div>
-            <h2 className="font-semibold text-sm">{isFr ? 'Biographie du Leader' : 'Leader biography'}</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {isFr ? 'Présentez le leader de votre organisation aux visiteurs de votre page publique.' : 'Present your organization\'s leader to your public page visitors.'}
-            </p>
-          </div>
-
-          {/* Leader image */}
-          <div className="flex items-center gap-4">
-            <div
-              className="h-20 w-20 rounded-2xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer flex items-center justify-center group shrink-0"
-              onClick={() => document.getElementById('leader-upload')?.click()}
-            >
-              {leaderImageUrl
-                ? <img src={leaderImageUrl} alt="Leader" className="w-full h-full object-cover" />
-                : <span className="text-2xl">👤</span>
-              }
-              <input id="leader-upload" type="file" accept="image/*" className="hidden"
-                onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadLeaderImage(f); }} />
-            </div>
-            <p className="text-xs text-muted-foreground">{isFr ? 'Photo du leader (carrée recommandée)' : 'Leader photo (square recommended)'}</p>
-          </div>
-
-          <div className="grid gap-3">
-            <div className="grid sm:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="leader-name" className="text-xs font-medium">{isFr ? 'Nom du leader' : 'Leader name'}</Label>
-                <Input id="leader-name" value={leaderName} onChange={e => setLeaderName(e.target.value)} placeholder="Ex: Pasteur Jean Dupont" className="h-8 text-xs" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="leader-title" className="text-xs font-medium">{isFr ? 'Titre / Fonction' : 'Title / Role'}</Label>
-                <Input id="leader-title" value={leaderTitle} onChange={e => setLeaderTitle(e.target.value)} placeholder="Ex: Pasteur Principal, Fondateur…" className="h-8 text-xs" />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="leader-bio" className="text-xs font-medium">{isFr ? 'Biographie' : 'Biography'}</Label>
-              <textarea
-                id="leader-bio"
-                rows={4}
-                value={leaderBio}
-                onChange={e => setLeaderBio(e.target.value)}
-                placeholder={isFr ? 'Présentez le parcours, la vision et la mission du leader…' : 'Present the leader\'s background, vision and mission…'}
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
-          </div>
-
-          <Button
-            size="sm"
-            className="bg-primary text-primary-foreground"
-            onClick={handleSaveLeader}
-            disabled={savingLeader}
-          >
-            {savingLeader ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder la biographie' : 'Save biography')}
-          </Button>
-        </div>
-
-        {/* ── TRACKING PIXELS ── */}
-        <PixelSettings orgId={currentOrg?.id} />
-
-        {/* ── WEBHOOKS ── */}
-        <WebhookSettings orgId={currentOrg?.id} />
-
-        {/* ── POPUP CONFIG ── */}
-        <PopupSettings orgId={currentOrg?.id} />
-
-        {/* ── MODULE DONS ── */}
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-          <div>
-            <h2 className="font-semibold text-sm">{isFr ? 'Module Dons' : 'Donations module'}</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {isFr ? 'Activez cette fonctionnalité pour permettre à vos membres de faire des dons (dîmes, offrandes, contributions libres, etc.). Chaque type de don est personnalisable.' : 'Enable this feature to allow your members to make donations (tithes, offerings, free contributions, etc.). Each donation type is customizable.'}
-            </p>
-          </div>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="offerings-toggle" className="text-xs font-medium">{isFr ? 'Activer le module Dons' : 'Enable donations module'}</Label>
-            <Switch id="offerings-toggle" checked={offeringsEnabled} onCheckedChange={setOfferingsEnabled} />
-          </div>
-          <Button
-            size="sm"
-            className="bg-primary text-primary-foreground"
-            onClick={handleSaveOfferings}
-            disabled={savingOfferings}
-          >
-            {savingOfferings ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder' : 'Save')}
-          </Button>
-        </div>
-
-        {/* ── AFFILIATION ── */}
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-          <div>
-            <h2 className="font-semibold text-sm">{isFr ? 'Programme d\'affiliation' : 'Affiliate program'}</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {isFr ? 'Permettez aux membres de gagner des commissions en partageant des liens de parrainage.' : 'Allow members to earn commissions by sharing referral links.'}
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <Label htmlFor="affiliation-toggle" className="text-xs font-medium">{isFr ? 'Activer l\'affiliation' : 'Enable affiliation'}</Label>
-            <Switch id="affiliation-toggle" checked={affiliationEnabled} onCheckedChange={setAffiliationEnabled} />
-          </div>
-
-          {affiliationEnabled && (
-            <div className="space-y-2">
-              <Label htmlFor="commission-pct" className="text-xs font-medium">{isFr ? 'Taux de commission (%)' : 'Commission rate (%)'}</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="commission-pct"
-                  type="number"
-                  min={1}
-                  max={80}
-                  value={commissionPercent}
-                  onChange={e => setCommissionPercent(e.target.value)}
-                  className="h-8 text-xs w-24"
+                <Label htmlFor="leader-bio" className="text-xs font-medium">{isFr ? 'Biographie' : 'Biography'}</Label>
+                <textarea
+                  id="leader-bio"
+                  rows={4}
+                  value={leaderBio}
+                  onChange={e => setLeaderBio(e.target.value)}
+                  placeholder={isFr ? 'Présentez le parcours, la vision et la mission…' : 'Present background, vision and mission…'}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                 />
-                <span className="text-xs text-muted-foreground">{isFr ? '% par vente/don via lien affilié' : '% per sale/donation via affiliate link'}</span>
               </div>
             </div>
-          )}
 
-          <Button
-            size="sm"
-            className="bg-primary text-primary-foreground"
-            onClick={handleSaveAffiliation}
-            disabled={savingAffiliation}
-          >
-            {savingAffiliation ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder l\'affiliation' : 'Save affiliation')}
-          </Button>
+            <Button
+              size="sm"
+              className="w-full sm:w-auto gap-1.5"
+              onClick={handleSaveLeader}
+              disabled={savingLeader}
+            >
+              <Save className="h-3.5 w-3.5" />
+              {savingLeader ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder' : 'Save')}
+            </Button>
+          </div>
         </div>
 
-        {/* ── DANGER ZONE ── */}
+        {/* ── 5. ADVANCED: Tracking, Webhooks, Popups ── */}
+        <div className="space-y-1">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pb-2">{isFr ? 'Avancé' : 'Advanced'}</p>
+          <PixelSettings orgId={currentOrg?.id} />
+          <WebhookSettings orgId={currentOrg?.id} />
+          <PopupSettings orgId={currentOrg?.id} />
+        </div>
+
+        {/* ── 6. DANGER ZONE ── */}
         {currentOrg?.owner_id === user?.id && (
           <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-5 space-y-3">
             <div className="flex items-center gap-2">
@@ -1482,7 +1512,7 @@ export function AdminSettings() {
               <h2 className="font-semibold text-sm text-destructive">{isFr ? 'Zone dangereuse' : 'Danger zone'}</h2>
             </div>
             <p className="text-xs text-muted-foreground">
-              {isFr ? 'La suppression est irréversible. Toutes les données (médias, événements, dons, produits, membres) seront définitivement perdues.' : 'Deletion is irreversible. All data (media, events, donations, products, members) will be permanently lost.'}
+              {isFr ? 'La suppression est irréversible. Toutes les données seront définitivement perdues.' : 'Deletion is irreversible. All data will be permanently lost.'}
             </p>
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -1523,7 +1553,7 @@ export function AdminSettings() {
           </div>
         )}
 
-        <p className="text-xs text-muted-foreground text-center">{isFr ? 'Contactez le support pour modifier le plan, le pays ou la devise.' : 'Contact support to change the plan, country, or currency.'}</p>
+        <p className="text-[11px] text-muted-foreground text-center pb-4">{isFr ? 'Contactez le support pour modifier le plan.' : 'Contact support to change your plan.'}</p>
       </div>
       {/* Crop Dialog */}
       {settingsCropSrc && (
