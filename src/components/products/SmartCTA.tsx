@@ -139,6 +139,8 @@ function ProductCTAButton({
 }: {
   isPwyw: boolean; isFree: boolean; minPrice: number; displayPrice: number; currency: string; onBuy: () => void;
 }) {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const defaultLabel = isPwyw
     ? `💰 ${isFr ? 'Prix libre' : 'Name your price'}${minPrice > 0 ? ` · ${formatPrice(minPrice, false, currency)}+` : ''}`
     : isFree
