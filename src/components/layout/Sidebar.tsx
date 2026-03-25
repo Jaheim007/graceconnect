@@ -167,9 +167,22 @@ export function Sidebar() {
               <OrgSwitcher variant="sidebar" collapsed={collapsed} />
             )}
 
-            {/* Unified nav */}
+            {/* Primary nav */}
             <div className="mt-1 space-y-0.5">
-              {getNavItems().map(renderNavItem)}
+              {primaryItems.map(renderNavItem)}
+            </div>
+
+            {/* Separator + Secondary nav */}
+            {!collapsed && (
+              <div className="px-3 pt-4 pb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  {isFr ? 'Plus' : 'More'}
+                </span>
+              </div>
+            )}
+            {collapsed && <div className="mx-3 my-2 border-t border-border/50" />}
+            <div className="space-y-0.5">
+              {getSecondaryItems().map(renderNavItem)}
             </div>
 
             {isApprovedPartner && (
