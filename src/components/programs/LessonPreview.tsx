@@ -472,7 +472,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   };
 
   return (
-    <div className="flex flex-col h-full bg-muted/30">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-muted/30">
       {/* Top bar */}
       <div className="border-b border-border bg-card shrink-0">
         <div className="flex items-start justify-between gap-3 px-3 py-2 sm:px-4">
@@ -592,7 +592,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
       </div>
 
       {/* Main area */}
-      <div className="flex flex-1 min-h-0 relative">
+      <div className="relative flex flex-1 min-h-0 overflow-hidden">
         {/* Sidebar — overlay on mobile, inline on desktop */}
         {showSidebar && (
           <>
@@ -602,8 +602,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
               onClick={() => setShowSidebar(false)}
             />
             <div className={cn(
-              'bg-card overflow-y-auto shrink-0 border-r border-border',
-              'fixed inset-y-0 left-0 z-30 w-72 md:static md:w-60 md:z-auto'
+              'h-full max-h-full shrink-0 overflow-y-auto overscroll-contain border-r border-border bg-card',
+              'fixed inset-y-0 left-0 z-30 w-[min(88vw,18rem)] max-w-full md:static md:w-60 md:max-h-none md:z-auto'
             )}>
               {/* Mobile close button */}
               <div className="flex items-center justify-between px-3 py-2 border-b border-border md:hidden">
@@ -726,8 +726,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
         )}
 
         {/* Viewport */}
-        <div className={cn(
-          'flex-1 relative overflow-hidden',
+          <div className={cn(
+            'relative flex-1 min-h-0 overflow-hidden',
           isLearner || isCompactCreatorPreview ? 'flex items-stretch justify-stretch p-0' : 'flex items-center justify-center p-4'
         )}>
           {currentIndex > 0 && (
@@ -822,14 +822,21 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
               className="fixed inset-0 bg-black/40 z-20 md:hidden"
               onClick={() => setShowCustomizer(false)}
             />
-            <div className="fixed inset-y-0 right-0 z-30 md:static md:z-auto">
-              <SlideCustomizationPanel
-                customization={currentCustomization}
-                onChange={(c) => setSlideCustomizations(prev => ({ ...prev, [currentIndex]: { ...c, layout: 'text-only' } }))}
-                onApplyToAll={applyCustomizationToAll}
-                onGenerateImage={handleGenerateSlideBackground}
-                isGenerating={isGeneratingSlideImage}
-              />
+            <div className="fixed inset-0 z-30 h-full max-h-full overflow-hidden md:static md:z-auto md:h-auto md:max-h-none md:overflow-visible">
+              <div className="relative h-full">
+                <div className="absolute right-3 top-3 z-10 md:hidden">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => setShowCustomizer(false)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <SlideCustomizationPanel
+                  customization={currentCustomization}
+                  onChange={(c) => setSlideCustomizations(prev => ({ ...prev, [currentIndex]: { ...c, layout: 'text-only' } }))}
+                  onApplyToAll={applyCustomizationToAll}
+                  onGenerateImage={handleGenerateSlideBackground}
+                  isGenerating={isGeneratingSlideImage}
+                />
+              </div>
             </div>
           </>
         )}

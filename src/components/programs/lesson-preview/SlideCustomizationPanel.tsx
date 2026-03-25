@@ -95,8 +95,8 @@ export function SlideCustomizationPanel({ customization, onChange, onApplyToAll,
   );
 
   return (
-    <div className="w-72 border-l border-border bg-card overflow-y-auto shrink-0">
-      <div className="px-4 py-3 border-b border-border">
+    <div className="h-full w-full shrink-0 overflow-y-auto overscroll-contain bg-card pb-[env(safe-area-inset-bottom)] md:w-72 md:border-l md:border-border">
+      <div className="sticky top-0 z-10 border-b border-border bg-card px-4 py-3 pr-14 md:pr-4">
         <h3 className="text-sm font-bold text-foreground">{isFr ? 'Personnaliser' : 'Customize'}</h3>
         <p className="text-[10px] text-muted-foreground mt-0.5">{isFr ? 'Style de la diapositive' : 'Slide style'}</p>
       </div>
