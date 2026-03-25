@@ -90,12 +90,12 @@ export function Sidebar() {
       items.push(
         ...[
           currentOrg ? { to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' } : null,
+          { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
           { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
           { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
-          { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
-          { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
           { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
           { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
+          { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
           { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
         ].filter(Boolean) as NavItem[]
       );
