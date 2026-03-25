@@ -95,7 +95,7 @@ export function BottomNav() {
         label: isFr ? 'Ma plateforme' : 'My Platform',
         items: [
           ...(currentOrg ? [{ to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' }] : []),
-          { to: '/admin/create', icon: Sparkles, label: 'Viral AI Studio' },
+          
           { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
           { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
           { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
