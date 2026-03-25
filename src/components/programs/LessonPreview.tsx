@@ -541,118 +541,137 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
       </div>
 
       {/* Main area */}
-      <div className="flex flex-1 min-h-0">
-        {/* Sidebar */}
+      <div className="flex flex-1 min-h-0 relative">
+        {/* Sidebar — overlay on mobile, inline on desktop */}
         {showSidebar && (
-          <div className="w-60 border-r border-border bg-card overflow-y-auto shrink-0">
-            {/* Course progress summary */}
-            {isLearner && (
-              <div className="px-3 py-3 border-b border-border">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                    {isFr ? 'Progression' : 'Progress'}
-                  </span>
-                  <span className="text-[10px] font-bold text-foreground">
-                    {Math.round(((currentIndex + 1) / total) * 100)}%
-                  </span>
-                </div>
-                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full transition-all duration-300"
-                    style={{ width: `${((currentIndex + 1) / total) * 100}%` }}
-                  />
-                </div>
+          <>
+            {/* Mobile backdrop */}
+            <div
+              className="fixed inset-0 bg-black/40 z-20 md:hidden"
+              onClick={() => setShowSidebar(false)}
+            />
+            <div className={cn(
+              'bg-card overflow-y-auto shrink-0 border-r border-border',
+              'fixed inset-y-0 left-0 z-30 w-72 md:static md:w-60 md:z-auto'
+            )}>
+              {/* Mobile close button */}
+              <div className="flex items-center justify-between px-3 py-2 border-b border-border md:hidden">
+                <span className="text-xs font-semibold">{isFr ? 'Leçons' : 'Lessons'}</span>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowSidebar(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
-            )}
 
-            {lessonGroups.map((group: any, gi: number) => (
-              <div key={group.moduleId} className="py-2">
-                <div className="px-3 py-1.5 flex items-center gap-2">
-                  <span className="h-5 w-5 rounded-md bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary shrink-0">
-                    {gi + 1}
-                  </span>
-                  <span className="text-[10px] font-semibold text-foreground uppercase tracking-wider truncate">
-                    {group.moduleTitle}
-                  </span>
+              {/* Course progress summary */}
+              {isLearner && (
+                <div className="px-3 py-3 border-b border-border">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      {isFr ? 'Progression' : 'Progress'}
+                    </span>
+                    <span className="text-[10px] font-bold text-foreground">
+                      {Math.round(((currentIndex + 1) / total) * 100)}%
+                    </span>
+                  </div>
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-full transition-all duration-300"
+                      style={{ width: `${((currentIndex + 1) / total) * 100}%` }}
+                    />
+                  </div>
                 </div>
-                {group.lessons.map((lesson: any) => {
-                  const isActive = current?.lessonId === lesson.id;
-                  const lessonSlideIdx = allSlides.findIndex(s => s.lessonId === lesson.id && s.slideInLesson === 0);
-                  const isLocked = isLearner && !canGoTo(lessonSlideIdx);
-                  // Check if lesson was visited (all its slides are <= maxReachedIndex)
-                  const lastSlideOfLesson = [...allSlides].reverse().find(s => s.lessonId === lesson.id);
-                  const lastSlideIdx = lastSlideOfLesson ? allSlides.indexOf(lastSlideOfLesson) : -1;
-                  const isCompleted = isLearner && lastSlideIdx >= 0 && maxReachedIndex >= lastSlideIdx;
+              )}
 
-                  return (
+              {lessonGroups.map((group: any, gi: number) => (
+                <div key={group.moduleId} className="py-2">
+                  <div className="px-3 py-1.5 flex items-center gap-2">
+                    <span className="h-5 w-5 rounded-md bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary shrink-0">
+                      {gi + 1}
+                    </span>
+                    <span className="text-[10px] font-semibold text-foreground uppercase tracking-wider truncate">
+                      {group.moduleTitle}
+                    </span>
+                  </div>
+                  {group.lessons.map((lesson: any) => {
+                    const isActive = current?.lessonId === lesson.id;
+                    const lessonSlideIdx = allSlides.findIndex(s => s.lessonId === lesson.id && s.slideInLesson === 0);
+                    const isLocked = isLearner && !canGoTo(lessonSlideIdx);
+                    const lastSlideOfLesson = [...allSlides].reverse().find(s => s.lessonId === lesson.id);
+                    const lastSlideIdx = lastSlideOfLesson ? allSlides.indexOf(lastSlideOfLesson) : -1;
+                    const isCompleted = isLearner && lastSlideIdx >= 0 && maxReachedIndex >= lastSlideIdx;
+
+                    return (
+                      <button
+                        key={lesson.id}
+                        disabled={isLocked}
+                        onClick={() => {
+                          if (lessonSlideIdx >= 0) goToSlide(lessonSlideIdx);
+                          if (window.innerWidth < 768) setShowSidebar(false);
+                        }}
+                        className={cn(
+                          'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors text-xs',
+                          isActive
+                            ? 'bg-primary/10 text-primary border-l-2 border-primary font-medium'
+                            : isLocked
+                              ? 'text-muted-foreground/50 cursor-not-allowed'
+                              : 'hover:bg-muted/50 text-foreground'
+                        )}
+                      >
+                        {isCompleted && !isLocked ? (
+                          <span className="h-4 w-4 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                            <svg className="h-2.5 w-2.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </span>
+                        ) : isLocked ? (
+                          <span className="text-[9px] shrink-0">🔒</span>
+                        ) : (
+                          <span className="h-4 w-4 rounded-full border border-border shrink-0" />
+                        )}
+                        <span className="flex-1 truncate">{lesson.title}</span>
+                        {!isLocked && lesson.duration && (
+                          <span className="text-[9px] text-muted-foreground shrink-0">{lesson.duration}m</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+
+              {/* Final assessment entry in sidebar */}
+              {allQuizQuestions.length >= 3 && (() => {
+                const assessIdx = allSlides.findIndex(s => s.slide.type === 'final-assessment');
+                const isLocked = isLearner && !canGoTo(assessIdx);
+                return (
+                  <div className="py-2 border-t border-border">
+                    <div className="px-3 py-1.5">
+                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                        {isFr ? 'Évaluation' : 'Assessment'}
+                      </span>
+                    </div>
                     <button
-                      key={lesson.id}
                       disabled={isLocked}
                       onClick={() => {
-                        if (lessonSlideIdx >= 0) goToSlide(lessonSlideIdx);
+                        if (assessIdx >= 0) goToSlide(assessIdx);
+                        if (window.innerWidth < 768) setShowSidebar(false);
                       }}
                       className={cn(
                         'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors text-xs',
-                        isActive
+                        current?.slide.type === 'final-assessment'
                           ? 'bg-primary/10 text-primary border-l-2 border-primary font-medium'
                           : isLocked
                             ? 'text-muted-foreground/50 cursor-not-allowed'
                             : 'hover:bg-muted/50 text-foreground'
                       )}
                     >
-                      {isCompleted && !isLocked ? (
-                        <span className="h-4 w-4 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
-                          <svg className="h-2.5 w-2.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </span>
-                      ) : isLocked ? (
-                        <span className="text-[9px] shrink-0">🔒</span>
-                      ) : (
-                        <span className="h-4 w-4 rounded-full border border-border shrink-0" />
-                      )}
-                      <span className="flex-1 truncate">{lesson.title}</span>
-                      {!isLocked && lesson.duration && (
-                        <span className="text-[9px] text-muted-foreground shrink-0">{lesson.duration}m</span>
-                      )}
+                      {isLocked ? <span className="text-[9px]">🔒</span> : <Trophy className="h-3.5 w-3.5 shrink-0" />}
+                      <span className="flex-1 truncate">{isFr ? 'Évaluation finale' : 'Final Assessment'}</span>
                     </button>
-                  );
-                })}
-              </div>
-            ))}
-
-            {/* Final assessment entry in sidebar */}
-            {allQuizQuestions.length >= 3 && (() => {
-              const assessIdx = allSlides.findIndex(s => s.slide.type === 'final-assessment');
-              const isLocked = isLearner && !canGoTo(assessIdx);
-              return (
-                <div className="py-2 border-t border-border">
-                  <div className="px-3 py-1.5">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                      {isFr ? 'Évaluation' : 'Assessment'}
-                    </span>
                   </div>
-                  <button
-                    disabled={isLocked}
-                    onClick={() => {
-                      if (assessIdx >= 0) goToSlide(assessIdx);
-                    }}
-                    className={cn(
-                      'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors text-xs',
-                      current?.slide.type === 'final-assessment'
-                        ? 'bg-primary/10 text-primary border-l-2 border-primary font-medium'
-                        : isLocked
-                          ? 'text-muted-foreground/50 cursor-not-allowed'
-                          : 'hover:bg-muted/50 text-foreground'
-                    )}
-                  >
-                    {isLocked ? <span className="text-[9px]">🔒</span> : <Trophy className="h-3.5 w-3.5 shrink-0" />}
-                    <span className="flex-1 truncate">{isFr ? 'Évaluation finale' : 'Final Assessment'}</span>
-                  </button>
-                </div>
-              );
-            })()}
-          </div>
+                );
+              })()}
+            </div>
+          </>
         )}
 
         {/* Viewport */}
