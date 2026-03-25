@@ -574,7 +574,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               </div>
 
               {/* Payment method selector */}
-              {!product.is_free && finalPrice > 0 && (
+              {!product.is_free && (
                 <>
                   <PaymentMethodSelector
                     value={paymentMethod}
