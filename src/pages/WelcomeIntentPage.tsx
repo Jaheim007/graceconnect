@@ -54,7 +54,7 @@ export default function WelcomeIntentPage() {
       icon: Store,
       emoji: '🛒',
       title: isFr ? 'Vendre mon contenu' : 'Sell my content',
-      desc: isFr ? 'Je veux vendre mes ebooks, formations ou fichiers numériques' : 'I want to sell my ebooks, courses or digital files',
+      desc: isFr ? 'Je veux vendre mes ebooks, formations ou fichiers numériques' : 'I want to sell my ebooks, formations or digital files',
       color: 'border-blue-500/30 hover:border-blue-500',
       iconBg: 'bg-blue-500/10',
       iconColor: 'text-blue-500',
