@@ -659,6 +659,24 @@ export function ProgramForm() {
                 <div className="p-4 sm:p-6 max-w-2xl mx-auto">
                   <AICourseGenerator onGenerated={handleAIGenerated} onCancel={() => setShowAIGenerator(false)} />
                 </div>
+              ) : editingQuizModuleId ? (
+                <div className="p-4 sm:p-6 max-w-2xl mx-auto">
+                  {isMobileViewport && (
+                    <div className="mb-3">
+                      <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => {
+                        setEditingQuizModuleId(null);
+                      }}>
+                        <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Retour' : 'Back'}
+                      </Button>
+                    </div>
+                  )}
+                  <ModuleQuizEditor
+                    moduleId={editingQuizModuleId}
+                    moduleTitle={modules.find((m: any) => m.id === editingQuizModuleId)?.title || ''}
+                    programId={id!}
+                    courseTitle={title}
+                  />
+                </div>
               ) : selectedLessonId ? (
                 <LessonEditor
                   lessonId={selectedLessonId}
