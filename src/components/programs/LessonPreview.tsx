@@ -753,15 +753,23 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           </div>
         </div>
 
-        {/* Customization Panel - Creator only */}
+        {/* Customization Panel - Creator only, overlay on mobile */}
         {!isLearner && showCustomizer && current?.slide.type !== 'final-assessment' && current?.slide.type !== 'course-completion' && (
-          <SlideCustomizationPanel
-            customization={currentCustomization}
-            onChange={(c) => setSlideCustomizations(prev => ({ ...prev, [currentIndex]: { ...c, layout: 'text-only' } }))}
-            onApplyToAll={applyCustomizationToAll}
-            onGenerateImage={handleGenerateSlideBackground}
-            isGenerating={isGeneratingSlideImage}
-          />
+          <>
+            <div
+              className="fixed inset-0 bg-black/40 z-20 md:hidden"
+              onClick={() => setShowCustomizer(false)}
+            />
+            <div className="fixed inset-y-0 right-0 z-30 md:static md:z-auto">
+              <SlideCustomizationPanel
+                customization={currentCustomization}
+                onChange={(c) => setSlideCustomizations(prev => ({ ...prev, [currentIndex]: { ...c, layout: 'text-only' } }))}
+                onApplyToAll={applyCustomizationToAll}
+                onGenerateImage={handleGenerateSlideBackground}
+                isGenerating={isGeneratingSlideImage}
+              />
+            </div>
+          </>
         )}
       </div>
     </div>
