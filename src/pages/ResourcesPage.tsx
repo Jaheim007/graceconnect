@@ -401,26 +401,28 @@ export default function ResourcesPage() {
                   ))}
 
                   {orgPurchases?.map((purchase) => (
-                    <div key={purchase.id} className="flex gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors">
-                      <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-muted">
-                        {purchase.product.cover_image_url ? (
-                          <img src={purchase.product.cover_image_url} alt={purchase.product.title} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                            {typeIcons[purchase.product.product_type] || <FileText className="h-6 w-6" />}
+                    <div key={purchase.id} className="p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors space-y-2.5">
+                      <div className="flex gap-3 items-start">
+                        <div className="shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-muted">
+                          {purchase.product.cover_image_url ? (
+                            <img src={purchase.product.cover_image_url} alt={purchase.product.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                              {typeIcons[purchase.product.product_type] || <FileText className="h-5 w-5" />}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-sm truncate">{purchase.product.title}</h3>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                            <Badge variant="outline" className="text-[10px] capitalize shrink-0">{purchase.product.product_type}</Badge>
+                            <span className="text-[10px] text-muted-foreground">
+                              {format(new Date(purchase.completed_at || purchase.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
+                            </span>
                           </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm truncate">{purchase.product.title}</h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-[10px] capitalize">{purchase.product.product_type}</Badge>
-                          <span className="text-[10px] text-muted-foreground">
-                            {format(new Date(purchase.completed_at || purchase.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
-                          </span>
                         </div>
                       </div>
-                      <div className="shrink-0 flex flex-col gap-1.5 justify-center">
+                      <div className="flex flex-wrap gap-1.5">
                         {purchase.product.file_url && (
                           <>
                             {isPdfLikeFile(purchase.product.file_url, purchase.product.product_type) && (
@@ -456,7 +458,7 @@ export default function ResourcesPage() {
                         )}
                         {purchase.product.external_link && (
                           <a href={purchase.product.external_link} target="_blank" rel="noreferrer">
-                            <Button size="sm" variant="outline" className="gap-1 h-7 text-[11px] w-full">
+                            <Button size="sm" variant="outline" className="gap-1 h-7 text-[11px]">
                               <ExternalLink className="h-3 w-3" /> {t('page.purchases_access')}
                             </Button>
                           </a>
