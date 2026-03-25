@@ -46,7 +46,7 @@ type EmailTemplate =
   | 'event_reminder_24h'
   | 'weekly_recap_user' | 'daily_recap_admin' | 'daily_recap_superadmin'
   | 'monthly_recap_org' | 'weekly_ambassador_recap'
-  | 'fraud_alert' | 'new_org_alert'
+  | 'fraud_alert' | 'new_org_alert' | 'moderation_action'
   | 'flash_sale_alert' | 'promo_code_used' | 'org_verified'
   | 'waitlist_spot_available' | 'referral_reward'
   | 'review_request'
@@ -718,6 +718,58 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
               <p style="margin-top:24px">See you soon,<br/>The <strong>${d.org_name}</strong> team</p>
             `, lang)
           };
+
+    // ═══ MODERATION ═══
+    case 'moderation_action': {
+      const actionLabels: Record<string, { fr: string; en: string; emoji: string; color: string }> = {
+        unpublish: { fr: 'Contenu dépublié', en: 'Content unpublished', emoji: '⛔', color: red },
+        delete: { fr: 'Contenu supprimé', en: 'Content deleted', emoji: '🗑️', color: red },
+        warn: { fr: 'Avertissement de modération', en: 'Moderation warning', emoji: '⚠️', color: orange },
+        suspend_org: { fr: 'Organisation suspendue', en: 'Organization suspended', emoji: '🚫', color: red },
+      };
+      const al = actionLabels[String(d.action)] || actionLabels.warn;
+      const categoryLabels: Record<string, { fr: string; en: string }> = {
+        plagiarism: { fr: 'Plagiat / Droits d\'auteur', en: 'Plagiarism / Copyright' },
+        fraud: { fr: 'Fraude / Arnaque', en: 'Fraud / Scam' },
+        inappropriate: { fr: 'Contenu inapproprié', en: 'Inappropriate content' },
+        low_quality: { fr: 'Qualité insuffisante', en: 'Insufficient quality' },
+        copyright: { fr: 'Violation copyright', en: 'Copyright violation' },
+        empty_content: { fr: 'Contenu vide / incomplet', en: 'Empty / incomplete content' },
+        other: { fr: 'Autre', en: 'Other' },
+      };
+      const cat = categoryLabels[String(d.reason_category)] || categoryLabels.other;
+      return isFr
+        ? {
+            subject: `${al.emoji} ${al.fr} – "${d.content_title}"`,
+            html: wrap(`
+              <h1 style="color:${al.color}">${al.emoji} ${al.fr}</h1>
+              <p>Bonjour ${d.name || ''},</p>
+              <p>Une action de modération a été prise sur votre contenu <strong>"${d.content_title}"</strong>.</p>
+              <table style="width:100%;border-collapse:collapse;margin:16px 0">
+                <tr><td style="padding:8px 0;color:#999;width:120px">Action</td><td style="padding:8px 0;color:#eee;font-weight:bold">${al.fr}</td></tr>
+                <tr><td style="padding:8px 0;color:#999">Catégorie</td><td style="padding:8px 0;color:#eee">${cat.fr}</td></tr>
+                ${d.reason ? `<tr><td style="padding:8px 0;color:#999;vertical-align:top">Motif</td><td style="padding:8px 0;color:#eee">${d.reason}</td></tr>` : ''}
+              </table>
+              <p style="color:#999;font-size:13px">Si vous pensez que cette décision est injuste, vous pouvez contacter notre support.</p>
+              ${cta('https://siteviral.com/admin/products', 'Voir mes contenus')}
+            `, lang),
+          }
+        : {
+            subject: `${al.emoji} ${al.en} – "${d.content_title}"`,
+            html: wrap(`
+              <h1 style="color:${al.color}">${al.emoji} ${al.en}</h1>
+              <p>Hello ${d.name || ''},</p>
+              <p>A moderation action has been taken on your content <strong>"${d.content_title}"</strong>.</p>
+              <table style="width:100%;border-collapse:collapse;margin:16px 0">
+                <tr><td style="padding:8px 0;color:#999;width:120px">Action</td><td style="padding:8px 0;color:#eee;font-weight:bold">${al.en}</td></tr>
+                <tr><td style="padding:8px 0;color:#999">Category</td><td style="padding:8px 0;color:#eee">${cat.en}</td></tr>
+                ${d.reason ? `<tr><td style="padding:8px 0;color:#999;vertical-align:top">Reason</td><td style="padding:8px 0;color:#eee">${d.reason}</td></tr>` : ''}
+              </table>
+              <p style="color:#999;font-size:13px">If you believe this decision is unfair, you can contact our support team.</p>
+              ${cta('https://siteviral.com/admin/products', 'View my content')}
+            `, lang),
+          };
+    }
 
     default:
       throw new Error(`Unknown template: ${template}`);

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
+import { sendEmailNotification } from '@/lib/api';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -144,6 +145,15 @@ function ModerationDialog({
         reason: reason.trim(),
         reason_category: category,
       });
+
+      // Send moderation email to org admins (best-effort)
+      sendEmailNotification('moderation_action', '', {
+        content_title: target.title,
+        action,
+        reason_category: category,
+        reason: reason.trim(),
+      }, target.orgId).catch(() => {});
+
       toast.success(`Action "${ACTION_LABELS[action]?.label}" effectuée`);
       setReason('');
       setAction('warn');
