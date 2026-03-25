@@ -460,7 +460,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
         orgLogoUrl={orgLogoUrl}
         deviceMode={deviceMode}
         customization={currentCustomization}
-          lessonImageUrl={current.lessonImageUrl}
+        lessonImageUrl={current.lessonImageUrl}
+        showHeaderCounter={!isCompactCreatorPreview}
         onStarEarned={() => {
           if (gamificationEnabled) {
             setStarsEarned(s => s + 1);
@@ -483,8 +484,14 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
               <span className="text-sm font-semibold truncate">{program?.title || ''}</span>
             </div>
 
-            <div className="mt-1 flex items-center gap-2 min-w-0">
-              <span className="text-[11px] text-muted-foreground truncate">{current?.lessonTitle || ''}</span>
+            <div className="mt-1 flex items-center gap-2 min-w-0 flex-wrap">
+              <span className="min-w-0 flex-1 text-[11px] text-muted-foreground truncate">{current?.lessonTitle || ''}</span>
+
+              {isCompactCreatorPreview && (
+                <span className="shrink-0 whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-foreground">
+                  {currentIndex + 1}/{total}
+                </span>
+              )}
 
               {!isCompactCreatorPreview && (
                 <span className="shrink-0 whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">

@@ -37,6 +37,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LessonPreview } from '@/components/programs/LessonPreview';
 import { CourseIntelligencePanel } from '@/components/programs/CourseIntelligencePanel';
+import { MobilePreviewOverlay } from '@/components/programs/MobilePreviewOverlay';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const CONTENT_TYPES = [
   { value: 'text', label: 'Text', labelFr: 'Texte', icon: FileText },
@@ -73,6 +75,7 @@ export function ProgramForm() {
   const [gamificationEnabledSetting, setGamificationEnabledSetting] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('edit');
+  const isMobile = useIsMobile();
 
   // Lesson selection
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
@@ -285,6 +288,8 @@ export function ProgramForm() {
   };
 
   const totalLessons = modules.reduce((s: number, m: any) => s + (m.lessons?.length || 0), 0);
+  const isMobileViewport = isMobile || (typeof window !== 'undefined' && window.innerWidth < 768);
+  const showMobilePreviewOverlay = activeTab === 'preview' && !!id && isMobileViewport;
 
   const handleAIHelp = async (type: 'title' | 'description') => {
     const setter = type === 'title' ? setGeneratingTitle : setGeneratingDesc;
@@ -583,7 +588,7 @@ export function ProgramForm() {
       )}
 
       {/* ─── PREVIEW TAB ─── */}
-      {activeTab === 'preview' && id && (
+      {activeTab === 'preview' && id && !showMobilePreviewOverlay && (
         <div className="flex-1 min-h-0">
           <LessonPreview
             programId={id}
@@ -591,6 +596,16 @@ export function ProgramForm() {
             onClose={() => setActiveTab('edit')}
           />
         </div>
+      )}
+
+      {showMobilePreviewOverlay && id && (
+        <MobilePreviewOverlay open={showMobilePreviewOverlay}>
+          <LessonPreview
+            programId={id}
+            initialLessonId={selectedLessonId || undefined}
+            onClose={() => setActiveTab('edit')}
+          />
+        </MobilePreviewOverlay>
       )}
 
       {/* ─── SETTINGS TAB ─── */}
