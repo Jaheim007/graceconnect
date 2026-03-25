@@ -829,12 +829,13 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                <SlideCustomizationPanel
+              <SlideCustomizationPanel
                   customization={currentCustomization}
                   onChange={(c) => setSlideCustomizations(prev => ({ ...prev, [currentIndex]: { ...c, layout: 'text-only' } }))}
                   onApplyToAll={applyCustomizationToAll}
                   onGenerateImage={handleGenerateSlideBackground}
                   isGenerating={isGeneratingSlideImage}
+                  onBack={() => setShowCustomizer(false)}
                 />
               </div>
             </div>

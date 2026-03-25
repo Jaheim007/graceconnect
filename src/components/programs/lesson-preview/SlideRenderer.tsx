@@ -27,8 +27,8 @@ interface SlideRendererProps {
 }
 
 const captionClasses: Record<CaptionStyle, string> = {
-  light: 'bg-background/95 backdrop-blur-sm text-foreground',
-  dark: 'bg-foreground/92 backdrop-blur-sm text-background',
+  light: 'bg-background/98 backdrop-blur-md text-foreground shadow-lg border border-border/50',
+  dark: 'bg-foreground/95 backdrop-blur-md text-background shadow-lg border border-white/10',
 };
 
 /** Whether a caption style produces light (dark text) or dark (white text) */

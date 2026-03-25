@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { useI18n } from '@/i18n/I18nContext';
-import { Sparkles, Image as ImageIcon, Type, Palette, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Image as ImageIcon, Type, Palette, ChevronDown, ChevronUp, ArrowLeft, CheckCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type CaptionStyle = 'light' | 'dark';
@@ -47,9 +47,10 @@ interface Props {
   onApplyToAll?: (partial: Partial<SlideCustomization>) => void;
   onGenerateImage?: () => void;
   isGenerating?: boolean;
+  onBack?: () => void;
 }
 
-export function SlideCustomizationPanel({ customization, onChange, onApplyToAll, onGenerateImage, isGenerating }: Props) {
+export function SlideCustomizationPanel({ customization, onChange, onApplyToAll, onGenerateImage, isGenerating, onBack }: Props) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -67,13 +68,14 @@ export function SlideCustomizationPanel({ customization, onChange, onApplyToAll,
     return (
       <Button
         type="button"
-        variant="ghost"
+        variant="outline"
         size="sm"
-        className="h-7 justify-start px-0 text-[11px] font-medium text-primary hover:bg-transparent hover:text-primary/80"
+        className="w-full h-9 gap-2 text-xs font-semibold border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all"
         onClick={() => onApplyToAll(partial)}
         disabled={disabled}
       >
-        {isFr ? 'Appliquer à toutes' : 'Apply to all'}
+        <CheckCheck className="h-3.5 w-3.5" />
+        {isFr ? 'Appliquer à toutes les slides' : 'Apply to all slides'}
       </Button>
     );
   };
@@ -96,9 +98,24 @@ export function SlideCustomizationPanel({ customization, onChange, onApplyToAll,
 
   return (
     <div className="h-full w-full shrink-0 overflow-y-auto overscroll-contain bg-card pb-[env(safe-area-inset-bottom)] md:w-72 md:border-l md:border-border">
+      {/* Header with back button */}
       <div className="sticky top-0 z-10 border-b border-border bg-card px-4 py-3 pr-14 md:pr-4">
-        <h3 className="text-sm font-bold text-foreground">{isFr ? 'Personnaliser' : 'Customize'}</h3>
-        <p className="text-[10px] text-muted-foreground mt-0.5">{isFr ? 'Style de la diapositive' : 'Slide style'}</p>
+        <div className="flex items-center gap-2">
+          {onBack && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 shrink-0 -ml-1"
+              onClick={onBack}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          )}
+          <div>
+            <h3 className="text-sm font-bold text-foreground">{isFr ? 'Personnaliser' : 'Customize'}</h3>
+            <p className="text-[10px] text-muted-foreground mt-0.5">{isFr ? 'Style de la diapositive' : 'Slide style'}</p>
+          </div>
+        </div>
       </div>
 
       {/* BACKGROUND IMAGE */}
@@ -115,24 +132,6 @@ export function SlideCustomizationPanel({ customization, onChange, onApplyToAll,
           aspectRatio="video"
         />
         <ApplyToAllButton partial={{ bgImageUrl: customization.bgImageUrl, layout: 'text-only' }} />
-        
-        <div>
-          <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {isFr ? 'Position de l\'image de fond' : 'Background image position'}
-          </Label>
-          <Select value={customization.imagePosition} onValueChange={(v) => update({ imagePosition: v as ImagePosition })}>
-            <SelectTrigger className="mt-1 h-9 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="top">Top</SelectItem>
-              <SelectItem value="middle">Middle</SelectItem>
-              <SelectItem value="bottom">Bottom</SelectItem>
-              <SelectItem value="cover">Cover</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <ApplyToAllButton partial={{ imagePosition: customization.imagePosition, layout: 'text-only' }} />
 
         {onGenerateImage && (
           <Button
@@ -156,15 +155,47 @@ export function SlideCustomizationPanel({ customization, onChange, onApplyToAll,
           <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             {isFr ? 'Style du texte' : 'Caption Style'}
           </Label>
-          <Select value={customization.captionStyle} onValueChange={(v) => update({ captionStyle: v as CaptionStyle })}>
-            <SelectTrigger className="mt-1 h-9 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="light">{isFr ? 'Clair' : 'Light'}</SelectItem>
-              <SelectItem value="dark">{isFr ? 'Sombre' : 'Dark'}</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Visual caption style picker */}
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <button
+              onClick={() => update({ captionStyle: 'light' })}
+              className={cn(
+                'relative rounded-lg border-2 p-3 transition-all text-center',
+                customization.captionStyle === 'light'
+                  ? 'border-primary ring-2 ring-primary/20 bg-background'
+                  : 'border-border hover:border-muted-foreground/40 bg-background'
+              )}
+            >
+              <div className="rounded-md bg-background border border-border px-3 py-2 mb-1.5">
+                <span className="text-xs font-semibold text-foreground">Aa</span>
+              </div>
+              <span className="text-[10px] font-medium text-foreground">{isFr ? 'Clair' : 'Light'}</span>
+              {customization.captionStyle === 'light' && (
+                <div className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-primary flex items-center justify-center">
+                  <svg className="h-2.5 w-2.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </div>
+              )}
+            </button>
+            <button
+              onClick={() => update({ captionStyle: 'dark' })}
+              className={cn(
+                'relative rounded-lg border-2 p-3 transition-all text-center',
+                customization.captionStyle === 'dark'
+                  ? 'border-primary ring-2 ring-primary/20 bg-background'
+                  : 'border-border hover:border-muted-foreground/40 bg-background'
+              )}
+            >
+              <div className="rounded-md bg-foreground px-3 py-2 mb-1.5">
+                <span className="text-xs font-semibold text-background">Aa</span>
+              </div>
+              <span className="text-[10px] font-medium text-foreground">{isFr ? 'Sombre' : 'Dark'}</span>
+              {customization.captionStyle === 'dark' && (
+                <div className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-primary flex items-center justify-center">
+                  <svg className="h-2.5 w-2.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </div>
+              )}
+            </button>
+          </div>
         </div>
         <ApplyToAllButton partial={{ captionStyle: customization.captionStyle }} />
 
