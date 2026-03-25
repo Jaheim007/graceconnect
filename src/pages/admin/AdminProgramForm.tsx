@@ -86,6 +86,8 @@ export function ProgramForm() {
   const [newLessonTitle, setNewLessonTitle] = useState('');
   const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [collapsedModules, setCollapsedModules] = useState<Set<string>>(new Set());
+  const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
+  const [editingModuleTitle, setEditingModuleTitle] = useState('');
   const [applyingAI, setApplyingAI] = useState(false);
   const [generatingTitle, setGeneratingTitle] = useState(false);
   const [generatingDesc, setGeneratingDesc] = useState(false);
@@ -409,7 +411,7 @@ export function ProgramForm() {
                 <div className="p-3 border-b border-border bg-muted/30">
                   <div className="flex items-center gap-2 mb-2">
                     <Layers className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-semibold">{isFr ? 'Structure du cours' : 'Course structure'}</span>
+                    <span className="text-sm font-semibold">{isFr ? 'Structure de la formation' : 'Formation structure'}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span>{modules.length} module{modules.length !== 1 ? 's' : ''}</span>
