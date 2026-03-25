@@ -401,6 +401,20 @@ export function ProgramForm() {
               'border-b md:border-b-0 md:border-r border-border bg-card flex flex-col shrink-0',
               isMobileViewport ? 'flex-1 overflow-y-auto' : 'overflow-hidden md:w-64 lg:w-72',
             )}>
+              {/* Mobile course overview header */}
+              {isMobileViewport && (
+                <div className="p-3 border-b border-border bg-muted/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Layers className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold">{isFr ? 'Structure du cours' : 'Course structure'}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <span>{modules.length} module{modules.length !== 1 ? 's' : ''}</span>
+                    <span>•</span>
+                    <span>{totalLessons} {isFr ? 'leçon' : 'lesson'}{totalLessons !== 1 ? 's' : ''}</span>
+                  </div>
+                </div>
+              )}
               <div className="flex items-center justify-between p-3 border-b border-border">
                 <span className="text-sm font-semibold">{isFr ? 'Leçons' : 'Lessons'}</span>
                 <div className="flex items-center gap-1">
