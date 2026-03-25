@@ -249,6 +249,21 @@ export function ProgramForm() {
     }
   };
 
+  const handleRenameModule = async (moduleId: string) => {
+    if (!id || !editingModuleTitle.trim()) {
+      setEditingModuleId(null);
+      return;
+    }
+    try {
+      await updateModule.mutateAsync({ moduleId, programId: id, title: editingModuleTitle.trim() });
+      toast({ title: isFr ? '✅ Module renommé' : '✅ Module renamed' });
+    } catch {
+      toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' });
+    } finally {
+      setEditingModuleId(null);
+    }
+  };
+
   const handleDeleteLesson = async (lessonId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (!id || !confirm(isFr ? 'Supprimer cette leçon ?' : 'Delete this lesson?')) return;
