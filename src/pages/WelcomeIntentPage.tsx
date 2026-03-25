@@ -42,7 +42,7 @@ export default function WelcomeIntentPage() {
       icon: Sparkles,
       emoji: '✨',
       title: isFr ? 'Créer avec l\'IA' : 'Create with AI',
-      desc: isFr ? 'Écrire un livre ou créer une formation en 5 minutes avec l\'IA' : 'Write a book or create a course in 5 minutes with AI',
+      desc: isFr ? 'Écrire un livre ou créer une formation en 5 minutes avec l\'IA' : 'Write a book or create a formation in 5 minutes with AI',
       color: 'border-purple-500/30 hover:border-purple-500',
       iconBg: 'bg-purple-500/10',
       iconColor: 'text-purple-500',
