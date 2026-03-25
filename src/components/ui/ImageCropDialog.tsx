@@ -82,7 +82,7 @@ export function ImageCropDialog({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden z-[100]">
         <DialogHeader className="px-4 pt-4 pb-2">
           <DialogTitle className="text-sm">Recadrer l'image</DialogTitle>
         </DialogHeader>
