@@ -482,7 +482,8 @@ export function ProgramForm() {
                               setSelectedModuleId(mod.id);
                             }}
                             className={cn(
-                              'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors group/lesson',
+                              'w-full flex items-center gap-2 px-3 rounded-lg text-left transition-colors group/lesson',
+                              isMobileViewport ? 'py-3 min-h-[48px]' : 'py-2',
                               selectedLessonId === lesson.id
                                 ? 'bg-primary/10 text-primary'
                                 : 'hover:bg-muted/50 text-foreground'
