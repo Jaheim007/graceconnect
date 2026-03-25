@@ -39,18 +39,6 @@ export default function WelcomeIntentPage() {
       route: '/dashboard',
     },
     {
-      key: 'sell',
-      icon: Store,
-      emoji: '🛒',
-      title: isFr ? 'Vendre mon contenu' : 'Sell my content',
-      desc: isFr ? 'Je veux vendre mes ebooks, cours ou fichiers numériques' : 'I want to sell my ebooks, courses or digital files',
-      color: 'border-blue-500/30 hover:border-blue-500',
-      iconBg: 'bg-blue-500/10',
-      iconColor: 'text-blue-500',
-      badge: null,
-      route: '/dashboard',
-    },
-    {
       key: 'earn',
       icon: Share2,
       emoji: '🔗',
@@ -67,11 +55,23 @@ export default function WelcomeIntentPage() {
       icon: Sparkles,
       emoji: '✨',
       title: isFr ? 'Créer avec l\'IA' : 'Create with AI',
-      desc: isFr ? 'Écrire un livre ou créer un cours en 5 minutes avec l\'IA' : 'Write a book or create a course in 5 minutes with AI',
+      desc: isFr ? 'Écrire un livre ou créer une formation en 5 minutes avec l\'IA' : 'Write a book or create a course in 5 minutes with AI',
       color: 'border-purple-500/30 hover:border-purple-500',
       iconBg: 'bg-purple-500/10',
       iconColor: 'text-purple-500',
       badge: isFr ? 'Nouveau' : 'New',
+      route: '/dashboard',
+    },
+    {
+      key: 'sell',
+      icon: Store,
+      emoji: '🛒',
+      title: isFr ? 'Vendre mon contenu' : 'Sell my content',
+      desc: isFr ? 'Je veux vendre mes ebooks, formations ou fichiers numériques' : 'I want to sell my ebooks, courses or digital files',
+      color: 'border-blue-500/30 hover:border-blue-500',
+      iconBg: 'bg-blue-500/10',
+      iconColor: 'text-blue-500',
+      badge: null,
       route: '/dashboard',
     },
   ];
@@ -139,6 +139,16 @@ export default function WelcomeIntentPage() {
             </motion.button>
           ))}
         </div>
+
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          onClick={() => navigate('/dashboard')}
+          className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+        >
+          {isFr ? 'Passer cette étape →' : 'Skip this step →'}
+        </motion.button>
       </div>
     </div>
   );
