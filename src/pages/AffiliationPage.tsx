@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { requestAffiliatePayout } from '@/lib/api';
 import { AffiliateShareTools } from '@/components/affiliate/AffiliateShareTools';
-import AffiliatePayoutSettings from '@/components/affiliate/AffiliatePayoutSettings';
+
 import { ProductAffiliateLinkGen } from '@/components/affiliate/ProductAffiliateLinkGen';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -405,9 +405,6 @@ export default function AffiliationPage() {
         {/* TAB: Results */}
         {activeTab === 'resultats' && (
           <div className="space-y-4">
-            {/* Payout settings */}
-            <AffiliatePayoutSettings />
-
             {/* Summary cards */}
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-card border border-border p-4 shadow-card">
