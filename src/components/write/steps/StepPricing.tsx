@@ -1,5 +1,6 @@
 import { ArrowLeft, Rocket, Sparkles, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 
 import { useI18n } from '@/i18n/I18nContext';
@@ -55,11 +56,26 @@ export function StepPricing({ state, update, onNext, onBack, orgCurrency }: Prop
         </p>
       </div>
 
-      {/* Price slider */}
+      {/* Price input + slider */}
           <div className="space-y-3">
             <label className="text-sm font-medium">
-              {t('write.price_label')} : <span className="text-primary font-bold">{fmt(effectivePrice)}</span>
+              {t('write.price_label')}
             </label>
+            <div className="flex items-center gap-3">
+              <Input
+                type="number"
+                value={effectivePrice}
+                onChange={e => {
+                  const v = Number(e.target.value) || 0;
+                  update({ price: Math.max(range.min, Math.min(v, range.max)) });
+                }}
+                min={range.min}
+                max={range.max}
+                step={range.step}
+                className="h-10 w-32 text-center font-bold text-lg"
+              />
+              <span className="text-sm text-muted-foreground font-medium">{currency}</span>
+            </div>
             <Slider
               value={[effectivePrice]}
               onValueChange={([v]) => update({ price: v })}
