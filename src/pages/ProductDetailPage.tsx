@@ -783,27 +783,27 @@ export default function ProductDetailPage() {
                 onAccess={() => navigate('/resources')}
               />
 
-              <div className="pt-2 border-t border-border/40 flex items-center gap-2">
-                <div className="flex-1">
-                  <ShareButtons
-                    url={buildShareUrl()}
-                    resolveUrl={getResolvedShareUrl}
-                    title={product.title}
-                    description={stripHtml(product.description || '').slice(0, 120) || ''}
-                    compact
-                  />
+              <div className="pt-2 border-t border-border/40 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <ShareButtons
+                      url={buildShareUrl()}
+                      resolveUrl={getResolvedShareUrl}
+                      title={product.title}
+                      description={stripHtml(product.description || '').slice(0, 120) || ''}
+                      compact
+                    />
+                  </div>
+                  <WishlistButton productId={product.id} variant="full" />
                 </div>
-                <WishlistButton productId={product.id} variant="full" />
                 {user && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                    title="Signaler ce produit"
+                  <button
+                    className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-destructive transition-colors"
                     onClick={() => setReportOpen(true)}
                   >
-                    <Flag className="h-4 w-4" />
-                  </Button>
+                    <Flag className="h-3 w-3" />
+                    {isFr ? 'Signaler ce contenu' : 'Report this content'}
+                  </button>
                 )}
               </div>
 
