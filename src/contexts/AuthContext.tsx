@@ -265,6 +265,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try { sessionStorage.removeItem('sv_oauth_pending_since'); } catch {}
+    try { sessionStorage.removeItem('sv_welcome_seen'); } catch {}
     await supabase.auth.signOut();
     setProfile(null);
     setIsSuperadmin(false);

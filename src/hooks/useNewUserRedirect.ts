@@ -3,8 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 /**
- * Redirects brand-new users (first visit) to /welcome for onboarding.
- * No mode logic — just checks if they've seen the welcome page.
+ * Redirects users to /welcome on login unless they've already dismissed it this session.
  */
 export function useNewUserRedirect() {
   const { user } = useAuth();
@@ -20,7 +19,10 @@ export function useNewUserRedirect() {
     const skip = ['/welcome', '/auth', '/create-org', '/admin', '/superadmin', '/payment', '/go/', '/org/', '/resources', '/my-programs', '/discover', '/profile', '/bookmarks', '/affiliation', '/spotlight', '/feed', '/credits'];
     if (skip.some(p => location.pathname.startsWith(p))) return;
 
-    // Always redirect to /welcome on login
+    // If user already saw welcome this session, don't redirect again
+    const seen = sessionStorage.getItem('sv_welcome_seen');
+    if (seen === 'true') return;
+
     navigate('/welcome', { replace: true });
   }, [user, navigate, location.pathname]);
 }

@@ -59,17 +59,23 @@ export default function WelcomeIntentPage() {
       iconBg: 'bg-blue-500/10',
       iconColor: 'text-blue-500',
       badge: null,
-      route: '/admin',
+      route: '/admin/create',
     },
   ];
 
   const handleSelect = (intent: typeof intents[0]) => {
+    sessionStorage.setItem('sv_welcome_seen', 'true');
     if (user) {
       import('@/lib/db').then(({ db }) => {
         db.from('profiles').update({ onboarding_intent: intent.key }).eq('id', user.id);
       });
     }
     navigate(intent.route);
+  };
+
+  const handleSkip = () => {
+    sessionStorage.setItem('sv_welcome_seen', 'true');
+    navigate('/dashboard');
   };
 
   return (
@@ -130,7 +136,7 @@ export default function WelcomeIntentPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          onClick={() => navigate('/dashboard')}
+          onClick={handleSkip}
           className="mt-6 w-full flex items-center justify-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors py-2.5 rounded-xl border border-primary/20 hover:border-primary/40 bg-primary/5"
         >
           <SkipForward className="h-4 w-4" />
