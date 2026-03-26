@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
 import { queueDeferredCourseLessonImages } from '@/lib/programImageGeneration';
 import { Sparkles, ArrowRight, Loader2, FileText, ImageIcon, Globe } from 'lucide-react';
+import { CourseGenerationLoader } from './CourseGenerationLoader';
 
 interface Props {
   open: boolean;
@@ -226,7 +227,11 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg" hideCloseButton={converting}>
+        {converting ? (
+          <CourseGenerationLoader phase="generating" mode="convert" />
+        ) : (
+        <>
         <DialogHeader>
           <DialogTitle>{isFr ? 'Convertir un document' : 'Convert document'}</DialogTitle>
         </DialogHeader>
@@ -346,6 +351,8 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
               {converting ? (isFr ? 'Conversion...' : 'Converting...') : (isFr ? 'Convertir' : 'Convert')}
             </Button>
           </div>
+        )}
+        </>
         )}
       </DialogContent>
     </Dialog>
