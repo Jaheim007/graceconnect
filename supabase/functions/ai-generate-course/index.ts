@@ -484,7 +484,7 @@ Quiz, Flashcard, Matching, etc. (see gamification rules below)
 - Each question: 4 options, test understanding + application
 
 ## CONTENT STYLE:
-- ALL text in ${isFr ? 'FRENCH' : 'ENGLISH'}
+- ALL text in ${langName.toUpperCase()}
 - HTML only: <h2>, <h3>, <p>, <ul>, <ol>, <li>, <blockquote>, <strong>, <em>. NO markdown.
 - Tone: authoritative yet conversational and motivating
 - Use emojis sparingly in headings (🎯, 💡, 🔑, ⚡, 📋, 🤔, 📖)
@@ -501,7 +501,7 @@ NUMBER OF MODULES: ${safeModuleCount} (EXACTLY — do NOT create more)
 LESSONS PER MODULE: 2 (EXACTLY — do NOT create more)
 
 MANDATORY REQUIREMENTS:
-- Write ALL content in ${isFr ? 'FRENCH (Français)' : 'ENGLISH'} — the user's prompt is in ${isFr ? 'French' : 'English'}.
+- Write ALL content in ${langName.toUpperCase()} — the user's prompt may be in any language but the output MUST be in ${langName}.
 - Generate a compelling "course_title" (marketing-ready) and "course_description" (2-3 sentences).
 - For each lesson include an "image_prompt" in English for AI image generation.
 - Each lesson: Introduction → Core Content → Key Takeaways → 1 Quiz comment.
