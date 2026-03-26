@@ -11,7 +11,7 @@ import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { ORG_CATEGORY_LABELS as categoryLabels } from '@/lib/categoryLabels';
+import { getOrgCategoryLabel } from '@/lib/categoryLabels';
 
 const categoryColors: Record<string, string> = {
   church: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
