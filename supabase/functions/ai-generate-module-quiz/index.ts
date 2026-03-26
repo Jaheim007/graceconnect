@@ -37,7 +37,8 @@ serve(async (req) => {
       .join("\n\n");
 
     const count = question_count || 10;
-    const lang = language === "fr" ? "French" : "English";
+    const LANG_MAP: Record<string, string> = { fr: 'French', en: 'English', es: 'Spanish', pt: 'Portuguese', ar: 'Arabic', sw: 'Swahili' };
+    const lang = LANG_MAP[language] || LANG_MAP['fr'];
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
