@@ -196,6 +196,32 @@ export function ModuleQuizEditor({ moduleId, moduleTitle, programId, courseTitle
     }
   };
 
+  const handleAIGenerateFlashcards = async () => {
+    setGeneratingFlashcards(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase.functions.invoke('ai-generate-module-flashcards', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: {
+          module_id: moduleId,
+          course_title: courseTitle,
+          module_title: moduleTitle,
+          language: isFr ? 'fr' : 'en',
+          tier: quizTier,
+        },
+      });
+
+      if (error) throw error;
+      toast({ title: isFr ? '✅ Flashcards générées par l\'IA !' : '✅ AI generated flashcards!' });
+    } catch (e: any) {
+      toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setGeneratingFlashcards(false);
+    }
+  };
+
   if (loadingQuiz || loadingFlashcards) {
     return (
       <div className="flex items-center justify-center py-8">
