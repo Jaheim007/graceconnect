@@ -219,17 +219,22 @@ serve(async (req) => {
       title_len: String(title || '').length,
     });
 
-    // ─── Detect language from prompt (not from interface locale) ───
-    // Simple heuristic: check for common French patterns in the title/description
-    const textToAnalyze = `${title} ${description || ''}`.toLowerCase();
-    const frenchPatterns = /\b(le|la|les|un|une|des|du|de|et|ou|est|sont|pour|dans|avec|sur|par|que|qui|ce|cette|ces|mon|ton|son|nous|vous|ils|elles|créer|comment|apprendre|formation|cours|comprendre|utiliser)\b/g;
-    const englishPatterns = /\b(the|a|an|is|are|for|in|with|on|by|that|which|this|my|your|his|our|they|create|how|learn|course|understand|use|what|about)\b/g;
-    const frenchMatches = (textToAnalyze.match(frenchPatterns) || []).length;
-    const englishMatches = (textToAnalyze.match(englishPatterns) || []).length;
+    // ─── Detect language ───
+    // If explicit language is provided and is not fr/en, use it directly
+    const LANG_MAP: Record<string, string> = { fr: 'French', en: 'English', es: 'Spanish', pt: 'Portuguese', ar: 'Arabic', sw: 'Swahili' };
+    let detectedLang = language || 'fr';
     
-    // Use explicit language param as fallback, but prompt language takes priority
-    const detectedLang = frenchMatches > englishMatches ? 'fr' : (englishMatches > frenchMatches ? 'en' : (language || 'fr'));
+    // Only auto-detect for fr/en when no explicit non-default language is given
+    if (!language || language === 'fr' || language === 'en') {
+      const textToAnalyze = `${title} ${description || ''}`.toLowerCase();
+      const frenchPatterns = /\b(le|la|les|un|une|des|du|de|et|ou|est|sont|pour|dans|avec|sur|par|que|qui|ce|cette|ces|mon|ton|son|nous|vous|ils|elles|créer|comment|apprendre|formation|cours|comprendre|utiliser)\b/g;
+      const englishPatterns = /\b(the|a|an|is|are|for|in|with|on|by|that|which|this|my|your|his|our|they|create|how|learn|course|understand|use|what|about)\b/g;
+      const frenchMatches = (textToAnalyze.match(frenchPatterns) || []).length;
+      const englishMatches = (textToAnalyze.match(englishPatterns) || []).length;
+      detectedLang = frenchMatches > englishMatches ? 'fr' : (englishMatches > frenchMatches ? 'en' : (language || 'fr'));
+    }
     const isFr = detectedLang === 'fr';
+    const langName = LANG_MAP[detectedLang] || 'French';
 
     const result = await consumeCreditsWithRefund({
       admin,
