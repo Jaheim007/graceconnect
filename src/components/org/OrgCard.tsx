@@ -80,7 +80,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
             variant="secondary"
             className={cn('text-[10px] px-1.5 py-0 border-0 backdrop-blur-sm', categoryColors[org.category])}
           >
-            {categoryLabels[org.category] || org.category}
+            {getOrgCategoryLabel(org.category, locale)}
           </Badge>
         </div>
       </div>
@@ -102,7 +102,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
           <div className="min-w-0 flex-1">
             <h3 className="font-semibold text-sm leading-tight line-clamp-1 flex items-center gap-1.5">
               {org.name}
-              {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel(org.category)} />}
+              {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel(org.category, locale)} />}
             </h3>
             {org.description ? (
               <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">
