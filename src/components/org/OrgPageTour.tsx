@@ -50,10 +50,10 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     emoji: '🔗',
-    title_fr: 'Programme d\'affiliation',
-    title_en: 'Affiliate Program',
-    desc_fr: 'Activez ou désactivez votre programme d\'affiliation directement depuis le panneau de gestion.',
-    desc_en: 'Enable or disable your affiliate program directly from the management panel.',
+    title_fr: 'Programme ambassadeur',
+    title_en: 'Ambassador Program',
+    desc_fr: 'Activez ou désactivez votre programme ambassadeur directement depuis le panneau de gestion.',
+    desc_en: 'Enable or disable your ambassador program directly from the management panel.',
   },
   {
     emoji: '🖼️',

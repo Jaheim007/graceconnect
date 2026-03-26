@@ -326,7 +326,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
                   : `${fmt(result.breakdown.amount)} received — the platform receives ${fmt(result.breakdown.organization_amount)}.`}
               </p>
               {result.breakdown.affiliate_attributed && (
-                <p className="text-xs text-primary mt-1">{isFr ? '✓ Commission affilié attribuée' : '✓ Affiliate commission attributed'}</p>
+                <p className="text-xs text-primary mt-1">{isFr ? '✓ Commission ambassadeur attribuée' : '✓ Ambassador commission attributed'}</p>
               )}
             </div>
             <p className="text-xs text-muted-foreground">{isFr ? 'Un reçu a été envoyé à votre email.' : 'A receipt has been sent to your email.'}</p>
