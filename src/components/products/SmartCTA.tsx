@@ -24,6 +24,8 @@ const nudges = [
 ];
 
 export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: SmartCTAProps) {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const [nudgeIdx, setNudgeIdx] = useState(0);
   const salesCount = product?.sales_count || 0;
 
