@@ -3,11 +3,12 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { motion } from 'framer-motion';
-import { Check, ChevronRight, Sparkles, User, ShoppingBag, Share2, BookOpen, X } from 'lucide-react';
+import { Check, ChevronRight, Sparkles, User, ShoppingBag, Share2, BookOpen, X, DollarSign, Target, Star, Rocket } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface Step {
   id: string;
@@ -23,20 +24,25 @@ export function OnboardingChecklist() {
   const { userOrgs } = useOrg();
   const navigate = useNavigate();
   const [dismissed, setDismissed] = useState(false);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const { data: completionData } = useQuery({
     queryKey: ['onboarding-progress', user?.id],
     queryFn: async () => {
-      if (!user) return { hasProfile: false, hasPurchase: false, hasLink: false, hasOrg: false };
-      const [purchaseRes, linkRes] = await Promise.all([
+      if (!user) return { hasProfile: false, hasPurchase: false, hasLink: false, hasOrg: false, hasProduct: false, hasFirstSale: false };
+      const [purchaseRes, linkRes, productRes] = await Promise.all([
         db.from('product_purchases').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'completed'),
         db.from('affiliate_links').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+        db.from('digital_products').select('id', { count: 'exact', head: true }).eq('created_by', user.id),
       ]);
       return {
         hasProfile: !!(profile?.display_name && profile?.avatar_url),
         hasPurchase: (purchaseRes.count || 0) > 0,
         hasLink: (linkRes.count || 0) > 0,
         hasOrg: userOrgs.length > 0,
+        hasProduct: (productRes.count || 0) > 0,
+        hasFirstSale: false, // Will be enhanced later
       };
     },
     enabled: !!user,
@@ -47,43 +53,43 @@ export function OnboardingChecklist() {
   const steps: Step[] = [
     {
       id: 'profile',
-      label: 'Complète ton profil',
-      description: 'Ajoute ta photo et ton nom',
+      label: isFr ? 'Complète ton profil' : 'Complete your profile',
+      description: isFr ? 'Ajoute ta photo et ton nom' : 'Add your photo and name',
       icon: <User className="h-4 w-4" />,
       action: () => navigate('/profile'),
-      actionLabel: 'Mon profil',
-    },
-    {
-      id: 'discover',
-      label: 'Découvre un produit',
-      description: 'Explore le catalogue',
-      icon: <ShoppingBag className="h-4 w-4" />,
-      action: () => navigate('/marketplace'),
-      actionLabel: 'Explorer',
-    },
-    {
-      id: 'share',
-      label: 'Partage et gagne',
-      description: 'Deviens ambassadeur',
-      icon: <Share2 className="h-4 w-4" />,
-      action: () => navigate('/gagner'),
-      actionLabel: 'Commencer',
+      actionLabel: isFr ? 'Mon profil' : 'My profile',
     },
     {
       id: 'create',
-      label: 'Écris ton premier livre',
-      description: "L'IA t'aide à écrire",
+      label: isFr ? 'Crée ton premier produit' : 'Create your first product',
+      description: isFr ? 'Livre, formation ou fichier avec l\'IA' : 'Book, course or file with AI',
       icon: <BookOpen className="h-4 w-4" />,
       action: () => navigate('/ecrire'),
-      actionLabel: 'Écrire',
+      actionLabel: isFr ? 'Créer' : 'Create',
+    },
+    {
+      id: 'share',
+      label: isFr ? 'Partage et gagne' : 'Share and earn',
+      description: isFr ? 'Deviens ambassadeur, touche des commissions' : 'Become an ambassador, earn commissions',
+      icon: <Share2 className="h-4 w-4" />,
+      action: () => navigate('/gagner'),
+      actionLabel: isFr ? 'Commencer' : 'Start',
+    },
+    {
+      id: 'discover',
+      label: isFr ? 'Fais ta première vente' : 'Make your first sale',
+      description: isFr ? 'Partage ton lien et vends' : 'Share your link and sell',
+      icon: <DollarSign className="h-4 w-4" />,
+      action: () => navigate('/admin/sales'),
+      actionLabel: isFr ? 'Voir' : 'View',
     },
   ];
 
   const completed: Record<string, boolean> = {
     profile: completionData.hasProfile,
-    discover: completionData.hasPurchase,
+    create: completionData.hasProduct || completionData.hasOrg,
     share: completionData.hasLink,
-    create: completionData.hasOrg,
+    discover: completionData.hasPurchase,
   };
 
   const completedCount = Object.values(completed).filter(Boolean).length;
@@ -102,8 +108,8 @@ export function OnboardingChecklist() {
         <X className="h-4 w-4" />
       </button>
       <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="h-4 w-4 text-primary" />
-        <h2 className="font-bold text-sm">Bien démarrer</h2>
+        <Rocket className="h-4 w-4 text-primary" />
+        <h2 className="font-bold text-sm">{isFr ? '🚀 Mes premiers pas' : '🚀 My first steps'}</h2>
         <span className="ml-auto text-xs font-semibold text-primary">{completedCount}/{steps.length}</span>
       </div>
       <Progress value={pct} className="h-1.5 mb-4" />
@@ -134,6 +140,13 @@ export function OnboardingChecklist() {
             </button>
           );
         })}
+      </div>
+
+      {/* Motivational footer */}
+      <div className="mt-3 pt-3 border-t border-border/30 text-center">
+        <p className="text-[10px] text-muted-foreground">
+          {isFr ? '💡 Des créateurs comme toi gagnent déjà chaque jour sur SiteViral' : '💡 Creators like you are already earning daily on SiteViral'}
+        </p>
       </div>
     </motion.div>
   );
