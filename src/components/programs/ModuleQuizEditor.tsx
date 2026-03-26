@@ -69,6 +69,8 @@ export function ModuleQuizEditor({ moduleId, moduleTitle, programId, courseTitle
   const [passPercentage, setPassPercentage] = useState(quiz?.passing_score || 60);
   const [maxAttempts, setMaxAttempts] = useState<number | null>((quiz as any)?.max_attempts || null);
   const [generating, setGenerating] = useState(false);
+  const [generatingFlashcards, setGeneratingFlashcards] = useState(false);
+  const [quizTier, setQuizTier] = useState<'standard' | 'premium'>('standard');
   const [expandedQ, setExpandedQ] = useState<string | null>(null);
   const [newFlashFront, setNewFlashFront] = useState('');
   const [newFlashBack, setNewFlashBack] = useState('');
@@ -164,7 +166,8 @@ export function ModuleQuizEditor({ moduleId, moduleTitle, programId, courseTitle
           course_title: courseTitle,
           module_title: moduleTitle,
           language: isFr ? 'fr' : 'en',
-          question_count: 10,
+          tier: quizTier,
+          question_count: quizTier === 'premium' ? 18 : 10,
         },
       });
 
