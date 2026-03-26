@@ -367,7 +367,7 @@ export default function ProgramDetailPage() {
               </div>
             )}
             <span className="text-sm font-bold truncate max-w-[180px]">{orgName}</span>
-            {isOrgVerifiedOrKyc(org.is_verified, org.kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel(org.category)} className="ml-1" />}
+            {isOrgVerifiedOrKyc(org.is_verified, org.kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel(org.category, locale)} className="ml-1" />}
           </Link>
         ) : (
           <Link to={user ? '/feed' : '/'}>

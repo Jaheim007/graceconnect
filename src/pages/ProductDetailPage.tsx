@@ -457,7 +457,7 @@ export default function ProductDetailPage() {
               </div>
             )}
             <span className="text-sm font-bold truncate max-w-[180px]">{org.name}</span>
-            {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel((org as any).category)} className="ml-1" />}
+            {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel((org as any).category, locale)} className="ml-1" />}
           </Link>
         ) : (
           <Link to={user ? '/feed' : '/'}>
@@ -517,7 +517,7 @@ export default function ProductDetailPage() {
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{t('product.sold_by')}</p>
-                <p className="font-bold text-sm flex items-center gap-1">{org.name} {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel((org as any).category)} />}</p>
+                <p className="font-bold text-sm flex items-center gap-1">{org.name} {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel((org as any).category, locale)} />}</p>
                 {org.description && (
                   <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{org.description}</p>
                 )}
