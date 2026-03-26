@@ -671,6 +671,18 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   <Download className="h-4 w-4" /> {isFr ? 'Télécharger le fichier' : 'Download file'}
                 </Button>
               )}
+              {isCourseProduct && product.external_link && (
+                <Button
+                  className="w-full gap-2 bg-primary text-primary-foreground"
+                  onClick={() => {
+                    const url = new URL(product.external_link!, window.location.origin);
+                    navigate(url.pathname);
+                    handleClose();
+                  }}
+                >
+                  <ExternalLink className="h-4 w-4" /> {isFr ? 'Accéder à la formation' : 'Go to course'}
+                </Button>
+              )}
               {effectiveExternalLink && (
                 <a href={effectiveExternalLink} target="_blank" rel="noreferrer" className="w-full">
                   <Button variant="outline" className="w-full gap-2">
