@@ -262,11 +262,11 @@ export function OrgPublicHeader({
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <InlineEditableText value={org.name} onSave={(v) => saveOrgField('name', v)} canEdit={isAdmin} tag="h1" className="text-2xl sm:text-3xl font-bold truncate" />
-                  {isOrgVerifiedOrKyc(org.is_verified, orgAny.kyc_status) && <VerifiedBadge size="lg" label={getVerifiedLabel(org.category)} />}
+                  {isOrgVerifiedOrKyc(org.is_verified, orgAny.kyc_status) && <VerifiedBadge size="lg" label={getVerifiedLabel(org.category, locale)} />}
                 </div>
                 <OrgBadges isSuspended={orgAny.is_suspended} size="sm" className="mt-1" />
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                  <Badge variant="secondary" className="text-xs">{getOrgCategoryLabel(org.category)}</Badge>
+                  <Badge variant="secondary" className="text-xs">{getOrgCategoryLabel(org.category, locale)}</Badge>
                   <span className="flex items-center gap-1">
                     <Users className="h-3.5 w-3.5" /> {memberCount} {memberCount !== 1 ? t('org_public.members_plural') : t('org_public.members')}
                   </span>

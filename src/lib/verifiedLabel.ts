@@ -2,9 +2,10 @@
  * Returns the correct verified label based on org category.
  * "leader" category → individual creator; anything else → organization.
  */
-export function getVerifiedLabel(category?: string | null): string {
-  if (category === 'leader') return 'Créateur vérifié';
-  return 'Organisation vérifiée';
+export function getVerifiedLabel(category?: string | null, locale: string = 'fr'): string {
+  const isFr = locale === 'fr';
+  if (category === 'leader') return isFr ? 'Créateur vérifié' : 'Verified creator';
+  return isFr ? 'Organisation vérifiée' : 'Verified organization';
 }
 
 /**

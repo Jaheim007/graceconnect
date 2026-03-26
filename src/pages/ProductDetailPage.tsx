@@ -457,7 +457,7 @@ export default function ProductDetailPage() {
               </div>
             )}
             <span className="text-sm font-bold truncate max-w-[180px]">{org.name}</span>
-            {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel((org as any).category)} className="ml-1" />}
+            {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel((org as any).category, locale)} className="ml-1" />}
           </Link>
         ) : (
           <Link to={user ? '/feed' : '/'}>
@@ -517,7 +517,7 @@ export default function ProductDetailPage() {
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{t('product.sold_by')}</p>
-                <p className="font-bold text-sm flex items-center gap-1">{org.name} {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel((org as any).category)} />}</p>
+                <p className="font-bold text-sm flex items-center gap-1">{org.name} {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel((org as any).category, locale)} />}</p>
                 {org.description && (
                   <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{org.description}</p>
                 )}
@@ -815,9 +815,9 @@ export default function ProductDetailPage() {
             {/* Trust indicators in sidebar */}
             <div className="grid grid-cols-3 gap-2">
               {[
-                { icon: <Shield className="h-4 w-4" style={{ color: orgPrimary || 'hsl(var(--primary))' }} />, label: 'Paiement sécurisé' },
-                { icon: <CheckCircle className="h-4 w-4 text-emerald-500" />, label: 'Accès immédiat' },
-                { icon: <Star className="h-4 w-4 text-yellow-500" />, label: 'Qualité garantie' },
+                { icon: <Shield className="h-4 w-4" style={{ color: orgPrimary || 'hsl(var(--primary))' }} />, label: isFr ? 'Paiement sécurisé' : 'Secure payment' },
+                { icon: <CheckCircle className="h-4 w-4 text-emerald-500" />, label: isFr ? 'Accès immédiat' : 'Instant access' },
+                { icon: <Star className="h-4 w-4 text-yellow-500" />, label: isFr ? 'Qualité garantie' : 'Quality guaranteed' },
               ].map((item, i) => (
                 <motion.div
                   key={i}
