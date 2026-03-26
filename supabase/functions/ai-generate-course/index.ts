@@ -163,7 +163,7 @@ async function repairCourseJsonWithAi(opts: {
     const repairedRaw = await geminiGenerateText({
       apiKey: opts.apiKey,
       model: 'gemini-2.5-flash',
-      system: `You repair malformed course JSON only. Return ONLY valid JSON. Preserve existing lesson HTML and text whenever possible. If the payload was truncated, complete the unfinished JSON minimally without adding extra fluff. All visible text must stay in ${opts.language === 'fr' ? 'French' : 'English'}. image_prompt fields must stay in English.`,
+      system: `You repair malformed course JSON only. Return ONLY valid JSON. Preserve existing lesson HTML and text whenever possible. If the payload was truncated, complete the unfinished JSON minimally without adding extra fluff. All visible text must stay in ${LANG_MAP[opts.language] || 'French'}. image_prompt fields must stay in English.`,
       prompt: `Repair this malformed course JSON into a valid object with this exact top-level shape: {"course_title":"...","course_description":"...","modules":[{"title":"...","description":"...","emoji":"🎯","lessons":[{"title":"...","content_type":"text","duration_minutes":10,"description":"...","image_prompt":"...","content":"<h2>...</h2>"}]}],"final_assessment":{"title":"...","description":"...","questions":[{"question":"...","options":["...","...","...","..."],"correctIndex":0,"explanation":"..."}]}}. Target up to ${opts.moduleCount} modules. Keep all valid content you can recover, close unfinished HTML tags when obvious, and do not wrap the answer in markdown fences.\n\n${opts.rawContent.slice(0, 120000)}`,
       maxOutputTokens: opts.maxOutputTokens ?? 7000,
       jsonMode: true,
@@ -219,17 +219,22 @@ serve(async (req) => {
       title_len: String(title || '').length,
     });
 
-    // ─── Detect language from prompt (not from interface locale) ───
-    // Simple heuristic: check for common French patterns in the title/description
-    const textToAnalyze = `${title} ${description || ''}`.toLowerCase();
-    const frenchPatterns = /\b(le|la|les|un|une|des|du|de|et|ou|est|sont|pour|dans|avec|sur|par|que|qui|ce|cette|ces|mon|ton|son|nous|vous|ils|elles|créer|comment|apprendre|formation|cours|comprendre|utiliser)\b/g;
-    const englishPatterns = /\b(the|a|an|is|are|for|in|with|on|by|that|which|this|my|your|his|our|they|create|how|learn|course|understand|use|what|about)\b/g;
-    const frenchMatches = (textToAnalyze.match(frenchPatterns) || []).length;
-    const englishMatches = (textToAnalyze.match(englishPatterns) || []).length;
+    // ─── Detect language ───
+    // If explicit language is provided and is not fr/en, use it directly
+    const LANG_MAP: Record<string, string> = { fr: 'French', en: 'English', es: 'Spanish', pt: 'Portuguese', ar: 'Arabic', sw: 'Swahili' };
+    let detectedLang = language || 'fr';
     
-    // Use explicit language param as fallback, but prompt language takes priority
-    const detectedLang = frenchMatches > englishMatches ? 'fr' : (englishMatches > frenchMatches ? 'en' : (language || 'fr'));
+    // Only auto-detect for fr/en when no explicit non-default language is given
+    if (!language || language === 'fr' || language === 'en') {
+      const textToAnalyze = `${title} ${description || ''}`.toLowerCase();
+      const frenchPatterns = /\b(le|la|les|un|une|des|du|de|et|ou|est|sont|pour|dans|avec|sur|par|que|qui|ce|cette|ces|mon|ton|son|nous|vous|ils|elles|créer|comment|apprendre|formation|cours|comprendre|utiliser)\b/g;
+      const englishPatterns = /\b(the|a|an|is|are|for|in|with|on|by|that|which|this|my|your|his|our|they|create|how|learn|course|understand|use|what|about)\b/g;
+      const frenchMatches = (textToAnalyze.match(frenchPatterns) || []).length;
+      const englishMatches = (textToAnalyze.match(englishPatterns) || []).length;
+      detectedLang = frenchMatches > englishMatches ? 'fr' : (englishMatches > frenchMatches ? 'en' : (language || 'fr'));
+    }
     const isFr = detectedLang === 'fr';
+    const langName = LANG_MAP[detectedLang] || 'French';
 
     const result = await consumeCreditsWithRefund({
       admin,
@@ -356,7 +361,7 @@ serve(async (req) => {
 
         const systemPrompt = `You are an ELITE INSTRUCTIONAL DESIGNER and PROFESSIONAL COURSE ARCHITECT.
 
-CRITICAL: ALL content MUST be written in ${isFr ? 'FRENCH (Français)' : 'ENGLISH'}.
+CRITICAL: ALL content MUST be written in ${langName.toUpperCase()}.
 
 ## COURSE GOAL (PRIMARY DIRECTIVE)
 ${goalInstruction}
@@ -384,8 +389,8 @@ ${interactivityInstruction}
 
 Return ONLY valid JSON with this exact structure:
 {
-  "course_title": "A compelling marketing-ready title for the course in ${isFr ? 'French' : 'English'}",
-  "course_description": "A professional 2-3 sentence marketing description in ${isFr ? 'French' : 'English'}",
+  "course_title": "A compelling marketing-ready title for the course in ${langName}",
+  "course_description": "A professional 2-3 sentence marketing description in ${langName}",
   "modules": [
     {
       "title": "Module title",
@@ -479,7 +484,7 @@ Quiz, Flashcard, Matching, etc. (see gamification rules below)
 - Each question: 4 options, test understanding + application
 
 ## CONTENT STYLE:
-- ALL text in ${isFr ? 'FRENCH' : 'ENGLISH'}
+- ALL text in ${langName.toUpperCase()}
 - HTML only: <h2>, <h3>, <p>, <ul>, <ol>, <li>, <blockquote>, <strong>, <em>. NO markdown.
 - Tone: authoritative yet conversational and motivating
 - Use emojis sparingly in headings (🎯, 💡, 🔑, ⚡, 📋, 🤔, 📖)
@@ -496,7 +501,7 @@ NUMBER OF MODULES: ${safeModuleCount} (EXACTLY — do NOT create more)
 LESSONS PER MODULE: 2 (EXACTLY — do NOT create more)
 
 MANDATORY REQUIREMENTS:
-- Write ALL content in ${isFr ? 'FRENCH (Français)' : 'ENGLISH'} — the user's prompt is in ${isFr ? 'French' : 'English'}.
+- Write ALL content in ${langName.toUpperCase()} — the user's prompt may be in any language but the output MUST be in ${langName}.
 - Generate a compelling "course_title" (marketing-ready) and "course_description" (2-3 sentences).
 - For each lesson include an "image_prompt" in English for AI image generation.
 - Each lesson: Introduction → Core Content → Key Takeaways → 1 Quiz comment.
@@ -656,7 +661,7 @@ MANDATORY REQUIREMENTS:
 
         if (!parsed) {
           console.warn('[ai-generate-course] Primary output still invalid, retrying with compact constraints');
-          const retryPrompt = `Create a course on "${title}" with ${Math.min(safeModuleCount, 3)} modules, 2 lessons each. ${isFr ? 'Write ALL content in FRENCH.' : 'Write ALL content in ENGLISH.'}\n\nRETRY (MANDATORY):\n- Return STRICT valid JSON only — no markdown fences.\n- 3 sections per lesson (Intro h2, Core h3, Key Takeaways h3).\n- 1 quiz HTML comment per lesson.\n- 4 final assessment questions.\n- Include image_prompt in English per lesson.\n- Structure: {"course_title":"...","course_description":"...","modules":[{"title":"...","description":"...","emoji":"🎯","lessons":[{"title":"...","content_type":"text","duration_minutes":10,"description":"...","image_prompt":"...","content":"<h2>...</h2><p>...</p>"}]}],"final_assessment":{"title":"...","description":"...","questions":[{"question":"...","options":["A","B","C","D"],"correctIndex":0,"explanation":"..."}]}}`;
+          const retryPrompt = `Create a course on "${title}" with ${Math.min(safeModuleCount, 3)} modules, 2 lessons each. Write ALL content in ${langName.toUpperCase()}.\n\nRETRY (MANDATORY):\n- Return STRICT valid JSON only — no markdown fences.\n- 3 sections per lesson (Intro h2, Core h3, Key Takeaways h3).\n- 1 quiz HTML comment per lesson.\n- 4 final assessment questions.\n- Include image_prompt in English per lesson.\n- Structure: {"course_title":"...","course_description":"...","modules":[{"title":"...","description":"...","emoji":"🎯","lessons":[{"title":"...","content_type":"text","duration_minutes":10,"description":"...","image_prompt":"...","content":"<h2>...</h2><p>...</p>"}]}],"final_assessment":{"title":"...","description":"...","questions":[{"question":"...","options":["A","B","C","D"],"correctIndex":0,"explanation":"..."}]}}`;
           const retryData = await requestCourseCompletion(retryPrompt, 5_000, 28_000);
           const retryContent = retryData.choices?.[0]?.message?.content || '';
           parsed = tryParseCourseJson(retryContent);

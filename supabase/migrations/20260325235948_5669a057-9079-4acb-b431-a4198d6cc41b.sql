@@ -1,0 +1,1 @@
+ALTER TABLE public.programs ADD COLUMN content_language text DEFAULT 'fr';
