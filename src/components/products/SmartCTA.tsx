@@ -18,9 +18,9 @@ interface SmartCTAProps {
 }
 
 const nudges = [
-  { icon: Users, text: (n: number) => `${n}+ personnes ont acheté ce produit` },
-  { icon: TrendingUp, text: () => 'Populaire cette semaine' },
-  { icon: Zap, text: () => 'Achat instantané — accès immédiat' },
+  { icon: Users, text: (n: number, isFr: boolean) => isFr ? `${n}+ personnes ont acheté ce produit` : `${n}+ people bought this product` },
+  { icon: TrendingUp, text: (_n: number, isFr: boolean) => isFr ? 'Populaire cette semaine' : 'Popular this week' },
+  { icon: Zap, text: (_n: number, isFr: boolean) => isFr ? 'Achat instantané — accès immédiat' : 'Instant purchase — immediate access' },
 ];
 
 export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: SmartCTAProps) {
