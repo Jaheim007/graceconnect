@@ -75,6 +75,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const [teachingStyle, setTeachingStyle] = useState('structured');
   const [tone, setTone] = useState('professional');
   const [contentOrientation, setContentOrientation] = useState('neutral');
+  const [contentLanguage, setContentLanguage] = useState(isFr ? 'fr' : 'en');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [depthLevel, setDepthLevel] = useState('standard');
   const [interactivityLevel, setInteractivityLevel] = useState('medium');
@@ -127,7 +128,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
           },
           body: JSON.stringify({
             title: prompt.trim(),
-            language: isFr ? 'fr' : 'en',
+            language: contentLanguage,
             tier,
             module_count: depthLevel === 'masterclass' ? 7 : depthLevel === 'detailed' ? 6 : 5,
             generate_images: shouldGenerateImages,
@@ -190,7 +191,8 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         title: courseTitle,
         description: courseDescription,
         created_by: user.id,
-      });
+        content_language: contentLanguage,
+      } as any);
 
       if (data?.modules) {
         for (let mi = 0; mi < data.modules.length; mi++) {
@@ -536,10 +538,28 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 </div>
               </div>
 
-              {/* 7. Content Orientation (VISIBLE, not hidden) */}
+              {/* 7. Content Language */}
               <div className="space-y-1.5">
                 <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
-                  <Globe className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Orientation du contenu' : 'Content orientation'}
+                  <Globe className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Langue du contenu' : 'Content language'}
+                </p>
+                <Select value={contentLanguage} onValueChange={setContentLanguage}>
+                  <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fr">🇫🇷 Français</SelectItem>
+                    <SelectItem value="en">🇬🇧 English</SelectItem>
+                    <SelectItem value="es">🇪🇸 Español</SelectItem>
+                    <SelectItem value="pt">🇧🇷 Português</SelectItem>
+                    <SelectItem value="ar">🇸🇦 العربية</SelectItem>
+                    <SelectItem value="sw">🇰🇪 Kiswahili</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* 8. Content Orientation */}
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                  <Target className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Orientation du contenu' : 'Content orientation'}
                 </p>
                 <Select value={contentOrientation} onValueChange={setContentOrientation}>
                   <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
