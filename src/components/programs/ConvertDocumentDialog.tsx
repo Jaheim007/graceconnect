@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
 import { queueDeferredCourseLessonImages } from '@/lib/programImageGeneration';
 import { Sparkles, ArrowRight, Loader2, FileText, ImageIcon, Globe } from 'lucide-react';
+import { CourseGenerationLoader } from './CourseGenerationLoader';
 
 interface Props {
   open: boolean;
