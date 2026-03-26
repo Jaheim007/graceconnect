@@ -33,6 +33,8 @@ export default function UserDashboard() {
   const primaryCurrency = userOrgs[0]?.currency || DEFAULT_CURRENCY;
   const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency || primaryCurrency, locale);
 
+  const orgIds = userOrgs.map(o => o.id);
+
   // ── Purchases ──
   const { data: purchases = [] } = useQuery({
     queryKey: ['user-purchases', user?.id],
@@ -61,6 +63,37 @@ export default function UserDashboard() {
         .order('completed_at', { ascending: false })
         .limit(5);
       return data || [];
+    },
+    enabled: !!user,
+  });
+
+  // ── My Sales (as seller) ──
+  const { data: salesStats } = useQuery({
+    queryKey: ['user-sales-stats', orgIds],
+    queryFn: async () => {
+      if (orgIds.length === 0) return { count: 0, revenue: 0 };
+      const { data } = await db.from('product_purchases')
+        .select('amount, organization_amount')
+        .in('organization_id', orgIds)
+        .eq('status', 'completed');
+      const rows = data || [];
+      return {
+        count: rows.length,
+        revenue: rows.reduce((s: number, r: any) => s + (r.organization_amount || r.amount || 0), 0),
+      };
+    },
+    enabled: orgIds.length > 0,
+  });
+
+  // ── Ambassador commissions ──
+  const { data: commissionTotal = 0 } = useQuery({
+    queryKey: ['user-commissions', user?.id],
+    queryFn: async () => {
+      if (!user) return 0;
+      const { data } = await db.from('affiliate_sales')
+        .select('commission_amount')
+        .eq('affiliate_user_id', user.id);
+      return (data || []).reduce((s: number, r: any) => s + (r.commission_amount || 0), 0);
     },
     enabled: !!user,
   });
@@ -124,18 +157,36 @@ export default function UserDashboard() {
 
         {/* ═══ MINI FINANCIAL SUMMARY ═══ */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }}>
-          <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 text-center">
-              <p className="text-lg font-bold text-primary">{purchases.length}</p>
-              <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Achats' : 'Purchases'}</p>
+          <div className="space-y-2">
+            {/* Row 1 – Mon activité */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 text-center">
+                <p className="text-lg font-bold text-primary">{purchases.length}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Achats' : 'Purchases'}</p>
+              </div>
+              <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/10 p-3 text-center">
+                <p className="text-lg font-bold text-emerald-600">{fmt(purchases.reduce((s: number, p: any) => s + (p.amount || 0), 0))}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dépensé' : 'Spent'}</p>
+              </div>
+              <div className="rounded-xl bg-rose-500/5 border border-rose-500/10 p-3 text-center">
+                <p className="text-lg font-bold text-rose-600">{donations.length}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dons' : 'Donations'}</p>
+              </div>
             </div>
-            <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/10 p-3 text-center">
-              <p className="text-lg font-bold text-emerald-600">{fmt(purchases.reduce((s: number, p: any) => s + (p.amount || 0), 0))}</p>
-              <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dépensé' : 'Spent'}</p>
-            </div>
-            <div className="rounded-xl bg-rose-500/5 border border-rose-500/10 p-3 text-center">
-              <p className="text-lg font-bold text-rose-600">{donations.length}</p>
-              <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dons' : 'Donations'}</p>
+            {/* Row 2 – Mes revenus */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-xl bg-blue-500/5 border border-blue-500/10 p-3 text-center">
+                <p className="text-lg font-bold text-blue-600">{salesStats?.count || 0}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Ventes' : 'Sales'}</p>
+              </div>
+              <div className="rounded-xl bg-amber-500/5 border border-amber-500/10 p-3 text-center">
+                <p className="text-lg font-bold text-amber-600">{fmt(salesStats?.revenue || 0)}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Revenus' : 'Revenue'}</p>
+              </div>
+              <div className="rounded-xl bg-violet-500/5 border border-violet-500/10 p-3 text-center">
+                <p className="text-lg font-bold text-violet-600">{fmt(commissionTotal)}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Commissions' : 'Commissions'}</p>
+              </div>
             </div>
           </div>
         </motion.div>
