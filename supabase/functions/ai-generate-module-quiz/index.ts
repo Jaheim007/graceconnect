@@ -22,7 +22,7 @@ serve(async (req) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Not authenticated");
 
-    const { module_id, program_id, course_title, module_title, language, question_count } = await req.json();
+    const { module_id, program_id, course_title, module_title, language, question_count, tier } = await req.json();
 
     // Fetch lesson content for context
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
@@ -36,7 +36,10 @@ serve(async (req) => {
       .map((l: any) => `### ${l.title}\n${(l.content || "").replace(/<[^>]+>/g, " ").slice(0, 1500)}`)
       .join("\n\n");
 
-    const count = question_count || 10;
+    // Premium tier gets 15-20 questions, standard gets 10
+    const isPremium = tier === 'premium';
+    const defaultCount = isPremium ? 18 : 10;
+    const count = question_count || defaultCount;
     const LANG_MAP: Record<string, string> = { fr: 'French', en: 'English', es: 'Spanish', pt: 'Portuguese', ar: 'Arabic', sw: 'Swahili' };
     const lang = LANG_MAP[language] || LANG_MAP['fr'];
 
