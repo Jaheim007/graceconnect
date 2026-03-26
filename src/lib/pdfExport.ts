@@ -188,7 +188,7 @@ export function downloadDashboardPDF(opts: {
     summaryCards: opts.stats,
     chartData: opts.revenueData,
     currencyColumns: isFr
-      ? ['montant', 'reçu_org', 'commission_affilié', 'frais_plateforme', 'Revenus']
+      ? ['montant', 'reçu_org', 'commission_ambassadeur', 'frais_plateforme', 'Revenus']
       : ['amount', 'org_received', 'affiliate_commission', 'platform_fee', 'Revenue'],
     orientation: 'landscape',
     locale: isFr ? 'fr-FR' : 'en-US',
