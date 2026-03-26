@@ -159,7 +159,8 @@ export function ProgramForm() {
       // Auto-create/update linked digital product for paid courses (enables affiliate system)
       if (!isFree && price > 0 && isPublished) {
         try {
-          const externalLink = `${window.location.origin}/program/${id}`;
+          const publishedOrigin = 'https://graceconnect.lovable.app';
+          const externalLink = `${publishedOrigin}/program/${id}`;
           const { data: existingProduct } = await supabase.from('digital_products')
             .select('id')
             .eq('organization_id', currentOrg.id)
