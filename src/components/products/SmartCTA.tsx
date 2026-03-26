@@ -64,9 +64,9 @@ export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: S
           onClick={onAccess}
         >
           <ShoppingBag className="h-4 w-4" />
-          Accéder au contenu
+          {isFr ? 'Accéder au contenu' : 'Access content'}
         </Button>
-        <p className="text-center text-xs text-emerald-600 font-medium">✓ Déjà acheté</p>
+        <p className="text-center text-xs text-emerald-600 font-medium">✓ {isFr ? 'Déjà acheté' : 'Already purchased'}</p>
       </div>
     );
   }
@@ -96,7 +96,7 @@ export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: S
           >
             <NudgeIcon className="h-3.5 w-3.5 text-primary shrink-0" />
             <span className="text-xs text-primary font-medium">
-              {currentNudge.text(salesCount)}
+              {currentNudge.text(salesCount, isFr)}
             </span>
           </motion.div>
         </AnimatePresence>
@@ -109,7 +109,7 @@ export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: S
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          {recentBuyers} achat{recentBuyers > 1 ? 's' : ''} dans les dernières 24h
+          {isFr ? `${recentBuyers} achat${recentBuyers > 1 ? 's' : ''} dans les dernières 24h` : `${recentBuyers} purchase${recentBuyers > 1 ? 's' : ''} in the last 24h`}
         </div>
       )}
 
