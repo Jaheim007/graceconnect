@@ -361,7 +361,7 @@ serve(async (req) => {
 
         const systemPrompt = `You are an ELITE INSTRUCTIONAL DESIGNER and PROFESSIONAL COURSE ARCHITECT.
 
-CRITICAL: ALL content MUST be written in ${isFr ? 'FRENCH (Français)' : 'ENGLISH'}.
+CRITICAL: ALL content MUST be written in ${langName.toUpperCase()}.
 
 ## COURSE GOAL (PRIMARY DIRECTIVE)
 ${goalInstruction}
