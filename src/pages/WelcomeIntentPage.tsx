@@ -64,6 +64,18 @@ export default function WelcomeIntentPage() {
       badge: null,
       route: hasManagedOrgs ? '/admin/create' : '/create-org',
     },
+    {
+      key: 'sales',
+      icon: Store,
+      emoji: '💰',
+      title: isFr ? 'Mes ventes' : 'My Sales',
+      desc: isFr ? 'Voir mes ventes, mes revenus et mes résultats' : 'View my sales, revenue and results',
+      color: 'border-amber-500/30 hover:border-amber-500',
+      iconBg: 'bg-amber-500/10',
+      iconColor: 'text-amber-500',
+      badge: null,
+      route: '/admin/sales',
+    },
   ];
 
   const handleSelect = (intent: typeof intents[0]) => {
@@ -105,6 +117,16 @@ export default function WelcomeIntentPage() {
           <p className="text-muted-foreground text-sm">
             {isFr ? 'Que souhaitez-vous faire aujourd\'hui ?' : 'What would you like to do today?'}
           </p>
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.25 }}
+            onClick={handleSkip}
+            className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+          >
+            <SkipForward className="h-3.5 w-3.5" />
+            {isFr ? 'Passer cette étape' : 'Skip this step'}
+          </motion.button>
         </motion.div>
 
         <div className="grid gap-3">
@@ -134,17 +156,6 @@ export default function WelcomeIntentPage() {
           ))}
         </div>
 
-        {/* Skip button below */}
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          onClick={handleSkip}
-          className="mt-6 w-full flex items-center justify-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors py-2.5 rounded-xl border border-primary/20 hover:border-primary/40 bg-primary/5"
-        >
-          <SkipForward className="h-4 w-4" />
-          {isFr ? 'Passer cette étape' : 'Skip this step'}
-        </motion.button>
       </div>
     </div>
   );
