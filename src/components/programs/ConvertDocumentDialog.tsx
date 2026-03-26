@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -12,7 +13,7 @@ import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
 import { queueDeferredCourseLessonImages } from '@/lib/programImageGeneration';
-import { Sparkles, ArrowRight, Loader2, FileText, ImageIcon } from 'lucide-react';
+import { Sparkles, ArrowRight, Loader2, FileText, ImageIcon, Globe } from 'lucide-react';
 
 interface Props {
   open: boolean;
@@ -35,6 +36,7 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
   const [file, setFile] = useState<File | null>(null);
   const [tier, setTier] = useState<AITier>('standard');
   const [generateImages, setGenerateImages] = useState(false);
+  const [contentLanguage, setContentLanguage] = useState(isFr ? 'fr' : 'en');
   const [converting, setConverting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -80,7 +82,7 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
         body: {
           title: file.name.replace(/\.[^.]+$/, ''),
           description: `Convert this ${ext.toUpperCase()} document into a structured course with modules, lessons, and FULL lesson content. Document URL: ${urlData.publicUrl}`,
-          language: isFr ? 'fr' : 'en',
+          language: contentLanguage,
           tier,
           module_count: 5,
           generate_images: generateImages,
@@ -101,7 +103,8 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
         organization_id: currentOrg.id,
         title: file.name.replace(/\.[^.]+$/, ''),
         created_by: user.id,
-      });
+        content_language: contentLanguage,
+      } as any);
 
       if (data?.modules) {
         for (let mi = 0; mi < data.modules.length; mi++) {
