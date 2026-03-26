@@ -477,7 +477,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'page.affiliation_conversions': 'Conversions',
     'page.affiliation_total_earned': 'Total earned',
     'page.affiliation_no_links': 'No ambassador links',
-    'page.affiliation_no_links_desc': 'Discover platforms with an affiliate program and start earning commissions.',
+    'page.affiliation_no_links_desc': 'Discover platforms with an ambassador program and start earning commissions.',
     'page.affiliation_discover_programs': 'Discover programs',
     'page.affiliation_available_withdrawal': 'available for withdrawal',
     'page.affiliation_pending_validation': 'pending validation',
