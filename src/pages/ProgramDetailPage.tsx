@@ -418,7 +418,7 @@ export default function ProgramDetailPage() {
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{isFr ? 'Proposé par' : 'Offered by'}</p>
                 <p className="font-bold text-sm flex items-center gap-1">
                   {orgName}
-                  {isOrgVerifiedOrKyc(org.is_verified, org.kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel(org.category)} />}
+                  {isOrgVerifiedOrKyc(org.is_verified, org.kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel(org.category, locale)} />}
                 </p>
                 {org.description && <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{org.description}</p>}
               </div>
