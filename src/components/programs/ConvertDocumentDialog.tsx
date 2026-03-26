@@ -352,6 +352,8 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
             </Button>
           </div>
         )}
+        </>
+        )}
       </DialogContent>
     </Dialog>
   );
