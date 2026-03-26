@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
+import { getOrCreateShortLink, buildSocialShareUrl, buildShareUrlForPath } from '@/lib/shareMeta';
 import { getPublicUrl } from '@/lib/publicUrl';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -308,8 +308,8 @@ export function ProductForm() {
 
   // Success screen
   if (createdProduct) {
-    const newProductUrl = getPublicUrl(`/org/${currentOrg?.slug}/product/${createdProduct.id}`);
     const newProductPath = `/org/${currentOrg?.slug}/product/${createdProduct.id}`;
+    const newProductShareUrl = buildShareUrlForPath(newProductPath);
     const copyNewLink = async () => { const url = await getProductShortLink(newProductPath); navigator.clipboard.writeText(url); toast({ title: isFr ? 'Lien copié ✅' : 'Link copied ✅' }); };
     const shareNewLink = async () => { const url = await getProductShortLink(newProductPath); if (navigator.share) navigator.share({ title: watch('title'), url }); else { navigator.clipboard.writeText(url); toast({ title: isFr ? 'Lien copié ✅' : 'Link copied ✅' }); } };
     return (
@@ -319,10 +319,10 @@ export function ProductForm() {
           <div><h2 className="text-xl font-bold">{isFr ? 'Produit créé avec succès !' : 'Product created successfully!'}</h2><p className="text-sm text-muted-foreground mt-1">{isFr ? 'Votre produit est prêt. Partagez-le avec votre audience.' : 'Your product is ready. Share it with your audience.'}</p></div>
           <div className="bg-muted/50 border border-border rounded-xl p-3 text-left">
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{isFr ? 'Lien du produit' : 'Product link'}</p>
-            <div className="flex items-center gap-2"><p className="text-xs font-mono text-foreground truncate flex-1">{newProductUrl}</p><Button size="sm" variant="ghost" className="h-7 w-7 p-0 shrink-0" onClick={copyNewLink}><Copy className="h-3.5 w-3.5" /></Button></div>
+            <div className="flex items-center gap-2"><p className="text-xs font-mono text-foreground truncate flex-1">{newProductShareUrl}</p><Button size="sm" variant="ghost" className="h-7 w-7 p-0 shrink-0" onClick={copyNewLink}><Copy className="h-3.5 w-3.5" /></Button></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <Button variant="outline" className="gap-2" onClick={() => window.open(newProductUrl, '_blank')}><Eye className="h-4 w-4" /> {isFr ? 'Voir le produit' : 'View product'}</Button>
+            <Button variant="outline" className="gap-2" onClick={() => window.open(newProductShareUrl, '_blank')}><Eye className="h-4 w-4" /> {isFr ? 'Voir le produit' : 'View product'}</Button>
             <Button variant="outline" className="gap-2" onClick={shareNewLink}><Share2 className="h-4 w-4" /> {isFr ? 'Partager' : 'Share'}</Button>
             <Button className="gap-2 bg-primary text-primary-foreground" onClick={() => { setCreatedProduct(null); reset({ product_type: 'pdf', price: 0, is_free: false, is_published: true }); }}><Plus className="h-4 w-4" /> {isFr ? 'Nouveau produit' : 'New product'}</Button>
           </div>
