@@ -389,8 +389,8 @@ ${interactivityInstruction}
 
 Return ONLY valid JSON with this exact structure:
 {
-  "course_title": "A compelling marketing-ready title for the course in ${isFr ? 'French' : 'English'}",
-  "course_description": "A professional 2-3 sentence marketing description in ${isFr ? 'French' : 'English'}",
+  "course_title": "A compelling marketing-ready title for the course in ${langName}",
+  "course_description": "A professional 2-3 sentence marketing description in ${langName}",
   "modules": [
     {
       "title": "Module title",
