@@ -287,6 +287,24 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
           </div>
         </div>
 
+        {/* Language selector */}
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
+            <Globe className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Langue du contenu généré' : 'Generated content language'}
+          </p>
+          <Select value={contentLanguage} onValueChange={setContentLanguage}>
+            <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fr">🇫🇷 Français</SelectItem>
+              <SelectItem value="en">🇬🇧 English</SelectItem>
+              <SelectItem value="es">🇪🇸 Español</SelectItem>
+              <SelectItem value="pt">🇧🇷 Português</SelectItem>
+              <SelectItem value="ar">🇸🇦 العربية</SelectItem>
+              <SelectItem value="sw">🇰🇪 Kiswahili</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* Image generation option */}
         <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
           <div className="flex items-center gap-2">
