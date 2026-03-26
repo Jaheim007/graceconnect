@@ -426,7 +426,7 @@ export function SuperadminTransactions() {
           accent="bg-emerald-500"
         />
         <StatCard
-          label="Comm. affiliés"
+          label="Comm. ambassadeurs"
           value={fmt(txStats?.affiliate_commissions || 0)}
           icon={Users}
           accent="bg-violet-500"
@@ -621,7 +621,7 @@ export function SuperadminTransactions() {
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Passerelle</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-right">Montant</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-right">Frais</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Affilié</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Ambassadeur</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Statut</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Règlement</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-right">Date</TableHead>

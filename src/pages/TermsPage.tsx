@@ -47,7 +47,7 @@ export default function TermsPage() {
             <li><strong>{isFr ? '« Utilisateur », « vous », « votre »' : '"User", "you", "your"'}</strong> {isFr ? "désigne toute personne physique ou morale accédant au Service ou l'utilisant." : 'refers to any individual or entity accessing or using the Service.'}</li>
             <li><strong>{isFr ? '« Organisation »' : '"Organization"'}</strong> {isFr ? 'désigne toute entité, communauté, entreprise, ONG, organisme religieux ou leader opérant au sein de Siteviral.' : 'refers to any entity, community, business, NGO, religious organization, or leader operating within Siteviral.'}</li>
             <li><strong>{isFr ? '« Membre »' : '"Member"'}</strong> {isFr ? "désigne un utilisateur qui rejoint ou interagit avec une Organisation." : 'refers to a user who joins or interacts with an Organization.'}</li>
-            <li><strong>{isFr ? '« Affilié »' : '"Affiliate"'}</strong> {isFr ? "désigne un utilisateur participant au programme d'affiliation Siteviral." : 'refers to a user participating in the Siteviral affiliate program.'}</li>
+            <li><strong>{isFr ? '« Ambassadeur »' : '"Ambassador"'}</strong> {isFr ? "désigne un utilisateur participant au programme ambassadeur Siteviral." : 'refers to a user participating in the Siteviral ambassador program.'}</li>
           </ul>
           <p>
             {isFr
