@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/types/database';
@@ -10,6 +10,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   isSuperadmin: boolean;
+  platformRoleLoading: boolean;
   signInWithGoogle: (returnTo?: string) => Promise<{ error: Error | null }>;
   signInWithFacebook: (returnTo?: string) => Promise<{ error: Error | null }>;
   signInWithLinkedin: (returnTo?: string) => Promise<{ error: Error | null }>;
@@ -27,6 +28,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSuperadmin, setIsSuperadmin] = useState(false);
+  const [platformRoleLoading, setPlatformRoleLoading] = useState(true);
+  const roleRequestRef = useRef(0);
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -51,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const fetchPlatformRole = async (userId: string) => {
+  const fetchPlatformRole = async (userId: string): Promise<boolean> => {
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
         const { data, error } = await supabase
@@ -61,17 +64,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (error) throw error;
 
-        setIsSuperadmin((data || []).some((row) => row.role === 'superadmin'));
-        return;
+        return (data || []).some((row) => row.role === 'superadmin');
       } catch {
         if (attempt === 2) {
-          setIsSuperadmin(false);
-          return;
+          return false;
         }
 
         await new Promise((resolve) => setTimeout(resolve, 600 * (attempt + 1)));
       }
     }
+
+    return false;
   };
 
   const upsertProfile = async (userId: string, displayName?: string) => {
@@ -137,13 +140,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
 
+      const requestId = ++roleRequestRef.current;
+
       if (nextSession?.user) {
         try { sessionStorage.removeItem('sv_oauth_pending_since'); } catch {}
         upsertProfile(nextSession.user.id, nextSession.user.user_metadata?.full_name);
-        fetchPlatformRole(nextSession.user.id);
+        setPlatformRoleLoading(true);
+        void (async () => {
+          const nextIsSuperadmin = await fetchPlatformRole(nextSession.user.id);
+          if (!mounted || roleRequestRef.current !== requestId) return;
+          setIsSuperadmin(nextIsSuperadmin);
+          setPlatformRoleLoading(false);
+        })();
       } else {
         setProfile(null);
         setIsSuperadmin(false);
+        setPlatformRoleLoading(false);
       }
     };
 
@@ -269,6 +281,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setProfile(null);
     setIsSuperadmin(false);
+    setPlatformRoleLoading(false);
   };
 
   const refreshProfile = async () => {
@@ -283,6 +296,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile,
         loading,
         isSuperadmin,
+        platformRoleLoading,
         signInWithGoogle,
         signInWithFacebook,
         signInWithLinkedin,

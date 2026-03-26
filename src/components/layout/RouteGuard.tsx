@@ -36,8 +36,8 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
 // Require superadmin
 export function RequireSuperadmin({ children }: { children: ReactNode }) {
-  const { user, loading, isSuperadmin } = useAuth();
-  if (loading) return <FullPageLoader />;
+  const { user, loading, isSuperadmin, platformRoleLoading } = useAuth();
+  if (loading || platformRoleLoading) return <FullPageLoader />;
   if (!user) return <Nav to="/auth" replace />;
   if (!isSuperadmin) return <Nav to="/feed" replace />;
   return <>{children}</>;
