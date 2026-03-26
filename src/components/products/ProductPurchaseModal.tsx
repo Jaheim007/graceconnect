@@ -60,6 +60,10 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Course products must go through payment even though they have external_link
+  const isCourseProduct = product?.product_type === 'course';
+  const effectiveExternalLink = isCourseProduct ? null : product?.external_link;
   const [pwywAmount, setPwywAmount] = useState<string>('');
 
   const { user, profile } = useAuth();
