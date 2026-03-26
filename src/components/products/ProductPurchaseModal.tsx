@@ -435,7 +435,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               )}
 
               {/* Promo code */}
-              {!product.is_free && !product.external_link && (
+              {!product.is_free && !effectiveExternalLink && (
                 <div className="space-y-2">
                   {promo.applied ? (
                     <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2">
@@ -487,7 +487,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               )}
 
               {/* Order Bump */}
-              {bumpProduct && !product.is_free && !product.external_link && (
+              {bumpProduct && !product.is_free && !effectiveExternalLink && (
                 <label className="flex items-start gap-3 p-3 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 cursor-pointer hover:border-primary/50 transition-colors">
                   <input type="checkbox" checked={orderBumpChecked} onChange={e => setOrderBumpChecked(e.target.checked)}
                     className="mt-0.5 rounded border-primary text-primary focus:ring-primary" />
@@ -505,13 +505,13 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Lock className="h-3 w-3" />
-                  {product.external_link
+                  {effectiveExternalLink
                     ? (isFr ? 'Vous serez redirigé vers un lien externe' : 'You will be redirected to an external link')
                     : product.is_free
                       ? (isFr ? 'Accès immédiat après téléchargement' : 'Immediate access after download')
                       : (isFr ? `Paiement sécurisé par ${paymentMethod === 'card' ? 'Stripe' : 'Paystack'}` : `Secure payment via ${paymentMethod === 'card' ? 'Stripe' : 'Paystack'}`)}
                 </div>
-                {!product.external_link && !product.is_free && (
+                {!effectiveExternalLink && !product.is_free && (
                   <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
                     <a href="/refund-policy" target="_blank" className="underline hover:text-foreground">{isFr ? 'Politique de remboursement' : 'Refund Policy'}</a>
                     <a href="/payout-policy" target="_blank" className="underline hover:text-foreground">{isFr ? 'Politique de versement' : 'Payout Policy'}</a>
@@ -523,8 +523,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
             <div className="flex gap-2">
               <Button variant="outline" onClick={handleClose} className="flex-1">{isFr ? 'Annuler' : 'Cancel'}</Button>
-              {product.external_link ? (
-                <a href={product.external_link} target="_blank" rel="noreferrer" className="flex-1">
+              {effectiveExternalLink ? (
+                <a href={effectiveExternalLink} target="_blank" rel="noreferrer" className="flex-1">
                   <Button className="w-full bg-primary text-primary-foreground gap-1.5">
                     <ExternalLink className="h-4 w-4" /> {isFr ? 'Accéder au contenu' : 'Access content'}
                   </Button>
@@ -671,8 +671,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   <Download className="h-4 w-4" /> {isFr ? 'Télécharger le fichier' : 'Download file'}
                 </Button>
               )}
-              {product.external_link && (
-                <a href={product.external_link} target="_blank" rel="noreferrer" className="w-full">
+              {effectiveExternalLink && (
+                <a href={effectiveExternalLink} target="_blank" rel="noreferrer" className="w-full">
                   <Button variant="outline" className="w-full gap-2">
                     <ExternalLink className="h-4 w-4" /> {isFr ? 'Accéder au contenu' : 'Access content'}
                   </Button>
