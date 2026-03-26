@@ -308,8 +308,8 @@ export function ProductForm() {
 
   // Success screen
   if (createdProduct) {
-    const newProductUrl = getPublicUrl(`/org/${currentOrg?.slug}/product/${createdProduct.id}`);
     const newProductPath = `/org/${currentOrg?.slug}/product/${createdProduct.id}`;
+    const newProductShareUrl = buildShareUrlForPath(newProductPath);
     const copyNewLink = async () => { const url = await getProductShortLink(newProductPath); navigator.clipboard.writeText(url); toast({ title: isFr ? 'Lien copié ✅' : 'Link copied ✅' }); };
     const shareNewLink = async () => { const url = await getProductShortLink(newProductPath); if (navigator.share) navigator.share({ title: watch('title'), url }); else { navigator.clipboard.writeText(url); toast({ title: isFr ? 'Lien copié ✅' : 'Link copied ✅' }); } };
     return (
