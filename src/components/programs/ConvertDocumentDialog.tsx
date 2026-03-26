@@ -227,7 +227,11 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg" hideCloseButton={converting}>
+        {converting ? (
+          <CourseGenerationLoader phase="generating" mode="convert" />
+        ) : (
+        <>
         <DialogHeader>
           <DialogTitle>{isFr ? 'Convertir un document' : 'Convert document'}</DialogTitle>
         </DialogHeader>
