@@ -675,8 +675,9 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 <Button
                   className="w-full gap-2 bg-primary text-primary-foreground"
                   onClick={() => {
-                    const url = new URL(product.external_link!, window.location.origin);
-                    navigate(url.pathname);
+                    // external_link is a relative path like /program/uuid
+                    const path = product.external_link!.startsWith('/') ? product.external_link! : new URL(product.external_link!, window.location.origin).pathname;
+                    navigate(path);
                     handleClose();
                   }}
                 >
