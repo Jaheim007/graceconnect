@@ -48,7 +48,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       return (data || []) as Array<OrganizationMember & { organizations: Organization }>;
     },
-    enabled: !!user,
+    enabled: !authLoading && !!user,
     // Retry on failure so transient network errors don't leave the user stuck
     retry: 3,
     retryDelay: 1000,
