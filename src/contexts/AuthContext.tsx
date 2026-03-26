@@ -30,6 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isSuperadmin, setIsSuperadmin] = useState(false);
   const [platformRoleLoading, setPlatformRoleLoading] = useState(true);
   const roleRequestRef = useRef(0);
+  const platformRoleRetryTimeoutRef = useRef<number | null>(null);
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -54,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const fetchPlatformRole = async (userId: string): Promise<boolean> => {
+  const fetchPlatformRole = async (userId: string): Promise<boolean | null> => {
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
         const { data, error } = await supabase
@@ -67,14 +68,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return (data || []).some((row) => row.role === 'superadmin');
       } catch {
         if (attempt === 2) {
-          return false;
+          return null;
         }
 
         await new Promise((resolve) => setTimeout(resolve, 600 * (attempt + 1)));
       }
     }
 
-    return false;
+    return null;
   };
 
   const upsertProfile = async (userId: string, displayName?: string) => {
@@ -135,23 +136,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
+    const clearPlatformRoleRetry = () => {
+      if (platformRoleRetryTimeoutRef.current !== null) {
+        window.clearTimeout(platformRoleRetryTimeoutRef.current);
+        platformRoleRetryTimeoutRef.current = null;
+      }
+    };
+
     const applySession = (nextSession: Session | null) => {
       if (!mounted) return;
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
 
       const requestId = ++roleRequestRef.current;
+      clearPlatformRoleRetry();
 
       if (nextSession?.user) {
         try { sessionStorage.removeItem('sv_oauth_pending_since'); } catch {}
         upsertProfile(nextSession.user.id, nextSession.user.user_metadata?.full_name);
         setPlatformRoleLoading(true);
-        void (async () => {
+        const resolvePlatformRole = async () => {
           const nextIsSuperadmin = await fetchPlatformRole(nextSession.user.id);
           if (!mounted || roleRequestRef.current !== requestId) return;
+
+          if (nextIsSuperadmin === null) {
+            platformRoleRetryTimeoutRef.current = window.setTimeout(() => {
+              if (!mounted || roleRequestRef.current !== requestId) return;
+              void resolvePlatformRole();
+            }, 1500);
+            return;
+          }
+
           setIsSuperadmin(nextIsSuperadmin);
           setPlatformRoleLoading(false);
-        })();
+        };
+
+        void resolvePlatformRole();
       } else {
         setProfile(null);
         setIsSuperadmin(false);
@@ -200,6 +220,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       mounted = false;
       clearTimeout(timeout);
+      clearPlatformRoleRetry();
       subscription.unsubscribe();
     };
   }, []);
@@ -278,6 +299,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     try { sessionStorage.removeItem('sv_oauth_pending_since'); } catch {}
     try { sessionStorage.removeItem('sv_welcome_seen'); } catch {}
+    if (platformRoleRetryTimeoutRef.current !== null) {
+      window.clearTimeout(platformRoleRetryTimeoutRef.current);
+      platformRoleRetryTimeoutRef.current = null;
+    }
     await supabase.auth.signOut();
     setProfile(null);
     setIsSuperadmin(false);

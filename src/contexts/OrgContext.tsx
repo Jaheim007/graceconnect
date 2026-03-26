@@ -37,7 +37,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   // Track whether we've done the initial restore from localStorage
   const restoredRef = useRef(false);
 
-  const { data: memberRows = [], refetch: refetchMembers, isLoading, isFetched } = useQuery({
+  const { data: memberRows = [], refetch: refetchMembers, isLoading, isFetched, isError } = useQuery({
     queryKey: ['user-memberships', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -50,9 +50,20 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     },
     enabled: !authLoading && !!user,
     // Retry on failure so transient network errors don't leave the user stuck
-    retry: 3,
-    retryDelay: 1000,
+    retry: 6,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 5000),
+    refetchOnReconnect: true,
   });
+
+  useEffect(() => {
+    if (!user || !isError) return;
+
+    const retryTimer = window.setTimeout(() => {
+      refetchMembers();
+    }, 2000);
+
+    return () => window.clearTimeout(retryTimer);
+  }, [user, isError, refetchMembers]);
 
   const userOrgs = memberRows.map((m) => m.organizations).filter(Boolean);
   const membershipMap = Object.fromEntries(
@@ -166,7 +177,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         currentOrg,
         currentOrgRole,
         setCurrentOrg,
-        isLoadingOrgs: authLoading || (!!user && !isFetched) || isLoading || (userOrgs.length > 0 && !currentOrg),
+        isLoadingOrgs: authLoading || (!!user && (!isFetched || isError)) || isLoading || (userOrgs.length > 0 && !currentOrg),
         refetchOrgs,
         joinOrg,
         leaveOrg,
