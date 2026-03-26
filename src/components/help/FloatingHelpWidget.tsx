@@ -20,7 +20,7 @@ const CONTEXTUAL_HELP: Record<string, { q: string; a: string }[]> = {
     { q: 'Pourquoi mon produit ne se vend pas ?', a: 'Ajoutez une couverture attractive, une description détaillée, et partagez sur WhatsApp.' },
   ],
   '/admin/affiliation': [
-    { q: 'Comment activer l\'affiliation ?', a: 'Allez dans Paramètres > Affiliation et activez-la. Définissez votre taux de commission (5-50%).' },
+    { q: 'Comment activer le programme ambassadeur ?', a: 'Allez dans Paramètres > Programme ambassadeur et activez-le. Définissez votre taux de commission (5-50%).' },
     { q: 'Comment recruter des ambassadeurs ?', a: 'Partagez votre page boutique. Les visiteurs peuvent devenir ambassadeurs en 1 clic.' },
   ],
   '/affiliation': [
