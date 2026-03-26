@@ -69,6 +69,8 @@ export function ModuleQuizEditor({ moduleId, moduleTitle, programId, courseTitle
   const [passPercentage, setPassPercentage] = useState(quiz?.passing_score || 60);
   const [maxAttempts, setMaxAttempts] = useState<number | null>((quiz as any)?.max_attempts || null);
   const [generating, setGenerating] = useState(false);
+  const [generatingFlashcards, setGeneratingFlashcards] = useState(false);
+  const [quizTier, setQuizTier] = useState<'standard' | 'premium'>('standard');
   const [expandedQ, setExpandedQ] = useState<string | null>(null);
   const [newFlashFront, setNewFlashFront] = useState('');
   const [newFlashBack, setNewFlashBack] = useState('');
@@ -164,7 +166,8 @@ export function ModuleQuizEditor({ moduleId, moduleTitle, programId, courseTitle
           course_title: courseTitle,
           module_title: moduleTitle,
           language: isFr ? 'fr' : 'en',
-          question_count: 10,
+          tier: quizTier,
+          question_count: quizTier === 'premium' ? 18 : 10,
         },
       });
 
@@ -190,6 +193,32 @@ export function ModuleQuizEditor({ moduleId, moduleTitle, programId, courseTitle
       setNewFlashBack('');
     } catch (e: any) {
       toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
+    }
+  };
+
+  const handleAIGenerateFlashcards = async () => {
+    setGeneratingFlashcards(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase.functions.invoke('ai-generate-module-flashcards', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: {
+          module_id: moduleId,
+          course_title: courseTitle,
+          module_title: moduleTitle,
+          language: isFr ? 'fr' : 'en',
+          tier: quizTier,
+        },
+      });
+
+      if (error) throw error;
+      toast({ title: isFr ? '✅ Flashcards générées par l\'IA !' : '✅ AI generated flashcards!' });
+    } catch (e: any) {
+      toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setGeneratingFlashcards(false);
     }
   };
 
@@ -275,10 +304,19 @@ export function ModuleQuizEditor({ moduleId, moduleTitle, programId, courseTitle
                   <h4 className="text-xs font-semibold">
                     {questions.length} {isFr ? 'question' : 'question'}{questions.length !== 1 ? 's' : ''}
                   </h4>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <Select value={quizTier} onValueChange={(v: 'standard' | 'premium') => setQuizTier(v)}>
+                      <SelectTrigger className="h-7 w-[110px] text-[10px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="standard" className="text-xs">Standard (10Q)</SelectItem>
+                        <SelectItem value="premium" className="text-xs">Premium (18Q)</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <Button size="sm" variant="outline" className="text-xs gap-1.5 h-7" onClick={handleAIGenerate} disabled={generating}>
                       {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                      {isFr ? 'Générer avec IA' : 'Generate with AI'}
+                      {isFr ? 'Générer IA' : 'AI Generate'}
                     </Button>
                     <Button size="sm" className="text-xs gap-1.5 h-7" onClick={() => setEditingQuestion(emptyQuestion())}>
                       <Plus className="h-3 w-3" /> {isFr ? 'Ajouter' : 'Add'}
@@ -512,21 +550,30 @@ export function ModuleQuizEditor({ moduleId, moduleTitle, programId, courseTitle
           ))}
 
           <div className="bg-card border border-dashed border-border rounded-lg p-3 space-y-2">
-            <Input
-              value={newFlashFront}
-              onChange={e => setNewFlashFront(e.target.value)}
-              placeholder={isFr ? 'Face avant (question/terme)' : 'Front (question/term)'}
-              className="h-8 text-xs"
-            />
-            <Input
-              value={newFlashBack}
-              onChange={e => setNewFlashBack(e.target.value)}
-              placeholder={isFr ? 'Face arrière (réponse/définition)' : 'Back (answer/definition)'}
-              className="h-8 text-xs"
-            />
-            <Button size="sm" className="text-xs gap-1.5 w-full" onClick={handleAddFlashcard} disabled={!newFlashFront.trim() || !newFlashBack.trim()}>
-              <Plus className="h-3 w-3" /> {isFr ? 'Ajouter flashcard' : 'Add flashcard'}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" className="text-xs gap-1.5 flex-1" onClick={handleAIGenerateFlashcards} disabled={generatingFlashcards}>
+                {generatingFlashcards ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                {isFr ? 'Générer avec IA' : 'Generate with AI'}
+              </Button>
+            </div>
+            <div className="border-t border-border pt-2 space-y-2">
+              <p className="text-[10px] text-muted-foreground">{isFr ? 'Ou ajouter manuellement :' : 'Or add manually:'}</p>
+              <Input
+                value={newFlashFront}
+                onChange={e => setNewFlashFront(e.target.value)}
+                placeholder={isFr ? 'Face avant (question/terme)' : 'Front (question/term)'}
+                className="h-8 text-xs"
+              />
+              <Input
+                value={newFlashBack}
+                onChange={e => setNewFlashBack(e.target.value)}
+                placeholder={isFr ? 'Face arrière (réponse/définition)' : 'Back (answer/definition)'}
+                className="h-8 text-xs"
+              />
+              <Button size="sm" className="text-xs gap-1.5 w-full" onClick={handleAddFlashcard} disabled={!newFlashFront.trim() || !newFlashBack.trim()}>
+                <Plus className="h-3 w-3" /> {isFr ? 'Ajouter flashcard' : 'Add flashcard'}
+              </Button>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
