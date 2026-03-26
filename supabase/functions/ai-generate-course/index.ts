@@ -163,7 +163,7 @@ async function repairCourseJsonWithAi(opts: {
     const repairedRaw = await geminiGenerateText({
       apiKey: opts.apiKey,
       model: 'gemini-2.5-flash',
-      system: `You repair malformed course JSON only. Return ONLY valid JSON. Preserve existing lesson HTML and text whenever possible. If the payload was truncated, complete the unfinished JSON minimally without adding extra fluff. All visible text must stay in ${opts.language === 'fr' ? 'French' : 'English'}. image_prompt fields must stay in English.`,
+      system: `You repair malformed course JSON only. Return ONLY valid JSON. Preserve existing lesson HTML and text whenever possible. If the payload was truncated, complete the unfinished JSON minimally without adding extra fluff. All visible text must stay in ${LANG_MAP[opts.language] || 'French'}. image_prompt fields must stay in English.`,
       prompt: `Repair this malformed course JSON into a valid object with this exact top-level shape: {"course_title":"...","course_description":"...","modules":[{"title":"...","description":"...","emoji":"🎯","lessons":[{"title":"...","content_type":"text","duration_minutes":10,"description":"...","image_prompt":"...","content":"<h2>...</h2>"}]}],"final_assessment":{"title":"...","description":"...","questions":[{"question":"...","options":["...","...","...","..."],"correctIndex":0,"explanation":"..."}]}}. Target up to ${opts.moduleCount} modules. Keep all valid content you can recover, close unfinished HTML tags when obvious, and do not wrap the answer in markdown fences.\n\n${opts.rawContent.slice(0, 120000)}`,
       maxOutputTokens: opts.maxOutputTokens ?? 7000,
       jsonMode: true,
