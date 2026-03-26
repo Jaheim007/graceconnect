@@ -31,7 +31,7 @@ export const BADGE_DEFINITIONS: Record<string, { label: string; emoji: string; d
   referrer_1: { label: 'Ambassadeur', emoji: '🤝', description: 'Premier parrainage', condition: 'referrals >= 1' },
   referrer_10: { label: 'Influenceur', emoji: '🌟', description: '10 parrainages', condition: 'referrals >= 10' },
   org_creator: { label: 'Bâtisseur', emoji: '🏗️', description: 'Organisation créée', condition: 'orgs >= 1' },
-  affiliate_first_sale: { label: 'Vendeur', emoji: '💰', description: 'Première commission affilié', condition: 'affiliate_sales >= 1' },
+  affiliate_first_sale: { label: 'Vendeur', emoji: '💰', description: 'Première commission ambassadeur', condition: 'affiliate_sales >= 1' },
   five_resources: { label: 'Bibliophile', emoji: '📚', description: '5 ressources achetées', condition: 'purchases >= 5' },
 };
 

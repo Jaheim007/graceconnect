@@ -511,8 +511,8 @@ export async function onAffiliateWelcome(
 ) {
   notifyAndEmail(
     userId, userEmail,
-    '🤝 Lien affilié créé',
-    `Votre lien affilié pour ${orgName} est prêt ! Code: ${code}`,
+    '🤝 Lien ambassadeur créé',
+    `Votre lien ambassadeur pour ${orgName} est prêt ! Code: ${code}`,
     'affiliate_welcome',
     { org_name: orgName, code, commission_percent: commissionPercent },
     'affiliate', orgId, `/affiliation`,
@@ -527,7 +527,7 @@ export async function onAffiliateFirstClick(
   notifyAndEmail(
     userId, userEmail,
     '👆 Premier clic !',
-    `Quelqu'un a cliqué sur votre lien affilié pour ${orgName}.`,
+    `Quelqu'un a cliqué sur votre lien ambassadeur pour ${orgName}.`,
     'affiliate_first_click',
     { org_name: orgName },
     'affiliate', undefined, `/affiliation`,

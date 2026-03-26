@@ -81,10 +81,10 @@ export default function SuperadminSettings() {
             <p className="text-[10px] text-muted-foreground">{isFr ? 'Frais prélevés sur chaque transaction' : 'Fee charged on each transaction'}</p>
           </div>
           <div className="space-y-2">
-            <Label className="text-xs">{isFr ? 'Commission affiliation (%)' : 'Affiliate commission (%)'}</Label>
+            <Label className="text-xs">{isFr ? 'Commission ambassadeur (%)' : 'Ambassador commission (%)'}</Label>
             <Input type="number" min={0} max={50} value={defaultCommission}
               onChange={e => setDefaultCommission(Number(e.target.value))} />
-            <p className="text-[10px] text-muted-foreground">{isFr ? 'Commission versée aux affiliés' : 'Commission paid to affiliates'}</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Commission versée aux ambassadeurs' : 'Commission paid to ambassadors'}</p>
           </div>
         </div>
 
@@ -122,7 +122,7 @@ export default function SuperadminSettings() {
           </div>
           <div className="p-3 rounded-xl bg-muted/30">
             <p className="text-lg font-bold">{affiliationEnabled}</p>
-            <p className="text-[10px] text-muted-foreground">{isFr ? 'Affiliation activée' : 'Affiliation enabled'}</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Programme ambassadeur activé' : 'Ambassador program enabled'}</p>
           </div>
           <div className="p-3 rounded-xl bg-muted/30">
             <p className="text-lg font-bold">{defaultFee}%</p>

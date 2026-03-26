@@ -97,7 +97,7 @@ export function EmbedSnippetGen({ productId, productTitle, orgSlug, price, curre
           </Select>
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs">{isFr ? 'Code affilié (optionnel)' : 'Affiliate code (optional)'}</Label>
+          <Label className="text-xs">{isFr ? 'Code ambassadeur (optionnel)' : 'Ambassador code (optional)'}</Label>
           <Input value={affiliateCode} onChange={e => setAffiliateCode(e.target.value)} placeholder="REF123" className="h-8 text-xs font-mono" />
         </div>
       </div>

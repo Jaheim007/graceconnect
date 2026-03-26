@@ -120,8 +120,8 @@ export function LandingPlatformShowcase() {
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-6">
               {isFr
-                ? 'Revenus, transactions, commissions affiliés — tout est visible en temps réel. Exportez vos données, gérez vos retraits, suivez la performance de chaque ambassadeur.'
-                : 'Revenue, transactions, affiliate commissions — everything visible in real-time. Export your data, manage payouts, track every ambassador\'s performance.'}
+                ? 'Revenus, transactions, commissions ambassadeurs — tout est visible en temps réel. Exportez vos données, gérez vos retraits, suivez la performance de chaque ambassadeur.'
+                : 'Revenue, transactions, ambassador commissions — everything visible in real-time. Export your data, manage payouts, track every ambassador\'s performance.'}
             </p>
             <div className="grid grid-cols-2 gap-3">
               {features.slice(2, 4).map((f, i) => (
