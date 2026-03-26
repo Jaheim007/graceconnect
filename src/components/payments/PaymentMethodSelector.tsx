@@ -2,6 +2,7 @@ import { CreditCard, Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { isMoMoAvailable, isPaystackCurrency } from '@/lib/paymentRouting';
 import type { PaymentMethod } from '@/hooks/usePaymentGateway';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface PaymentMethodSelectorProps {
   value: PaymentMethod;
@@ -12,6 +13,8 @@ interface PaymentMethodSelectorProps {
 }
 
 export function PaymentMethodSelector({ value, onChange, currency, className, paystackEnabled = true }: PaymentMethodSelectorProps) {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const moMoRegionAvailable = isMoMoAvailable(currency);
   const showMoMo = moMoRegionAvailable && paystackEnabled;
   const showApplePay = paystackEnabled && isPaystackCurrency(currency || '');
@@ -22,7 +25,7 @@ export function PaymentMethodSelector({ value, onChange, currency, className, pa
 
   return (
     <div className={cn('space-y-2', className)}>
-      <p className="text-xs font-medium text-muted-foreground">Mode de paiement</p>
+      <p className="text-xs font-medium text-muted-foreground">{isFr ? 'Mode de paiement' : 'Payment method'}</p>
 
       <div className={cn('grid gap-2', gridCols)}>
         {showMoMo && (
@@ -73,15 +76,15 @@ export function PaymentMethodSelector({ value, onChange, currency, className, pa
           )}
         >
           <CreditCard className="h-5 w-5" />
-          <span>Carte bancaire</span>
+          <span>{isFr ? 'Carte bancaire' : 'Bank card'}</span>
           <span className="text-[10px] opacity-70">Visa, Mastercard… (Stripe)</span>
         </button>
       </div>
 
       <p className="text-[10px] text-muted-foreground">
         {!showMoMo && moMoRegionAvailable
-          ? 'Mobile Money temporairement indisponible. Utilisez Carte bancaire.'
-          : `Paiement sécurisé par ${effectiveValue === 'mobile_money' || effectiveValue === 'apple_pay' ? 'Paystack' : 'Stripe'}`}
+          ? (isFr ? 'Mobile Money temporairement indisponible. Utilisez Carte bancaire.' : 'Mobile Money temporarily unavailable. Use bank card.')
+          : (isFr ? `Paiement sécurisé par ${effectiveValue === 'mobile_money' || effectiveValue === 'apple_pay' ? 'Paystack' : 'Stripe'}` : `Secure payment via ${effectiveValue === 'mobile_money' || effectiveValue === 'apple_pay' ? 'Paystack' : 'Stripe'}`)}
       </p>
     </div>
   );

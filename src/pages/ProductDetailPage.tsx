@@ -815,9 +815,9 @@ export default function ProductDetailPage() {
             {/* Trust indicators in sidebar */}
             <div className="grid grid-cols-3 gap-2">
               {[
-                { icon: <Shield className="h-4 w-4" style={{ color: orgPrimary || 'hsl(var(--primary))' }} />, label: 'Paiement sécurisé' },
-                { icon: <CheckCircle className="h-4 w-4 text-emerald-500" />, label: 'Accès immédiat' },
-                { icon: <Star className="h-4 w-4 text-yellow-500" />, label: 'Qualité garantie' },
+                { icon: <Shield className="h-4 w-4" style={{ color: orgPrimary || 'hsl(var(--primary))' }} />, label: isFr ? 'Paiement sécurisé' : 'Secure payment' },
+                { icon: <CheckCircle className="h-4 w-4 text-emerald-500" />, label: isFr ? 'Accès immédiat' : 'Instant access' },
+                { icon: <Star className="h-4 w-4 text-yellow-500" />, label: isFr ? 'Qualité garantie' : 'Quality guaranteed' },
               ].map((item, i) => (
                 <motion.div
                   key={i}
