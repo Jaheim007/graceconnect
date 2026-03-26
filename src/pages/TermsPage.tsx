@@ -151,7 +151,7 @@ export default function TermsPage() {
 
         <section>
           <h2>{isFr ? '8. KYC & Versements' : '8. KYC & Payouts'}</h2>
-          <p>{isFr ? "Pour recevoir des versements, les Organisations et Affiliés peuvent être tenus de compléter une vérification d'identité (« KYC »)." : 'To receive payouts, Organizations and Affiliates may be required to complete identity verification ("KYC").'}</p>
+          <p>{isFr ? "Pour recevoir des versements, les Organisations et Ambassadeurs peuvent être tenus de compléter une vérification d'identité (« KYC »)." : 'To receive payouts, Organizations and Ambassadors may be required to complete identity verification ("KYC").'}</p>
           <p>{isFr ? 'La Société se réserve le droit de :' : 'The Company reserves the right to:'}</p>
           <ul className="list-disc pl-5 space-y-1">
             <li>{isFr ? 'Demander des documents supplémentaires.' : 'Request additional documents.'}</li>
