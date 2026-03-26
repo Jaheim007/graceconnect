@@ -31,13 +31,13 @@ interface OrgContextType {
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
 
 export function OrgProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const qc = useQueryClient();
   const [currentOrg, setCurrentOrgState] = useState<Organization | null>(null);
   // Track whether we've done the initial restore from localStorage
   const restoredRef = useRef(false);
 
-  const { data: memberRows = [], refetch: refetchMembers, isLoading } = useQuery({
+  const { data: memberRows = [], refetch: refetchMembers, isLoading, isFetched } = useQuery({
     queryKey: ['user-memberships', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -48,7 +48,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       return (data || []) as Array<OrganizationMember & { organizations: Organization }>;
     },
-    enabled: !!user,
+    enabled: !authLoading && !!user,
     // Retry on failure so transient network errors don't leave the user stuck
     retry: 3,
     retryDelay: 1000,
@@ -166,7 +166,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         currentOrg,
         currentOrgRole,
         setCurrentOrg,
-        isLoadingOrgs: isLoading || (userOrgs.length > 0 && !currentOrg),
+        isLoadingOrgs: authLoading || (!!user && !isFetched) || isLoading || (userOrgs.length > 0 && !currentOrg),
         refetchOrgs,
         joinOrg,
         leaveOrg,
