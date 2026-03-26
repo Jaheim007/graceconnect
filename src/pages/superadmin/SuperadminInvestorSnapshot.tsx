@@ -89,7 +89,7 @@ export default function SuperadminInvestorSnapshot() {
     { label: 'Revenue (30j)', value: fmt((s?.gmvLast30 || 0) * parseFloat(s?.takeRate || '0') / 100) },
     { label: 'Take Rate', value: `${s?.takeRate || 0}%` },
     { label: 'Transactions (30j)', value: fmtNum(s?.txCount30d || 0) },
-    { label: 'Affilié payé', value: fmt(s?.affiliateCommissions || 0) },
+    { label: 'Ambassadeur payé', value: fmt(s?.affiliateCommissions || 0) },
     { label: 'Croissance MoM', value: `${s?.momGrowth || 'N/A'}%` },
   ];
 
@@ -103,7 +103,7 @@ export default function SuperadminInvestorSnapshot() {
       { metric: 'Total Orgs', value: s.totalOrgs },
       { metric: 'Active Orgs', value: s.activeOrgs },
       { metric: 'MoM Growth', value: s.momGrowth + '%' },
-      { metric: 'Affiliate Commissions', value: s.affiliateCommissions },
+      { metric: 'Ambassador Commissions', value: s.affiliateCommissions },
     ];
     downloadCSV(rows, `investor-snapshot-${format(new Date(), 'yyyy-MM-dd')}`);
   };

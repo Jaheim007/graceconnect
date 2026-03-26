@@ -211,13 +211,13 @@ export function OrgAdminToolbar({
       {isOwner && (
         <section>
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-            {isFr ? 'Programme d\'affiliation' : 'Affiliate Program'}
+            {isFr ? 'Programme ambassadeur' : 'Ambassador Program'}
           </h3>
           <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-card">
             <div className="flex items-center gap-2">
               <Link2 className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium">
-                {isFr ? 'Affiliation activée' : 'Affiliation enabled'}
+                {isFr ? 'Programme ambassadeur activé' : 'Ambassador program enabled'}
               </span>
             </div>
             <Switch checked={affiliationEnabled} onCheckedChange={onToggleAffiliation} />

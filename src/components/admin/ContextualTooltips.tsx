@@ -44,8 +44,8 @@ const TIPS = {
     en: '"Pay What You Want" increases buyers while letting generous ones pay more.',
   },
   affiliation: {
-    fr: 'Activez l\'affiliation pour que d\'autres partagent vos produits et gagnent une commission.',
-    en: 'Enable affiliation so others can share your products and earn a commission.',
+    fr: 'Activez le programme ambassadeur pour que d\'autres partagent vos produits et gagnent une commission.',
+    en: 'Enable the ambassador program so others can share your products and earn a commission.',
   },
   analytics_funnel: {
     fr: 'Ce tunnel montre où vous perdez des acheteurs potentiels. Concentrez-vous sur les étapes avec le plus de pertes.',
