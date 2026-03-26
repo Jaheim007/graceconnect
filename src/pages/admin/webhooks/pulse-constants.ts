@@ -30,10 +30,10 @@ export const WEBHOOK_EVENT_GROUPS = [
   {
     key: 'affiliates',
     icon: '🤝',
-    labelFr: 'Affiliés',
-    labelEn: 'Affiliates',
+    labelFr: 'Ambassadeurs',
+    labelEn: 'Ambassadors',
     events: [
-      { value: 'affiliate.sale', labelFr: 'Vente affilié', labelEn: 'Affiliate sale', descFr: 'Déclenché quand un affilié génère une vente', descEn: 'Triggered when an affiliate generates a sale' },
+      { value: 'affiliate.sale', labelFr: 'Vente ambassadeur', labelEn: 'Ambassador sale', descFr: 'Déclenché quand un ambassadeur génère une vente', descEn: 'Triggered when an ambassador generates a sale' },
       { value: 'payout.requested', labelFr: 'Payout demandé', labelEn: 'Payout requested', descFr: 'Déclenché quand un retrait est demandé', descEn: 'Triggered when a payout is requested' },
     ],
   },

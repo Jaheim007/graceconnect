@@ -71,14 +71,14 @@ export default function PourEtudiantsPage() {
       ]}
       faq={isFr ? [
         { q: 'C\'est quoi exactement un ambassadeur ?', a: 'Un ambassadeur partage les produits des vendeurs via un lien unique. Quand quelqu\'un achète via votre lien, vous touchez une commission automatiquement.' },
-        { q: 'C\'est pas un MLM ?', a: 'Non ! Il n\'y a qu\'un seul niveau de commission. Vous ne recrutez personne, vous ne payez rien. Vous partagez, vous gagnez. C\'est de l\'affiliation classique.' },
+        { q: 'C\'est pas un MLM ?', a: 'Non ! Il n\'y a qu\'un seul niveau de commission. Vous ne recrutez personne, vous ne payez rien. Vous partagez, vous gagnez. C\'est un programme ambassadeur classique.' },
         { q: 'Combien je peux gagner ?', a: 'Ça dépend de ce que vous partagez et de votre réseau. Certains ambassadeurs gagnent 50 000 à 500 000 FCFA/mois. Le potentiel est illimité.' },
         { q: 'Comment je reçois mon argent ?', a: 'Vos commissions sont versées automatiquement sur votre Mobile Money après une période de sécurité de 15 jours.' },
         { q: 'Pourquoi 15 jours d\'attente ?', a: 'C\'est une mesure de sécurité pour protéger contre les remboursements et la fraude. Après 15 jours, votre commission est garantie.' },
         { q: 'Je peux le faire en plus de mes études ?', a: 'Absolument ! C\'est 100% flexible. Partagez quand vous voulez, d\'où vous voulez. Pas d\'horaires, pas de patron.' },
       ] : [
         { q: 'What exactly is an ambassador?', a: 'An ambassador shares sellers\' products via a unique link. When someone buys through your link, you earn a commission automatically.' },
-        { q: 'Is this an MLM?', a: 'No! There\'s only one level of commission. You don\'t recruit anyone, you don\'t pay anything. You share, you earn. It\'s classic affiliate marketing.' },
+        { q: 'Is this an MLM?', a: 'No! There\'s only one level of commission. You don\'t recruit anyone, you don\'t pay anything. You share, you earn. It\'s a classic ambassador program.' },
         { q: 'How much can I earn?', a: 'It depends on what you share and your network. Some ambassadors earn $80-$800/month. The potential is unlimited.' },
         { q: 'How do I receive my money?', a: 'Your commissions are automatically paid to your Mobile Money after a 15-day security period.' },
         { q: 'Why 15 days wait?', a: 'It\'s a security measure to protect against refunds and fraud. After 15 days, your commission is guaranteed.' },

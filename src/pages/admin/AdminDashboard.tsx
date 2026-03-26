@@ -146,7 +146,7 @@ export default function AdminDashboard() {
     const rows = allTxns.map((t: any) => ({
       montant: t.amount || 0,
       reçu_org: t.organization_amount || 0,
-      commission_affilié: t.affiliate_commission || 0,
+      commission_ambassadeur: t.affiliate_commission || 0,
       frais_plateforme: t.platform_fee || 0,
     }));
     downloadCSV(rows, `revenus-${currentOrg?.slug || 'org'}`);
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
       transactions: allTxns.map((t: any) => ({
         montant: t.amount || 0,
         reçu_org: t.organization_amount || 0,
-        commission_affilié: t.affiliate_commission || 0,
+        commission_ambassadeur: t.affiliate_commission || 0,
         frais_plateforme: t.platform_fee || 0,
       })),
     });

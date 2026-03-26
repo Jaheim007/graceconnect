@@ -28,7 +28,7 @@ const ROUTE_LABELS: Record<string, string> = {
   profile: 'Profil',
   bookmarks: 'Favoris',
   ambassador: 'Ambassadeur',
-  affiliation: 'Affiliation',
+  affiliation: 'Ambassadeur',
 };
 
 interface BreadcrumbProps {
