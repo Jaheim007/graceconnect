@@ -7,16 +7,23 @@ import { Badge } from '@/components/ui/badge';
 import { useAffiliateMarketplace } from '@/hooks/useAffiliateMarketplace';
 import { ProductSwipeCard } from './ProductSwipeCard';
 import { cn } from '@/lib/utils';
+import { CategoryFilter, ProductCategory, categorizeProduct } from './CategoryFilter';
 
 type SortMode = 'trending' | 'commission' | 'price' | 'newest';
 
 export function SwipeableFeed() {
   const [search, setSearch] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('trending');
+  const [category, setCategory] = useState<ProductCategory>('all');
   const { data: products, isLoading } = useAffiliateMarketplace(search || undefined);
 
-  // Sort products based on mode
-  const sortedProducts = [...(products || [])].sort((a: any, b: any) => {
+  // Filter by category then sort
+  const filteredProducts = (products || []).filter((p: any) => {
+    if (category === 'all') return true;
+    return categorizeProduct(p.title, p.description) === category;
+  });
+
+  const sortedProducts = [...filteredProducts].sort((a: any, b: any) => {
     if (sortMode === 'commission') {
       const cA = a.organizations?.affiliation_commission_percent || 10;
       const cB = b.organizations?.affiliation_commission_percent || 10;
@@ -56,6 +63,9 @@ export function SwipeableFeed() {
             className="pl-9 h-10 rounded-xl"
           />
         </div>
+
+        {/* Category filter */}
+        <CategoryFilter selected={category} onChange={setCategory} />
 
         {/* Sort pills */}
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
