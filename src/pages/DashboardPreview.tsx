@@ -196,9 +196,9 @@ export default function DashboardPreview() {
               {/* Row 2: Revenue */}
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { value: fmtCurrency(userDemo.salesAmount, data.orgCurrency.code), label: 'Sales', sub: `${userDemo.salesCount} sales`, color: 'text-blue-600 bg-blue-50 border-blue-200' },
-                  { value: fmtCurrency(userDemo.donReceived, data.orgCurrency.code), label: 'Received', sub: `${userDemo.donReceivedCount} donations`, color: 'text-amber-600 bg-amber-50 border-amber-200' },
-                  { value: fmtCurrency(userDemo.totalRevenue, data.orgCurrency.code), label: 'Total revenue', sub: `${userDemo.salesCount} sales • ${userDemo.donReceivedCount} donations • ${userDemo.commCount} commissions`, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+                  { value: fmtCurrency(userDemo.salesAmount, data.orgCurrency.code), label: 'Ventes', sub: `${userDemo.salesCount} ventes`, color: 'text-blue-600 bg-blue-50 border-blue-200' },
+                  { value: fmtCurrency(userDemo.donReceived, data.orgCurrency.code), label: 'Dons reçus', sub: `${userDemo.donReceivedCount} dons`, color: 'text-amber-600 bg-amber-50 border-amber-200' },
+                  { value: fmtCurrency(userDemo.totalRevenue, data.orgCurrency.code), label: 'Revenu total', sub: `${userDemo.salesCount} ventes • ${userDemo.donReceivedCount} dons • ${userDemo.commCount} commissions`, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
                 ].map((s) => (
                   <div key={s.label} className={cn('rounded-xl border p-3 text-center', s.color)}>
                     <p className="text-lg sm:text-xl font-extrabold">{s.value}</p>
