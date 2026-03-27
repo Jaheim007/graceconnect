@@ -86,15 +86,20 @@ export default function DashboardPreview() {
     const communityName = seededPick(COMMUNITY_NAMES, rng);
 
     const cur = data.orgCurrency;
-    // Derive from data for consistency
+    // ALL numbers derived from data.metrics.totalRevenue for perfect consistency
     const purchases = seededInt(2, 10, rng);
     const donations = seededInt(0, 5, rng);
     const commCount = seededInt(1, 6, rng);
-    const commAmount = Math.round(data.metrics.totalRevenue * seededInt(3, 12, rng) / 100);
-    const salesAmount = data.metrics.totalRevenue - commAmount;
     const salesCount = data.metrics.totalTransactions;
-    const donReceived = seededInt(0, 3, rng) * seededInt(Math.round(cur.txMin * 0.5), cur.txMax, rng);
-    const totalRevenue = salesAmount + donReceived + commAmount;
+
+    // Split totalRevenue into sales + donations + commissions (must sum exactly)
+    const commPercent = seededInt(3, 12, rng);
+    const donPercent = seededInt(0, 5, rng);
+    const commAmount = Math.round(data.metrics.totalRevenue * commPercent / 100);
+    const donReceived = Math.round(data.metrics.totalRevenue * donPercent / 100);
+    const salesAmount = data.metrics.totalRevenue - commAmount - donReceived;
+    // totalRevenue = salesAmount + donReceived + commAmount = data.metrics.totalRevenue (exact)
+    const totalRevenue = data.metrics.totalRevenue;
 
     return { personName, communityName, purchases, donations, commCount, commAmount, salesCount, salesAmount, donReceived, totalRevenue };
   }, [data, seed]);
