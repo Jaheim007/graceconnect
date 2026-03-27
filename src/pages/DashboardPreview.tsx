@@ -75,33 +75,32 @@ export default function DashboardPreview() {
       'Ousmane Ndoye', 'Khady Diop', 'Ibrahima Ndiaye', 'Astou Seck', 'Pape Mbow',
       'Ndeye Fatou Sarr', 'Aliou Bâ', 'Coumba Tall', 'Cheikh Mbaye', 'Rama Gueye',
     ];
-    const COMMUNITY_NAMES = [
-      'Lumière Eternelle', 'Grâce Infinie', 'Shalom Community', 'Foi Vivante',
-      'Espoir du Monde', 'Bénédiction Céleste', 'Parole de Vie', 'Joie Divine',
-      'Chemin de Gloire', 'Amour Sans Fin', 'Source Vive', 'Étoile du Matin',
-      'Refuge Céleste', 'Flamme Sacrée', 'Terre Promise', 'Arc-en-Ciel',
-      'Vision Nouvelle', 'Cœur Pur', 'Pierre Angulaire', 'Moisson Dorée',
-    ];
     const personName = seededPick(PERSON_NAMES, rng);
-    const communityName = seededPick(COMMUNITY_NAMES, rng);
 
-    const cur = data.orgCurrency;
-    // ALL numbers derived from data.metrics.totalRevenue for perfect consistency
     const purchases = seededInt(2, 10, rng);
-    const donations = seededInt(0, 5, rng);
+    const donationsMade = seededInt(0, 5, rng);
     const commCount = seededInt(1, 6, rng);
     const salesCount = data.metrics.totalTransactions;
 
-    // Split totalRevenue into sales + donations + commissions (must sum exactly)
+    // Sales revenue = totalRevenue minus donations
+    const salesRevenue = data.metrics.totalRevenue - data.donations.totalReceived;
     const commPercent = seededInt(3, 12, rng);
-    const donPercent = seededInt(0, 5, rng);
-    const commAmount = Math.round(data.metrics.totalRevenue * commPercent / 100);
-    const donReceived = Math.round(data.metrics.totalRevenue * donPercent / 100);
-    const salesAmount = data.metrics.totalRevenue - commAmount - donReceived;
-    // totalRevenue = salesAmount + donReceived + commAmount = data.metrics.totalRevenue (exact)
+    const commAmount = Math.round(salesRevenue * commPercent / 100);
+
+    // Donations received comes directly from data.donations
+    const donReceived = data.donations.totalReceived;
+    const donReceivedCount = data.donations.donationCount;
+
+    // Total revenue = data.metrics.totalRevenue (sales + donations) — matches KPI card exactly
     const totalRevenue = data.metrics.totalRevenue;
 
-    return { personName, communityName, purchases, donations, commCount, commAmount, salesCount, salesAmount, donReceived, totalRevenue };
+    return {
+      personName, communityName: data.orgName,
+      purchases, donations: donationsMade, commCount, commAmount,
+      salesCount, salesAmount: salesRevenue,
+      donReceived, donReceivedCount,
+      totalRevenue,
+    };
   }, [data, seed]);
 
   const tabs: { key: Tab; label: string; icon: typeof BarChart3 }[] = [
@@ -194,8 +193,8 @@ export default function DashboardPreview() {
               <div className="grid grid-cols-3 gap-3">
                 {[
                   { value: fmtCurrency(userDemo.salesAmount, data.orgCurrency.code), label: 'Sales', sub: `${userDemo.salesCount} sales`, color: 'text-blue-600 bg-blue-50 border-blue-200' },
-                  { value: fmtCurrency(userDemo.donReceived, data.orgCurrency.code), label: 'Received', sub: `${Math.max(1, Math.floor(userDemo.donReceived / (data.orgCurrency.txMax || 3000)))} donations`, color: 'text-amber-600 bg-amber-50 border-amber-200' },
-                  { value: fmtCurrency(userDemo.totalRevenue, data.orgCurrency.code), label: 'Total revenue', sub: `${userDemo.salesCount} sales • ${Math.max(1, Math.floor(userDemo.donReceived / (data.orgCurrency.txMax || 3000)))} donations • ${userDemo.commCount} commissions`, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+                  { value: fmtCurrency(userDemo.donReceived, data.orgCurrency.code), label: 'Received', sub: `${userDemo.donReceivedCount} donations`, color: 'text-amber-600 bg-amber-50 border-amber-200' },
+                  { value: fmtCurrency(userDemo.totalRevenue, data.orgCurrency.code), label: 'Total revenue', sub: `${userDemo.salesCount} sales • ${userDemo.donReceivedCount} donations • ${userDemo.commCount} commissions`, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
                 ].map((s) => (
                   <div key={s.label} className={cn('rounded-xl border p-3 text-center', s.color)}>
                     <p className="text-lg sm:text-xl font-extrabold">{s.value}</p>

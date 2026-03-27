@@ -9,7 +9,7 @@
  * - CFA is weighted more heavily in random selection
  */
 
-import { GLOBAL_NAMES, GLOBAL_CITIES, PRODUCT_TITLES, ORG_NAMES } from './global-names';
+import { GLOBAL_NAMES, GLOBAL_CITIES, PRODUCT_TITLES, CHURCH_NAMES, COMPANY_NAMES, ORG_NAMES } from './global-names';
 
 // ── Supported currencies with realistic ranges for small-to-mid orgs ──
 const CURRENCIES = [
@@ -24,16 +24,16 @@ const CURRENCIES = [
   { code: 'NGN', symbol: '₦', txMin: 2_000, txMax: 20_000, revMin: 800_000, revMax: 8_000_000, locale: 'en-NG' },
 ];
 
-// Weighted pool: CFA appears more often
+// Weighted pool: CFA appears much more often
 const CURRENCY_POOL = [
-  ...Array(4).fill(CURRENCIES[0]), // XOF x4
-  ...Array(3).fill(CURRENCIES[1]), // XAF x3
+  ...Array(6).fill(CURRENCIES[0]), // XOF x6
+  ...Array(5).fill(CURRENCIES[1]), // XAF x5
   CURRENCIES[2], // USD
   CURRENCIES[3], // EUR
   CURRENCIES[4], // GBP
-  ...Array(2).fill(CURRENCIES[5]), // GHS x2
-  ...Array(2).fill(CURRENCIES[6]), // KES x2
-  ...Array(2).fill(CURRENCIES[7]), // NGN x2
+  CURRENCIES[5], // GHS
+  CURRENCIES[6], // KES
+  CURRENCIES[7], // NGN
 ];
 
 const PRODUCT_TYPES: Array<{ type: string; label: string }> = [
@@ -76,6 +76,7 @@ function uniquePicks<T>(arr: T[], count: number): T[] {
 
 export interface DemoData {
   orgName: string;
+  orgType: 'church' | 'company';
   orgCurrency: typeof CURRENCIES[0];
   metrics: {
     totalRevenue: number;
@@ -86,6 +87,10 @@ export interface DemoData {
     revenueGrowth: number;
     customerGrowth: number;
     transactionGrowth: number;
+  };
+  donations: {
+    totalReceived: number;
+    donationCount: number;
   };
   revenueChart: Array<{ month: string; revenue: number }>;
   sales: Array<{
@@ -127,18 +132,23 @@ export interface DemoData {
     landingPages: number;
     topLinks: Array<{ name: string; clicks: number; conversions: number; rate: string }>;
   };
-  orgs: Array<{ name: string; currency: string }>;
+  orgs: Array<{ name: string; currency: string; type: 'church' | 'company' }>;
 }
 
 export function generateDemoData(): DemoData {
-  const orgName = pick(ORG_NAMES);
+  // Determine org type: church or company
+  const isChurch = Math.random() < 0.6; // 60% churches
+  const orgType: 'church' | 'company' = isChurch ? 'church' : 'company';
+  const orgName = isChurch ? pick(CHURCH_NAMES) : pick(COMPANY_NAMES);
   const orgCurrency = pick(CURRENCY_POOL);
 
-  // Consistent multi-org list (all using SAME currency for this dashboard)
-  const otherOrgs = uniquePicks(ORG_NAMES.filter(n => n !== orgName), randInt(3, 5));
+  // Consistent multi-org list with types
+  const otherChurches = uniquePicks(CHURCH_NAMES.filter(n => n !== orgName), randInt(1, 3));
+  const otherCompanies = uniquePicks(COMPANY_NAMES.filter(n => n !== orgName), randInt(1, 2));
   const orgs = [
-    { name: orgName, currency: orgCurrency.code },
-    ...otherOrgs.map(name => ({ name, currency: orgCurrency.code })),
+    { name: orgName, currency: orgCurrency.code, type: orgType },
+    ...otherChurches.map(name => ({ name, currency: orgCurrency.code, type: 'church' as const })),
+    ...otherCompanies.map(name => ({ name, currency: orgCurrency.code, type: 'company' as const })),
   ];
 
   // ── Build consistent KPIs ──
@@ -270,5 +280,26 @@ export function generateDemoData(): DemoData {
     topLinks: viralTopLinks,
   };
 
-  return { orgName, orgCurrency, metrics, revenueChart, sales, aiProjects, ambassador, viralTools, orgs };
+  // ── Donations (churches get LOTS, companies get very few) ──
+  const donationCount = isChurch ? randInt(20, 200) : randInt(0, 5);
+  const avgDonation = randInt(orgCurrency.txMin, Math.round(orgCurrency.txMax * 1.5));
+  const totalDonationsReceived = donationCount * avgDonation;
+
+  const donations = {
+    totalReceived: totalDonationsReceived,
+    donationCount,
+  };
+
+  // Total revenue now includes sales + donations
+  metrics.totalRevenue = totalRevenue + totalDonationsReceived;
+
+  // Recalculate revenue chart to include donations
+  const donJan = Math.round(totalDonationsReceived * janShare);
+  const donFeb = Math.round(donJan * febGrowth);
+  const donMar = totalDonationsReceived - donJan - donFeb;
+  revenueChart[0].revenue += donJan;
+  revenueChart[1].revenue += donFeb;
+  revenueChart[2].revenue += donMar;
+
+  return { orgName, orgType, orgCurrency, metrics, donations, revenueChart, sales, aiProjects, ambassador, viralTools, orgs };
 }

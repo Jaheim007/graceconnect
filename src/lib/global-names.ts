@@ -111,11 +111,26 @@ export const PRODUCT_TITLES = [
   'Guide voyage Afrique','E-book poésie africaine','Formation montage vidéo','Guide création podcast',
 ];
 
-export const ORG_NAMES = [
-  'Église La Grâce','Ministère Lumière','Association Espoir','Centre Bethel','Fondation Victoire',
-  'Communauté Shalom','Mission Agapé','Institut Excellence','Académie du Savoir','Centre Alpha',
-  'Église du Réveil','Ministère des Nations','Association Impact','Fondation Vision','Communauté Élohim',
-  'Centre de Formation Omega','Mouvement Jérusalem','Ministère Horeb','Fondation Colombe','Académie Grâce',
-  'Grace Church','Light Ministry','Hope Foundation','Victory Centre','Shalom Community',
-  'Impact Academy','Faith Ministry','Kingdom Publishers','Divine Arts Studio','Harvest Media',
+// Churches: receive lots of donations
+export const CHURCH_NAMES = [
+  'Église La Grâce Abondante', 'Ministère Lumière des Nations', 'Centre Bethel International',
+  'Communauté Shalom de Cocody', 'Mission Agapé Mondiale', 'Église du Réveil Céleste',
+  'Ministère des Nations Unies en Christ', 'Communauté Élohim Treichville', 'Mouvement Jérusalem Nouvelle',
+  'Ministère Mont Horeb', 'Paroisse Saint-Esprit', 'Église Parole Vivante',
+  'Grace Church International', 'Light of the World Ministry', 'Victory Chapel',
+  'Shalom Community Church', 'Faith Tabernacle', 'Kingdom Harvest Church',
+  'Assemblée de Dieu Plateau', 'Temple de la Restauration',
 ];
+
+// Companies/Enterprises: receive very few donations
+export const COMPANY_NAMES = [
+  'Institut Excellence Pro', 'Académie du Savoir Digital', 'Centre Alpha Formation',
+  'Fondation Vision Jeunesse', 'Impact Academy Online', 'Divine Arts Studio',
+  'Harvest Media Group', 'Omega Training Center', 'Afrique Créative SARL',
+  'Éditions Lumina', 'TechPro Academy', 'Baobab Consulting',
+  'Sahel Digital', 'Koffi & Partners', 'Ivoire Business School',
+  'Prestige Formation', 'Afri-Talent Hub', 'Étoile Média',
+];
+
+// Combined for backward compat
+export const ORG_NAMES = [...CHURCH_NAMES, ...COMPANY_NAMES];
