@@ -85,31 +85,44 @@ export default function UserDashboard() {
   });
 
   // ── Ambassador commissions ──
-  const { data: commissionTotal = 0 } = useQuery({
-    queryKey: ['user-commissions', user?.id],
+  const { data: commissionStats = { amount: 0, count: 0 } } = useQuery({
+    queryKey: ['user-commissions', user?.id, activeOrgId],
     queryFn: async () => {
-      if (!user) return 0;
+      if (!user || !activeOrgId) return { amount: 0, count: 0 };
       const { data } = await db.from('affiliate_sales')
-        .select('commission_amount')
-        .eq('affiliate_user_id', user.id);
-      return (data || []).reduce((s: number, r: any) => s + (r.commission_amount || 0), 0);
+        .select('id, commission_amount')
+        .eq('affiliate_user_id', user.id)
+        .eq('organization_id', activeOrgId);
+
+      const rows = data || [];
+      return {
+        amount: rows.reduce((s: number, r: any) => s + (r.commission_amount || 0), 0),
+        count: rows.length,
+      };
     },
-    enabled: !!user,
+    enabled: !!user && !!activeOrgId,
   });
 
   // ── Donations received by active org ──
-  const { data: donationsReceived = 0 } = useQuery({
+  const { data: donationsReceivedStats = { amount: 0, count: 0 } } = useQuery({
     queryKey: ['user-donations-received', activeOrgId],
     queryFn: async () => {
-      if (!activeOrgId) return 0;
+      if (!activeOrgId) return { amount: 0, count: 0 };
       const { data } = await db.from('donations')
-        .select('amount')
+        .select('id, amount')
         .eq('organization_id', activeOrgId)
         .eq('status', 'completed');
-      return (data || []).reduce((s: number, r: any) => s + (r.amount || 0), 0);
+
+      const rows = data || [];
+      return {
+        amount: rows.reduce((s: number, r: any) => s + (r.amount || 0), 0),
+        count: rows.length,
+      };
     },
     enabled: !!activeOrgId,
   });
+
+  const totalRevenue = (salesStats?.revenue || 0) + donationsReceivedStats.amount + commissionStats.amount;
 
   // ── Program progress ──
   const { data: programProgress = [] } = useQuery({
@@ -182,8 +195,11 @@ export default function UserDashboard() {
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dons' : 'Donations'}</p>
               </div>
               <div className="rounded-xl bg-violet-500/5 border border-violet-500/10 p-3 text-center">
-                <p className="text-lg font-bold text-violet-600">{fmt(commissionTotal)}</p>
+                <p className="text-lg font-bold text-violet-600">{fmt(commissionStats.amount)}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Commissions' : 'Commissions'}</p>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {commissionStats.count} {isFr ? 'commission' : 'commission'}{commissionStats.count !== 1 ? 's' : ''}
+                </p>
               </div>
             </div>
             {/* Row 2 – Mes revenus */}
@@ -191,21 +207,32 @@ export default function UserDashboard() {
               <div className="rounded-xl bg-blue-500/5 border border-blue-500/10 p-3 text-center">
                 <p className="text-lg font-bold text-blue-600">{fmt(salesStats?.revenue || 0)}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Ventes' : 'Sales'}</p>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {salesStats?.count || 0} {isFr ? 'vente' : 'sale'}{(salesStats?.count || 0) !== 1 ? 's' : ''}
+                </p>
               </div>
               <div className="rounded-xl bg-amber-500/5 border border-amber-500/10 p-3 text-center">
-                <p className="text-lg font-bold text-amber-600">{fmt(donationsReceived)}</p>
+                <p className="text-lg font-bold text-amber-600">{fmt(donationsReceivedStats.amount)}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dons reçus' : 'Received'}</p>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {donationsReceivedStats.count} {isFr ? 'don' : 'donation'}{donationsReceivedStats.count !== 1 ? 's' : ''}
+                </p>
               </div>
               <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/10 p-3 text-center">
-                <p className="text-lg font-bold text-emerald-600">{fmt((salesStats?.revenue || 0) + donationsReceived)}</p>
+                <p className="text-lg font-bold text-emerald-600">{fmt(totalRevenue)}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Revenus total' : 'Total revenue'}</p>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {isFr
+                    ? `${salesStats?.count || 0} ventes • ${donationsReceivedStats.count} dons • ${commissionStats.count} commissions`
+                    : `${salesStats?.count || 0} sales • ${donationsReceivedStats.count} donations • ${commissionStats.count} commissions`}
+                </p>
               </div>
             </div>
             {currentOrg && (
               <p className="text-[11px] text-muted-foreground px-1">
                 {isFr
-                  ? `Ventes, dons reçus et revenus affichés pour l'organisation active : ${currentOrg.name}`
-                  : `Sales, received donations and revenue shown for the active organization: ${currentOrg.name}`}
+                  ? `Ventes, dons reçus, commissions gagnées et revenus affichés pour l'organisation active : ${currentOrg.name}`
+                  : `Sales, received donations, earned commissions and revenue shown for the active organization: ${currentOrg.name}`}
               </p>
             )}
           </div>
