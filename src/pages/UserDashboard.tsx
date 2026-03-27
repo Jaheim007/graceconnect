@@ -79,7 +79,7 @@ export default function UserDashboard() {
       const rows = data || [];
       return {
         count: rows.length,
-        revenue: rows.reduce((s: number, r: any) => s + (r.organization_amount || r.amount || 0), 0),
+        revenue: rows.reduce((s: number, r: any) => s + (r.amount || 0), 0),
       };
     },
     enabled: orgIds.length > 0,
