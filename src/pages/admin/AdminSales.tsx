@@ -204,13 +204,16 @@ export default function AdminSales() {
     })), `${isFr ? 'ventes-dons' : 'sales-donations'}-${currentOrg?.slug || 'org'}`);
   };
 
+  const totalSalesAmount = completedSales.reduce((s, t) => s + (t.amount || 0), 0);
+  const totalDonationsAmount = completedDonations.reduce((s, t) => s + (t.amount || 0), 0);
+
   const statCards = [
-    { label: isFr ? 'Ventes' : 'Sales', value: completedSales.length.toString(), icon: ShoppingCart, color: 'blue' as const },
-    { label: isFr ? 'Dons reçus' : 'Donations received', value: completedDonations.length.toString(), icon: Heart, color: 'rose' as const },
+    { label: isFr ? 'Ventes' : 'Sales', value: fmt(totalSalesAmount, orgCurrency), sub: `${completedSales.length} ${isFr ? 'transaction' : 'transaction'}${completedSales.length !== 1 ? 's' : ''}`, icon: ShoppingCart, color: 'blue' as const },
+    { label: isFr ? 'Dons reçus' : 'Donations received', value: fmt(totalDonationsAmount, orgCurrency), sub: `${completedDonations.length} ${isFr ? 'don' : 'donation'}${completedDonations.length !== 1 ? 's' : ''}`, icon: Heart, color: 'rose' as const },
     { label: isFr ? "Chiffre d'affaires total" : 'Total gross revenue', value: fmt(totalGMV, orgCurrency), icon: DollarSign, renderIcon: <CurrencyIcon currency={orgCurrency} className="h-4 w-4 text-primary" />, color: 'primary' as const },
-    { label: isFr ? 'Reçu (net)' : 'Received (net)', value: fmt(totalOrgReceived, orgCurrency), icon: TrendingUp, color: 'emerald' as const },
+    { label: isFr ? 'Votre part' : 'Your share', value: fmt(totalOrgReceived, orgCurrency), sub: isFr ? 'Après frais plateforme' : 'After platform fees', icon: TrendingUp, color: 'emerald' as const },
     { label: isFr ? 'Comm. affiliés' : 'Affiliate commissions', value: fmt(totalAffComm, orgCurrency), icon: Users, color: 'amber' as const },
-    { label: isFr ? 'Transactions' : 'Transactions', value: allTx.length.toString(), icon: BarChart3, color: 'slate' as const },
+    { label: isFr ? 'Transactions' : 'Transactions', value: allTx.length.toString(), icon: BarChart3, color: 'muted' as const },
   ];
 
   const typeFilters = [
