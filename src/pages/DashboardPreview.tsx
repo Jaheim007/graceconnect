@@ -150,14 +150,18 @@ export default function DashboardPreview() {
           <>
             {/* User Dashboard Simulation */}
             <motion.div {...fadeUp(0)} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
-              <div className="flex items-center gap-3 mb-5">
-                <div className={cn('h-12 w-12 rounded-full flex items-center justify-center text-white font-bold text-sm', userDemo.bgColor)}>
-                  {userDemo.initials}
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <img src={avatarUrl(userDemo.name)} alt={userDemo.name} className="h-12 w-12 rounded-full bg-muted" />
+                  <div>
+                    <h2 className="text-lg font-bold">Good morning 👋</h2>
+                    <p className="text-xs text-muted-foreground">Your personal space · {userDemo.name}</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-lg font-bold">Good morning 👋</h2>
-                  <p className="text-xs text-muted-foreground">Your personal space · {userDemo.name}</p>
-                </div>
+                <Button variant="outline" size="sm" onClick={handleRandomize} className="gap-2">
+                  <RefreshCw className="h-3.5 w-3.5" />
+                  Randomize
+                </Button>
               </div>
 
               {/* Row 1: Activity */}
