@@ -24,16 +24,16 @@ const CURRENCIES = [
   { code: 'NGN', symbol: '₦', txMin: 2_000, txMax: 20_000, revMin: 800_000, revMax: 8_000_000, locale: 'en-NG' },
 ];
 
-// Weighted pool: CFA appears more often
+// Weighted pool: CFA appears much more often
 const CURRENCY_POOL = [
-  ...Array(4).fill(CURRENCIES[0]), // XOF x4
-  ...Array(3).fill(CURRENCIES[1]), // XAF x3
+  ...Array(6).fill(CURRENCIES[0]), // XOF x6
+  ...Array(5).fill(CURRENCIES[1]), // XAF x5
   CURRENCIES[2], // USD
   CURRENCIES[3], // EUR
   CURRENCIES[4], // GBP
-  ...Array(2).fill(CURRENCIES[5]), // GHS x2
-  ...Array(2).fill(CURRENCIES[6]), // KES x2
-  ...Array(2).fill(CURRENCIES[7]), // NGN x2
+  CURRENCIES[5], // GHS
+  CURRENCIES[6], // KES
+  CURRENCIES[7], // NGN
 ];
 
 const PRODUCT_TYPES: Array<{ type: string; label: string }> = [
