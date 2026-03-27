@@ -94,8 +94,10 @@ export default function DashboardPreview() {
     // Total revenue = data.metrics.totalRevenue (sales + donations) — matches KPI card exactly
     const totalRevenue = data.metrics.totalRevenue;
 
+    const greetingFr = rng() > 0.5;
+
     return {
-      personName, communityName: data.orgName,
+      personName, communityName: data.orgName, greetingFr,
       purchases, donations: donationsMade, commCount, commAmount,
       salesCount, salesAmount: salesRevenue,
       donReceived, donReceivedCount,
@@ -167,18 +169,22 @@ export default function DashboardPreview() {
             {/* User Dashboard Simulation */}
             <motion.div {...fadeUp(0)} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
               <div className="flex items-center gap-3 mb-5">
-                <img src={avatarUrl(userDemo.personName)} alt={userDemo.personName} className="h-12 w-12 rounded-full bg-muted" />
+                <img src={avatarUrl(data.orgName)} alt={data.orgName} className="h-12 w-12 rounded-full bg-muted" />
                 <div>
-                  <h2 className="text-lg font-bold">Good morning, {userDemo.personName.split(' ')[0]} 👋</h2>
-                  <p className="text-xs text-muted-foreground">Your personal space · {userDemo.communityName}</p>
+                  <h2 className="text-lg font-bold">
+                    {userDemo.greetingFr ? 'Bonjour' : 'Good morning'}, {data.orgName} 👋
+                  </h2>
+                  <p className="text-xs text-muted-foreground">
+                    {data.orgType === 'church' ? 'Espace communauté' : 'Espace entreprise'} · {userDemo.personName}
+                  </p>
                 </div>
               </div>
 
               {/* Row 1: Activity */}
               <div className="grid grid-cols-3 gap-3 mb-3">
                 {[
-                  { value: userDemo.purchases.toString(), label: 'Purchases', color: 'text-blue-600 bg-blue-50 border-blue-200' },
-                  { value: userDemo.donations.toString(), label: 'Donations', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+                  { value: userDemo.purchases.toString(), label: 'Achats', color: 'text-blue-600 bg-blue-50 border-blue-200' },
+                  { value: userDemo.donReceivedCount.toString(), label: 'Dons reçus', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
                   { value: fmtCurrency(userDemo.commAmount, data.orgCurrency.code), label: 'Commissions', sub: `${userDemo.commCount} commissions`, color: 'text-violet-600 bg-violet-50 border-violet-200' },
                 ].map((s) => (
                   <div key={s.label} className={cn('rounded-xl border p-3 text-center', s.color)}>
@@ -192,9 +198,9 @@ export default function DashboardPreview() {
               {/* Row 2: Revenue */}
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { value: fmtCurrency(userDemo.salesAmount, data.orgCurrency.code), label: 'Sales', sub: `${userDemo.salesCount} sales`, color: 'text-blue-600 bg-blue-50 border-blue-200' },
-                  { value: fmtCurrency(userDemo.donReceived, data.orgCurrency.code), label: 'Received', sub: `${userDemo.donReceivedCount} donations`, color: 'text-amber-600 bg-amber-50 border-amber-200' },
-                  { value: fmtCurrency(userDemo.totalRevenue, data.orgCurrency.code), label: 'Total revenue', sub: `${userDemo.salesCount} sales • ${userDemo.donReceivedCount} donations • ${userDemo.commCount} commissions`, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+                  { value: fmtCurrency(userDemo.salesAmount, data.orgCurrency.code), label: 'Ventes', sub: `${userDemo.salesCount} ventes`, color: 'text-blue-600 bg-blue-50 border-blue-200' },
+                  { value: fmtCurrency(userDemo.donReceived, data.orgCurrency.code), label: 'Dons reçus', sub: `${userDemo.donReceivedCount} dons`, color: 'text-amber-600 bg-amber-50 border-amber-200' },
+                  { value: fmtCurrency(userDemo.totalRevenue, data.orgCurrency.code), label: 'Revenu total', sub: `${userDemo.salesCount} ventes • ${userDemo.donReceivedCount} dons • ${userDemo.commCount} commissions`, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
                 ].map((s) => (
                   <div key={s.label} className={cn('rounded-xl border p-3 text-center', s.color)}>
                     <p className="text-lg sm:text-xl font-extrabold">{s.value}</p>
