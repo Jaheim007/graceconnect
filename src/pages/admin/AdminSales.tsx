@@ -238,7 +238,22 @@ export default function AdminSales() {
             {isFr ? 'Mes ventes et dons' : 'My sales & donations'}
           </h1>
           <div className="flex items-center gap-2 shrink-0">
-...
+            <Button
+              onClick={() => navigate('/admin/payouts')}
+              className="gap-2 bg-foreground text-background hover:bg-foreground/90 font-bold shadow-elevated rounded-xl h-9 sm:h-10 px-3 sm:px-5 text-xs sm:text-sm"
+            >
+              <Wallet className="h-4 w-4" /> <span className="hidden sm:inline">{isFr ? 'Retraits' : 'Payouts'}</span>
+            </Button>
+            <Button
+              onClick={handleExport}
+              variant="outline"
+              size="icon"
+              className="rounded-xl h-10 w-10 border-border shrink-0"
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
         <p className="text-sm text-muted-foreground">
           {isFr
             ? `Historique complet des ventes, dons et commissions${currentOrg?.name ? ` de ${currentOrg.name}` : ''}`
