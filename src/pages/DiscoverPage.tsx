@@ -39,7 +39,7 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 26 } },
 };
 
-type ContentFilter = 'all' | 'products' | 'campaigns' | 'offerings';
+type ProductSort = 'mixed' | 'popular' | 'recent' | 'price_asc' | 'price_desc' | 'rating' | 'best_selling' | 'most_viewed';
 type ProductSort = 'mixed' | 'popular' | 'recent' | 'price_asc' | 'price_desc' | 'rating' | 'best_selling' | 'most_viewed';
 
 /** Interleave products so no single org dominates consecutive slots */
@@ -73,11 +73,9 @@ const PAGE_SIZE = 20;
 
 export default function DiscoverPage() {
   const [search, setSearch] = useState('');
-  const [contentFilter, setContentFilter] = useState<ContentFilter>('all');
   const [sortBy, setSortBy] = useState<ProductSort>('mixed');
   const [priceFilter, setPriceFilter] = useState<PriceFilter>('all');
   const [typeFilter, setTypeFilter] = useState<ProductTypeFilter>('');
-  const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<any>(null);
   const [searchFocused, setSearchFocused] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -87,9 +85,6 @@ export default function DiscoverPage() {
   const debouncedSearch = useDebounce(search, 300);
   const isFr = locale === 'fr';
 
-  const showProducts = contentFilter === 'all' || contentFilter === 'products';
-  const showCampaigns = contentFilter === 'all' || contentFilter === 'campaigns';
-  const showOfferings = contentFilter === 'all' || contentFilter === 'offerings';
 
   // Products query
   const productsQuery = useInfiniteQuery({
