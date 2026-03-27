@@ -14,7 +14,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { useState, useMemo, useCallback } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getDaySeed, createSeededRandom, seededPick, seededInt } from '@/lib/seeded-random';
+import { createSeededRandom, seededPick, seededInt } from '@/lib/seeded-random';
 
 const fmtCurrency = (n: number, currency = 'XOF') => {
   try {
