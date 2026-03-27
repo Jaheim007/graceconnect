@@ -9,7 +9,7 @@
  * - CFA is weighted more heavily in random selection
  */
 
-import { GLOBAL_NAMES, GLOBAL_CITIES, PRODUCT_TITLES, ORG_NAMES } from './global-names';
+import { GLOBAL_NAMES, GLOBAL_CITIES, PRODUCT_TITLES, CHURCH_NAMES, COMPANY_NAMES, ORG_NAMES } from './global-names';
 
 // ── Supported currencies with realistic ranges for small-to-mid orgs ──
 const CURRENCIES = [
