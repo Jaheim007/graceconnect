@@ -11,7 +11,9 @@ import { cn } from '@/lib/utils';
 import { generateDemoData, type DemoData } from '@/lib/demoDataGenerator';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import { RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { getDaySeed, createSeededRandom, seededPick, seededInt } from '@/lib/seeded-random';
 
 const fmtCurrency = (n: number, currency = 'XOF') => {
