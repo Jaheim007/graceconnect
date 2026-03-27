@@ -76,6 +76,7 @@ export default function LandingPage() {
         <LandingMobileMoney />
         <LandingTrustShield />
         <LandingPricingSimple />
+        <LandingResultsShowcase />
         <LandingMigration />
         <LandingFinalCTA />
         <LandingFooterCompact />
