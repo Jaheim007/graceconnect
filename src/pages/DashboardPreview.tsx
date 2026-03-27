@@ -298,9 +298,7 @@ function DashboardTab({ data }: { data: DemoData }) {
           <PremiumCard variant="default" noPadding className="divide-y divide-border">
             {sales.slice(0, 5).map((sale) => (
               <div key={sale.id} className="flex items-center gap-3 p-3.5">
-                <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                </div>
+                <img src={avatarUrl(sale.buyer)} alt={sale.buyer} className="h-9 w-9 rounded-full bg-muted shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold truncate">{sale.product}</p>
                   <p className="text-[10px] text-muted-foreground">{sale.buyer} · {sale.buyerFlag} {sale.buyerCity}</p>
