@@ -125,6 +125,10 @@ export default function DashboardPreview() {
                 <p className="text-xs font-semibold">{data.orgName}</p>
                 <p className="text-[10px] text-muted-foreground">creator@example.com</p>
               </div>
+              <Button variant="outline" size="sm" onClick={handleRandomize} className="gap-2 ml-2">
+                <RefreshCw className="h-3.5 w-3.5" />
+                Randomize
+              </Button>
             </div>
           </div>
         </div>
@@ -158,18 +162,12 @@ export default function DashboardPreview() {
           <>
             {/* User Dashboard Simulation */}
             <motion.div {...fadeUp(0)} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-3">
-                  <img src={avatarUrl(userDemo.name)} alt={userDemo.name} className="h-12 w-12 rounded-full bg-muted" />
-                  <div>
-                    <h2 className="text-lg font-bold">Good morning 👋</h2>
-                    <p className="text-xs text-muted-foreground">Your personal space · {userDemo.name}</p>
-                  </div>
+              <div className="flex items-center gap-3 mb-5">
+                <img src={avatarUrl(userDemo.personName)} alt={userDemo.personName} className="h-12 w-12 rounded-full bg-muted" />
+                <div>
+                  <h2 className="text-lg font-bold">Good morning, {userDemo.personName.split(' ')[0]} 👋</h2>
+                  <p className="text-xs text-muted-foreground">Your personal space · {userDemo.communityName}</p>
                 </div>
-                <Button variant="outline" size="sm" onClick={handleRandomize} className="gap-2">
-                  <RefreshCw className="h-3.5 w-3.5" />
-                  Randomize
-                </Button>
               </div>
 
               {/* Row 1: Activity */}
@@ -177,7 +175,7 @@ export default function DashboardPreview() {
                 {[
                   { value: userDemo.purchases.toString(), label: 'Purchases', color: 'text-blue-600 bg-blue-50 border-blue-200' },
                   { value: userDemo.donations.toString(), label: 'Donations', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
-                  { value: `F CFA ${userDemo.commAmount.toLocaleString('fr-FR')}`, label: 'Commissions', sub: `${userDemo.commCount} commissions`, color: 'text-violet-600 bg-violet-50 border-violet-200' },
+                  { value: fmtCurrency(userDemo.commAmount, data.orgCurrency.code), label: 'Commissions', sub: `${userDemo.commCount} commissions`, color: 'text-violet-600 bg-violet-50 border-violet-200' },
                 ].map((s) => (
                   <div key={s.label} className={cn('rounded-xl border p-3 text-center', s.color)}>
                     <p className="text-lg sm:text-xl font-extrabold">{s.value}</p>
@@ -190,9 +188,9 @@ export default function DashboardPreview() {
               {/* Row 2: Revenue */}
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { value: `F CFA ${userDemo.salesAmount.toLocaleString('fr-FR')}`, label: 'Sales', sub: `${userDemo.salesCount} sales`, color: 'text-blue-600 bg-blue-50 border-blue-200' },
-                  { value: `F CFA ${userDemo.donReceived.toLocaleString('fr-FR')}`, label: 'Received', sub: `${Math.floor(userDemo.donReceived / 3000)} donations`, color: 'text-amber-600 bg-amber-50 border-amber-200' },
-                  { value: `F CFA ${userDemo.totalRevenue.toLocaleString('fr-FR')}`, label: 'Total revenue', sub: `${userDemo.salesCount} sales • ${Math.floor(userDemo.donReceived / 3000)} donations • ${userDemo.commCount} commissions`, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+                  { value: fmtCurrency(userDemo.salesAmount, data.orgCurrency.code), label: 'Sales', sub: `${userDemo.salesCount} sales`, color: 'text-blue-600 bg-blue-50 border-blue-200' },
+                  { value: fmtCurrency(userDemo.donReceived, data.orgCurrency.code), label: 'Received', sub: `${Math.max(1, Math.floor(userDemo.donReceived / (data.orgCurrency.txMax || 3000)))} donations`, color: 'text-amber-600 bg-amber-50 border-amber-200' },
+                  { value: fmtCurrency(userDemo.totalRevenue, data.orgCurrency.code), label: 'Total revenue', sub: `${userDemo.salesCount} sales • ${Math.max(1, Math.floor(userDemo.donReceived / (data.orgCurrency.txMax || 3000)))} donations • ${userDemo.commCount} commissions`, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
                 ].map((s) => (
                   <div key={s.label} className={cn('rounded-xl border p-3 text-center', s.color)}>
                     <p className="text-lg sm:text-xl font-extrabold">{s.value}</p>
