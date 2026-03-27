@@ -113,23 +113,29 @@ export const PRODUCT_TITLES = [
 
 // Churches: receive lots of donations
 export const CHURCH_NAMES = [
-  'Église La Grâce Abondante', 'Ministère Lumière des Nations', 'Centre Bethel International',
-  'Communauté Shalom de Cocody', 'Mission Agapé Mondiale', 'Église du Réveil Céleste',
-  'Ministère des Nations Unies en Christ', 'Communauté Élohim Treichville', 'Mouvement Jérusalem Nouvelle',
-  'Ministère Mont Horeb', 'Paroisse Saint-Esprit', 'Église Parole Vivante',
-  'Grace Church International', 'Light of the World Ministry', 'Victory Chapel',
-  'Shalom Community Church', 'Faith Tabernacle', 'Kingdom Harvest Church',
-  'Assemblée de Dieu Plateau', 'Temple de la Restauration',
+  'Gemeinde der Gnade Ewige Brazzaville', 'Communauté Kérygma Nzambi ya Lufua',
+  'Assemblée Béthanie-Shekina du Plateau', 'Evangelische Freikirche Lumière Afrique',
+  'Ministère Rhéma Élohim Treichville-Sud', 'Kirchengemeinde Hoffnung Kinshasa',
+  'Communauté Charismatique Eben-Haézer Marcory', 'Paroisse Évangélique Maranatha-Cité',
+  'Freie Christliche Gemeinde Lomé-Tokoin', 'Ministère Apostolique Qadosh International',
+  'Église du Réveil Shekinah-Gloire Cocody', 'Evangeliumsgemeinde Friedenskirche Douala',
+  'Centre Prophétique Jéhovah-Nissi Plateau', 'Communauté Néhémie Bingerville-Est',
+  'Christliche Gemeinschaft Lebendiges Wort', 'Assemblée Missionnaire Shalom-Tsion Yopougon',
+  'Ministère Kehila Haïm de Ouagadougou', 'Paroisse Internationale du Cénacle Nouveau',
+  'Gemeinde Lebensquelle Brazza-Poto', 'Communauté Évangélique Béréenne du Golfe',
 ];
 
 // Companies/Enterprises: receive very few donations
 export const COMPANY_NAMES = [
-  'Institut Excellence Pro', 'Académie du Savoir Digital', 'Centre Alpha Formation',
-  'Fondation Vision Jeunesse', 'Impact Academy Online', 'Divine Arts Studio',
-  'Harvest Media Group', 'Omega Training Center', 'Afrique Créative SARL',
-  'Éditions Lumina', 'TechPro Academy', 'Baobab Consulting',
-  'Sahel Digital', 'Koffi & Partners', 'Ivoire Business School',
-  'Prestige Formation', 'Afri-Talent Hub', 'Étoile Média',
+  'Institut Polyvalent Nkemba & Associés', 'Akademie für Digitale Bildung Afrique',
+  'Cabinet Conseil Mwangaza-Stratégie SARL', 'Éditions Numériques Baobab-Horizon',
+  'TechBridge Consulting Treichville GmbH', 'Groupe Média Kountché & Partners',
+  'Sahel Innovations Digitales SARLU', 'Bildungszentrum Étoile-Continent',
+  'Agence Créative Ébène-Graphik Studio', 'Formation Professionnelle Zénith-Kompetenz',
+  'Cabinet Juridique Mabélé & Diallo Avocats', 'Société Générale de Conseil Ouattara-Werke',
+  'Institut Polytechnique Mandela-Friedberg', 'Entreprise Digitale Savane-Kerntech',
+  'Bureau d\'Études Kwamé-Ingenieure SARL', 'Groupe Éducatif Pangaea-Bildung',
+  'Coopérative Artisanale Nzinga-Handwerk', 'Solutions Logistiques Djoliba-Transport',
 ];
 
 // Combined for backward compat
