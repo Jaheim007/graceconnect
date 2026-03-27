@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import {
   TrendingUp, ShoppingBag, Users, Package, ArrowUpRight,
   Sparkles, BookOpen, Palette, Share2, BarChart3, Zap,
-  CheckCircle2, Clock, FileText, PenLine, Shuffle
+  CheckCircle2, Clock, FileText, PenLine
 } from 'lucide-react';
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { DashboardSection } from '@/components/ui/DashboardSection';
@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils';
 import { generateDemoData, type DemoData } from '@/lib/demoDataGenerator';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { useState, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState, useMemo } from 'react';
+import { getDaySeed, createSeededRandom, seededPick, seededInt } from '@/lib/seeded-random';
 
 const fmtCurrency = (n: number, currency = 'XOF') => {
   try {
@@ -46,12 +46,31 @@ type Tab = 'dashboard' | 'sales' | 'ai-studio' | 'viral-tools';
 
 export default function DashboardPreview() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
-  const [data, setData] = useState<DemoData>(() => generateDemoData());
-  const [shuffleKey, setShuffleKey] = useState(0);
+  const data = useMemo(() => generateDemoData(), []);
 
-  const randomize = useCallback(() => {
-    setData(generateDemoData());
-    setShuffleKey(k => k + 1);
+  // Generate random user dashboard data
+  const userDemo = useMemo(() => {
+    const rng = createSeededRandom(getDaySeed() + 99);
+    const COMMUNITY_NAMES = [
+      'Lumière Eternelle', 'Grâce Infinie', 'Shalom Community', 'Foi Vivante',
+      'Espoir du Monde', 'Bénédiction Céleste', 'Parole de Vie', 'Joie Divine',
+      'Chemin de Gloire', 'Amour Sans Fin', 'Source Vive', 'Étoile du Matin',
+      'Refuge Céleste', 'Flamme Sacrée', 'Terre Promise', 'Arc-en-Ciel',
+      'Vision Nouvelle', 'Cœur Pur', 'Pierre Angulaire', 'Moisson Dorée',
+    ];
+    const name = seededPick(COMMUNITY_NAMES, rng);
+    const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const purchases = seededInt(0, 8, rng);
+    const donations = seededInt(0, 5, rng);
+    const commCount = seededInt(0, 4, rng);
+    const commAmount = commCount * seededInt(200, 2000, rng);
+    const salesCount = seededInt(0, 12, rng);
+    const salesAmount = salesCount * seededInt(500, 5000, rng);
+    const donReceived = seededInt(0, 3, rng) * seededInt(1000, 8000, rng);
+    const totalRevenue = salesAmount + donReceived + commAmount;
+    const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-violet-500', 'bg-amber-500', 'bg-rose-500', 'bg-primary'];
+    const bgColor = seededPick(colors, rng);
+    return { name, initials, purchases, donations, commCount, commAmount, salesCount, salesAmount, donReceived, totalRevenue, bgColor };
   }, []);
 
   const tabs: { key: Tab; label: string; icon: typeof BarChart3 }[] = [
@@ -75,16 +94,6 @@ export default function DashboardPreview() {
               <span className="text-[9px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full">Creator Pro</span>
             </div>
             <div className="flex items-center gap-3">
-              {/* Randomize button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={randomize}
-                className="gap-2 text-xs font-bold border-primary/30 hover:bg-primary/10 hover:text-primary transition-all active:scale-95"
-              >
-                <Shuffle className="h-3.5 w-3.5" />
-                Randomize
-              </Button>
               <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <span className="text-xs font-bold text-primary">{data.orgName.slice(0, 2).toUpperCase()}</span>
               </div>
@@ -120,8 +129,55 @@ export default function DashboardPreview() {
         </div>
       </div>
 
-      <div className="container max-w-6xl px-4 py-6 space-y-6" key={shuffleKey}>
-        {activeTab === 'dashboard' && <DashboardTab data={data} />}
+      <div className="container max-w-6xl px-4 py-6 space-y-6">
+        {activeTab === 'dashboard' && (
+          <>
+            {/* User Dashboard Simulation */}
+            <motion.div {...fadeUp(0)} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+              <div className="flex items-center gap-3 mb-5">
+                <div className={cn('h-12 w-12 rounded-full flex items-center justify-center text-white font-bold text-sm', userDemo.bgColor)}>
+                  {userDemo.initials}
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold">Good morning 👋</h2>
+                  <p className="text-xs text-muted-foreground">Your personal space · {userDemo.name}</p>
+                </div>
+              </div>
+
+              {/* Row 1: Activity */}
+              <div className="grid grid-cols-3 gap-3 mb-3">
+                {[
+                  { value: userDemo.purchases.toString(), label: 'Purchases', color: 'text-blue-600 bg-blue-50 border-blue-200' },
+                  { value: userDemo.donations.toString(), label: 'Donations', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+                  { value: `F CFA ${userDemo.commAmount.toLocaleString('fr-FR')}`, label: 'Commissions', sub: `${userDemo.commCount} commissions`, color: 'text-violet-600 bg-violet-50 border-violet-200' },
+                ].map((s) => (
+                  <div key={s.label} className={cn('rounded-xl border p-3 text-center', s.color)}>
+                    <p className="text-lg sm:text-xl font-extrabold">{s.value}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{s.label}</p>
+                    {s.sub && <p className="text-[9px] text-muted-foreground">{s.sub}</p>}
+                  </div>
+                ))}
+              </div>
+
+              {/* Row 2: Revenue */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { value: `F CFA ${userDemo.salesAmount.toLocaleString('fr-FR')}`, label: 'Sales', sub: `${userDemo.salesCount} sales`, color: 'text-blue-600 bg-blue-50 border-blue-200' },
+                  { value: `F CFA ${userDemo.donReceived.toLocaleString('fr-FR')}`, label: 'Received', sub: `${Math.floor(userDemo.donReceived / 3000)} donations`, color: 'text-amber-600 bg-amber-50 border-amber-200' },
+                  { value: `F CFA ${userDemo.totalRevenue.toLocaleString('fr-FR')}`, label: 'Total revenue', sub: `${userDemo.salesCount} sales • ${Math.floor(userDemo.donReceived / 3000)} donations • ${userDemo.commCount} commissions`, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+                ].map((s) => (
+                  <div key={s.label} className={cn('rounded-xl border p-3 text-center', s.color)}>
+                    <p className="text-lg sm:text-xl font-extrabold">{s.value}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{s.label}</p>
+                    {s.sub && <p className="text-[9px] text-muted-foreground">{s.sub}</p>}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <DashboardTab data={data} />
+          </>
+        )}
         {activeTab === 'sales' && <SalesTab data={data} />}
         {activeTab === 'ai-studio' && <AIStudioTab data={data} />}
         {activeTab === 'viral-tools' && <ViralToolsTab data={data} />}
