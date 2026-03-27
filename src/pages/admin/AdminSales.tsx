@@ -293,7 +293,7 @@ export default function AdminSales() {
             amber: { bg: 'bg-amber-500/8', text: 'text-amber-600', border: 'border-amber-500/15' },
             blue: { bg: 'bg-blue-500/8', text: 'text-blue-600', border: 'border-blue-500/15' },
             rose: { bg: 'bg-rose-500/8', text: 'text-rose-600', border: 'border-rose-500/15' },
-            slate: { bg: 'bg-muted/60', text: 'text-foreground', border: 'border-border/70' },
+            muted: { bg: 'bg-muted/60', text: 'text-foreground', border: 'border-border/70' },
           }[card.color];
 
           return (
@@ -316,6 +316,9 @@ export default function AdminSales() {
               <p className="text-[11px] sm:text-xs text-muted-foreground mt-2 font-semibold uppercase tracking-wider">
                 {card.label}
               </p>
+              {'sub' in card && card.sub && (
+                <p className="text-[10px] text-muted-foreground mt-1">{card.sub}</p>
+              )}
             </motion.div>
           );
         })}
