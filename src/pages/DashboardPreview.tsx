@@ -110,9 +110,7 @@ export default function DashboardPreview() {
               <span className="text-[9px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full">Creator Pro</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-xs font-bold text-primary">{data.orgName.slice(0, 2).toUpperCase()}</span>
-              </div>
+              <img src={avatarUrl(data.orgName, 'initials')} alt={data.orgName} className="h-8 w-8 rounded-full bg-muted" />
               <div className="hidden sm:block">
                 <p className="text-xs font-semibold">{data.orgName}</p>
                 <p className="text-[10px] text-muted-foreground">creator@example.com</p>
@@ -336,9 +334,7 @@ function DashboardTab({ data }: { data: DemoData }) {
           <PremiumCard variant="default" noPadding className="mt-3 divide-y divide-border">
             {ambassador.topAmbassadors.slice(0, 3).map((amb, i) => (
               <div key={amb.name + i} className="flex items-center gap-3 p-3.5">
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                  {i + 1}
-                </div>
+                <img src={avatarUrl(amb.name)} alt={amb.name} className="h-8 w-8 rounded-full bg-muted" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold">{amb.name}</p>
                   <p className="text-[10px] text-muted-foreground">{amb.sales} sales</p>
