@@ -178,6 +178,8 @@ export default function AdminSales() {
   }, [purchases, donations, filter, statusFilter, search, periodFilter, customDateFrom, customDateTo]);
 
   const completedTx = allTx.filter(t => t.status === 'completed');
+  const completedSales = completedTx.filter(t => t.type === 'purchase');
+  const completedDonations = completedTx.filter(t => t.type === 'donation');
   const totalGMV = completedTx.reduce((s, t) => s + (t.amount || 0), 0);
   const totalOrgReceived = completedTx.reduce((s, t) => s + (t.organization_amount || 0), 0);
   const totalAffComm = completedTx.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
@@ -199,14 +201,16 @@ export default function AdminSales() {
       statut: t.status,
       reference: t.paystack_reference,
       date: t.created_at,
-    })), `${isFr ? 'ventes' : 'sales'}-${currentOrg?.slug || 'org'}`);
+    })), `${isFr ? 'ventes-dons' : 'sales-donations'}-${currentOrg?.slug || 'org'}`);
   };
 
   const statCards = [
-    { label: isFr ? "Chiffre d'affaires" : 'Revenue', value: fmt(totalGMV, orgCurrency), icon: DollarSign, renderIcon: <CurrencyIcon currency={orgCurrency} className="h-4 w-4 text-primary" />, color: 'primary' as const },
+    { label: isFr ? 'Ventes' : 'Sales', value: completedSales.length.toString(), icon: ShoppingCart, color: 'blue' as const },
+    { label: isFr ? 'Dons reçus' : 'Donations received', value: completedDonations.length.toString(), icon: Heart, color: 'rose' as const },
+    { label: isFr ? "Chiffre d'affaires total" : 'Total gross revenue', value: fmt(totalGMV, orgCurrency), icon: DollarSign, renderIcon: <CurrencyIcon currency={orgCurrency} className="h-4 w-4 text-primary" />, color: 'primary' as const },
     { label: isFr ? 'Reçu (net)' : 'Received (net)', value: fmt(totalOrgReceived, orgCurrency), icon: TrendingUp, color: 'emerald' as const },
-    { label: isFr ? 'Comm. Affiliés' : 'Affiliate Comm.', value: fmt(totalAffComm, orgCurrency), icon: Users, color: 'amber' as const },
-    { label: 'Transactions', value: allTx.length.toString(), icon: BarChart3, color: 'blue' as const },
+    { label: isFr ? 'Comm. affiliés' : 'Affiliate commissions', value: fmt(totalAffComm, orgCurrency), icon: Users, color: 'amber' as const },
+    { label: isFr ? 'Transactions' : 'Transactions', value: allTx.length.toString(), icon: BarChart3, color: 'slate' as const },
   ];
 
   const typeFilters = [
@@ -251,7 +255,7 @@ export default function AdminSales() {
       >
         <div className="flex items-center justify-between gap-3 mb-1">
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight">
-            {isFr ? 'Mes Ventes' : 'My Sales'}
+            {isFr ? 'Mes ventes et dons' : 'My sales & donations'}
           </h1>
           <div className="flex items-center gap-2 shrink-0">
             <Button
@@ -271,18 +275,22 @@ export default function AdminSales() {
           </div>
         </div>
         <p className="text-sm text-muted-foreground">
-          {isFr ? 'Historique complet des transactions de votre boutique' : 'Complete transaction history for your store'}
+          {isFr
+            ? `Historique complet des ventes, dons et commissions${currentOrg?.name ? ` de ${currentOrg.name}` : ''}`
+            : `Complete history of sales, donations and commissions${currentOrg?.name ? ` for ${currentOrg.name}` : ''}`}
         </p>
       </motion.div>
 
       {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
         {statCards.map((card, i) => {
           const colorStyles = {
             primary: { bg: 'bg-primary/8', text: 'text-primary', border: 'border-primary/15' },
             emerald: { bg: 'bg-emerald-500/8', text: 'text-emerald-600', border: 'border-emerald-500/15' },
             amber: { bg: 'bg-amber-500/8', text: 'text-amber-600', border: 'border-amber-500/15' },
             blue: { bg: 'bg-blue-500/8', text: 'text-blue-600', border: 'border-blue-500/15' },
+            rose: { bg: 'bg-rose-500/8', text: 'text-rose-600', border: 'border-rose-500/15' },
+            slate: { bg: 'bg-muted/60', text: 'text-foreground', border: 'border-border/70' },
           }[card.color];
 
           return (

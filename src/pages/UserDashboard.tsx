@@ -24,16 +24,15 @@ import { SmartNudge } from '@/components/growth/SmartNudge';
 
 export default function UserDashboard() {
   const { user, profile, isSuperadmin } = useAuth();
-  const { userOrgs } = useOrg();
+  const { userOrgs, currentOrg } = useOrg();
   const navigate = useNavigate();
   const { locale } = useI18n();
   const hasOrgs = userOrgs.length > 0;
   const isFr = locale === 'fr';
 
-  const primaryCurrency = userOrgs[0]?.currency || DEFAULT_CURRENCY;
+  const activeOrgId = currentOrg?.id ?? null;
+  const primaryCurrency = currentOrg?.currency || userOrgs[0]?.currency || DEFAULT_CURRENCY;
   const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency || primaryCurrency, locale);
-
-  const orgIds = userOrgs.map(o => o.id);
 
   // ── Purchases ──
   const { data: purchases = [] } = useQuery({
@@ -67,14 +66,14 @@ export default function UserDashboard() {
     enabled: !!user,
   });
 
-  // ── My Sales (as seller) ──
+  // ── Active org sales (seller side) ──
   const { data: salesStats } = useQuery({
-    queryKey: ['user-sales-stats', orgIds],
+    queryKey: ['user-sales-stats', activeOrgId],
     queryFn: async () => {
-      if (orgIds.length === 0) return { count: 0, revenue: 0 };
+      if (!activeOrgId) return { count: 0, revenue: 0 };
       const { data } = await db.from('product_purchases')
-        .select('amount, organization_amount')
-        .in('organization_id', orgIds)
+        .select('amount')
+        .eq('organization_id', activeOrgId)
         .eq('status', 'completed');
       const rows = data || [];
       return {
@@ -82,7 +81,7 @@ export default function UserDashboard() {
         revenue: rows.reduce((s: number, r: any) => s + (r.amount || 0), 0),
       };
     },
-    enabled: orgIds.length > 0,
+    enabled: !!activeOrgId,
   });
 
   // ── Ambassador commissions ──
@@ -98,18 +97,18 @@ export default function UserDashboard() {
     enabled: !!user,
   });
 
-  // ── Donations received (as org owner) ──
+  // ── Donations received by active org ──
   const { data: donationsReceived = 0 } = useQuery({
-    queryKey: ['user-donations-received', orgIds],
+    queryKey: ['user-donations-received', activeOrgId],
     queryFn: async () => {
-      if (orgIds.length === 0) return 0;
+      if (!activeOrgId) return 0;
       const { data } = await db.from('donations')
         .select('amount')
-        .in('organization_id', orgIds)
+        .eq('organization_id', activeOrgId)
         .eq('status', 'completed');
       return (data || []).reduce((s: number, r: any) => s + (r.amount || 0), 0);
     },
-    enabled: orgIds.length > 0,
+    enabled: !!activeOrgId,
   });
 
   // ── Program progress ──
@@ -198,6 +197,13 @@ export default function UserDashboard() {
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Revenus' : 'Revenue'}</p>
               </div>
             </div>
+            {currentOrg && (
+              <p className="text-[11px] text-muted-foreground px-1">
+                {isFr
+                  ? `Ventes, dons reçus et revenus affichés pour l'organisation active : ${currentOrg.name}`
+                  : `Sales, received donations and revenue shown for the active organization: ${currentOrg.name}`}
+              </p>
+            )}
           </div>
         </motion.div>
 

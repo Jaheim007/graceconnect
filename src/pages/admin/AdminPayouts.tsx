@@ -211,7 +211,7 @@ export default function AdminPayouts() {
                 {fmt(availableBalance, currency)}
               </p>
               <p className="text-xs text-background/50 mt-2">
-                {isFr ? 'Ventes (après 72h) + Commissions (après 15j) − Retraits' : 'Sales (after 72h) + Commissions (after 15d) − Withdrawals'}
+                {isFr ? 'Ventes et dons reçus (après 72h) + commissions (après 15j) − retraits' : 'Sales and donations received (after 72h) + commissions (after 15d) − withdrawals'}
               </p>
 
               {/* CTA */}
@@ -296,15 +296,15 @@ export default function AdminPayouts() {
       {/* ═══ Revenue Breakdown Grid ═══ */}
       {fundSummary && (
         <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-4">
-          {/* Sales Revenue */}
+          {/* Sales + donations revenue */}
           <div className="space-y-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{isFr ? 'Revenus des ventes' : 'Sales Revenue'}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{isFr ? 'Ventes et dons reçus' : 'Sales & donations received'}</p>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
-                { label: isFr ? "Chiffre d'affaires" : 'Gross Revenue', value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, accent: 'text-foreground', bg: 'bg-muted/50', useCurrencyIcon: true },
-                { label: t('payouts.org_share'), value: fmt(fundSummary.totalOrgReceived, currency), icon: Banknote, accent: 'text-emerald-500', bg: 'bg-emerald-500/8' },
+                { label: isFr ? "Chiffre d'affaires total" : 'Total gross revenue', value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, accent: 'text-foreground', bg: 'bg-muted/50', useCurrencyIcon: true },
+                { label: isFr ? 'Votre part nette' : 'Your net share', value: fmt(fundSummary.totalOrgReceived, currency), icon: Banknote, accent: 'text-emerald-500', bg: 'bg-emerald-500/8' },
                 { label: t('payouts.platform_fees'), value: fmt(fundSummary.totalPlatformFees, currency), icon: Shield, accent: 'text-muted-foreground', bg: 'bg-muted/50' },
-                { label: t('payouts.affiliate_commissions'), value: fmt(fundSummary.totalAffiliateCommissionsPaid, currency), icon: ArrowUpRight, accent: 'text-amber-500', bg: 'bg-amber-500/8' },
+                { label: isFr ? 'Commissions affiliées payées' : 'Affiliate commissions paid', value: fmt(fundSummary.totalAffiliateCommissionsPaid, currency), icon: ArrowUpRight, accent: 'text-amber-500', bg: 'bg-amber-500/8' },
               ].map(c => (
                 <motion.div key={c.label} variants={fadeUp}
                   className={cn('rounded-2xl border border-border p-4 transition-shadow hover:shadow-md', c.bg)}>
