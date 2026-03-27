@@ -17,11 +17,13 @@ import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { useI18n } from '@/i18n/I18nContext';
 import { CurrencyIcon } from '@/components/ui/CurrencyIcon';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
 
 type PeriodKey = 'all' | 'today' | '7d' | '30d' | '90d' | 'this_month' | 'this_week' | 'custom';
 
 export default function AdminSales() {
   const { currentOrg } = useOrg();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -152,7 +154,31 @@ export default function AdminSales() {
     enabled: !!orgId,
   });
 
-  const isLoading = loadingP || loadingD;
+  const { data: earnedCommissionStats = { amount: 0, count: 0 }, isLoading: loadingC } = useQuery({
+    queryKey: ['admin-sales-earned-commissions', orgId, user?.id],
+    queryFn: async () => {
+      if (!orgId || !user) return { amount: 0, count: 0 };
+
+      const { data, error } = await db.from('affiliate_sales')
+        .select('id, commission_amount')
+        .eq('organization_id', orgId)
+        .eq('affiliate_user_id', user.id);
+
+      if (error) {
+        console.error('admin-earned-commissions error:', error);
+        return { amount: 0, count: 0 };
+      }
+
+      const rows = data || [];
+      return {
+        amount: rows.reduce((s: number, r: any) => s + (r.commission_amount || 0), 0),
+        count: rows.length,
+      };
+    },
+    enabled: !!orgId && !!user,
+  });
+
+  const isLoading = loadingP || loadingD || loadingC;
 
   const allTx = useMemo(() => {
     let merged = [...purchases, ...donations].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -182,7 +208,7 @@ export default function AdminSales() {
   const completedDonations = completedTx.filter(t => t.type === 'donation');
   const totalGMV = completedTx.reduce((s, t) => s + (t.amount || 0), 0);
   const totalOrgReceived = completedTx.reduce((s, t) => s + (t.organization_amount || 0), 0);
-  const totalAffComm = completedTx.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
+  const totalEarnedCommissions = earnedCommissionStats.amount;
 
   const handleExport = () => {
     downloadCSV(allTx.map(t => ({
@@ -206,13 +232,15 @@ export default function AdminSales() {
 
   const totalSalesAmount = completedSales.reduce((s, t) => s + (t.amount || 0), 0);
   const totalDonationsAmount = completedDonations.reduce((s, t) => s + (t.amount || 0), 0);
+  const totalRevenue = totalSalesAmount + totalDonationsAmount + totalEarnedCommissions;
+  const totalYourShare = totalOrgReceived + totalEarnedCommissions;
 
   const statCards = [
     { label: isFr ? 'Ventes' : 'Sales', value: fmt(totalSalesAmount, orgCurrency), sub: `${completedSales.length} ${isFr ? 'transaction' : 'transaction'}${completedSales.length !== 1 ? 's' : ''}`, icon: ShoppingCart, color: 'blue' as const },
     { label: isFr ? 'Dons reçus' : 'Donations received', value: fmt(totalDonationsAmount, orgCurrency), sub: `${completedDonations.length} ${isFr ? 'don' : 'donation'}${completedDonations.length !== 1 ? 's' : ''}`, icon: Heart, color: 'rose' as const },
-    { label: isFr ? "Chiffre d'affaires total" : 'Total gross revenue', value: fmt(totalGMV, orgCurrency), icon: DollarSign, renderIcon: <CurrencyIcon currency={orgCurrency} className="h-4 w-4 text-primary" />, color: 'primary' as const },
-    { label: isFr ? 'Votre part' : 'Your share', value: fmt(totalOrgReceived, orgCurrency), sub: isFr ? 'Après frais plateforme' : 'After platform fees', icon: TrendingUp, color: 'emerald' as const },
-    { label: isFr ? 'Comm. affiliés' : 'Affiliate commissions', value: fmt(totalAffComm, orgCurrency), icon: Users, color: 'amber' as const },
+    { label: isFr ? 'Commissions gagnées' : 'Earned commissions', value: fmt(totalEarnedCommissions, orgCurrency), sub: `${earnedCommissionStats.count} ${isFr ? 'commission' : 'commission'}${earnedCommissionStats.count !== 1 ? 's' : ''}`, icon: Users, color: 'amber' as const },
+    { label: isFr ? 'Revenus total' : 'Total revenue', value: fmt(totalRevenue, orgCurrency), sub: isFr ? `${completedSales.length} ventes + ${completedDonations.length} dons + ${earnedCommissionStats.count} commissions` : `${completedSales.length} sales + ${completedDonations.length} donations + ${earnedCommissionStats.count} commissions`, icon: DollarSign, renderIcon: <CurrencyIcon currency={orgCurrency} className="h-4 w-4 text-primary" />, color: 'primary' as const },
+    { label: isFr ? 'Votre part' : 'Your share', value: fmt(totalYourShare, orgCurrency), sub: isFr ? 'Ventes/dons nets + commissions gagnées' : 'Net sales/donations + earned commissions', icon: TrendingUp, color: 'emerald' as const },
     { label: isFr ? 'Transactions' : 'Transactions', value: allTx.length.toString(), icon: BarChart3, color: 'muted' as const },
   ];
 
@@ -279,8 +307,8 @@ export default function AdminSales() {
         </div>
         <p className="text-sm text-muted-foreground">
           {isFr
-            ? `Historique complet des ventes, dons et commissions${currentOrg?.name ? ` de ${currentOrg.name}` : ''}`
-            : `Complete history of sales, donations and commissions${currentOrg?.name ? ` for ${currentOrg.name}` : ''}`}
+            ? `Historique complet des ventes, dons et commissions gagnées${currentOrg?.name ? ` de ${currentOrg.name}` : ''}`
+            : `Complete history of sales, donations and earned commissions${currentOrg?.name ? ` for ${currentOrg.name}` : ''}`}
         </p>
       </motion.div>
 

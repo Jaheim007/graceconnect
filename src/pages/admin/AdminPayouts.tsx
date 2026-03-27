@@ -104,11 +104,11 @@ export default function AdminPayouts() {
     queryKey: ['admin-fund-summary', orgId],
     queryFn: async () => {
       if (!orgId || !user) return null;
-      const [{ data: donations }, { data: purchases }, { data: payoutData }, { data: affiliateSales }] = await Promise.all([
+        const [{ data: donations }, { data: purchases }, { data: payoutData }, { data: affiliateSales }] = await Promise.all([
         db.from('donations').select('amount, organization_amount, platform_fee, affiliate_commission, completed_at').eq('organization_id', orgId).eq('status', 'completed'),
         db.from('product_purchases').select('amount, organization_amount, platform_fee, affiliate_commission, completed_at').eq('organization_id', orgId).eq('status', 'completed'),
         db.from('payout_requests').select('amount, status').eq('organization_id', orgId),
-        db.from('affiliate_sales').select('commission_amount, status, payable_at, created_at').eq('affiliate_user_id', user.id),
+          db.from('affiliate_sales').select('commission_amount, status, payable_at, created_at').eq('affiliate_user_id', user.id).eq('organization_id', orgId),
       ]);
 
       const allTxns = [...(donations || []), ...(purchases || [])];
@@ -211,7 +211,7 @@ export default function AdminPayouts() {
                 {fmt(availableBalance, currency)}
               </p>
               <p className="text-xs text-background/50 mt-2">
-                {isFr ? 'Ventes et dons reçus (après 72h) + commissions (après 15j) − retraits' : 'Sales and donations received (after 72h) + commissions (after 15d) − withdrawals'}
+                {isFr ? 'Ventes et dons reçus (après 72h) + commissions gagnées (après 15j) − retraits' : 'Sales and donations received (after 72h) + earned commissions (after 15d) − withdrawals'}
               </p>
 
               {/* CTA */}
@@ -302,7 +302,7 @@ export default function AdminPayouts() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
                 { label: isFr ? "Chiffre d'affaires total" : 'Total gross revenue', value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, accent: 'text-foreground', bg: 'bg-muted/50', useCurrencyIcon: true },
-                { label: isFr ? 'Votre part nette' : 'Your net share', value: fmt(fundSummary.totalOrgReceived, currency), icon: Banknote, accent: 'text-emerald-500', bg: 'bg-emerald-500/8' },
+                { label: isFr ? 'Votre part (ventes + dons)' : 'Your share (sales + donations)', value: fmt(fundSummary.totalOrgReceived, currency), icon: Banknote, accent: 'text-emerald-500', bg: 'bg-emerald-500/8' },
                 { label: t('payouts.platform_fees'), value: fmt(fundSummary.totalPlatformFees, currency), icon: Shield, accent: 'text-muted-foreground', bg: 'bg-muted/50' },
                 { label: isFr ? 'Commissions affiliées payées' : 'Affiliate commissions paid', value: fmt(fundSummary.totalAffiliateCommissionsPaid, currency), icon: ArrowUpRight, accent: 'text-amber-500', bg: 'bg-amber-500/8' },
               ].map(c => (
@@ -320,7 +320,7 @@ export default function AdminPayouts() {
 
           {/* Ambassador Earnings */}
           <div className="space-y-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{isFr ? 'Gains Ambassadeur' : 'Ambassador Earnings'}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{isFr ? 'Commissions gagnées' : 'Earned commissions'}</p>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
                 { label: isFr ? 'Total gagné' : 'Total earned', value: fmt(fundSummary.totalAmbassadorEarned, currency), icon: TrendingUp, accent: 'text-violet-500', bg: 'bg-violet-500/8' },
