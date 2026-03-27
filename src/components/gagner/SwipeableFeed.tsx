@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Search, SlidersHorizontal, TrendingUp, Flame, DollarSign } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { useAffiliateMarketplace } from '@/hooks/useAffiliateMarketplace';
 import { ProductSwipeCard } from './ProductSwipeCard';
 import { cn } from '@/lib/utils';
 import { CategoryFilter, ProductCategory, categorizeProduct } from './CategoryFilter';
+import { diversifyFeed } from '@/lib/feed-diversity';
 
 type SortMode = 'trending' | 'commission' | 'price' | 'newest';
 
@@ -23,21 +24,30 @@ export function SwipeableFeed() {
     return categorizeProduct(p.title, p.description) === category;
   });
 
-  const sortedProducts = [...filteredProducts].sort((a: any, b: any) => {
-    if (sortMode === 'commission') {
-      const cA = a.organizations?.affiliation_commission_percent || 10;
-      const cB = b.organizations?.affiliation_commission_percent || 10;
-      return cB - cA;
+  const sortedProducts = useMemo(() => {
+    const sorted = [...filteredProducts].sort((a: any, b: any) => {
+      if (sortMode === 'commission') {
+        const cA = a.organizations?.affiliation_commission_percent || 10;
+        const cB = b.organizations?.affiliation_commission_percent || 10;
+        return cB - cA;
+      }
+      if (sortMode === 'price') {
+        return (b.price || 0) - (a.price || 0);
+      }
+      if (sortMode === 'newest') {
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      }
+      // trending = diversified feed
+      return 0;
+    });
+
+    // Apply diversity for trending mode, per-org cap for all modes
+    if (sortMode === 'trending') {
+      return diversifyFeed(sorted);
     }
-    if (sortMode === 'price') {
-      return (b.price || 0) - (a.price || 0);
-    }
-    if (sortMode === 'newest') {
-      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-    }
-    // trending = by sales_count (default)
-    return (b.sales_count || 0) - (a.sales_count || 0);
-  });
+    // For other sorts, still apply per-org cap
+    return diversifyFeed(sorted, { maxPerOrg: 3 });
+  }, [filteredProducts, sortMode]);
 
   return (
     <div className="space-y-5">

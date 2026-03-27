@@ -5,10 +5,11 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { BookOpen, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
+import { diversifyFeed } from '@/lib/feed-diversity';
 
 const CATEGORY_META = [
   { value: '', emoji: '✨' },
@@ -63,9 +64,8 @@ export function CategoryCarousels() {
         .select('*, organizations(name, slug, logo_url, currency, is_verified)')
         .eq('is_published', true)
         .eq('is_express_demo', false)
-        .order('featured_score', { ascending: false })
-        .order('sales_count', { ascending: false })
-        .limit(12);
+        .order('created_at', { ascending: false })
+        .limit(50);
 
       if (activeCategory) {
         q = q.eq('product_type', activeCategory);
@@ -82,6 +82,11 @@ export function CategoryCarousels() {
     },
     staleTime: 2 * 60 * 1000,
   });
+
+  const diverseProducts = useMemo(() => {
+    if (isCourseCategory) return products; // programs don't need diversity
+    return diversifyFeed(products).slice(0, 12);
+  }, [products, isCourseCategory]);
 
   return (
     <div className="space-y-4 py-4">
@@ -111,14 +116,14 @@ export function CategoryCarousels() {
         <div className="flex justify-center py-8">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
-      ) : products.length === 0 ? (
+      ) : diverseProducts.length === 0 ? (
         <p className="text-center text-sm text-muted-foreground py-6">
           {isFr ? 'Aucun produit dans cette catégorie' : 'No product in this category'}
         </p>
       ) : (
         <ScrollArea className="w-full">
           <div className="flex gap-4 pb-4 px-1">
-            {products.map((p: any, i: number) => (
+            {diverseProducts.map((p: any, i: number) => (
               <motion.div
                 key={p.id}
                 initial={{ opacity: 0, scale: 0.95 }}
