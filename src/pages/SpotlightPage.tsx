@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import { Star, TrendingUp, Flame, Crown, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
+import { diversifyFeed } from '@/lib/feed-diversity';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -31,10 +32,12 @@ export default function SpotlightPage() {
         .eq('is_published', true)
         .eq('is_featured', true)
         .order('featured_score', { ascending: false })
-        .limit(12);
+        .limit(30);
       return data || [];
     },
   });
+
+  const diverseFeatured = useMemo(() => diversifyFeed(featuredProducts).slice(0, 12), [featuredProducts]);
 
   const { data: trendingProducts = [], isLoading: loadingTrending } = useQuery({
     queryKey: ['spotlight-trending'],
@@ -44,10 +47,12 @@ export default function SpotlightPage() {
         .select('*, organizations(name, slug, logo_url, kyc_status)')
         .eq('is_published', true)
         .order('sales_count', { ascending: false })
-        .limit(8);
+        .limit(30);
       return data || [];
     },
   });
+
+  const diverseTrending = useMemo(() => diversifyFeed(trendingProducts).slice(0, 8), [trendingProducts]);
 
   const { data: featuredCampaigns = [], isLoading: loadingCampaigns } = useQuery({
     queryKey: ['spotlight-campaigns'],
@@ -92,7 +97,7 @@ export default function SpotlightPage() {
         {isLoading ? <SkeletonList count={6} /> : (
           <>
             {/* Featured Products */}
-            {featuredProducts.length > 0 && (
+            {diverseFeatured.length > 0 && (
               <section className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Crown className="h-5 w-5 text-amber-500" />
@@ -100,7 +105,7 @@ export default function SpotlightPage() {
                   <Badge className="bg-amber-500/10 text-amber-600 border-0 text-[10px]">⭐ Curated</Badge>
                 </div>
                 <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {featuredProducts.map((p: any) => (
+                  {diverseFeatured.map((p: any) => (
                     <motion.div key={p.id} variants={fadeUp}>
                       <ProductCard product={p} />
                     </motion.div>
@@ -110,7 +115,7 @@ export default function SpotlightPage() {
             )}
 
             {/* Trending */}
-            {trendingProducts.length > 0 && (
+            {diverseTrending.length > 0 && (
               <section className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Flame className="h-5 w-5 text-orange-500" />
@@ -118,7 +123,7 @@ export default function SpotlightPage() {
                   <Badge className="bg-orange-500/10 text-orange-600 border-0 text-[10px]">🔥 Hot</Badge>
                 </div>
                 <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {trendingProducts.map((p: any) => (
+                  {diverseTrending.map((p: any) => (
                     <motion.div key={p.id} variants={fadeUp}>
                       <ProductCard product={p} />
                     </motion.div>
@@ -144,7 +149,7 @@ export default function SpotlightPage() {
               </section>
             )}
 
-            {featuredProducts.length === 0 && trendingProducts.length === 0 && featuredCampaigns.length === 0 && (
+            {diverseFeatured.length === 0 && diverseTrending.length === 0 && featuredCampaigns.length === 0 && (
               <EmptyState
                 variant="generic"
                 title={isFr ? 'Rien à afficher pour le moment' : 'Nothing to show yet'}
