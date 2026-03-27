@@ -172,7 +172,7 @@ export default function UserDashboard() {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }}>
           <div className="space-y-2">
             {/* Row 1 – Mon activité */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 text-center">
                 <p className="text-lg font-bold text-primary">{purchases.length}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Achats' : 'Purchases'}</p>
@@ -181,20 +181,24 @@ export default function UserDashboard() {
                 <p className="text-lg font-bold text-rose-600">{donations.length}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dons' : 'Donations'}</p>
               </div>
-            </div>
-            {/* Row 2 – Mes revenus */}
-            <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-xl bg-blue-500/5 border border-blue-500/10 p-3 text-center">
-                <p className="text-lg font-bold text-blue-600">{salesStats?.count || 0}</p>
-                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Ventes' : 'Sales'}</p>
-              </div>
               <div className="rounded-xl bg-violet-500/5 border border-violet-500/10 p-3 text-center">
                 <p className="text-lg font-bold text-violet-600">{fmt(commissionTotal)}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Commissions' : 'Commissions'}</p>
               </div>
+            </div>
+            {/* Row 2 – Mes revenus */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-xl bg-blue-500/5 border border-blue-500/10 p-3 text-center">
+                <p className="text-lg font-bold text-blue-600">{fmt(salesStats?.revenue || 0)}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Ventes' : 'Sales'}</p>
+              </div>
+              <div className="rounded-xl bg-amber-500/5 border border-amber-500/10 p-3 text-center">
+                <p className="text-lg font-bold text-amber-600">{fmt(donationsReceived)}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dons reçus' : 'Received'}</p>
+              </div>
               <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/10 p-3 text-center">
                 <p className="text-lg font-bold text-emerald-600">{fmt((salesStats?.revenue || 0) + donationsReceived)}</p>
-                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Revenus' : 'Revenue'}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Revenus total' : 'Total revenue'}</p>
               </div>
             </div>
             {currentOrg && (
