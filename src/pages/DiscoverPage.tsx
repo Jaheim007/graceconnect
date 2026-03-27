@@ -7,8 +7,6 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/products/ProductCard';
-import { CampaignCard } from '@/components/donations/CampaignCard';
-import { OfferingCard } from '@/components/offerings/OfferingCard';
 import { OfferingModal } from '@/components/offerings/OfferingModal';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
