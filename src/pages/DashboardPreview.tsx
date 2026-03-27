@@ -82,7 +82,7 @@ export default function DashboardPreview() {
     const commCount = seededInt(1, 6, rng);
     const salesCount = data.metrics.totalTransactions;
 
-    // Commission = % of sales revenue (NOT total revenue)
+    // Sales revenue = totalRevenue minus donations
     const salesRevenue = data.metrics.totalRevenue - data.donations.totalReceived;
     const commPercent = seededInt(3, 12, rng);
     const commAmount = Math.round(salesRevenue * commPercent / 100);
@@ -91,8 +91,8 @@ export default function DashboardPreview() {
     const donReceived = data.donations.totalReceived;
     const donReceivedCount = data.donations.donationCount;
 
-    // Total revenue = sales + donations received + commissions earned
-    const totalRevenue = salesRevenue + donReceived + commAmount;
+    // Total revenue = data.metrics.totalRevenue (sales + donations) — matches KPI card exactly
+    const totalRevenue = data.metrics.totalRevenue;
 
     return {
       personName, communityName: data.orgName,
