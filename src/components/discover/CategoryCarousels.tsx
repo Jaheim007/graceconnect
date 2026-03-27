@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { ProductCard } from '@/components/products/ProductCard';
+import { CampaignCard } from '@/components/donations/CampaignCard';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { BookOpen, Loader2 } from 'lucide-react';
+import { BookOpen, Loader2, Heart, HandHeart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useMemo, useState } from 'react';
@@ -10,6 +11,9 @@ import { useI18n } from '@/i18n/I18nContext';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { diversifyFeed } from '@/lib/feed-diversity';
+import { OfferingCard } from '@/components/offerings/OfferingCard';
+import { OfferingModal } from '@/components/offerings/OfferingModal';
+import { Offering } from '@/hooks/useOfferings';
 
 const CATEGORY_META = [
   { value: '', emoji: '✨' },
@@ -19,10 +23,15 @@ const CATEGORY_META = [
   { value: 'video', emoji: '🎬' },
   { value: 'course', emoji: '🎓' },
   { value: 'link', emoji: '🔗' },
+  { value: 'campaigns', emoji: '❤️' },
+  { value: 'offerings', emoji: '🤲' },
 ] as const;
 
+type CategoryValue = typeof CATEGORY_META[number]['value'];
+
 export function CategoryCarousels() {
-  const [activeCategory, setActiveCategory] = useState('');
+  const [activeCategory, setActiveCategory] = useState<CategoryValue>('');
+  const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
@@ -34,14 +43,19 @@ export function CategoryCarousels() {
     video: isFr ? 'Vidéo' : 'Video',
     course: isFr ? 'Cours' : 'Courses',
     link: isFr ? 'Liens' : 'Links',
+    campaigns: isFr ? 'Campagnes' : 'Campaigns',
+    offerings: isFr ? 'Dons' : 'Donations',
   };
 
   const isCourseCategory = activeCategory === 'course';
+  const isCampaignCategory = activeCategory === 'campaigns';
+  const isOfferingCategory = activeCategory === 'offerings';
+  const isSpecialCategory = isCampaignCategory || isOfferingCategory;
 
-  const { data: products = [], isLoading } = useQuery({
+  // Products / programs query
+  const { data: products = [], isLoading: loadingProducts } = useQuery({
     queryKey: ['category-carousel', activeCategory],
     queryFn: async () => {
-      // For "course" category, query the programs table instead
       if (isCourseCategory) {
         const { data } = await db
           .from('programs')
@@ -67,7 +81,7 @@ export function CategoryCarousels() {
         .order('created_at', { ascending: false })
         .limit(50);
 
-      if (activeCategory) {
+      if (activeCategory && !isSpecialCategory) {
         q = q.eq('product_type', activeCategory);
       }
 
@@ -81,12 +95,68 @@ export function CategoryCarousels() {
       }));
     },
     staleTime: 2 * 60 * 1000,
+    enabled: !isSpecialCategory,
+  });
+
+  // Campaigns query
+  const { data: campaigns = [], isLoading: loadingCampaigns } = useQuery({
+    queryKey: ['category-carousel-campaigns'],
+    queryFn: async () => {
+      const { data } = await db
+        .from('donation_campaigns')
+        .select('*, organizations(name, slug, logo_url, currency, is_verified, kyc_status, category)')
+        .eq('is_published', true)
+        .eq('is_active', true)
+        .eq('is_express_demo', false)
+        .order('current_amount', { ascending: false })
+        .limit(12);
+      return (data || []).map((c: any) => ({
+        ...c,
+        organization_name: c.organizations?.name,
+        organization_slug: c.organizations?.slug,
+        is_org_verified: c.organizations?.is_verified,
+        org_kyc_status: c.organizations?.kyc_status,
+        org_category: c.organizations?.category,
+      }));
+    },
+    staleTime: 2 * 60 * 1000,
+    enabled: isCampaignCategory,
+  });
+
+  // Offerings query
+  const { data: offerings = [], isLoading: loadingOfferings } = useQuery({
+    queryKey: ['category-carousel-offerings'],
+    queryFn: async () => {
+      const { data } = await db
+        .from('offerings')
+        .select('*, organizations!inner(name, slug, logo_url, currency, offerings_enabled, is_verified, kyc_status, category)')
+        .eq('is_active', true)
+        .eq('organizations.offerings_enabled', true)
+        .order('created_at', { ascending: false })
+        .limit(12);
+      return (data || []).map((o: any) => ({
+        ...o,
+        organization_name: o.organizations?.name,
+        organization_slug: o.organizations?.slug,
+        is_org_verified: o.organizations?.is_verified,
+        org_kyc_status: o.organizations?.kyc_status,
+        org_category: o.organizations?.category,
+      }));
+    },
+    staleTime: 2 * 60 * 1000,
+    enabled: isOfferingCategory,
   });
 
   const diverseProducts = useMemo(() => {
-    if (isCourseCategory) return products; // programs don't need diversity
+    if (isCourseCategory || isSpecialCategory) return products;
     return diversifyFeed(products).slice(0, 12);
-  }, [products, isCourseCategory]);
+  }, [products, isCourseCategory, isSpecialCategory]);
+
+  const isLoading = isSpecialCategory
+    ? (isCampaignCategory ? loadingCampaigns : loadingOfferings)
+    : loadingProducts;
+
+  const currentItems = isCampaignCategory ? campaigns : isOfferingCategory ? offerings : diverseProducts;
 
   return (
     <div className="space-y-4 py-4">
@@ -111,16 +181,45 @@ export function CategoryCarousels() {
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
 
-      {/* Horizontal product carousel */}
+      {/* Content */}
       {isLoading ? (
         <div className="flex justify-center py-8">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
-      ) : diverseProducts.length === 0 ? (
+      ) : currentItems.length === 0 ? (
         <p className="text-center text-sm text-muted-foreground py-6">
-          {isFr ? 'Aucun produit dans cette catégorie' : 'No product in this category'}
+          {isFr ? 'Aucun contenu dans cette catégorie' : 'No content in this category'}
         </p>
+      ) : isCampaignCategory ? (
+        /* Campaigns grid */
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-1">
+          {campaigns.map((c: any, i: number) => (
+            <motion.div
+              key={c.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.03 }}
+            >
+              <CampaignCard campaign={c} />
+            </motion.div>
+          ))}
+        </div>
+      ) : isOfferingCategory ? (
+        /* Offerings grid */
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-1">
+          {offerings.map((o: any, i: number) => (
+            <motion.div
+              key={o.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.03 }}
+            >
+              <OfferingCard offering={o} onSelect={setSelectedOffering} />
+            </motion.div>
+          ))}
+        </div>
       ) : (
+        /* Products / programs carousel */
         <ScrollArea className="w-full">
           <div className="flex gap-4 pb-4 px-1">
             {diverseProducts.map((p: any, i: number) => (
@@ -165,6 +264,15 @@ export function CategoryCarousels() {
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
+      )}
+
+      {selectedOffering && (
+        <OfferingModal
+          offering={selectedOffering}
+          organizationId={selectedOffering.organization_id}
+          open={!!selectedOffering}
+          onClose={() => setSelectedOffering(null)}
+        />
       )}
     </div>
   );
