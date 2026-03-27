@@ -16,6 +16,7 @@ const LandingMobileMoney = lazy(() => import('@/components/landing/LandingMobile
 const LandingTrustShield = lazy(() => import('@/components/landing/LandingTrustShield').then(m => ({ default: m.LandingTrustShield })));
 const LandingPricingSimple = lazy(() => import('@/components/landing/LandingPricingSimple').then(m => ({ default: m.LandingPricingSimple })));
 const LandingMigration = lazy(() => import('@/components/landing/LandingMigration').then(m => ({ default: m.LandingMigration })));
+const LandingResultsShowcase = lazy(() => import('@/components/landing/LandingResultsShowcase'));
 const LandingFinalCTA = lazy(() => import('@/components/landing/LandingFinalCTA').then(m => ({ default: m.LandingFinalCTA })));
 const LandingFooterCompact = lazy(() => import('@/components/landing/LandingFooterCompact').then(m => ({ default: m.LandingFooterCompact })));
 
