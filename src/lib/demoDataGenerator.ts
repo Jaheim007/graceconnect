@@ -136,14 +136,19 @@ export interface DemoData {
 }
 
 export function generateDemoData(): DemoData {
-  const orgName = pick(ORG_NAMES);
+  // Determine org type: church or company
+  const isChurch = Math.random() < 0.6; // 60% churches
+  const orgType: 'church' | 'company' = isChurch ? 'church' : 'company';
+  const orgName = isChurch ? pick(CHURCH_NAMES) : pick(COMPANY_NAMES);
   const orgCurrency = pick(CURRENCY_POOL);
 
-  // Consistent multi-org list (all using SAME currency for this dashboard)
-  const otherOrgs = uniquePicks(ORG_NAMES.filter(n => n !== orgName), randInt(3, 5));
+  // Consistent multi-org list with types
+  const otherChurches = uniquePicks(CHURCH_NAMES.filter(n => n !== orgName), randInt(1, 3));
+  const otherCompanies = uniquePicks(COMPANY_NAMES.filter(n => n !== orgName), randInt(1, 2));
   const orgs = [
-    { name: orgName, currency: orgCurrency.code },
-    ...otherOrgs.map(name => ({ name, currency: orgCurrency.code })),
+    { name: orgName, currency: orgCurrency.code, type: orgType },
+    ...otherChurches.map(name => ({ name, currency: orgCurrency.code, type: 'church' as const })),
+    ...otherCompanies.map(name => ({ name, currency: orgCurrency.code, type: 'company' as const })),
   ];
 
   // ── Build consistent KPIs ──
