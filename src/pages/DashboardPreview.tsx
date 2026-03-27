@@ -46,13 +46,23 @@ const statusColors: Record<string, string> = {
 
 type Tab = 'dashboard' | 'sales' | 'ai-studio' | 'viral-tools';
 
+// DiceBear avatar URL helper
+const avatarUrl = (seed: string, style = 'thumbs') =>
+  `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+
 export default function DashboardPreview() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
-  const data = useMemo(() => generateDemoData(), []);
+  const [data, setData] = useState<DemoData>(() => generateDemoData());
+  const [seed, setSeed] = useState(0);
 
-  // Generate random user dashboard data
+  const handleRandomize = useCallback(() => {
+    setData(generateDemoData());
+    setSeed(s => s + 1);
+  }, []);
+
+  // Derive user dashboard stats FROM data so everything matches
   const userDemo = useMemo(() => {
-    const rng = createSeededRandom(getDaySeed() + 99);
+    const rng = createSeededRandom(seed + 42);
     const COMMUNITY_NAMES = [
       'Lumière Eternelle', 'Grâce Infinie', 'Shalom Community', 'Foi Vivante',
       'Espoir du Monde', 'Bénédiction Céleste', 'Parole de Vie', 'Joie Divine',
@@ -62,18 +72,22 @@ export default function DashboardPreview() {
     ];
     const name = seededPick(COMMUNITY_NAMES, rng);
     const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    const purchases = seededInt(0, 8, rng);
+
+    // Derive from data for consistency
+    const purchases = seededInt(2, 10, rng);
     const donations = seededInt(0, 5, rng);
-    const commCount = seededInt(0, 4, rng);
-    const commAmount = commCount * seededInt(200, 2000, rng);
-    const salesCount = seededInt(0, 12, rng);
-    const salesAmount = salesCount * seededInt(500, 5000, rng);
+    const commCount = seededInt(1, 6, rng);
+    // Commission = small % of total revenue
+    const commAmount = Math.round(data.metrics.totalRevenue * seededInt(3, 12, rng) / 100);
+    // Sales = bulk of revenue
+    const salesAmount = data.metrics.totalRevenue - commAmount;
+    const salesCount = data.metrics.totalTransactions;
     const donReceived = seededInt(0, 3, rng) * seededInt(1000, 8000, rng);
+    // Total revenue = sales + donations received + commissions (matches dashboard Total Revenue)
     const totalRevenue = salesAmount + donReceived + commAmount;
-    const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-violet-500', 'bg-amber-500', 'bg-rose-500', 'bg-primary'];
-    const bgColor = seededPick(colors, rng);
-    return { name, initials, purchases, donations, commCount, commAmount, salesCount, salesAmount, donReceived, totalRevenue, bgColor };
-  }, []);
+
+    return { name, initials, purchases, donations, commCount, commAmount, salesCount, salesAmount, donReceived, totalRevenue };
+  }, [data, seed]);
 
   const tabs: { key: Tab; label: string; icon: typeof BarChart3 }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: BarChart3 },
