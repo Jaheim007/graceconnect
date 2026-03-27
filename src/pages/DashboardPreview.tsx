@@ -94,8 +94,10 @@ export default function DashboardPreview() {
     // Total revenue = data.metrics.totalRevenue (sales + donations) — matches KPI card exactly
     const totalRevenue = data.metrics.totalRevenue;
 
+    const greetingFr = rng() > 0.5;
+
     return {
-      personName, communityName: data.orgName,
+      personName, communityName: data.orgName, greetingFr,
       purchases, donations: donationsMade, commCount, commAmount,
       salesCount, salesAmount: salesRevenue,
       donReceived, donReceivedCount,
