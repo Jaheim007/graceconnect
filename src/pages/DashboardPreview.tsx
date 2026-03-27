@@ -167,10 +167,14 @@ export default function DashboardPreview() {
             {/* User Dashboard Simulation */}
             <motion.div {...fadeUp(0)} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
               <div className="flex items-center gap-3 mb-5">
-                <img src={avatarUrl(userDemo.personName)} alt={userDemo.personName} className="h-12 w-12 rounded-full bg-muted" />
+                <img src={avatarUrl(data.orgName)} alt={data.orgName} className="h-12 w-12 rounded-full bg-muted" />
                 <div>
-                  <h2 className="text-lg font-bold">Good morning, {userDemo.personName.split(' ')[0]} 👋</h2>
-                  <p className="text-xs text-muted-foreground">Your personal space · {userDemo.communityName}</p>
+                  <h2 className="text-lg font-bold">
+                    {Math.random() > 0.5 ? 'Bonjour' : 'Good morning'}, {data.orgName} 👋
+                  </h2>
+                  <p className="text-xs text-muted-foreground">
+                    {data.orgType === 'church' ? 'Espace communauté' : 'Espace entreprise'} · {userDemo.personName}
+                  </p>
                 </div>
               </div>
 
