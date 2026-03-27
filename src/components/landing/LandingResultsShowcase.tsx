@@ -225,24 +225,29 @@ export function LandingResultsShowcase() {
               <motion.div
                 key={current}
                 custom={direction}
-                initial={(dir: number) => ({
-                  x: dir > 0 ? '100%' : '-100%',
-                  opacity: 0,
-                  scale: 0.88,
-                  rotateY: dir > 0 ? 12 : -12,
-                })}
-                animate={{
-                  x: 0,
-                  opacity: 1,
-                  scale: 1,
-                  rotateY: 0,
+                variants={{
+                  enter: (dir: number) => ({
+                    x: dir > 0 ? '100%' : '-100%',
+                    opacity: 0,
+                    scale: 0.88,
+                    rotateY: dir > 0 ? 12 : -12,
+                  }),
+                  center: {
+                    x: 0,
+                    opacity: 1,
+                    scale: 1,
+                    rotateY: 0,
+                  },
+                  exit: (dir: number) => ({
+                    x: dir > 0 ? '-100%' : '100%',
+                    opacity: 0,
+                    scale: 0.88,
+                    rotateY: dir > 0 ? -12 : 12,
+                  }),
                 }}
-                exit={(dir: number) => ({
-                  x: dir > 0 ? '-100%' : '100%',
-                  opacity: 0,
-                  scale: 0.88,
-                  rotateY: dir > 0 ? -12 : 12,
-                })}
+                initial="enter"
+                animate="center"
+                exit="exit"
                 transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
                 style={{ perspective: 1200 }}
               >
