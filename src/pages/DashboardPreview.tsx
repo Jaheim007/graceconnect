@@ -63,6 +63,18 @@ export default function DashboardPreview() {
   // Derive user dashboard stats FROM data so everything matches
   const userDemo = useMemo(() => {
     const rng = createSeededRandom(seed + 42);
+    const PERSON_NAMES = [
+      'Kouadio Amani', 'Adjoua Bintou', 'Yao Konan', 'Awa Traoré', 'Sékou Diallo',
+      'Fatoumata Koné', 'Moussa Bakayoko', 'Aminata Coulibaly', 'Lacina Ouattara', 'Djénéba Sangaré',
+      'Abou Sidibé', 'Mariam Diabaté', 'Issouf Touré', 'Rokia Bamba', 'Drissa Kouyaté',
+      'Nassénéba Fofana', 'Brahima Soro', 'Karidja Dembélé', 'Tiémoko Yéo', 'Salimata Cissé',
+      'Koné Vassiriki', 'Aïcha Doumbia', 'Mamadou Kaboré', 'Sita Ouédraogo', 'Bonaventure Kassi',
+      'Élise Gnangoran', 'Hervé Koffi', 'Clarisse Ahoussi', 'Stéphane Aké', 'Bérénice Tanoh',
+      'Wilfried Eboué', 'Nadège Assi', 'Ghislain Tano', 'Sandrine Koua', 'Arnaud Brou',
+      'Chanceline Yapi', 'Parfait Gogué', 'Edwige Tia', 'Modeste Kra', 'Viviane Guéi',
+      'Ousmane Ndoye', 'Khady Diop', 'Ibrahima Ndiaye', 'Astou Seck', 'Pape Mbow',
+      'Ndeye Fatou Sarr', 'Aliou Bâ', 'Coumba Tall', 'Cheikh Mbaye', 'Rama Gueye',
+    ];
     const COMMUNITY_NAMES = [
       'Lumière Eternelle', 'Grâce Infinie', 'Shalom Community', 'Foi Vivante',
       'Espoir du Monde', 'Bénédiction Céleste', 'Parole de Vie', 'Joie Divine',
@@ -70,23 +82,21 @@ export default function DashboardPreview() {
       'Refuge Céleste', 'Flamme Sacrée', 'Terre Promise', 'Arc-en-Ciel',
       'Vision Nouvelle', 'Cœur Pur', 'Pierre Angulaire', 'Moisson Dorée',
     ];
-    const name = seededPick(COMMUNITY_NAMES, rng);
-    const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const personName = seededPick(PERSON_NAMES, rng);
+    const communityName = seededPick(COMMUNITY_NAMES, rng);
 
+    const cur = data.orgCurrency;
     // Derive from data for consistency
     const purchases = seededInt(2, 10, rng);
     const donations = seededInt(0, 5, rng);
     const commCount = seededInt(1, 6, rng);
-    // Commission = small % of total revenue
     const commAmount = Math.round(data.metrics.totalRevenue * seededInt(3, 12, rng) / 100);
-    // Sales = bulk of revenue
     const salesAmount = data.metrics.totalRevenue - commAmount;
     const salesCount = data.metrics.totalTransactions;
-    const donReceived = seededInt(0, 3, rng) * seededInt(1000, 8000, rng);
-    // Total revenue = sales + donations received + commissions (matches dashboard Total Revenue)
+    const donReceived = seededInt(0, 3, rng) * seededInt(Math.round(cur.txMin * 0.5), cur.txMax, rng);
     const totalRevenue = salesAmount + donReceived + commAmount;
 
-    return { name, initials, purchases, donations, commCount, commAmount, salesCount, salesAmount, donReceived, totalRevenue };
+    return { personName, communityName, purchases, donations, commCount, commAmount, salesCount, salesAmount, donReceived, totalRevenue };
   }, [data, seed]);
 
   const tabs: { key: Tab; label: string; icon: typeof BarChart3 }[] = [
