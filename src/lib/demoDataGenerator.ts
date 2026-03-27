@@ -280,5 +280,26 @@ export function generateDemoData(): DemoData {
     topLinks: viralTopLinks,
   };
 
-  return { orgName, orgCurrency, metrics, revenueChart, sales, aiProjects, ambassador, viralTools, orgs };
+  // ── Donations (churches get LOTS, companies get very few) ──
+  const donationCount = isChurch ? randInt(20, 200) : randInt(0, 5);
+  const avgDonation = randInt(orgCurrency.txMin, Math.round(orgCurrency.txMax * 1.5));
+  const totalDonationsReceived = donationCount * avgDonation;
+
+  const donations = {
+    totalReceived: totalDonationsReceived,
+    donationCount,
+  };
+
+  // Total revenue now includes sales + donations
+  metrics.totalRevenue = totalRevenue + totalDonationsReceived;
+
+  // Recalculate revenue chart to include donations
+  const donJan = Math.round(totalDonationsReceived * janShare);
+  const donFeb = Math.round(donJan * febGrowth);
+  const donMar = totalDonationsReceived - donJan - donFeb;
+  revenueChart[0].revenue += donJan;
+  revenueChart[1].revenue += donFeb;
+  revenueChart[2].revenue += donMar;
+
+  return { orgName, orgType, orgCurrency, metrics, donations, revenueChart, sales, aiProjects, ambassador, viralTools, orgs };
 }
