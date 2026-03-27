@@ -1,123 +1,77 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Users, ShoppingBag, Heart, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { TrendingUp, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ResultSlide {
+  image: string;
   orgName: string;
-  orgType: 'church' | 'enterprise';
-  revenue: string;
-  currency: string;
-  transactions: number;
-  donations: number;
-  customers: number;
-  products: number;
   testimonial: string;
   personName: string;
 }
 
-const RESULTS: ResultSlide[] = [
+const SLIDES: ResultSlide[] = [
   {
-    orgName: 'Ministère des Nations Unies en Christ',
-    orgType: 'church',
-    revenue: '20 340 964',
-    currency: 'F CFA',
-    transactions: 903,
-    donations: 133,
-    customers: 301,
-    products: 37,
-    testimonial: 'Grâce à SiteViral, notre communauté a pu digitaliser ses dons et vendre ses contenus spirituels. En quelques mois, nous avons atteint plus de 20 millions de revenus avec 903 transactions !',
-    personName: 'Clarisse A.',
+    image: '/images/results/result-1.jpg',
+    orgName: 'Foi Vivante',
+    testimonial: 'Plus de 3 millions F CFA de revenus et 1 018 ventes réalisées. SiteViral a changé notre manière de distribuer nos contenus spirituels.',
+    personName: 'Khady',
   },
   {
-    orgName: 'Communauté Charismatique Eben-Haézer Marcory',
-    orgType: 'church',
-    revenue: '10 155 996',
-    currency: 'FCFA',
-    transactions: 722,
-    donations: 129,
-    customers: 190,
-    products: 49,
-    testimonial: 'Nos 129 dons reçus et 722 ventes prouvent que la plateforme fonctionne. SiteViral a transformé la manière dont notre communauté partage et soutient nos projets.',
-    personName: 'Mamadou K.',
-  },
-  {
-    orgName: 'Sahel Digital',
-    orgType: 'enterprise',
-    revenue: '13 221 042',
-    currency: 'FCFA',
-    transactions: 1950,
-    donations: 3,
-    customers: 780,
-    products: 28,
-    testimonial: 'Avec près de 2 000 transactions et 780 clients, notre entreprise a trouvé le canal de vente idéal. 13 millions FCFA de chiffre d\'affaires, et ça continue de croître.',
-    personName: 'Aminata C.',
-  },
-  {
-    orgName: 'Christliche Gemeinschaft Lebendiges Wort',
-    orgType: 'church',
-    revenue: '25 623 080',
-    currency: 'FCFA',
-    transactions: 2030,
-    donations: 161,
-    customers: 383,
-    products: 72,
-    testimonial: 'Plus de 25 millions FCFA collectés, 161 dons reçus et 2 030 ventes. SiteViral nous a permis de toucher notre audience bien au-delà de nos murs.',
+    image: '/images/results/result-2.jpg',
+    orgName: 'Divine Arts Studio',
+    testimonial: '65 892 € de chiffre d\'affaires avec 2 528 transactions et 790 clients. La plateforme nous a ouvert le marché européen.',
     personName: 'Wilfried E.',
   },
   {
-    orgName: 'Ministère Kehila Haïm de Ouagadougou',
-    orgType: 'church',
-    revenue: '29 833 487',
-    currency: 'NGN',
-    transactions: 2205,
-    donations: 148,
-    customers: 735,
-    products: 49,
-    testimonial: 'Près de 30 millions NGN de revenus avec 148 dons et 2 205 transactions. La plateforme nous a ouvert des portes qu\'on n\'imaginait même pas.',
-    personName: 'Khady D.',
-  },
-  {
-    orgName: 'Entreprise Digitale Savane-Kerntech',
-    orgType: 'enterprise',
-    revenue: '3 341 641',
-    currency: 'FCFA',
-    transactions: 1000,
-    donations: 1,
-    customers: 196,
-    products: 57,
-    testimonial: 'Avec 57 produits numériques et 1 000 ventes, SiteViral est devenu notre principal outil de distribution. Simple, efficace, et les paiements Mobile Money marchent parfaitement.',
+    image: '/images/results/result-3.jpg',
+    orgName: 'Étoile Média',
+    testimonial: '£15 478 de revenus, 960 ventes et 291 clients au Royaume-Uni. Simple, rapide, et les paiements arrivent sans souci.',
     personName: 'Awa T.',
   },
   {
-    orgName: 'Evangelische Freikirche Lumière Afrique',
-    orgType: 'church',
-    revenue: '14 137 883',
-    currency: 'F CFA',
-    transactions: 659,
-    donations: 21,
-    customers: 439,
-    products: 18,
-    testimonial: 'Même avec seulement 18 produits, nous avons généré plus de 14 millions F CFA. La force des ambassadeurs est incroyable pour faire connaître nos ressources.',
-    personName: 'Rama G.',
+    image: '/images/results/result-4.jpg',
+    orgName: 'Ministère des Nations Unies en Christ',
+    testimonial: '20 340 964 F CFA de revenus, 903 ventes et 133 dons reçus. Notre communauté a trouvé le canal idéal pour soutenir notre mission.',
+    personName: 'Clarisse A.',
   },
   {
-    orgName: 'Kirchengemeinde Hoffnung Kinshasa',
-    orgType: 'church',
-    revenue: '14 411 924',
-    currency: 'FCFA',
-    transactions: 1790,
-    donations: 99,
-    customers: 459,
-    products: 64,
-    testimonial: '99 dons, 1 790 ventes, 459 membres actifs. SiteViral a donné une nouvelle dimension à notre mission avec plus de 14 millions FCFA de revenus.',
+    image: '/images/results/result-5.jpg',
+    orgName: 'Sahel Digital',
+    testimonial: '13 221 042 FCFA générés avec 1 950 transactions et 780 clients. SiteViral est devenu notre outil principal de vente.',
+    personName: 'Aminata C.',
+  },
+  {
+    image: '/images/results/result-6.jpg',
+    orgName: 'Akademie für Digitale Bildung Afrique',
+    testimonial: '5 615 301 KES de revenus avec 1 229 transactions. Les commissions d\'ambassadeurs boostent vraiment nos ventes.',
+    personName: 'Adjoua B.',
+  },
+  {
+    image: '/images/results/result-7.jpg',
+    orgName: 'Entreprise Digitale Savane-Kerntech',
+    testimonial: '3 341 641 FCFA et 1 000 ventes réalisées avec 57 produits. Le Mobile Money fonctionne parfaitement.',
+    personName: 'Awa T.',
+  },
+  {
+    image: '/images/results/result-8.jpg',
+    orgName: 'Gemeinde der Gnade Ewige Brazzaville',
+    testimonial: '9 407 850 FCFA collectés, 1 158 transactions et 23 dons. La force des ambassadeurs est incroyable.',
+    personName: 'Nadège A.',
+  },
+  {
+    image: '/images/results/result-9.jpg',
+    orgName: 'Ministère Kehila Haïm de Ouagadougou',
+    testimonial: 'Près de 30 millions NGN de revenus avec 2 205 transactions et 148 dons reçus. Des résultats au-delà de nos attentes.',
+    personName: 'Khady D.',
+  },
+  {
+    image: '/images/results/result-10.jpg',
+    orgName: 'Christliche Gemeinschaft Lebendiges Wort',
+    testimonial: '25 623 080 FCFA, 2 030 ventes et 161 dons. SiteViral nous a permis de toucher notre audience bien au-delà de nos murs.',
     personName: 'Wilfried E.',
   },
 ];
-
-function formatNum(n: number) {
-  return n.toLocaleString('fr-FR');
-}
 
 export function LandingResultsShowcase() {
   const [current, setCurrent] = useState(0);
@@ -125,12 +79,12 @@ export function LandingResultsShowcase() {
 
   const next = useCallback(() => {
     setDirection(1);
-    setCurrent(p => (p + 1) % RESULTS.length);
+    setCurrent(p => (p + 1) % SLIDES.length);
   }, []);
 
   const prev = useCallback(() => {
     setDirection(-1);
-    setCurrent(p => (p - 1 + RESULTS.length) % RESULTS.length);
+    setCurrent(p => (p - 1 + SLIDES.length) % SLIDES.length);
   }, []);
 
   useEffect(() => {
@@ -138,19 +92,19 @@ export function LandingResultsShowcase() {
     return () => clearInterval(timer);
   }, [next]);
 
-  const slide = RESULTS[current];
+  const slide = SLIDES[current];
 
   const variants = {
-    enter: (dir: number) => ({ x: dir > 0 ? 300 : -300, opacity: 0 }),
+    enter: (dir: number) => ({ x: dir > 0 ? 400 : -400, opacity: 0 }),
     center: { x: 0, opacity: 1 },
-    exit: (dir: number) => ({ x: dir > 0 ? -300 : 300, opacity: 0 }),
+    exit: (dir: number) => ({ x: dir > 0 ? -400 : 400, opacity: 0 }),
   };
 
   return (
     <section className="py-16 sm:py-24 bg-gradient-to-b from-muted/30 to-background" id="resultats">
       <div className="container max-w-5xl mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-10">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-4">
             <TrendingUp className="h-3.5 w-3.5" />
             Résultats vérifiés
@@ -181,7 +135,7 @@ export function LandingResultsShowcase() {
             <ChevronRight className="h-5 w-5" />
           </button>
 
-          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-lg min-h-[340px] sm:min-h-[300px]">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-lg">
             <AnimatePresence custom={direction} mode="wait">
               <motion.div
                 key={current}
@@ -191,57 +145,28 @@ export function LandingResultsShowcase() {
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.35, ease: 'easeInOut' }}
-                className="p-6 sm:p-10"
               >
-                {/* Org header */}
-                <div className="flex items-center gap-3 mb-6">
-                  <div className={cn(
-                    'h-12 w-12 rounded-full flex items-center justify-center text-lg font-bold shrink-0',
-                    slide.orgType === 'church'
-                      ? 'bg-primary/10 text-primary'
-                      : 'bg-accent/20 text-accent-foreground'
-                  )}>
-                    {slide.orgType === 'church' ? '⛪' : '🏢'}
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-base sm:text-lg truncate">{slide.orgName}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {slide.orgType === 'church' ? 'Communauté' : 'Entreprise'} · {slide.personName}
-                    </p>
-                  </div>
+                {/* Screenshot image */}
+                <div className="w-full">
+                  <img
+                    src={slide.image}
+                    alt={`Résultats de ${slide.orgName} sur SiteViral`}
+                    className="w-full h-auto"
+                    loading="lazy"
+                  />
                 </div>
 
-                {/* Stats grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                  <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-3 text-center">
-                    <TrendingUp className="h-4 w-4 text-emerald-500 mx-auto mb-1" />
-                    <p className="text-sm sm:text-base font-extrabold text-emerald-600">{slide.revenue}</p>
-                    <p className="text-[10px] text-muted-foreground font-medium">{slide.currency} de revenus</p>
+                {/* Testimonial bar */}
+                <div className="p-4 sm:p-6 border-t border-border bg-muted/30">
+                  <div className="flex items-start gap-3">
+                    <Quote className="h-5 w-5 text-primary/30 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-muted-foreground leading-relaxed italic">
+                        "{slide.testimonial}"
+                      </p>
+                      <p className="text-xs font-bold mt-2">— {slide.personName}, {slide.orgName}</p>
+                    </div>
                   </div>
-                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 text-center">
-                    <ShoppingBag className="h-4 w-4 text-primary mx-auto mb-1" />
-                    <p className="text-sm sm:text-base font-extrabold text-primary">{formatNum(slide.transactions)}</p>
-                    <p className="text-[10px] text-muted-foreground font-medium">Transactions</p>
-                  </div>
-                  <div className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-3 text-center">
-                    <Heart className="h-4 w-4 text-orange-500 mx-auto mb-1" />
-                    <p className="text-sm sm:text-base font-extrabold text-orange-600">{formatNum(slide.donations)}</p>
-                    <p className="text-[10px] text-muted-foreground font-medium">Dons reçus</p>
-                  </div>
-                  <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3 text-center">
-                    <Users className="h-4 w-4 text-blue-500 mx-auto mb-1" />
-                    <p className="text-sm sm:text-base font-extrabold text-blue-600">{formatNum(slide.customers)}</p>
-                    <p className="text-[10px] text-muted-foreground font-medium">Clients</p>
-                  </div>
-                </div>
-
-                {/* Testimonial quote */}
-                <div className="relative bg-muted/40 rounded-xl p-4 sm:p-5">
-                  <Quote className="h-5 w-5 text-primary/20 absolute top-3 left-3" />
-                  <p className="text-sm text-muted-foreground leading-relaxed italic pl-6">
-                    "{slide.testimonial}"
-                  </p>
-                  <p className="text-xs font-semibold mt-2 pl-6">— {slide.personName}</p>
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -249,7 +174,7 @@ export function LandingResultsShowcase() {
 
           {/* Dots */}
           <div className="flex justify-center gap-1.5 mt-5">
-            {RESULTS.map((_, i) => (
+            {SLIDES.map((_, i) => (
               <button
                 key={i}
                 onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
