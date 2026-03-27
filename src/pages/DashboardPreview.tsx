@@ -172,7 +172,7 @@ export default function DashboardPreview() {
                 <img src={avatarUrl(data.orgName)} alt={data.orgName} className="h-12 w-12 rounded-full bg-muted" />
                 <div>
                   <h2 className="text-lg font-bold">
-                    {Math.random() > 0.5 ? 'Bonjour' : 'Good morning'}, {data.orgName} 👋
+                    {userDemo.greetingFr ? 'Bonjour' : 'Good morning'}, {data.orgName} 👋
                   </h2>
                   <p className="text-xs text-muted-foreground">
                     {data.orgType === 'church' ? 'Espace communauté' : 'Espace entreprise'} · {userDemo.personName}
