@@ -181,8 +181,8 @@ export default function DashboardPreview() {
               {/* Row 1: Activity */}
               <div className="grid grid-cols-3 gap-3 mb-3">
                 {[
-                  { value: userDemo.purchases.toString(), label: 'Purchases', color: 'text-blue-600 bg-blue-50 border-blue-200' },
-                  { value: userDemo.donations.toString(), label: 'Donations', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+                  { value: userDemo.purchases.toString(), label: 'Achats', color: 'text-blue-600 bg-blue-50 border-blue-200' },
+                  { value: userDemo.donReceivedCount.toString(), label: 'Dons reçus', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
                   { value: fmtCurrency(userDemo.commAmount, data.orgCurrency.code), label: 'Commissions', sub: `${userDemo.commCount} commissions`, color: 'text-violet-600 bg-violet-50 border-violet-200' },
                 ].map((s) => (
                   <div key={s.label} className={cn('rounded-xl border p-3 text-center', s.color)}>
