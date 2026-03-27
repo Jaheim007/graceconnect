@@ -11,8 +11,10 @@ import { cn } from '@/lib/utils';
 import { generateDemoData, type DemoData } from '@/lib/demoDataGenerator';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { useState, useMemo } from 'react';
-import { getDaySeed, createSeededRandom, seededPick, seededInt } from '@/lib/seeded-random';
+import { useState, useMemo, useCallback } from 'react';
+import { RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { createSeededRandom, seededPick, seededInt } from '@/lib/seeded-random';
 
 const fmtCurrency = (n: number, currency = 'XOF') => {
   try {
@@ -44,13 +46,23 @@ const statusColors: Record<string, string> = {
 
 type Tab = 'dashboard' | 'sales' | 'ai-studio' | 'viral-tools';
 
+// DiceBear avatar URL helper
+const avatarUrl = (seed: string, style = 'thumbs') =>
+  `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+
 export default function DashboardPreview() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
-  const data = useMemo(() => generateDemoData(), []);
+  const [data, setData] = useState<DemoData>(() => generateDemoData());
+  const [seed, setSeed] = useState(0);
 
-  // Generate random user dashboard data
+  const handleRandomize = useCallback(() => {
+    setData(generateDemoData());
+    setSeed(s => s + 1);
+  }, []);
+
+  // Derive user dashboard stats FROM data so everything matches
   const userDemo = useMemo(() => {
-    const rng = createSeededRandom(getDaySeed() + 99);
+    const rng = createSeededRandom(seed + 42);
     const COMMUNITY_NAMES = [
       'Lumière Eternelle', 'Grâce Infinie', 'Shalom Community', 'Foi Vivante',
       'Espoir du Monde', 'Bénédiction Céleste', 'Parole de Vie', 'Joie Divine',
@@ -60,18 +72,22 @@ export default function DashboardPreview() {
     ];
     const name = seededPick(COMMUNITY_NAMES, rng);
     const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    const purchases = seededInt(0, 8, rng);
+
+    // Derive from data for consistency
+    const purchases = seededInt(2, 10, rng);
     const donations = seededInt(0, 5, rng);
-    const commCount = seededInt(0, 4, rng);
-    const commAmount = commCount * seededInt(200, 2000, rng);
-    const salesCount = seededInt(0, 12, rng);
-    const salesAmount = salesCount * seededInt(500, 5000, rng);
+    const commCount = seededInt(1, 6, rng);
+    // Commission = small % of total revenue
+    const commAmount = Math.round(data.metrics.totalRevenue * seededInt(3, 12, rng) / 100);
+    // Sales = bulk of revenue
+    const salesAmount = data.metrics.totalRevenue - commAmount;
+    const salesCount = data.metrics.totalTransactions;
     const donReceived = seededInt(0, 3, rng) * seededInt(1000, 8000, rng);
+    // Total revenue = sales + donations received + commissions (matches dashboard Total Revenue)
     const totalRevenue = salesAmount + donReceived + commAmount;
-    const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-violet-500', 'bg-amber-500', 'bg-rose-500', 'bg-primary'];
-    const bgColor = seededPick(colors, rng);
-    return { name, initials, purchases, donations, commCount, commAmount, salesCount, salesAmount, donReceived, totalRevenue, bgColor };
-  }, []);
+
+    return { name, initials, purchases, donations, commCount, commAmount, salesCount, salesAmount, donReceived, totalRevenue };
+  }, [data, seed]);
 
   const tabs: { key: Tab; label: string; icon: typeof BarChart3 }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -94,9 +110,7 @@ export default function DashboardPreview() {
               <span className="text-[9px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full">Creator Pro</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-xs font-bold text-primary">{data.orgName.slice(0, 2).toUpperCase()}</span>
-              </div>
+              <img src={avatarUrl(data.orgName, 'initials')} alt={data.orgName} className="h-8 w-8 rounded-full bg-muted" />
               <div className="hidden sm:block">
                 <p className="text-xs font-semibold">{data.orgName}</p>
                 <p className="text-[10px] text-muted-foreground">creator@example.com</p>
@@ -134,14 +148,18 @@ export default function DashboardPreview() {
           <>
             {/* User Dashboard Simulation */}
             <motion.div {...fadeUp(0)} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
-              <div className="flex items-center gap-3 mb-5">
-                <div className={cn('h-12 w-12 rounded-full flex items-center justify-center text-white font-bold text-sm', userDemo.bgColor)}>
-                  {userDemo.initials}
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <img src={avatarUrl(userDemo.name)} alt={userDemo.name} className="h-12 w-12 rounded-full bg-muted" />
+                  <div>
+                    <h2 className="text-lg font-bold">Good morning 👋</h2>
+                    <p className="text-xs text-muted-foreground">Your personal space · {userDemo.name}</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-lg font-bold">Good morning 👋</h2>
-                  <p className="text-xs text-muted-foreground">Your personal space · {userDemo.name}</p>
-                </div>
+                <Button variant="outline" size="sm" onClick={handleRandomize} className="gap-2">
+                  <RefreshCw className="h-3.5 w-3.5" />
+                  Randomize
+                </Button>
               </div>
 
               {/* Row 1: Activity */}
@@ -183,7 +201,7 @@ export default function DashboardPreview() {
         {activeTab === 'viral-tools' && <ViralToolsTab data={data} />}
 
         <p className="text-[9px] text-muted-foreground/40 text-center pt-4">
-          Updated in real-time
+          Dashboard Preview · Superadmin only
         </p>
       </div>
     </div>
@@ -280,9 +298,7 @@ function DashboardTab({ data }: { data: DemoData }) {
           <PremiumCard variant="default" noPadding className="divide-y divide-border">
             {sales.slice(0, 5).map((sale) => (
               <div key={sale.id} className="flex items-center gap-3 p-3.5">
-                <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                </div>
+                <img src={avatarUrl(sale.buyer)} alt={sale.buyer} className="h-9 w-9 rounded-full bg-muted shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold truncate">{sale.product}</p>
                   <p className="text-[10px] text-muted-foreground">{sale.buyer} · {sale.buyerFlag} {sale.buyerCity}</p>
@@ -316,9 +332,7 @@ function DashboardTab({ data }: { data: DemoData }) {
           <PremiumCard variant="default" noPadding className="mt-3 divide-y divide-border">
             {ambassador.topAmbassadors.slice(0, 3).map((amb, i) => (
               <div key={amb.name + i} className="flex items-center gap-3 p-3.5">
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                  {i + 1}
-                </div>
+                <img src={avatarUrl(amb.name)} alt={amb.name} className="h-8 w-8 rounded-full bg-muted" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold">{amb.name}</p>
                   <p className="text-[10px] text-muted-foreground">{amb.sales} sales</p>
