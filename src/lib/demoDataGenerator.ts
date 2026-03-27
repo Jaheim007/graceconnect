@@ -76,6 +76,7 @@ function uniquePicks<T>(arr: T[], count: number): T[] {
 
 export interface DemoData {
   orgName: string;
+  orgType: 'church' | 'company';
   orgCurrency: typeof CURRENCIES[0];
   metrics: {
     totalRevenue: number;
@@ -86,6 +87,10 @@ export interface DemoData {
     revenueGrowth: number;
     customerGrowth: number;
     transactionGrowth: number;
+  };
+  donations: {
+    totalReceived: number;
+    donationCount: number;
   };
   revenueChart: Array<{ month: string; revenue: number }>;
   sales: Array<{
@@ -127,7 +132,7 @@ export interface DemoData {
     landingPages: number;
     topLinks: Array<{ name: string; clicks: number; conversions: number; rate: string }>;
   };
-  orgs: Array<{ name: string; currency: string }>;
+  orgs: Array<{ name: string; currency: string; type: 'church' | 'company' }>;
 }
 
 export function generateDemoData(): DemoData {
