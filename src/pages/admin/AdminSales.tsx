@@ -184,6 +184,26 @@ export default function AdminSales() {
   const totalOrgReceived = completedTx.reduce((s, t) => s + (t.organization_amount || 0), 0);
   const totalAffComm = completedTx.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
 
+  const handleExport = () => {
+    downloadCSV(allTx.map(t => ({
+      type: t.type === 'purchase' ? (isFr ? 'Achat' : 'Purchase') : (isFr ? 'Don' : 'Donation'),
+      produit: t.label,
+      acheteur: t.buyer_display,
+      email: t.buyer_email || '',
+      telephone: t.buyer_phone || '',
+      montant: t.amount,
+      devise: t.currency,
+      recu_org: t.organization_amount,
+      frais_plateforme: t.platform_fee,
+      ambassadeur: t.affiliate_name || '',
+      commission_ambassadeur: t.affiliate_commission,
+      passerelle: t.gateway,
+      statut: t.status,
+      reference: t.paystack_reference,
+      date: t.created_at,
+    })), `${isFr ? 'ventes-dons' : 'sales-donations'}-${currentOrg?.slug || 'org'}`);
+  };
+
   const statCards = [
     { label: isFr ? 'Ventes' : 'Sales', value: completedSales.length.toString(), icon: ShoppingCart, color: 'blue' as const },
     { label: isFr ? 'Dons reçus' : 'Donations received', value: completedDonations.length.toString(), icon: Heart, color: 'rose' as const },
