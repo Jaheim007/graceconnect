@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import {
   TrendingUp, ShoppingBag, Users, Package, ArrowUpRight,
   Sparkles, BookOpen, Palette, Share2, BarChart3, Zap,
-  CheckCircle2, Clock, FileText, PenLine, Shuffle
+  CheckCircle2, Clock, FileText, PenLine
 } from 'lucide-react';
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { DashboardSection } from '@/components/ui/DashboardSection';
