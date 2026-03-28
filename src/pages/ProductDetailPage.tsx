@@ -425,25 +425,18 @@ export default function ProductDetailPage() {
         </div>
       )}
 
-      {/* Breadcrumb */}
-      <div className="container max-w-5xl px-4 pt-4">
-        <Breadcrumb items={[
-          { label: org?.name || 'Organisation', href: `/org/${slug}` },
-          { label: product.title },
-        ]} />
-      </div>
-
+      {/* Unified sticky header — org logo + back button (replaces separate breadcrumb + banner on mobile) */}
       <div
-        className="sticky top-14 z-20 border-b bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between"
+        className="sticky top-0 md:top-14 z-20 border-b bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between"
         style={topBarStyle}
       >
         {org ? (
-          <Link to={`/org/${slug}`} className="flex items-center gap-2.5">
+          <Link to={`/org/${slug}`} className="flex items-center gap-2.5 min-w-0">
             {org.logo_url ? (
-              <img src={org.logo_url} alt={org.name} className="h-7 w-7 rounded-lg object-cover" />
+              <img src={org.logo_url} alt={org.name} className="h-7 w-7 rounded-lg object-cover shrink-0" />
             ) : (
               <div
-                className="h-7 w-7 rounded-lg flex items-center justify-center text-xs font-bold text-primary-foreground"
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-xs font-bold text-primary-foreground shrink-0"
                 style={{ backgroundColor: orgPrimary || 'hsl(var(--primary))' }}
               >
                 {org.name?.[0]?.toUpperCase()}
@@ -462,31 +455,24 @@ export default function ProductDetailPage() {
             <Button
               variant="secondary"
               size="sm"
-              className="gap-1.5 text-xs"
+              className="gap-1.5 text-xs hidden sm:inline-flex"
               onClick={() => navigate(`/admin/products/${product.id}/edit`)}
             >
               <Pencil className="h-3.5 w-3.5" /> Modifier
             </Button>
           )}
-          <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4" /> {t('product.back')}
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      {/* Org-branded banner with org colors */}
+      {/* Org-branded banner — desktop only (mobile gets clean sticky header above) */}
       {org && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="relative border-b border-border/30 overflow-hidden"
-          style={bannerBg}
-        >
-          {/* Fallback gradient if no custom color */}
+        <div className="hidden md:block relative border-b border-border/30 overflow-hidden" style={bannerBg}>
           {!orgPrimary && (
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10" />
           )}
-          {/* Banner image if org has one */}
           {org.banner_url && (
             <div className="absolute inset-0">
               <img src={org.banner_url} alt="" className="w-full h-full object-cover opacity-15" />
@@ -525,8 +511,16 @@ export default function ProductDetailPage() {
               </Button>
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
+
+      {/* Breadcrumb — desktop only */}
+      <div className="hidden md:block container max-w-5xl px-4 pt-4">
+        <Breadcrumb items={[
+          { label: org?.name || 'Organisation', href: `/org/${slug}` },
+          { label: product.title },
+        ]} />
+      </div>
 
       <div className="container max-w-5xl px-4 py-6 pb-24 md:pb-6">
         <div className="grid md:grid-cols-[1fr_320px] lg:grid-cols-[1fr_340px] gap-6 md:gap-8">
