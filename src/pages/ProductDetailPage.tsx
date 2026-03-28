@@ -812,76 +812,14 @@ export default function ProductDetailPage() {
               />
             </div>
 
-            {/* Trust indicators in sidebar */}
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { icon: <Shield className="h-4 w-4" style={{ color: orgPrimary || 'hsl(var(--primary))' }} />, label: isFr ? 'Paiement sécurisé' : 'Secure payment' },
-                { icon: <CheckCircle className="h-4 w-4 text-emerald-500" />, label: isFr ? 'Accès immédiat' : 'Instant access' },
-                { icon: <Star className="h-4 w-4 text-yellow-500" />, label: isFr ? 'Qualité garantie' : 'Quality guaranteed' },
-              ].map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 + i * 0.08 }}
-                  className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-border/60 bg-muted/30 text-center"
-                >
-                  {item.icon}
-                  <span className="text-[10px] font-medium text-muted-foreground leading-tight">{item.label}</span>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Ambassador Banner */}
-            {!isPurchased && org && slug && (
-              <AmbassadorBanner orgSlug={slug} orgName={org.name} />
-            )}
-            {/* Marketing Kit for ambassadors */}
-            <MarketingKit
-              productTitle={product.title}
-              productPrice={getEffectivePrice(product as any)}
-              productCurrency={product.currency || 'XOF'}
-              commissionPercent={(product as any).commission_percent || 10}
-              shareUrl={buildShareUrl()}
-              orgName={org?.name || ''}
-            />
-
-            {/* Table of Contents */}
-            {product.description && (
-              <ProductTableOfContents descriptionHtml={product.description} />
-            )}
-
-            {/* Review Summary */}
-            <ReviewSummaryBadge productId={product.id} />
-
-            {/* Seller Trust */}
-            <SellerTrustBadges
-              organizationId={product.organization_id}
-              orgName={org?.name || ''}
-              kycStatus={(org as any)?.kyc_status}
-            />
-
-            {/* Share & Earn CTA */}
-            <ShareToEarnCTA
-              productId={product.id}
-              organizationId={product.organization_id}
-              organizationSlug={slug || ''}
-              productSlug={(product as any).slug}
-              commissionPercent={(product as any).commission_percent}
-            />
-
-            {/* 1-click Become Ambassador CTA — visible to all non-owners */}
-            <BecomeAmbassadorCTA
-              organizationId={product.organization_id}
-              orgSlug={slug || ''}
-              orgName={org?.name || ''}
-              commissionPercent={(product as any).commission_percent}
-            />
-
-            {/* Create similar content CTA */}
-            <CreateSimilarCTA
-              productType={product.product_type || undefined}
-              productTitle={product.title}
+            <ProductSidebarExtras
+              product={product}
+              org={org}
+              slug={slug || ''}
+              isPurchased={isPurchased}
+              locale={locale}
+              orgPrimary={orgPrimary}
+              buildShareUrl={() => buildShareUrl()}
             />
           </motion.div>
         </div>
