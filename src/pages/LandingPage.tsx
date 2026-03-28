@@ -1,10 +1,9 @@
-import { lazy, Suspense, useState, useCallback } from 'react';
+import { lazy, Suspense } from 'react';
 
 import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingHeroManifesto } from '@/components/landing/LandingHeroManifesto';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { CommunityProgressBar } from '@/components/growth/CommunityProgressBar';
-import { SplashScreen, wasSplashShown } from '@/components/splash/SplashScreen';
 
 const LandingHowItWorks = lazy(() => import('@/components/landing/LandingHowItWorksSimple').then(m => ({ default: m.LandingHowItWorksSimple })));
 const LandingInteractiveDemo = lazy(() => import('@/components/landing/LandingInteractiveDemo').then(m => ({ default: m.LandingInteractiveDemo })));
@@ -21,13 +20,8 @@ const LandingFinalCTA = lazy(() => import('@/components/landing/LandingFinalCTA'
 const LandingFooterCompact = lazy(() => import('@/components/landing/LandingFooterCompact').then(m => ({ default: m.LandingFooterCompact })));
 
 export default function LandingPage() {
-  const [showSplash, setShowSplash] = useState(() => !wasSplashShown());
-  const handleSplashComplete = useCallback(() => setShowSplash(false), []);
-
   return (
-    <>
-      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
-    <div className={`min-h-screen bg-background overflow-x-hidden ${showSplash ? 'opacity-0' : 'animate-fade-in'}`}>
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead
         title="SiteViral — Écris. Vends. Gagne."
         description="Écris ton livre en 5 minutes avec l'IA. Vends-le. Fais-le distribuer par des ambassadeurs. Mobile Money inclus. Gratuit."
@@ -82,6 +76,5 @@ export default function LandingPage() {
         <LandingFooterCompact />
       </Suspense>
     </div>
-    </>
   );
 }

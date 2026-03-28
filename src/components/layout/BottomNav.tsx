@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home, Plus, Wallet, Store, MoreHorizontal, Shield, Bell, Settings,
-  User, ShieldCheck, Package, BarChart3, Eye, Users, Zap, UserPlus, Share2, Star, Sparkles,
+  User, UserPlus, Package, BarChart3, Eye, Users, Share2, Sparkles,
   Bookmark, Coins, LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -104,49 +104,22 @@ export function BottomNav() {
     }
   };
 
-  // ═══ MORE MENU — adaptive sections ═══
+  // ═══ MORE MENU — simplified, max 6 items per section ═══
   const getMoreSections = () => {
     const sections = [
       {
         label: isFr ? 'Mon espace' : 'My Space',
         items: [
-          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
           { to: '/notifications', icon: Bell, label: 'Notifications' },
           { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
           { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
-          ...(profile !== 'buyer' ? [{ to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' }] : []),
+          { to: '/profile', icon: User, label: isFr ? 'Profil' : 'Profile' },
         ],
       },
     ];
 
-    // Ambassador & creator/org: show earn section
-    if (profile !== 'buyer') {
-      sections.push({
-        label: isFr ? 'Partager & Gagner' : 'Share & Earn',
-        items: [
-          { to: '/spotlight', icon: Star, label: 'Spotlight' },
-          { to: '/affiliation', icon: Share2, label: isFr ? 'Mes liens' : 'My Links' },
-          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-        ],
-      });
-    }
-
-    if (hasManagedOrgs) {
-      sections.push({
-        label: profile === 'org-religious'
-          ? (isFr ? 'Notre espace' : 'Our Space')
-          : (isFr ? 'Ma plateforme' : 'My Platform'),
-        items: [
-          { to: '/admin', icon: BarChart3, label: isFr ? 'Vue d\'ensemble' : 'Overview' },
-          ...(currentOrg ? [{ to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' }] : []),
-          { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
-          { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
-          { to: '/admin/people', icon: Users, label: labels.clients },
-          { to: getShortcutRoute('wallet', shortcutContext), icon: Wallet, label: `${labels.mySales}` },
-        ],
-      });
-    } else if (profile === 'buyer') {
-      // Gentle upsell for buyers
+    // Upsell for buyers/ambassadors
+    if (profile === 'buyer') {
       sections.push({
         label: isFr ? 'Aller plus loin' : 'Go further',
         items: [
@@ -158,19 +131,35 @@ export function BottomNav() {
       sections.push({
         label: isFr ? 'Aller plus loin' : 'Go further',
         items: [
+          { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
           { to: '/create-org', icon: Sparkles, label: isFr ? 'Créer du contenu' : 'Create Content' },
         ],
       });
     }
 
-    sections.push({
-      label: isFr ? 'Gestion' : 'Management',
-      items: [
-        { to: getShortcutRoute('kyc', shortcutContext), icon: ShieldCheck, label: isFr ? 'Vérification' : 'Verification' },
-        { to: getShortcutRoute('settings', shortcutContext), icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
-        ...(isSuperadmin ? [{ to: '/superadmin', icon: Shield, label: 'Superadmin' }] : []),
-      ],
-    });
+    // Creator/Org: platform tools
+    if (hasManagedOrgs) {
+      sections.push({
+        label: profile === 'org-religious'
+          ? (isFr ? 'Notre espace' : 'Our Space')
+          : (isFr ? 'Ma boutique' : 'My Store'),
+        items: [
+          { to: '/admin', icon: BarChart3, label: isFr ? 'Vue d\'ensemble' : 'Overview' },
+          ...(currentOrg ? [{ to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' }] : []),
+          { to: '/admin/people', icon: Users, label: labels.clients },
+          { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
+          { to: getShortcutRoute('settings', shortcutContext), icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
+        ],
+      });
+    } else {
+      sections.push({
+        label: isFr ? 'Réglages' : 'Settings',
+        items: [
+          { to: getShortcutRoute('settings', shortcutContext), icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
+          ...(isSuperadmin ? [{ to: '/superadmin', icon: Shield, label: 'Superadmin' }] : []),
+        ],
+      });
+    }
 
     return sections;
   };

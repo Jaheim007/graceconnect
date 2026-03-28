@@ -22,8 +22,6 @@ import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { ShortcutRedirect } from "@/components/layout/ShortcutRedirect";
 import { FloatingProofToast } from "@/components/social-proof/FloatingProofToast";
-import { GlobalActivityBar } from "@/components/social-proof/GlobalActivityBar";
-import { ExperimentDebugOverlay } from "@/components/experiments/ExperimentDebugOverlay";
 
 /** Redirect /store/:slug → /org/:slug/store */
 function StoreRedirect() {
@@ -81,7 +79,7 @@ const OfferingDetailPage = lazy(() => import("@/pages/OfferingDetailPage"));
 const AnnouncementDetailPage = lazy(() => import("@/pages/AnnouncementDetailPage"));
 const EventDetailPage = lazy(() => import("@/pages/EventDetailPage"));
 const WelcomeIntentPage = lazy(() => import("@/pages/WelcomeIntentPage"));
-const AmbassadorPage = lazy(() => import("@/pages/AmbassadorPage"));
+
 const ChangelogPage = lazy(() => import("@/pages/ChangelogPage"));
 const MaintenancePage = lazy(() => import("@/pages/MaintenancePage"));
 const GoRedirectPage = lazy(() => import("@/pages/GoRedirectPage"));
@@ -128,7 +126,7 @@ const PourFinancePage = lazy(() => import("@/pages/persona/PourFinancePage"));
 const PourFemmesEntrepreneurPage = lazy(() => import("@/pages/persona/PourFemmesEntrepreneurPage"));
 const PourMediasPage = lazy(() => import("@/pages/persona/PourMediasPage"));
 const PourRetraitesPage = lazy(() => import("@/pages/persona/PourRetraitesPage"));
-const ComparerPage = lazy(() => import("@/pages/ComparerPage"));
+
 const PressePage = lazy(() => import("@/pages/PressePage"));
 const BlogIndexPage = lazy(() => import("@/pages/blog/BlogIndexPage"));
 const BlogArticlePage = lazy(() => import("@/pages/blog/BlogArticlePage"));
@@ -309,7 +307,7 @@ const App = () => (
                 <Route path="/features" element={<FeaturesPage />} />
                 <Route path="/affiliate-program" element={<PublicAffiliationPage />} />
                 <Route path="/ambassador-program" element={<PublicAffiliationPage />} />
-                <Route path="/ambassador" element={<AmbassadorPage />} />
+                <Route path="/ambassador" element={<Navigate to="/affiliate-program" replace />} />
                 <Route path="/ambassador-terms" element={<AmbassadorTermsPage />} />
                 <Route path="/devenir-partenaire" element={<BecomePartnerPage />} />
                 <Route path="/partner-terms" element={<PartnerTermsPage />} />
@@ -335,7 +333,7 @@ const App = () => (
                 <Route path="/pour/photographes" element={<PourPhotographesPage />} />
                 <Route path="/pour/podcasters" element={<PourPodcastersPage />} />
                 <Route path="/pour/associations" element={<PourAssociationsPage />} />
-                <Route path="/comparer" element={<ComparerPage />} />
+                <Route path="/comparer" element={<Navigate to="/discover" replace />} />
                 <Route path="/pour/coaches" element={<PourCoachesPage />} />
                 <Route path="/pour/designers" element={<PourDesignersPage />} />
                 <Route path="/pour/entrepreneurs" element={<PourEntrepreneursPage />} />
@@ -537,7 +535,7 @@ const App = () => (
               </Routes>
               </Suspense>
             
-            <ExperimentDebugOverlay />
+            
             </BrowserRouter>
             </ErrorBoundary>
             
