@@ -10,9 +10,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { DigitalProduct } from '@/types/database';
 import {
   ArrowLeft, ShoppingBag, Share2, Copy, CheckCircle,
-  FileText, BookOpen, Music, Link2, ExternalLink, MessageCircle,
-  Shield, HelpCircle, MessageSquareQuote, PackagePlus, Star,
-  Pencil, Eye, EyeOff, Flag
+  FileText, BookOpen, Music, Link2, ExternalLink,
+  Shield, Pencil, Eye, EyeOff, Flag
 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { ReportContentDialog } from '@/components/reports/ReportContentDialog';
