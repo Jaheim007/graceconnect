@@ -49,7 +49,7 @@ const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
 const AuthCallbackPage = lazy(() => import("@/pages/AuthCallbackPage"));
 const DiscoverPage = lazy(() => import("@/pages/DiscoverPage"));
-const SpotlightPage = lazy(() => import("@/pages/SpotlightPage"));
+// SpotlightPage consolidated into Discover
 const OrgPublicPage = lazy(() => import("@/pages/OrgPublicPage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -87,14 +87,14 @@ const QuickStartPage = lazy(() => import("@/pages/QuickStartPage"));
 const QuickPublishPage = lazy(() => import("@/pages/QuickPublishPage"));
 const GagnerPage = lazy(() => import("@/pages/GagnerPage"));
 const EcrirePage = lazy(() => import("@/pages/EcrirePage"));
-const MigrerPage = lazy(() => import("@/pages/MigrerPage"));
+// MigrerPage removed — marginal feature
 const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
-const VendreLandingPage = lazy(() => import("@/pages/VendreLandingPage"));
-const ProtectionPage = lazy(() => import("@/pages/ProtectionPage"));
+// VendreLandingPage consolidated — redirect to landing
+// ProtectionPage kept
 const EmbedCheckoutPage = lazy(() => import("@/pages/EmbedCheckoutPage"));
 const CertificateVerifyPage = lazy(() => import("@/pages/CertificateVerifyPage"));
 const TemoignagesPage = lazy(() => import("@/pages/TemoignagesPage"));
-const CalculateurPage = lazy(() => import("@/pages/CalculateurPage"));
+// CalculateurPage removed — gadget
 const PourEglisesPage = lazy(() => import("@/pages/persona/PourEglisesPage"));
 const PourOngPage = lazy(() => import("@/pages/persona/PourOngPage"));
 const PourFormateursPage = lazy(() => import("@/pages/persona/PourFormateursPage"));
@@ -146,7 +146,7 @@ const GuideAffiliationSansInvestissementPage = lazy(() => import("@/pages/guides
 const TutorialsPage = lazy(() => import("@/pages/TutorialsPage"));
 
 // Authenticated
-const FeedPage = lazy(() => import("@/pages/FeedPage"));
+// FeedPage consolidated into Discover
 const ReelsPage = lazy(() => import("@/pages/ReelsPage"));
 const WatchPage = lazy(() => import("@/pages/WatchPage"));
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
@@ -162,7 +162,7 @@ const PartnerPortalPage = lazy(() => import("@/pages/PartnerPortalPage"));
 
 
 const BookmarksPage = lazy(() => import("@/pages/BookmarksPage"));
-const WishlistPage = lazy(() => import("@/pages/WishlistPage"));
+// WishlistPage merged into BookmarksPage
 const NotificationPreferencesPage = lazy(() => import("@/pages/NotificationPreferencesPage"));
 const MyInvoicesPage = lazy(() => import("@/pages/MyInvoicesPage"));
 const MyProgramsPage = lazy(() => import("@/pages/MyProgramsPage"));
@@ -322,7 +322,7 @@ const App = () => (
                 <Route path="/share-target" element={<ShareTargetPage />} />
                 <Route path="/changelog" element={<ChangelogPage />} />
                 <Route path="/temoignages" element={<TemoignagesPage />} />
-                <Route path="/calculateur" element={<CalculateurPage />} />
+                <Route path="/calculateur" element={<Navigate to="/gagner" replace />} />
                 <Route path="/pour/eglises" element={<PourEglisesPage />} />
                 <Route path="/pour/ong" element={<PourOngPage />} />
                 <Route path="/pour/formateurs" element={<PourFormateursPage />} />
@@ -378,18 +378,18 @@ const App = () => (
                 <Route path="/gagner-info" element={<Navigate to="/gagner" replace />} />
                 <Route path="/ecrire" element={<RequireAuth><EcrirePage /></RequireAuth>} />
                 <Route path="/write" element={<Navigate to="/ecrire" replace />} />
-                <Route path="/migrer" element={<MigrerPage />} />
-                <Route path="/migrate" element={<Navigate to="/migrer" replace />} />
-                <Route path="/vendre" element={<VendreLandingPage />} />
-                <Route path="/sell" element={<Navigate to="/vendre" replace />} />
-                <Route path="/protection" element={<ProtectionPage />} />
+                <Route path="/migrer" element={<Navigate to="/" replace />} />
+                <Route path="/migrate" element={<Navigate to="/" replace />} />
+                <Route path="/vendre" element={<Navigate to="/" replace />} />
+                <Route path="/sell" element={<Navigate to="/" replace />} />
+                <Route path="/protection" element={<Navigate to="/security" replace />} />
                 <Route path="/explorer" element={<Navigate to="/discover" replace />} />
                 <Route path="/hub" element={<Navigate to="/discover" replace />} />
                 <Route path="/store/:slug" element={<StoreRedirect />} />
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
                   <Route path="/discover" element={<DiscoverPage />} />
-                  <Route path="/spotlight" element={<SpotlightPage />} />
+                  <Route path="/spotlight" element={<Navigate to="/discover" replace />} />
                   <Route path="/org/:slug" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/content" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/events" element={<OrgPublicPage />} />
@@ -413,7 +413,7 @@ const App = () => (
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
                   <Route path="/marketplace" element={<Navigate to="/discover" replace />} />
-                  <Route path="/feed" element={<FeedPage />} />
+                  <Route path="/feed" element={<Navigate to="/discover" replace />} />
                   <Route path="/reels" element={<ReelsPage />} />
                   <Route path="/reels/:id" element={<ReelsPage />} />
                   <Route path="/watch/:id" element={<WatchPage />} />
@@ -436,7 +436,7 @@ const App = () => (
                   <Route path="/leaderboard" element={<Navigate to="/affiliation" replace />} />
                   
                   <Route path="/bookmarks" element={<BookmarksPage />} />
-                  <Route path="/wishlist" element={<WishlistPage />} />
+                  <Route path="/wishlist" element={<Navigate to="/bookmarks" replace />} />
                   <Route path="/partner" element={<PartnerPortalPage />} />
                   <Route path="/invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />

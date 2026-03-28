@@ -10,9 +10,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { DigitalProduct } from '@/types/database';
 import {
   ArrowLeft, ShoppingBag, Share2, Copy, CheckCircle,
-  FileText, BookOpen, Music, Link2, ExternalLink, MessageCircle,
-  Shield, HelpCircle, MessageSquareQuote, PackagePlus, Star,
-  Pencil, Eye, EyeOff, Flag
+  FileText, BookOpen, Music, Link2, ExternalLink,
+  Shield, Pencil, Eye, EyeOff, Flag
 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { ReportContentDialog } from '@/components/reports/ReportContentDialog';
@@ -27,28 +26,22 @@ import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { useI18n } from '@/i18n/I18nContext';
 import { FormattedText, stripHtml } from '@/lib/formatText';
 import { ProductReviews } from '@/components/products/ProductReviews';
-import { AmbassadorBanner } from '@/components/products/AmbassadorBanner';
+import { ProductSidebarExtras } from '@/components/products/ProductSidebarExtras';
+import { ProductMainContentExtras } from '@/components/products/ProductMainContentExtras';
 
 import { ProductPreviewViewer } from '@/components/products/ProductPreviewViewer';
 import { ShareButtons } from '@/components/social/ShareButtons';
 import { useBundleItems, useProductRecommendations } from '@/hooks/useBundlesAndRecommendations';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ProductCard } from '@/components/products/ProductCard';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import { useAutoAffiliateCode } from '@/hooks/useAutoAffiliateCode';
 import { CrossSellWidget } from '@/components/products/CrossSellWidget';
 import { SubscriptionUpsellPrompt } from '@/components/subscriptions/SubscriptionUpsellPrompt';
 import { Breadcrumb } from '@/components/layout/Breadcrumb';
-import { ViralSnippets } from '@/components/products/ViralSnippets';
-import { MarketingKit } from '@/components/ambassador/MarketingKit';
-import { BecomeAmbassadorCTA } from '@/components/products/BecomeAmbassadorCTA';
-import { ShareToEarnCTA } from '@/components/products/ShareToEarnCTA';
-import { CreateSimilarCTA } from '@/components/products/CreateSimilarCTA';
 import { WishlistButton } from '@/components/products/WishlistButton';
 import { PostPurchaseCelebration } from '@/components/products/PostPurchaseCelebration';
 import { SocialProofWidget } from '@/components/products/SocialProofWidget';
 import { trackProductView } from '@/components/discover/RecentlyViewedProducts';
-import { SellerTrustBadges } from '@/components/products/SellerTrustBadges';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { UrgencyWidget } from '@/components/products/UrgencyWidget';
@@ -575,117 +568,13 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {product.description && (
-              <div className="space-y-4 overflow-hidden">
-                <h2 className="text-lg font-bold flex items-center gap-2">
-                  <FileText className="h-4.5 w-4.5 text-primary" />
-                  {t('product.description')}
-                </h2>
-                <div className="p-5 rounded-2xl border border-border bg-card shadow-sm">
-                  <ExperimentDescription
-                    defaultDescription={product.description}
-                    className="text-sm text-muted-foreground leading-relaxed break-words prose prose-sm max-w-none"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Bundle Items */}
-            {(product as any).is_bundle && bundleItems.length > 0 && (
-              <div className="space-y-3">
-                <h2 className="text-base font-semibold flex items-center gap-2">
-                  <PackagePlus className="h-4 w-4 text-primary" /> Ce bundle inclut
-                </h2>
-                <div className="space-y-2">
-                  {bundleItems.map((bi: any) => (
-                    <div key={bi.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
-                      {bi.included_product?.cover_image_url ? (
-                        <img src={bi.included_product.cover_image_url} alt="" className="h-12 w-12 rounded-lg object-cover" />
-                      ) : (
-                        <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
-                          <ShoppingBag className="h-5 w-5 text-muted-foreground/30" />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold line-clamp-1">{bi.included_product?.title}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{bi.included_product?.product_type}</p>
-                      </div>
-                      {bi.included_product?.price > 0 && !bi.included_product?.is_free && (
-                        <span className="text-xs text-muted-foreground line-through">
-                          {formatPrice(bi.included_product.price, false, bi.included_product.currency)}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Guarantee */}
-            {guaranteeText && (
-              <div className="p-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5">
-                <div className="flex items-start gap-3">
-                  <Shield className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-sm">Garantie</p>
-                    <p className="text-sm text-muted-foreground mt-1">{guaranteeText}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Testimonials */}
-            {testimonials.length > 0 && (
-              <div className="space-y-3">
-                <h2 className="text-base font-semibold flex items-center gap-2">
-                  <MessageSquareQuote className="h-4 w-4" /> Témoignages
-                </h2>
-                <div className="space-y-2">
-                  {testimonials.map((t, i) => (
-                    <div key={i} className="p-4 rounded-xl border border-border bg-card">
-                      <div className="flex items-center gap-1 mb-2">
-                        {[1,2,3,4,5].map(s => <Star key={s} className="h-3 w-3 fill-yellow-400 text-yellow-400" />)}
-                      </div>
-                      <p className="text-sm italic text-muted-foreground">"{t.text}"</p>
-                      <p className="text-xs font-semibold mt-2">— {t.name}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* FAQ */}
-            {faqItems.length > 0 && (
-              <div className="space-y-3">
-                <h2 className="text-base font-semibold flex items-center gap-2">
-                  <HelpCircle className="h-4 w-4" /> Questions fréquentes
-                </h2>
-                <Accordion type="single" collapsible className="w-full">
-                  {faqItems.map((faq, i) => (
-                    <AccordionItem key={i} value={`faq-${i}`}>
-                      <AccordionTrigger className="text-sm text-left">{faq.q}</AccordionTrigger>
-                      <AccordionContent className="text-sm text-muted-foreground">{faq.a}</AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </div>
-            )}
-
-            {/* Reviews section */}
-            <div id="reviews">
-              <ProductReviews
-                productId={product.id}
-                organizationId={product.organization_id}
-                isPurchased={isPurchased}
-                isOrgOwner={!!canManage}
-              />
-            </div>
-
-            {/* Viral Snippets — shareable excerpts */}
-            <ViralSnippets
-              productId={product.id}
-              productTitle={product.title}
-              orgSlug={slug || ''}
+            <ProductMainContentExtras
+              product={{ ...product, _bundleItems: bundleItems }}
+              slug={slug || ''}
+              isPurchased={isPurchased}
+              canManage={!!canManage}
+              locale={locale}
+              t={t}
             />
 
           </motion.div>
@@ -812,76 +701,14 @@ export default function ProductDetailPage() {
               />
             </div>
 
-            {/* Trust indicators in sidebar */}
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { icon: <Shield className="h-4 w-4" style={{ color: orgPrimary || 'hsl(var(--primary))' }} />, label: isFr ? 'Paiement sécurisé' : 'Secure payment' },
-                { icon: <CheckCircle className="h-4 w-4 text-emerald-500" />, label: isFr ? 'Accès immédiat' : 'Instant access' },
-                { icon: <Star className="h-4 w-4 text-yellow-500" />, label: isFr ? 'Qualité garantie' : 'Quality guaranteed' },
-              ].map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 + i * 0.08 }}
-                  className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-border/60 bg-muted/30 text-center"
-                >
-                  {item.icon}
-                  <span className="text-[10px] font-medium text-muted-foreground leading-tight">{item.label}</span>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Ambassador Banner */}
-            {!isPurchased && org && slug && (
-              <AmbassadorBanner orgSlug={slug} orgName={org.name} />
-            )}
-            {/* Marketing Kit for ambassadors */}
-            <MarketingKit
-              productTitle={product.title}
-              productPrice={getEffectivePrice(product as any)}
-              productCurrency={product.currency || 'XOF'}
-              commissionPercent={(product as any).commission_percent || 10}
-              shareUrl={buildShareUrl()}
-              orgName={org?.name || ''}
-            />
-
-            {/* Table of Contents */}
-            {product.description && (
-              <ProductTableOfContents descriptionHtml={product.description} />
-            )}
-
-            {/* Review Summary */}
-            <ReviewSummaryBadge productId={product.id} />
-
-            {/* Seller Trust */}
-            <SellerTrustBadges
-              organizationId={product.organization_id}
-              orgName={org?.name || ''}
-              kycStatus={(org as any)?.kyc_status}
-            />
-
-            {/* Share & Earn CTA */}
-            <ShareToEarnCTA
-              productId={product.id}
-              organizationId={product.organization_id}
-              organizationSlug={slug || ''}
-              productSlug={(product as any).slug}
-              commissionPercent={(product as any).commission_percent}
-            />
-
-            {/* 1-click Become Ambassador CTA — visible to all non-owners */}
-            <BecomeAmbassadorCTA
-              organizationId={product.organization_id}
-              orgSlug={slug || ''}
-              orgName={org?.name || ''}
-              commissionPercent={(product as any).commission_percent}
-            />
-
-            {/* Create similar content CTA */}
-            <CreateSimilarCTA
-              productType={product.product_type || undefined}
-              productTitle={product.title}
+            <ProductSidebarExtras
+              product={product}
+              org={org}
+              slug={slug || ''}
+              isPurchased={isPurchased}
+              locale={locale}
+              orgPrimary={orgPrimary}
+              buildShareUrl={() => buildShareUrl()}
             />
           </motion.div>
         </div>
