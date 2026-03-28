@@ -17,11 +17,10 @@ interface SmartCTAProps {
   className?: string;
 }
 
-const nudges = [
-  { icon: Users, text: (n: number, isFr: boolean) => isFr ? `${n}+ personnes ont acheté ce produit` : `${n}+ people bought this product` },
-  { icon: TrendingUp, text: (_n: number, isFr: boolean) => isFr ? 'Populaire cette semaine' : 'Popular this week' },
-  { icon: Zap, text: (_n: number, isFr: boolean) => isFr ? 'Achat instantané — accès immédiat' : 'Instant purchase — immediate access' },
-];
+const getNudge = (salesCount: number, isFr: boolean) => ({
+  icon: Users,
+  text: isFr ? `${salesCount}+ acheteurs` : `${salesCount}+ buyers`,
+});
 
 export function SmartCTA({ product, isPurchased, onBuy, onAccess, className }: SmartCTAProps) {
   const { locale } = useI18n();
