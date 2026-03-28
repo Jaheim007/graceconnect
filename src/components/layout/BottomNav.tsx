@@ -80,7 +80,7 @@ export function BottomNav() {
         return [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
           { to: '/discover', icon: Store, label: isFr ? 'Catalogue' : 'Catalog' },
-          { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
+          { to: '/gagner', icon: Share2, label: isFr ? 'Gagner' : 'Earn' },
           { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
           { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
         ];
@@ -123,7 +123,7 @@ export function BottomNav() {
       sections.push({
         label: isFr ? 'Aller plus loin' : 'Go further',
         items: [
-          { to: '/affiliation', icon: Share2, label: isFr ? 'Partager & Gagner' : 'Share & Earn' },
+          { to: '/gagner', icon: Share2, label: isFr ? 'Partager & Gagner' : 'Share & Earn' },
           { to: '/create-org', icon: Sparkles, label: isFr ? 'Créer du contenu' : 'Create Content' },
         ],
       });

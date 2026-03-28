@@ -157,7 +157,7 @@ const MyDonationsPage = lazy(() => import("@/pages/MyDonationsPage"));
 const CreateOrgPage = lazy(() => import("@/pages/CreateOrgPage"));
 
 const SupportPage = lazy(() => import("@/pages/SupportPage"));
-const AffiliationPage = lazy(() => import("@/pages/AffiliationPage"));
+// AffiliationPage consolidated into GagnerPage
 const PartnerPortalPage = lazy(() => import("@/pages/PartnerPortalPage"));
 
 
@@ -431,9 +431,9 @@ const App = () => (
                   <Route path="/create-org" element={<CreateOrgPage />} />
                   
                   <Route path="/support" element={<SupportPage />} />
-                  <Route path="/affiliation" element={<AffiliationPage />} />
+                  <Route path="/affiliation" element={<Navigate to="/gagner" replace />} />
                   
-                  <Route path="/leaderboard" element={<Navigate to="/affiliation" replace />} />
+                  <Route path="/leaderboard" element={<Navigate to="/gagner" replace />} />
                   
                   <Route path="/bookmarks" element={<BookmarksPage />} />
                   <Route path="/wishlist" element={<Navigate to="/bookmarks" replace />} />
