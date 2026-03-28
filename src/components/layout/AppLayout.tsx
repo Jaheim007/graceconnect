@@ -16,9 +16,6 @@ import { SkipToContent } from '@/components/a11y/SkipToContent';
 import { KeyboardShortcutsModal } from '@/components/a11y/KeyboardShortcutsModal';
 import { OfflineIndicator } from '@/components/network/OfflineIndicator';
 import { BackToTopProgress } from '@/components/ui/BackToTopProgress';
-import { PerformanceWidget } from '@/components/dev/PerformanceWidget';
-import { CelebrationOverlay } from '@/components/celebrations/CelebrationOverlay';
-import { NpsSurvey } from '@/components/feedback/NpsSurvey';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
@@ -88,12 +85,9 @@ export function AppLayout() {
       <InstallBanner />
       <PushNotificationPrompt />
       <BackToTopProgress />
-      <PerformanceWidget />
       <CookieConsent />
       <FloatingHelpWidget />
-      <CelebrationOverlay />
       <KeyboardShortcutsModal />
-      <NpsSurvey />
     </div>
     </CompareProvider>
   );
