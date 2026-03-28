@@ -10,30 +10,62 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-const links = [
-  { to: '/superadmin', label: 'Overview', icon: LayoutDashboard, end: true },
-  { to: '/superadmin/command-center', label: 'Command Center', icon: Shield },
-  { to: '/superadmin/health', label: 'Health', icon: Activity },
-  { to: '/superadmin/orgs', label: 'Organizations', icon: Users },
-  { to: '/superadmin/users', label: 'Users', icon: UserCircle },
-  { to: '/superadmin/activity', label: 'Activity', icon: Activity },
-  { to: '/superadmin/kyc', label: 'Vérification ID', icon: FileCheck },
-  { to: '/superadmin/ai-history', label: 'Historique IA', icon: Brain },
-  { to: '/superadmin/transactions', label: 'Transactions', icon: BarChart3 },
-  { to: '/superadmin/reports', label: 'Reports', icon: Megaphone },
-  { to: '/superadmin/moderation', label: 'Modération', icon: ShieldCheck },
-  { to: '/superadmin/metrics', label: 'Metrics', icon: BarChart3 },
-  { to: '/superadmin/exports', label: 'Exports', icon: Download },
-  { to: '/superadmin/investor', label: 'Investor', icon: Target },
-  { to: '/superadmin/risk', label: 'Risk & AML', icon: ShieldAlert },
-  { to: '/superadmin/emails', label: 'Emails', icon: Mail },
-  { to: '/superadmin/push', label: 'Push Notifs', icon: Bell },
-  { to: '/superadmin/settlements', label: 'Settlements', icon: Wallet },
-  { to: '/superadmin/partners', label: 'Partners', icon: Handshake },
-  { to: '/superadmin/support', label: 'Support', icon: HelpCircle },
-  { to: '/superadmin/settings', label: 'Settings', icon: Settings },
-  { to: '/superadmin/ai', label: 'AI Insights', icon: Sparkles },
+const linkGroups = [
+  {
+    label: 'Core',
+    items: [
+      { to: '/superadmin', label: 'Overview', icon: LayoutDashboard, end: true },
+      { to: '/superadmin/command-center', label: 'Command Center', icon: Shield },
+      { to: '/superadmin/health', label: 'Health', icon: Activity },
+    ],
+  },
+  {
+    label: 'Users & Orgs',
+    items: [
+      { to: '/superadmin/orgs', label: 'Organizations', icon: Users },
+      { to: '/superadmin/users', label: 'Users', icon: UserCircle },
+      { to: '/superadmin/activity', label: 'Activity', icon: Activity },
+      { to: '/superadmin/kyc', label: 'Vérification ID', icon: FileCheck },
+    ],
+  },
+  {
+    label: 'Content',
+    items: [
+      { to: '/superadmin/ai-history', label: 'Historique IA', icon: Brain },
+      { to: '/superadmin/reports', label: 'Reports', icon: Megaphone },
+      { to: '/superadmin/moderation', label: 'Modération', icon: ShieldCheck },
+    ],
+  },
+  {
+    label: 'Finance',
+    items: [
+      { to: '/superadmin/transactions', label: 'Transactions', icon: BarChart3 },
+      { to: '/superadmin/settlements', label: 'Settlements', icon: Wallet },
+      { to: '/superadmin/risk', label: 'Risk & AML', icon: ShieldAlert },
+      { to: '/superadmin/investor', label: 'Investor', icon: Target },
+    ],
+  },
+  {
+    label: 'Outreach',
+    items: [
+      { to: '/superadmin/emails', label: 'Emails', icon: Mail },
+      { to: '/superadmin/push', label: 'Push Notifs', icon: Bell },
+      { to: '/superadmin/partners', label: 'Partners', icon: Handshake },
+    ],
+  },
+  {
+    label: 'System',
+    items: [
+      { to: '/superadmin/metrics', label: 'Metrics', icon: BarChart3 },
+      { to: '/superadmin/exports', label: 'Exports', icon: Download },
+      { to: '/superadmin/support', label: 'Support', icon: HelpCircle },
+      { to: '/superadmin/settings', label: 'Settings', icon: Settings },
+      { to: '/superadmin/ai', label: 'AI Insights', icon: Sparkles },
+    ],
+  },
 ];
+
+const allLinks = linkGroups.flatMap(g => g.items);
 
 const pageTransition = {
   initial: { opacity: 0, y: 10 },
