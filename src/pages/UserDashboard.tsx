@@ -191,34 +191,38 @@ export default function UserDashboard() {
           </div>
         </motion.div>
 
-        {/* ═══ MINI FINANCIAL SUMMARY ═══ */}
+        {/* ═══ MINI FINANCIAL SUMMARY — hidden for buyers ═══ */}
+        {!isBuyer && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }}>
           <div className="space-y-2">
             {/* Row 1 – Mon activité */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className={cn('grid gap-2', isAmbassador ? 'grid-cols-2' : 'grid-cols-3')}>
               <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 text-center">
                 <p className="text-lg font-bold text-primary">{purchases.length}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Achats' : 'Purchases'}</p>
               </div>
+              {isCreatorOrOrg && (
               <div className="rounded-xl bg-rose-500/5 border border-rose-500/10 p-3 text-center">
                 <p className="text-lg font-bold text-rose-600">{donations.length}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dons' : 'Donations'}</p>
               </div>
+              )}
               <div className="rounded-xl bg-violet-500/5 border border-violet-500/10 p-3 text-center">
                 <p className="text-lg font-bold text-violet-600">{fmt(commissionStats.amount)}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Commissions' : 'Commissions'}</p>
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  {commissionStats.count} {isFr ? 'commission' : 'commission'}{commissionStats.count !== 1 ? 's' : ''}
+                  {commissionStats.count} commission{commissionStats.count !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
-            {/* Row 2 – Mes revenus */}
+            {/* Row 2 – Revenus (creators/orgs only) */}
+            {isCreatorOrOrg && (
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded-xl bg-blue-500/5 border border-blue-500/10 p-3 text-center">
                 <p className="text-lg font-bold text-blue-600">{fmt(salesStats?.revenue || 0)}</p>
-                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Ventes' : 'Sales'}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">{labels.sales}</p>
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  {salesStats?.count || 0} {isFr ? 'vente' : 'sale'}{(salesStats?.count || 0) !== 1 ? 's' : ''}
+                  {salesStats?.count || 0} {labels.sales.toLowerCase()}{(salesStats?.count || 0) !== 1 ? 's' : ''}
                 </p>
               </div>
               <div className="rounded-xl bg-amber-500/5 border border-amber-500/10 p-3 text-center">
@@ -230,23 +234,20 @@ export default function UserDashboard() {
               </div>
               <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/10 p-3 text-center">
                 <p className="text-lg font-bold text-emerald-600">{fmt(totalRevenue)}</p>
-                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Revenus total' : 'Total revenue'}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {isFr
-                    ? `${salesStats?.count || 0} ventes • ${donationsReceivedStats.count} dons • ${commissionStats.count} commissions`
-                    : `${salesStats?.count || 0} sales • ${donationsReceivedStats.count} donations • ${commissionStats.count} commissions`}
-                </p>
+                <p className="text-[10px] text-muted-foreground font-medium">{labels.myRevenue}</p>
               </div>
             </div>
+            )}
             {currentOrg && (
               <p className="text-[11px] text-muted-foreground px-1">
                 {isFr
-                  ? `Ventes, dons reçus, commissions gagnées et revenus affichés pour l'organisation active : ${currentOrg.name}`
-                  : `Sales, received donations, earned commissions and revenue shown for the active organization: ${currentOrg.name}`}
+                  ? `${labels.sales}, dons reçus, commissions gagnées et ${labels.revenue.toLowerCase()} affichés pour : ${currentOrg.name}`
+                  : `${labels.sales}, received donations, earned commissions and ${labels.revenue.toLowerCase()} shown for: ${currentOrg.name}`}
               </p>
             )}
           </div>
         </motion.div>
+        )}
 
         {/* ═══ QUICK START PATHS ═══ */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }}>
