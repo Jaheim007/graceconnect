@@ -24,12 +24,8 @@ import { SmartNudge } from '@/components/growth/SmartNudge';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useAdaptiveLabels } from '@/hooks/useAdaptiveLabels';
 
-import { PremiumCard } from '@/components/ui/PremiumCard';
-import { DashboardSection } from '@/components/ui/DashboardSection';
 
-import PartnerPendingPopup from '@/components/partner/PartnerPendingPopup';
-import { QuickStartPaths } from '@/components/growth/QuickStartPaths';
-import { SmartNudge } from '@/components/growth/SmartNudge';
+
 
 export default function UserDashboard() {
   const { user, profile, isSuperadmin } = useAuth();
