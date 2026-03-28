@@ -3,14 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
-  PartyPopper, Share2, ArrowRight, Download,
-  CheckCircle, Sparkles, Users, TrendingUp, Star,
+  PartyPopper, ArrowRight, Download,
+  CheckCircle, Sparkles, Users, Star,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { PostPurchaseRecommendations } from './PostPurchaseRecommendations';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { ConfettiEffect } from './ConfettiEffect';
+import { AmbassadorEnrollCard } from './AmbassadorEnrollCard';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 
@@ -32,55 +32,10 @@ interface PostPurchaseCelebrationProps {
   onDownload?: () => void;
 }
 
-function ConfettiParticle({ delay, x }: { delay: number; x: number }) {
-  const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96E6A1', '#FFA07A', '#DDA0DD', '#FFD700', '#87CEEB'];
-  const color = colors[Math.floor(Math.random() * colors.length)];
-  const size = 6 + Math.random() * 6;
-  const rotation = Math.random() * 360;
-
-  return (
-    <motion.div
-      className="absolute pointer-events-none"
-      style={{
-        left: `${x}%`,
-        top: -10,
-        width: size,
-        height: size,
-        backgroundColor: color,
-        borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-      }}
-      initial={{ y: -20, opacity: 1, rotate: 0 }}
-      animate={{
-        y: [0, 300 + Math.random() * 200],
-        x: [0, (Math.random() - 0.5) * 120],
-        opacity: [1, 1, 0],
-        rotate: rotation + Math.random() * 720,
-      }}
-      transition={{
-        duration: 2 + Math.random(),
-        delay,
-        ease: 'easeOut',
-      }}
-    />
-  );
-}
-
 export function PostPurchaseCelebration({
-  open,
-  onClose,
-  productTitle,
-  organizationId,
-  orgName,
-  orgSlug,
-  productSlug,
-  productId,
-  coverImageUrl,
-  isFreePurchase,
-  productType,
-  price = 0,
-  commissionRate = 20,
-  onGoToResources,
-  onDownload,
+  open, onClose, productTitle, organizationId, orgName, orgSlug,
+  productSlug, productId, coverImageUrl, isFreePurchase, productType,
+  price = 0, commissionRate = 20, onGoToResources, onDownload,
 }: PostPurchaseCelebrationProps) {
   const { user } = useAuth();
   const { locale } = useI18n();
@@ -88,7 +43,6 @@ export function PostPurchaseCelebration({
   const { fmt } = useDisplayCurrency();
   const [showConfetti, setShowConfetti] = useState(false);
   const [showAmbassadorModal, setShowAmbassadorModal] = useState(false);
-  const [enrolling, setEnrolling] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -104,43 +58,6 @@ export function PostPurchaseCelebration({
 
   const commissionAmount = Math.round(price * commissionRate / 100);
 
-  const handleBecomeAmbassador = async () => {
-    if (!user) return;
-    setEnrolling(true);
-    try {
-      const { data: existing } = await supabase
-        .from('affiliate_links')
-        .select('id, code')
-        .eq('user_id', user.id)
-        .eq('product_id', productId)
-        .maybeSingle();
-
-      if (existing) {
-        toast.success(isFr ? 'Tu es déjà ambassadeur pour ce produit !' : 'You are already an ambassador for this product!');
-        setShowAmbassadorModal(true);
-        return;
-      }
-
-      const code = `${orgSlug}-${productId.slice(0, 6)}-${user.id.slice(0, 4)}`.toLowerCase();
-      const { error } = await supabase.from('affiliate_links').insert({
-        user_id: user.id,
-        organization_id: organizationId,
-        product_id: productId,
-        code,
-        is_active: true,
-      });
-
-      if (error) throw error;
-      toast.success(isFr ? '🎉 Tu es maintenant ambassadeur !' : '🎉 You are now an ambassador!');
-      setShowAmbassadorModal(true);
-    } catch (err) {
-      console.error('Enrollment error:', err);
-      toast.error(isFr ? "Erreur lors de l'inscription ambassadeur" : 'Error during ambassador enrollment');
-    } finally {
-      setEnrolling(false);
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-md p-0 gap-0 overflow-hidden border-0 bg-transparent shadow-none [&>button]:hidden">
@@ -150,17 +67,12 @@ export function PostPurchaseCelebration({
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}
           className="relative bg-card rounded-3xl border border-border shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
         >
-          {showConfetti && (
-            <div className="absolute inset-0 overflow-hidden pointer-events-none z-50">
-              {Array.from({ length: 40 }).map((_, i) => (
-                <ConfettiParticle key={i} delay={i * 0.05} x={Math.random() * 100} />
-              ))}
-            </div>
-          )}
+          {showConfetti && <ConfettiEffect />}
 
           <AnimatePresence mode="wait">
             {!showAmbassadorModal ? (
               <motion.div key="main" exit={{ opacity: 0, x: -30 }}>
+                {/* Header */}
                 <div className="relative bg-gradient-to-br from-emerald-500/20 via-primary/10 to-amber-500/10 px-6 pt-8 pb-6 text-center">
                   <motion.div
                     initial={{ scale: 0 }}
@@ -185,6 +97,7 @@ export function PostPurchaseCelebration({
                   </p>
                 </div>
 
+                {/* Product card */}
                 <div className="px-6 -mt-2">
                   <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
                     {coverImageUrl ? (
@@ -202,6 +115,7 @@ export function PostPurchaseCelebration({
                   </div>
                 </div>
 
+                {/* Actions */}
                 <div className="px-6 py-5 space-y-4">
                   <div className="flex gap-2">
                     {onDownload && (
@@ -232,59 +146,17 @@ export function PostPurchaseCelebration({
                   </Button>
 
                   {!isFreePurchase && price > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 }}
-                      className="rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-br from-emerald-500/5 to-emerald-500/10 p-5 space-y-3"
-                    >
-                      <div className="text-center space-y-1">
-                        <p className="text-sm font-extrabold">
-                          {isFr
-                            ? <>Tu as aimé <span className="text-primary">« {productTitle} »</span> ?</>
-                            : <>Loved <span className="text-primary">"{productTitle}"</span>?</>}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {isFr
-                            ? <>Partage et gagne <span className="text-emerald-500 font-bold">{commissionRate}%</span> sur chaque vente.</>
-                            : <>Share & earn <span className="text-emerald-500 font-bold">{commissionRate}%</span> on every sale.</>}
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 text-center">
-                        <div className="rounded-xl bg-card border border-border p-3">
-                          <p className="text-lg font-extrabold text-emerald-500">
-                            {fmt(commissionAmount, 'XOF')}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">{isFr ? 'par vente' : 'per sale'}</p>
-                        </div>
-                        <div className="rounded-xl bg-card border border-border p-3">
-                          <p className="text-lg font-extrabold text-primary">
-                            {fmt(commissionAmount * 10, 'XOF')}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">{isFr ? '10 amis achètent' : '10 friends buy'}</p>
-                        </div>
-                      </div>
-
-                      <Button
-                        size="lg"
-                        className="w-full h-12 gap-2 text-sm font-bold bg-emerald-500 hover:bg-emerald-600 text-white"
-                        onClick={handleBecomeAmbassador}
-                        disabled={enrolling}
-                      >
-                        <TrendingUp className="h-4 w-4" />
-                        {enrolling
-                          ? (isFr ? 'Inscription…' : 'Enrolling…')
-                          : (isFr ? 'Oui, je veux gagner !' : 'Yes, I want to earn!')}
-                      </Button>
-
-                      <button
-                        onClick={onClose}
-                        className="w-full text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
-                      >
-                        {isFr ? 'Non merci' : 'No thanks'}
-                      </button>
-                    </motion.div>
+                    <AmbassadorEnrollCard
+                      productId={productId}
+                      productTitle={productTitle}
+                      organizationId={organizationId}
+                      orgSlug={orgSlug}
+                      price={price}
+                      commissionRate={commissionRate}
+                      isFr={isFr}
+                      onEnrolled={() => setShowAmbassadorModal(true)}
+                      onDecline={onClose}
+                    />
                   )}
 
                   {(isFreePurchase || price === 0) && (
