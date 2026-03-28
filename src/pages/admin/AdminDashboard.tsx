@@ -52,6 +52,7 @@ import { AdminGrowthSuggestions } from '@/components/growth/AdminGrowthSuggestio
 import { SmartPromotionSuggestions } from '@/components/admin/SmartPromotionSuggestions';
 import { SmartCoach } from '@/components/smart/SmartCoach';
 
+import { FirstSaleCelebration } from '@/components/admin/FirstSaleCelebration';
 import { useBehavioralNotifications } from '@/hooks/useBehavioralNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -233,6 +234,13 @@ export default function AdminDashboard() {
           </div>
         </PremiumCard>
       )}
+
+      {/* ═══ FIRST SALE CELEBRATION ═══ */}
+      <FirstSaleCelebration
+        totalSales={txCount}
+        orgName={currentOrg?.slug || undefined}
+        topProductTitle={topProducts?.[0]?.title}
+      />
 
       {/* ═══ ZONE 1 — REVENUE KPIs (the most important) ═══ */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
