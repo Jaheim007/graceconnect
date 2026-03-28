@@ -41,7 +41,7 @@ export default function WelcomeIntentPage() {
       iconBg: 'bg-purple-500/10',
       iconColor: 'text-purple-500',
       badge: isFr ? 'Populaire' : 'Popular',
-      route: hasManagedOrgs ? '/admin/create' : '/create-org',
+      route: hasManagedOrgs ? '/admin/create' : '/ecrire',
     },
     {
       key: 'earn',
