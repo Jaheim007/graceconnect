@@ -43,7 +43,6 @@ import { PostPurchaseCelebration } from '@/components/products/PostPurchaseCeleb
 import { SocialProofWidget } from '@/components/products/SocialProofWidget';
 import { trackProductView } from '@/components/discover/RecentlyViewedProducts';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
-import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { UrgencyWidget } from '@/components/products/UrgencyWidget';
 import { ContentSizeBadge } from '@/components/products/ContentSizeBadge';
