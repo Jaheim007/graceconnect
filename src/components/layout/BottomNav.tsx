@@ -14,6 +14,8 @@ import { getShortcutRoute } from '@/lib/navigation/shortcutRoutes';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { useAdaptiveLabels } from '@/hooks/useAdaptiveLabels';
 
 interface NavItemDef {
   to: string;
@@ -32,6 +34,8 @@ export function BottomNav() {
   const hasManagedOrgs = userOrgs.some((org) => canManage(org.id));
   const [moreOpen, setMoreOpen] = useState(false);
   const isFr = locale === 'fr';
+  const { profile } = useUserProfile();
+  const labels = useAdaptiveLabels();
 
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['unread-count', user?.id],
@@ -62,16 +66,45 @@ export function BottomNav() {
     { to: '/auth?mode=signup', icon: UserPlus, label: isFr ? 'Inscription' : 'Sign up' },
   ];
 
-  // ═══ UNIFIED BOTTOM NAV (same for ALL users) ═══
-  const bottomItems: NavItemDef[] = [
-    { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-    { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
-    { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
-    { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
-    { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
-  ];
+  // ═══ ADAPTIVE BOTTOM NAV ═══
+  const getBottomItems = (): NavItemDef[] => {
+    switch (profile) {
+      case 'buyer':
+        return [
+          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+          { to: '/resources', icon: Package, label: isFr ? 'Bibliothèque' : 'Library' },
+          { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+        ];
+      case 'ambassador':
+        return [
+          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+          { to: '/discover', icon: Store, label: isFr ? 'Catalogue' : 'Catalog' },
+          { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
+          { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
+          { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+        ];
+      case 'org-religious':
+        return [
+          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+          { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Publier' : 'Publish', center: true },
+          { to: '/admin/sales', icon: BarChart3, label: labels.activity },
+          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+          { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+        ];
+      case 'creator':
+      default:
+        return [
+          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+          { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
+          { to: '/admin/sales', icon: Wallet, label: labels.sales },
+          { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+          { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
+        ];
+    }
+  };
 
-  // ═══ MORE MENU ═══
+  // ═══ MORE MENU — adaptive sections ═══
   const getMoreSections = () => {
     const sections = [
       {
@@ -81,36 +114,51 @@ export function BottomNav() {
           { to: '/notifications', icon: Bell, label: 'Notifications' },
           { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
           { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
-          { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
+          ...(profile !== 'buyer' ? [{ to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' }] : []),
         ],
       },
-      {
-        label: isFr ? 'Gagner' : 'Earn',
+    ];
+
+    // Ambassador & creator/org: show earn section
+    if (profile !== 'buyer') {
+      sections.push({
+        label: isFr ? 'Partager & Gagner' : 'Share & Earn',
         items: [
           { to: '/spotlight', icon: Star, label: 'Spotlight' },
           { to: '/affiliation', icon: Share2, label: isFr ? 'Mes liens' : 'My Links' },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
         ],
-      },
-    ];
+      });
+    }
 
     if (hasManagedOrgs) {
       sections.push({
-        label: isFr ? 'Ma plateforme' : 'My Platform',
+        label: profile === 'org-religious'
+          ? (isFr ? 'Notre espace' : 'Our Space')
+          : (isFr ? 'Ma plateforme' : 'My Platform'),
         items: [
           { to: '/admin', icon: BarChart3, label: isFr ? 'Vue d\'ensemble' : 'Overview' },
           ...(currentOrg ? [{ to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' }] : []),
           { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
           { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
-          { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
-          { to: getShortcutRoute('wallet', shortcutContext), icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
+          { to: '/admin/people', icon: Users, label: labels.clients },
+          { to: getShortcutRoute('wallet', shortcutContext), icon: Wallet, label: `${labels.mySales}` },
         ],
       });
-    } else {
+    } else if (profile === 'buyer') {
+      // Gentle upsell for buyers
       sections.push({
-        label: isFr ? 'Créer' : 'Create',
+        label: isFr ? 'Aller plus loin' : 'Go further',
         items: [
-          { to: '/create-org', icon: Sparkles, label: isFr ? 'Créer plateforme' : 'Create Platform' },
+          { to: '/affiliation', icon: Share2, label: isFr ? 'Partager & Gagner' : 'Share & Earn' },
+          { to: '/create-org', icon: Sparkles, label: isFr ? 'Créer du contenu' : 'Create Content' },
+        ],
+      });
+    } else if (profile === 'ambassador') {
+      sections.push({
+        label: isFr ? 'Aller plus loin' : 'Go further',
+        items: [
+          { to: '/create-org', icon: Sparkles, label: isFr ? 'Créer du contenu' : 'Create Content' },
         ],
       });
     }
@@ -127,7 +175,7 @@ export function BottomNav() {
     return sections;
   };
 
-  const navItems = !user ? guestItems : bottomItems;
+  const navItems = !user ? guestItems : getBottomItems();
   const moreSections = getMoreSections();
 
   return (
