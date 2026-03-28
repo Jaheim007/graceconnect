@@ -322,7 +322,7 @@ const App = () => (
                 <Route path="/share-target" element={<ShareTargetPage />} />
                 <Route path="/changelog" element={<ChangelogPage />} />
                 <Route path="/temoignages" element={<TemoignagesPage />} />
-                <Route path="/calculateur" element={<CalculateurPage />} />
+                <Route path="/calculateur" element={<Navigate to="/gagner" replace />} />
                 <Route path="/pour/eglises" element={<PourEglisesPage />} />
                 <Route path="/pour/ong" element={<PourOngPage />} />
                 <Route path="/pour/formateurs" element={<PourFormateursPage />} />
@@ -389,7 +389,7 @@ const App = () => (
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
                   <Route path="/discover" element={<DiscoverPage />} />
-                  <Route path="/spotlight" element={<SpotlightPage />} />
+                  <Route path="/spotlight" element={<Navigate to="/discover" replace />} />
                   <Route path="/org/:slug" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/content" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/events" element={<OrgPublicPage />} />
@@ -413,7 +413,7 @@ const App = () => (
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
                   <Route path="/marketplace" element={<Navigate to="/discover" replace />} />
-                  <Route path="/feed" element={<FeedPage />} />
+                  <Route path="/feed" element={<Navigate to="/discover" replace />} />
                   <Route path="/reels" element={<ReelsPage />} />
                   <Route path="/reels/:id" element={<ReelsPage />} />
                   <Route path="/watch/:id" element={<WatchPage />} />
@@ -436,7 +436,7 @@ const App = () => (
                   <Route path="/leaderboard" element={<Navigate to="/affiliation" replace />} />
                   
                   <Route path="/bookmarks" element={<BookmarksPage />} />
-                  <Route path="/wishlist" element={<WishlistPage />} />
+                  <Route path="/wishlist" element={<Navigate to="/bookmarks" replace />} />
                   <Route path="/partner" element={<PartnerPortalPage />} />
                   <Route path="/invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
