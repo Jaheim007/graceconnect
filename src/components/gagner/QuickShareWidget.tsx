@@ -104,7 +104,7 @@ export function QuickShareWidget() {
         variant="ghost"
         size="sm"
         className="w-full mt-3 text-xs gap-1.5"
-        onClick={() => navigate('/affiliation')}
+        onClick={() => navigate('/gagner')}
       >
         Voir tous mes liens <ExternalLink className="h-3.5 w-3.5" />
       </Button>

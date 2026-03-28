@@ -412,7 +412,7 @@ export default function UserDashboard() {
                   <p className="text-[10px] text-muted-foreground">{isFr ? 'Partage tes produits préférés, gagne des commissions' : 'Share your favorite products, earn commissions'}</p>
                 </div>
               </div>
-              <Button className="w-full gap-2" size="sm" onClick={() => navigate('/affiliation')}>
+              <Button className="w-full gap-2" size="sm" onClick={() => navigate('/gagner')}>
                 <Rocket className="h-3.5 w-3.5" /> {isFr ? 'Commencer' : 'Start'}
               </Button>
             </PremiumCard>
@@ -430,7 +430,7 @@ export default function UserDashboard() {
                   <p className="text-[10px] text-muted-foreground">{isFr ? 'Partage et gagne des commissions' : 'Share & earn commissions'}</p>
                 </div>
               </div>
-              <Button className="w-full gap-2" size="sm" onClick={() => navigate('/affiliation')}>
+              <Button className="w-full gap-2" size="sm" onClick={() => navigate('/gagner')}>
                 <Rocket className="h-3.5 w-3.5" /> {isFr ? 'Commencer' : 'Start'}
               </Button>
             </PremiumCard>

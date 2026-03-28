@@ -17,8 +17,8 @@ export function QuickStartPaths() {
 
   // Smart routing: logged-in users go to functional pages, not marketing
   const sellRoute = hasManageableOrg ? '/admin/products' : '/create-org';
-  const shareRoute = user ? '/affiliation' : '/gagner';
-  const earnRoute = user ? '/affiliation' : '/gagner';
+  const shareRoute = '/gagner';
+  const earnRoute = '/gagner';
 
   const paths = [
     {

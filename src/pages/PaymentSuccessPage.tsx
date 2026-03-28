@@ -563,7 +563,7 @@ export default function PaymentSuccessPage() {
               <Button
                 variant="outline"
                 className="w-full gap-2"
-                onClick={() => navigate('/affiliation')}
+                onClick={() => navigate('/gagner')}
               >
                 {isFr ? 'Voir mes gains' : 'View my earnings'} <ArrowRight className="h-4 w-4" />
               </Button>

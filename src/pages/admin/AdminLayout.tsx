@@ -71,7 +71,7 @@ const mobilePrimaryLinks = [
   { to: '/dashboard', label: 'Home', icon: Home, end: true },
   { to: '/resources', label: 'Purchases', icon: Package },
   { to: '/admin/create', label: 'Create', icon: Plus },
-  { to: '/affiliation', label: 'Share', icon: Share2 },
+  { to: '/gagner', label: 'Share', icon: Share2 },
 ];
 
 export default function AdminLayout() {

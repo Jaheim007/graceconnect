@@ -185,7 +185,7 @@ export default function AmbassadorDashboard() {
             locale={locale}
             requestingPayout={requestingPayout}
             onRequestPayout={handleRequestPayout}
-            onOpenDetails={() => navigate('/affiliation')}
+            onOpenDetails={() => navigate('/gagner')}
           />
         )}
 
@@ -316,7 +316,7 @@ export default function AmbassadorDashboard() {
             icon={Link2}
             collapsible
             actions={
-              <button onClick={() => navigate('/affiliation')} className="text-xs text-primary font-medium hover:underline">
+              <button onClick={() => navigate('/gagner')} className="text-xs text-primary font-medium hover:underline">
                 {isFr ? 'Tout voir' : 'View all'}
               </button>
             }

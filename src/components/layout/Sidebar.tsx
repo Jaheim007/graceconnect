@@ -85,7 +85,7 @@ export function Sidebar() {
     // Ambassador: add share link
     if (profile === 'ambassador') {
       items.push(
-        { to: '/affiliation', icon: Share2, label: isFr ? 'Partager & Gagner' : 'Share & Earn' },
+        { to: '/gagner', icon: Share2, label: isFr ? 'Partager & Gagner' : 'Share & Earn' },
       );
     }
 
@@ -93,7 +93,7 @@ export function Sidebar() {
     if (profile === 'creator' || profile === 'org-religious') {
       items.push(
         { to: canManageCurrentOrg ? '/admin/create' : '/create-org', icon: Sparkles, label: isFr ? 'Créer' : 'Create' },
-        { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
+        { to: '/gagner', icon: Share2, label: isFr ? 'Partager' : 'Share' },
       );
     }
 

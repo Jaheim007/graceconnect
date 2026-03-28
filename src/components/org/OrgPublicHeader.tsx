@@ -326,7 +326,7 @@ export function OrgPublicHeader({
                 </Button>
               )}
               {orgAny.affiliation_enabled && !isOwner && isAmbassador && (
-                <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs" onClick={() => navigate('/affiliation')}>
+                <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs" onClick={() => navigate('/gagner')}>
                   <Crown className="h-4 w-4 text-primary" /> {locale === 'fr' ? 'Mon lien Ambassadeur' : 'My Ambassador Link'}
                 </Button>
               )}

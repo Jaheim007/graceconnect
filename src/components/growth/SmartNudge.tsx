@@ -71,7 +71,7 @@ export function SmartNudge() {
     if (!state.hasLinks) {
       all.push({
         id: 'ambassador', emoji: '💰', priority: 3, bg: 'bg-emerald-500/5 border-emerald-500/20',
-        text: t('nudge.ambassador'), cta: t('nudge.ambassador_cta'), action: () => navigate('/affiliation'),
+        text: t('nudge.ambassador'), cta: t('nudge.ambassador_cta'), action: () => navigate('/gagner'),
       });
     }
     if (state.hasOrg && !state.hasProducts) {

@@ -16,7 +16,7 @@ export function useNewUserRedirect() {
     checked.current = true;
 
     // Skip if already on these pages
-    const skip = ['/welcome', '/auth', '/create-org', '/admin', '/superadmin', '/payment', '/go/', '/org/', '/resources', '/my-programs', '/discover', '/profile', '/bookmarks', '/affiliation', '/spotlight', '/feed', '/credits'];
+    const skip = ['/welcome', '/auth', '/create-org', '/admin', '/superadmin', '/payment', '/go/', '/org/', '/resources', '/my-programs', '/discover', '/profile', '/bookmarks', '/gagner', '/spotlight', '/feed', '/credits'];
     if (skip.some(p => location.pathname.startsWith(p))) return;
 
     // If user already saw welcome this session, don't redirect again

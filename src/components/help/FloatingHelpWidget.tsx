@@ -23,7 +23,7 @@ const CONTEXTUAL_HELP: Record<string, { q: string; a: string }[]> = {
     { q: 'Comment activer le programme ambassadeur ?', a: 'Allez dans Paramètres > Programme ambassadeur et activez-le. Définissez votre taux de commission (5-50%).' },
     { q: 'Comment recruter des ambassadeurs ?', a: 'Partagez votre page boutique. Les visiteurs peuvent devenir ambassadeurs en 1 clic.' },
   ],
-  '/affiliation': [
+  '/gagner-legacy': [
     { q: 'Comment gagner des commissions ?', a: 'Choisissez un produit, cliquez "Devenir ambassadeur", partagez votre lien unique. Chaque vente = commission.' },
     { q: 'Quand reçois-je mes commissions ?', a: 'Après 15 jours de validation. Vous pouvez retirer via Mobile Money ou virement.' },
   ],
