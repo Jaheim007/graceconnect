@@ -2,9 +2,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   Home, Eye, Settings, ChevronLeft, ChevronRight, Shield,
-  FileCheck, LogOut, BarChart3, Users, Wallet,
-  Store, Package, User, Handshake, Plus, Share2,
-  Sparkles, Coins, Zap, Bookmark
+  LogOut, BarChart3, Users, Wallet,
+  Store, Package, Handshake, Share2,
+  Sparkles, Coins, Bookmark
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';

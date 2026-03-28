@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home, Plus, Wallet, Store, MoreHorizontal, Shield, Bell, Settings,
-  User, ShieldCheck, Package, BarChart3, Eye, Users, Zap, UserPlus, Share2, Star, Sparkles,
+  User, Package, BarChart3, Eye, Users, Share2, Sparkles,
   Bookmark, Coins, LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
