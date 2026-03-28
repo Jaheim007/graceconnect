@@ -65,6 +65,12 @@ export function LandingMigration() {
     return <span className="text-sm font-bold text-foreground">{val}</span>;
   };
 
+  const renderMobileCell = (val: string | boolean) => {
+    if (val === true) return <CheckCircle2 className="h-4 w-4 text-primary" />;
+    if (val === false) return <X className="h-4 w-4 text-muted-foreground/30" />;
+    return <span className="text-xs font-bold text-foreground">{val}</span>;
+  };
+
   return (
     <section className="py-24 sm:py-32 px-4">
       <div className="container max-w-6xl mx-auto">
@@ -93,8 +99,8 @@ export function LandingMigration() {
           variants={fadeUp}
           className="rounded-3xl border border-border bg-card overflow-hidden shadow-lg"
         >
-          {/* Desktop table */}
-          <div className="overflow-x-auto">
+          {/* Desktop table - hidden on mobile */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-sm" style={{ tableLayout: 'fixed' }}>
               <colgroup>
                 <col style={{ width: '34%' }} />
@@ -151,9 +157,46 @@ export function LandingMigration() {
             </table>
           </div>
 
+          {/* Mobile card layout */}
+          <div className="sm:hidden">
+            {/* Mobile header */}
+            <div className="grid grid-cols-4 gap-0 border-b border-border p-4">
+              <div className="text-xs font-medium text-muted-foreground">
+                {isFr ? 'Fonction' : 'Feature'}
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <Crown className="h-3.5 w-3.5 text-accent" />
+                <span className="text-primary font-extrabold text-[11px] leading-tight text-center">SiteViral</span>
+                <span className="text-[8px] bg-primary/10 text-primary font-semibold px-1.5 py-0.5 rounded-full">⭐</span>
+              </div>
+              <div className="flex items-center justify-center">
+                <span className="font-semibold text-muted-foreground text-[11px]">Chariow</span>
+              </div>
+              <div className="flex items-center justify-center">
+                <span className="font-semibold text-muted-foreground text-[11px]">Gumroad</span>
+              </div>
+            </div>
+
+            {/* Mobile rows */}
+            {rows.map((row, i) => (
+              <div
+                key={i}
+                className={cn(
+                  'grid grid-cols-4 gap-0 items-center border-b border-border/40 last:border-0 px-4 py-3',
+                  i % 2 === 0 && 'bg-muted/5'
+                )}
+              >
+                <span className="text-xs font-medium text-foreground leading-tight pr-2">{row.feature}</span>
+                <div className="flex items-center justify-center">{renderMobileCell(row.siteviral)}</div>
+                <div className="flex items-center justify-center">{renderMobileCell(row.chariow)}</div>
+                <div className="flex items-center justify-center">{renderMobileCell(row.gumroad)}</div>
+              </div>
+            ))}
+          </div>
+
           {/* CTA row */}
-          <div className="border-t border-border bg-muted/20 p-8 sm:p-10 text-center">
-            <Button size="lg" className="gap-2 h-13 px-10 text-base shadow-lg shadow-primary/20" onClick={() => navigate('/auth?mode=signup')}>
+          <div className="border-t border-border bg-muted/20 p-6 sm:p-10 text-center">
+            <Button size="lg" className="gap-2 h-12 sm:h-13 px-8 sm:px-10 text-sm sm:text-base shadow-lg shadow-primary/20" onClick={() => navigate('/auth?mode=signup')}>
               {isFr ? 'Commencer gratuitement' : 'Start for free'} <ArrowRight className="h-4 w-4" />
             </Button>
             <p className="text-xs text-muted-foreground mt-4">
