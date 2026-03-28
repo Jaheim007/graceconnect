@@ -65,18 +65,6 @@ else { const m = document.createElement('meta'); m.name = 'theme-color'; m.conte
 const savedLocale = localStorage.getItem('sv_locale') || navigator.language.slice(0, 2) || 'fr';
 document.documentElement.lang = ['en', 'fr'].includes(savedLocale) ? savedLocale : 'fr';
 
-const isInIframe = (() => {
-  try {
-    return window.self !== window.top;
-  } catch {
-    return true;
-  }
-})();
-
-const isLovablePreviewHost =
-  window.location.hostname.includes('id-preview--') ||
-  window.location.hostname.includes('lovable.app');
-
 // ── PWA Service Worker Registration with Update Prompt ──
 const clearLegacySupabaseRestCache = async () => {
   if (!('caches' in window)) return;
@@ -94,16 +82,6 @@ const clearLegacySupabaseRestCache = async () => {
 };
 
 const registerSW = async () => {
-  if ('serviceWorker' in navigator && (isInIframe || isLovablePreviewHost)) {
-    try {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(registrations.map((registration) => registration.unregister()));
-    } catch {
-      // Ignore cleanup issues
-    }
-    return;
-  }
-
   if ('serviceWorker' in navigator && import.meta.env.PROD) {
     try {
       const { registerSW } = await import('virtual:pwa-register');
