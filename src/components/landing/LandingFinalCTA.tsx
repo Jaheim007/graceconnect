@@ -16,19 +16,11 @@ export function LandingFinalCTA() {
 
   return (
     <section className="py-24 px-4">
-      <div className="container max-w-3xl">
+      <div className="container max-w-4xl">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="relative rounded-3xl overflow-hidden">
-          {/* Dark gradient background like Cobalt CTA */}
-          <div className="absolute inset-0" style={{
-            background: 'linear-gradient(135deg, hsl(220 70% 10%) 0%, hsl(220 65% 18%) 50%, hsl(220 60% 14%) 100%)',
-          }} />
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle, hsla(220, 60%, 50%, 0.08) 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-          }} />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] rounded-full blur-[100px] opacity-30"
-            style={{ background: 'hsl(220 75% 45%)' }}
-          />
+          {/* Clean dark gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220,70%,10%)] via-[hsl(220,65%,16%)] to-[hsl(220,60%,12%)]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] rounded-full blur-[120px] opacity-20 bg-primary" />
 
           <div className="relative z-10 p-12 sm:p-16 text-center space-y-6">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
@@ -38,7 +30,6 @@ export function LandingFinalCTA() {
               {isFr ? "Commence maintenant. C'est gratuit. 5 minutes suffisent." : "Start now. It's free. 5 minutes is all you need."}
             </p>
 
-            {/* Country flags */}
             <div className="flex items-center justify-center gap-2 text-xl">
               {['🇬🇭', '🇰🇪', '🇨🇮', '🇳🇬', '🇿🇦', '🇺🇸', '🇬🇧', '🇫🇷'].map(f => <span key={f}>{f}</span>)}
             </div>
