@@ -24,13 +24,13 @@ export function LandingTrustShield() {
   ];
 
   return (
-    <section className="py-20 px-4">
+    <section className="py-24 px-4">
       <div className="container max-w-4xl">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-10">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-14">
           <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-primary/10 mx-auto mb-5">
             <Shield className="h-8 w-8 text-primary" />
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold">
+          <h2 className="text-3xl sm:text-4xl font-extrabold">
             {isFr ? (
               <>Tes contenus sont <span className="text-primary">protégés</span></>
             ) : (
@@ -44,7 +44,7 @@ export function LandingTrustShield() {
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+        <div className="grid sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
           {features.map((feature, i) => (
             <motion.div
               key={feature.label}
@@ -53,9 +53,9 @@ export function LandingTrustShield() {
               viewport={{ once: true }}
               variants={fadeUp}
               transition={{ delay: i * 0.08 }}
-              className="flex gap-4 items-start bg-card border border-border rounded-2xl p-5 hover:border-primary/20 hover:shadow-md transition-all duration-300"
+              className="flex gap-4 items-start bg-card border border-border/60 rounded-2xl p-6 hover:border-primary/20 hover:shadow-[var(--shadow-card)] transition-all duration-300 group"
             >
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
                 <feature.icon className="h-5 w-5 text-primary" />
               </div>
               <div>

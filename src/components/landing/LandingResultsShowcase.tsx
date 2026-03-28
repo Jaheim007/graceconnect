@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Sparkles, Star, Quote } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -141,9 +141,8 @@ export function LandingResultsShowcase() {
 
   return (
     <section className="relative py-24 sm:py-32 overflow-hidden" id="resultats">
-      {/* Subtle gradient bg */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/30 to-background" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[120px] opacity-[0.07] bg-primary" />
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
 
       <div className="container max-w-7xl mx-auto px-4 relative z-10">
         {/* Header */}
@@ -174,83 +173,52 @@ export function LandingResultsShowcase() {
           <div className="absolute inset-0 flex items-center justify-center">
             {/* Left preview */}
             <div className="absolute left-0 sm:left-4 lg:left-8 w-[200px] sm:w-[240px] lg:w-[280px] h-[340px] sm:h-[400px] lg:h-[440px] rounded-2xl overflow-hidden opacity-25 blur-[1px] scale-[0.88] hidden sm:block pointer-events-none">
-              <img src={prevSlide.image} alt="" className="w-full h-full object-cover" />
+              <img src={prevSlide.image} alt="" className="w-full h-full object-cover" loading="eager" />
               <div className="absolute inset-0 bg-background/60" />
             </div>
 
             {/* Right preview */}
             <div className="absolute right-0 sm:right-4 lg:right-8 w-[200px] sm:w-[240px] lg:w-[280px] h-[340px] sm:h-[400px] lg:h-[440px] rounded-2xl overflow-hidden opacity-25 blur-[1px] scale-[0.88] hidden sm:block pointer-events-none">
-              <img src={nextSlide.image} alt="" className="w-full h-full object-cover" />
+              <img src={nextSlide.image} alt="" className="w-full h-full object-cover" loading="eager" />
               <div className="absolute inset-0 bg-background/60" />
             </div>
 
-            {/* Main card */}
-            <AnimatePresence mode="wait" custom={direction}>
+            {/* Main card - NO exit animation, just crossfade for speed */}
+            <AnimatePresence mode="popLayout" custom={direction}>
               <motion.div
                 key={current}
                 custom={direction}
-                variants={{
-                  enter: (dir: number) => ({
-                    x: dir > 0 ? 250 : -250,
-                    opacity: 0,
-                    scale: 0.9,
-                  }),
-                  center: {
-                    x: 0,
-                    opacity: 1,
-                    scale: 1,
-                  },
-                  exit: (dir: number) => ({
-                    x: dir > 0 ? -250 : 250,
-                    opacity: 0,
-                    scale: 0.9,
-                  }),
-                }}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{
-                  x: { type: 'spring', stiffness: 300, damping: 30 },
-                  opacity: { duration: 0.25 },
-                  scale: { duration: 0.35 },
-                }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
                 className="relative w-[92%] sm:w-[55%] lg:w-[48%] max-w-[620px] rounded-2xl sm:rounded-3xl overflow-hidden z-10 bg-card border border-border shadow-xl"
               >
-                {/* Image - top half */}
+                {/* Image - top half - NO individual animation, appears instantly */}
                 <div className="relative h-[220px] sm:h-[280px] lg:h-[300px] overflow-hidden">
                   <img
                     src={slide.image}
                     alt={`Résultats de ${slide.orgName}`}
                     className="w-full h-full object-cover"
+                    loading="eager"
                   />
-                  {/* Gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
 
                   {/* Rating badge */}
-                  <motion.div
-                    className="absolute top-4 left-4"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2, type: 'spring', stiffness: 400, damping: 15 }}
-                  >
+                  <div className="absolute top-4 left-4">
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground">
                       <Star className="h-3 w-3 fill-current" />
                       <span className="text-xs font-black">{slide.rating}</span>
                     </div>
-                  </motion.div>
+                  </div>
 
                   {/* Revenue badge */}
-                  <motion.div
-                    className="absolute top-4 right-4"
-                    initial={{ y: -20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3, type: 'spring' }}
-                  >
+                  <div className="absolute top-4 right-4">
                     <div className="px-3 py-1.5 rounded-xl bg-card/80 backdrop-blur-md border border-border font-black text-xs text-foreground flex items-center gap-1.5">
                       <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
                       {slide.highlight}
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
 
                 {/* Content - bottom */}

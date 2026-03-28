@@ -24,126 +24,38 @@ export function LandingPlatformShowcase() {
   ];
 
   return (
-    <section className="py-16 sm:py-24 px-4">
-      <div className="container max-w-6xl">
-        {/* Section 1: Storefront */}
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-20 sm:mb-28">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={fadeUp}
-          >
-            <p className="text-xs font-bold text-primary uppercase tracking-wider mb-3">
-              {isFr ? 'Votre boutique' : 'Your store'}
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight mb-4">
-              {isFr
-                ? 'Une boutique pro qui vous ressemble'
-                : 'A pro store that looks like you'}
-            </h2>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-6">
-              {isFr
-                ? 'Personnalisez votre boutique avec votre logo, vos couleurs et vos produits. Vos clients achètent en confiance avec Mobile Money ou carte bancaire.'
-                : 'Customize your store with your logo, colors and products. Your customers buy with confidence using Mobile Money or card.'}
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {features.slice(0, 2).map((f, i) => (
-                <motion.div
-                  key={f.label}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.2 + i * 0.1 }}
-                  className="flex items-start gap-2.5 p-3 rounded-xl bg-muted/30 border border-border/30"
-                >
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <f.icon className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold">{f.label}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{f.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+    <section className="py-24 px-4">
+      <div className="container max-w-5xl">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-16">
+          <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-3">
+            {isFr ? 'La plateforme' : 'The platform'}
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold">
+            {isFr ? 'Tout ce dont tu as besoin' : 'Everything you need'}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-3 max-w-lg mx-auto">
+            {isFr ? 'Boutique, analytics, ambassadeurs, IA — tout est intégré.' : 'Store, analytics, ambassadors, AI — everything built-in.'}
+          </p>
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 40, scale: 0.95 }}
-            whileInView={{ opacity: 1, x: 0, scale: 1 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
-          >
-            <div className="rounded-2xl overflow-hidden border border-border/50 shadow-premium bg-card p-8 sm:p-12 text-center">
-              <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <Store className="h-8 w-8 text-primary" />
+        {/* Cobalt-style feature grid */}
+        <div className="grid sm:grid-cols-2 gap-6">
+          {features.map((f, i) => (
+            <motion.div
+              key={f.label}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.4 }}
+              className="rounded-2xl border border-border/60 bg-card p-8 hover:border-primary/20 hover:shadow-[var(--shadow-elevated)] transition-all duration-300 group"
+            >
+              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/15 transition-colors">
+                <f.icon className="h-6 w-6 text-primary" />
               </div>
-              <p className="text-lg font-bold mb-2">{isFr ? 'Votre Marketplace' : 'Your Marketplace'}</p>
-              <p className="text-sm text-muted-foreground">{isFr ? 'Une vitrine professionnelle prête en quelques clics' : 'A professional storefront ready in clicks'}</p>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Section 2: Dashboard (reversed) */}
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -40, scale: 0.95 }}
-            whileInView={{ opacity: 1, x: 0, scale: 1 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
-            className="order-2 lg:order-1"
-          >
-            <div className="rounded-2xl overflow-hidden border border-border/50 shadow-premium bg-card p-8 sm:p-12 text-center">
-              <div className="h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="h-8 w-8 text-accent" />
-              </div>
-              <p className="text-lg font-bold mb-2">{isFr ? 'Tableau de bord' : 'Sales Dashboard'}</p>
-              <p className="text-sm text-muted-foreground">{isFr ? 'Suivez vos ventes et performances en temps réel' : 'Track your sales and performance in real-time'}</p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={fadeUp}
-            className="order-1 lg:order-2"
-          >
-            <p className="text-xs font-bold text-accent uppercase tracking-wider mb-3">
-              {isFr ? 'Tableau de bord' : 'Dashboard'}
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight mb-4">
-              {isFr
-                ? 'Pilotez vos ventes en un coup d\'œil'
-                : 'Track your sales at a glance'}
-            </h2>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-6">
-              {isFr
-                ? 'Revenus, transactions, commissions ambassadeurs — tout est visible en temps réel. Exportez vos données, gérez vos retraits, suivez la performance de chaque ambassadeur.'
-                : 'Revenue, transactions, ambassador commissions — everything visible in real-time. Export your data, manage payouts, track every ambassador\'s performance.'}
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {features.slice(2, 4).map((f, i) => (
-                <motion.div
-                  key={f.label}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.2 + i * 0.1 }}
-                  className="flex items-start gap-2.5 p-3 rounded-xl bg-muted/30 border border-border/30"
-                >
-                  <div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                    <f.icon className="h-4 w-4 text-accent" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold">{f.label}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{f.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+              <h3 className="font-bold text-lg mb-2">{f.label}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

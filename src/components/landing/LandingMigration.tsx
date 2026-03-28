@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle2, X, Minus } from 'lucide-react';
+import { ArrowRight, CheckCircle2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
@@ -49,16 +49,16 @@ export function LandingMigration() {
   ];
 
   const renderCell = (val: string | boolean) => {
-    if (val === true) return <CheckCircle2 className="h-4 w-4 text-emerald-500 mx-auto" />;
-    if (val === false) return <X className="h-4 w-4 text-muted-foreground/30 mx-auto" />;
-    return <span className="text-xs font-semibold text-foreground">{val}</span>;
+    if (val === true) return <CheckCircle2 className="h-5 w-5 text-emerald-500" />;
+    if (val === false) return <X className="h-5 w-5 text-muted-foreground/30" />;
+    return <span className="text-sm font-semibold text-foreground">{val}</span>;
   };
 
   return (
-    <section className="py-20 px-4">
-      <div className="container max-w-5xl">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
-          <h2 className="text-2xl sm:text-4xl font-extrabold mb-3">
+    <section className="py-24 px-4">
+      <div className="container max-w-4xl mx-auto">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-14">
+          <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
             {isFr ? (
               <>Pourquoi choisir <span className="text-primary">SiteViral</span> ?</>
             ) : (
@@ -72,64 +72,61 @@ export function LandingMigration() {
           </p>
         </motion.div>
 
-        {/* Clean comparison table inspired by the reference */}
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeUp}
-          className="rounded-2xl border border-border bg-card overflow-hidden"
+          className="rounded-2xl border border-border bg-card overflow-hidden shadow-[var(--shadow-elevated)]"
         >
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/30">
-                  <th className="text-left py-4 pl-6 pr-4 font-medium text-muted-foreground w-[40%]" />
-                  <th className="py-4 px-4 text-center min-w-[130px]">
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="text-primary font-extrabold text-base">SiteViral</span>
-                      <span className="text-[10px] text-primary/60 font-medium">{isFr ? 'Recommandé' : 'Recommended'}</span>
-                    </div>
-                  </th>
-                  <th className="py-4 px-4 text-center min-w-[130px]">
-                    <span className="font-semibold text-muted-foreground">Chariow</span>
-                  </th>
-                  <th className="py-4 px-4 pr-6 text-center min-w-[130px]">
-                    <span className="font-semibold text-muted-foreground">Gumroad</span>
-                  </th>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="text-left py-5 pl-6 pr-4 font-medium text-muted-foreground w-[40%]" />
+                <th className="py-5 px-6 text-center w-[20%]">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-primary font-extrabold text-base">SiteViral</span>
+                    <span className="text-[10px] text-primary/60 font-medium">{isFr ? 'Recommandé' : 'Recommended'}</span>
+                  </div>
+                </th>
+                <th className="py-5 px-6 text-center w-[20%]">
+                  <span className="font-semibold text-muted-foreground">Chariow</span>
+                </th>
+                <th className="py-5 px-6 text-center w-[20%]">
+                  <span className="font-semibold text-muted-foreground">Gumroad</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, i) => (
+                <tr
+                  key={i}
+                  className={cn(
+                    'border-b border-border/50 last:border-0 transition-colors hover:bg-muted/20',
+                    i % 2 === 0 && 'bg-muted/5'
+                  )}
+                >
+                  <td className="py-4 pl-6 pr-4 font-medium text-foreground">{row.feature}</td>
+                  <td className="py-4 px-6 text-center">
+                    <div className="flex items-center justify-center">{renderCell(row.siteviral)}</div>
+                  </td>
+                  <td className="py-4 px-6 text-center">
+                    <div className="flex items-center justify-center">{renderCell(row.chariow)}</div>
+                  </td>
+                  <td className="py-4 px-6 text-center">
+                    <div className="flex items-center justify-center">{renderCell(row.gumroad)}</div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {rows.map((row, i) => (
-                  <tr
-                    key={i}
-                    className={cn(
-                      'border-b border-border/50 last:border-0 transition-colors hover:bg-muted/20',
-                      i % 2 === 0 && 'bg-muted/5'
-                    )}
-                  >
-                    <td className="py-3.5 pl-6 pr-4 font-medium text-foreground text-sm">{row.feature}</td>
-                    <td className="py-3.5 px-4 text-center">
-                      <div className="flex items-center justify-center">{renderCell(row.siteviral)}</div>
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <div className="flex items-center justify-center">{renderCell(row.chariow)}</div>
-                    </td>
-                    <td className="py-3.5 px-4 pr-6 text-center">
-                      <div className="flex items-center justify-center">{renderCell(row.gumroad)}</div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
 
           {/* CTA row */}
-          <div className="border-t border-border bg-muted/20 p-6 text-center">
+          <div className="border-t border-border bg-muted/20 p-8 text-center">
             <Button size="lg" className="gap-2 h-12 px-8 text-sm" onClick={() => navigate('/auth?mode=signup')}>
               {isFr ? 'Commencer gratuitement' : 'Start for free'} <ArrowRight className="h-4 w-4" />
             </Button>
-            <p className="text-[10px] text-muted-foreground mt-3">
+            <p className="text-[11px] text-muted-foreground mt-3">
               {isFr ? '✓ Gratuit · ✓ Pas de carte requise · ✓ Migration en 2 minutes' : '✓ Free · ✓ No card needed · ✓ Migrate in 2 minutes'}
             </p>
           </div>
