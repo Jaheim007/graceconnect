@@ -26,21 +26,11 @@ export function LandingHeroManifesto() {
 
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-      {/* Dark gradient hero background inspired by Cobalt */}
-      <div className="absolute inset-0" style={{
-        background: 'linear-gradient(180deg, hsl(220 70% 8%) 0%, hsl(220 60% 12%) 50%, hsl(var(--background)) 100%)',
-      }} />
+      {/* Clean dark gradient - no dots, no clutter */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[hsl(220,70%,8%)] via-[hsl(220,60%,12%)] to-background" />
 
-      {/* Dotted grid pattern */}
-      <div className="absolute inset-0" style={{
-        backgroundImage: 'radial-gradient(circle, hsla(220, 60%, 50%, 0.15) 1px, transparent 1px)',
-        backgroundSize: '32px 32px',
-      }} />
-
-      {/* Subtle gradient glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full blur-[150px] opacity-20"
-        style={{ background: 'linear-gradient(180deg, hsl(220 75% 45%), hsl(40 85% 52%))' }}
-      />
+      {/* Subtle ambient glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full blur-[160px] opacity-15 bg-primary" />
 
       <div className="relative z-10 container max-w-5xl px-4 py-24 sm:py-32">
         <motion.div
@@ -91,7 +81,6 @@ export function LandingHeroManifesto() {
               className="px-8 gap-2.5 h-14 text-base w-full sm:w-auto group relative overflow-hidden shadow-lg shadow-primary/30"
               onClick={() => { trackEvent('cta_click', { cta: 'write_book', source: 'landing_hero' }, user?.id); navigate(user ? '/ecrire' : '/auth?mode=signup&intent=writer'); }}
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               <PenLine className="h-5 w-5" />
               ✏️ {isFr ? 'Écrire mon livre' : 'Write my book'}
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -143,7 +132,7 @@ export function LandingHeroManifesto() {
         </motion.div>
       </div>
 
-      {/* Bottom gradient fade to content */}
+      {/* Bottom gradient fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
     </section>
   );
