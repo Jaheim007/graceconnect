@@ -373,12 +373,12 @@ export default function UserDashboard() {
                 <Building2 className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-sm">{isFr ? 'Crée ta plateforme' : 'Create your platform'}</h3>
+                <h3 className="font-bold text-sm">{isFr ? 'Crée ta boutique' : 'Create your store'}</h3>
                 <p className="text-[10px] text-muted-foreground mt-0.5">{isFr ? 'Vends tes produits, reçois des paiements Mobile Money' : 'Sell your products, receive Mobile Money payments'}</p>
               </div>
             </div>
             <Button className="w-full gap-2" size="sm" onClick={() => navigate('/create-org')}>
-              <Store className="h-3.5 w-3.5" /> {isFr ? 'Créer ma boutique' : 'Create my store'}
+              <Store className="h-3.5 w-3.5" /> {isFr ? 'Commencer' : 'Get started'}
             </Button>
           </PremiumCard>
         )}
@@ -454,7 +454,7 @@ export default function UserDashboard() {
                   <p className="text-xs font-semibold">
                     {userProfile === 'org-religious'
                       ? (isFr ? 'Notre espace' : 'Our space')
-                      : (isFr ? 'Mon espace créateur' : 'Creator space')}
+                      : (isFr ? 'Ma boutique' : 'My store')}
                   </p>
                   <p className="text-[10px] text-muted-foreground">
                     {userProfile === 'org-religious'
