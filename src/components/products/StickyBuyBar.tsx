@@ -38,7 +38,7 @@ export function StickyBuyBar({ title, price, isFree, currency = 'XOF', isPurchas
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-          className="fixed bottom-16 left-0 right-0 z-40 md:hidden"
+          className="fixed bottom-20 left-0 right-0 z-40 md:hidden"
         >
           <div className="mx-2 rounded-2xl border border-border bg-card/95 backdrop-blur-md shadow-xl px-4 py-3 flex items-center gap-3">
             <div className="flex-1 min-w-0">

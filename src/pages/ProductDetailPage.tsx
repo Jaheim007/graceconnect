@@ -453,7 +453,7 @@ export default function ProductDetailPage() {
             {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel((org as any).category, locale)} className="ml-1" />}
           </Link>
         ) : (
-          <Link to={user ? '/feed' : '/'}>
+          <Link to={user ? '/discover' : '/'}>
             <SiteLogo size="sm" linked={false} animate />
           </Link>
         )}
