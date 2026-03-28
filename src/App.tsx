@@ -378,11 +378,11 @@ const App = () => (
                 <Route path="/gagner-info" element={<Navigate to="/gagner" replace />} />
                 <Route path="/ecrire" element={<RequireAuth><EcrirePage /></RequireAuth>} />
                 <Route path="/write" element={<Navigate to="/ecrire" replace />} />
-                <Route path="/migrer" element={<MigrerPage />} />
-                <Route path="/migrate" element={<Navigate to="/migrer" replace />} />
-                <Route path="/vendre" element={<VendreLandingPage />} />
-                <Route path="/sell" element={<Navigate to="/vendre" replace />} />
-                <Route path="/protection" element={<ProtectionPage />} />
+                <Route path="/migrer" element={<Navigate to="/" replace />} />
+                <Route path="/migrate" element={<Navigate to="/" replace />} />
+                <Route path="/vendre" element={<Navigate to="/" replace />} />
+                <Route path="/sell" element={<Navigate to="/" replace />} />
+                <Route path="/protection" element={<Navigate to="/security" replace />} />
                 <Route path="/explorer" element={<Navigate to="/discover" replace />} />
                 <Route path="/hub" element={<Navigate to="/discover" replace />} />
                 <Route path="/store/:slug" element={<StoreRedirect />} />
