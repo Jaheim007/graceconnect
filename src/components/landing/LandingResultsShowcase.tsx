@@ -116,6 +116,21 @@ function usePreloadImages(images: string[]) {
   }, []);
 }
 
+const slideVariants = {
+  enter: (dir: number) => ({
+    x: dir > 0 ? '100%' : '-100%',
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (dir: number) => ({
+    x: dir > 0 ? '-100%' : '100%',
+    opacity: 0,
+  }),
+};
+
 export function LandingResultsShowcase() {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -136,12 +151,9 @@ export function LandingResultsShowcase() {
   }, []);
 
   const slide = SLIDES[current];
-  const prevSlide = SLIDES[(current - 1 + SLIDES.length) % SLIDES.length];
-  const nextSlide = SLIDES[(current + 1) % SLIDES.length];
 
   return (
     <section className="relative py-24 sm:py-32 overflow-hidden" id="resultats">
-      {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
 
       <div className="container max-w-7xl mx-auto px-4 relative z-10">
@@ -153,9 +165,7 @@ export function LandingResultsShowcase() {
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
         >
-          <motion.span
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary/5 text-primary text-xs font-bold uppercase tracking-[0.2em] mb-6 border border-primary/10"
-          >
+          <motion.span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary/5 text-primary text-xs font-bold uppercase tracking-[0.2em] mb-6 border border-primary/10">
             <Sparkles className="h-3.5 w-3.5" />
             Résultats vérifiés
           </motion.span>
@@ -168,84 +178,70 @@ export function LandingResultsShowcase() {
           </p>
         </motion.div>
 
-        {/* 3-card carousel */}
-        <div className="relative h-[460px] sm:h-[520px] lg:h-[560px]">
-          <div className="absolute inset-0 flex items-center justify-center">
-            {/* Left preview */}
-            <div className="absolute left-0 sm:left-4 lg:left-8 w-[200px] sm:w-[240px] lg:w-[280px] h-[340px] sm:h-[400px] lg:h-[440px] rounded-2xl overflow-hidden opacity-25 blur-[1px] scale-[0.88] hidden sm:block pointer-events-none">
-              <img src={prevSlide.image} alt="" className="w-full h-full object-cover" loading="eager" />
-              <div className="absolute inset-0 bg-background/60" />
-            </div>
+        {/* Horizontal sliding carousel */}
+        <div className="relative w-full max-w-[620px] mx-auto overflow-hidden rounded-2xl sm:rounded-3xl">
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={current}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="relative bg-card border border-border shadow-xl rounded-2xl sm:rounded-3xl overflow-hidden"
+            >
+              {/* Image */}
+              <div className="relative h-[220px] sm:h-[280px] lg:h-[300px] overflow-hidden">
+                <img
+                  src={slide.image}
+                  alt={`Résultats de ${slide.orgName}`}
+                  className="w-full h-full object-cover"
+                  loading="eager"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
 
-            {/* Right preview */}
-            <div className="absolute right-0 sm:right-4 lg:right-8 w-[200px] sm:w-[240px] lg:w-[280px] h-[340px] sm:h-[400px] lg:h-[440px] rounded-2xl overflow-hidden opacity-25 blur-[1px] scale-[0.88] hidden sm:block pointer-events-none">
-              <img src={nextSlide.image} alt="" className="w-full h-full object-cover" loading="eager" />
-              <div className="absolute inset-0 bg-background/60" />
-            </div>
-
-            {/* Main card - NO exit animation, just crossfade for speed */}
-            <AnimatePresence mode="popLayout" custom={direction}>
-              <motion.div
-                key={current}
-                custom={direction}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-                className="relative w-[92%] sm:w-[55%] lg:w-[48%] max-w-[620px] rounded-2xl sm:rounded-3xl overflow-hidden z-10 bg-card border border-border shadow-xl"
-              >
-                {/* Image - top half - NO individual animation, appears instantly */}
-                <div className="relative h-[220px] sm:h-[280px] lg:h-[300px] overflow-hidden">
-                  <img
-                    src={slide.image}
-                    alt={`Résultats de ${slide.orgName}`}
-                    className="w-full h-full object-cover"
-                    loading="eager"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
-
-                  {/* Rating badge */}
-                  <div className="absolute top-4 left-4">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground">
-                      <Star className="h-3 w-3 fill-current" />
-                      <span className="text-xs font-black">{slide.rating}</span>
-                    </div>
-                  </div>
-
-                  {/* Revenue badge */}
-                  <div className="absolute top-4 right-4">
-                    <div className="px-3 py-1.5 rounded-xl bg-card/80 backdrop-blur-md border border-border font-black text-xs text-foreground flex items-center gap-1.5">
-                      <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
-                      {slide.highlight}
-                    </div>
+                {/* Rating badge */}
+                <div className="absolute top-4 left-4">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground">
+                    <Star className="h-3 w-3 fill-current" />
+                    <span className="text-xs font-black">{slide.rating}</span>
                   </div>
                 </div>
 
-                {/* Content - bottom */}
-                <div className="p-5 sm:p-6 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm sm:text-base font-black text-foreground leading-tight">
-                      {slide.orgName}
-                    </h3>
-                    <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                      {slide.context}
-                    </span>
+                {/* Revenue badge */}
+                <div className="absolute top-4 right-4">
+                  <div className="px-3 py-1.5 rounded-xl bg-card/80 backdrop-blur-md border border-border font-black text-xs text-foreground flex items-center gap-1.5">
+                    <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+                    {slide.highlight}
                   </div>
+                </div>
+              </div>
 
-                  <div className="relative">
-                    <Quote className="absolute -top-1 -left-1 h-4 w-4 text-primary/20" />
-                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed pl-4 italic">
-                      {slide.testimonial}
-                    </p>
-                  </div>
+              {/* Content */}
+              <div className="p-5 sm:p-6 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-sm sm:text-base font-black text-foreground leading-tight">
+                    {slide.orgName}
+                  </h3>
+                  <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
+                    {slide.context}
+                  </span>
+                </div>
 
-                  <p className="text-primary text-xs font-bold">
-                    — {slide.personName}
+                <div className="relative">
+                  <Quote className="absolute -top-1 -left-1 h-4 w-4 text-primary/20" />
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed pl-4 italic">
+                    {slide.testimonial}
                   </p>
                 </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
+
+                <p className="text-primary text-xs font-bold">
+                  — {slide.personName}
+                </p>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Progress + dots */}
