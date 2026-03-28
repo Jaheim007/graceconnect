@@ -67,6 +67,7 @@ export default function LandingPage() {
 
       <Suspense fallback={null}>
         <LandingHowItWorks />
+        <LandingResultsShowcase />
         <LandingInteractiveDemo />
         <LandingLiveStats />
         <CommunityProgressBar />
@@ -76,7 +77,6 @@ export default function LandingPage() {
         <LandingMobileMoney />
         <LandingTrustShield />
         <LandingPricingSimple />
-        <LandingResultsShowcase />
         <LandingMigration />
         <LandingFinalCTA />
         <LandingFooterCompact />
