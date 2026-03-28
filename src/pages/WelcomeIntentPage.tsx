@@ -53,7 +53,7 @@ export default function WelcomeIntentPage() {
       iconBg: 'bg-emerald-500/10',
       iconColor: 'text-emerald-500',
       badge: isFr ? '5-50% commission' : '5-50% commission',
-      route: '/affiliation',
+      route: '/gagner',
     },
   ];
 

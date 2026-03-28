@@ -32,7 +32,7 @@ export function AmbassadorMarketplace() {
       if (error) throw error;
       toast.success(t('amb.enrolled'), {
         description: t('amb.enrolled_desc'),
-        action: { label: t('amb.view_links'), onClick: () => navigate('/affiliation') },
+        action: { label: t('amb.view_links'), onClick: () => navigate('/gagner') },
       });
     } catch (err: any) {
       if (err.message?.includes('already')) {

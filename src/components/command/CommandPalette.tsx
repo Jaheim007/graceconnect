@@ -55,7 +55,7 @@ export function CommandPalette() {
     ];
 
     if (hasAmbassadorAccess) {
-      list.push({ label: t('cmd.affiliate_links'), to: '/affiliation', icon: Link2, group: t('cmd.earn'), keywords: 'affiliate ambassador affiliation' });
+      list.push({ label: t('cmd.affiliate_links'), to: '/gagner', icon: Link2, group: t('cmd.earn'), keywords: 'affiliate ambassador affiliation' });
     }
 
     if (hasOrgs && canManageOrg) {
