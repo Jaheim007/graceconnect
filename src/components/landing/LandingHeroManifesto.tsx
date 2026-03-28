@@ -25,30 +25,24 @@ export function LandingHeroManifesto() {
   const isFr = locale === 'fr';
 
   return (
-    <section className="relative pt-14 overflow-hidden">
-      {/* Refined gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,hsl(var(--primary)/0.08),transparent_70%)]" />
-
-      {/* Subtle decorative grid */}
-      <div className="absolute inset-0 opacity-[0.015]" style={{
-        backgroundImage: 'linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)',
-        backgroundSize: '60px 60px'
+    <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+      {/* Dark gradient hero background inspired by Cobalt */}
+      <div className="absolute inset-0" style={{
+        background: 'linear-gradient(180deg, hsl(220 70% 8%) 0%, hsl(220 60% 12%) 50%, hsl(var(--background)) 100%)',
       }} />
 
-      {/* Floating orbs */}
-      <motion.div
-        className="absolute top-32 left-[15%] h-48 w-48 rounded-full bg-primary/4 blur-3xl"
-        animate={{ y: [0, -15, 0], scale: [1, 1.05, 1] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="absolute top-48 right-[15%] h-40 w-40 rounded-full bg-accent/4 blur-3xl"
-        animate={{ y: [0, 12, 0], scale: [1, 1.06, 1] }}
-        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+      {/* Dotted grid pattern */}
+      <div className="absolute inset-0" style={{
+        backgroundImage: 'radial-gradient(circle, hsla(220, 60%, 50%, 0.15) 1px, transparent 1px)',
+        backgroundSize: '32px 32px',
+      }} />
+
+      {/* Subtle gradient glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full blur-[150px] opacity-20"
+        style={{ background: 'linear-gradient(180deg, hsl(220 75% 45%), hsl(40 85% 52%))' }}
       />
 
-      <div className="relative z-10 container max-w-5xl px-4 pt-24 pb-16 sm:pt-32 sm:pb-20">
+      <div className="relative z-10 container max-w-5xl px-4 py-24 sm:py-32">
         <motion.div
           initial="hidden"
           animate="visible"
@@ -57,44 +51,44 @@ export function LandingHeroManifesto() {
         >
           {/* Badge */}
           <motion.div variants={fadeUp}
-            className="inline-flex items-center gap-1.5 bg-primary/5 text-primary border border-primary/10 rounded-full px-4 py-2 text-xs font-semibold"
+            className="inline-flex items-center gap-1.5 bg-white/5 text-white/80 border border-white/10 rounded-full px-4 py-2 text-xs font-semibold backdrop-blur-sm"
           >
-            <Sparkles className="h-3.5 w-3.5 animate-[pulse_2s_ease-in-out_infinite]" />
+            <Sparkles className="h-3.5 w-3.5 animate-[pulse_2s_ease-in-out_infinite] text-accent" />
             {isFr ? 'Tout le monde peut devenir auteur' : 'Anyone can become an author'}
           </motion.div>
 
           {/* Main headline */}
-          <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-[1.08] tracking-tight">
+          <motion.h1 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight text-white">
             <GradientText>{isFr ? 'Écris.' : 'Write.'}</GradientText>{' '}
             <span className="text-accent">{isFr ? 'Vends.' : 'Sell.'}</span>{' '}
             <RotatingWords
               words={isFr ? ['Gagne.', 'Grandis.', 'Impacte.', 'Brille.'] : ['Earn.', 'Grow.', 'Impact.', 'Shine.']}
               interval={2200}
-              className="text-foreground"
+              className="text-white"
             />
           </motion.h1>
 
-          <motion.p variants={fadeUp} className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <motion.p variants={fadeUp} className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
             {isFr ? (
-              <>En <strong className="text-foreground">5 minutes</strong>. Sans banque. Dans le <strong className="text-foreground">monde entier</strong>.</>
+              <>En <strong className="text-white">5 minutes</strong>. Sans banque. Dans le <strong className="text-white">monde entier</strong>.</>
             ) : (
-              <>In <strong className="text-foreground">5 minutes</strong>. No bank needed. <strong className="text-foreground">Worldwide</strong>.</>
+              <>In <strong className="text-white">5 minutes</strong>. No bank needed. <strong className="text-white">Worldwide</strong>.</>
             )}
           </motion.p>
 
           {/* Country flags */}
           <motion.div variants={fadeUp} className="flex items-center justify-center gap-2 text-lg">
             {['🇬🇭', '🇰🇪', '🇨🇮', '🇳🇬', '🇿🇦', '🇺🇸', '🇬🇧', '🇫🇷'].map(flag => (
-              <span key={flag} className="grayscale-[30%] hover:grayscale-0 transition-all cursor-default text-xl">{flag}</span>
+              <span key={flag} className="hover:scale-125 transition-transform cursor-default text-xl">{flag}</span>
             ))}
-            <span className="text-xs text-muted-foreground ml-1">+ 150 {isFr ? 'pays' : 'countries'}</span>
+            <span className="text-xs text-white/40 ml-1">+ 150 {isFr ? 'pays' : 'countries'}</span>
           </motion.div>
 
           {/* CTAs */}
           <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <Button
               size="lg"
-              className="px-8 gap-2.5 h-14 text-base w-full sm:w-auto group relative overflow-hidden shadow-lg shadow-primary/20"
+              className="px-8 gap-2.5 h-14 text-base w-full sm:w-auto group relative overflow-hidden shadow-lg shadow-primary/30"
               onClick={() => { trackEvent('cta_click', { cta: 'write_book', source: 'landing_hero' }, user?.id); navigate(user ? '/ecrire' : '/auth?mode=signup&intent=writer'); }}
             >
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
@@ -105,7 +99,7 @@ export function LandingHeroManifesto() {
             <Button
               size="lg"
               variant="outline"
-              className="h-14 px-8 gap-2.5 text-base w-full sm:w-auto border-accent/30 text-accent hover:bg-accent/5"
+              className="h-14 px-8 gap-2.5 text-base w-full sm:w-auto border-white/20 text-white hover:bg-white/5 bg-transparent"
               onClick={() => { trackEvent('cta_click', { cta: 'earn_sharing', source: 'landing_hero' }, user?.id); navigate(user ? '/gagner' : '/auth?mode=signup&intent=ambassador'); }}
             >
               <Share2 className="h-5 w-5" />
@@ -117,7 +111,7 @@ export function LandingHeroManifesto() {
           <motion.div variants={fadeUp}>
             <button
               onClick={() => navigate('/discover')}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+              className="text-sm text-white/40 hover:text-white/70 transition-colors underline underline-offset-4"
             >
               {isFr ? 'Ou simplement explorer les ressources →' : 'Or simply explore resources →'}
             </button>
@@ -128,7 +122,7 @@ export function LandingHeroManifesto() {
             {[
               { value: '5 min', label: isFr ? 'pour écrire ton livre' : 'to write your book', color: 'text-primary' },
               { value: isFr ? '0 frais' : '$0 fees', label: isFr ? "d'abonnement" : 'subscription', color: 'text-accent' },
-              { value: '5-50%', label: isFr ? 'de commission ambassadeur' : 'ambassador commission', color: 'text-emerald-500' },
+              { value: '5-50%', label: isFr ? 'de commission ambassadeur' : 'ambassador commission', color: 'text-emerald-400' },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -138,19 +132,19 @@ export function LandingHeroManifesto() {
                 className="text-center"
               >
                 <p className={`text-2xl sm:text-3xl font-extrabold ${stat.color}`}>{stat.value}</p>
-                <p className="text-[11px] text-muted-foreground mt-1">{stat.label}</p>
+                <p className="text-[11px] text-white/40 mt-1">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>
 
-          <motion.p variants={fadeUp} className="text-[11px] text-muted-foreground/60 pt-2">
+          <motion.p variants={fadeUp} className="text-[11px] text-white/30 pt-2">
             ✓ Mobile Money & {isFr ? 'Carte' : 'Card'} · ✓ {isFr ? 'Contenus protégés' : 'Content protected'} · ✓ {isFr ? 'Tes lecteurs vendent pour toi' : 'Your readers sell for you'}
           </motion.p>
         </motion.div>
       </div>
 
-      {/* Bottom fade to next section */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
+      {/* Bottom gradient fade to content */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
     </section>
   );
 }

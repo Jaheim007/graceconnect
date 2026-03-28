@@ -17,27 +17,27 @@ export function LandingInteractiveDemo() {
     { label: t('demo.step3'), preview: t('demo.step3_preview'), icon: BookOpen },
   ];
 
-  // Map each step to a tab hash for the demo preview iframe
-  const stepTabs = ['dashboard', 'ai-studio', 'sales'];
-
   return (
-    <section className="py-16 sm:py-20 px-4 bg-muted/20 border-y border-border">
+    <section className="py-24 px-4">
       <div className="container max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-10"
+          className="text-center mb-14"
         >
-          <h2 className="text-2xl sm:text-3xl font-extrabold">
+          <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-3">
+            {isFr ? 'Démo interactive' : 'Interactive demo'}
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold">
             {t('demo.title')}
           </h2>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-sm text-muted-foreground mt-3 max-w-lg mx-auto">
             {t('demo.subtitle')}
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-8 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 items-center">
           {/* Left: Step navigation + content */}
           <div>
             <div className="flex gap-2 mb-6">
@@ -47,7 +47,7 @@ export function LandingInteractiveDemo() {
                   onClick={() => setActiveStep(i)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold transition-all border ${
                     activeStep === i
-                      ? 'bg-primary text-primary-foreground border-primary'
+                      ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20'
                       : 'border-border text-muted-foreground hover:text-foreground bg-card'
                   }`}
                 >
@@ -65,7 +65,7 @@ export function LandingInteractiveDemo() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.25 }}
-                className="relative rounded-2xl border border-border bg-card p-6 sm:p-8 min-h-[180px]"
+                className="relative rounded-2xl border border-border/60 bg-card p-8 min-h-[200px] shadow-[var(--shadow-card)]"
               >
                 <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
                   {(() => { const Icon = DEMO_STEPS[activeStep].icon; return <Icon className="h-7 w-7 text-primary" />; })()}
@@ -106,7 +106,7 @@ export function LandingInteractiveDemo() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
             className="hidden lg:block"
           >
-            <div className="rounded-2xl overflow-hidden border border-border/60 shadow-elevated bg-card p-8 sm:p-12 text-center">
+            <div className="rounded-2xl overflow-hidden border border-border/60 bg-card p-10 text-center shadow-[var(--shadow-elevated)]">
               <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Sparkles className="h-8 w-8 text-primary" />
               </div>

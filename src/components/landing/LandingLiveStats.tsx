@@ -66,26 +66,26 @@ export function LandingLiveStats() {
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
-      className="py-10 px-4 border-y border-border/50 bg-muted/30"
+      className="py-16 px-4 border-y border-border/50 bg-muted/20"
     >
       <div className="container max-w-4xl">
-        <p className="text-center text-xs font-bold text-muted-foreground uppercase tracking-wider mb-6">
+        <p className="text-center text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] mb-8">
           {isFr ? '📊 La communauté en chiffres' : '📊 Community in numbers'}
         </p>
-        <div className={`grid grid-cols-2 sm:grid-cols-${Math.min(visibleStats.length, 4)} gap-6`}>
+        <div className={`grid grid-cols-2 sm:grid-cols-${Math.min(visibleStats.length, 4)} gap-8`}>
           {visibleStats.map(s => (
             <motion.div
               key={s.label}
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-center space-y-1"
+              className="text-center space-y-2"
             >
-              <div className="flex items-center justify-center gap-1.5">
-                <s.icon className={`h-4 w-4 ${s.color}`} />
-                <p className="text-xl sm:text-2xl font-extrabold">{s.value}</p>
+              <div className="flex items-center justify-center gap-2">
+                <s.icon className={`h-5 w-5 ${s.color}`} />
+                <p className="text-2xl sm:text-3xl font-extrabold">{s.value}</p>
               </div>
-              <p className="text-[10px] text-muted-foreground">{s.label}</p>
+              <p className="text-xs text-muted-foreground">{s.label}</p>
             </motion.div>
           ))}
         </div>
