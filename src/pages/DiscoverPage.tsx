@@ -6,15 +6,11 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 
-import { DiscoverCTABanner } from '@/components/discover/DiscoverCTABanner';
 import { FeaturedSection } from '@/components/discover/FeaturedSection';
-import { PersonalizedRecommendations } from '@/components/discover/PersonalizedRecommendations';
 import { ForYouFeed } from '@/components/discover/ForYouFeed';
 import { CategoryCarousels } from '@/components/discover/CategoryCarousels';
-
 import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
 import { RecentlyViewedProducts } from '@/components/discover/RecentlyViewedProducts';
-import { NotificationDigest } from '@/components/notifications/NotificationDigest';
 
 export default function DiscoverPage() {
   const [search, setSearch] = useState('');
@@ -55,20 +51,21 @@ export default function DiscoverPage() {
       </div>
 
       <div className="container max-w-6xl px-4 py-6">
-        {!isSearching && user && <NotificationDigest />}
-        {!isSearching && !user && <DiscoverCTABanner />}
+        {/* Recently viewed — personal relevance */}
         {!isSearching && <RecentlyViewedProducts />}
 
-        {/* Unified feed — categories, campaigns & donations all in one */}
+        {/* Categories & products */}
         {!isSearching && <CategoryCarousels />}
 
+        {/* Featured picks */}
         {!isSearching && <FeaturedSection />}
+
+        {/* Personalized feed */}
         {!isSearching && (
           <div className="mt-8">
             <ForYouFeed />
           </div>
         )}
-        {!isSearching && user && <PersonalizedRecommendations />}
       </div>
     </div>
   );
