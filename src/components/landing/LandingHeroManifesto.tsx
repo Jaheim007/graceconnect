@@ -44,11 +44,11 @@ export function LandingHeroManifesto() {
             className="inline-flex items-center gap-1.5 bg-white/5 text-white/80 border border-white/10 rounded-full px-4 py-2 text-xs font-semibold backdrop-blur-sm"
           >
             <Sparkles className="h-3.5 w-3.5 animate-[pulse_2s_ease-in-out_infinite] text-accent" />
-            {isFr ? 'Tout le monde peut devenir auteur' : 'Anyone can become an author'}
+            {isFr ? 'Tout le monde peut créer et vendre' : 'Anyone can create and sell'}
           </motion.div>
 
           {/* Main headline */}
-          <motion.h1 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight text-white">
+          <motion.h1 variants={fadeUp} className="mx-auto max-w-5xl text-4xl sm:text-6xl lg:text-[5.25rem] font-extrabold leading-[0.98] tracking-tight text-white">
             <GradientText>{isFr ? 'Écris.' : 'Write.'}</GradientText>{' '}
             <span className="text-accent">{isFr ? 'Vends.' : 'Sell.'}</span>{' '}
             <RotatingWords
@@ -58,11 +58,11 @@ export function LandingHeroManifesto() {
             />
           </motion.h1>
 
-          <motion.p variants={fadeUp} className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
+          <motion.p variants={fadeUp} className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto leading-relaxed">
             {isFr ? (
-              <>En <strong className="text-white">5 minutes</strong>. Sans banque. Dans le <strong className="text-white">monde entier</strong>.</>
+              <>Crée ton livre ou ton produit digital en <strong className="text-white">5 minutes</strong>, encaisse avec <strong className="text-white">Mobile Money</strong> et vends dans le <strong className="text-white">monde entier</strong>.</>
             ) : (
-              <>In <strong className="text-white">5 minutes</strong>. No bank needed. <strong className="text-white">Worldwide</strong>.</>
+              <>Create your book or digital product in <strong className="text-white">5 minutes</strong>, get paid with <strong className="text-white">Mobile Money</strong>, and sell <strong className="text-white">worldwide</strong>.</>
             )}
           </motion.p>
 
