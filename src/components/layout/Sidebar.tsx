@@ -16,6 +16,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useMyPartner } from '@/hooks/usePartner';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { useAdaptiveLabels } from '@/hooks/useAdaptiveLabels';
 
 interface NavItem {
   to: string;
@@ -35,6 +37,8 @@ export function Sidebar() {
   const { data: myPartner } = useMyPartner();
   const isApprovedPartner = myPartner?.status === 'approved';
   const isFr = locale === 'fr';
+  const { profile, hasAffiliateLinks } = useUserProfile();
+  const labels = useAdaptiveLabels();
 
   const hasOrgs = userOrgs.length > 0;
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
@@ -70,16 +74,56 @@ export function Sidebar() {
     return location.pathname.startsWith(to);
   };
 
-  // ═══ PRIMARY NAV — top items visible to all ═══
-  const primaryItems: NavItem[] = [
-    { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-    { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-    { to: hasOrgs && canManageCurrentOrg ? '/admin/create' : '/create-org', icon: Sparkles, label: 'Viral AI Studio' },
-    { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
-  ];
+  // ═══ PRIMARY NAV — adapts to user profile ═══
+  const getPrimaryItems = (): NavItem[] => {
+    const items: NavItem[] = [
+      { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
+    ];
 
-  // ═══ SECONDARY NAV — grouped below a separator ═══
+    // Buyers only see Home, Purchases, Discover — no create/share unless they opt in
+    if (profile === 'buyer') {
+      items.push(
+        { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+      );
+      return items;
+    }
+
+    // Ambassador: add share link
+    if (profile === 'ambassador') {
+      items.push(
+        { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+        { to: '/affiliation', icon: Share2, label: isFr ? 'Partager & Gagner' : 'Share & Earn' },
+      );
+      return items;
+    }
+
+    // Creator / Org: full nav
+    items.push(
+      { to: canManageCurrentOrg ? '/admin/create' : '/create-org', icon: Sparkles, label: 'Viral AI Studio' },
+      { to: '/affiliation', icon: Share2, label: isFr ? 'Partager' : 'Share' },
+    );
+    return items;
+  };
+
+  // ═══ SECONDARY NAV — only for creators/orgs ═══
   const getSecondaryItems = (): NavItem[] => {
+    // Buyers: minimal secondary
+    if (profile === 'buyer') {
+      return [
+        { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
+      ];
+    }
+
+    // Ambassador: show earnings
+    if (profile === 'ambassador') {
+      return [
+        { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
+        { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
+      ];
+    }
+
+    // Creator / Org
     const items: NavItem[] = [
       { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
       { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
@@ -90,11 +134,11 @@ export function Sidebar() {
         ...[
           { to: '/admin', icon: BarChart3, label: isFr ? 'Vue d\'ensemble' : 'Overview' },
           currentOrg ? { to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' } : null,
-          { to: '/admin/sales', icon: Wallet, label: isFr ? 'Ventes & revenus' : 'Sales & Revenue' },
+          { to: '/admin/sales', icon: Wallet, label: `${labels.mySales}` },
           { to: '/admin/viral-tools', icon: Zap, label: 'Viral Tools' },
           { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
           { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
-          { to: '/admin/people', icon: Users, label: isFr ? 'Membres' : 'Members' },
+          { to: '/admin/people', icon: Users, label: labels.clients },
           { to: '/admin/kyc', icon: FileCheck, label: isFr ? 'Vérification' : 'Verification', badge: canManageCurrentOrg && kycIncomplete },
           { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
         ].filter(Boolean) as NavItem[]
@@ -103,6 +147,8 @@ export function Sidebar() {
 
     return items;
   };
+
+  const primaryItems = getPrimaryItems();
 
   const renderNavItem = (item: NavItem) => {
     const active = isActive(item.to);

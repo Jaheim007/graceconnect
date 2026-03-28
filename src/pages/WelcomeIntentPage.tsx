@@ -1,80 +1,59 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Store, Share2, Sparkles, ArrowRight, SkipForward } from 'lucide-react';
+import { Package, Store, Share2, Sparkles, ArrowRight, SkipForward } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { useI18n } from '@/i18n/I18nContext';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 export default function WelcomeIntentPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { userOrgs, canManage } = useOrg();
   const { locale } = useI18n();
+  const { hasPurchases } = useUserProfile();
   const isFr = locale === 'fr';
   const hasManagedOrgs = userOrgs.some((org) => canManage(org.id));
 
   const intents = [
-    {
+    // Show "My Purchases" only if user has purchases
+    ...(hasPurchases ? [{
       key: 'purchases',
-      icon: ShoppingBag,
-      emoji: '📦',
-      title: isFr ? 'Mes Achats' : 'My Purchases',
-      desc: isFr ? 'Voir et gérer mes achats, télécharger mes ressources' : 'View and manage my purchases, download my resources',
+      icon: Package,
+      emoji: '📚',
+      title: isFr ? 'Voir mes achats' : 'My Purchases',
+      desc: isFr ? 'Accéder à mes livres, formations et ressources achetées' : 'Access my purchased books, courses and resources',
       color: 'border-primary/30 hover:border-primary',
       iconBg: 'bg-primary/10',
       iconColor: 'text-primary',
       badge: null as string | null,
       route: '/resources',
+    }] : []),
+    {
+      key: 'create',
+      icon: Sparkles,
+      emoji: '✨',
+      title: isFr ? 'Créer ou publier du contenu' : 'Create or publish content',
+      desc: isFr ? 'Écris un livre avec l\'IA ou publie ton propre contenu numérique' : 'Write a book with AI or publish your own digital content',
+      color: 'border-purple-500/30 hover:border-purple-500',
+      iconBg: 'bg-purple-500/10',
+      iconColor: 'text-purple-500',
+      badge: isFr ? 'Populaire' : 'Popular',
+      route: hasManagedOrgs ? '/admin/create' : '/create-org',
     },
     {
       key: 'earn',
       icon: Share2,
       emoji: '🔗',
-      title: isFr ? 'Gagner en partageant' : 'Earn by sharing',
-      desc: isFr ? 'Partager des produits et gagner des commissions' : 'Share products and earn commissions',
+      title: isFr ? 'Partager et gagner' : 'Share and earn',
+      desc: isFr ? 'Partage des produits et gagne jusqu\'à 50% de commission' : 'Share products and earn up to 50% commission',
       color: 'border-emerald-500/30 hover:border-emerald-500',
       iconBg: 'bg-emerald-500/10',
       iconColor: 'text-emerald-500',
       badge: isFr ? '5-50% commission' : '5-50% commission',
       route: '/affiliation',
-    },
-    {
-      key: 'create',
-      icon: Sparkles,
-      emoji: '✨',
-      title: isFr ? 'Créer avec l\'IA' : 'Create with AI',
-      desc: isFr ? 'Écrire un livre ou créer une formation en 5 minutes avec l\'IA' : 'Write a book or create a formation in 5 minutes with AI',
-      color: 'border-purple-500/30 hover:border-purple-500',
-      iconBg: 'bg-purple-500/10',
-      iconColor: 'text-purple-500',
-      badge: isFr ? 'Nouveau' : 'New',
-      route: hasManagedOrgs ? '/admin/create' : '/create-org',
-    },
-    {
-      key: 'sell',
-      icon: Store,
-      emoji: '🛒',
-      title: isFr ? 'Vendre mon contenu' : 'Sell my content',
-      desc: isFr ? 'Je veux vendre mes ebooks, formations ou fichiers numériques' : 'I want to sell my ebooks, formations or digital files',
-      color: 'border-blue-500/30 hover:border-blue-500',
-      iconBg: 'bg-blue-500/10',
-      iconColor: 'text-blue-500',
-      badge: null,
-      route: hasManagedOrgs ? '/admin/create' : '/create-org',
-    },
-    {
-      key: 'sales',
-      icon: Store,
-      emoji: '💰',
-      title: isFr ? 'Mes ventes' : 'My Sales',
-      desc: isFr ? 'Voir mes ventes, mes revenus et mes résultats' : 'View my sales, revenue and results',
-      color: 'border-amber-500/30 hover:border-amber-500',
-      iconBg: 'bg-amber-500/10',
-      iconColor: 'text-amber-500',
-      badge: null,
-      route: '/admin/sales',
     },
   ];
 

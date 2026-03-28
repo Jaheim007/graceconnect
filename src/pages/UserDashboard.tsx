@@ -21,6 +21,11 @@ import { DashboardSection } from '@/components/ui/DashboardSection';
 import PartnerPendingPopup from '@/components/partner/PartnerPendingPopup';
 import { QuickStartPaths } from '@/components/growth/QuickStartPaths';
 import { SmartNudge } from '@/components/growth/SmartNudge';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { useAdaptiveLabels } from '@/hooks/useAdaptiveLabels';
+
+
+
 
 export default function UserDashboard() {
   const { user, profile, isSuperadmin } = useAuth();
@@ -29,6 +34,11 @@ export default function UserDashboard() {
   const { locale } = useI18n();
   const hasOrgs = userOrgs.length > 0;
   const isFr = locale === 'fr';
+  const { profile: userProfile } = useUserProfile();
+  const labels = useAdaptiveLabels();
+  const isBuyer = userProfile === 'buyer';
+  const isAmbassador = userProfile === 'ambassador';
+  const isCreatorOrOrg = userProfile === 'creator' || userProfile === 'org-religious';
 
   const activeOrgId = currentOrg?.id ?? null;
   const primaryCurrency = currentOrg?.currency || userOrgs[0]?.currency || DEFAULT_CURRENCY;
@@ -181,34 +191,38 @@ export default function UserDashboard() {
           </div>
         </motion.div>
 
-        {/* ═══ MINI FINANCIAL SUMMARY ═══ */}
+        {/* ═══ MINI FINANCIAL SUMMARY — hidden for buyers ═══ */}
+        {!isBuyer && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }}>
           <div className="space-y-2">
             {/* Row 1 – Mon activité */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className={cn('grid gap-2', isAmbassador ? 'grid-cols-2' : 'grid-cols-3')}>
               <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 text-center">
                 <p className="text-lg font-bold text-primary">{purchases.length}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Achats' : 'Purchases'}</p>
               </div>
+              {isCreatorOrOrg && (
               <div className="rounded-xl bg-rose-500/5 border border-rose-500/10 p-3 text-center">
                 <p className="text-lg font-bold text-rose-600">{donations.length}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dons' : 'Donations'}</p>
               </div>
+              )}
               <div className="rounded-xl bg-violet-500/5 border border-violet-500/10 p-3 text-center">
                 <p className="text-lg font-bold text-violet-600">{fmt(commissionStats.amount)}</p>
                 <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Commissions' : 'Commissions'}</p>
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  {commissionStats.count} {isFr ? 'commission' : 'commission'}{commissionStats.count !== 1 ? 's' : ''}
+                  {commissionStats.count} commission{commissionStats.count !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
-            {/* Row 2 – Mes revenus */}
+            {/* Row 2 – Revenus (creators/orgs only) */}
+            {isCreatorOrOrg && (
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded-xl bg-blue-500/5 border border-blue-500/10 p-3 text-center">
                 <p className="text-lg font-bold text-blue-600">{fmt(salesStats?.revenue || 0)}</p>
-                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Ventes' : 'Sales'}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">{labels.sales}</p>
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  {salesStats?.count || 0} {isFr ? 'vente' : 'sale'}{(salesStats?.count || 0) !== 1 ? 's' : ''}
+                  {salesStats?.count || 0} {labels.sales.toLowerCase()}{(salesStats?.count || 0) !== 1 ? 's' : ''}
                 </p>
               </div>
               <div className="rounded-xl bg-amber-500/5 border border-amber-500/10 p-3 text-center">
@@ -220,23 +234,20 @@ export default function UserDashboard() {
               </div>
               <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/10 p-3 text-center">
                 <p className="text-lg font-bold text-emerald-600">{fmt(totalRevenue)}</p>
-                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Revenus total' : 'Total revenue'}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {isFr
-                    ? `${salesStats?.count || 0} ventes • ${donationsReceivedStats.count} dons • ${commissionStats.count} commissions`
-                    : `${salesStats?.count || 0} sales • ${donationsReceivedStats.count} donations • ${commissionStats.count} commissions`}
-                </p>
+                <p className="text-[10px] text-muted-foreground font-medium">{labels.myRevenue}</p>
               </div>
             </div>
+            )}
             {currentOrg && (
               <p className="text-[11px] text-muted-foreground px-1">
                 {isFr
-                  ? `Ventes, dons reçus, commissions gagnées et revenus affichés pour l'organisation active : ${currentOrg.name}`
-                  : `Sales, received donations, earned commissions and revenue shown for the active organization: ${currentOrg.name}`}
+                  ? `${labels.sales}, dons reçus, commissions gagnées et ${labels.revenue.toLowerCase()} affichés pour : ${currentOrg.name}`
+                  : `${labels.sales}, received donations, earned commissions and ${labels.revenue.toLowerCase()} shown for: ${currentOrg.name}`}
               </p>
             )}
           </div>
         </motion.div>
+        )}
 
         {/* ═══ QUICK START PATHS ═══ */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }}>
@@ -355,7 +366,7 @@ export default function UserDashboard() {
         )}
 
         {/* ═══ CREATE PLATFORM CTA (no-org users) ═══ */}
-        {!hasOrgs && (
+        {!hasOrgs && !isBuyer && (
           <PremiumCard variant="glass" delay={0.1} className="space-y-3 border-primary/30 bg-primary/5">
             <div className="flex items-center gap-3">
               <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -372,7 +383,7 @@ export default function UserDashboard() {
           </PremiumCard>
         )}
 
-        {/* ═══ DISCOVER & EARN — compact action cards ═══ */}
+        {/* ═══ DISCOVER & CONTEXTUAL ACTIONS ═══ */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <PremiumCard variant="glass" delay={0.12} className="space-y-3">
             <div className="flex items-center gap-2">
@@ -389,20 +400,41 @@ export default function UserDashboard() {
             </Button>
           </PremiumCard>
 
-          <PremiumCard variant="glass" delay={0.15} className="space-y-3 border-emerald-500/20">
-            <div className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                <Share2 className="h-4 w-4 text-emerald-500" />
+          {/* Buyer: gentle upsell to ambassador */}
+          {isBuyer && (
+            <PremiumCard variant="glass" delay={0.15} className="space-y-3 border-emerald-500/20">
+              <div className="flex items-center gap-2">
+                <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                  <Share2 className="h-4 w-4 text-emerald-500" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm">{isFr ? 'Partage et gagne' : 'Share & earn'}</h3>
+                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Partage tes produits préférés, gagne des commissions' : 'Share your favorite products, earn commissions'}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-sm">{isFr ? 'Gagner' : 'Earn'}</h3>
-                <p className="text-[10px] text-muted-foreground">{isFr ? 'Partage et gagne des commissions' : 'Share & earn commissions'}</p>
+              <Button className="w-full gap-2" size="sm" onClick={() => navigate('/affiliation')}>
+                <Rocket className="h-3.5 w-3.5" /> {isFr ? 'Commencer' : 'Start'}
+              </Button>
+            </PremiumCard>
+          )}
+
+          {/* Non-buyer: standard earn CTA */}
+          {!isBuyer && (
+            <PremiumCard variant="glass" delay={0.15} className="space-y-3 border-emerald-500/20">
+              <div className="flex items-center gap-2">
+                <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                  <Share2 className="h-4 w-4 text-emerald-500" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm">{labels.earnings}</h3>
+                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Partage et gagne des commissions' : 'Share & earn commissions'}</p>
+                </div>
               </div>
-            </div>
-            <Button className="w-full gap-2" size="sm" onClick={() => navigate('/affiliation')}>
-              <Rocket className="h-3.5 w-3.5" /> {isFr ? 'Commencer' : 'Start'}
-            </Button>
-          </PremiumCard>
+              <Button className="w-full gap-2" size="sm" onClick={() => navigate('/affiliation')}>
+                <Rocket className="h-3.5 w-3.5" /> {isFr ? 'Commencer' : 'Start'}
+              </Button>
+            </PremiumCard>
+          )}
         </div>
 
         {/* ═══ QUICK ACCESS ═══ */}
@@ -419,15 +451,23 @@ export default function UserDashboard() {
                   <Building2 className="h-4 w-4 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold">{isFr ? 'Mon espace créateur' : 'Creator space'}</p>
-                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Produits, ventes, ambassadeurs' : 'Products, sales, ambassadors'}</p>
+                  <p className="text-xs font-semibold">
+                    {userProfile === 'org-religious'
+                      ? (isFr ? 'Notre espace' : 'Our space')
+                      : (isFr ? 'Mon espace créateur' : 'Creator space')}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {userProfile === 'org-religious'
+                      ? (isFr ? 'Ressources, contributions, membres' : 'Resources, contributions, members')
+                      : (isFr ? 'Produits, ventes, ambassadeurs' : 'Products, sales, ambassadors')}
+                  </p>
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
               </button>
             </PremiumCard>
           )}
 
-          {!hasOrgs && (
+          {!hasOrgs && !isBuyer && (
             <PremiumCard variant="default" noPadding animate={false} className="p-0">
               <button
                 onClick={() => navigate('/ecrire')}
