@@ -57,7 +57,7 @@ function resolveLabels(labelSet: LabelSet, locale: string): AdaptiveLabels {
   for (const [key, val] of Object.entries(labelSet)) {
     result[key] = isFr ? val.fr : val.en;
   }
-  return result as AdaptiveLabels;
+  return result as unknown as AdaptiveLabels;
 }
 
 /**
