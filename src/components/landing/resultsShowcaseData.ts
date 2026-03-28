@@ -1,14 +1,3 @@
-import result1 from '@/assets/results/result-1.jpg';
-import result2 from '@/assets/results/result-2.jpg';
-import result3 from '@/assets/results/result-3.jpg';
-import result4 from '@/assets/results/result-4.jpg';
-import result5 from '@/assets/results/result-5.jpg';
-import result6 from '@/assets/results/result-6.jpg';
-import result7 from '@/assets/results/result-7.jpg';
-import result8 from '@/assets/results/result-8.jpg';
-import result9 from '@/assets/results/result-9.jpg';
-import result10 from '@/assets/results/result-10.jpg';
-
 export interface ResultSlide {
   image: string;
   orgName: string;
@@ -21,7 +10,7 @@ export interface ResultSlide {
 
 export const RESULT_SLIDES: ResultSlide[] = [
   {
-    image: result1,
+    image: '/images/results/result-1.jpg',
     orgName: 'Foi Vivante',
     testimonial: "En seulement 4 mois, j'ai vendu plus de 1 000 exemplaires de mes livres de méditation biblique. Les ambassadeurs ont fait 60% de mes ventes — je n'aurais jamais imaginé ça.",
     personName: 'Khady',
@@ -30,7 +19,7 @@ export const RESULT_SLIDES: ResultSlide[] = [
     context: '1 018 ventes · 4 mois · Livres spirituels',
   },
   {
-    image: result2,
+    image: '/images/results/result-2.jpg',
     orgName: 'Divine Arts Studio',
     testimonial: "Je vends des formations en design graphique depuis 7 mois. Avec 790 clients dans 12 pays, SiteViral m'a ouvert des marchés que je ne pouvais pas atteindre seule.",
     personName: 'Wilfried E.',
@@ -39,7 +28,7 @@ export const RESULT_SLIDES: ResultSlide[] = [
     context: '2 528 ventes · 7 mois · Formations design',
   },
   {
-    image: result3,
+    image: '/images/results/result-3.jpg',
     orgName: 'Étoile Média',
     testimonial: "Depuis le Royaume-Uni, je vends des guides pratiques pour la diaspora africaine. En 3 mois, 291 clients ont acheté sans que j'aie besoin de publicité — tout via les ambassadeurs.",
     personName: 'Awa T.',
@@ -48,7 +37,7 @@ export const RESULT_SLIDES: ResultSlide[] = [
     context: '960 ventes · 3 mois · Guides diaspora',
   },
   {
-    image: result4,
+    image: '/images/results/result-4.jpg',
     orgName: 'Ministère des Nations Unies en Christ',
     testimonial: "Notre église collecte les dîmes et offrandes via SiteViral depuis 11 mois. 133 dons reçus, plus de 900 ventes de nos livres de prière. La transparence financière nous a convaincu.",
     personName: 'Clarisse A.',
@@ -57,7 +46,7 @@ export const RESULT_SLIDES: ResultSlide[] = [
     context: '903 ventes · 133 dons · 11 mois · Église',
   },
   {
-    image: result5,
+    image: '/images/results/result-5.jpg',
     orgName: 'Sahel Digital',
     testimonial: "Je publie des e-books en français et en anglais sur l'entrepreneuriat au Sahel. 780 clients en 6 mois grâce au programme ambassadeur. Chaque ambassadeur me rapporte en moyenne 12 ventes.",
     personName: 'Aminata C.',
@@ -66,7 +55,7 @@ export const RESULT_SLIDES: ResultSlide[] = [
     context: '1 950 ventes · 6 mois · E-books entrepreneuriat',
   },
   {
-    image: result6,
+    image: '/images/results/result-6.jpg',
     orgName: 'Akademie für Digitale Bildung',
     testimonial: "Nos cours en ligne sur le marketing digital se vendent au Kenya depuis 5 mois. 1 229 transactions avec un taux de satisfaction de 94%. Le Mobile Money a tout changé pour nous.",
     personName: 'Adjoua B.',
@@ -75,7 +64,7 @@ export const RESULT_SLIDES: ResultSlide[] = [
     context: '1 229 ventes · 5 mois · Cours marketing',
   },
   {
-    image: result7,
+    image: '/images/results/result-7.jpg',
     orgName: 'Entreprise Digitale Savane',
     testimonial: "57 produits numériques en ligne — des templates, des guides et des formations courtes. En 8 mois, plus de 1 000 ventes sans aucune publicité payante.",
     personName: 'Moussa K.',
@@ -84,7 +73,7 @@ export const RESULT_SLIDES: ResultSlide[] = [
     context: '1 000 ventes · 57 produits · 8 mois',
   },
   {
-    image: result8,
+    image: '/images/results/result-8.jpg',
     orgName: 'Gemeinde der Gnade Ewige',
     testimonial: "Notre communauté religieuse utilise SiteViral pour les offrandes et la vente de nos recueils de cantiques. 23 campagnes de dons réussies en 9 mois. Nos fidèles adorent la simplicité.",
     personName: 'Nadège A.',
@@ -93,7 +82,7 @@ export const RESULT_SLIDES: ResultSlide[] = [
     context: '1 158 ventes · 23 dons · 9 mois · Église',
   },
   {
-    image: result9,
+    image: '/images/results/result-9.jpg',
     orgName: 'Ministère Kehila Haïm',
     testimonial: "Depuis le Nigeria, nous vendons des études bibliques et recevons des dîmes via Mobile Money. 2 205 transactions en 10 mois. Nos pasteurs associés utilisent le programme ambassadeur.",
     personName: 'Khady D.',
@@ -102,7 +91,7 @@ export const RESULT_SLIDES: ResultSlide[] = [
     context: '2 205 ventes · 10 mois · Études bibliques',
   },
   {
-    image: result10,
+    image: '/images/results/result-10.jpg',
     orgName: 'Christliche Gemeinschaft',
     testimonial: "2 030 ventes et 161 dons en 1 an. Nos recueils de prière se vendent dans 8 pays africains. SiteViral est devenu l'outil principal de notre ministère pour toucher plus de vies.",
     personName: 'Wilfried E.',
