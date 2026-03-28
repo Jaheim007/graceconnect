@@ -3,19 +3,14 @@ import { lazy, Suspense } from 'react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingHeroManifesto } from '@/components/landing/LandingHeroManifesto';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { CommunityProgressBar } from '@/components/growth/CommunityProgressBar';
 
 const LandingHowItWorks = lazy(() => import('@/components/landing/LandingHowItWorksSimple').then(m => ({ default: m.LandingHowItWorksSimple })));
-const LandingInteractiveDemo = lazy(() => import('@/components/landing/LandingInteractiveDemo').then(m => ({ default: m.LandingInteractiveDemo })));
+const LandingResultsShowcase = lazy(() => import('@/components/landing/LandingResultsShowcase'));
 const LandingLiveStats = lazy(() => import('@/components/landing/LandingLiveStats').then(m => ({ default: m.LandingLiveStats })));
 const LandingAmbassadorLoop = lazy(() => import('@/components/landing/LandingAmbassadorLoop').then(m => ({ default: m.LandingAmbassadorLoop })));
-const LandingPlatformShowcase = lazy(() => import('@/components/landing/LandingPlatformShowcase').then(m => ({ default: m.LandingPlatformShowcase })));
-const LandingSourcesSection = lazy(() => import('@/components/landing/LandingSourcesSection').then(m => ({ default: m.LandingSourcesSection })));
 const LandingMobileMoney = lazy(() => import('@/components/landing/LandingMobileMoney').then(m => ({ default: m.LandingMobileMoney })));
 const LandingTrustShield = lazy(() => import('@/components/landing/LandingTrustShield').then(m => ({ default: m.LandingTrustShield })));
 const LandingPricingSimple = lazy(() => import('@/components/landing/LandingPricingSimple').then(m => ({ default: m.LandingPricingSimple })));
-const LandingMigration = lazy(() => import('@/components/landing/LandingMigration').then(m => ({ default: m.LandingMigration })));
-const LandingResultsShowcase = lazy(() => import('@/components/landing/LandingResultsShowcase'));
 const LandingFinalCTA = lazy(() => import('@/components/landing/LandingFinalCTA').then(m => ({ default: m.LandingFinalCTA })));
 const LandingFooterCompact = lazy(() => import('@/components/landing/LandingFooterCompact').then(m => ({ default: m.LandingFooterCompact })));
 
@@ -60,18 +55,21 @@ export default function LandingPage() {
       <LandingHeroManifesto />
 
       <Suspense fallback={null}>
+        {/* 1. Comment ça marche — clarté immédiate */}
         <LandingHowItWorks />
+        {/* 2. Preuves sociales — résultats réels */}
         <LandingResultsShowcase />
-        <LandingInteractiveDemo />
+        {/* 3. Stats en temps réel — crédibilité */}
         <LandingLiveStats />
-        <CommunityProgressBar />
+        {/* 4. Programme ambassadeur — gagner en partageant */}
         <LandingAmbassadorLoop />
-        <LandingPlatformShowcase />
-        <LandingSourcesSection />
+        {/* 5. Mobile Money — confiance paiement */}
         <LandingMobileMoney />
+        {/* 6. Trust & sécurité */}
         <LandingTrustShield />
+        {/* 7. Pricing simple */}
         <LandingPricingSimple />
-        <LandingMigration />
+        {/* 8. CTA final + footer */}
         <LandingFinalCTA />
         <LandingFooterCompact />
       </Suspense>
