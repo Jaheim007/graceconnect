@@ -428,11 +428,11 @@ export default function ResourcesPage() {
                         {purchase.product.file_url && (
                           <>
                             {isPdfLikeFile(purchase.product.file_url, purchase.product.product_type) && (
-                              <Button size="sm" variant="outline" className="gap-1 h-7 text-[11px]" onClick={() => handleFileAction(purchase, 'inline')} disabled={downloading === purchase.id}>
-                                <Eye className="h-3 w-3" /> {t('page.purchases_read')}
+                              <Button size="sm" className="gap-1 h-8 text-xs font-semibold" onClick={() => handleFileAction(purchase, 'inline')} disabled={downloading === purchase.id}>
+                                <BookOpen className="h-3.5 w-3.5" /> {isFr ? '📖 Lire maintenant' : '📖 Read now'}
                               </Button>
                             )}
-                            <Button size="sm" className="gap-1 h-7 text-[11px] bg-primary text-primary-foreground" onClick={() => handleFileAction(purchase, 'download')} disabled={downloading === purchase.id}>
+                            <Button size="sm" variant="outline" className="gap-1 h-8 text-xs" onClick={() => handleFileAction(purchase, 'download')} disabled={downloading === purchase.id}>
                               <Download className="h-3 w-3" /> {downloading === purchase.id ? '…' : t('page.purchases_download')}
                             </Button>
                             <Button size="sm" variant="ghost" className="gap-1 h-7 text-[10px]" onClick={() => {
