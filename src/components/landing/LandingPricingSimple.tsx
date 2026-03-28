@@ -6,14 +6,12 @@ import { useState } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
-import { convertCurrency } from '@/lib/currencyConvert';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
 };
 
-/** Price anchors per currency for the simulator slider */
 const CURRENCY_RANGES: Record<string, { min: number; max: number; step: number; default: number }> = {
   USD: { min: 1, max: 50, step: 1, default: 10 },
   EUR: { min: 1, max: 50, step: 1, default: 10 },
@@ -38,9 +36,7 @@ export function LandingPricingSimple() {
   const [price, setPrice] = useState(range.default);
   const [commission, setCommission] = useState(20);
 
-  // Reset price when currency changes to stay within valid range
   const effectivePrice = Math.max(range.min, Math.min(price, range.max));
-
   const platformFee = Math.round(effectivePrice * 0.10);
   const ambassadorFee = Math.round(effectivePrice * commission / 100);
   const creatorEarns = effectivePrice - platformFee - ambassadorFee;
@@ -66,9 +62,9 @@ export function LandingPricingSimple() {
   ];
 
   return (
-    <section id="pricing" className="py-20 px-4 bg-muted/30 scroll-mt-16">
+    <section id="pricing" className="py-24 px-4 scroll-mt-16">
       <div className="container max-w-4xl">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-14">
           <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
             {isFr ? (
               <>Gratuit. SiteViral prend <span className="text-primary">10%</span>. C'est tout.</>
@@ -84,13 +80,13 @@ export function LandingPricingSimple() {
         </motion.div>
 
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-          <div className="relative rounded-3xl border-2 border-primary bg-card overflow-hidden">
+          <div className="relative rounded-2xl border border-primary/20 bg-card overflow-hidden shadow-lg shadow-primary/5">
             <div className="absolute top-0 left-0 right-0 h-1 bg-primary" />
             <div className="p-8 sm:p-10">
               {/* Price simulator */}
               <div className="mb-8 space-y-6">
                 <div className="flex items-center gap-2 mb-2">
-                  <Zap className="h-5 w-5 text-accent" />
+                  <Zap className="h-5 w-5 text-primary" />
                   <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
                     {isFr ? 'Simulateur de revenus' : 'Revenue simulator'}
                   </span>
@@ -111,18 +107,18 @@ export function LandingPricingSimple() {
                 </div>
 
                 {/* Results */}
-                <div className="grid grid-cols-3 gap-3 bg-muted/50 rounded-xl p-4">
+                <div className="grid grid-cols-3 gap-4 bg-muted/30 border border-border rounded-xl p-5">
                   <div className="text-center">
-                    <p className="text-lg sm:text-xl font-extrabold text-primary">{fmt(creatorEarns)}</p>
-                    <p className="text-[10px] text-muted-foreground">{isFr ? 'Tu gardes' : 'You keep'}</p>
+                    <p className="text-xl sm:text-2xl font-extrabold text-primary">{fmt(creatorEarns)}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{isFr ? 'Tu gardes' : 'You keep'}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg sm:text-xl font-extrabold text-emerald-500">{fmt(ambassadorFee)}</p>
-                    <p className="text-[10px] text-muted-foreground">{isFr ? 'Ambassadeur gagne' : 'Ambassador earns'}</p>
+                    <p className="text-xl sm:text-2xl font-extrabold text-emerald-500">{fmt(ambassadorFee)}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{isFr ? 'Ambassadeur gagne' : 'Ambassador earns'}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg sm:text-xl font-extrabold text-muted-foreground">{fmt(platformFee)}</p>
-                    <p className="text-[10px] text-muted-foreground">SiteViral (10%)</p>
+                    <p className="text-xl sm:text-2xl font-extrabold text-muted-foreground">{fmt(platformFee)}</p>
+                    <p className="text-xs text-muted-foreground mt-1">SiteViral (10%)</p>
                   </div>
                 </div>
 
@@ -133,29 +129,29 @@ export function LandingPricingSimple() {
 
               {/* Features */}
               <div className="border-t border-border pt-6">
-                <p className="text-sm font-bold mb-3">{isFr ? 'Tout est inclus :' : 'Everything included:'}</p>
-                <div className="grid sm:grid-cols-2 gap-2">
+                <p className="text-sm font-bold mb-4">{isFr ? 'Tout est inclus :' : 'Everything included:'}</p>
+                <div className="grid sm:grid-cols-2 gap-3">
                   {features.map((b) => (
-                    <div key={b} className="flex items-center gap-2 text-xs">
-                      <CheckCircle className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <div key={b} className="flex items-center gap-2.5 text-sm">
+                      <CheckCircle className="h-4 w-4 text-primary shrink-0" />
                       {b}
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="mt-6 text-center">
-                <Button size="lg" className="gap-2 h-13 px-8 text-base group" onClick={() => navigate('/auth?mode=signup')}>
+              <div className="mt-8 text-center">
+                <Button size="lg" className="gap-2 h-13 px-8 text-base group shadow-lg shadow-primary/20" onClick={() => navigate('/auth?mode=signup')}>
                   {isFr ? 'Commencer gratuitement' : 'Start for free'} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </div>
 
-              <div className="mt-4 flex flex-wrap justify-center gap-3">
+              <div className="mt-5 flex flex-wrap justify-center gap-3">
                 {(isFr
                   ? ['Pas de carte requise', "Pas d'engagement", 'Pas de frais cachés']
                   : ['No card required', 'No commitment', 'No hidden fees']
                 ).map((t) => (
-                  <span key={t} className="text-[10px] text-muted-foreground bg-muted/60 rounded-full px-3 py-1 border border-border">
+                  <span key={t} className="text-xs text-muted-foreground bg-muted/50 rounded-full px-3 py-1.5 border border-border">
                     ✓ {t}
                   </span>
                 ))}
