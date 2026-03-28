@@ -87,10 +87,10 @@ const QuickStartPage = lazy(() => import("@/pages/QuickStartPage"));
 const QuickPublishPage = lazy(() => import("@/pages/QuickPublishPage"));
 const GagnerPage = lazy(() => import("@/pages/GagnerPage"));
 const EcrirePage = lazy(() => import("@/pages/EcrirePage"));
-const MigrerPage = lazy(() => import("@/pages/MigrerPage"));
+// MigrerPage removed — marginal feature
 const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
-const VendreLandingPage = lazy(() => import("@/pages/VendreLandingPage"));
-const ProtectionPage = lazy(() => import("@/pages/ProtectionPage"));
+// VendreLandingPage consolidated — redirect to landing
+// ProtectionPage kept
 const EmbedCheckoutPage = lazy(() => import("@/pages/EmbedCheckoutPage"));
 const CertificateVerifyPage = lazy(() => import("@/pages/CertificateVerifyPage"));
 const TemoignagesPage = lazy(() => import("@/pages/TemoignagesPage"));
