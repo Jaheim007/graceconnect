@@ -49,7 +49,7 @@ const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
 const AuthCallbackPage = lazy(() => import("@/pages/AuthCallbackPage"));
 const DiscoverPage = lazy(() => import("@/pages/DiscoverPage"));
-const SpotlightPage = lazy(() => import("@/pages/SpotlightPage"));
+// SpotlightPage consolidated into Discover
 const OrgPublicPage = lazy(() => import("@/pages/OrgPublicPage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -94,7 +94,7 @@ const ProtectionPage = lazy(() => import("@/pages/ProtectionPage"));
 const EmbedCheckoutPage = lazy(() => import("@/pages/EmbedCheckoutPage"));
 const CertificateVerifyPage = lazy(() => import("@/pages/CertificateVerifyPage"));
 const TemoignagesPage = lazy(() => import("@/pages/TemoignagesPage"));
-const CalculateurPage = lazy(() => import("@/pages/CalculateurPage"));
+// CalculateurPage removed — gadget
 const PourEglisesPage = lazy(() => import("@/pages/persona/PourEglisesPage"));
 const PourOngPage = lazy(() => import("@/pages/persona/PourOngPage"));
 const PourFormateursPage = lazy(() => import("@/pages/persona/PourFormateursPage"));
@@ -146,7 +146,7 @@ const GuideAffiliationSansInvestissementPage = lazy(() => import("@/pages/guides
 const TutorialsPage = lazy(() => import("@/pages/TutorialsPage"));
 
 // Authenticated
-const FeedPage = lazy(() => import("@/pages/FeedPage"));
+// FeedPage consolidated into Discover
 const ReelsPage = lazy(() => import("@/pages/ReelsPage"));
 const WatchPage = lazy(() => import("@/pages/WatchPage"));
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
@@ -162,7 +162,7 @@ const PartnerPortalPage = lazy(() => import("@/pages/PartnerPortalPage"));
 
 
 const BookmarksPage = lazy(() => import("@/pages/BookmarksPage"));
-const WishlistPage = lazy(() => import("@/pages/WishlistPage"));
+// WishlistPage merged into BookmarksPage
 const NotificationPreferencesPage = lazy(() => import("@/pages/NotificationPreferencesPage"));
 const MyInvoicesPage = lazy(() => import("@/pages/MyInvoicesPage"));
 const MyProgramsPage = lazy(() => import("@/pages/MyProgramsPage"));
