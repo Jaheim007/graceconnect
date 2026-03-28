@@ -79,7 +79,7 @@ const OfferingDetailPage = lazy(() => import("@/pages/OfferingDetailPage"));
 const AnnouncementDetailPage = lazy(() => import("@/pages/AnnouncementDetailPage"));
 const EventDetailPage = lazy(() => import("@/pages/EventDetailPage"));
 const WelcomeIntentPage = lazy(() => import("@/pages/WelcomeIntentPage"));
-const AmbassadorPage = lazy(() => import("@/pages/AmbassadorPage"));
+
 const ChangelogPage = lazy(() => import("@/pages/ChangelogPage"));
 const MaintenancePage = lazy(() => import("@/pages/MaintenancePage"));
 const GoRedirectPage = lazy(() => import("@/pages/GoRedirectPage"));
@@ -126,7 +126,7 @@ const PourFinancePage = lazy(() => import("@/pages/persona/PourFinancePage"));
 const PourFemmesEntrepreneurPage = lazy(() => import("@/pages/persona/PourFemmesEntrepreneurPage"));
 const PourMediasPage = lazy(() => import("@/pages/persona/PourMediasPage"));
 const PourRetraitesPage = lazy(() => import("@/pages/persona/PourRetraitesPage"));
-const ComparerPage = lazy(() => import("@/pages/ComparerPage"));
+
 const PressePage = lazy(() => import("@/pages/PressePage"));
 const BlogIndexPage = lazy(() => import("@/pages/blog/BlogIndexPage"));
 const BlogArticlePage = lazy(() => import("@/pages/blog/BlogArticlePage"));
