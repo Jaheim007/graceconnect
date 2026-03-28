@@ -28,6 +28,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { FormattedText, stripHtml } from '@/lib/formatText';
 import { ProductReviews } from '@/components/products/ProductReviews';
 import { AmbassadorBanner } from '@/components/products/AmbassadorBanner';
+import { ProductSidebarExtras } from '@/components/products/ProductSidebarExtras';
 
 import { ProductPreviewViewer } from '@/components/products/ProductPreviewViewer';
 import { ShareButtons } from '@/components/social/ShareButtons';
