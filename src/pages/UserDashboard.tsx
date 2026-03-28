@@ -21,6 +21,15 @@ import { DashboardSection } from '@/components/ui/DashboardSection';
 import PartnerPendingPopup from '@/components/partner/PartnerPendingPopup';
 import { QuickStartPaths } from '@/components/growth/QuickStartPaths';
 import { SmartNudge } from '@/components/growth/SmartNudge';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { useAdaptiveLabels } from '@/hooks/useAdaptiveLabels';
+
+import { PremiumCard } from '@/components/ui/PremiumCard';
+import { DashboardSection } from '@/components/ui/DashboardSection';
+
+import PartnerPendingPopup from '@/components/partner/PartnerPendingPopup';
+import { QuickStartPaths } from '@/components/growth/QuickStartPaths';
+import { SmartNudge } from '@/components/growth/SmartNudge';
 
 export default function UserDashboard() {
   const { user, profile, isSuperadmin } = useAuth();
@@ -29,6 +38,11 @@ export default function UserDashboard() {
   const { locale } = useI18n();
   const hasOrgs = userOrgs.length > 0;
   const isFr = locale === 'fr';
+  const { profile: userProfile } = useUserProfile();
+  const labels = useAdaptiveLabels();
+  const isBuyer = userProfile === 'buyer';
+  const isAmbassador = userProfile === 'ambassador';
+  const isCreatorOrOrg = userProfile === 'creator' || userProfile === 'org-religious';
 
   const activeOrgId = currentOrg?.id ?? null;
   const primaryCurrency = currentOrg?.currency || userOrgs[0]?.currency || DEFAULT_CURRENCY;
