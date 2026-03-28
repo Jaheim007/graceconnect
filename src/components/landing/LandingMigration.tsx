@@ -92,6 +92,7 @@ export function LandingMigration() {
           </p>
         </motion.div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -204,6 +205,62 @@ export function LandingMigration() {
             </p>
           </div>
         </motion.div>
+
+        {/* Side highlight card — desktop only */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeUp}
+          className="hidden lg:flex flex-col gap-5 sticky top-28"
+        >
+          <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 space-y-4">
+            <div className="flex items-center gap-2">
+              <Crown className="h-5 w-5 text-primary" />
+              <h3 className="font-extrabold text-foreground text-lg">SiteViral</h3>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {isFr
+                ? "La seule plateforme pensée pour les créateurs africains. Mobile Money, ambassadeurs, IA — tout inclus, 0 frais fixe."
+                : "The only platform built for African creators. Mobile Money, ambassadors, AI — all included, zero fixed fees."}
+            </p>
+            <ul className="space-y-2.5">
+              {[
+                isFr ? '0 FCFA / mois' : '$0 / month',
+                isFr ? 'Commission à 10% uniquement' : '10% commission only',
+                isFr ? 'Paiement en 48h' : 'Payout in 48h',
+                isFr ? '+15 000 créateurs actifs' : '15,000+ active creators',
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-2 text-sm text-foreground">
+                  <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <Button
+              className="w-full gap-2 mt-2 shadow-lg shadow-primary/20"
+              onClick={() => navigate('/auth?mode=signup')}
+            >
+              {isFr ? 'Commencer' : 'Get started'} <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              {isFr ? 'Satisfaction' : 'Satisfaction'}
+            </p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-4xl font-black text-foreground">98%</span>
+              <span className="text-sm text-muted-foreground">{isFr ? 'de satisfaction' : 'satisfaction rate'}</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {isFr
+                ? "Basé sur les retours de nos créateurs actifs."
+                : "Based on feedback from our active creators."}
+            </p>
+          </div>
+        </motion.div>
+        </div>
       </div>
     </section>
   );

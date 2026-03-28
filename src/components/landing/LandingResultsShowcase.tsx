@@ -54,7 +54,7 @@ export function LandingResultsShowcase() {
           <motion.div
             className="flex w-max gap-5 px-4 sm:gap-6 sm:px-6 lg:px-10"
             animate={shouldReduceMotion ? { x: 0 } : { x: ['0%', '-50%'] }}
-            transition={shouldReduceMotion ? undefined : { duration: 32, ease: 'linear', repeat: Infinity }}
+            transition={shouldReduceMotion ? undefined : { duration: 55, ease: 'linear', repeat: Infinity }}
             style={{ willChange: 'transform' }}
           >
             {duplicatedSlides.map((slide, index) => (
