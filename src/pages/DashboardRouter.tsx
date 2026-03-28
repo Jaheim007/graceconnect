@@ -7,7 +7,7 @@ import UserDashboard from '@/pages/UserDashboard';
 
 /**
  * Unified Dashboard — no more mode-based routing.
- * Everyone sees the same dashboard.
+ * Skips WelcomeIntent if user already has orgs (returning user).
  */
 export default function DashboardRouter() {
   const { user } = useAuth();
