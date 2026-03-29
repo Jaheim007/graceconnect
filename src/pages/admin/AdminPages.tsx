@@ -42,6 +42,7 @@ import { ImageCropDialog } from '@/components/ui/ImageCropDialog';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { ChariowImportDialog } from '@/components/chariow/ChariowImportDialog';
+import { DomainSettings as DomainSettingsWidget } from '@/components/admin/DomainSettings';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -1502,7 +1503,13 @@ export function AdminSettings() {
           </div>
         </div>
 
-        {/* ── 5. ADVANCED: Tracking, Webhooks, Popups ── */}
+        {/* ── 5. DOMAINS ── */}
+        <div className="space-y-1">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pb-2">{isFr ? 'Domaines' : 'Domains'}</p>
+          <DomainSettingsWidget />
+        </div>
+
+        {/* ── 6. ADVANCED: Tracking, Webhooks, Popups ── */}
         <div className="space-y-1">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pb-2">{isFr ? 'Avancé' : 'Advanced'}</p>
           <PixelSettings orgId={currentOrg?.id} />

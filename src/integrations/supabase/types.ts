@@ -3210,6 +3210,53 @@ export type Database = {
           },
         ]
       }
+      org_domains: {
+        Row: {
+          created_at: string
+          dns_instructions: Json | null
+          domain: string
+          domain_type: string
+          id: string
+          is_primary: boolean
+          is_verified: boolean
+          organization_id: string
+          ssl_status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dns_instructions?: Json | null
+          domain: string
+          domain_type?: string
+          id?: string
+          is_primary?: boolean
+          is_verified?: boolean
+          organization_id: string
+          ssl_status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dns_instructions?: Json | null
+          domain?: string
+          domain_type?: string
+          id?: string
+          is_primary?: boolean
+          is_verified?: boolean
+          organization_id?: string
+          ssl_status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_domains_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_page_settings: {
         Row: {
           facebook_pixel_id: string | null
