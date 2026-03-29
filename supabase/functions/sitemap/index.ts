@@ -3,7 +3,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SITE_URL = "https://siteviral.com";
 
 const staticPages = [
-  // Core pages
   { loc: "/", priority: "1.0", changefreq: "daily" },
   { loc: "/discover", priority: "0.9", changefreq: "daily" },
   { loc: "/spotlight", priority: "0.8", changefreq: "daily" },
@@ -23,8 +22,6 @@ const staticPages = [
   { loc: "/ecrire", priority: "0.7", changefreq: "monthly" },
   { loc: "/migrer", priority: "0.6", changefreq: "monthly" },
   { loc: "/protection", priority: "0.5", changefreq: "monthly" },
-
-  // Blog
   { loc: "/blog", priority: "0.7", changefreq: "weekly" },
   { loc: "/blog/quest-ce-que-siteviral", priority: "0.6", changefreq: "monthly" },
   { loc: "/blog/comment-vendre-ebook-afrique", priority: "0.6", changefreq: "monthly" },
@@ -36,8 +33,6 @@ const staticPages = [
   { loc: "/blog/alternative-gofundme-afrique", priority: "0.6", changefreq: "monthly" },
   { loc: "/blog/gagner-argent-sans-contenu", priority: "0.6", changefreq: "monthly" },
   { loc: "/blog/vendre-cours-en-ligne", priority: "0.6", changefreq: "monthly" },
-
-  // Persona pages
   { loc: "/pour/influenceurs", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/formateurs", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/coaches", priority: "0.6", changefreq: "monthly" },
@@ -68,8 +63,6 @@ const staticPages = [
   { loc: "/pour/missionnaires", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/retraites", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/sante", priority: "0.6", changefreq: "monthly" },
-
-  // Guide pages
   { loc: "/guide/affiliation-sans-investissement", priority: "0.5", changefreq: "monthly" },
   { loc: "/guide/alternative-gofundme", priority: "0.5", changefreq: "monthly" },
   { loc: "/guide/boutique-digitale-gratuite", priority: "0.5", changefreq: "monthly" },
@@ -79,8 +72,6 @@ const staticPages = [
   { loc: "/guide/plateforme-dons-afrique", priority: "0.5", changefreq: "monthly" },
   { loc: "/guide/vendre-cours-en-ligne", priority: "0.5", changefreq: "monthly" },
   { loc: "/guide/vendre-ebook-afrique", priority: "0.5", changefreq: "monthly" },
-
-  // Additional content pages
   { loc: "/comparer", priority: "0.5", changefreq: "monthly" },
   { loc: "/calculateur", priority: "0.5", changefreq: "monthly" },
   { loc: "/temoignages", priority: "0.5", changefreq: "monthly" },
@@ -90,8 +81,6 @@ const staticPages = [
   { loc: "/tutoriels", priority: "0.5", changefreq: "monthly" },
   { loc: "/status", priority: "0.3", changefreq: "daily" },
   { loc: "/help", priority: "0.4", changefreq: "monthly" },
-
-  // Legal pages
   { loc: "/terms", priority: "0.3", changefreq: "yearly" },
   { loc: "/privacy", priority: "0.3", changefreq: "yearly" },
   { loc: "/refund-policy", priority: "0.3", changefreq: "yearly" },
@@ -106,7 +95,6 @@ const staticPages = [
   { loc: "/partner-terms", priority: "0.3", changefreq: "yearly" },
 ];
 
-// Organization sub-page suffixes that are publicly indexable
 const ORG_SUB_PAGES = [
   { suffix: "", priority: "0.8" },
   { suffix: "/store", priority: "0.7" },
@@ -118,13 +106,51 @@ const ORG_SUB_PAGES = [
   { suffix: "/dons", priority: "0.5" },
 ];
 
-Deno.serve(async () => {
+Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const sb = createClient(supabaseUrl, supabaseKey);
 
-    // Parallel fetch all dynamic content
+    // Check if request comes from an org domain
+    const reqUrl = new URL(req.url);
+    const domainParam = reqUrl.searchParams.get('domain') || req.headers.get('x-forwarded-host') || '';
+    let orgFilter: string | null = null;
+    let siteBase = SITE_URL;
+
+    if (domainParam && domainParam !== 'siteviral.com' && domainParam !== 'www.siteviral.com') {
+      // Resolve org from domain
+      const { data: domainData } = await sb
+        .from('org_domains')
+        .select('organization_id')
+        .eq('domain', domainParam)
+        .eq('is_verified', true)
+        .limit(1)
+        .single();
+
+      if (domainData) {
+        orgFilter = domainData.organization_id;
+        siteBase = `https://${domainParam}`;
+      } else if (domainParam.endsWith('.siteviral.com')) {
+        const sub = domainParam.replace('.siteviral.com', '');
+        const { data: org } = await sb
+          .from('organizations')
+          .select('id')
+          .eq('slug', sub)
+          .single();
+        if (org) {
+          orgFilter = org.id;
+          siteBase = `https://${domainParam}`;
+        }
+      }
+    }
+
+    // If org-filtered sitemap, only show org content
+    if (orgFilter) {
+      return await generateOrgSitemap(sb, orgFilter, siteBase);
+    }
+
+    // Global sitemap
     const [
       { data: orgs },
       { data: products },
@@ -151,7 +177,6 @@ Deno.serve(async () => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 `;
 
-    // Static pages
     for (const p of staticPages) {
       xml += `  <url>
     <loc>${SITE_URL}${p.loc}</loc>
@@ -162,7 +187,6 @@ Deno.serve(async () => {
 `;
     }
 
-    // Organization pages (main + sub-pages)
     if (orgs) {
       for (const org of orgs) {
         const lastmod = org.updated_at?.split("T")[0] || today;
@@ -178,16 +202,14 @@ Deno.serve(async () => {
       }
     }
 
-    // Product pages
     if (products) {
       for (const p of products) {
         const orgSlug = (p as any).organizations?.slug;
         if (!orgSlug) continue;
         const pPath = p.slug ? `/org/${orgSlug}/p/${p.slug}` : `/org/${orgSlug}/product/${p.id}`;
-        const lastmod = p.updated_at?.split("T")[0] || today;
         xml += `  <url>
     <loc>${SITE_URL}${pPath}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <lastmod>${p.updated_at?.split("T")[0] || today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -195,13 +217,11 @@ Deno.serve(async () => {
       }
     }
 
-    // Campaign pages
     if (campaigns) {
       for (const c of campaigns) {
-        const lastmod = c.updated_at?.split("T")[0] || today;
         xml += `  <url>
     <loc>${SITE_URL}/campaign/${c.id}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <lastmod>${c.updated_at?.split("T")[0] || today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -209,13 +229,11 @@ Deno.serve(async () => {
       }
     }
 
-    // Event pages
     if (events) {
       for (const e of events) {
-        const lastmod = e.updated_at?.split("T")[0] || today;
         xml += `  <url>
     <loc>${SITE_URL}/event/${e.id}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <lastmod>${e.updated_at?.split("T")[0] || today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -223,13 +241,11 @@ Deno.serve(async () => {
       }
     }
 
-    // Offering pages
     if (offerings) {
       for (const o of offerings) {
-        const lastmod = (o as any).updated_at?.split("T")[0] || today;
         xml += `  <url>
     <loc>${SITE_URL}/offering/${o.id}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <lastmod>${(o as any).updated_at?.split("T")[0] || today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -237,13 +253,11 @@ Deno.serve(async () => {
       }
     }
 
-    // Announcement pages
     if (announcements) {
       for (const a of announcements) {
-        const lastmod = a.updated_at?.split("T")[0] || today;
         xml += `  <url>
     <loc>${SITE_URL}/announcement/${a.id}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <lastmod>${a.updated_at?.split("T")[0] || today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -251,13 +265,11 @@ Deno.serve(async () => {
       }
     }
 
-    // Program pages
     if (programs) {
       for (const p of programs) {
-        const lastmod = (p as any).updated_at?.split("T")[0] || today;
         xml += `  <url>
     <loc>${SITE_URL}/program/${p.id}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <lastmod>${(p as any).updated_at?.split("T")[0] || today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -265,13 +277,11 @@ Deno.serve(async () => {
       }
     }
 
-    // Media content (watch pages)
     if (mediaContent) {
       for (const m of mediaContent) {
-        const lastmod = (m as any).updated_at?.split("T")[0] || today;
         xml += `  <url>
     <loc>${SITE_URL}/watch/${m.id}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <lastmod>${(m as any).updated_at?.split("T")[0] || today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -293,3 +303,144 @@ Deno.serve(async () => {
     return new Response("Error generating sitemap", { status: 500 });
   }
 });
+
+/** Generate an org-specific sitemap for custom domains */
+async function generateOrgSitemap(sb: any, orgId: string, siteBase: string): Promise<Response> {
+  const today = new Date().toISOString().split("T")[0];
+
+  const [
+    { data: org },
+    { data: products },
+    { data: campaigns },
+    { data: events },
+    { data: offerings },
+    { data: announcements },
+    { data: programs },
+  ] = await Promise.all([
+    sb.from("organizations").select("slug, updated_at").eq("id", orgId).single(),
+    sb.from("digital_products").select("id, slug, updated_at").eq("organization_id", orgId).eq("is_published", true),
+    sb.from("donation_campaigns").select("id, updated_at").eq("organization_id", orgId).eq("is_active", true).eq("is_published", true),
+    sb.from("events").select("id, updated_at").eq("organization_id", orgId).eq("is_published", true),
+    sb.from("offerings").select("id, updated_at").eq("organization_id", orgId).eq("is_active", true),
+    sb.from("announcements").select("id, updated_at").eq("organization_id", orgId).eq("is_published", true),
+    sb.from("programs").select("id, updated_at").eq("organization_id", orgId).eq("is_published", true),
+  ]);
+
+  if (!org) {
+    return new Response("Org not found", { status: 404 });
+  }
+
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+`;
+
+  // Home + sections (on custom domain, paths are direct: /, /store, /events, etc.)
+  const orgSections = [
+    { path: "/", priority: "1.0" },
+    { path: "/store", priority: "0.8" },
+    { path: "/content", priority: "0.7" },
+    { path: "/events", priority: "0.7" },
+    { path: "/donate", priority: "0.7" },
+    { path: "/photos", priority: "0.6" },
+    { path: "/offerings", priority: "0.6" },
+  ];
+
+  for (const s of orgSections) {
+    xml += `  <url>
+    <loc>${siteBase}${s.path}</loc>
+    <lastmod>${org.updated_at?.split("T")[0] || today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>${s.priority}</priority>
+  </url>
+`;
+  }
+
+  // Products
+  if (products) {
+    for (const p of products) {
+      const pPath = p.slug ? `/p/${p.slug}` : `/product/${p.id}`;
+      xml += `  <url>
+    <loc>${siteBase}${pPath}</loc>
+    <lastmod>${p.updated_at?.split("T")[0] || today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+    }
+  }
+
+  // Campaigns
+  if (campaigns) {
+    for (const c of campaigns) {
+      xml += `  <url>
+    <loc>${siteBase}/campaign/${c.id}</loc>
+    <lastmod>${c.updated_at?.split("T")[0] || today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+`;
+    }
+  }
+
+  // Events
+  if (events) {
+    for (const e of events) {
+      xml += `  <url>
+    <loc>${siteBase}/event/${e.id}</loc>
+    <lastmod>${e.updated_at?.split("T")[0] || today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+`;
+    }
+  }
+
+  // Offerings
+  if (offerings) {
+    for (const o of offerings) {
+      xml += `  <url>
+    <loc>${siteBase}/offering/${o.id}</loc>
+    <lastmod>${(o as any).updated_at?.split("T")[0] || today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+`;
+    }
+  }
+
+  // Announcements
+  if (announcements) {
+    for (const a of announcements) {
+      xml += `  <url>
+    <loc>${siteBase}/announcement/${a.id}</loc>
+    <lastmod>${a.updated_at?.split("T")[0] || today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+`;
+    }
+  }
+
+  // Programs
+  if (programs) {
+    for (const p of programs) {
+      xml += `  <url>
+    <loc>${siteBase}/program/${p.id}</loc>
+    <lastmod>${(p as any).updated_at?.split("T")[0] || today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+`;
+    }
+  }
+
+  xml += `</urlset>`;
+
+  return new Response(xml, {
+    headers: {
+      "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": "public, max-age=3600, s-maxage=3600",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+}

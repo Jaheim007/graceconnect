@@ -32,12 +32,14 @@ import { OrgPublicHeader } from '@/components/org/OrgPublicHeader';
 import { OrgHomeSections } from '@/components/org/OrgHomeSections';
 import { PixelInjector } from '@/components/org/PixelInjector';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { DynamicFavicon } from '@/components/seo/DynamicFavicon';
 import { SmartPopup } from '@/components/org/SmartPopup';
 import { WaitlistWidget } from '@/components/org/WaitlistWidget';
 import { SubscriptionPlansWidget } from '@/components/subscriptions/SubscriptionPlansWidget';
 import { PhotoLightbox } from '@/components/photos/PhotoLightbox';
 import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
 import { useWaitlists } from '@/hooks/useWaitlists';
+import { isMainPlatformDomain } from '@/hooks/useDomainResolver';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { cn } from '@/lib/utils';
 import {
@@ -154,6 +156,12 @@ export default function OrgPublicPage() {
 
   const pinnedAnnouncement = announcements.find((a) => a.is_pinned);
 
+  // Determine base URL: use org's custom domain if we're on one
+  const hostname = window.location.hostname;
+  const isOnOrgDomain = !isMainPlatformDomain(hostname);
+  const orgBaseUrl = isOnOrgDomain ? window.location.origin : `https://siteviral.com/org/${slug}`;
+  const orgCanonical = isOnOrgDomain ? window.location.origin : `https://siteviral.com/org/${slug}`;
+
   const navigateTab = (tab: string) => {
     const base = `/org/${slug}`;
     navigate(tab === 'home' ? base : `${base}/${tab}`, { replace: true });
@@ -169,11 +177,12 @@ export default function OrgPublicPage() {
   return (
     <div className="min-h-screen bg-background" style={themeStyle}>
       <PixelInjector facebookPixelId={fbPixel} tiktokPixelId={ttPixel} googleTagId={gTagId} />
+      {isOnOrgDomain && <DynamicFavicon logoUrl={org.logo_url} orgName={org.name} />}
       <SEOHead
-        title={`${org.name} — Plateforme digitale sur Siteviral`}
+        title={isOnOrgDomain ? org.name : `${org.name} — Plateforme digitale sur Siteviral`}
         description={org.description || `Découvrez ${org.name} sur Siteviral : produits numériques, formations, événements et plus. Achetez ou devenez ambassadeur.`}
         ogImage={org.banner_url || org.logo_url}
-        canonicalUrl={`https://siteviral.com/org/${slug}`}
+        canonicalUrl={orgCanonical}
         keywords={`${org.name}, plateforme digitale, produits numériques, ${org.category === 'church' ? 'église en ligne' : org.category === 'ngo' ? 'ONG' : 'créateur'}, Siteviral`}
         jsonLd={[
           {
@@ -181,24 +190,28 @@ export default function OrgPublicPage() {
             '@type': 'Organization',
             name: org.name,
             description: org.description,
-            url: `https://siteviral.com/org/${slug}`,
+            url: orgCanonical,
             image: org.logo_url,
             ...(org.website ? { sameAs: [org.website] } : {}),
-            memberOf: { '@type': 'WebSite', name: 'Siteviral', url: 'https://siteviral.com' },
+            ...(isOnOrgDomain ? {} : { memberOf: { '@type': 'WebSite', name: 'Siteviral', url: 'https://siteviral.com' } }),
             potentialAction: {
               '@type': 'ViewAction',
-              target: `https://siteviral.com/org/${slug}/store`,
+              target: isOnOrgDomain ? `${orgBaseUrl}/store` : `https://siteviral.com/org/${slug}/store`,
               name: locale === 'fr' ? 'Voir la boutique' : 'View store',
             },
           },
           {
             '@context': 'https://schema.org',
             '@type': 'BreadcrumbList',
-            itemListElement: [
-              { '@type': 'ListItem', position: 1, name: 'Siteviral', item: 'https://siteviral.com' },
-              { '@type': 'ListItem', position: 2, name: 'Explorer', item: 'https://siteviral.com/discover' },
-              { '@type': 'ListItem', position: 3, name: org.name, item: `https://siteviral.com/org/${slug}` },
-            ],
+            itemListElement: isOnOrgDomain
+              ? [
+                  { '@type': 'ListItem', position: 1, name: org.name, item: orgCanonical },
+                ]
+              : [
+                  { '@type': 'ListItem', position: 1, name: 'Siteviral', item: 'https://siteviral.com' },
+                  { '@type': 'ListItem', position: 2, name: 'Explorer', item: 'https://siteviral.com/discover' },
+                  { '@type': 'ListItem', position: 3, name: org.name, item: `https://siteviral.com/org/${slug}` },
+                ],
           },
         ]}
       />

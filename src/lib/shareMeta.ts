@@ -1,7 +1,15 @@
 import { supabase } from '@/integrations/supabase/client';
+import { isMainPlatformDomain } from '@/hooks/useDomainResolver';
 
 const SITE_ORIGIN = 'https://siteviral.com';
 const FUNCTIONS_BASE = 'https://api.siteviral.com/functions/v1';
+
+/** Get domain param for share URLs when on org custom domain */
+function getDomainParam(): string {
+  const host = window.location.hostname;
+  if (!isMainPlatformDomain(host)) return host;
+  return '';
+}
 
 // ─── Short code generator (Base62, 7 chars → ~3.5 trillion combos) ───
 
@@ -44,7 +52,10 @@ export async function getOrCreateShortLink(opts: {
 
   // 1. Session cache
   const cached = shortLinkCache.get(cleanPath);
-  if (cached) return `${FUNCTIONS_BASE}/share-meta?code=${cached}`;
+  if (cached) {
+    const domainP = getDomainParam();
+    return `${FUNCTIONS_BASE}/share-meta?code=${cached}${domainP ? `&domain=${domainP}` : ''}`;
+  }
 
   // 2. Check DB for existing
   try {
@@ -57,7 +68,8 @@ export async function getOrCreateShortLink(opts: {
 
     if (existing) {
       shortLinkCache.set(cleanPath, existing.id);
-      return `${FUNCTIONS_BASE}/share-meta?code=${existing.id}`;
+      const domainP = getDomainParam();
+      return `${FUNCTIONS_BASE}/share-meta?code=${existing.id}${domainP ? `&domain=${domainP}` : ''}`;
     }
   } catch {
     // DB read failed — fall through to create
@@ -89,7 +101,8 @@ export async function getOrCreateShortLink(opts: {
     }
 
     shortLinkCache.set(cleanPath, code);
-    return `${FUNCTIONS_BASE}/share-meta?code=${code}`;
+    const domainP = getDomainParam();
+    return `${FUNCTIONS_BASE}/share-meta?code=${code}${domainP ? `&domain=${domainP}` : ''}`;
   } catch {
     return buildLegacyShareUrl(cleanPath, opts.title, opts.description, opts.image);
   }
@@ -106,6 +119,8 @@ function buildLegacyShareUrl(
   image?: string,
 ): string {
   const params = new URLSearchParams({ path });
+  const domainP = getDomainParam();
+  if (domainP) params.set('domain', domainP);
   if (title?.trim()) params.set('title', title.trim().slice(0, 180));
   if (description?.trim()) params.set('description', description.trim().slice(0, 300));
   if (image) {
@@ -141,5 +156,7 @@ export function buildSocialShareUrl(opts: {
 export const buildShareUrlForPath = (path: string): string => {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   const params = new URLSearchParams({ path: cleanPath });
+  const domainP = getDomainParam();
+  if (domainP) params.set('domain', domainP);
   return `${FUNCTIONS_BASE}/share-meta?${params.toString()}`;
 };
