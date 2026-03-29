@@ -753,6 +753,59 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
 }
 
 // ═══════════════════════════════════════
+// Resolve org's primary custom domain
+// ═══════════════════════════════════════
+async function resolveOrgDomain(
+  supabaseAdmin: ReturnType<typeof createClient>,
+  organizationId: string,
+): Promise<{ baseUrl: string; orgName: string } | null> {
+  try {
+    // Get primary domain for the org
+    const { data: domainRow } = await supabaseAdmin
+      .from('org_domains')
+      .select('domain, organizations(name, slug)')
+      .eq('organization_id', organizationId)
+      .eq('is_primary', true)
+      .eq('is_verified', true)
+      .limit(1)
+      .maybeSingle();
+
+    if (domainRow?.domain) {
+      const orgName = (domainRow as any).organizations?.name || 'Siteviral';
+      return { baseUrl: `https://${domainRow.domain}`, orgName };
+    }
+
+    // Fallback: get org slug for siteviral.com/org/slug
+    const { data: org } = await supabaseAdmin
+      .from('organizations')
+      .select('name, slug')
+      .eq('id', organizationId)
+      .single();
+
+    if (org) {
+      return { baseUrl: `https://siteviral.com/org/${org.slug}`, orgName: org.name };
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
+/**
+ * Replace hardcoded siteviral.com/org/... URLs in email HTML with the org's base URL.
+ * Only replaces org-specific paths (not platform paths like /terms, /privacy).
+ */
+function rewriteOrgLinks(html: string, orgSlug: string, orgBaseUrl: string): string {
+  // Replace siteviral.com/org/{slug}/... → orgBaseUrl/...
+  const orgPathPattern = new RegExp(`https://siteviral\\.com/org/${orgSlug}(/[^"'<\\s]*)`, 'g');
+  html = html.replace(orgPathPattern, `${orgBaseUrl}$1`);
+
+  // Replace siteviral.com/org/{slug}" → orgBaseUrl"
+  const orgPathExact = new RegExp(`https://siteviral\\.com/org/${orgSlug}(["'<\\s])`, 'g');
+  html = html.replace(orgPathExact, `${orgBaseUrl}$1`);
+
+  return html;
+}
+
+// ═══════════════════════════════════════
 // Resolve user's preferred language from email
 // ═══════════════════════════════════════
 async function resolveUserLang(
