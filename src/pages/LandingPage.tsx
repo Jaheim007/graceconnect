@@ -6,7 +6,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 
 const LandingHowItWorks = lazy(() => import('@/components/landing/LandingHowItWorksSimple').then(m => ({ default: m.LandingHowItWorksSimple })));
 const LandingResultsShowcase = lazy(() => import('@/components/landing/LandingResultsShowcase'));
-const LandingLiveStats = lazy(() => import('@/components/landing/LandingLiveStats').then(m => ({ default: m.LandingLiveStats })));
+
 const LandingAmbassadorLoop = lazy(() => import('@/components/landing/LandingAmbassadorLoop').then(m => ({ default: m.LandingAmbassadorLoop })));
 const LandingMobileMoney = lazy(() => import('@/components/landing/LandingMobileMoney').then(m => ({ default: m.LandingMobileMoney })));
 const LandingTrustShield = lazy(() => import('@/components/landing/LandingTrustShield').then(m => ({ default: m.LandingTrustShield })));
@@ -59,8 +59,7 @@ export default function LandingPage() {
         <LandingHowItWorks />
         {/* 2. Preuves sociales — résultats réels */}
         <LandingResultsShowcase />
-        {/* 3. Stats en temps réel — crédibilité */}
-        <LandingLiveStats />
+        {/* Stats supprimées — les preuves sociales suffisent */}
         {/* 4. Programme ambassadeur — gagner en partageant */}
         <LandingAmbassadorLoop />
         {/* 5. Mobile Money — confiance paiement */}
