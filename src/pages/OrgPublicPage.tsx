@@ -156,6 +156,12 @@ export default function OrgPublicPage() {
 
   const pinnedAnnouncement = announcements.find((a) => a.is_pinned);
 
+  // Determine base URL: use org's custom domain if we're on one
+  const hostname = window.location.hostname;
+  const isOnOrgDomain = !isMainPlatformDomain(hostname);
+  const orgBaseUrl = isOnOrgDomain ? window.location.origin : `https://siteviral.com/org/${slug}`;
+  const orgCanonical = isOnOrgDomain ? window.location.origin : `https://siteviral.com/org/${slug}`;
+
   const navigateTab = (tab: string) => {
     const base = `/org/${slug}`;
     navigate(tab === 'home' ? base : `${base}/${tab}`, { replace: true });
