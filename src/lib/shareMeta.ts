@@ -119,6 +119,8 @@ function buildLegacyShareUrl(
   image?: string,
 ): string {
   const params = new URLSearchParams({ path });
+  const domainP = getDomainParam();
+  if (domainP) params.set('domain', domainP);
   if (title?.trim()) params.set('title', title.trim().slice(0, 180));
   if (description?.trim()) params.set('description', description.trim().slice(0, 300));
   if (image) {
@@ -154,5 +156,7 @@ export function buildSocialShareUrl(opts: {
 export const buildShareUrlForPath = (path: string): string => {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   const params = new URLSearchParams({ path: cleanPath });
+  const domainP = getDomainParam();
+  if (domainP) params.set('domain', domainP);
   return `${FUNCTIONS_BASE}/share-meta?${params.toString()}`;
 };
