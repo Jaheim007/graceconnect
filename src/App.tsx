@@ -22,6 +22,7 @@ import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { ShortcutRedirect } from "@/components/layout/ShortcutRedirect";
 import { FloatingProofToast } from "@/components/social-proof/FloatingProofToast";
+import { DomainRouter } from "@/components/layout/DomainRouter";
 
 /** Redirect /store/:slug → /org/:slug/store */
 function StoreRedirect() {
