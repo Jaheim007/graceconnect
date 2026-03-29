@@ -32,12 +32,14 @@ import { OrgPublicHeader } from '@/components/org/OrgPublicHeader';
 import { OrgHomeSections } from '@/components/org/OrgHomeSections';
 import { PixelInjector } from '@/components/org/PixelInjector';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { DynamicFavicon } from '@/components/seo/DynamicFavicon';
 import { SmartPopup } from '@/components/org/SmartPopup';
 import { WaitlistWidget } from '@/components/org/WaitlistWidget';
 import { SubscriptionPlansWidget } from '@/components/subscriptions/SubscriptionPlansWidget';
 import { PhotoLightbox } from '@/components/photos/PhotoLightbox';
 import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
 import { useWaitlists } from '@/hooks/useWaitlists';
+import { isMainPlatformDomain } from '@/hooks/useDomainResolver';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { cn } from '@/lib/utils';
 import {
