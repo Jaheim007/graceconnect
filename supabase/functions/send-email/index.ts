@@ -889,6 +889,20 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ ok: false, error: 'No recipients' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
+    // Resolve org domain for link rewriting and sender branding
+    let orgDomainInfo: { baseUrl: string; orgName: string } | null = null;
+    let orgSlug = '';
+    if (organization_id) {
+      orgDomainInfo = await resolveOrgDomain(supabaseAdmin, organization_id);
+      // Also fetch slug for link rewriting
+      const { data: orgData } = await supabaseAdmin
+        .from('organizations')
+        .select('slug')
+        .eq('id', organization_id)
+        .single();
+      orgSlug = orgData?.slug || '';
+    }
+
     let lastResult: any = {};
     let allOk = true;
     for (const recipient of recipients) {
@@ -905,11 +919,20 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: 'Unknown template' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
+      // Rewrite org-specific links to use custom domain
+      if (orgDomainInfo && orgSlug && !orgDomainInfo.baseUrl.includes('siteviral.com/org/')) {
+        tpl.html = rewriteOrgLinks(tpl.html, orgSlug, orgDomainInfo.baseUrl);
+      }
+
+      // Use org name as sender name for org-related emails
+      const senderName = orgDomainInfo?.orgName || 'Siteviral';
+      const fromAddress = tpl.fromOverride || `${senderName} <noreply@siteviral.com>`;
+
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: tpl.fromOverride || 'Siteviral <noreply@siteviral.com>',
+          from: fromAddress,
           to: [recipient],
           subject: tpl.subject,
           html: tpl.html,
@@ -927,7 +950,7 @@ Deno.serve(async (req) => {
         resend_message_id: result.id || null,
         error_message: res.ok ? null : (result.message || 'Unknown error'),
         organization_id: organization_id || null,
-        metadata: { ...data, _lang: lang },
+        metadata: { ...data, _lang: lang, _org_domain: orgDomainInfo?.baseUrl || null },
       });
     }
 
