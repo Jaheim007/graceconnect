@@ -5,6 +5,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
  *
  * Bots receive a static OG HTML page (200) with proper tags.
  * Human users are 302-redirected to the SPA at siteviral.com/<path>.
+ *
+ * Supports org custom domains: when ?domain= is provided or x-forwarded-host
+ * points to an org domain, the canonical URL uses that domain.
  */
 
 const SITE_URL = 'https://siteviral.com';
@@ -15,8 +18,6 @@ const DEFAULT_IMAGE = 'https://siteviral.com/og-image.png';
 
 // ─── Bot detection ───
 
-// Only social-preview bots — keep this list minimal to avoid catching
-// mobile WebViews or unusual browser UAs that could break payment flows.
 const BOT_UA_PATTERNS = [
   'facebookexternalhit', 'facebot', 'meta-externalagent', 'meta-externalfetcher',
   'whatsapp', 'twitterbot', 'linkedinbot',
@@ -39,7 +40,6 @@ const escapeHtml = (v: string) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
-/** Strip HTML tags and return clean plain text for OG descriptions */
 function stripHtml(html: string): string {
   return html
     .replace(/<[^>]*>/g, ' ')
@@ -53,11 +53,12 @@ function stripHtml(html: string): string {
     .trim();
 }
 
-function renderOgHtml(title: string, description: string, image: string, canonicalUrl: string): string {
+function renderOgHtml(title: string, description: string, image: string, canonicalUrl: string, siteName?: string): string {
   const t = escapeHtml(title);
   const d = escapeHtml(description);
   const img = escapeHtml(image);
   const url = escapeHtml(canonicalUrl);
+  const sn = escapeHtml(siteName || 'Siteviral');
   const fbAppId = Deno.env.get('FB_APP_ID') || '';
 
   return `<!doctype html>
@@ -75,7 +76,7 @@ function renderOgHtml(title: string, description: string, image: string, canonic
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:url" content="${url}" />
-    <meta property="og:site_name" content="Siteviral" />
+    <meta property="og:site_name" content="${sn}" />
     <meta property="og:locale" content="fr_FR" />${fbAppId ? `\n    <meta property="fb:app_id" content="${escapeHtml(fbAppId)}" />` : ''}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@siteviral" />
@@ -106,6 +107,45 @@ function getSupabase() {
   );
 }
 
+/** Resolve org from a custom domain or subdomain */
+async function resolveOrgFromDomain(domain: string): Promise<{ orgId: string; slug: string; name: string } | null> {
+  if (!domain || domain === 'siteviral.com' || domain === 'www.siteviral.com' || domain === 'api.siteviral.com') return null;
+
+  const sb = getSupabase();
+
+  // Check org_domains table
+  const { data } = await sb
+    .from('org_domains')
+    .select('organization_id, organizations(slug, name)')
+    .eq('domain', domain)
+    .eq('is_verified', true)
+    .limit(1)
+    .single();
+
+  if (data) {
+    return {
+      orgId: data.organization_id,
+      slug: (data as any).organizations?.slug,
+      name: (data as any).organizations?.name,
+    };
+  }
+
+  // Fallback: *.siteviral.com subdomain
+  if (domain.endsWith('.siteviral.com')) {
+    const sub = domain.replace('.siteviral.com', '');
+    if (sub && sub !== 'www' && sub !== 'api') {
+      const { data: org } = await sb
+        .from('organizations')
+        .select('id, slug, name')
+        .eq('slug', sub)
+        .single();
+      if (org) return { orgId: org.id, slug: org.slug, name: org.name };
+    }
+  }
+
+  return null;
+}
+
 const BLOG_META: Record<string, { title: string; description: string }> = {
   'quest-ce-que-siteviral': { title: "Qu'est-ce que Siteviral ? Le guide complet", description: "Découvrez ce qu'est Siteviral, comment ça marche, pour qui c'est fait et pourquoi c'est différent." },
   'comment-vendre-ebook-afrique': { title: 'Comment vendre un ebook en Afrique', description: 'Guide complet pour vendre vos ebooks en Afrique avec Mobile Money via Siteviral.' },
@@ -124,7 +164,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
   let m: RegExpMatchArray | null;
   const isUuid = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 
-  // /org/:slug/product/:id  OR  /org/:slug/p/:productSlug  (MUST be before /org/:slug)
+  // /org/:slug/product/:id  OR  /org/:slug/p/:productSlug
   m = path.match(/^\/org\/[^\/]+\/(?:product|p)\/([^\/\?#]+)/);
   if (m) {
     const identifier = decodeURIComponent(m[1]);
@@ -155,7 +195,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
     }
   }
 
-  // /org/:slug (only if not matched above)
+  // /org/:slug
   m = path.match(/^\/org\/([^\/\?#]+)$/);
   if (m) {
     const { data } = await supabase
@@ -172,7 +212,28 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
       };
   }
 
-  // /product/:id
+  // /org/:slug/store, /content, /events, etc.
+  m = path.match(/^\/org\/([^\/\?#]+)\/(store|content|events|donate|photos|offerings|dons)/);
+  if (m) {
+    const sectionNames: Record<string, string> = {
+      store: 'Boutique', content: 'Contenu', events: 'Événements',
+      donate: 'Dons', photos: 'Photos', offerings: 'Offrandes', dons: 'Offrandes',
+    };
+    const { data } = await supabase
+      .from('organizations')
+      .select('name, description, logo_url, banner_url')
+      .eq('slug', decodeURIComponent(m[1]))
+      .eq('is_active', true)
+      .maybeSingle();
+    if (data)
+      return {
+        title: `${sectionNames[m[2]] || m[2]} — ${data.name}`,
+        description: stripHtml(data.description || `Découvrez ${data.name} sur Siteviral`).slice(0, 300),
+        image: data.banner_url || data.logo_url || DEFAULT_IMAGE,
+      };
+  }
+
+  // /product/:id (standalone)
   m = path.match(/^\/product\/([^\/\?#]+)/);
   if (m) {
     const { data } = await supabase
@@ -192,22 +253,19 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
   }
 
   // /campaign/:id
-  m = path.match(/^\/campaign(?:e)?\/([^\/\?#]+)/);
+  m = path.match(/^\/campaign\/([^\/\?#]+)/);
   if (m) {
     const { data } = await supabase
       .from('donation_campaigns')
       .select('title, description, image_url, organizations(name)')
       .eq('id', decodeURIComponent(m[1]))
-      .eq('is_published', true)
       .maybeSingle();
-    if (data) {
-      const orgName = (data as any).organizations?.name || 'Siteviral';
+    if (data)
       return {
-        title: `${data.title} — ${orgName}`,
+        title: `${data.title} — ${(data as any).organizations?.name || 'Siteviral'}`,
         description: stripHtml(data.description || `Soutenez ${data.title}`).slice(0, 300),
         image: data.image_url || DEFAULT_IMAGE,
       };
-    }
   }
 
   // /event/:id
@@ -217,26 +275,69 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
       .from('events')
       .select('title, description, image_url, organizations(name)')
       .eq('id', decodeURIComponent(m[1]))
-      .eq('is_published', true)
       .maybeSingle();
-    if (data) {
-      const orgName = (data as any).organizations?.name || 'Siteviral';
+    if (data)
       return {
-        title: `${data.title} — ${orgName}`,
-        description: stripHtml(data.description || `Événement sur Siteviral`).slice(0, 300),
+        title: `${data.title} — ${(data as any).organizations?.name || 'Siteviral'}`,
+        description: stripHtml(data.description || data.title).slice(0, 300),
         image: data.image_url || DEFAULT_IMAGE,
       };
-    }
+  }
+
+  // /offering/:id
+  m = path.match(/^\/offering\/([^\/\?#]+)/);
+  if (m) {
+    const { data } = await supabase
+      .from('offerings')
+      .select('title, description, image_url, organizations(name)')
+      .eq('id', decodeURIComponent(m[1]))
+      .maybeSingle();
+    if (data)
+      return {
+        title: `${(data as any).title || 'Offrande'} — ${(data as any).organizations?.name || 'Siteviral'}`,
+        description: stripHtml((data as any).description || 'Participez à cette offrande').slice(0, 300),
+        image: (data as any).image_url || DEFAULT_IMAGE,
+      };
+  }
+
+  // /announcement/:id
+  m = path.match(/^\/announcement\/([^\/\?#]+)/);
+  if (m) {
+    const { data } = await supabase
+      .from('announcements')
+      .select('title, body, image_url, organizations(name)')
+      .eq('id', decodeURIComponent(m[1]))
+      .maybeSingle();
+    if (data)
+      return {
+        title: `${data.title} — ${(data as any).organizations?.name || 'Siteviral'}`,
+        description: stripHtml(data.body || data.title).slice(0, 300),
+        image: data.image_url || DEFAULT_IMAGE,
+      };
+  }
+
+  // /program/:id
+  m = path.match(/^\/program\/([^\/\?#]+)/);
+  if (m) {
+    const { data } = await supabase
+      .from('programs')
+      .select('title, description, cover_image_url, organizations(name)')
+      .eq('id', decodeURIComponent(m[1]))
+      .maybeSingle();
+    if (data)
+      return {
+        title: `${data.title} — ${(data as any).organizations?.name || 'Siteviral'}`,
+        description: stripHtml(data.description || data.title).slice(0, 300),
+        image: data.cover_image_url || DEFAULT_IMAGE,
+      };
   }
 
   // /blog/:slug
   m = path.match(/^\/blog\/([^\/\?#]+)/);
   if (m) {
     const slug = decodeURIComponent(m[1]);
-    const blogMeta = BLOG_META[slug];
-    if (blogMeta) {
-      return { title: `${blogMeta.title} — Siteviral`, description: blogMeta.description, image: DEFAULT_IMAGE };
-    }
+    const meta = BLOG_META[slug];
+    if (meta) return { title: meta.title, description: meta.description, image: DEFAULT_IMAGE };
   }
 
   return null;
@@ -265,7 +366,23 @@ Deno.serve(async (req) => {
     req.headers.get('x-force-og-bot') === '1' ||
     reqUrl.searchParams.get('bot') === '1';
 
-  // Extract the path after /og-proxy
+  // ── Resolve org from domain param or x-forwarded-host ──
+  const domainParam = reqUrl.searchParams.get('domain') || req.headers.get('x-forwarded-host') || '';
+  let orgContext: { orgId: string; slug: string; name: string } | null = null;
+  let baseUrl = SITE_URL;
+
+  if (domainParam) {
+    try {
+      orgContext = await resolveOrgFromDomain(domainParam);
+      if (orgContext) {
+        baseUrl = `https://${domainParam}`;
+      }
+    } catch {
+      // fallback to default
+    }
+  }
+
+  // Extract the path
   let contentPath = reqUrl.searchParams.get('path');
 
   // ── Safety: never intercept payment/checkout routes ──
@@ -274,12 +391,13 @@ Deno.serve(async (req) => {
     return new Response(null, {
       status: 302,
       headers: {
-        Location: `${SITE_URL}${rawPath.startsWith('/') ? rawPath : `/${rawPath}`}`,
+        Location: `${baseUrl}${rawPath.startsWith('/') ? rawPath : `/${rawPath}`}`,
         'Cache-Control': 'no-cache, no-store',
         'X-OG-Proxy-Mode': 'payment-bypass',
       },
     });
   }
+
   if (!contentPath) {
     const fullPath = reqUrl.pathname;
     const proxyIdx = fullPath.indexOf('/og-proxy');
@@ -290,7 +408,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  // Normalize content path (supports encoded absolute URL passed by upstream proxies)
+  // Normalize
   try {
     contentPath = decodeURIComponent(contentPath);
   } catch {
@@ -302,7 +420,21 @@ Deno.serve(async (req) => {
   }
   if (!contentPath.startsWith('/')) contentPath = `/${contentPath}`;
 
-  const canonicalUrl = `${SITE_URL}${contentPath}`;
+  // If on org domain and path is "/" or a section, prefix with /org/slug
+  if (orgContext && !contentPath.startsWith('/org/')) {
+    const sections = ['store', 'content', 'events', 'donate', 'photos', 'offerings', 'dons', 'programs'];
+    const clean = contentPath.replace(/^\//, '');
+    if (contentPath === '/' || contentPath === '') {
+      contentPath = `/org/${orgContext.slug}`;
+    } else if (sections.includes(clean)) {
+      contentPath = `/org/${orgContext.slug}/${clean}`;
+    } else if (clean.startsWith('product/') || clean.startsWith('p/')) {
+      contentPath = `/org/${orgContext.slug}/${clean}`;
+    }
+  }
+
+  const canonicalUrl = `${baseUrl}${contentPath}`;
+  const siteName = orgContext?.name || 'Siteviral';
 
   // ─── Human user → 302 redirect to SPA ───
   if (!forceBot && !isBot(userAgent)) {
@@ -316,7 +448,7 @@ Deno.serve(async (req) => {
     });
   }
 
-  // ─── Bot → serve static OG HTML (200, no redirects) ───
+  // ─── Bot → serve static OG HTML (200) ───
   let meta: MetaResult | null = null;
   try {
     meta = await resolveFromPath(contentPath);
@@ -329,7 +461,7 @@ Deno.serve(async (req) => {
   let image = meta?.image || DEFAULT_IMAGE;
   try { image = new URL(image).toString(); } catch { image = DEFAULT_IMAGE; }
 
-  return new Response(renderOgHtml(title, description, image, canonicalUrl), {
+  return new Response(renderOgHtml(title, description, image, canonicalUrl, siteName), {
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'public, max-age=300, s-maxage=600',
