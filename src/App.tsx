@@ -284,6 +284,7 @@ const App = () => (
               <ScrollToTop />
               <GDPRBanner />
               <FloatingProofToast />
+              <DomainRouter />
               
               <Suspense fallback={<PageLoader />}>
               <Routes>
