@@ -59,8 +59,7 @@ export default function LandingPage() {
         <LandingHowItWorks />
         {/* 2. Preuves sociales — résultats réels */}
         <LandingResultsShowcase />
-        {/* 3. Stats en temps réel — crédibilité */}
-        <LandingLiveStats />
+        {/* Stats supprimées — les preuves sociales suffisent */}
         {/* 4. Programme ambassadeur — gagner en partageant */}
         <LandingAmbassadorLoop />
         {/* 5. Mobile Money — confiance paiement */}
