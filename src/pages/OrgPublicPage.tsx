@@ -177,7 +177,7 @@ export default function OrgPublicPage() {
   return (
     <div className="min-h-screen bg-background" style={themeStyle}>
       <PixelInjector facebookPixelId={fbPixel} tiktokPixelId={ttPixel} googleTagId={gTagId} />
-      {isOnOrgDomain && <DynamicFavicon logoUrl={org.logo_url} orgName={org.name} />}
+      {isOnOrgDomain && <DynamicFavicon logoUrl={org.logo_url} orgName={org.name} orgDescription={org.description || undefined} />}
       <SEOHead
         title={isOnOrgDomain ? org.name : `${org.name} — Plateforme digitale sur Siteviral`}
         description={org.description || `Découvrez ${org.name} sur Siteviral : produits numériques, formations, événements et plus. Achetez ou devenez ambassadeur.`}

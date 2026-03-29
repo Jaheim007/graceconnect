@@ -753,6 +753,59 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
 }
 
 // ═══════════════════════════════════════
+// Resolve org's primary custom domain
+// ═══════════════════════════════════════
+async function resolveOrgDomain(
+  supabaseAdmin: ReturnType<typeof createClient>,
+  organizationId: string,
+): Promise<{ baseUrl: string; orgName: string } | null> {
+  try {
+    // Get primary domain for the org
+    const { data: domainRow } = await supabaseAdmin
+      .from('org_domains')
+      .select('domain, organizations(name, slug)')
+      .eq('organization_id', organizationId)
+      .eq('is_primary', true)
+      .eq('is_verified', true)
+      .limit(1)
+      .maybeSingle();
+
+    if (domainRow?.domain) {
+      const orgName = (domainRow as any).organizations?.name || 'Siteviral';
+      return { baseUrl: `https://${domainRow.domain}`, orgName };
+    }
+
+    // Fallback: get org slug for siteviral.com/org/slug
+    const { data: org } = await supabaseAdmin
+      .from('organizations')
+      .select('name, slug')
+      .eq('id', organizationId)
+      .single();
+
+    if (org) {
+      return { baseUrl: `https://siteviral.com/org/${org.slug}`, orgName: org.name };
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
+/**
+ * Replace hardcoded siteviral.com/org/... URLs in email HTML with the org's base URL.
+ * Only replaces org-specific paths (not platform paths like /terms, /privacy).
+ */
+function rewriteOrgLinks(html: string, orgSlug: string, orgBaseUrl: string): string {
+  // Replace siteviral.com/org/{slug}/... → orgBaseUrl/...
+  const orgPathPattern = new RegExp(`https://siteviral\\.com/org/${orgSlug}(/[^"'<\\s]*)`, 'g');
+  html = html.replace(orgPathPattern, `${orgBaseUrl}$1`);
+
+  // Replace siteviral.com/org/{slug}" → orgBaseUrl"
+  const orgPathExact = new RegExp(`https://siteviral\\.com/org/${orgSlug}(["'<\\s])`, 'g');
+  html = html.replace(orgPathExact, `${orgBaseUrl}$1`);
+
+  return html;
+}
+
+// ═══════════════════════════════════════
 // Resolve user's preferred language from email
 // ═══════════════════════════════════════
 async function resolveUserLang(
@@ -836,6 +889,20 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ ok: false, error: 'No recipients' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
+    // Resolve org domain for link rewriting and sender branding
+    let orgDomainInfo: { baseUrl: string; orgName: string } | null = null;
+    let orgSlug = '';
+    if (organization_id) {
+      orgDomainInfo = await resolveOrgDomain(supabaseAdmin, organization_id);
+      // Also fetch slug for link rewriting
+      const { data: orgData } = await supabaseAdmin
+        .from('organizations')
+        .select('slug')
+        .eq('id', organization_id)
+        .single();
+      orgSlug = orgData?.slug || '';
+    }
+
     let lastResult: any = {};
     let allOk = true;
     for (const recipient of recipients) {
@@ -852,11 +919,20 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: 'Unknown template' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
+      // Rewrite org-specific links to use custom domain
+      if (orgDomainInfo && orgSlug && !orgDomainInfo.baseUrl.includes('siteviral.com/org/')) {
+        tpl.html = rewriteOrgLinks(tpl.html, orgSlug, orgDomainInfo.baseUrl);
+      }
+
+      // Use org name as sender name for org-related emails
+      const senderName = orgDomainInfo?.orgName || 'Siteviral';
+      const fromAddress = tpl.fromOverride || `${senderName} <noreply@siteviral.com>`;
+
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: tpl.fromOverride || 'Siteviral <noreply@siteviral.com>',
+          from: fromAddress,
           to: [recipient],
           subject: tpl.subject,
           html: tpl.html,
@@ -874,7 +950,7 @@ Deno.serve(async (req) => {
         resend_message_id: result.id || null,
         error_message: res.ok ? null : (result.message || 'Unknown error'),
         organization_id: organization_id || null,
-        metadata: { ...data, _lang: lang },
+        metadata: { ...data, _lang: lang, _org_domain: orgDomainInfo?.baseUrl || null },
       });
     }
 
