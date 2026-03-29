@@ -177,11 +177,12 @@ export default function OrgPublicPage() {
   return (
     <div className="min-h-screen bg-background" style={themeStyle}>
       <PixelInjector facebookPixelId={fbPixel} tiktokPixelId={ttPixel} googleTagId={gTagId} />
+      {isOnOrgDomain && <DynamicFavicon logoUrl={org.logo_url} orgName={org.name} />}
       <SEOHead
-        title={`${org.name} — Plateforme digitale sur Siteviral`}
+        title={isOnOrgDomain ? org.name : `${org.name} — Plateforme digitale sur Siteviral`}
         description={org.description || `Découvrez ${org.name} sur Siteviral : produits numériques, formations, événements et plus. Achetez ou devenez ambassadeur.`}
         ogImage={org.banner_url || org.logo_url}
-        canonicalUrl={`https://siteviral.com/org/${slug}`}
+        canonicalUrl={orgCanonical}
         keywords={`${org.name}, plateforme digitale, produits numériques, ${org.category === 'church' ? 'église en ligne' : org.category === 'ngo' ? 'ONG' : 'créateur'}, Siteviral`}
         jsonLd={[
           {
@@ -189,24 +190,28 @@ export default function OrgPublicPage() {
             '@type': 'Organization',
             name: org.name,
             description: org.description,
-            url: `https://siteviral.com/org/${slug}`,
+            url: orgCanonical,
             image: org.logo_url,
             ...(org.website ? { sameAs: [org.website] } : {}),
-            memberOf: { '@type': 'WebSite', name: 'Siteviral', url: 'https://siteviral.com' },
+            ...(isOnOrgDomain ? {} : { memberOf: { '@type': 'WebSite', name: 'Siteviral', url: 'https://siteviral.com' } }),
             potentialAction: {
               '@type': 'ViewAction',
-              target: `https://siteviral.com/org/${slug}/store`,
+              target: isOnOrgDomain ? `${orgBaseUrl}/store` : `https://siteviral.com/org/${slug}/store`,
               name: locale === 'fr' ? 'Voir la boutique' : 'View store',
             },
           },
           {
             '@context': 'https://schema.org',
             '@type': 'BreadcrumbList',
-            itemListElement: [
-              { '@type': 'ListItem', position: 1, name: 'Siteviral', item: 'https://siteviral.com' },
-              { '@type': 'ListItem', position: 2, name: 'Explorer', item: 'https://siteviral.com/discover' },
-              { '@type': 'ListItem', position: 3, name: org.name, item: `https://siteviral.com/org/${slug}` },
-            ],
+            itemListElement: isOnOrgDomain
+              ? [
+                  { '@type': 'ListItem', position: 1, name: org.name, item: orgCanonical },
+                ]
+              : [
+                  { '@type': 'ListItem', position: 1, name: 'Siteviral', item: 'https://siteviral.com' },
+                  { '@type': 'ListItem', position: 2, name: 'Explorer', item: 'https://siteviral.com/discover' },
+                  { '@type': 'ListItem', position: 3, name: org.name, item: `https://siteviral.com/org/${slug}` },
+                ],
           },
         ]}
       />
