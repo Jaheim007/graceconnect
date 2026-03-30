@@ -2,7 +2,10 @@ import { Button } from '@/components/ui/button';
 import { DashboardSection } from '@/components/ui/DashboardSection';
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { formatCurrency } from '@/lib/currency';
-import { ArrowRight, Wallet } from 'lucide-react';
+import { ArrowRight, Wallet, Lock } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+
+const MIN_PAYOUT_XOF = 10000;
 
 export interface AmbassadorPayoutEntry {
   orgId: string;
@@ -58,42 +61,59 @@ export function AmbassadorPayoutBreakdown({
       )}
 
       <div className="space-y-2">
-        {entries.map((entry) => (
-          <PremiumCard key={entry.orgId} variant="default" noPadding className="p-3">
-            <div className="flex items-center gap-3">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{entry.orgName}</p>
-                <p className="text-xs text-muted-foreground">
-                  {formatCurrency(entry.amount, entry.currency, locale)}
-                  {' · '}
-                  {entry.salesCount}{' '}
-                  {isFr
-                    ? entry.salesCount > 1
-                      ? 'commissions prêtes'
-                      : 'commission prête'
-                    : entry.salesCount > 1
-                      ? 'commissions ready'
-                      : 'commission ready'}
-                </p>
-              </div>
+        {entries.map((entry) => {
+          const minThreshold = MIN_PAYOUT_XOF; // TODO: convert if currency !== XOF
+          const belowMin = entry.amount < minThreshold;
+          const progressPct = Math.min(100, Math.round((entry.amount / minThreshold) * 100));
 
-              <Button
-                size="sm"
-                className="h-8 text-xs"
-                disabled={requestingPayout === entry.orgId}
-                onClick={() => onRequestPayout(entry.orgId)}
-              >
-                {requestingPayout === entry.orgId
-                  ? isFr
-                    ? 'Envoi…'
-                    : 'Sending…'
-                  : isFr
-                    ? 'Retirer'
-                    : 'Withdraw'}
-              </Button>
-            </div>
-          </PremiumCard>
-        ))}
+          return (
+            <PremiumCard key={entry.orgId} variant="default" noPadding className="p-3">
+              <div className="flex items-center gap-3">
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <p className="text-sm font-semibold truncate">{entry.orgName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatCurrency(entry.amount, entry.currency, locale)}
+                    {' · '}
+                    {entry.salesCount}{' '}
+                    {isFr
+                      ? entry.salesCount > 1
+                        ? 'commissions prêtes'
+                        : 'commission prête'
+                      : entry.salesCount > 1
+                        ? 'commissions ready'
+                        : 'commission ready'}
+                  </p>
+                  {belowMin && (
+                    <div className="space-y-1">
+                      <Progress value={progressPct} className="h-1.5" />
+                      <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                        <Lock className="h-3 w-3" />
+                        {isFr
+                          ? `Min. ${minThreshold.toLocaleString('fr-FR')} ${entry.currency} · ${progressPct}%`
+                          : `Min. ${minThreshold.toLocaleString('en')} ${entry.currency} · ${progressPct}%`}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <Button
+                  size="sm"
+                  className="h-8 text-xs"
+                  disabled={requestingPayout === entry.orgId || belowMin}
+                  onClick={() => onRequestPayout(entry.orgId)}
+                >
+                  {requestingPayout === entry.orgId
+                    ? isFr
+                      ? 'Envoi…'
+                      : 'Sending…'
+                    : isFr
+                      ? 'Retirer'
+                      : 'Withdraw'}
+                </Button>
+              </div>
+            </PremiumCard>
+          );
+        })}
       </div>
 
       {hasMultipleOrganizations && (

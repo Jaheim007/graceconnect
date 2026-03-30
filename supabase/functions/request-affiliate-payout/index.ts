@@ -101,6 +101,28 @@ Deno.serve(async (req) => {
     const currency = org?.currency || 'XOF';
     const saleIds = payableSales.map((s: { id: string }) => s.id);
 
+    // ── Minimum payout threshold: 10 000 XOF (or equivalent) ──
+    const MIN_PAYOUT_XOF = 10000;
+    let minThreshold = MIN_PAYOUT_XOF;
+    if (currency !== 'XOF') {
+      const { data: rate } = await db.from('exchange_rates')
+        .select('rate')
+        .eq('base_currency', 'XOF')
+        .eq('target_currency', currency)
+        .maybeSingle();
+      if (rate?.rate) {
+        minThreshold = Math.round(MIN_PAYOUT_XOF * rate.rate);
+      }
+    }
+    if (totalAmount < minThreshold) {
+      return new Response(JSON.stringify({
+        ok: false,
+        message: `Minimum withdrawal is ${minThreshold.toLocaleString('fr-FR')} ${currency}. Current balance: ${totalAmount.toLocaleString('fr-FR')} ${currency}.`,
+        min_threshold: minThreshold,
+        current_balance: totalAmount,
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     // Create payout request first so commissions are never lost if the insert fails
     const { data: payoutReq, error: payoutReqError } = await db.from('payout_requests').insert({
       organization_id,

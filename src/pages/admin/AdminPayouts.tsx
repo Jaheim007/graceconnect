@@ -46,7 +46,7 @@ export default function AdminPayouts() {
   const dateFnsLocale = locale === 'fr' ? fr : enUS;
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
 
-  const MIN_WITHDRAWAL = 1000;
+  const MIN_WITHDRAWAL = 10000;
   const kycApproved = currentOrg?.kyc_status === 'level1' || currentOrg?.kyc_status === 'level2';
 
   const withdrawMutation = useMutation({
