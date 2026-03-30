@@ -173,10 +173,11 @@ export default function ManualPayoutsDashboard() {
         }).eq('id', selectedPayout.source_request_id);
       }
 
+      // Email 2: Notify user that payout has been completed/sent
       if (selectedPayout.organization_id) {
-        const { onPayoutApproved } = await import('@/lib/notifications');
+        const { onPayoutCompleted } = await import('@/lib/notifications');
         const { data: org } = await db.from('organizations').select('name').eq('id', selectedPayout.organization_id).maybeSingle();
-        onPayoutApproved(selectedPayout.organization_id, org?.name || '', selectedPayout.amount, selectedPayout.currency || 'XOF');
+        onPayoutCompleted(selectedPayout.organization_id, org?.name || '', selectedPayout.amount, selectedPayout.currency || 'XOF');
       }
 
       toast.success('Payout marqué comme effectué ✅');

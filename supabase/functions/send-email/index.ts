@@ -353,6 +353,16 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
         ? { subject: `✅ Retrait approuvé – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">✅ Retrait Approuvé</h1><p>Votre retrait de <strong>${d.amount} ${d.currency}</strong> pour <strong>${d.org_name}</strong> a été approuvé et est en cours de traitement.</p>`, lang) }
         : { subject: `✅ Withdrawal approved – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">✅ Withdrawal Approved</h1><p>Your withdrawal of <strong>${d.amount} ${d.currency}</strong> for <strong>${d.org_name}</strong> has been approved and is being processed.</p>`, lang) };
 
+    case 'payout_processing':
+      return isFr
+        ? { subject: `⏳ Retrait en cours de traitement – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${blue}">⏳ Retrait En Cours</h1><p>Bonne nouvelle ! Votre demande de retrait de <strong>${d.amount} ${d.currency}</strong> pour <strong>${d.org_name}</strong> a été approuvée et est <strong>en cours de traitement</strong>.</p><p>Le transfert sera effectué dans les prochaines heures. Vous recevrez un email de confirmation une fois le paiement envoyé.</p>`, lang) }
+        : { subject: `⏳ Withdrawal being processed – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${blue}">⏳ Withdrawal In Progress</h1><p>Good news! Your withdrawal request of <strong>${d.amount} ${d.currency}</strong> for <strong>${d.org_name}</strong> has been approved and is <strong>being processed</strong>.</p><p>The transfer will be completed within the next few hours. You will receive a confirmation email once the payment is sent.</p>`, lang) };
+
+    case 'payout_completed':
+      return isFr
+        ? { subject: `✅ Retrait effectué – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">✅ Paiement Envoyé</h1><p>Votre retrait de <strong>${d.amount} ${d.currency}</strong> pour <strong>${d.org_name}</strong> a été <strong>effectué avec succès</strong>.</p><p>Le montant a été envoyé sur votre compte. Veuillez vérifier la réception dans les prochaines minutes.</p><p>Merci pour votre confiance !</p>`, lang) }
+        : { subject: `✅ Withdrawal completed – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">✅ Payment Sent</h1><p>Your withdrawal of <strong>${d.amount} ${d.currency}</strong> for <strong>${d.org_name}</strong> has been <strong>successfully completed</strong>.</p><p>The amount has been sent to your account. Please check for receipt within the next few minutes.</p><p>Thank you for your trust!</p>`, lang) };
+
     case 'payout_rejected':
       return isFr
         ? { subject: `Retrait refusé – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Retrait Refusé</h1><p>Votre demande de retrait pour <strong>${d.org_name}</strong> a été refusée.</p><p>Raison : ${d.reason || 'Veuillez contacter le support.'}</p>`, lang) }

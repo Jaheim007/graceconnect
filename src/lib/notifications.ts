@@ -826,6 +826,16 @@ export async function onPayoutApproved(orgId: string, orgName: string, amount: n
   notifyOrgOwnerOnly(orgId, '✅ Retrait approuvé', `Le retrait de ${amount} ${currency} pour ${orgName} a été approuvé.`, 'transaction');
 }
 
+export async function onPayoutProcessing(orgId: string, orgName: string, amount: number, currency: string) {
+  emailOrgOwnerOnly('payout_processing', orgId, { org_name: orgName, amount, currency });
+  notifyOrgOwnerOnly(orgId, '⏳ Retrait en cours', `Votre retrait de ${amount} ${currency} pour ${orgName} est en cours de traitement.`, 'transaction');
+}
+
+export async function onPayoutCompleted(orgId: string, orgName: string, amount: number, currency: string) {
+  emailOrgOwnerOnly('payout_completed', orgId, { org_name: orgName, amount, currency });
+  notifyOrgOwnerOnly(orgId, '✅ Paiement envoyé', `Votre retrait de ${amount} ${currency} pour ${orgName} a été effectué avec succès.`, 'transaction');
+}
+
 export async function onPayoutRejected(orgId: string, orgName: string, reason: string) {
   emailOrgOwnerOnly('payout_rejected', orgId, { org_name: orgName, reason });
   notifyOrgOwnerOnly(orgId, '❌ Retrait rejeté', `Le retrait pour ${orgName} a été rejeté. Raison: ${reason}`, 'transaction');
