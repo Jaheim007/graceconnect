@@ -1,7 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShoppingBag, Trophy, Share2, Sparkles, MessageCircle } from 'lucide-react';
+import { ShoppingBag, Trophy, Share2, MessageCircle } from 'lucide-react';
 import { SwipeableFeed } from './SwipeableFeed';
-import { AmbassadorLeaderboard } from './AmbassadorLeaderboard';
 import { EarningsShareSection } from './EarningsShareSection';
 import { LiveEarningsCounter } from './LiveEarningsCounter';
 import { useAuth } from '@/contexts/AuthContext';
