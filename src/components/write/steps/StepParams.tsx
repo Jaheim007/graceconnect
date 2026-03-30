@@ -567,9 +567,9 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
         <Button
           size="lg"
           className="flex-1 h-14 text-base gap-2"
-          disabled={!(state.title || suggestedTitle).trim()}
+          disabled={!(state.title ?? suggestedTitle).trim()}
           onClick={() => {
-            if (!state.title && suggestedTitle) update({ title: suggestedTitle });
+            if ((state.title === undefined || state.title === null) && suggestedTitle) update({ title: suggestedTitle });
             onNext();
           }}
         >
