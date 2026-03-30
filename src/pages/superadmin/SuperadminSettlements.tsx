@@ -234,14 +234,17 @@ export default function SuperadminSettlements() {
             )}
           </div>
 
-          <Button
-            onClick={handleRelease}
-            disabled={releasing}
-            className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white border-0 shadow-lg shadow-emerald-500/25 gap-2"
-          >
-            {releasing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-            Release Eligible
-          </Button>
+          <div className="flex flex-col items-start md:items-end gap-1.5">
+            <Button
+              onClick={handleRelease}
+              disabled={releasing}
+              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white border-0 shadow-lg shadow-emerald-500/25 gap-2"
+            >
+              {releasing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              Release 72h-held funds
+            </Button>
+            <p className="text-[10px] text-white/60">Ne traite pas les demandes manuelles de payout</p>
+          </div>
         </div>
       </div>
 

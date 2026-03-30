@@ -60,27 +60,41 @@ export default function ManualPayoutsDashboard() {
   const { data: pendingRequests = [], isLoading: loadingRequests } = useQuery({
     queryKey: ['sa-payout-requests-pending'],
     queryFn: async () => {
-      const { data } = await db
+      const { data: requests, error: requestsError } = await db
         .from('payout_requests')
-        .select('*, organizations(name, kyc_status, slug)')
+        .select('*')
         .in('status', ['pending', 'requested'])
         .order('requested_at', { ascending: true });
-      if (!data?.length) return [];
 
-      const enriched = await Promise.all(data.map(async (req: any) => {
-        const [{ data: profile }, { data: kyc }] = await Promise.all([
-          db.from('profiles').select('display_name, avatar_url').eq('id', req.user_id).maybeSingle(),
-          db.from('kyc_submissions')
-            .select('id_document_type, verification_type, payout_method, payout_phone, payout_provider, bank_account_name, bank_account_number, bank_name, kyc_level, status, submitted_at')
-            .eq('organization_id', req.organization_id)
-            .in('status', approvedKycStatuses)
-            .order('submitted_at', { ascending: false })
-            .limit(1)
-            .maybeSingle(),
-        ]);
-        return { ...req, profile, kyc };
+      if (requestsError) throw requestsError;
+      if (!requests?.length) return [];
+
+      const orgIds = [...new Set(requests.map((req: any) => req.organization_id).filter(Boolean))];
+      const userIds = [...new Set(requests.map((req: any) => req.user_id).filter(Boolean))];
+
+      const [{ data: orgs }, { data: profiles }, { data: kycSubmissions }] = await Promise.all([
+        db.from('organizations').select('id, name, slug, kyc_status, currency').in('id', orgIds),
+        db.from('profiles').select('id, display_name, avatar_url').in('id', userIds),
+        db.from('kyc_submissions')
+          .select('organization_id, id_document_type, verification_type, payout_method, payout_phone, payout_provider, bank_account_name, bank_account_number, bank_name, kyc_level, status, submitted_at')
+          .in('organization_id', orgIds)
+          .in('status', approvedKycStatuses)
+          .order('submitted_at', { ascending: false }),
+      ]);
+
+      const orgById = new Map((orgs || []).map((org: any) => [org.id, org]));
+      const profileById = new Map((profiles || []).map((profile: any) => [profile.id, profile]));
+      const kycByOrg = new Map<string, any>();
+      for (const kyc of kycSubmissions || []) {
+        if (!kycByOrg.has(kyc.organization_id)) kycByOrg.set(kyc.organization_id, kyc);
+      }
+
+      return requests.map((req: any) => ({
+        ...req,
+        organization: orgById.get(req.organization_id) || null,
+        profile: profileById.get(req.user_id) || null,
+        kyc: kycByOrg.get(req.organization_id) || null,
       }));
-      return enriched;
     },
   });
 
@@ -102,7 +116,7 @@ export default function ManualPayoutsDashboard() {
     const recipientMethod = kyc?.payout_method || 'mobile_money';
     const recipientAccount = kyc?.payout_phone || kyc?.bank_account_number || 'N/A';
     const recipientProvider = kyc?.payout_provider || kyc?.bank_name || 'N/A';
-    const recipientName = kyc?.bank_account_name || request.organizations?.name || 'N/A';
+    const recipientName = kyc?.bank_account_name || request.organization?.name || 'N/A';
 
     const { error } = await db.from('manual_payouts').insert({
       user_id: request.user_id,
@@ -267,7 +281,7 @@ export default function ManualPayoutsDashboard() {
                     <div>
                       <p className="font-medium text-sm flex items-center gap-1.5">
                         <Building className="h-3.5 w-3.5 text-muted-foreground" />
-                        {req.organizations?.name || 'Organisation'}
+                        {req.organization?.name || 'Organisation'}
                       </p>
                       {req.profile?.display_name && (
                         <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
@@ -278,10 +292,10 @@ export default function ManualPayoutsDashboard() {
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <Badge variant="outline" className="text-[10px]">{req.payout_type}</Badge>
                         <Badge
-                          variant={req.organizations?.kyc_status === 'level1' || req.organizations?.kyc_status === 'level2' ? 'default' : 'destructive'}
+                          variant={req.organization?.kyc_status === 'level1' || req.organization?.kyc_status === 'level2' ? 'default' : 'destructive'}
                           className="text-[10px]"
                         >
-                          KYC: {req.organizations?.kyc_status || 'none'}
+                          KYC: {req.organization?.kyc_status || 'none'}
                         </Badge>
                         {req.requested_at && (
                           <span className="text-[10px] text-muted-foreground">
@@ -294,7 +308,7 @@ export default function ManualPayoutsDashboard() {
                       size="sm"
                       onClick={() => handleCreateManualPayout(req)}
                       disabled={
-                        (req.organizations?.kyc_status !== 'level1' && req.organizations?.kyc_status !== 'level2') ||
+                        (req.organization?.kyc_status !== 'level1' && req.organization?.kyc_status !== 'level2') ||
                         !hasPayoutDestination(req.kyc)
                       }
                     >
