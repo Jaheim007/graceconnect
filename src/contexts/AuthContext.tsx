@@ -226,7 +226,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async (returnTo?: string) => {
-    const isCustomDomain = !window.location.hostname.includes('lovable.app') && !window.location.hostname.includes('lovableproject.com');
+    const hostname = window.location.hostname;
+    const isCustomDomain = !hostname.includes('lovable.app') && !hostname.includes('lovableproject.com');
+
+    // Store origin domain so callback can redirect back
+    if (isCustomDomain && hostname !== 'siteviral.com' && hostname !== 'www.siteviral.com') {
+      try { sessionStorage.setItem('sv_auth_origin_domain', window.location.origin); } catch {}
+    }
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -244,7 +250,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInWithFacebook = async (returnTo?: string) => {
-    const isCustomDomain = !window.location.hostname.includes('lovable.app') && !window.location.hostname.includes('lovableproject.com');
+    const hostname = window.location.hostname;
+    const isCustomDomain = !hostname.includes('lovable.app') && !hostname.includes('lovableproject.com');
+
+    if (isCustomDomain && hostname !== 'siteviral.com' && hostname !== 'www.siteviral.com') {
+      try { sessionStorage.setItem('sv_auth_origin_domain', window.location.origin); } catch {}
+    }
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
@@ -262,7 +273,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInWithLinkedin = async (returnTo?: string) => {
-    const isCustomDomain = !window.location.hostname.includes('lovable.app') && !window.location.hostname.includes('lovableproject.com');
+    const hostname = window.location.hostname;
+    const isCustomDomain = !hostname.includes('lovable.app') && !hostname.includes('lovableproject.com');
+
+    if (isCustomDomain && hostname !== 'siteviral.com' && hostname !== 'www.siteviral.com') {
+      try { sessionStorage.setItem('sv_auth_origin_domain', window.location.origin); } catch {}
+    }
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'linkedin_oidc',
