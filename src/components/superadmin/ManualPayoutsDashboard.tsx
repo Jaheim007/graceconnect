@@ -60,27 +60,41 @@ export default function ManualPayoutsDashboard() {
   const { data: pendingRequests = [], isLoading: loadingRequests } = useQuery({
     queryKey: ['sa-payout-requests-pending'],
     queryFn: async () => {
-      const { data } = await db
+      const { data: requests, error: requestsError } = await db
         .from('payout_requests')
-        .select('*, organizations(name, kyc_status, slug)')
+        .select('*')
         .in('status', ['pending', 'requested'])
         .order('requested_at', { ascending: true });
-      if (!data?.length) return [];
 
-      const enriched = await Promise.all(data.map(async (req: any) => {
-        const [{ data: profile }, { data: kyc }] = await Promise.all([
-          db.from('profiles').select('display_name, avatar_url').eq('id', req.user_id).maybeSingle(),
-          db.from('kyc_submissions')
-            .select('id_document_type, verification_type, payout_method, payout_phone, payout_provider, bank_account_name, bank_account_number, bank_name, kyc_level, status, submitted_at')
-            .eq('organization_id', req.organization_id)
-            .in('status', approvedKycStatuses)
-            .order('submitted_at', { ascending: false })
-            .limit(1)
-            .maybeSingle(),
-        ]);
-        return { ...req, profile, kyc };
+      if (requestsError) throw requestsError;
+      if (!requests?.length) return [];
+
+      const orgIds = [...new Set(requests.map((req: any) => req.organization_id).filter(Boolean))];
+      const userIds = [...new Set(requests.map((req: any) => req.user_id).filter(Boolean))];
+
+      const [{ data: orgs }, { data: profiles }, { data: kycSubmissions }] = await Promise.all([
+        db.from('organizations').select('id, name, slug, kyc_status, currency').in('id', orgIds),
+        db.from('profiles').select('id, display_name, avatar_url').in('id', userIds),
+        db.from('kyc_submissions')
+          .select('organization_id, id_document_type, verification_type, payout_method, payout_phone, payout_provider, bank_account_name, bank_account_number, bank_name, kyc_level, status, submitted_at')
+          .in('organization_id', orgIds)
+          .in('status', approvedKycStatuses)
+          .order('submitted_at', { ascending: false }),
+      ]);
+
+      const orgById = new Map((orgs || []).map((org: any) => [org.id, org]));
+      const profileById = new Map((profiles || []).map((profile: any) => [profile.id, profile]));
+      const kycByOrg = new Map<string, any>();
+      for (const kyc of kycSubmissions || []) {
+        if (!kycByOrg.has(kyc.organization_id)) kycByOrg.set(kyc.organization_id, kyc);
+      }
+
+      return requests.map((req: any) => ({
+        ...req,
+        organization: orgById.get(req.organization_id) || null,
+        profile: profileById.get(req.user_id) || null,
+        kyc: kycByOrg.get(req.organization_id) || null,
       }));
-      return enriched;
     },
   });
 
