@@ -69,27 +69,46 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Inactive users J7+ reactivation
+    // Inactive users J7+ reactivation — uses client_events for accurate activity detection
     const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    const sixtyDaysAgo = new Date(Date.now() - 60 * 86400000).toISOString();
     const { data: inactiveUsers } = await db
       .from("profiles")
       .select("id, full_name")
       .lt("updated_at", sevenDaysAgo)
-      .gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString())
-      .limit(50);
+      .gte("created_at", sixtyDaysAgo)
+      .limit(100);
 
+    let reactivatedCount = 0;
     if (inactiveUsers && inactiveUsers.length > 0) {
-      const notifs = inactiveUsers.map((u: any) => ({
-        user_id: u.id,
-        title: "👋 Tu nous manques !",
-        body: "Ça fait plus d'une semaine que tu n'as pas visité SiteViral. Reviens voir les nouveaux produits et opportunités qui t'attendent !",
-        notification_type: "reactivation",
-        action_url: "/",
-      }));
-      await db.from("user_notifications").insert(notifs);
-      totalNotifs += notifs.length;
-      growthResults.inactive_users_reactivated = notifs.length;
-      allActions.push(`growth: ${notifs.length} inactive user reactivation notifications sent`);
+      for (const u of inactiveUsers) {
+        // Verify truly inactive via client_events
+        const { count: recentEvents } = await db.from("client_events")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", u.id)
+          .gte("created_at", sevenDaysAgo);
+        if ((recentEvents || 0) > 0) continue; // Not truly inactive
+
+        // Dedup: check if already notified in last 14 days
+        const { count: recentNotif } = await db.from("user_notifications")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", u.id)
+          .eq("notification_type", "reactivation")
+          .gte("created_at", new Date(Date.now() - 14 * 86400000).toISOString());
+        if ((recentNotif || 0) > 0) continue;
+
+        await db.from("user_notifications").insert({
+          user_id: u.id,
+          title: "👋 Tu nous manques !",
+          body: "Ça fait plus d'une semaine que tu n'as pas visité SiteViral. Crée ton premier livre en 5 minutes avec l'IA ou gagne de l'argent en partageant des produits !",
+          notification_type: "reactivation",
+          action_url: "/ecrire",
+        });
+        reactivatedCount++;
+      }
+      growthResults.inactive_users_reactivated = reactivatedCount;
+      totalNotifs += reactivatedCount;
+      allActions.push(`growth: ${reactivatedCount} inactive user reactivation notifications sent`);
     }
 
     // Stuck users (registered but no first_action)
