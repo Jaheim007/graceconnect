@@ -222,8 +222,9 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
           </Button>
         </div>
         <Input
-          value={state.title || suggestedTitle}
+          value={state.title !== undefined && state.title !== null ? state.title : suggestedTitle}
           onChange={e => update({ title: e.target.value })}
+          onFocus={() => { if (state.title === undefined || state.title === null) update({ title: suggestedTitle }); }}
           placeholder={t('write.title_placeholder')}
           className="h-12 text-base"
         />
