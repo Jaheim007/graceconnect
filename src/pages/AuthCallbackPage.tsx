@@ -26,6 +26,18 @@ export default function AuthCallbackPage() {
         sessionStorage.removeItem('sv_auth_intent');
       }
 
+      // Check if user came from a custom domain/subdomain and redirect back
+      const originDomain = sessionStorage.getItem('sv_auth_origin_domain');
+      if (originDomain) {
+        sessionStorage.removeItem('sv_auth_origin_domain');
+        const savedReturnTo = sessionStorage.getItem('sv_auth_returnTo');
+        sessionStorage.removeItem('sv_auth_returnTo');
+        // Redirect back to their domain — session will sync via shared Supabase auth
+        const returnPath = savedReturnTo || '/dashboard';
+        window.location.replace(`${originDomain}${returnPath}`);
+        return;
+      }
+
       const savedReturnTo = sessionStorage.getItem('sv_auth_returnTo');
       if (savedReturnTo) {
         sessionStorage.removeItem('sv_auth_returnTo');
