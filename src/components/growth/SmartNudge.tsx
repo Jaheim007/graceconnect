@@ -74,6 +74,13 @@ export function SmartNudge() {
         text: t('nudge.ambassador'), cta: t('nudge.ambassador_cta'), action: () => navigate('/gagner'),
       });
     }
+    // Buyer with purchases but no org → push to create content with AI Studio
+    if (state.hasPurchases && !state.hasOrg) {
+      all.push({
+        id: 'buyer-to-creator', emoji: '✨', priority: 2, bg: 'bg-violet-500/5 border-violet-500/20',
+        text: t('nudge.buyer_creator'), cta: t('nudge.buyer_creator_cta'), action: () => navigate('/ecrire'),
+      });
+    }
     if (state.hasOrg && !state.hasProducts) {
       all.push({
         id: 'publish', emoji: '🚀', priority: 2, bg: 'bg-amber-500/5 border-amber-500/20',

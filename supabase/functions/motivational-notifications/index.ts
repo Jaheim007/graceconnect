@@ -254,6 +254,179 @@ Deno.serve(async (req) => {
     results['first_sale'] = firstSaleCount;
 
     // ═══════════════════════════════════════════
+    // 6b. FIRST COMMISSION EARNED (in-app notification)
+    // ═══════════════════════════════════════════
+    let firstCommissionNotifs = 0;
+    {
+      const { data: recentCommissions } = await db.from('affiliate_sales')
+        .select('id, affiliate_user_id, commission_amount, organization_id, organizations(name, currency)')
+        .gte('created_at', oneDayAgo)
+        .limit(100);
+
+      // Group by user, find those with their very first commission
+      const userFirstCommissions = new Map<string, { amount: number; currency: string; orgName: string }>();
+      for (const sale of recentCommissions || []) {
+        if (userFirstCommissions.has(sale.affiliate_user_id)) continue;
+        // Check if this is truly their first ever commission
+        const { count: totalSales } = await db.from('affiliate_sales')
+          .select('id', { count: 'exact', head: true })
+          .eq('affiliate_user_id', sale.affiliate_user_id);
+        if ((totalSales || 0) <= 1) {
+          const org = (sale as any).organizations;
+          userFirstCommissions.set(sale.affiliate_user_id, {
+            amount: sale.commission_amount,
+            currency: org?.currency || 'XOF',
+            orgName: org?.name || '',
+          });
+        }
+      }
+
+      for (const [userId, data] of userFirstCommissions) {
+        // Dedup
+        const { count: alreadyNotified } = await db.from('user_notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('notification_type', 'first_commission');
+        if ((alreadyNotified || 0) > 0) continue;
+
+        await db.from('user_notifications').insert({
+          user_id: userId,
+          title: `🎉 Première commission gagnée !`,
+          body: `Félicitations ! Tu viens de gagner ${data.amount.toLocaleString('fr-FR')} ${data.currency} en commission via ${data.orgName}. Continue de partager pour gagner plus ! 🔥`,
+          notification_type: 'first_commission',
+          action_url: '/gagner',
+        });
+        firstCommissionNotifs++;
+      }
+    }
+    results['first_commission'] = firstCommissionNotifs;
+
+    // ═══════════════════════════════════════════
+    // 6c. BUYER → CREATOR NUDGE (in-app for buyers with 3+ purchases)
+    // ═══════════════════════════════════════════
+    let buyerCreatorNotifs = 0;
+    {
+      // Find users who have 3+ purchases but no organization
+      const { data: frequentBuyers } = await db.rpc('get_frequent_buyers_without_org' as any).catch(() => ({ data: null }));
+      
+      // Fallback: manual query
+      if (!frequentBuyers) {
+        const { data: allPurchases } = await db.from('product_purchases')
+          .select('user_id')
+          .eq('status', 'completed')
+          .limit(500);
+        
+        // Count per user
+        const buyerCounts = new Map<string, number>();
+        for (const p of allPurchases || []) {
+          if (!p.user_id) continue;
+          buyerCounts.set(p.user_id, (buyerCounts.get(p.user_id) || 0) + 1);
+        }
+        
+        // Filter: 3+ purchases
+        const frequentBuyerIds = [...buyerCounts.entries()]
+          .filter(([_, count]) => count >= 3)
+          .map(([userId]) => userId)
+          .slice(0, 30);
+
+        for (const userId of frequentBuyerIds) {
+          // Check if user has an org (is already a creator)
+          const { count: orgCount } = await db.from('organizations')
+            .select('id', { count: 'exact', head: true })
+            .eq('owner_id', userId);
+          if ((orgCount || 0) > 0) continue;
+
+          // Dedup: don't re-nudge within 30 days
+          const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
+          const { count: alreadyNudged } = await db.from('user_notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .eq('notification_type', 'buyer_to_creator_nudge')
+            .gte('created_at', thirtyDaysAgo);
+          if ((alreadyNudged || 0) > 0) continue;
+
+          const purchaseCount = buyerCounts.get(userId) || 3;
+          await db.from('user_notifications').insert({
+            user_id: userId,
+            title: '✏️ Tu lis beaucoup — et si tu écrivais ?',
+            body: `Tu as acheté ${purchaseCount} produits. Tu connais bien ce qui se vend ! Crée ton propre livre en 5 minutes avec l'IA Studio 🚀`,
+            notification_type: 'buyer_to_creator_nudge',
+            action_url: '/ecrire',
+          });
+          buyerCreatorNotifs++;
+        }
+      }
+    }
+    results['buyer_creator_nudge'] = buyerCreatorNotifs;
+
+    // ═══════════════════════════════════════════
+    // 6d. TRENDING CATEGORY NUDGE FOR BUYERS (become creators in trending categories)
+    // ═══════════════════════════════════════════
+    let trendingCreatorNudges = 0;
+    if (now.getDay() === 1) { // Monday — start of week boost
+      const weekAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
+      // Find top-selling product types this week
+      const { data: weekSales } = await db.from('product_purchases')
+        .select('product_id, digital_products(product_type)')
+        .eq('status', 'completed')
+        .gte('completed_at', weekAgo)
+        .limit(200);
+
+      const typeCounts = new Map<string, number>();
+      for (const s of weekSales || []) {
+        const pType = (s as any).digital_products?.product_type;
+        if (pType) typeCounts.set(pType, (typeCounts.get(pType) || 0) + 1);
+      }
+
+      const topType = [...typeCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+      if (topType) {
+        const typeLabels: Record<string, string> = {
+          'ebook': 'les e-books', 'course': 'les formations', 'template': 'les templates',
+          'guide': 'les guides', 'audio': 'les audios', 'video': 'les vidéos',
+        };
+        const typeLabel = typeLabels[topType[0]] || topType[0];
+
+        // Find buyers of this type who are not creators
+        const { data: typeBuyers } = await db.from('product_purchases')
+          .select('user_id, digital_products(product_type)')
+          .eq('status', 'completed')
+          .limit(200);
+
+        const eligibleBuyers = new Set<string>();
+        for (const b of typeBuyers || []) {
+          if ((b as any).digital_products?.product_type === topType[0] && b.user_id) {
+            eligibleBuyers.add(b.user_id);
+          }
+        }
+
+        for (const userId of [...eligibleBuyers].slice(0, 15)) {
+          const { count: orgCount } = await db.from('organizations')
+            .select('id', { count: 'exact', head: true })
+            .eq('owner_id', userId);
+          if ((orgCount || 0) > 0) continue;
+
+          const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
+          const { count: alreadyNudged } = await db.from('user_notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .eq('notification_type', 'trending_creator_nudge')
+            .gte('created_at', thirtyDaysAgo);
+          if ((alreadyNudged || 0) > 0) continue;
+
+          await db.from('user_notifications').insert({
+            user_id: userId,
+            title: `📈 ${typeLabel} se vendent beaucoup !`,
+            body: `Cette semaine, ${typeLabel} sont en tendance sur SiteViral. Tu lis ce type de contenu — pourquoi ne pas créer le tien avec l'IA Studio ? 🎯`,
+            notification_type: 'trending_creator_nudge',
+            action_url: '/ecrire',
+          });
+          trendingCreatorNudges++;
+        }
+      }
+    }
+    results['trending_creator_nudge'] = trendingCreatorNudges;
+
+    // ═══════════════════════════════════════════
     // 7. INACTIVE CREATOR NUDGE (7 days no login)
     // ═══════════════════════════════════════════
     let inactiveNudges = 0;
