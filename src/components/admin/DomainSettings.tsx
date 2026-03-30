@@ -207,8 +207,8 @@ export function DomainSettings() {
           <TabsContent value="custom" className="space-y-4">
             <p className="text-sm text-muted-foreground">
               {isFr
-                ? 'Connectez votre propre domaine (ex: monsite.com). Vous devrez configurer vos DNS.'
-                : 'Connect your own domain (e.g. mysite.com). You\'ll need to configure your DNS.'}
+                ? 'Connectez votre propre domaine (ex: monsite.com). Suivez les instructions ci-dessous.'
+                : 'Connect your own domain (e.g. mysite.com). Follow the instructions below.'}
             </p>
             <div className="flex gap-2">
               <Input
@@ -223,31 +223,116 @@ export function DomainSettings() {
               </Button>
             </div>
 
-            {/* DNS Instructions */}
-            <Card className="border-dashed">
-              <CardContent className="pt-4 space-y-3">
-                <p className="text-sm font-medium">{isFr ? 'Instructions DNS' : 'DNS Instructions'}</p>
-                <p className="text-xs text-muted-foreground">
-                  {isFr
-                    ? 'Ajoutez ces enregistrements DNS chez votre registrar :'
-                    : 'Add these DNS records at your registrar:'}
+            {/* Detailed DNS Instructions */}
+            <Card className="border-dashed border-primary/30">
+              <CardContent className="pt-4 space-y-4">
+                <p className="text-sm font-semibold text-primary">
+                  {isFr ? '📋 Guide de configuration DNS (étape par étape)' : '📋 DNS Setup Guide (step by step)'}
                 </p>
+
+                {/* Step 1 */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between p-2 bg-muted rounded text-xs font-mono">
-                    <span>CNAME → siteviral.com</span>
-                    <Button variant="ghost" size="sm" className="h-6 px-2" onClick={() => copyToClipboard('siteviral.com')}>
-                      <Copy className="h-3 w-3" />
-                    </Button>
-                  </div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {isFr ? 'Étape 1 — Enregistrement CNAME pour le domaine racine (@)' : 'Step 1 — CNAME record for root domain (@)'}
+                  </p>
                   <p className="text-xs text-muted-foreground">
-                    {isFr ? 'Ou un A Record pointant vers :' : 'Or an A Record pointing to:'}
+                    {isFr
+                      ? 'Chez votre registrar DNS (Cloudflare, Namecheap, OVH, GoDaddy, etc.), ajoutez :'
+                      : 'At your DNS registrar (Cloudflare, Namecheap, OVH, GoDaddy, etc.), add:'}
+                  </p>
+                  <div className="grid grid-cols-3 gap-1 text-xs">
+                    <div className="p-2 bg-muted rounded font-mono">
+                      <span className="text-muted-foreground block">{isFr ? 'Type' : 'Type'}</span>
+                      <span className="font-semibold">CNAME</span>
+                    </div>
+                    <div className="p-2 bg-muted rounded font-mono">
+                      <span className="text-muted-foreground block">{isFr ? 'Nom' : 'Name'}</span>
+                      <span className="font-semibold">@</span>
+                    </div>
+                    <div className="p-2 bg-muted rounded font-mono flex items-end justify-between">
+                      <div>
+                        <span className="text-muted-foreground block">{isFr ? 'Cible' : 'Target'}</span>
+                        <span className="font-semibold">siteviral.com</span>
+                      </div>
+                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => copyToClipboard('siteviral.com')}>
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    {isFr
+                      ? '⚠️ Si votre registrar ne supporte pas CNAME sur @, utilisez un A Record :'
+                      : '⚠️ If your registrar doesn\'t support CNAME on @, use an A Record:'}
                   </p>
                   <div className="flex items-center justify-between p-2 bg-muted rounded text-xs font-mono">
-                    <span>A → 185.158.133.1</span>
+                    <span>A &nbsp; @ &nbsp; → &nbsp; 185.158.133.1</span>
                     <Button variant="ghost" size="sm" className="h-6 px-2" onClick={() => copyToClipboard('185.158.133.1')}>
                       <Copy className="h-3 w-3" />
                     </Button>
                   </div>
+                </div>
+
+                {/* Step 2 */}
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {isFr ? 'Étape 2 — Enregistrement CNAME pour www' : 'Step 2 — CNAME record for www'}
+                  </p>
+                  <div className="grid grid-cols-3 gap-1 text-xs">
+                    <div className="p-2 bg-muted rounded font-mono">
+                      <span className="text-muted-foreground block">{isFr ? 'Type' : 'Type'}</span>
+                      <span className="font-semibold">CNAME</span>
+                    </div>
+                    <div className="p-2 bg-muted rounded font-mono">
+                      <span className="text-muted-foreground block">{isFr ? 'Nom' : 'Name'}</span>
+                      <span className="font-semibold">www</span>
+                    </div>
+                    <div className="p-2 bg-muted rounded font-mono flex items-end justify-between">
+                      <div>
+                        <span className="text-muted-foreground block">{isFr ? 'Cible' : 'Target'}</span>
+                        <span className="font-semibold">siteviral.com</span>
+                      </div>
+                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => copyToClipboard('siteviral.com')}>
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Step 3 — Cloudflare specific */}
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {isFr ? 'Étape 3 — Configuration Proxy (Cloudflare uniquement)' : 'Step 3 — Proxy Settings (Cloudflare only)'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {isFr
+                      ? 'Si vous utilisez Cloudflare, activez le proxy (nuage orange 🟠) sur les deux enregistrements CNAME. Le SSL sera automatiquement géré par Cloudflare.'
+                      : 'If you use Cloudflare, enable proxy (orange cloud 🟠) on both CNAME records. SSL will be automatically managed by Cloudflare.'}
+                  </p>
+                </div>
+
+                {/* Step 4 */}
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {isFr ? 'Étape 4 — Vérification' : 'Step 4 — Verification'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {isFr
+                      ? 'La propagation DNS peut prendre jusqu\'à 24h. Votre domaine passera de "En attente" à "Actif" automatiquement. Le HTTPS est géré automatiquement.'
+                      : 'DNS propagation can take up to 24h. Your domain will switch from "Pending" to "Active" automatically. HTTPS is handled automatically.'}
+                  </p>
+                </div>
+
+                {/* Info box */}
+                <div className="p-3 bg-primary/5 rounded-lg border border-primary/10 text-xs text-muted-foreground space-y-1">
+                  <p className="font-medium text-foreground">
+                    {isFr ? '💡 Bon à savoir' : '💡 Good to know'}
+                  </p>
+                  <ul className="list-disc pl-4 space-y-0.5">
+                    <li>{isFr ? 'L\'authentification Google/Facebook fonctionne automatiquement sur votre domaine' : 'Google/Facebook auth works automatically on your domain'}</li>
+                    <li>{isFr ? 'Les paiements (Paystack/Stripe) fonctionnent sans configuration supplémentaire' : 'Payments (Paystack/Stripe) work without extra configuration'}</li>
+                    <li>{isFr ? 'Le SEO et les aperçus de partage (OG) sont automatiquement adaptés à votre domaine' : 'SEO and share previews (OG) are automatically adapted to your domain'}</li>
+                    <li>{isFr ? 'Si vous ne souhaitez pas configurer un domaine, votre sous-domaine gratuit (slug.siteviral.com) fonctionne déjà' : 'If you don\'t want to configure a domain, your free subdomain (slug.siteviral.com) already works'}</li>
+                  </ul>
                 </div>
               </CardContent>
             </Card>
