@@ -14,7 +14,7 @@ const TEMPLATE_CATEGORIES: Record<string, string[]> = {
   Vérification: ['kyc_submitted', 'kyc_approved', 'kyc_rejected'],
   Org: ['org_created', 'org_deleted', 'org_suspended', 'org_unsuspended'],
   Members: ['new_member_joined', 'member_left', 'invite_to_org', 'role_changed'],
-  Payouts: ['payout_requested', 'payout_approved', 'payout_rejected', 'payouts_frozen'],
+  Payouts: ['payout_requested', 'payout_approved', 'payout_processing', 'payout_completed', 'payout_rejected', 'payouts_frozen'],
   Affiliate: ['affiliate_sale', 'affiliate_payout_requested', 'affiliate_payout_completed'],
   Directory: ['directory_approved', 'directory_rejected'],
   Support: ['ticket_created', 'ticket_replied', 'ticket_resolved'],
