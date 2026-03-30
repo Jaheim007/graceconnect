@@ -20,7 +20,7 @@ type EmailTemplate =
   | 'org_inactive_30d' | 'member_milestone'
   | 'new_member_joined' | 'member_left' | 'invite_to_org' | 'role_changed'
   | 'invite_accepted'
-  | 'payout_requested' | 'payout_approved' | 'payout_rejected' | 'payouts_frozen'
+  | 'payout_requested' | 'payout_approved' | 'payout_processing' | 'payout_completed' | 'payout_rejected' | 'payouts_frozen'
   | 'affiliate_sale' | 'affiliate_payout_requested' | 'affiliate_payout_completed'
   | 'affiliate_welcome' | 'affiliate_first_click' | 'affiliate_first_conversion'
   | 'affiliate_commission_payable' | 'affiliate_monthly_recap'
