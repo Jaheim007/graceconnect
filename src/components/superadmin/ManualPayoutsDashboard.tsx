@@ -136,6 +136,14 @@ export default function ManualPayoutsDashboard() {
       toast.error(error.message);
     } else {
       await db.from('payout_requests').update({ status: 'processing' }).eq('id', request.id);
+
+      // Email 1: Notify user that payout is being processed
+      if (request.organization_id) {
+        const { onPayoutProcessing } = await import('@/lib/notifications');
+        const { data: org } = await db.from('organizations').select('name').eq('id', request.organization_id).maybeSingle();
+        onPayoutProcessing(request.organization_id, org?.name || '', request.amount, request.currency || 'XOF');
+      }
+
       toast.success('Payout créé en file d\'attente');
       qc.invalidateQueries({ queryKey: ['sa-manual-payouts'] });
       qc.invalidateQueries({ queryKey: ['sa-payout-requests-pending'] });
