@@ -50,7 +50,9 @@ type EmailTemplate =
   | 'flash_sale_alert' | 'promo_code_used' | 'org_verified'
   | 'waitlist_spot_available' | 'referral_reward'
   | 'review_request'
-  | 'org_welcome_j0' | 'org_onboarding_j1' | 'org_onboarding_j3';
+  | 'org_welcome_j0' | 'org_onboarding_j1' | 'org_onboarding_j3'
+  | 'post_purchase_ambassador_j1' | 'post_purchase_ambassador_j5' | 'post_purchase_ambassador_j10'
+  | 'buyer_to_creator' | 'visitor_to_creator' | 'first_commission_earned' | 'trending_product_nudge';
 
 type Lang = 'fr' | 'en';
 

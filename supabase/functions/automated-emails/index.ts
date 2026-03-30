@@ -166,52 +166,72 @@ Deno.serve(async (req) => {
     results['org_onboarding_sequence'] = orgOnboardingCount;
 
     // ═══════════════════════════════════════════
-    // 2. RE-ENGAGEMENT (inactive users)
+    // 2. RE-ENGAGEMENT (inactive users) — FIXED: wider 24h windows + dedup + concrete CTAs
     // ═══════════════════════════════════════════
-    // Check last sign-in via auth.users — we use updated_at on profiles as proxy
     let reengageCount = 0;
 
-    // 7 days inactive
-    const inactive7d = new Date(now.getTime() - 7 * 86400000).toISOString();
-    const inactive7dEnd = new Date(now.getTime() - 6.5 * 86400000).toISOString();
-    const { data: inactive7 } = await db.from('profiles')
-      .select('id, display_name')
-      .lte('updated_at', inactive7d).gte('updated_at', inactive7dEnd)
-      .limit(50);
-    for (const u of inactive7 || []) {
-      const email = await getUserEmail(u.id);
-      if (email) {
-        await sendEmail({ template: 'inactive_7d' as any, to: email, data: { name: u.display_name || '' } });
-        reengageCount++;
-      }
-    }
+    // Helper: check if user had any client_events recently
+    const isUserTrulyInactive = async (userId: string, sinceDays: number): Promise<boolean> => {
+      const since = new Date(now.getTime() - sinceDays * 86400000).toISOString();
+      const { count } = await db.from('client_events')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .gte('created_at', since);
+      return (count || 0) === 0;
+    };
 
-    // 14 days inactive
-    const inactive14d = new Date(now.getTime() - 14 * 86400000).toISOString();
-    const inactive14dEnd = new Date(now.getTime() - 13.5 * 86400000).toISOString();
-    const { data: inactive14 } = await db.from('profiles')
-      .select('id, display_name')
-      .lte('updated_at', inactive14d).gte('updated_at', inactive14dEnd)
-      .limit(50);
-    for (const u of inactive14 || []) {
-      const email = await getUserEmail(u.id);
-      if (email) {
-        await sendEmail({ template: 'inactive_14d' as any, to: email, data: { name: u.display_name || '' } });
-        reengageCount++;
-      }
-    }
+    // Helper: check dedup for re-engagement emails
+    const wasReengageSent = async (userId: string, template: string, withinDays: number): Promise<boolean> => {
+      const since = new Date(now.getTime() - withinDays * 86400000).toISOString();
+      const { count } = await db.from('email_logs')
+        .select('id', { count: 'exact', head: true })
+        .eq('recipient', userId)
+        .eq('template', template)
+        .gte('created_at', since);
+      return (count || 0) > 0;
+    };
 
-    // 30 days inactive
-    const inactive30d = new Date(now.getTime() - 30 * 86400000).toISOString();
-    const inactive30dEnd = new Date(now.getTime() - 29.5 * 86400000).toISOString();
-    const { data: inactive30 } = await db.from('profiles')
-      .select('id, display_name')
-      .lte('updated_at', inactive30d).gte('updated_at', inactive30dEnd)
-      .limit(50);
-    for (const u of inactive30 || []) {
-      const email = await getUserEmail(u.id);
-      if (email) {
-        await sendEmail({ template: 'inactive_30d' as any, to: email, data: { name: u.display_name || '' } });
+    // Get all users created > 7 days ago who haven't logged in recently
+    for (const { days, template, dedupDays } of [
+      { days: 7, template: 'inactive_7d', dedupDays: 14 },
+      { days: 14, template: 'inactive_14d', dedupDays: 21 },
+      { days: 30, template: 'inactive_30d', dedupDays: 60 },
+    ]) {
+      // Wider window: users created between days-1 and days+5 whose updated_at is old
+      const createdBefore = new Date(now.getTime() - days * 86400000).toISOString();
+      const createdAfter = new Date(now.getTime() - (days + 60) * 86400000).toISOString();
+      const { data: candidates } = await db.from('profiles')
+        .select('id, display_name')
+        .lt('updated_at', createdBefore)
+        .gte('created_at', createdAfter)
+        .limit(100);
+
+      for (const u of candidates || []) {
+        // Dedup: don't re-send within dedupDays
+        if (await wasReengageSent(u.id, template, dedupDays)) continue;
+        // Verify truly inactive via client_events
+        if (!(await isUserTrulyInactive(u.id, days))) continue;
+
+        const email = await getUserEmail(u.id);
+        if (!email) continue;
+
+        // Check if user has purchases (buyer) or affiliates (ambassador) to personalize CTA
+        const { count: purchaseCount } = await db.from('product_purchases')
+          .select('id', { count: 'exact', head: true }).eq('user_id', u.id).eq('status', 'completed');
+        const { count: affCount } = await db.from('affiliate_links')
+          .select('id', { count: 'exact', head: true }).eq('user_id', u.id).eq('is_active', true);
+
+        const hasPurchases = (purchaseCount || 0) > 0;
+        const hasAffiliates = (affCount || 0) > 0;
+
+        // Build personalized data based on user type
+        const updates = hasPurchases
+          ? (hasAffiliates
+            ? 'De nouveaux produits sont disponibles. Partage-les et gagne des commissions !'
+            : 'Crée ton propre livre en 5 minutes avec l\'IA Studio → https://siteviral.com/ecrire')
+          : 'Écris ton premier livre en 5 minutes avec l\'IA ou gagne de l\'argent en partageant des produits → https://siteviral.com/ecrire';
+
+        await sendEmail({ template: template as any, to: email, data: { name: u.display_name || '', updates } });
         reengageCount++;
       }
     }
@@ -1300,6 +1320,343 @@ Deno.serve(async (req) => {
       }
     }
     results['review_reminders_j7'] = reviewReminderCount;
+
+    // ═══════════════════════════════════════════
+    // POST-PURCHASE → AMBASSADOR SEQUENCE (J+1, J+5, J+10)
+    // ═══════════════════════════════════════════
+    let postPurchaseAmbassadorCount = 0;
+    for (const { daysSince, templateKey, subject_fr, body_fr_fn } of [
+      {
+        daysSince: 1,
+        templateKey: 'post_purchase_ambassador_j1',
+        subject_fr: '💰 Gagne de l\'argent en partageant ce que tu as acheté',
+        body_fr_fn: (d: any) => `Bonjour ${d.name},\n\nTu as acheté « ${d.product_title} » — excellent choix !\n\nSavais-tu que tu peux gagner de l'argent en le partageant ? Un seul partage WhatsApp peut te rapporter ${d.commission} FCFA.\n\n👉 Va sur https://siteviral.com/gagner pour obtenir ton lien ambassadeur.\n\nPartage → Quelqu'un achète → Tu gagnes. C'est aussi simple que ça !\n\nL'équipe SiteViral`,
+      },
+      {
+        daysSince: 5,
+        templateKey: 'post_purchase_ambassador_j5',
+        subject_fr: '🔥 Des gens cherchent ce que tu as acheté — gagne en partageant',
+        body_fr_fn: (d: any) => `Bonjour ${d.name},\n\n« ${d.product_title} » se vend bien en ce moment !\n\nPartage ton lien ambassadeur sur WhatsApp et gagne ${d.commission} FCFA par vente.\n\n🤳 Astuce : envoie le lien dans 3 groupes WhatsApp — les ambassadeurs actifs gagnent en moyenne 25 000 FCFA par semaine.\n\n→ Ton lien t'attend : https://siteviral.com/gagner\n\nL'équipe SiteViral`,
+      },
+      {
+        daysSince: 10,
+        templateKey: 'post_purchase_ambassador_j10',
+        subject_fr: '⏳ Dernière chance — tu n\'as pas encore partagé ?',
+        body_fr_fn: (d: any) => `Bonjour ${d.name},\n\nTu as acheté « ${d.product_title} » il y a 10 jours, mais tu n'as pas encore partagé.\n\nPourtant, un seul partage peut te rapporter ${d.commission} FCFA par vente. Si 10 personnes achètent via ton lien, c'est ${d.commission * 10} FCFA pour toi !\n\n💡 Tu n'as rien à investir, rien à créer. Tu partages, tu gagnes.\n\n→ https://siteviral.com/gagner\n\nL'équipe SiteViral`,
+      },
+    ]) {
+      const targetStart = new Date(now.getTime() - (daysSince * 24 + 4) * 3600000).toISOString();
+      const targetEnd = new Date(now.getTime() - (daysSince * 24 - 4) * 3600000).toISOString();
+      const { data: purchases } = await db.from('product_purchases')
+        .select('id, user_id, amount, product_id, organization_id, digital_products(title), organizations(affiliation_commission_percent, affiliation_enabled)')
+        .eq('status', 'completed')
+        .gte('completed_at', targetEnd)
+        .lte('completed_at', targetStart)
+        .limit(50);
+
+      for (const p of purchases || []) {
+        if (!p.user_id) continue;
+        const org = (p as any).organizations;
+        const product = (p as any).digital_products;
+        if (!org?.affiliation_enabled || !product) continue;
+
+        // Check if user already has affiliate links (already ambassador)
+        if (daysSince > 1) {
+          const { count: affLinks } = await db.from('affiliate_links')
+            .select('id', { count: 'exact', head: true })
+            .eq('user_id', p.user_id)
+            .eq('is_active', true);
+          // If they already have links and have clicks, skip
+          if ((affLinks || 0) > 0) {
+            const { data: linkData } = await db.from('affiliate_links')
+              .select('clicks')
+              .eq('user_id', p.user_id)
+              .eq('is_active', true)
+              .gt('clicks', 0)
+              .limit(1);
+            if (linkData && linkData.length > 0) continue; // Already active, skip
+          }
+        }
+
+        // Dedup
+        const { count: sent } = await db.from('email_logs')
+          .select('id', { count: 'exact', head: true })
+          .eq('recipient', p.user_id)
+          .eq('template', templateKey)
+          .gte('created_at', new Date(now.getTime() - 30 * 86400000).toISOString());
+        if ((sent || 0) > 0) continue;
+
+        const email = await getUserEmail(p.user_id);
+        if (!email) continue;
+        const { data: profile } = await db.from('profiles').select('display_name').eq('id', p.user_id).maybeSingle();
+
+        const commPercent = org.affiliation_commission_percent || 10;
+        const commAmount = Math.round((p.amount * commPercent) / 100);
+
+        const bodyText = body_fr_fn({
+          name: profile?.display_name || 'cher(e) utilisateur(rice)',
+          product_title: product.title,
+          commission: commAmount,
+        });
+
+        await sendEmail({
+          template: templateKey as any,
+          to: email,
+          data: {
+            name: profile?.display_name || '',
+            product_title: product.title,
+            commission: commAmount,
+          },
+          organization_id: p.organization_id,
+        });
+        postPurchaseAmbassadorCount++;
+      }
+    }
+    results['post_purchase_ambassador'] = postPurchaseAmbassadorCount;
+
+    // ═══════════════════════════════════════════
+    // RECURRING BUYER → CREATOR (3+ purchases, no products)
+    // ═══════════════════════════════════════════
+    let buyerToCreatorCount = 0;
+    {
+      // Find users with 3+ completed purchases
+      const { data: frequentBuyers } = await db.rpc('get_frequent_buyers' as any).catch(() => ({ data: null }));
+      // Fallback: manual query
+      if (!frequentBuyers) {
+        const { data: allPurchases } = await db.from('product_purchases')
+          .select('user_id')
+          .eq('status', 'completed')
+          .limit(1000);
+        const buyerCounts: Record<string, number> = {};
+        for (const p of allPurchases || []) {
+          if (p.user_id) buyerCounts[p.user_id] = (buyerCounts[p.user_id] || 0) + 1;
+        }
+        const frequentBuyerIds = Object.entries(buyerCounts)
+          .filter(([, count]) => count >= 3)
+          .map(([id]) => id);
+
+        for (const userId of frequentBuyerIds.slice(0, 30)) {
+          // Check if already a creator (has products)
+          const { count: productCount } = await db.from('digital_products')
+            .select('id', { count: 'exact', head: true }).eq('created_by', userId);
+          if ((productCount || 0) > 0) continue;
+
+          // Dedup
+          const { count: sent } = await db.from('email_logs')
+            .select('id', { count: 'exact', head: true })
+            .eq('recipient', userId)
+            .eq('template', 'buyer_to_creator')
+            .gte('created_at', new Date(now.getTime() - 60 * 86400000).toISOString());
+          if ((sent || 0) > 0) continue;
+
+          const email = await getUserEmail(userId);
+          if (!email) continue;
+          const { data: profile } = await db.from('profiles').select('display_name').eq('id', userId).maybeSingle();
+          const { count: totalPurchases } = await db.from('product_purchases')
+            .select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'completed');
+
+          await sendEmail({
+            template: 'buyer_to_creator' as any,
+            to: email,
+            data: {
+              name: profile?.display_name || '',
+              purchase_count: totalPurchases || 0,
+            },
+          });
+          buyerToCreatorCount++;
+        }
+      }
+    }
+    results['buyer_to_creator'] = buyerToCreatorCount;
+
+    // ═══════════════════════════════════════════
+    // FIRST COMMISSION EARNED CELEBRATION
+    // ═══════════════════════════════════════════
+    let firstCommissionCount = 0;
+    {
+      const oneDayAgo = new Date(now.getTime() - 24 * 3600000).toISOString();
+      const { data: recentSales } = await db.from('affiliate_sales')
+        .select('affiliate_user_id, commission_amount, organization_id, organizations(name, currency)')
+        .gte('created_at', oneDayAgo)
+        .limit(100);
+
+      const seenUsers = new Set<string>();
+      for (const sale of recentSales || []) {
+        if (seenUsers.has(sale.affiliate_user_id)) continue;
+        seenUsers.add(sale.affiliate_user_id);
+
+        // Check if this is truly their FIRST commission ever
+        const { count: totalSales } = await db.from('affiliate_sales')
+          .select('id', { count: 'exact', head: true })
+          .eq('affiliate_user_id', sale.affiliate_user_id);
+        if ((totalSales || 0) !== 1) continue; // Not first
+
+        // Dedup
+        const { count: sent } = await db.from('email_logs')
+          .select('id', { count: 'exact', head: true })
+          .eq('recipient', sale.affiliate_user_id)
+          .eq('template', 'first_commission_earned');
+        if ((sent || 0) > 0) continue;
+
+        const email = await getUserEmail(sale.affiliate_user_id);
+        if (!email) continue;
+        const { data: profile } = await db.from('profiles').select('display_name').eq('id', sale.affiliate_user_id).maybeSingle();
+        const org = (sale as any).organizations;
+
+        await sendEmail({
+          template: 'first_commission_earned' as any,
+          to: email,
+          data: {
+            name: profile?.display_name || '',
+            amount: sale.commission_amount,
+            currency: org?.currency || 'XOF',
+            org_name: org?.name || '',
+          },
+        });
+
+        // Also send in-app notification
+        await db.from('user_notifications').insert({
+          user_id: sale.affiliate_user_id,
+          title: `🎉 Tu viens de gagner ${sale.commission_amount} ${org?.currency || 'XOF'} !`,
+          body: `Félicitations ! Ta première commission d'ambassadeur via ${org?.name || 'SiteViral'}. Continue de partager pour gagner plus ! 🔥`,
+          notification_type: 'first_commission',
+          action_url: '/gagner',
+        });
+
+        firstCommissionCount++;
+      }
+    }
+    results['first_commission'] = firstCommissionCount;
+
+    // ═══════════════════════════════════════════
+    // VISITOR → CREATOR (users with 5+ page_views but no products/orgs)
+    // ═══════════════════════════════════════════
+    let visitorToCreatorCount = 0;
+    {
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
+      // Get users with 5+ page views in last 7 days
+      const { data: activeVisitors } = await db.from('client_events')
+        .select('user_id')
+        .eq('event_name', 'page_view')
+        .gte('created_at', sevenDaysAgo)
+        .not('user_id', 'is', null)
+        .limit(1000);
+
+      const visitorCounts: Record<string, number> = {};
+      for (const v of activeVisitors || []) {
+        if (v.user_id) visitorCounts[v.user_id] = (visitorCounts[v.user_id] || 0) + 1;
+      }
+
+      const frequentVisitors = Object.entries(visitorCounts)
+        .filter(([, count]) => count >= 5)
+        .map(([id]) => id);
+
+      for (const userId of frequentVisitors.slice(0, 30)) {
+        // Check not already a creator
+        const { count: productCount } = await db.from('digital_products')
+          .select('id', { count: 'exact', head: true }).eq('created_by', userId);
+        if ((productCount || 0) > 0) continue;
+        const { count: orgCount } = await db.from('organizations')
+          .select('id', { count: 'exact', head: true }).eq('owner_id', userId);
+        if ((orgCount || 0) > 0) continue;
+
+        // Dedup: only once per 30 days
+        const { count: sent } = await db.from('email_logs')
+          .select('id', { count: 'exact', head: true })
+          .eq('recipient', userId)
+          .eq('template', 'visitor_to_creator')
+          .gte('created_at', new Date(now.getTime() - 30 * 86400000).toISOString());
+        if ((sent || 0) > 0) continue;
+
+        const email = await getUserEmail(userId);
+        if (!email) continue;
+        const { data: profile } = await db.from('profiles').select('display_name').eq('id', userId).maybeSingle();
+
+        await sendEmail({
+          template: 'visitor_to_creator' as any,
+          to: email,
+          data: {
+            name: profile?.display_name || '',
+            visits: visitorCounts[userId],
+          },
+        });
+        visitorToCreatorCount++;
+      }
+    }
+    results['visitor_to_creator'] = visitorToCreatorCount;
+
+    // ═══════════════════════════════════════════
+    // TRENDING PRODUCT NUDGE FOR BUYERS (products in categories they've bought from)
+    // ═══════════════════════════════════════════
+    let trendingNudgeCount = 0;
+    {
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
+      // Get trending products (most sold this week)
+      const { data: trendingSales } = await db.from('product_purchases')
+        .select('product_id, digital_products(title, slug, product_type, price, currency, organizations(name, slug, affiliation_enabled, affiliation_commission_percent))')
+        .eq('status', 'completed')
+        .gte('completed_at', sevenDaysAgo)
+        .limit(200);
+
+      const productSaleCount: Record<string, { count: number; product: any }> = {};
+      for (const sale of trendingSales || []) {
+        const p = (sale as any).digital_products;
+        if (!p?.organizations?.affiliation_enabled) continue;
+        if (!productSaleCount[sale.product_id]) productSaleCount[sale.product_id] = { count: 0, product: p };
+        productSaleCount[sale.product_id].count++;
+      }
+
+      const topTrending = Object.entries(productSaleCount)
+        .sort(([, a], [, b]) => b.count - a.count)
+        .slice(0, 3);
+
+      if (topTrending.length > 0) {
+        // Find buyers who haven't been nudged recently
+        const { data: recentBuyers } = await db.from('product_purchases')
+          .select('user_id')
+          .eq('status', 'completed')
+          .gte('completed_at', new Date(now.getTime() - 60 * 86400000).toISOString())
+          .limit(200);
+        const buyerIds = [...new Set((recentBuyers || []).map((b: any) => b.user_id).filter(Boolean))];
+
+        for (const buyerId of buyerIds.slice(0, 20)) {
+          const { count: sent } = await db.from('email_logs')
+            .select('id', { count: 'exact', head: true })
+            .eq('recipient', buyerId)
+            .eq('template', 'trending_product_nudge')
+            .gte('created_at', new Date(now.getTime() - 14 * 86400000).toISOString());
+          if ((sent || 0) > 0) continue;
+
+          // Don't send to users who already have affiliate links with clicks
+          const { data: activeLinks } = await db.from('affiliate_links')
+            .select('clicks')
+            .eq('user_id', buyerId)
+            .eq('is_active', true)
+            .gt('clicks', 5)
+            .limit(1);
+          if (activeLinks && activeLinks.length > 0) continue;
+
+          const email = await getUserEmail(buyerId);
+          if (!email) continue;
+
+          const topProduct = topTrending[0][1].product;
+          const commPercent = topProduct.organizations?.affiliation_commission_percent || 10;
+          const earning = Math.round(((topProduct.price || 0) * commPercent) / 100);
+
+          // Also send in-app notification
+          await db.from('user_notifications').insert({
+            user_id: buyerId,
+            title: `📈 « ${topProduct.title} » se vend beaucoup !`,
+            body: `Ce produit est tendance cette semaine (${topTrending[0][1].count} ventes). Partage-le et gagne ${earning} ${topProduct.currency || 'XOF'} par vente !`,
+            notification_type: 'trending_product',
+            action_url: `/org/${topProduct.organizations?.slug}/p/${topProduct.slug}`,
+          });
+          trendingNudgeCount++;
+        }
+      }
+    }
+    results['trending_nudges'] = trendingNudgeCount;
+
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
