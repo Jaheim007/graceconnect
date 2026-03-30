@@ -11,6 +11,7 @@ import { ForYouFeed } from '@/components/discover/ForYouFeed';
 import { CategoryCarousels } from '@/components/discover/CategoryCarousels';
 import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
 import { RecentlyViewedProducts } from '@/components/discover/RecentlyViewedProducts';
+import { BuyerCreatorBanner } from '@/components/discover/BuyerCreatorBanner';
 
 export default function DiscoverPage() {
   const [search, setSearch] = useState('');
@@ -51,6 +52,9 @@ export default function DiscoverPage() {
       </div>
 
       <div className="container max-w-6xl px-4 py-6">
+        {/* Banner to convert buyers into creators */}
+        {!isSearching && <BuyerCreatorBanner />}
+
         {/* Recently viewed — personal relevance */}
         {!isSearching && <RecentlyViewedProducts />}
 
