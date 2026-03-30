@@ -2,7 +2,10 @@ import { Button } from '@/components/ui/button';
 import { DashboardSection } from '@/components/ui/DashboardSection';
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { formatCurrency } from '@/lib/currency';
-import { ArrowRight, Wallet } from 'lucide-react';
+import { ArrowRight, Wallet, Lock } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+
+const MIN_PAYOUT_XOF = 10000;
 
 export interface AmbassadorPayoutEntry {
   orgId: string;
