@@ -1,4 +1,6 @@
-import { useMyAffiliateRank } from '@/hooks/useAffiliateMarketplace';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
+import { useAuth } from '@/contexts/AuthContext';
 import { EarningsCard } from '@/components/ambassador/EarningsCard';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { AmbassadorBadges } from '@/components/gamification/AmbassadorBadges';
@@ -8,16 +10,33 @@ import { TrendingUp, ArrowRight } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 
 export function EarningsShareSection() {
-  const { data: myRank, isLoading } = useMyAffiliateRank();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ['my-affiliate-stats', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data: links } = await db.from('affiliate_links')
+        .select('total_earned, clicks, conversions')
+        .eq('user_id', user.id);
+      if (!links?.length) return null;
+      return {
+        totalEarned: links.reduce((s: number, l: any) => s + (l.total_earned || 0), 0),
+        totalClicks: links.reduce((s: number, l: any) => s + (l.clicks || 0), 0),
+        totalConversions: links.reduce((s: number, l: any) => s + (l.conversions || 0), 0),
+      };
+    },
+    enabled: !!user,
+  });
 
   if (isLoading) {
     return <div className="h-48 rounded-2xl bg-muted/50 animate-pulse" />;
   }
 
-  if (!myRank || myRank.totalEarned === 0) {
+  if (!stats || stats.totalEarned === 0) {
     return (
       <div className="text-center py-12 space-y-4">
         <div className="h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto">
@@ -41,9 +60,9 @@ export function EarningsShareSection() {
   return (
     <div className="space-y-6">
       <EarningsCard
-        totalEarned={myRank.totalEarned}
-        salesCount={myRank.totalConversions}
-        clicksCount={myRank.totalClicks}
+        totalEarned={stats.totalEarned}
+        salesCount={stats.totalConversions}
+        clicksCount={stats.totalClicks}
       />
       <div className="border-t border-border pt-6">
         <AmbassadorBadges />
@@ -53,7 +72,7 @@ export function EarningsShareSection() {
           url="https://siteviral.com/gagner"
           title="Siteviral"
           context="earnings"
-          earnings={myRank.totalEarned}
+          earnings={stats.totalEarned}
         />
       </div>
     </div>

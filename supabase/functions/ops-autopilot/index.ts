@@ -208,31 +208,8 @@ Deno.serve(async (req) => {
         weekly_earnings: total,
       }));
 
-      // Congratulate top performer
-      if (sorted.length > 0) {
-        const [topUserId, topEarnings] = sorted[0];
-        await db.from("user_notifications").insert({
-          user_id: topUserId,
-          title: "🏆 Tu es l'ambassadeur #1 cette semaine !",
-          body: `Avec ${Math.round(topEarnings)} FCFA de commissions cette semaine, tu es en tête du classement ! Continue comme ça 🔥`,
-          notification_type: "achievement",
-          action_url: "/affiliation",
-        });
-        totalNotifs++;
-        allActions.push(`community: Top ambassador congratulated (${Math.round(topEarnings)} FCFA)`);
-      }
-
-      // Notify top 5
-      for (let i = 1; i < Math.min(sorted.length, 5); i++) {
-        await db.from("user_notifications").insert({
-          user_id: sorted[i][0],
-          title: `🎯 Top ${i + 1} ambassadeur cette semaine !`,
-          body: `Tu es dans le Top ${i + 1} des ambassadeurs avec ${Math.round(sorted[i][1])} FCFA de commissions ! Continue à partager pour atteindre le #1 🚀`,
-          notification_type: "achievement",
-          action_url: "/affiliation",
-        });
-        totalNotifs++;
-      }
+      // Top ambassador notifications DISABLED — no ranking/leaderboard notifications
+      allActions.push(`community: Top 5 ambassadors tracked (notifications disabled)`);
     }
 
     // New ambassadors onboarding
