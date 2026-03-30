@@ -116,7 +116,7 @@ export default function ManualPayoutsDashboard() {
     const recipientMethod = kyc?.payout_method || 'mobile_money';
     const recipientAccount = kyc?.payout_phone || kyc?.bank_account_number || 'N/A';
     const recipientProvider = kyc?.payout_provider || kyc?.bank_name || 'N/A';
-    const recipientName = kyc?.bank_account_name || request.organizations?.name || 'N/A';
+    const recipientName = kyc?.bank_account_name || request.organization?.name || 'N/A';
 
     const { error } = await db.from('manual_payouts').insert({
       user_id: request.user_id,
