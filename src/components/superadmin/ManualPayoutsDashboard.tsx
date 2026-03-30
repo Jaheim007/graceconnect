@@ -281,7 +281,7 @@ export default function ManualPayoutsDashboard() {
                     <div>
                       <p className="font-medium text-sm flex items-center gap-1.5">
                         <Building className="h-3.5 w-3.5 text-muted-foreground" />
-                        {req.organizations?.name || 'Organisation'}
+                        {req.organization?.name || 'Organisation'}
                       </p>
                       {req.profile?.display_name && (
                         <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
@@ -292,10 +292,10 @@ export default function ManualPayoutsDashboard() {
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <Badge variant="outline" className="text-[10px]">{req.payout_type}</Badge>
                         <Badge
-                          variant={req.organizations?.kyc_status === 'level1' || req.organizations?.kyc_status === 'level2' ? 'default' : 'destructive'}
+                          variant={req.organization?.kyc_status === 'level1' || req.organization?.kyc_status === 'level2' ? 'default' : 'destructive'}
                           className="text-[10px]"
                         >
-                          KYC: {req.organizations?.kyc_status || 'none'}
+                          KYC: {req.organization?.kyc_status || 'none'}
                         </Badge>
                         {req.requested_at && (
                           <span className="text-[10px] text-muted-foreground">
@@ -308,7 +308,7 @@ export default function ManualPayoutsDashboard() {
                       size="sm"
                       onClick={() => handleCreateManualPayout(req)}
                       disabled={
-                        (req.organizations?.kyc_status !== 'level1' && req.organizations?.kyc_status !== 'level2') ||
+                        (req.organization?.kyc_status !== 'level1' && req.organization?.kyc_status !== 'level2') ||
                         !hasPayoutDestination(req.kyc)
                       }
                     >
