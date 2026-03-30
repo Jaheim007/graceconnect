@@ -310,11 +310,11 @@ Deno.serve(async (req) => {
       notification_type: 'payout',
     });
 
-    // Send approval email
+    // Send completion email (payout has been processed and sent)
     const { data: payOrg } = await db.from('organizations').select('name').eq('id', payout.organization_id).maybeSingle();
     const payEmail = await getUserEmail(payout.user_id);
     if (payEmail) {
-      const template = payout.payout_type === 'affiliate' ? 'affiliate_payout_completed' : 'payout_approved';
+      const template = payout.payout_type === 'affiliate' ? 'affiliate_payout_completed' : 'payout_completed';
       sendEmail({ template, to: payEmail, data: { amount: payout.amount, currency: payout.currency, org_name: payOrg?.name || '' }, organization_id: payout.organization_id }).catch(() => {});
     }
 
