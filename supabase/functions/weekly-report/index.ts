@@ -25,6 +25,7 @@ Deno.serve(async (req) => {
       { data: salesData },
       { data: donationsData },
       { count: newAffiliates },
+      { count: pendingPayouts },
     ] = await Promise.all([
       db.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo),
       db.from('organizations').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo),
@@ -32,6 +33,7 @@ Deno.serve(async (req) => {
       db.from('product_purchases').select('amount, currency').eq('status', 'completed').gte('created_at', weekAgo),
       db.from('donations').select('amount, currency').eq('status', 'completed').gte('created_at', weekAgo),
       db.from('affiliate_links').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo),
+      db.from('payout_requests').select('*', { count: 'exact', head: true }).in('status', ['pending', 'requested']),
     ]);
 
     const totalSales = (salesData || []).reduce((s: number, r: any) => s + (r.amount || 0), 0);
@@ -59,6 +61,7 @@ Deno.serve(async (req) => {
           new_affiliates: newAffiliates || 0,
           sales_count: (salesData || []).length,
           donations_count: (donationsData || []).length,
+          pending_payouts: pendingPayouts || 0,
         },
       });
     }
