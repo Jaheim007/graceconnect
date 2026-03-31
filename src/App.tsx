@@ -54,6 +54,7 @@ const DiscoverPage = lazy(() => import("@/pages/DiscoverPage"));
 const PromoCataloguePage = lazy(() => import("@/pages/promo/PromoCataloguePage"));
 const PromoGratuitsPage = lazy(() => import("@/pages/promo/PromoGratuitsPage"));
 const PromoStarsPage = lazy(() => import("@/pages/promo/PromoStarsPage"));
+const PromoAICreationsPage = lazy(() => import("@/pages/promo/PromoAICreationsPage"));
 const OrgPublicPage = lazy(() => import("@/pages/OrgPublicPage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
