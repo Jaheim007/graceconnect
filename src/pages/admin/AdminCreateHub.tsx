@@ -35,6 +35,14 @@ export default function AdminCreateHub() {
     course_pack: { label: isFr ? 'Cours' : 'Course', icon: GraduationCap, color: 'text-emerald-500' },
   };
 
+  const STATUS_LABEL: Record<string, { fr: string; en: string; cls: string }> = {
+    draft: { fr: 'Brouillon', en: 'Draft', cls: 'bg-muted text-muted-foreground' },
+    generating: { fr: 'Génération...', en: 'Generating...', cls: 'bg-primary/20 text-primary' },
+    review: { fr: 'En revue', en: 'In Review', cls: 'bg-accent/20 text-accent-foreground' },
+    ready: { fr: 'Prêt', en: 'Ready', cls: 'bg-emerald-500/20 text-emerald-500' },
+    published: { fr: 'Publié', en: 'Published', cls: 'bg-emerald-500/20 text-emerald-500' },
+  };
+
   return (
     <div className="space-y-5">
       {/* Header */}
@@ -44,10 +52,10 @@ export default function AdminCreateHub() {
         </div>
         <div>
           <h1 className="text-xl font-bold tracking-tight">
-            {isFr ? 'Créer avec l\'IA' : 'Create with AI'}
+            Viral AI Studio
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isFr ? 'Utilisez l\'intelligence artificielle pour créer vos contenus' : 'Use AI to create your content'}
+            {isFr ? 'Créez vos contenus avec Viral AI Studio' : 'Create your content with Viral AI Studio'}
           </p>
         </div>
       </div>
@@ -72,7 +80,7 @@ export default function AdminCreateHub() {
         <div className="relative flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
             <h3 className="font-bold text-sm leading-tight">
-              {isFr ? 'Écrire un livre avec l\'IA' : 'Write a book with AI'}
+              {isFr ? 'Écrire un livre' : 'Write a book'}
             </h3>
             <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-primary/20 text-primary whitespace-nowrap">AI</span>
           </div>
@@ -103,36 +111,32 @@ export default function AdminCreateHub() {
         <div className="relative flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
             <h3 className="font-bold text-sm leading-tight">
-              {isFr ? 'Créer une formation avec l\'IA' : 'Create a course with AI'}
+              {isFr ? 'Créer une formation' : 'Create a course'}
             </h3>
             <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-500 whitespace-nowrap">AI</span>
           </div>
           <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
-            {isFr ? 'Créez une formation en 5 minutes avec l\'IA' : 'Create a course in 5 minutes with AI'}
+            {isFr ? 'Créez une formation en 5 min avec Viral AI Studio' : 'Create a course in 5 min with Viral AI Studio'}
           </p>
         </div>
         <ArrowRight className="relative h-4 w-4 text-emerald-500 shrink-0 group-hover:translate-x-1 transition-transform" />
       </Link>
 
-      {/* Recent AI Projects */}
+      {/* Recent AI Projects — no "View all" */}
       {recentProjects && recentProjects.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-              {isFr ? 'Projets IA récents' : 'Recent AI Projects'}
-            </h2>
-            <Link to="/admin/studio/projects" className="text-xs text-primary hover:underline flex items-center gap-1">
-              {isFr ? 'Voir tout' : 'View all'} <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+            {isFr ? 'Mes dernières créations' : 'My latest creations'}
+          </h2>
           <div className="space-y-1.5">
             {recentProjects.map(project => {
               const meta = PROJECT_TYPE_META[project.project_type] || PROJECT_TYPE_META.ebook;
               const Icon = meta.icon;
+              const st = STATUS_LABEL[project.status] || STATUS_LABEL.draft;
               return (
                 <Link
                   key={project.id}
-                  to={`/admin/studio/projects/${project.id}`}
+                  to="/ecrire"
                   className="flex items-center gap-3 p-2.5 rounded-xl border border-border hover:border-primary/30 transition-colors"
                 >
                   <Icon className={cn('h-4 w-4 shrink-0', meta.color)} />
@@ -141,9 +145,11 @@ export default function AdminCreateHub() {
                     <p className="text-[10px] text-muted-foreground">{meta.label}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <Clock className="h-3 w-3 text-muted-foreground" />
+                    <span className={cn('text-[9px] font-semibold px-1.5 py-0.5 rounded-full', st.cls)}>
+                      {isFr ? st.fr : st.en}
+                    </span>
                     <span className="text-[10px] text-muted-foreground">
-                      {new Date(project.updated_at).toLocaleDateString(isFr ? 'fr' : 'en')}
+                      {new Date(project.updated_at).toLocaleDateString(isFr ? 'fr' : 'en', { day: 'numeric', month: 'short' })}
                     </span>
                   </div>
                 </Link>
@@ -158,10 +164,10 @@ export default function AdminCreateHub() {
         <div className="text-center py-8 rounded-2xl border border-dashed border-border">
           <Sparkles className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
           <p className="text-sm font-medium text-muted-foreground">
-            {isFr ? 'Aucun projet IA encore' : 'No AI projects yet'}
+            {isFr ? 'Aucune création encore' : 'No creations yet'}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            {isFr ? 'Commencez par écrire un livre ou créer une formation' : 'Start by writing a book or creating a course'}
+            {isFr ? 'Commencez par écrire un livre ou créer une formation avec Viral AI Studio' : 'Start by writing a book or creating a course with Viral AI Studio'}
           </p>
         </div>
       )}

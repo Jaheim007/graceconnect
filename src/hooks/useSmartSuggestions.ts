@@ -116,8 +116,8 @@ export function useSmartSuggestions() {
           emoji: '📝',
           title: 'Publie ton livre en attente',
           description: `Tu as ${draftCount} brouillon(s) IA non publié(s). Publie-les et gagne tes premiers revenus.`,
-          actionLabel: 'Voir mes projets',
-          actionPath: '/admin/studio/projects',
+          actionLabel: 'Continuer',
+          actionPath: '/ecrire',
           priority: 1,
         });
       }
