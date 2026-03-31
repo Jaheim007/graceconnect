@@ -22,7 +22,7 @@ export function GagnerTabs() {
       {/* Live stats bar for logged-in ambassadors */}
       {user && <LiveEarningsCounter />}
 
-      <Tabs defaultValue="marketplace" className="space-y-6">
+      <Tabs defaultValue="marketplace" className="space-y-6" id="gagner-tabs">
         <TabsList className="w-full grid grid-cols-4 h-11">
           <TabsTrigger value="marketplace" className="gap-1 text-[11px]">
             <ShoppingBag className="h-3.5 w-3.5" /> {isFr ? 'Catalogue' : 'Catalog'}

@@ -104,7 +104,14 @@ export function QuickShareWidget() {
         variant="ghost"
         size="sm"
         className="w-full mt-3 text-xs gap-1.5"
-        onClick={() => navigate('/gagner')}
+        onClick={() => {
+          const tabsEl = document.getElementById('gagner-tabs');
+          if (tabsEl) {
+            tabsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const mesLiensTab = tabsEl.querySelector<HTMLButtonElement>('[value="earnings"]');
+            if (mesLiensTab) setTimeout(() => mesLiensTab.click(), 400);
+          }
+        }}
       >
         Voir tous mes liens <ExternalLink className="h-3.5 w-3.5" />
       </Button>
