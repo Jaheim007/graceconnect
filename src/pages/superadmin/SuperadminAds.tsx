@@ -100,6 +100,13 @@ function AdSelectionsTab() {
               {data?.stars?.[0] && ` "${data.stars[0].title}"`} et plus encore → siteviral.com/promo/stars"
             </p>
           </div>
+          <div className="p-3 bg-muted/50 rounded-lg">
+            <p className="font-medium mb-1">Pub 4 — Viral AI Studio</p>
+            <p className="text-muted-foreground">
+              "⚡ Tous ces livres ont été créés en quelques minutes avec notre IA.
+              Toi aussi, crée le tien → siteviral.com/promo/ai-creations"
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
