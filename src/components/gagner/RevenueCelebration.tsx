@@ -4,6 +4,7 @@ import { Trophy, Share2, X, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface RevenueCelebrationProps {
   amount: number;
