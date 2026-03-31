@@ -315,6 +315,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     try { sessionStorage.removeItem('sv_oauth_pending_since'); } catch {}
     try { sessionStorage.removeItem('sv_welcome_seen'); } catch {}
+    // Clear per-user welcome flags so next login shows welcome again
+    try {
+      Object.keys(sessionStorage).forEach(key => {
+        if (key.startsWith('sv_welcome_seen_')) sessionStorage.removeItem(key);
+      });
+    } catch {}
     if (platformRoleRetryTimeoutRef.current !== null) {
       window.clearTimeout(platformRoleRetryTimeoutRef.current);
       platformRoleRetryTimeoutRef.current = null;
