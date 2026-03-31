@@ -194,9 +194,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const createdAt = new Date(newSession.user.created_at).getTime();
         const now = Date.now();
         if (now - createdAt < 60_000) {
+          // Welcome email with bonus credits info
           sendEmailNotification('welcome', newSession.user.email, {
             name: newSession.user.user_metadata?.full_name || newSession.user.email.split('@')[0],
           }).catch(() => {});
+
+          // In-app notification about the 50 bonus credits
+          supabase.from('user_notifications').insert({
+            user_id: newSession.user.id,
+            title: '🎁 50 crédits bonus offerts !',
+            body: 'Bienvenue ! Vous avez reçu 50 crédits bonus pour découvrir le Viral Studio, générer du contenu IA et bien plus. Ces crédits expirent dans 7 jours.',
+            notification_type: 'credits',
+            action_url: '/credits',
+          }).then(() => {}).catch(() => {});
         }
       }
 
