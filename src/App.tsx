@@ -194,6 +194,7 @@ const AdminPrograms = lazy(() => import("@/pages/admin/AdminPrograms"));
 const AdminProgramForm = lazy(() => import("@/pages/admin/AdminProgramForm").then(m => ({ default: m.ProgramForm })));
 const AdminLearnerProgress = lazy(() => import("@/pages/admin/AdminLearnerProgress"));
 const AdminCreateHub = lazy(() => import("@/pages/admin/AdminCreateHub"));
+const AdminContentHub = lazy(() => import("@/pages/admin/AdminContentHub"));
 const AdminPeople = lazy(() => import("@/pages/admin/AdminPeople"));
 const ProgramDetailPage = lazy(() => import("@/pages/ProgramDetailPage"));
 const AdminAnnouncementForm = lazy(() => import("@/pages/admin/AdminAnnouncementForm").then(m => ({ default: m.AnnouncementForm })));
@@ -449,6 +450,7 @@ const App = () => (
                   <Route path="/admin" element={<RequireOrgManage><AdminShell /></RequireOrgManage>}>
                   <Route index element={<AdminDashboard />} />
                   <Route path="create" element={<AdminCreateHub />} />
+                  <Route path="content" element={<AdminContentHub />} />
                   <Route path="people" element={<AdminPeople />} />
                   <Route path="media" element={<AdminMedia />} />
                   <Route path="media/new" element={<AdminMediaForm />} />
