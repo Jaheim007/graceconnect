@@ -37,6 +37,7 @@ function AdSelectionsTab() {
     { title: '⭐ Produits Stars (Pub Conversion)', items: data?.stars, color: 'text-yellow-500', link: '/promo/stars' },
     { title: '🎁 Produits Gratuits (Pub Leads)', items: data?.gratuits, color: 'text-green-500', link: '/promo/gratuits' },
     { title: '📚 Catalogue (Pub Trafic)', items: data?.catalogue?.slice(0, 10), color: 'text-blue-500', link: '/promo/catalogue' },
+    { title: '⚡ Créations Viral AI Studio', items: data?.catalogue?.filter((p: any) => p.ai_generated)?.slice(0, 10), color: 'text-purple-500', link: '/promo/ai-creations' },
   ];
 
   return (
@@ -97,6 +98,13 @@ function AdSelectionsTab() {
             <p className="text-muted-foreground">
               "⭐ Les produits les plus achetés sur SiteViral.
               {data?.stars?.[0] && ` "${data.stars[0].title}"`} et plus encore → siteviral.com/promo/stars"
+            </p>
+          </div>
+          <div className="p-3 bg-muted/50 rounded-lg">
+            <p className="font-medium mb-1">Pub 4 — Viral AI Studio</p>
+            <p className="text-muted-foreground">
+              "⚡ Tous ces livres ont été créés en quelques minutes avec notre IA.
+              Toi aussi, crée le tien → siteviral.com/promo/ai-creations"
             </p>
           </div>
         </CardContent>
@@ -213,6 +221,7 @@ function RoiDashboardTab() {
             <p>Pub Catalogue: <span className="text-primary">siteviral.com/promo/catalogue?utm_source=meta&utm_medium=paid&utm_campaign=catalogue_w{'{N}'}</span></p>
             <p>Pub Gratuits: <span className="text-primary">siteviral.com/promo/gratuits?utm_source=meta&utm_medium=paid&utm_campaign=gratuits_w{'{N}'}</span></p>
             <p>Pub Stars: <span className="text-primary">siteviral.com/promo/stars?utm_source=meta&utm_medium=paid&utm_campaign=stars_w{'{N}'}</span></p>
+            <p>Pub AI Studio: <span className="text-primary">siteviral.com/promo/ai-creations?utm_source=meta&utm_medium=paid&utm_campaign=ai_studio_w{'{N}'}</span></p>
             <p>Pub Créateurs: <span className="text-primary">siteviral.com/auth?utm_source=tiktok&utm_medium=paid&utm_campaign=creators_w{'{N}'}</span></p>
           </div>
           <p className="text-xs text-muted-foreground">Remplace {'{N}'} par le numéro de semaine (ex: w1, w2…)</p>

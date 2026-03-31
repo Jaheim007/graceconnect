@@ -54,6 +54,7 @@ const DiscoverPage = lazy(() => import("@/pages/DiscoverPage"));
 const PromoCataloguePage = lazy(() => import("@/pages/promo/PromoCataloguePage"));
 const PromoGratuitsPage = lazy(() => import("@/pages/promo/PromoGratuitsPage"));
 const PromoStarsPage = lazy(() => import("@/pages/promo/PromoStarsPage"));
+const PromoAICreationsPage = lazy(() => import("@/pages/promo/PromoAICreationsPage"));
 const OrgPublicPage = lazy(() => import("@/pages/OrgPublicPage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -400,6 +401,7 @@ const App = () => (
                   <Route path="/promo/catalogue" element={<PromoCataloguePage />} />
                   <Route path="/promo/gratuits" element={<PromoGratuitsPage />} />
                   <Route path="/promo/stars" element={<PromoStarsPage />} />
+                  <Route path="/promo/ai-creations" element={<PromoAICreationsPage />} />
                   <Route path="/org/:slug" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/content" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/events" element={<OrgPublicPage />} />
