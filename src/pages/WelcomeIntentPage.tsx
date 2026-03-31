@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Package, Store, Share2, Sparkles, ArrowRight, SkipForward } from 'lucide-react';
+import { Package, Upload, Share2, Sparkles, ArrowRight, SkipForward } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -44,16 +44,21 @@ export default function WelcomeIntentPage() {
       route: hasManagedOrgs ? '/admin/create' : '/ecrire',
     },
     {
-      key: 'platform',
-      icon: Store,
-      emoji: '🏪',
-      title: isFr ? 'Créer ma plateforme' : 'Create my platform',
-      desc: isFr ? 'Lance ta boutique en ligne et vends tes produits numériques' : 'Launch your online store and sell your digital products',
+      key: 'upload',
+      icon: Upload,
+      emoji: '📤',
+      title: isFr ? 'Ajouter mes produits' : 'Upload my products',
+      desc: isFr ? 'J\'ai déjà un livre, un guide ou une ressource prête à publier' : 'I already have a book, guide or resource ready to publish',
       color: 'border-amber-500/30 hover:border-amber-500',
       iconBg: 'bg-amber-500/10',
       iconColor: 'text-amber-500',
-      badge: isFr ? 'Nouveau' : 'New',
-      route: '/create-org',
+      badge: null as string | null,
+      route: (() => {
+        const managed = userOrgs.filter((org) => canManage(org.id));
+        if (managed.length === 1) return '/admin/products/new';
+        if (managed.length > 1) return '/admin/products/new';
+        return '/create-org';
+      })(),
     },
     {
       key: 'earn',
