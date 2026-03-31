@@ -45,7 +45,7 @@ function useAllProducts(search: string) {
         .from('digital_products')
         .select('id, title, description, price, currency, cover_image_url, is_published, publication_status, is_free, file_url, external_link, created_at, organization_id, created_by, organizations(name, slug)')
         .order('created_at', { ascending: false })
-        .limit(100);
+        .limit(500);
       if (search) q = q.ilike('title', `%${search}%`);
       const { data } = await q;
       return data || [];
