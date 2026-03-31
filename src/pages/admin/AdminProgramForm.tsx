@@ -67,6 +67,7 @@ export function ProgramForm() {
   const [coverUrl, setCoverUrl] = useState('');
   const [isPublished, setIsPublished] = useState(false);
   const [isFree, setIsFree] = useState(true);
+  const [isAiGenerated, setIsAiGenerated] = useState(false);
   const [price, setPrice] = useState(0);
   const [certificateEnabled, setCertificateEnabled] = useState(false);
   const [passingScore, setPassingScore] = useState(70);
