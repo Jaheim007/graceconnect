@@ -137,7 +137,7 @@ export default function CreateOrgPage() {
     exit: { x: -60, opacity: 0 },
   };
 
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
