@@ -473,12 +473,15 @@ Deno.serve(async (req) => {
   let image = meta?.image || DEFAULT_IMAGE;
   try { image = new URL(image).toString(); } catch { image = DEFAULT_IMAGE; }
 
+  // Search bots (Google, Bing) should index the page; social bots should not
+  const robotsTag = isSearchBot(userAgent) ? 'index, follow' : 'noindex';
+
   return new Response(renderOgHtml(title, description, image, canonicalUrl, siteName), {
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'public, max-age=300, s-maxage=600',
       'Vary': 'User-Agent',
-      'X-Robots-Tag': 'noindex',
+      'X-Robots-Tag': robotsTag,
       'X-OG-Proxy-Mode': forceBot ? 'forced-bot' : 'bot-html',
     },
   });
