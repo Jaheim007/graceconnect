@@ -4851,6 +4851,7 @@ export type Database = {
       }
       programs: {
         Row: {
+          ai_generated: boolean
           assessment_enabled: boolean | null
           certificate_enabled: boolean | null
           certificate_template: string | null
@@ -4880,6 +4881,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_generated?: boolean
           assessment_enabled?: boolean | null
           certificate_enabled?: boolean | null
           certificate_template?: string | null
@@ -4909,6 +4911,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_generated?: boolean
           assessment_enabled?: boolean | null
           certificate_enabled?: boolean | null
           certificate_template?: string | null
