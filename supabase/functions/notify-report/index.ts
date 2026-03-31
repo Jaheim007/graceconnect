@@ -44,16 +44,22 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Send email to each superadmin
-    const emailFnUrl = `${SUPABASE_URL}/functions/v1/send-email`;
-    const contentLabel = content_type === 'product' ? 'Produit' : content_type === 'event' ? 'Événement' : content_type;
-
+    // Collect all admin emails first
+    const adminEmails: string[] = [];
     for (const admin of admins) {
       try {
         const { data: { user } } = await db.auth.admin.getUserById(admin.user_id);
-        if (!user?.email) continue;
+        if (user?.email) adminEmails.push(user.email);
+      } catch {}
+    }
 
-        await fetch(emailFnUrl, {
+    // Send all emails in parallel via send-email (which uses batch API internally)
+    const emailFnUrl = `${SUPABASE_URL}/functions/v1/send-email`;
+    const contentLabel = content_type === 'product' ? 'Produit' : content_type === 'event' ? 'Événement' : content_type;
+
+    if (adminEmails.length > 0) {
+      await Promise.allSettled(adminEmails.map(email =>
+        fetch(emailFnUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -61,7 +67,7 @@ Deno.serve(async (req) => {
           },
           body: JSON.stringify({
             template: 'notification_reminder',
-            to: user.email,
+            to: email,
             data: {
               title: `🚩 Nouveau signalement — ${contentLabel}`,
               body: `Un signalement a été soumis par ${reporterName} (${reporter_email}).\n\nContenu signalé : ${content_title || content_id}\nType : ${contentLabel}\nMotif : ${reason}\n\nConnectez-vous au panel Superadmin pour examiner ce signalement.`,
@@ -69,10 +75,8 @@ Deno.serve(async (req) => {
               notification_type: 'content_report',
             },
           }),
-        });
-      } catch (e) {
-        console.error('Failed to email admin:', e);
-      }
+        }).catch(e => console.error('Failed to email admin:', e))
+      ));
     }
 
     // Also create in-app notification for superadmins
