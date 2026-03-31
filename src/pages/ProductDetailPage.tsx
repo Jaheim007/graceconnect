@@ -550,7 +550,7 @@ export default function ProductDetailPage() {
               }}
             />
 
-            <div className="md:hidden space-y-2">
+            <div className="md:hidden space-y-3">
               <h1 className="text-2xl font-bold"><ExperimentTitle defaultTitle={product.title} /></h1>
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="secondary" className="text-xs capitalize gap-1">
@@ -558,6 +558,44 @@ export default function ProductDetailPage() {
                 </Badge>
                 {product.sales_count && product.sales_count > 0 && (
                   <span className="text-xs text-muted-foreground">{product.sales_count}+ {t('product.sales')}</span>
+                )}
+              </div>
+
+              {/* Price visible on mobile — always shown for screenshots & quick info */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {(product as any).is_pwyw && !product.is_free ? (
+                  <span className="text-lg font-bold text-primary">
+                    💰 {locale === 'fr' ? 'Prix libre' : 'Name your price'}
+                    {((product as any).min_price || 0) > 0 && (
+                      <span className="text-sm font-medium text-muted-foreground ml-1">
+                        · {locale === 'fr' ? 'Dès' : 'From'} {formatPrice((product as any).min_price, false, product.currency)}
+                      </span>
+                    )}
+                  </span>
+                ) : (
+                  <>
+                    {(() => {
+                      const effectiveP = getEffectivePrice(product as any);
+                      const hasDiscount = !product.is_free && (product as any).sale_price && (product as any).sale_price < (product.price || 0) && (!(product as any).sale_ends_at || new Date((product as any).sale_ends_at) > new Date());
+                      return (
+                        <>
+                          <span className={cn('text-xl font-bold', product.is_free ? 'text-emerald-500' : 'text-primary')}>
+                            {formatPrice(effectiveP, product.is_free, product.currency)}
+                          </span>
+                          {hasDiscount && (
+                            <>
+                              <span className="text-sm text-muted-foreground line-through">
+                                {formatPrice(product.price || 0, false, product.currency)}
+                              </span>
+                              <Badge variant="destructive" className="text-[10px] px-1.5 py-0.5">
+                                -{Math.round((((product.price || 0) - (product as any).sale_price) / (product.price || 1)) * 100)}%
+                              </Badge>
+                            </>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </>
                 )}
               </div>
             </div>
