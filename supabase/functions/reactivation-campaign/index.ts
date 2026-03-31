@@ -24,29 +24,32 @@ Deno.serve(async (req) => {
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    // Verify caller is superadmin
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
-    }
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user } } = await supabase.auth.getUser(token);
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
-    }
-    const { data: roleCheck } = await supabase
-      .from('user_platform_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'superadmin')
-      .maybeSingle();
-    if (!roleCheck) {
-      return new Response(JSON.stringify({ error: 'Forbidden - superadmin only' }), { status: 403, headers: corsHeaders });
-    }
-
     const body = await req.json().catch(() => ({}));
     const dryRun = body.dry_run === true;
-    const targetSegment = body.segment || 'all'; // 'ghost', 'no_product', 'no_sales', 'ambassador', 'all'
+    const targetSegment = body.segment || 'all';
+    const isCron = body.time !== undefined; // pg_cron sends { time: "..." }
+
+    // ═══ Auth: superadmin OR cron ═══
+    if (!isCron) {
+      const authHeader = req.headers.get('Authorization');
+      if (!authHeader) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
+      }
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user } } = await supabase.auth.getUser(token);
+      if (!user) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
+      }
+      const { data: roleCheck } = await supabase
+        .from('user_platform_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'superadmin')
+        .maybeSingle();
+      if (!roleCheck) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: corsHeaders });
+      }
+    }
 
     // ═══ Step 1: Get ALL auth users ═══
     const allUsers: Array<{ id: string; email: string }> = [];
@@ -61,7 +64,34 @@ Deno.serve(async (req) => {
       page++;
     }
 
-    // ═══ Step 2: Get org memberships ═══
+    // ═══ Step 2: Get recent email_logs to avoid re-sending (7-day cooldown) ═══
+    const cooldownDays = 7;
+    const cooldownDate = new Date(Date.now() - cooldownDays * 24 * 60 * 60 * 1000).toISOString();
+    const reactivationTemplates = [
+      'reactivation_ghost', 'reactivation_no_product',
+      'reactivation_no_sales', 'reactivation_ambassador',
+    ];
+    const { data: recentEmails } = await supabase
+      .from('email_logs')
+      .select('recipient, template')
+      .in('template', reactivationTemplates)
+      .eq('status', 'sent')
+      .gte('created_at', cooldownDate)
+      .limit(5000);
+    const alreadySent = new Set(
+      (recentEmails || []).map((e: any) => `${e.recipient}::${e.template}`)
+    );
+
+    // ═══ Step 3: Get recent reactivation notifications (7-day cooldown) ═══
+    const { data: recentNotifs } = await supabase
+      .from('user_notifications')
+      .select('user_id')
+      .eq('notification_type', 'reactivation')
+      .gte('created_at', cooldownDate)
+      .limit(5000);
+    const notifAlreadySent = new Set((recentNotifs || []).map((n: any) => n.user_id));
+
+    // ═══ Step 4: Get org memberships ═══
     const { data: allMembers } = await supabase
       .from('organization_members')
       .select('user_id, organization_id, role')
@@ -72,7 +102,7 @@ Deno.serve(async (req) => {
       userOrgMap[m.user_id].push({ orgId: m.organization_id, role: m.role });
     }
 
-    // ═══ Step 3: Get org names ═══
+    // ═══ Step 5: Get org names ═══
     const { data: allOrgs } = await supabase
       .from('organizations')
       .select('id, name')
@@ -80,7 +110,7 @@ Deno.serve(async (req) => {
     const orgNameMap: Record<string, string> = {};
     for (const o of (allOrgs || [])) orgNameMap[o.id] = o.name;
 
-    // ═══ Step 4: Get published products per org ═══
+    // ═══ Step 6: Get published products per org ═══
     const { data: allProducts } = await supabase
       .from('digital_products')
       .select('id, organization_id, title, is_published')
@@ -95,7 +125,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ═══ Step 5: Get orgs with sales ═══
+    // ═══ Step 7: Get orgs with sales ═══
     const { data: allPurchases } = await supabase
       .from('product_purchases')
       .select('organization_id')
@@ -103,7 +133,7 @@ Deno.serve(async (req) => {
       .limit(5000);
     const orgsWithSales = new Set((allPurchases || []).map(p => p.organization_id));
 
-    // ═══ Step 6: Get affiliate links ═══
+    // ═══ Step 8: Get affiliate links ═══
     const { data: allAffLinks } = await supabase
       .from('affiliate_links')
       .select('user_id, clicks')
@@ -118,7 +148,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ═══ Step 7: Get profiles for display names ═══
+    // ═══ Step 9: Get profiles for display names ═══
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, display_name')
@@ -128,65 +158,69 @@ Deno.serve(async (req) => {
       if (p.display_name) nameMap[p.id] = p.display_name;
     }
 
-    // ═══ Step 8: Segment users ═══
+    // ═══ Step 10: Segment users ═══
+    const templateMap: Record<string, string> = {
+      ghost: 'reactivation_ghost',
+      no_product: 'reactivation_no_product',
+      no_sales: 'reactivation_no_sales',
+      ambassador: 'reactivation_ambassador',
+    };
+
     const segmented: SegmentedUser[] = [];
 
     for (const user of allUsers) {
       const orgs = userOrgMap[user.id];
       const name = nameMap[user.id] || user.email.split('@')[0];
 
+      let segment: SegmentedUser['segment'] | null = null;
+      let orgName = '';
+      let productName = '';
+
       // Ghost: no org at all
       if (!orgs || orgs.length === 0) {
-        if (targetSegment === 'all' || targetSegment === 'ghost') {
-          segmented.push({ userId: user.id, email: user.email, name, segment: 'ghost' });
-        }
-        continue;
-      }
-
-      // Find owner orgs
-      const ownerOrgs = orgs.filter(o => o.role === 'owner');
-      if (ownerOrgs.length === 0) {
-        // User is member but not owner - check ambassador
-        if ((targetSegment === 'all' || targetSegment === 'ambassador') &&
-            usersWithInactiveLinks.has(user.id) && !usersWithActiveLinks.has(user.id)) {
-          segmented.push({ userId: user.id, email: user.email, name, segment: 'ambassador' });
-        }
-        continue;
-      }
-
-      // Check if any owned org has published products
-      let hasPublished = false;
-      let hasSales = false;
-      let firstOrgName = '';
-      let firstProductName = '';
-      for (const org of ownerOrgs) {
-        if (!firstOrgName) firstOrgName = orgNameMap[org.orgId] || '';
-        const published = orgPublishedMap[org.orgId];
-        if (published && published.length > 0) {
-          hasPublished = true;
-          if (!firstProductName) firstProductName = orgProductTitles[org.orgId] || '';
-          if (orgsWithSales.has(org.orgId)) hasSales = true;
-        }
-      }
-
-      if (!hasPublished) {
-        if (targetSegment === 'all' || targetSegment === 'no_product') {
-          segmented.push({ userId: user.id, email: user.email, name, segment: 'no_product', orgName: firstOrgName });
-        }
-      } else if (!hasSales) {
-        if (targetSegment === 'all' || targetSegment === 'no_sales') {
-          segmented.push({ userId: user.id, email: user.email, name, segment: 'no_sales', orgName: firstOrgName, productName: firstProductName });
-        }
+        segment = 'ghost';
       } else {
-        // Has sales - check if ambassador links are inactive
-        if ((targetSegment === 'all' || targetSegment === 'ambassador') &&
-            usersWithInactiveLinks.has(user.id) && !usersWithActiveLinks.has(user.id)) {
-          segmented.push({ userId: user.id, email: user.email, name, segment: 'ambassador' });
+        const ownerOrgs = orgs.filter(o => o.role === 'owner');
+        if (ownerOrgs.length === 0) {
+          // Member but not owner — check ambassador
+          if (usersWithInactiveLinks.has(user.id) && !usersWithActiveLinks.has(user.id)) {
+            segment = 'ambassador';
+          }
+        } else {
+          let hasPublished = false;
+          let hasSales = false;
+          for (const org of ownerOrgs) {
+            if (!orgName) orgName = orgNameMap[org.orgId] || '';
+            const published = orgPublishedMap[org.orgId];
+            if (published && published.length > 0) {
+              hasPublished = true;
+              if (!productName) productName = orgProductTitles[org.orgId] || '';
+              if (orgsWithSales.has(org.orgId)) hasSales = true;
+            }
+          }
+
+          if (!hasPublished) {
+            segment = 'no_product';
+          } else if (!hasSales) {
+            segment = 'no_sales';
+          } else if (usersWithInactiveLinks.has(user.id) && !usersWithActiveLinks.has(user.id)) {
+            segment = 'ambassador';
+          }
         }
       }
+
+      if (!segment) continue;
+      if (targetSegment !== 'all' && targetSegment !== segment) continue;
+
+      // ═══ Deduplication: skip if already sent in last 7 days ═══
+      const emailKey = `${user.email}::${templateMap[segment]}`;
+      if (alreadySent.has(emailKey)) continue;
+      if (notifAlreadySent.has(user.id)) continue;
+
+      segmented.push({ userId: user.id, email: user.email, name, segment, orgName, productName });
     }
 
-    // ═══ DRY RUN: just return segments ═══
+    // ═══ DRY RUN ═══
     if (dryRun) {
       const summary = {
         ghost: segmented.filter(s => s.segment === 'ghost').length,
@@ -200,33 +234,26 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ═══ Step 9: Send emails + create notifications ═══
-    const templateMap: Record<string, string> = {
-      ghost: 'reactivation_ghost',
-      no_product: 'reactivation_no_product',
-      no_sales: 'reactivation_no_sales',
-      ambassador: 'reactivation_ambassador',
-    };
-
-    const notifMap: Record<string, { fr: { title: string; body: string }; en: { title: string; body: string }; actionUrl: string }> = {
+    // ═══ Step 11: Send emails + create notifications ═══
+    const notifMap: Record<string, { title: string; body: string; actionUrl: string }> = {
       ghost: {
-        fr: { title: '🎨 Créez votre premier produit !', body: 'Votre studio IA vous attend. Créez un ebook ou une formation en 3 minutes avec le Viral AI Studio.' },
-        en: { title: '🎨 Create your first product!', body: 'Your AI studio is waiting. Create an ebook or course in 3 minutes with the Viral AI Studio.' },
+        title: '🎨 Créez votre premier produit !',
+        body: 'Votre studio IA vous attend. Créez un ebook ou une formation en 3 minutes avec le Viral AI Studio.',
         actionUrl: '/welcome',
       },
       no_product: {
-        fr: { title: '📦 Publiez votre 1er produit !', body: 'Votre espace est prêt mais vide. Utilisez le Viral AI Studio pour publier votre premier contenu.' },
-        en: { title: '📦 Publish your 1st product!', body: 'Your space is ready but empty. Use the Viral AI Studio to publish your first content.' },
+        title: '📦 Publiez votre 1er produit !',
+        body: 'Votre espace est prêt mais vide. Utilisez le Viral AI Studio pour publier votre premier contenu.',
         actionUrl: '/admin/create',
       },
       no_sales: {
-        fr: { title: '🔥 Partagez pour vendre !', body: 'Votre produit est publié mais attend ses premiers acheteurs. Partagez-le sur WhatsApp en 1 clic.' },
-        en: { title: '🔥 Share to sell!', body: 'Your product is published but waiting for buyers. Share it on WhatsApp in 1 click.' },
+        title: '🔥 Partagez pour vendre !',
+        body: 'Votre produit est publié mais attend ses premiers acheteurs. Partagez-le sur WhatsApp en 1 clic.',
         actionUrl: '/admin/share',
       },
       ambassador: {
-        fr: { title: '💸 Vos liens dorment !', body: 'Vous avez des liens ambassadeur mais 0 clic. Partagez-les sur WhatsApp pour commencer à gagner des commissions.' },
-        en: { title: '💸 Your links are sleeping!', body: 'You have ambassador links but 0 clicks. Share them on WhatsApp to start earning commissions.' },
+        title: '💸 Vos liens dorment !',
+        body: 'Vous avez des liens ambassadeur mais 0 clic. Partagez-les sur WhatsApp pour gagner des commissions.',
         actionUrl: '/admin/share',
       },
     };
@@ -235,12 +262,10 @@ Deno.serve(async (req) => {
     let emailsFailed = 0;
     let notificationsCreated = 0;
 
-    // Process in batches of 10 to avoid rate limits
     const BATCH = 10;
     for (let i = 0; i < segmented.length; i += BATCH) {
       const batch = segmented.slice(i, i + BATCH);
 
-      // Send emails
       const emailPromises = batch.map(async (u) => {
         try {
           const res = await supabase.functions.invoke('send-email', {
@@ -254,47 +279,40 @@ Deno.serve(async (req) => {
               },
             },
           });
-          if (res.error) {
-            emailsFailed++;
-          } else {
-            emailsSent++;
-          }
+          if (res.error) emailsFailed++;
+          else emailsSent++;
         } catch {
           emailsFailed++;
         }
       });
 
-      // Create in-app notifications
-      const notifInserts = batch.map((u) => {
-        const notif = notifMap[u.segment];
-        // Default to French
-        const content = notif.fr;
-        return {
+      const notifInserts = batch
+        .filter(u => !notifAlreadySent.has(u.userId))
+        .map((u) => ({
           user_id: u.userId,
-          title: content.title,
-          body: content.body,
+          title: notifMap[u.segment].title,
+          body: notifMap[u.segment].body,
           notification_type: 'reactivation',
-          action_url: notif.actionUrl,
-        };
-      });
+          action_url: notifMap[u.segment].actionUrl,
+        }));
 
       await Promise.all(emailPromises);
 
-      const { error: notifErr } = await supabase
-        .from('user_notifications')
-        .insert(notifInserts);
-      if (!notifErr) notificationsCreated += notifInserts.length;
+      if (notifInserts.length > 0) {
+        const { error: notifErr } = await supabase
+          .from('user_notifications')
+          .insert(notifInserts);
+        if (!notifErr) notificationsCreated += notifInserts.length;
+      }
 
-      // Small delay between batches to respect rate limits
       if (i + BATCH < segmented.length) {
         await new Promise(r => setTimeout(r, 3000));
       }
     }
 
-    // ═══ Log the campaign run ═══
+    // ═══ Audit log ═══
     await supabase.from('audit_logs').insert({
-      action: 'reactivation_campaign',
-      user_id: user.id,
+      action: 'reactivation_campaign_auto',
       metadata: {
         segments: {
           ghost: segmented.filter(s => s.segment === 'ghost').length,
@@ -306,7 +324,9 @@ Deno.serve(async (req) => {
         emails_failed: emailsFailed,
         notifications_created: notificationsCreated,
         target_segment: targetSegment,
-        dry_run: false,
+        is_cron: isCron,
+        cooldown_days: cooldownDays,
+        skipped_dedup: allUsers.length - segmented.length,
       },
     });
 
