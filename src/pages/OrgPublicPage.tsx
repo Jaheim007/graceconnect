@@ -228,7 +228,7 @@ export default function OrgPublicPage() {
       />
 
       <div className={cn('container', isAdmin ? 'max-w-7xl' : 'max-w-5xl')}>
-        <div className={cn(isAdmin ? 'flex gap-6' : '')}>
+        <div className={cn(isAdmin ? 'flex flex-col lg:flex-row gap-6' : '')}>
           {/* Main content */}
           <div className="flex-1 min-w-0">
             {/* Pinned announcement */}

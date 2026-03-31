@@ -108,7 +108,7 @@ export default function AdminPayouts() {
         db.from('donations').select('amount, organization_amount, platform_fee, affiliate_commission, completed_at').eq('organization_id', orgId).eq('status', 'completed'),
         db.from('product_purchases').select('amount, organization_amount, platform_fee, affiliate_commission, completed_at').eq('organization_id', orgId).eq('status', 'completed'),
         db.from('payout_requests').select('amount, status').eq('organization_id', orgId),
-          db.from('affiliate_sales').select('commission_amount, status, payable_at, created_at').eq('affiliate_user_id', user.id).eq('organization_id', orgId),
+          db.from('affiliate_sales').select('commission_amount, status, payable_at, created_at').eq('affiliate_user_id', user.id),
       ]);
 
       const allTxns = [...(donations || []), ...(purchases || [])];

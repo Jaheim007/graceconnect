@@ -94,15 +94,14 @@ export default function UserDashboard() {
     enabled: !!activeOrgId,
   });
 
-  // ── Ambassador commissions ──
+  // ── Ambassador commissions (all orgs — commissions are personal earnings) ──
   const { data: commissionStats = { amount: 0, count: 0 } } = useQuery({
-    queryKey: ['user-commissions', user?.id, activeOrgId],
+    queryKey: ['user-commissions', user?.id],
     queryFn: async () => {
-      if (!user || !activeOrgId) return { amount: 0, count: 0 };
+      if (!user) return { amount: 0, count: 0 };
       const { data } = await db.from('affiliate_sales')
         .select('id, commission_amount')
-        .eq('affiliate_user_id', user.id)
-        .eq('organization_id', activeOrgId);
+        .eq('affiliate_user_id', user.id);
 
       const rows = data || [];
       return {
@@ -110,7 +109,7 @@ export default function UserDashboard() {
         count: rows.length,
       };
     },
-    enabled: !!user && !!activeOrgId,
+    enabled: !!user,
   });
 
   // ── Donations received by active org ──
