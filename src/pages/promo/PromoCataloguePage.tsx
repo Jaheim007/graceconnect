@@ -21,14 +21,14 @@ const CATEGORIES = [
 ];
 
 function categorizeProduct(p: any): string {
-  const text = `${p.title} ${p.description || ''}`.toLowerCase();
-  // Secular overrides first
-  const secularOverrides = [CATEGORIES[2], CATEGORIES[3], CATEGORIES[7]]; // tech, business, finance
-  for (const cat of secularOverrides) {
-    if (cat.regex?.test(text)) return cat.key;
+  const text = `${p.title} ${p.description || ''}`;
+  // Try all categories, secular overrides checked first to prevent spirituality false positives
+  const secularKeys = ['tech', 'business', 'finance'];
+  for (const cat of CATEGORIES.slice(1)) {
+    if (secularKeys.includes(cat.key) && cat.regex?.test(text)) return cat.key;
   }
   for (const cat of CATEGORIES.slice(1)) {
-    if (cat.regex?.test(text)) return cat.key;
+    if (!secularKeys.includes(cat.key) && cat.regex?.test(text)) return cat.key;
   }
   return 'all';
 }
