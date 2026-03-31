@@ -11,24 +11,24 @@ import { useState } from 'react';
 
 const CATEGORIES = [
   { key: 'all', labelFr: 'Tout', labelEn: 'All', emoji: '✨' },
-  { key: 'spirituality', labelFr: 'Spiritualité', labelEn: 'Spirituality', emoji: '🙏', regex: /bible|church|église|pray|spirit|god|dieu|faith|worship|sermon|psaume|gospel|christ/i },
-  { key: 'tech', labelFr: 'Technologie & IA', labelEn: 'Tech & AI', emoji: '💻', regex: /tech|ai|ia|code|dev|software|data|machine|learn|prompt|gpt|digital|app|saas|web/i },
-  { key: 'business', labelFr: 'Business & Marketing', labelEn: 'Business & Marketing', emoji: '📈', regex: /business|market|vend|sell|money|argent|entrep|freelan|profit|revenue|copywrite|brand|commerce|client|prospect|funnel/i },
-  { key: 'family', labelFr: 'Famille & Éducation', labelEn: 'Family & Education', emoji: '👨‍👩‍👧‍👦', regex: /family|famil|enfant|child|kid|parent|éducat|educat|school|teacher|math|cours|learn|étude/i },
-  { key: 'health', labelFr: 'Santé & Bien-être', labelEn: 'Health & Wellness', emoji: '🧘', regex: /health|santé|bien.?être|wellness|fitness|yoga|méditat|nutrit|diet|mental|thérap|coach.?vie/i },
-  { key: 'creative', labelFr: 'Créatif & Art', labelEn: 'Creative & Art', emoji: '🎨', regex: /art|design|photo|music|musique|dessin|creat|illustr|graphic|video|film|cinema|paint/i },
-  { key: 'finance', labelFr: 'Finance & Investissement', labelEn: 'Finance & Investment', emoji: '💰', regex: /financ|invest|trading|crypto|bourse|stock|budget|comptab|account|immob|real.?estate/i },
+  { key: 'spirituality', labelFr: 'Spiritualité', labelEn: 'Spirituality', emoji: '🙏', regex: /bible|church|église|pray|spirit|god|dieu|faith|worship|sermon|psaume|gospel|christ|pasteur|pastor|prophè/i },
+  { key: 'tech', labelFr: 'Technologie & IA', labelEn: 'Tech & AI', emoji: '💻', regex: /\b(tech|coding|code|dev|software|data\s?scien|machine.?learn|prompt|chatgpt|gpt|saas|programm|python|javascript|cybersec|blockchain|crypto)\b/i },
+  { key: 'business', labelFr: 'Business & Marketing', labelEn: 'Business & Marketing', emoji: '📈', regex: /\b(business|market|vend|sell|money|argent|entrep|freelan|profit|revenue|copywrite|brand|commerce|prospect|funnel|startup|stratégi)\b/i },
+  { key: 'family', labelFr: 'Famille & Éducation', labelEn: 'Family & Education', emoji: '👨‍👩‍👧‍👦', regex: /\b(family|famil|enfant|child|kid|parent|éducat|educat|school|teacher|math|étude)\b/i },
+  { key: 'health', labelFr: 'Santé & Bien-être', labelEn: 'Health & Wellness', emoji: '🧘', regex: /\b(health|santé|bien.?être|wellness|fitness|yoga|méditat|nutrit|diet|mental|thérap|coach.?vie)\b/i },
+  { key: 'creative', labelFr: 'Créatif & Art', labelEn: 'Creative & Art', emoji: '🎨', regex: /\b(art|design|photo|music|musique|dessin|illustr|graphic|film|cinema|paint|peinture)\b/i },
+  { key: 'finance', labelFr: 'Finance & Investissement', labelEn: 'Finance & Investment', emoji: '💰', regex: /\b(financ|invest|trading|crypto|bourse|stock|budget|comptab|immob|real.?estate)\b/i },
 ];
 
 function categorizeProduct(p: any): string {
-  const text = `${p.title} ${p.description || ''}`.toLowerCase();
-  // Secular overrides first
-  const secularOverrides = [CATEGORIES[2], CATEGORIES[3], CATEGORIES[7]]; // tech, business, finance
-  for (const cat of secularOverrides) {
-    if (cat.regex?.test(text)) return cat.key;
+  const text = `${p.title} ${p.description || ''}`;
+  // Try all categories, secular overrides checked first to prevent spirituality false positives
+  const secularKeys = ['tech', 'business', 'finance'];
+  for (const cat of CATEGORIES.slice(1)) {
+    if (secularKeys.includes(cat.key) && cat.regex?.test(text)) return cat.key;
   }
   for (const cat of CATEGORIES.slice(1)) {
-    if (cat.regex?.test(text)) return cat.key;
+    if (!secularKeys.includes(cat.key) && cat.regex?.test(text)) return cat.key;
   }
   return 'all';
 }
