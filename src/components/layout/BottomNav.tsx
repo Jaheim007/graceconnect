@@ -96,7 +96,7 @@ export function BottomNav() {
       default:
         return [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: hasManagedOrgs ? '/admin/studio' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
+          { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
           { to: '/admin/sales', icon: Wallet, label: labels.sales },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
           { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
