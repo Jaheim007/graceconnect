@@ -397,6 +397,9 @@ const App = () => (
                 <Route element={<PublicLayout />}>
                   <Route path="/discover" element={<DiscoverPage />} />
                   <Route path="/spotlight" element={<Navigate to="/discover" replace />} />
+                  <Route path="/promo/catalogue" element={<PromoCataloguePage />} />
+                  <Route path="/promo/gratuits" element={<PromoGratuitsPage />} />
+                  <Route path="/promo/stars" element={<PromoStarsPage />} />
                   <Route path="/org/:slug" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/content" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/events" element={<OrgPublicPage />} />
