@@ -1129,13 +1129,25 @@ export function AdminSettings() {
         toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
       }
     } else {
-      // Sync all products to the new org currency
+      // Sync all content to the new org currency
       if (orgCurrency !== currentOrg.currency) {
-        await supabase
-          .from('digital_products')
-          .update({ currency: orgCurrency } as any)
-          .eq('organization_id', currentOrg.id);
+        await Promise.all([
+          supabase
+            .from('digital_products')
+            .update({ currency: orgCurrency } as any)
+            .eq('organization_id', currentOrg.id),
+          supabase
+            .from('donation_campaigns')
+            .update({ currency: orgCurrency } as any)
+            .eq('organization_id', currentOrg.id),
+          supabase
+            .from('programs')
+            .update({ currency: orgCurrency } as any)
+            .eq('organization_id', currentOrg.id),
+        ]);
         qc.invalidateQueries({ queryKey: ['admin-products'] });
+        qc.invalidateQueries({ queryKey: ['admin-campaigns'] });
+        qc.invalidateQueries({ queryKey: ['admin-programs'] });
         qc.invalidateQueries({ queryKey: ['discover'] });
       }
       toast({ title: '✅ ' + (isFr ? 'Profil sauvegardé' : 'Profile saved') });
