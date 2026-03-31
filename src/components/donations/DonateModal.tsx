@@ -297,9 +297,6 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
                 {isFr ? 'Donner' : 'Donate'} {amount ? fmt(effectiveAmount) : ''}
-                {amount && effectiveAmount > 0 && (
-                  <LocalPriceHint amount={effectiveAmount} currency={campaignCurrency} className="ml-1" />
-                )}
               </Button>
             </div>
           </>
