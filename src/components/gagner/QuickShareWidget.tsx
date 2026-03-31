@@ -3,20 +3,16 @@ import { motion } from 'framer-motion';
 import { Zap, Copy, Check, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
+import { useI18n } from '@/i18n/I18nContext';
 
-/**
- * QuickShareWidget — shows the user's active affiliate links
- * with 1-click copy for instant sharing. Appears on /gagner.
- */
 export function QuickShareWidget() {
   const { user } = useAuth();
-  
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const { data: links = [], isLoading } = useQuery({
@@ -42,10 +38,10 @@ export function QuickShareWidget() {
     try {
       await navigator.clipboard.writeText(url);
       setCopiedId(id);
-      toast.success('Lien copié ! Partage-le maintenant 🚀');
+      toast.success(isFr ? 'Lien copié ! Partage-le maintenant 🚀' : 'Link copied! Share it now 🚀');
       setTimeout(() => setCopiedId(null), 2000);
     } catch {
-      toast.error('Impossible de copier');
+      toast.error(isFr ? 'Impossible de copier' : 'Unable to copy');
     }
   };
 
@@ -57,7 +53,8 @@ export function QuickShareWidget() {
       className="rounded-2xl border border-accent/20 bg-card p-5"
     >
       <h3 className="text-sm font-extrabold flex items-center gap-2 mb-4">
-        <Zap className="h-4 w-4 text-accent" /> Tes liens actifs — Partage vite !
+        <Zap className="h-4 w-4 text-accent" />
+        {isFr ? 'Tes liens actifs — Partage vite !' : 'Your active links — Share now!'}
       </h3>
 
       <div className="space-y-3">
@@ -74,11 +71,11 @@ export function QuickShareWidget() {
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold truncate">{org?.name}</p>
                 <div className="flex items-center gap-3 text-[10px] text-muted-foreground mt-0.5">
-                  <span>{link.clicks || 0} clics</span>
-                  <span>{link.conversions || 0} ventes</span>
+                  <span>{link.clicks || 0} {isFr ? 'clics' : 'clicks'}</span>
+                  <span>{link.conversions || 0} {isFr ? 'ventes' : 'sales'}</span>
                   {(link.total_earned || 0) > 0 && (
                     <span className="text-accent font-bold">
-                      {formatCurrency(link.total_earned, DEFAULT_CURRENCY)} gagné
+                      {formatCurrency(link.total_earned, DEFAULT_CURRENCY)} {isFr ? 'gagné' : 'earned'}
                     </span>
                   )}
                 </div>
@@ -90,9 +87,9 @@ export function QuickShareWidget() {
                 onClick={() => copyLink(link.code, link.id)}
               >
                 {copiedId === link.id ? (
-                  <><Check className="h-3.5 w-3.5" /> Copié</>
+                  <><Check className="h-3.5 w-3.5" /> {isFr ? 'Copié' : 'Copied'}</>
                 ) : (
-                  <><Copy className="h-3.5 w-3.5" /> Copier</>
+                  <><Copy className="h-3.5 w-3.5" /> {isFr ? 'Copier' : 'Copy'}</>
                 )}
               </Button>
             </div>
@@ -113,7 +110,7 @@ export function QuickShareWidget() {
           }
         }}
       >
-        Voir tous mes liens <ExternalLink className="h-3.5 w-3.5" />
+        {isFr ? 'Voir tous mes liens' : 'View all my links'} <ExternalLink className="h-3.5 w-3.5" />
       </Button>
     </motion.div>
   );

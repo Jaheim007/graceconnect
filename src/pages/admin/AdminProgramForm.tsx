@@ -67,6 +67,7 @@ export function ProgramForm() {
   const [coverUrl, setCoverUrl] = useState('');
   const [isPublished, setIsPublished] = useState(false);
   const [isFree, setIsFree] = useState(true);
+  const [isAiGenerated, setIsAiGenerated] = useState(false);
   const [price, setPrice] = useState(0);
   const [certificateEnabled, setCertificateEnabled] = useState(false);
   const [passingScore, setPassingScore] = useState(70);
@@ -109,7 +110,9 @@ export function ProgramForm() {
       setDescription(existingProgram.description || '');
       setCoverUrl(existingProgram.cover_image_url || '');
       setIsPublished(existingProgram.is_published || false);
-      setIsFree(existingProgram.is_free ?? true);
+      const aiGen = (existingProgram as any).ai_generated === true;
+      setIsAiGenerated(aiGen);
+      setIsFree(aiGen ? false : (existingProgram.is_free ?? true));
       setPrice(existingProgram.price || 0);
       setCertificateEnabled((existingProgram as any).certificate_enabled || false);
       setPassingScore((existingProgram as any).passing_score ?? 70);
@@ -790,9 +793,13 @@ export function ProgramForm() {
               <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-xs">{isFr ? 'Cours gratuit' : 'Free course'}</Label>
-                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Accessible sans paiement' : 'Free access'}</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {isAiGenerated
+                      ? (isFr ? 'Les formations créées par IA doivent être payantes' : 'AI-generated courses must be paid')
+                      : (isFr ? 'Accessible sans paiement' : 'Free access')}
+                  </p>
                 </div>
-                <Switch checked={isFree} onCheckedChange={setIsFree} />
+                <Switch checked={isFree} onCheckedChange={setIsFree} disabled={isAiGenerated} />
               </div>
               <div className={cn(isFree && 'opacity-40 pointer-events-none')}>
                 <Label className="text-xs">{isFr ? 'Prix' : 'Price'} ({currency})</Label>

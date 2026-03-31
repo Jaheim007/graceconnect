@@ -176,7 +176,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
     >
       <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-md hover:shadow-lg transition-shadow">
         {/* Image */}
-        <div className="relative aspect-[16/10] bg-muted/30 overflow-hidden">
+        <div className="relative aspect-[3/4] bg-muted/30 overflow-hidden">
           {product.cover_image_url ? (
             <img src={product.cover_image_url} alt={product.title} className="w-full h-full object-cover" loading="lazy" />
           ) : (

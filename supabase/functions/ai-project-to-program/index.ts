@@ -93,7 +93,8 @@ Deno.serve(async (req) => {
         cover_image_url: coverAsset?.file_url || null,
         is_published: publish_now ?? false,
         publication_status: publish_now ? 'published' : 'draft',
-        is_free: true,
+        is_free: false,
+        ai_generated: true,
       })
       .select('id')
       .single();

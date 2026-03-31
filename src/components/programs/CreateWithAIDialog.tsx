@@ -192,6 +192,8 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         description: courseDescription,
         created_by: user.id,
         content_language: contentLanguage,
+        is_free: false,
+        ai_generated: true,
       } as any);
 
       if (data?.modules) {

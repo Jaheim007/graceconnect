@@ -105,9 +105,9 @@ export function SwipeableFeed() {
 
       {/* Feed */}
       {isLoading ? (
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-72 rounded-2xl bg-muted/50 animate-pulse" />
+        <div className="grid gap-4 grid-cols-2 sm:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <div key={i} className="aspect-[3/4] rounded-2xl bg-muted/50 animate-pulse" />
           ))}
         </div>
       ) : !sortedProducts.length ? (
@@ -117,7 +117,7 @@ export function SwipeableFeed() {
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3">
           {sortedProducts.map((product: any, i: number) => (
             <ProductSwipeCard key={product.id} product={product} index={i} />
           ))}
