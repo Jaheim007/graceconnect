@@ -44,6 +44,18 @@ export default function WelcomeIntentPage() {
       route: hasManagedOrgs ? '/admin/create' : '/ecrire',
     },
     {
+      key: 'platform',
+      icon: Store,
+      emoji: '🏪',
+      title: isFr ? 'Créer ma plateforme' : 'Create my platform',
+      desc: isFr ? 'Lance ta boutique en ligne et vends tes produits numériques' : 'Launch your online store and sell your digital products',
+      color: 'border-amber-500/30 hover:border-amber-500',
+      iconBg: 'bg-amber-500/10',
+      iconColor: 'text-amber-500',
+      badge: isFr ? 'Nouveau' : 'New',
+      route: '/create-org',
+    },
+    {
       key: 'earn',
       icon: Share2,
       emoji: '🔗',
