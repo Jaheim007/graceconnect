@@ -43,28 +43,35 @@ Deno.serve(async (req) => {
     // Get superadmins
     const { data: superadmins } = await db.from('user_platform_roles').select('user_id').eq('role', 'superadmin');
 
+    // Collect all emails first, then send via the send-email function (which now uses batch API)
+    const emailPromises = [];
     for (const sa of superadmins || []) {
       const email = await getUserEmail(sa.user_id);
       if (!email) continue;
-      await sendEmail({
-        template: 'weekly_report' as any,
-        to: email,
-        data: {
-          week_start: new Date(now.getTime() - 7 * 86400000).toLocaleDateString('fr-FR'),
-          week_end: now.toLocaleDateString('fr-FR'),
-          new_users: newUsers || 0,
-          new_orgs: newOrgs || 0,
-          new_products: newProducts || 0,
-          total_sales: totalSales,
-          total_donations: totalDonations,
-          gmv,
-          new_affiliates: newAffiliates || 0,
-          sales_count: (salesData || []).length,
-          donations_count: (donationsData || []).length,
-          pending_payouts: pendingPayouts || 0,
-        },
-      });
+      emailPromises.push(
+        sendEmail({
+          template: 'weekly_report' as any,
+          to: email,
+          data: {
+            week_start: new Date(now.getTime() - 7 * 86400000).toLocaleDateString('fr-FR'),
+            week_end: now.toLocaleDateString('fr-FR'),
+            new_users: newUsers || 0,
+            new_orgs: newOrgs || 0,
+            new_products: newProducts || 0,
+            total_sales: totalSales,
+            total_donations: totalDonations,
+            gmv,
+            new_affiliates: newAffiliates || 0,
+            sales_count: (salesData || []).length,
+            donations_count: (donationsData || []).length,
+            pending_payouts: pendingPayouts || 0,
+          },
+        })
+      );
     }
+
+    // Send all in parallel — send-email function handles batching internally
+    await Promise.allSettled(emailPromises);
 
     return new Response(JSON.stringify({ ok: true, superadmins_notified: (superadmins || []).length, gmv }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
