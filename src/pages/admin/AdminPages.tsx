@@ -1289,10 +1289,20 @@ export function AdminSettings() {
   };
 
   // Get sample prices for the wizard
-  const wizardSamplePrices = (() => {
-    // We'll fetch them on demand — for now, simple empty array
-    return [] as { title: string; price: number }[];
-  })();
+  const { data: wizardSamplePrices = [] } = useQuery({
+    queryKey: ['wizard-sample-prices', currentOrg?.id],
+    queryFn: async () => {
+      if (!currentOrg?.id) return [];
+      const { data } = await supabase.from('digital_products')
+        .select('title, price')
+        .eq('organization_id', currentOrg.id)
+        .gt('price', 0)
+        .order('price', { ascending: false })
+        .limit(3);
+      return (data || []).map(p => ({ title: p.title, price: p.price ?? 0 }));
+    },
+    enabled: currencyWizardOpen && !!currentOrg?.id,
+  });
 
   return (
     <AdminPageShell title={isFr ? 'Paramètres' : 'Settings'} backRoute="/admin">
