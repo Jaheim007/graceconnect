@@ -51,6 +51,9 @@ const AuthPage = lazy(() => import("@/pages/AuthPage"));
 const AuthCallbackPage = lazy(() => import("@/pages/AuthCallbackPage"));
 const DiscoverPage = lazy(() => import("@/pages/DiscoverPage"));
 // SpotlightPage consolidated into Discover
+const PromoCataloguePage = lazy(() => import("@/pages/promo/PromoCataloguePage"));
+const PromoGratuitsPage = lazy(() => import("@/pages/promo/PromoGratuitsPage"));
+const PromoStarsPage = lazy(() => import("@/pages/promo/PromoStarsPage"));
 const OrgPublicPage = lazy(() => import("@/pages/OrgPublicPage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
