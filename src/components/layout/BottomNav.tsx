@@ -87,7 +87,7 @@ export function BottomNav() {
       case 'org-religious':
         return [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: hasManagedOrgs ? '/admin/content' : '/create-org', icon: Plus, label: isFr ? 'Publier' : 'Publish', center: true },
+          { to: hasManagedOrgs ? '/admin/studio' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
           { to: '/admin/sales', icon: BarChart3, label: labels.activity },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
           { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
@@ -96,7 +96,7 @@ export function BottomNav() {
       default:
         return [
           { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-          { to: hasManagedOrgs ? '/admin/content' : '/create-org', icon: Plus, label: isFr ? 'Publier' : 'Publish', center: true },
+          { to: hasManagedOrgs ? '/admin/studio' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
           { to: '/admin/sales', icon: Wallet, label: labels.sales },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
           { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
@@ -144,6 +144,8 @@ export function BottomNav() {
           ? (isFr ? 'Notre espace' : 'Our Space')
           : (isFr ? 'Ma boutique' : 'My Store'),
         items: [
+          { to: '/admin/content', icon: Package, label: isFr ? 'Mes contenus' : 'My Content' },
+          { to: '/gagner', icon: Share2, label: isFr ? 'Partager' : 'Share' },
           { to: '/admin', icon: BarChart3, label: isFr ? 'Vue d\'ensemble' : 'Overview' },
           ...(currentOrg ? [{ to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' }] : []),
           { to: '/admin/people', icon: Users, label: labels.clients },
