@@ -21,7 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { db } from '@/lib/db';
 import { formatPrice } from '@/lib/currency';
-import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
+import { formatCurrency } from '@/lib/currency';
 import { useAbandonedCart } from '@/hooks/useAbandonedCart';
 import { getAutoPromoCode, clearAutoPromoCode } from '@/hooks/usePromoCapture';
 import { onNewSale } from '@/lib/notifications';
