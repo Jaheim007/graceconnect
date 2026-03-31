@@ -313,10 +313,19 @@ export function AdminProducts() {
   const [chariowOpen, setChariowOpen] = useState(false);
 
   const handleBulkPublish = async (ids: string[]) => {
-    await db.from('digital_products').update({ is_published: true }).in('id', ids);
-    qc.invalidateQueries({ queryKey: ['org-products'] });
+    // Exclude moderated products from bulk publish
+    const { data: moderated } = await db.from('digital_products').select('id').in('id', ids).eq('publication_status', 'moderated');
+    const moderatedIds = new Set((moderated || []).map((m: any) => m.id));
+    const allowedIds = ids.filter(id => !moderatedIds.has(id));
+    if (moderatedIds.size > 0) {
+      toast({ title: isFr ? `${moderatedIds.size} produit(s) modéré(s) ignoré(s)` : `${moderatedIds.size} moderated product(s) skipped`, variant: 'destructive' });
+    }
+    if (allowedIds.length > 0) {
+      await db.from('digital_products').update({ is_published: true, publication_status: 'published' }).in('id', allowedIds);
+      qc.invalidateQueries({ queryKey: ['org-products'] });
+      toast({ title: isFr ? `${allowedIds.length} produit(s) publié(s) ✅` : `${allowedIds.length} product(s) published ✅` });
+    }
     bulk.clear();
-    toast({ title: isFr ? `${ids.length} produit(s) publié(s) ✅` : `${ids.length} product(s) published ✅` });
   };
   const handleBulkUnpublish = async (ids: string[]) => {
     await db.from('digital_products').update({ is_published: false }).in('id', ids);
