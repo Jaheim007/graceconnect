@@ -3,54 +3,37 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
-import {
-  PackageCheck, BookOpen, MonitorPlay, Megaphone, CalendarCheck2,
-  HeartHandshake, Percent, ArrowRight, Gift, LayoutPanelTop, GraduationCap,
-  Wand2, PenLine, Zap, ChevronDown, TrendingUp
-} from 'lucide-react';
+import { ArrowRight, GraduationCap, PenLine, Zap, Sparkles, Clock, BookOpen, Baby, Palette } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
-
-/* ── Secondary items (hidden behind "More" on mobile) ── */
-const secondaryItems = [
-  { to: '/admin/media', icon: MonitorPlay, labelKey: 'create_hub.media', descKey: 'create_hub.media_desc', color: 'text-blue-500 bg-blue-500/10 border-blue-500/20', countKey: 'media' as const },
-  { to: '/admin/campaigns', icon: HeartHandshake, labelKey: 'create_hub.campaigns', descKey: 'create_hub.campaigns_desc', color: 'text-rose-500 bg-rose-500/10 border-rose-500/20' },
-  { to: '/admin/events', icon: CalendarCheck2, labelKey: 'create_hub.events', descKey: 'create_hub.events_desc', color: 'text-purple-500 bg-purple-500/10 border-purple-500/20' },
-  { to: '/admin/announcements', icon: Megaphone, labelKey: 'create_hub.announcements', descKey: 'create_hub.announcements_desc', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
-  { to: '/admin/promo-codes', icon: Percent, labelKey: 'create_hub.promos', descKey: 'create_hub.promos_desc', color: 'text-teal-500 bg-teal-500/10 border-teal-500/20' },
-  { to: '/admin/offerings', icon: Gift, labelKey: 'create_hub.donations', descKey: 'create_hub.donations_desc', color: 'text-pink-500 bg-pink-500/10 border-pink-500/20' },
-  { to: '/admin/popups', icon: LayoutPanelTop, labelKey: 'create_hub.popups', descKey: 'create_hub.popups_desc', color: 'text-orange-500 bg-orange-500/10 border-orange-500/20' },
-];
+import { motion } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
 
 export default function AdminCreateHub() {
   const { currentOrg } = useOrg();
-  const { t } = useI18n();
-  const { fmt } = useDisplayCurrency();
-  const [showMore, setShowMore] = useState(false);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
-  const { data: counts } = useQuery({
-    queryKey: ['create-hub-counts', currentOrg?.id],
+  const { data: recentProjects } = useQuery({
+    queryKey: ['ai-recent-projects', currentOrg?.id],
     queryFn: async () => {
-      if (!currentOrg?.id) return null;
-      const [products, programs, media, revenue] = await Promise.all([
-        db.from('digital_products').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
-        db.from('programs').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
-        db.from('media_content').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
-        db.from('product_purchases').select('amount').eq('organization_id', currentOrg.id).eq('status', 'completed'),
-      ]);
-      const totalRevenue = (revenue.data || []).reduce((sum, r) => sum + (r.amount || 0), 0);
-      return {
-        products: products.count || 0,
-        programs: programs.count || 0,
-        media: media.count || 0,
-        revenue: totalRevenue,
-      };
+      if (!currentOrg?.id) return [];
+      const { data } = await db.from('ai_content_projects')
+        .select('id, title, project_type, status, updated_at')
+        .eq('organization_id', currentOrg.id)
+        .order('updated_at', { ascending: false })
+        .limit(5);
+      return data || [];
     },
     enabled: !!currentOrg?.id,
     staleTime: 60_000,
   });
+
+  const PROJECT_TYPE_META: Record<string, { label: string; icon: typeof BookOpen; color: string }> = {
+    ebook: { label: isFr ? 'Ebook' : 'Ebook', icon: BookOpen, color: 'text-blue-500' },
+    kids_book: { label: isFr ? 'Livre Enfant' : 'Kids Book', icon: Baby, color: 'text-pink-500' },
+    coloring_book: { label: isFr ? 'Coloriage' : 'Coloring', icon: Palette, color: 'text-orange-500' },
+    course_pack: { label: isFr ? 'Cours' : 'Course', icon: GraduationCap, color: 'text-emerald-500' },
+  };
 
   return (
     <div className="space-y-5">
@@ -60,29 +43,13 @@ export default function AdminCreateHub() {
           <Zap className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-xl font-bold tracking-tight">Viral AI Studio</h1>
-          <p className="text-sm text-muted-foreground">{t('create_hub.subtitle')}</p>
+          <h1 className="text-xl font-bold tracking-tight">
+            {isFr ? 'Créer avec l\'IA' : 'Create with AI'}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {isFr ? 'Utilisez l\'intelligence artificielle pour créer vos contenus' : 'Use AI to create your content'}
+          </p>
         </div>
-      </div>
-
-      {/* Stats bar */}
-      <div className="grid grid-cols-3 gap-2">
-        {[
-          { value: String(counts?.products ?? 0), label: 'Produits', color: 'text-primary' },
-          { value: String(counts?.programs ?? 0), label: 'Formations', color: 'text-emerald-500' },
-          { value: fmt(counts?.revenue ?? 0, currentOrg?.currency), label: 'Revenus', color: 'text-amber-500' },
-        ].map((s, i) => (
-          <motion.div
-            key={s.label}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06 }}
-            className="text-center p-3 rounded-xl border border-border bg-card"
-          >
-            <p className={cn('text-sm font-extrabold leading-none', s.color)}>{s.value}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">{s.label}</p>
-          </motion.div>
-        ))}
       </div>
 
       {/* AI Writer CTA — Write a book */}
@@ -104,15 +71,19 @@ export default function AdminCreateHub() {
         </motion.div>
         <div className="relative flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <h3 className="font-bold text-sm leading-tight">{t('create_hub.ai_writer')}</h3>
+            <h3 className="font-bold text-sm leading-tight">
+              {isFr ? 'Écrire un livre avec l\'IA' : 'Write a book with AI'}
+            </h3>
             <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-primary/20 text-primary whitespace-nowrap">AI</span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{t('create_hub.ai_writer_desc')}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
+            {isFr ? 'Créez un ebook en 5 minutes avec Viral AI Studio' : 'Create an ebook in 5 minutes with Viral AI Studio'}
+          </p>
         </div>
         <ArrowRight className="relative h-4 w-4 text-primary shrink-0 group-hover:translate-x-1 transition-transform" />
       </Link>
 
-      {/* AI Course CTA — Create a formation */}
+      {/* AI Course CTA */}
       <Link
         to="/admin/programs"
         className="relative flex items-center gap-3 p-3.5 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-accent/5 to-emerald-500/5 hover:border-emerald-500/50 transition-all group overflow-hidden"
@@ -131,99 +102,69 @@ export default function AdminCreateHub() {
         </motion.div>
         <div className="relative flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <h3 className="font-bold text-sm leading-tight">{t('create_hub.ai_course')}</h3>
+            <h3 className="font-bold text-sm leading-tight">
+              {isFr ? 'Créer une formation avec l\'IA' : 'Create a course with AI'}
+            </h3>
             <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-500 whitespace-nowrap">AI</span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{t('create_hub.ai_course_desc')}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
+            {isFr ? 'Créez une formation en 5 minutes avec l\'IA' : 'Create a course in 5 minutes with AI'}
+          </p>
         </div>
         <ArrowRight className="relative h-4 w-4 text-emerald-500 shrink-0 group-hover:translate-x-1 transition-transform" />
       </Link>
 
-      {/* Primary grid: Add product + Add formation */}
-      <div className="grid grid-cols-2 gap-2.5">
-        {[
-          { to: '/admin/products', icon: PackageCheck, labelKey: 'create_hub.products', descKey: 'create_hub.products_desc', color: 'text-primary bg-primary/10 border-primary/20' },
-          { to: '/admin/programs', icon: BookOpen, labelKey: 'create_hub.programs', descKey: 'create_hub.programs_desc', color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' },
-        ].map((item, i) => {
-          const [textColor, bgColor, borderColor] = item.color.split(' ');
-          return (
-            <motion.div
-              key={item.to}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04, type: 'spring', stiffness: 260, damping: 24 }}
-            >
-              <Link
-                to={item.to}
-                className={cn(
-                  'flex flex-col gap-2.5 p-3.5 rounded-2xl border transition-all group hover:shadow-md hover:-translate-y-0.5',
-                  borderColor
-                )}
-              >
-                <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', bgColor)}>
-                  <item.icon className={cn('h-5 w-5', textColor)} />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-xs leading-tight">{t(item.labelKey)}</h3>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{t(item.descKey)}</p>
-                </div>
-              </Link>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* More tools — collapsible on mobile, always shown on desktop */}
-      <div>
-        <button
-          onClick={() => setShowMore(v => !v)}
-          className="sm:hidden w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-        >
-          {t('create_hub.more_tools')}
-          <ChevronDown className={cn('h-4 w-4 transition-transform', showMore && 'rotate-180')} />
-        </button>
-
-        {/* Desktop: always visible | Mobile: collapsible */}
-        <div className={cn('sm:block', showMore ? 'block' : 'hidden')}>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {secondaryItems.map((item, i) => {
-              const [textColor, bgColor, borderColor] = item.color.split(' ');
+      {/* Recent AI Projects */}
+      {recentProjects && recentProjects.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              {isFr ? 'Projets IA récents' : 'Recent AI Projects'}
+            </h2>
+            <Link to="/admin/studio/projects" className="text-xs text-primary hover:underline flex items-center gap-1">
+              {isFr ? 'Voir tout' : 'View all'} <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="space-y-1.5">
+            {recentProjects.map(project => {
+              const meta = PROJECT_TYPE_META[project.project_type] || PROJECT_TYPE_META.ebook;
+              const Icon = meta.icon;
               return (
-                <motion.div
-                  key={item.to}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03 }}
+                <Link
+                  key={project.id}
+                  to={`/admin/studio/projects/${project.id}`}
+                  className="flex items-center gap-3 p-2.5 rounded-xl border border-border hover:border-primary/30 transition-colors"
                 >
-                  <Link
-                    to={item.to}
-                    className={cn(
-                      'flex items-center gap-3 p-3.5 rounded-xl border transition-all group hover:shadow-sm hover:-translate-y-0.5',
-                      borderColor
-                    )}
-                  >
-                    <div className={cn('h-9 w-9 rounded-lg flex items-center justify-center shrink-0', bgColor)}>
-                      <item.icon className={cn('h-4 w-4', textColor)} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5">
-                        <h3 className="font-semibold text-xs">{t(item.labelKey)}</h3>
-                        {'countKey' in item && item.countKey && counts?.[item.countKey] != null && (
-                          <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded-full', bgColor, textColor)}>
-                            {counts[item.countKey]}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[10px] text-muted-foreground line-clamp-1">{t(item.descKey)}</p>
-                    </div>
-                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                </motion.div>
+                  <Icon className={cn('h-4 w-4 shrink-0', meta.color)} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{project.title}</p>
+                    <p className="text-[10px] text-muted-foreground">{meta.label}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Clock className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(project.updated_at).toLocaleDateString(isFr ? 'fr' : 'en')}
+                    </span>
+                  </div>
+                </Link>
               );
             })}
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Empty state */}
+      {(!recentProjects || recentProjects.length === 0) && (
+        <div className="text-center py-8 rounded-2xl border border-dashed border-border">
+          <Sparkles className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+          <p className="text-sm font-medium text-muted-foreground">
+            {isFr ? 'Aucun projet IA encore' : 'No AI projects yet'}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {isFr ? 'Commencez par écrire un livre ou créer une formation' : 'Start by writing a book or creating a course'}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
