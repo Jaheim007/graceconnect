@@ -100,8 +100,40 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     // ═══ AUTH & ONBOARDING ═══
     case 'welcome':
       return isFr
-        ? { subject: '👋 Bienvenue sur Siteviral', html: wrap(`<h1 style="color:${blue}">Bienvenue sur Siteviral !</h1><p>Bonjour ${d.name || ''},</p><p>Votre compte est prêt. Commencez dès maintenant à explorer la plateforme.</p>${cta('https://siteviral.com/dashboard', 'Accéder à mon espace')}`, lang) }
-        : { subject: '👋 Welcome to Siteviral', html: wrap(`<h1 style="color:${blue}">Welcome to Siteviral!</h1><p>Hello ${d.name || ''},</p><p>Your account is ready. Start exploring the platform now.</p>${cta('https://siteviral.com/dashboard', 'Go to my dashboard')}`, lang) };
+        ? { subject: '🎁 Bienvenue sur Siteviral – 50 crédits offerts !', html: wrap(`
+            <h1 style="color:${blue}">Bienvenue sur Siteviral !</h1>
+            <p>Bonjour ${d.name || ''},</p>
+            <p>Votre compte est prêt et nous vous avons offert <strong style="color:${blue};font-size:18px">50 crédits bonus</strong> pour démarrer 🎉</p>
+            <div style="background:#f0f7ff;border-radius:12px;padding:20px;margin:20px 0">
+              <p style="margin:0 0 12px;font-weight:bold;color:${blue}">Avec vos crédits, vous pouvez :</p>
+              <ul style="margin:0;padding-left:20px;line-height:2">
+                <li>🤖 Générer du contenu IA (formations, livres, quiz…)</li>
+                <li>🎨 Créer des illustrations et couvertures</li>
+                <li>📚 Utiliser le Viral Studio pour produire des ressources</li>
+              </ul>
+            </div>
+            <p style="color:#888;font-size:13px">⏰ Ces crédits expirent dans 7 jours – profitez-en vite !</p>
+            <p>Vous recevez aussi <strong>38,5 crédits gratuits chaque jour</strong> en vous connectant.</p>
+            ${cta('https://siteviral.com/credits', 'Voir mes crédits')}
+            ${cta('https://siteviral.com/dashboard', 'Accéder à mon espace')}
+          `, lang) }
+        : { subject: '🎁 Welcome to Siteviral – 50 free credits!', html: wrap(`
+            <h1 style="color:${blue}">Welcome to Siteviral!</h1>
+            <p>Hello ${d.name || ''},</p>
+            <p>Your account is ready and we've gifted you <strong style="color:${blue};font-size:18px">50 bonus credits</strong> to get started 🎉</p>
+            <div style="background:#f0f7ff;border-radius:12px;padding:20px;margin:20px 0">
+              <p style="margin:0 0 12px;font-weight:bold;color:${blue}">With your credits, you can:</p>
+              <ul style="margin:0;padding-left:20px;line-height:2">
+                <li>🤖 Generate AI content (courses, books, quizzes…)</li>
+                <li>🎨 Create illustrations and covers</li>
+                <li>📚 Use the Viral Studio to produce resources</li>
+              </ul>
+            </div>
+            <p style="color:#888;font-size:13px">⏰ These credits expire in 7 days – use them quickly!</p>
+            <p>You also receive <strong>38.5 free credits every day</strong> just by logging in.</p>
+            ${cta('https://siteviral.com/credits', 'View my credits')}
+            ${cta('https://siteviral.com/dashboard', 'Go to my dashboard')}
+          `, lang) };
 
     case 'onboarding_day1':
       return isFr
