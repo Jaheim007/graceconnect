@@ -3,24 +3,32 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 /**
- * Redirects users to /welcome on login unless they've already dismissed it this session.
+ * Redirects users to /welcome on every fresh login.
+ * Uses a per-user key so switching accounts always triggers the welcome.
  */
 export function useNewUserRedirect() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const checked = useRef(false);
+  const lastCheckedUserId = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!user || checked.current) return;
-    checked.current = true;
+    if (!user) {
+      lastCheckedUserId.current = null;
+      return;
+    }
+
+    // Only check once per user per mount cycle
+    if (lastCheckedUserId.current === user.id) return;
+    lastCheckedUserId.current = user.id;
 
     // Skip if already on these pages
-    const skip = ['/welcome', '/auth', '/create-org', '/admin', '/superadmin', '/payment', '/go/', '/org/', '/resources', '/my-programs', '/discover', '/profile', '/bookmarks', '/gagner', '/spotlight', '/feed', '/credits'];
+    const skip = ['/welcome', '/auth', '/auth/callback', '/create-org', '/payment', '/go/', '/reset-password'];
     if (skip.some(p => location.pathname.startsWith(p))) return;
 
-    // If user already saw welcome this session, don't redirect again
-    const seen = sessionStorage.getItem('sv_welcome_seen');
+    // Per-user session key — switching accounts = new key = welcome shown again
+    const seenKey = `sv_welcome_seen_${user.id}`;
+    const seen = sessionStorage.getItem(seenKey);
     if (seen === 'true') return;
 
     navigate('/welcome', { replace: true });

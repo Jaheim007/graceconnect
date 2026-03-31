@@ -55,8 +55,7 @@ export default function WelcomeIntentPage() {
       badge: null as string | null,
       route: (() => {
         const managed = userOrgs.filter((org) => canManage(org.id));
-        if (managed.length === 1) return '/admin/products/new';
-        if (managed.length > 1) return '/admin/products/new';
+        if (managed.length >= 1) return '/admin/content';
         return '/create-org';
       })(),
     },
@@ -74,8 +73,14 @@ export default function WelcomeIntentPage() {
     },
   ];
 
+  const markSeen = () => {
+    if (user) {
+      sessionStorage.setItem(`sv_welcome_seen_${user.id}`, 'true');
+    }
+  };
+
   const handleSelect = (intent: typeof intents[0]) => {
-    sessionStorage.setItem('sv_welcome_seen', 'true');
+    markSeen();
     if (user) {
       import('@/lib/db').then(({ db }) => {
         db.from('profiles').update({ onboarding_intent: intent.key }).eq('id', user.id);
@@ -85,7 +90,7 @@ export default function WelcomeIntentPage() {
   };
 
   const handleSkip = () => {
-    sessionStorage.setItem('sv_welcome_seen', 'true');
+    markSeen();
     navigate('/dashboard');
   };
 
