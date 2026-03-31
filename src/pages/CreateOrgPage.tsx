@@ -84,7 +84,7 @@ export default function CreateOrgPage() {
     setLoading(true);
     const data = form.getValues();
     const slug = slugify(data.name);
-    const currency = detectCurrencyFromTimezone();
+    const currency = selectedCurrency;
 
     try {
       const { data: orgId, error } = await db.rpc('create_organization_with_owner', {
