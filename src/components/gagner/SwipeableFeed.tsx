@@ -117,7 +117,7 @@ export function SwipeableFeed() {
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3">
           {sortedProducts.map((product: any, i: number) => (
             <ProductSwipeCard key={product.id} product={product} index={i} />
           ))}
