@@ -313,10 +313,19 @@ export function AdminProducts() {
   const [chariowOpen, setChariowOpen] = useState(false);
 
   const handleBulkPublish = async (ids: string[]) => {
-    await db.from('digital_products').update({ is_published: true }).in('id', ids);
-    qc.invalidateQueries({ queryKey: ['org-products'] });
+    // Exclude moderated products from bulk publish
+    const { data: moderated } = await db.from('digital_products').select('id').in('id', ids).eq('publication_status', 'moderated');
+    const moderatedIds = new Set((moderated || []).map((m: any) => m.id));
+    const allowedIds = ids.filter(id => !moderatedIds.has(id));
+    if (moderatedIds.size > 0) {
+      toast({ title: isFr ? `${moderatedIds.size} produit(s) modéré(s) ignoré(s)` : `${moderatedIds.size} moderated product(s) skipped`, variant: 'destructive' });
+    }
+    if (allowedIds.length > 0) {
+      await db.from('digital_products').update({ is_published: true, publication_status: 'published' }).in('id', allowedIds);
+      qc.invalidateQueries({ queryKey: ['org-products'] });
+      toast({ title: isFr ? `${allowedIds.length} produit(s) publié(s) ✅` : `${allowedIds.length} product(s) published ✅` });
+    }
     bulk.clear();
-    toast({ title: isFr ? `${ids.length} produit(s) publié(s) ✅` : `${ids.length} product(s) published ✅` });
   };
   const handleBulkUnpublish = async (ids: string[]) => {
     await db.from('digital_products').update({ is_published: false }).in('id', ids);
@@ -332,6 +341,17 @@ export function AdminProducts() {
   };
 
   const handleTogglePublish = async (p: any) => {
+    // Block republishing if product was moderated by superadmin
+    if (!p.is_published && p.publication_status === 'moderated') {
+      toast({
+        title: isFr ? 'Publication bloquée' : 'Publishing blocked',
+        description: isFr
+          ? 'Ce produit a été modéré par l\'administration. Contactez support@siteviral.com pour demander sa republication.'
+          : 'This product was moderated by administration. Contact support@siteviral.com to request republication.',
+        variant: 'destructive',
+      });
+      return;
+    }
     const newPublished = !p.is_published;
     await db.from('digital_products').update({
       is_published: newPublished,
@@ -438,8 +458,10 @@ export function AdminProducts() {
                 {/* Row 2: badges + actions */}
                 <div className="flex items-center justify-between gap-2 pl-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <Badge variant="outline" className={cn('text-[11px] border-0 shrink-0', p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
-                      {p.is_published ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
+                    <Badge variant="outline" className={cn('text-[11px] border-0 shrink-0',
+                      (p as any).publication_status === 'moderated' ? 'bg-destructive/10 text-destructive' :
+                      p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
+                      {(p as any).publication_status === 'moderated' ? (isFr ? '🚫 Modéré' : '🚫 Moderated') : p.is_published ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
                     </Badge>
                     {(p as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">{isFr ? 'Démo' : 'Demo'}</Badge>}
                   </div>

@@ -31,6 +31,7 @@ const REASON_CATEGORIES = [
 
 const ACTION_LABELS: Record<string, { label: string; icon: typeof Eye; color: string }> = {
   unpublish: { label: 'Dépublier', icon: EyeOff, color: 'text-amber-500' },
+  restore: { label: 'Restaurer', icon: CheckCircle2, color: 'text-emerald-500' },
   delete: { label: 'Supprimer', icon: Trash2, color: 'text-destructive' },
   warn: { label: 'Avertir', icon: AlertTriangle, color: 'text-orange-500' },
   suspend_org: { label: 'Suspendre org', icon: Ban, color: 'text-destructive' },

@@ -6363,7 +6363,7 @@ export type Database = {
       moderate_content: {
         Args: {
           _action: string
-          _reason?: string
+          _reason: string
           _reason_category?: string
           _target_id: string
           _target_type: string
