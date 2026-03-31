@@ -17,6 +17,8 @@ interface RevenueCelebrationProps {
  * Designed for viral sharing — includes SocialShareKit.
  */
 export function RevenueCelebration({ amount, milestone, onDismiss }: RevenueCelebrationProps) {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   return (
     <AnimatePresence>
       <motion.div
@@ -41,7 +43,6 @@ export function RevenueCelebration({ amount, milestone, onDismiss }: RevenueCele
             <X className="h-4 w-4" />
           </button>
 
-          {/* Confetti emoji burst */}
           <div className="text-center space-y-3">
             <motion.div
               initial={{ scale: 0 }}
@@ -59,7 +60,7 @@ export function RevenueCelebration({ amount, milestone, onDismiss }: RevenueCele
                 {formatCurrency(amount, DEFAULT_CURRENCY)}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                de gains en tant qu'ambassadeur !
+                {isFr ? "de gains en tant qu'ambassadeur !" : 'earned as an ambassador!'}
               </p>
             </div>
           </div>
