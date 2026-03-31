@@ -1,14 +1,13 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, SlidersHorizontal, TrendingUp, Flame, DollarSign } from 'lucide-react';
+import { Search, TrendingUp, Flame, DollarSign, Clock, Sparkles } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useAffiliateMarketplace } from '@/hooks/useAffiliateMarketplace';
 import { ProductSwipeCard } from './ProductSwipeCard';
 import { cn } from '@/lib/utils';
 import { CategoryFilter, ProductCategory, categorizeProduct } from './CategoryFilter';
 import { diversifyFeed } from '@/lib/feed-diversity';
+import { useI18n } from '@/i18n/I18nContext';
 
 type SortMode = 'trending' | 'commission' | 'price' | 'newest';
 
@@ -17,6 +16,8 @@ export function SwipeableFeed() {
   const [sortMode, setSortMode] = useState<SortMode>('trending');
   const [category, setCategory] = useState<ProductCategory>('all');
   const { data: products, isLoading } = useAffiliateMarketplace(search || undefined);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   // Filter by category then sort
   const filteredProducts = (products || []).filter((p: any) => {
@@ -37,17 +38,21 @@ export function SwipeableFeed() {
       if (sortMode === 'newest') {
         return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
       }
-      // trending = diversified feed
       return 0;
     });
 
-    // Apply diversity for trending mode, per-org cap for all modes
     if (sortMode === 'trending') {
-      return diversifyFeed(sorted);
+      return diversifyFeed(sorted, { maxPerOrg: 4 });
     }
-    // For other sorts, still apply per-org cap
-    return diversifyFeed(sorted, { maxPerOrg: 3 });
+    return diversifyFeed(sorted, { maxPerOrg: 5 });
   }, [filteredProducts, sortMode]);
+
+  const SORT_OPTIONS: { key: SortMode; labelFr: string; labelEn: string; emoji: string }[] = [
+    { key: 'trending', labelFr: 'Tendances', labelEn: 'Trending', emoji: '🔥' },
+    { key: 'newest', labelFr: 'Nouveaux', labelEn: 'New', emoji: '🆕' },
+    { key: 'commission', labelFr: 'Top commissions', labelEn: 'Top commissions', emoji: '💰' },
+    { key: 'price', labelFr: 'Premium', labelEn: 'Premium', emoji: '💎' },
+  ];
 
   return (
     <div className="space-y-5">
@@ -55,11 +60,13 @@ export function SwipeableFeed() {
       <div className="space-y-3">
         <div>
           <h2 className="text-xl font-extrabold flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-accent" />
-            Produits à partager
+            <Sparkles className="h-5 w-5 text-accent" />
+            {isFr ? 'Produits à partager' : 'Products to share'}
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Choisis un produit, partage-le, gagne une commission. C'est tout.
+            {isFr
+              ? 'Choisis un produit, partage-le, gagne une commission. C\'est tout.'
+              : 'Pick a product, share it, earn a commission. That\'s it.'}
           </p>
         </div>
 
@@ -67,7 +74,7 @@ export function SwipeableFeed() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Rechercher un produit..."
+            placeholder={isFr ? 'Rechercher un produit...' : 'Search a product...'}
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="pl-9 h-10 rounded-xl"
@@ -79,12 +86,7 @@ export function SwipeableFeed() {
 
         {/* Sort pills */}
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
-          {[
-            { key: 'trending' as SortMode, label: '🔥 Tendances', icon: Flame },
-            { key: 'newest' as SortMode, label: '🆕 Nouveaux', icon: TrendingUp },
-            { key: 'commission' as SortMode, label: '💰 Meilleures commissions', icon: DollarSign },
-            { key: 'price' as SortMode, label: '💎 Plus chers', icon: TrendingUp },
-          ].map(s => (
+          {SORT_OPTIONS.map(s => (
             <button
               key={s.key}
               onClick={() => setSortMode(s.key)}
@@ -95,7 +97,7 @@ export function SwipeableFeed() {
                   : 'bg-muted/50 text-muted-foreground border-transparent hover:border-border'
               )}
             >
-              {s.label}
+              {s.emoji} {isFr ? s.labelFr : s.labelEn}
             </button>
           ))}
         </div>
@@ -103,21 +105,30 @@ export function SwipeableFeed() {
 
       {/* Feed */}
       {isLoading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-80 rounded-3xl bg-muted/50 animate-pulse" />
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="h-72 rounded-2xl bg-muted/50 animate-pulse" />
           ))}
         </div>
       ) : !sortedProducts.length ? (
         <div className="text-center py-16">
-          <p className="text-muted-foreground text-sm">Aucun produit trouvé</p>
+          <p className="text-muted-foreground text-sm">
+            {isFr ? 'Aucun produit trouvé' : 'No products found'}
+          </p>
         </div>
       ) : (
-        <div className="space-y-5 snap-y">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
           {sortedProducts.map((product: any, i: number) => (
             <ProductSwipeCard key={product.id} product={product} index={i} />
           ))}
         </div>
+      )}
+
+      {/* Results count */}
+      {!isLoading && sortedProducts.length > 0 && (
+        <p className="text-center text-[10px] text-muted-foreground">
+          {sortedProducts.length} {isFr ? 'produits' : 'products'}
+        </p>
       )}
     </div>
   );
