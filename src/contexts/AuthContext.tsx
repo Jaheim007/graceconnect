@@ -200,13 +200,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }).catch(() => {});
 
           // In-app notification about the 50 bonus credits
-          supabase.from('user_notifications').insert({
-            user_id: newSession.user.id,
-            title: '🎁 50 crédits bonus offerts !',
-            body: 'Bienvenue ! Vous avez reçu 50 crédits bonus pour découvrir le Viral Studio, générer du contenu IA et bien plus. Ces crédits expirent dans 7 jours.',
-            notification_type: 'credits',
-            action_url: '/credits',
-          }).then(() => {}).catch(() => {});
+          (async () => {
+            try {
+              await supabase.from('user_notifications').insert({
+                user_id: newSession.user.id,
+                title: '🎁 50 crédits bonus offerts !',
+                body: 'Bienvenue ! Vous avez reçu 50 crédits bonus pour découvrir le Viral Studio, générer du contenu IA et bien plus. Ces crédits expirent dans 7 jours.',
+                notification_type: 'credits',
+                action_url: '/credits',
+              });
+            } catch {}
+          })();
         }
       }
 
