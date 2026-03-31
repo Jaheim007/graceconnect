@@ -540,6 +540,7 @@ const App = () => (
                   <Route path="studio/abuse-monitor" element={<SuperadminAiAbuse />} />
                   <Route path="health" element={<Suspense fallback={<PageLoader />}><SuperadminHealthDashboard /></Suspense>} />
                   <Route path="ai-history" element={<Suspense fallback={<PageLoader />}><SuperadminAIHistory /></Suspense>} />
+                  <Route path="ads" element={<SuperadminAds />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
