@@ -1005,6 +1005,8 @@ export function AdminSettings() {
   const [orgCurrency, setOrgCurrency] = useState(currentOrg?.currency ?? 'XOF');
   const [orgCountry, setOrgCountry] = useState((currentOrg as any)?.country ?? '');
   const [savingProfile, setSavingProfile] = useState(false);
+  const [currencyWizardOpen, setCurrencyWizardOpen] = useState(false);
+  const [pendingCurrency, setPendingCurrency] = useState<string | null>(null);
 
   const slugify = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
