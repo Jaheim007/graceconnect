@@ -16,7 +16,7 @@ import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
  */
 export function QuickShareWidget() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const { data: links = [], isLoading } = useQuery({
