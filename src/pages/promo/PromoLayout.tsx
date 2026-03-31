@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useUtmCapture } from '@/hooks/useUtmCapture';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -18,10 +18,11 @@ interface PromoLayoutProps {
 
 export function PromoLayout({ title, description, seoTitle, seoDesc, emoji, children, ctaText, ctaHref }: PromoLayoutProps) {
   useUtmCapture();
+  const { pathname } = useLocation();
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={seoTitle} description={seoDesc} />
+      <SEOHead title={seoTitle} description={seoDesc} canonicalUrl={`https://siteviral.com${pathname}`} />
 
       {/* Hero */}
       <div className="relative overflow-hidden border-b border-border">
