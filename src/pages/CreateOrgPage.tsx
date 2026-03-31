@@ -12,8 +12,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { ChevronRight, Building2, Check, Rocket } from 'lucide-react';
+import { ChevronRight, Building2, Check, Rocket, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { OrgOnboardingWizard } from '@/components/onboarding/OrgOnboardingWizard';
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -52,10 +53,11 @@ export default function CreateOrgPage() {
   const { toast } = useToast();
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
-  const [step, setStep] = useState(0); // 0=type, 1=name, 2=goal (just visual, not stored)
+  const [step, setStep] = useState(0); // 0=type, 1=name, 2=currency, 3=goal
   const [loading, setLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<string>('both');
+  const [selectedCurrency, setSelectedCurrency] = useState(() => detectCurrencyFromTimezone());
 
   const urlPartnerCode = searchParams.get('partner');
   const [partnerCode] = useState<string | null>(() => {
@@ -82,7 +84,7 @@ export default function CreateOrgPage() {
     setLoading(true);
     const data = form.getValues();
     const slug = slugify(data.name);
-    const currency = detectCurrencyFromTimezone();
+    const currency = selectedCurrency;
 
     try {
       const { data: orgId, error } = await db.rpc('create_organization_with_owner', {
@@ -135,7 +137,7 @@ export default function CreateOrgPage() {
     exit: { x: -60, opacity: 0 },
   };
 
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
@@ -217,15 +219,41 @@ export default function CreateOrgPage() {
                   <Button className="w-full h-11 gap-2" onClick={() => {
                     form.trigger('name').then(ok => ok && setStep(2));
                   }}>
-                    Continuer <ChevronRight className="h-4 w-4" />
+                    {isFr ? 'Continuer' : 'Continue'} <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
               )}
 
-              {/* Step 2: Goal + Create */}
+              {/* Step 2: Currency */}
               {step === 2 && (
                 <div className="space-y-5">
-                  <h2 className="text-lg font-semibold">Que veux-tu faire en premier ?</h2>
+                  <h2 className="text-lg font-semibold">{isFr ? 'Quelle devise utilises-tu ?' : 'What currency do you use?'}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {isFr
+                      ? 'C\'est la devise dans laquelle tu fixeras tes prix et recevras tes paiements.'
+                      : 'This is the currency you\'ll use to set prices and receive payments.'}
+                  </p>
+                  <div className="space-y-2">
+                    <Label>{isFr ? 'Devise' : 'Currency'}</Label>
+                    <CurrencySelector
+                      value={selectedCurrency}
+                      onChange={(c) => setSelectedCurrency(c)}
+                      className="h-12 text-base"
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      {isFr ? '💡 Détectée automatiquement, mais tu peux la changer.' : '💡 Auto-detected, but you can change it.'}
+                    </p>
+                  </div>
+                  <Button className="w-full h-11 gap-2" onClick={() => setStep(3)}>
+                    {isFr ? 'Continuer' : 'Continue'} <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+
+              {/* Step 3: Goal + Create */}
+              {step === 3 && (
+                <div className="space-y-5">
+                  <h2 className="text-lg font-semibold">{isFr ? 'Que veux-tu faire en premier ?' : 'What do you want to do first?'}</h2>
                   <div className="space-y-2">
                     {GOALS.map(goal => (
                       <button
@@ -254,7 +282,7 @@ export default function CreateOrgPage() {
                     disabled={loading}
                   >
                     {loading ? (
-                      <span className="animate-pulse">Création en cours…</span>
+                      <span className="animate-pulse">{isFr ? 'Création en cours…' : 'Creating…'}</span>
                     ) : (
                       <>
                         <Rocket className="h-5 w-5" /> {isFr ? 'Créer ma plateforme' : 'Create my platform'}
@@ -263,7 +291,7 @@ export default function CreateOrgPage() {
                   </Button>
 
                   <p className="text-[10px] text-muted-foreground text-center">
-                    Devise auto-détectée • Slug auto-généré • Modifiable plus tard
+                    {isFr ? `Devise : ${selectedCurrency} • Slug auto-généré • Modifiable plus tard` : `Currency: ${selectedCurrency} • Auto-generated slug • Editable later`}
                   </p>
                 </div>
               )}

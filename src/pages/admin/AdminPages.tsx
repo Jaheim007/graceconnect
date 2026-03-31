@@ -1,6 +1,8 @@
 // Generic stub for remaining admin pages
 import { stripHtml } from '@/lib/formatText';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
+import { CurrencyChangeWizard } from '@/components/currency/CurrencyChangeWizard';
+import { convertCurrency } from '@/lib/currencyConvert';
 import { AdminPageShell } from './AdminPageShell';
 import IdentityVerificationWizard from '@/components/verification/IdentityVerificationWizard';
 import { useOrg } from '@/contexts/OrgContext';
@@ -1003,6 +1005,8 @@ export function AdminSettings() {
   const [orgCurrency, setOrgCurrency] = useState(currentOrg?.currency ?? 'XOF');
   const [orgCountry, setOrgCountry] = useState((currentOrg as any)?.country ?? '');
   const [savingProfile, setSavingProfile] = useState(false);
+  const [currencyWizardOpen, setCurrencyWizardOpen] = useState(false);
+  const [pendingCurrency, setPendingCurrency] = useState<string | null>(null);
 
   const slugify = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
@@ -1129,31 +1133,14 @@ export function AdminSettings() {
         toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
       }
     } else {
-      // Sync all content to the new org currency
-      if (orgCurrency !== currentOrg.currency) {
-        await Promise.all([
-          supabase
-            .from('digital_products')
-            .update({ currency: orgCurrency } as any)
-            .eq('organization_id', currentOrg.id),
-          supabase
-            .from('donation_campaigns')
-            .update({ currency: orgCurrency } as any)
-            .eq('organization_id', currentOrg.id),
-          supabase
-            .from('programs')
-            .update({ currency: orgCurrency } as any)
-            .eq('organization_id', currentOrg.id),
-        ]);
-        qc.invalidateQueries({ queryKey: ['admin-products'] });
-        qc.invalidateQueries({ queryKey: ['admin-campaigns'] });
-        qc.invalidateQueries({ queryKey: ['admin-programs'] });
-        qc.invalidateQueries({ queryKey: ['discover'] });
-      }
       toast({ title: '✅ ' + (isFr ? 'Profil sauvegardé' : 'Profile saved') });
       refetchOrgs();
       qc.invalidateQueries({ queryKey: ['org-by-slug'] });
       qc.invalidateQueries({ queryKey: ['org-by-id'] });
+      qc.invalidateQueries({ queryKey: ['admin-products'] });
+      qc.invalidateQueries({ queryKey: ['admin-campaigns'] });
+      qc.invalidateQueries({ queryKey: ['admin-programs'] });
+      qc.invalidateQueries({ queryKey: ['discover'] });
     }
   };
 
@@ -1234,8 +1221,99 @@ export function AdminSettings() {
     }
   };
 
+  const handleCurrencyWizardConfirm = async (option: 'convert' | 'keep') => {
+    if (!currentOrg || !pendingCurrency) return;
+    const fromCur = orgCurrency;
+    const toCur = pendingCurrency;
+    
+    // Update org currency
+    await supabase.from('organizations').update({ currency: toCur } as any).eq('id', currentOrg.id);
+    
+    if (option === 'convert') {
+      // Fetch all products, campaigns, programs and convert their prices
+      const [{ data: products }, { data: campaigns }, { data: programs }] = await Promise.all([
+        supabase.from('digital_products').select('id, price, sale_price, min_price').eq('organization_id', currentOrg.id),
+        supabase.from('donation_campaigns').select('id, goal_amount, current_amount').eq('organization_id', currentOrg.id),
+        supabase.from('programs').select('id, price').eq('organization_id', currentOrg.id),
+      ]);
+      
+      const convert = (amount: number | null) => {
+        if (!amount || amount <= 0) return amount;
+        return convertCurrency(amount, fromCur, toCur) ?? amount;
+      };
+      
+      const productUpdates = (products || []).map(p =>
+        supabase.from('digital_products').update({
+          currency: toCur,
+          price: convert(p.price),
+          sale_price: convert(p.sale_price),
+          min_price: convert(p.min_price),
+        } as any).eq('id', p.id)
+      );
+      
+      const campaignUpdates = (campaigns || []).map(c =>
+        supabase.from('donation_campaigns').update({
+          currency: toCur,
+          goal_amount: convert(c.goal_amount),
+        } as any).eq('id', c.id)
+      );
+      
+      const programUpdates = (programs || []).map(p =>
+        supabase.from('programs').update({
+          currency: toCur,
+          price: convert(p.price),
+        } as any).eq('id', p.id)
+      );
+      
+      await Promise.all([...productUpdates, ...campaignUpdates, ...programUpdates]);
+    } else {
+      // Just update currency code, keep numeric values
+      await Promise.all([
+        supabase.from('digital_products').update({ currency: toCur } as any).eq('organization_id', currentOrg.id),
+        supabase.from('donation_campaigns').update({ currency: toCur } as any).eq('organization_id', currentOrg.id),
+        supabase.from('programs').update({ currency: toCur } as any).eq('organization_id', currentOrg.id),
+      ]);
+    }
+    
+    setOrgCurrency(toCur);
+    setCurrencyWizardOpen(false);
+    setPendingCurrency(null);
+    refetchOrgs();
+    qc.invalidateQueries({ queryKey: ['admin-products'] });
+    qc.invalidateQueries({ queryKey: ['admin-campaigns'] });
+    qc.invalidateQueries({ queryKey: ['admin-programs'] });
+    qc.invalidateQueries({ queryKey: ['discover'] });
+    qc.invalidateQueries({ queryKey: ['org-by-slug'] });
+    qc.invalidateQueries({ queryKey: ['org-by-id'] });
+    toast({ title: '✅ ' + (isFr ? 'Devise mise à jour avec succès' : 'Currency updated successfully') });
+  };
+
+  // Get sample prices for the wizard
+  const { data: wizardSamplePrices = [] } = useQuery({
+    queryKey: ['wizard-sample-prices', currentOrg?.id],
+    queryFn: async () => {
+      if (!currentOrg?.id) return [];
+      const { data } = await supabase.from('digital_products')
+        .select('title, price')
+        .eq('organization_id', currentOrg.id)
+        .gt('price', 0)
+        .order('price', { ascending: false })
+        .limit(3);
+      return (data || []).map(p => ({ title: p.title, price: p.price ?? 0 }));
+    },
+    enabled: currencyWizardOpen && !!currentOrg?.id,
+  });
+
   return (
     <AdminPageShell title={isFr ? 'Paramètres' : 'Settings'} backRoute="/admin">
+      <CurrencyChangeWizard
+        open={currencyWizardOpen}
+        fromCurrency={orgCurrency}
+        toCurrency={pendingCurrency || orgCurrency}
+        samplePrices={wizardSamplePrices}
+        onConfirm={handleCurrencyWizardConfirm}
+        onCancel={() => { setCurrencyWizardOpen(false); setPendingCurrency(null); }}
+      />
       <div className="space-y-5">
 
         {/* ── 1. PROFILE ── */}
@@ -1346,7 +1424,12 @@ export function AdminSettings() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="org-currency" className="text-xs font-medium">{isFr ? 'Devise' : 'Currency'}</Label>
-                  <CurrencySelector value={orgCurrency} onChange={(c) => setOrgCurrency(c)} className="h-9 text-sm" />
+                  <CurrencySelector value={orgCurrency} onChange={(c) => {
+                    if (c !== orgCurrency && currentOrg) {
+                      setPendingCurrency(c);
+                      setCurrencyWizardOpen(true);
+                    }
+                  }} className="h-9 text-sm" />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="org-country" className="text-xs font-medium">{isFr ? 'Pays' : 'Country'}</Label>

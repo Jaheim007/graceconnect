@@ -21,7 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { db } from '@/lib/db';
 import { formatPrice } from '@/lib/currency';
-import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
+import { formatCurrency } from '@/lib/currency';
 import { useAbandonedCart } from '@/hooks/useAbandonedCart';
 import { getAutoPromoCode, clearAutoPromoCode } from '@/hooks/usePromoCapture';
 import { onNewSale } from '@/lib/notifications';
@@ -393,12 +393,16 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   <Badge variant="outline" className="text-[10px] mt-1 capitalize">{product.product_type}</Badge>
                 </div>
                 {!isPwyw && (
-                  <span className={`text-xl font-bold ${product.is_free ? 'text-green-500' : 'text-primary'}`}>
-                    {fmt(product.price)}
+                  <div className="text-right">
+                    <span className={`text-xl font-bold ${product.is_free ? 'text-green-500' : 'text-primary'}`}>
+                      {fmt(product.price)}
+                    </span>
                     {!product.is_free && (product.price ?? 0) > 0 && (
-                      <LocalPriceHint amount={product.price ?? 0} currency={product.currency || 'XOF'} className="block text-right" />
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {isFr ? 'Vous serez débité de' : 'You will be charged'} {formatCurrency(product.price ?? 0, product.currency)} {(product.currency || 'XOF').toUpperCase()}
+                      </p>
                     )}
-                  </span>
+                  </div>
                 )}
               </div>
 
