@@ -55,8 +55,7 @@ export default function WelcomeIntentPage() {
       badge: null as string | null,
       route: (() => {
         const managed = userOrgs.filter((org) => canManage(org.id));
-        if (managed.length === 1) return '/admin/products/new';
-        if (managed.length > 1) return '/admin/products/new';
+        if (managed.length >= 1) return '/admin/content';
         return '/create-org';
       })(),
     },
