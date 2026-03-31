@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getEffectivePrice } from '@/lib/effectivePrice';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, Copy, Check, Zap, Eye, ChevronDown, ChevronUp, TrendingUp, Flame } from 'lucide-react';
+import { Copy, Check, Zap, Eye, ChevronDown, ChevronUp, Flame, BadgeCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
@@ -53,6 +53,10 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
   const effectivePrice = getEffectivePrice(product);
   const potentialEarning = Math.round(effectivePrice * commission / 100);
 
+  // PWYW handling
+  const isPwyw = product.is_pwyw === true;
+  const minPrice = product.min_price || 0;
+
   const { data: myLink } = useQuery({
     queryKey: ['my-aff-link', user?.id, org?.id],
     queryFn: async () => {
@@ -73,7 +77,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
     ? `/org/${org?.slug}/p/${product.slug}`
     : `/org/${org?.slug}/product/${product.id}`;
   const refPath = myLink ? `${productPath}?ref=${myLink.code}` : productPath;
-  
+
   const fallbackUrl = `${getPublicOrigin()}${refPath}`;
 
   const [shareUrl, setShareUrl] = useState(fallbackUrl);
@@ -147,59 +151,80 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
 
   const isAffiliate = !!myLink;
 
+  // Price display logic
+  const renderPrice = () => {
+    if (isPwyw) {
+      return (
+        <span className="text-sm font-bold text-amber-500">
+          💰 {isFr ? 'Prix libre' : 'Name your price'}
+          {minPrice > 0 && <span className="text-xs ml-1 text-muted-foreground">· {isFr ? 'Dès' : 'From'} {fmt(minPrice, product.currency)}</span>}
+        </span>
+      );
+    }
+    return (
+      <span className="text-sm font-bold">
+        {fmtPrice(product.price || 0, product.is_free, product.currency, isFr ? 'Gratuit' : 'Free')}
+      </span>
+    );
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.06, type: 'spring', stiffness: 300, damping: 30 }}
-      className="snap-start shrink-0 w-full max-w-sm mx-auto"
+      transition={{ delay: index * 0.04, type: 'spring', stiffness: 300, damping: 30 }}
     >
-      <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-lg">
-        <div className="relative aspect-[4/3] bg-muted/30 overflow-hidden">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+        {/* Image */}
+        <div className="relative aspect-[16/10] bg-muted/30 overflow-hidden">
           {product.cover_image_url ? (
             <img src={product.cover_image_url} alt={product.title} className="w-full h-full object-cover" loading="lazy" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-5xl opacity-20">📖</div>
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/5 text-4xl opacity-30">📖</div>
           )}
 
-          <div className="absolute top-3 right-3">
-            <Badge className="bg-accent text-accent-foreground text-xs font-extrabold shadow-xl px-3 py-1.5 rounded-full">
+          {/* Commission badge */}
+          <div className="absolute top-2.5 right-2.5">
+            <Badge className="bg-accent text-accent-foreground text-[10px] font-extrabold shadow-lg px-2 py-1 rounded-full">
               💰 {commission}%
             </Badge>
           </div>
 
-          {!product.is_free && potentialEarning > 0 && (
-            <div className="absolute top-3 left-3">
-              <Badge variant="secondary" className="text-xs font-bold shadow-lg px-3 py-1.5 rounded-full bg-background/90 backdrop-blur-sm">
+          {/* Earnings badge */}
+          {!product.is_free && !isPwyw && potentialEarning > 0 && (
+            <div className="absolute top-2.5 left-2.5">
+              <Badge variant="secondary" className="text-[10px] font-bold shadow-md px-2 py-1 rounded-full bg-background/90 backdrop-blur-sm">
                 {isFr ? 'Tu gagnes' : 'You earn'} {fmt(potentialEarning, product.currency)}
               </Badge>
             </div>
           )}
 
-          {(product.sales_count || 0) > 0 && (
-            <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-background/90 backdrop-blur-sm rounded-full px-2.5 py-1">
-              <Flame className="h-3 w-3 text-orange-500" />
-              <span className="text-[10px] font-bold">
-                {product.sales_count} {isFr ? `vente${product.sales_count > 1 ? 's' : ''}` : `sale${product.sales_count > 1 ? 's' : ''}`}
-              </span>
+          {/* Bottom overlay info */}
+          <div className="absolute bottom-0 left-0 right-0 px-2.5 py-2 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-between">
+            <div className="flex items-center gap-1">
+              {(product.sales_count || 0) > 0 && (
+                <span className="flex items-center gap-0.5 bg-background/80 backdrop-blur-sm rounded-full px-2 py-0.5">
+                  <Flame className="h-2.5 w-2.5 text-orange-500" />
+                  <span className="text-[9px] font-bold">{product.sales_count}</span>
+                </span>
+              )}
             </div>
-          )}
-
-          <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-background/90 backdrop-blur-sm rounded-full px-2.5 py-1">
-            {org?.logo_url && <img src={org.logo_url} alt="" className="h-4 w-4 rounded-full" />}
-            <span className="text-[10px] font-semibold truncate max-w-[80px]">{org?.name}</span>
+            <div className="flex items-center gap-1.5 bg-background/80 backdrop-blur-sm rounded-full px-2 py-0.5">
+              {org?.logo_url && <img src={org.logo_url} alt="" className="h-3.5 w-3.5 rounded-full" />}
+              <span className="text-[9px] font-semibold truncate max-w-[70px]">{org?.name}</span>
+              {org?.is_verified && <BadgeCheck className="h-2.5 w-2.5 text-primary shrink-0" />}
+            </div>
           </div>
         </div>
 
-        <div className="p-5 space-y-4">
+        {/* Content */}
+        <div className="p-3.5 space-y-3">
           <div>
-            <h3 className="font-extrabold text-base leading-tight line-clamp-2">{product.title}</h3>
-            <div className="flex items-center gap-2 mt-1.5">
-              <span className="text-sm font-bold">
-                {fmtPrice(product.price || 0, product.is_free, product.currency, isFr ? 'Gratuit' : 'Free')}
-              </span>
-              {product.sale_price && product.sale_price < product.price && (
-                <span className="text-xs text-muted-foreground line-through">
+            <h3 className="font-bold text-sm leading-tight line-clamp-2">{product.title}</h3>
+            <div className="flex items-center gap-2 mt-1">
+              {renderPrice()}
+              {product.sale_price && product.sale_price < product.price && !isPwyw && (
+                <span className="text-[10px] text-muted-foreground line-through">
                   {fmt(product.price, product.currency)}
                 </span>
               )}
@@ -207,37 +232,35 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
           </div>
 
           {isAffiliate ? (
-            <div className="space-y-3">
-              <div className="flex gap-2">
-                <Button className="flex-1 gap-2 h-11 text-sm font-bold rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => shareWhatsApp(0)}>
-                  <span className="text-base">💬</span> {isFr ? 'Partager WhatsApp' : 'Share WhatsApp'}
+            <div className="space-y-2">
+              <div className="flex gap-1.5">
+                <Button size="sm" className="flex-1 gap-1.5 h-9 text-xs font-bold rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => shareWhatsApp(0)}>
+                  <span className="text-sm">💬</span> {isFr ? 'Partager' : 'Share'}
                 </Button>
-                <Button variant="outline" className="h-11 px-3 rounded-xl" onClick={copyLink}>
-                  {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                <Button size="sm" variant="outline" className="h-9 px-2.5 rounded-xl" onClick={copyLink}>
+                  {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
                 </Button>
               </div>
 
-              <button onClick={() => setShowShareKit(!showShareKit)} className="w-full flex items-center justify-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors py-1">
-                {showShareKit ? (isFr ? "Moins d'options" : 'Fewer options') : (isFr ? 'Plus de façons de partager' : 'More ways to share')}
-                {showShareKit ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              <button onClick={() => setShowShareKit(!showShareKit)} className="w-full flex items-center justify-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors py-0.5">
+                {showShareKit ? (isFr ? "Moins d'options" : 'Fewer options') : (isFr ? 'Plus de partage' : 'More sharing')}
+                {showShareKit ? <ChevronUp className="h-2.5 w-2.5" /> : <ChevronDown className="h-2.5 w-2.5" />}
               </button>
 
               <AnimatePresence>
                 {showShareKit && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                     <div className="space-y-2">
-                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{isFr ? 'Messages prêts à envoyer' : 'Ready-to-send messages'}</p>
+                      <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">{isFr ? 'Messages prêts' : 'Ready messages'}</p>
                       {SHARE_MESSAGES.map((msgFn, i) => (
-                        <button key={i} onClick={() => shareWhatsApp(i)} className="w-full text-left p-2.5 rounded-xl bg-muted/40 hover:bg-muted/70 transition-colors text-[11px] leading-relaxed border border-transparent hover:border-border">
+                        <button key={i} onClick={() => shareWhatsApp(i)} className="w-full text-left p-2 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors text-[10px] leading-relaxed border border-transparent hover:border-border">
                           {msgFn(product.title, '')}
                         </button>
                       ))}
-
-                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-3">{isFr ? 'Autres réseaux' : 'Other networks'}</p>
-                      <div className="grid grid-cols-3 gap-2">
-                        <Button size="sm" variant="outline" className="h-9 text-xs gap-1.5 rounded-xl" onClick={shareTelegram}>✈️ Telegram</Button>
-                        <Button size="sm" variant="outline" className="h-9 text-xs gap-1.5 rounded-xl" onClick={shareFacebook}>📘 Facebook</Button>
-                        <Button size="sm" variant="outline" className="h-9 text-xs gap-1.5 rounded-xl" onClick={shareX}>𝕏 Twitter</Button>
+                      <div className="grid grid-cols-3 gap-1.5 mt-2">
+                        <Button size="sm" variant="outline" className="h-8 text-[10px] gap-1 rounded-lg" onClick={shareTelegram}>✈️ Telegram</Button>
+                        <Button size="sm" variant="outline" className="h-8 text-[10px] gap-1 rounded-lg" onClick={shareFacebook}>📘 Facebook</Button>
+                        <Button size="sm" variant="outline" className="h-8 text-[10px] gap-1 rounded-lg" onClick={shareX}>𝕏 Twitter</Button>
                       </div>
                     </div>
                   </motion.div>
@@ -245,13 +268,13 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
               </AnimatePresence>
             </div>
           ) : (
-            <div className="space-y-2">
-              <Button className="w-full gap-2 h-11 text-sm font-bold rounded-xl" disabled={enrolling} onClick={handleEnroll}>
-                <Zap className="h-4 w-4" />
+            <div className="space-y-1.5">
+              <Button size="sm" className="w-full gap-1.5 h-9 text-xs font-bold rounded-xl" disabled={enrolling} onClick={handleEnroll}>
+                <Zap className="h-3.5 w-3.5" />
                 {enrolling ? (isFr ? 'Inscription...' : 'Enrolling...') : (isFr ? 'Promouvoir & Gagner' : 'Promote & Earn')}
               </Button>
-              <Button size="sm" variant="ghost" className="w-full text-xs gap-1.5 text-muted-foreground" onClick={() => navigate(productPath)}>
-                <Eye className="h-3.5 w-3.5" /> {isFr ? 'Voir le produit' : 'View product'}
+              <Button size="sm" variant="ghost" className="w-full text-[10px] gap-1 text-muted-foreground h-7" onClick={() => navigate(productPath)}>
+                <Eye className="h-3 w-3" /> {isFr ? 'Voir le produit' : 'View product'}
               </Button>
             </div>
           )}
