@@ -135,6 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    let initialSessionHandled = false;
 
     const clearPlatformRoleRetry = () => {
       if (platformRoleRetryTimeoutRef.current !== null) {
@@ -188,6 +189,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
       if (!mounted) return;
 
+      // Mark that onAuthStateChange already handled the initial session
+      if (event === 'INITIAL_SESSION') {
+        initialSessionHandled = true;
+      }
+
       applySession(newSession);
 
       if (newSession?.user && event === 'SIGNED_IN' && newSession.user.email) {
@@ -220,10 +226,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    // Then hydrate any already available session
+    // Then hydrate — but SKIP if onAuthStateChange already fired INITIAL_SESSION
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       if (!mounted) return;
-      applySession(s);
+      if (!initialSessionHandled) {
+        applySession(s);
+      }
       clearTimeout(timeout);
       setLoading(false);
     }).catch(() => {
