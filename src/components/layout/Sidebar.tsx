@@ -93,6 +93,7 @@ export function Sidebar() {
     if (profile === 'creator' || profile === 'org-religious') {
       items.push(
         { to: canManageCurrentOrg ? '/admin/create' : '/create-org', icon: Sparkles, label: isFr ? 'Créer' : 'Create' },
+        { to: canManageCurrentOrg ? '/admin/content' : '/create-org', icon: Package, label: isFr ? 'Mes Contenus' : 'My Content' },
         { to: '/gagner', icon: Share2, label: isFr ? 'Partager' : 'Share' },
       );
     }
