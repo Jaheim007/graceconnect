@@ -1221,8 +1221,89 @@ export function AdminSettings() {
     }
   };
 
+  const handleCurrencyWizardConfirm = async (option: 'convert' | 'keep') => {
+    if (!currentOrg || !pendingCurrency) return;
+    const fromCur = orgCurrency;
+    const toCur = pendingCurrency;
+    
+    // Update org currency
+    await supabase.from('organizations').update({ currency: toCur } as any).eq('id', currentOrg.id);
+    
+    if (option === 'convert') {
+      // Fetch all products, campaigns, programs and convert their prices
+      const [{ data: products }, { data: campaigns }, { data: programs }] = await Promise.all([
+        supabase.from('digital_products').select('id, price, sale_price, min_price').eq('organization_id', currentOrg.id),
+        supabase.from('donation_campaigns').select('id, goal_amount, current_amount').eq('organization_id', currentOrg.id),
+        supabase.from('programs').select('id, price').eq('organization_id', currentOrg.id),
+      ]);
+      
+      const convert = (amount: number | null) => {
+        if (!amount || amount <= 0) return amount;
+        return convertCurrency(amount, fromCur, toCur) ?? amount;
+      };
+      
+      const productUpdates = (products || []).map(p =>
+        supabase.from('digital_products').update({
+          currency: toCur,
+          price: convert(p.price),
+          sale_price: convert(p.sale_price),
+          min_price: convert(p.min_price),
+        } as any).eq('id', p.id)
+      );
+      
+      const campaignUpdates = (campaigns || []).map(c =>
+        supabase.from('donation_campaigns').update({
+          currency: toCur,
+          goal_amount: convert(c.goal_amount),
+        } as any).eq('id', c.id)
+      );
+      
+      const programUpdates = (programs || []).map(p =>
+        supabase.from('programs').update({
+          currency: toCur,
+          price: convert(p.price),
+        } as any).eq('id', p.id)
+      );
+      
+      await Promise.all([...productUpdates, ...campaignUpdates, ...programUpdates]);
+    } else {
+      // Just update currency code, keep numeric values
+      await Promise.all([
+        supabase.from('digital_products').update({ currency: toCur } as any).eq('organization_id', currentOrg.id),
+        supabase.from('donation_campaigns').update({ currency: toCur } as any).eq('organization_id', currentOrg.id),
+        supabase.from('programs').update({ currency: toCur } as any).eq('organization_id', currentOrg.id),
+      ]);
+    }
+    
+    setOrgCurrency(toCur);
+    setCurrencyWizardOpen(false);
+    setPendingCurrency(null);
+    refetchOrgs();
+    qc.invalidateQueries({ queryKey: ['admin-products'] });
+    qc.invalidateQueries({ queryKey: ['admin-campaigns'] });
+    qc.invalidateQueries({ queryKey: ['admin-programs'] });
+    qc.invalidateQueries({ queryKey: ['discover'] });
+    qc.invalidateQueries({ queryKey: ['org-by-slug'] });
+    qc.invalidateQueries({ queryKey: ['org-by-id'] });
+    toast({ title: '✅ ' + (isFr ? 'Devise mise à jour avec succès' : 'Currency updated successfully') });
+  };
+
+  // Get sample prices for the wizard
+  const wizardSamplePrices = (() => {
+    // We'll fetch them on demand — for now, simple empty array
+    return [] as { title: string; price: number }[];
+  })();
+
   return (
     <AdminPageShell title={isFr ? 'Paramètres' : 'Settings'} backRoute="/admin">
+      <CurrencyChangeWizard
+        open={currencyWizardOpen}
+        fromCurrency={orgCurrency}
+        toCurrency={pendingCurrency || orgCurrency}
+        samplePrices={wizardSamplePrices}
+        onConfirm={handleCurrencyWizardConfirm}
+        onCancel={() => { setCurrencyWizardOpen(false); setPendingCurrency(null); }}
+      />
       <div className="space-y-5">
 
         {/* ── 1. PROFILE ── */}
