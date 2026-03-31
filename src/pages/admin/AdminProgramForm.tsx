@@ -110,7 +110,9 @@ export function ProgramForm() {
       setDescription(existingProgram.description || '');
       setCoverUrl(existingProgram.cover_image_url || '');
       setIsPublished(existingProgram.is_published || false);
-      setIsFree(existingProgram.is_free ?? true);
+      const aiGen = (existingProgram as any).ai_generated === true;
+      setIsAiGenerated(aiGen);
+      setIsFree(aiGen ? false : (existingProgram.is_free ?? true));
       setPrice(existingProgram.price || 0);
       setCertificateEnabled((existingProgram as any).certificate_enabled || false);
       setPassingScore((existingProgram as any).passing_score ?? 70);
