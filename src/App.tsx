@@ -401,6 +401,7 @@ const App = () => (
                   <Route path="/promo/catalogue" element={<PromoCataloguePage />} />
                   <Route path="/promo/gratuits" element={<PromoGratuitsPage />} />
                   <Route path="/promo/stars" element={<PromoStarsPage />} />
+                  <Route path="/promo/ai-creations" element={<PromoAICreationsPage />} />
                   <Route path="/org/:slug" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/content" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/events" element={<OrgPublicPage />} />

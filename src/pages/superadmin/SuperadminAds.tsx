@@ -221,6 +221,7 @@ function RoiDashboardTab() {
             <p>Pub Catalogue: <span className="text-primary">siteviral.com/promo/catalogue?utm_source=meta&utm_medium=paid&utm_campaign=catalogue_w{'{N}'}</span></p>
             <p>Pub Gratuits: <span className="text-primary">siteviral.com/promo/gratuits?utm_source=meta&utm_medium=paid&utm_campaign=gratuits_w{'{N}'}</span></p>
             <p>Pub Stars: <span className="text-primary">siteviral.com/promo/stars?utm_source=meta&utm_medium=paid&utm_campaign=stars_w{'{N}'}</span></p>
+            <p>Pub AI Studio: <span className="text-primary">siteviral.com/promo/ai-creations?utm_source=meta&utm_medium=paid&utm_campaign=ai_studio_w{'{N}'}</span></p>
             <p>Pub Créateurs: <span className="text-primary">siteviral.com/auth?utm_source=tiktok&utm_medium=paid&utm_campaign=creators_w{'{N}'}</span></p>
           </div>
           <p className="text-xs text-muted-foreground">Remplace {'{N}'} par le numéro de semaine (ex: w1, w2…)</p>
