@@ -53,10 +53,11 @@ export default function CreateOrgPage() {
   const { toast } = useToast();
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
-  const [step, setStep] = useState(0); // 0=type, 1=name, 2=goal (just visual, not stored)
+  const [step, setStep] = useState(0); // 0=type, 1=name, 2=currency, 3=goal
   const [loading, setLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<string>('both');
+  const [selectedCurrency, setSelectedCurrency] = useState(() => detectCurrencyFromTimezone());
 
   const urlPartnerCode = searchParams.get('partner');
   const [partnerCode] = useState<string | null>(() => {
