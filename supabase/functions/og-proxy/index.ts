@@ -18,16 +18,28 @@ const DEFAULT_IMAGE = 'https://siteviral.com/og-image.png';
 
 // ─── Bot detection ───
 
-const BOT_UA_PATTERNS = [
+const SOCIAL_BOT_PATTERNS = [
   'facebookexternalhit', 'facebot', 'meta-externalagent', 'meta-externalfetcher',
   'whatsapp', 'twitterbot', 'linkedinbot',
   'slackbot', 'slack-imgproxy', 'discordbot', 'telegrambot',
   'pinterestbot', 'redditbot', 'vkshare',
 ];
 
+const SEARCH_BOT_PATTERNS = [
+  'googlebot', 'google-inspectiontool', 'googleother',
+  'bingbot', 'yandexbot', 'baiduspider', 'duckduckbot',
+];
+
+const ALL_BOT_PATTERNS = [...SOCIAL_BOT_PATTERNS, ...SEARCH_BOT_PATTERNS];
+
 function isBot(userAgent: string): boolean {
   const ua = userAgent.toLowerCase();
-  return BOT_UA_PATTERNS.some((pattern) => ua.includes(pattern));
+  return ALL_BOT_PATTERNS.some((pattern) => ua.includes(pattern));
+}
+
+function isSearchBot(userAgent: string): boolean {
+  const ua = userAgent.toLowerCase();
+  return SEARCH_BOT_PATTERNS.some((pattern) => ua.includes(pattern));
 }
 
 // ─── HTML helpers ───
@@ -86,8 +98,21 @@ function renderOgHtml(title: string, description: string, image: string, canonic
     <link rel="canonical" href="${url}" />
   </head>
   <body>
-    <h1>${t}</h1>
-    <p>${d}</p>
+    <header>
+      <h1>${t}</h1>
+      <p>${d}</p>
+    </header>
+    <nav>
+      <a href="https://siteviral.com/discover">Explorer</a> |
+      <a href="https://siteviral.com/features">Fonctionnalités</a> |
+      <a href="https://siteviral.com/ambassador">Ambassadeur</a>
+    </nav>
+    <main>
+      <section>
+        <p>${d}</p>
+        <p>Découvrez ${sn} sur Siteviral — votre plateforme digitale tout-en-un pour créer, vendre et partager du contenu numérique.</p>
+      </section>
+    </main>
   </body>
 </html>`;
 }
@@ -461,12 +486,15 @@ Deno.serve(async (req) => {
   let image = meta?.image || DEFAULT_IMAGE;
   try { image = new URL(image).toString(); } catch { image = DEFAULT_IMAGE; }
 
+  // Search bots (Google, Bing) should index the page; social bots should not
+  const robotsTag = isSearchBot(userAgent) ? 'index, follow' : 'noindex';
+
   return new Response(renderOgHtml(title, description, image, canonicalUrl, siteName), {
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'public, max-age=300, s-maxage=600',
       'Vary': 'User-Agent',
-      'X-Robots-Tag': 'noindex',
+      'X-Robots-Tag': robotsTag,
       'X-OG-Proxy-Mode': forceBot ? 'forced-bot' : 'bot-html',
     },
   });
