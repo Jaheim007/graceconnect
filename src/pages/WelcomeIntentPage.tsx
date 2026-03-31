@@ -73,8 +73,14 @@ export default function WelcomeIntentPage() {
     },
   ];
 
+  const markSeen = () => {
+    if (user) {
+      sessionStorage.setItem(`sv_welcome_seen_${user.id}`, 'true');
+    }
+  };
+
   const handleSelect = (intent: typeof intents[0]) => {
-    sessionStorage.setItem('sv_welcome_seen', 'true');
+    markSeen();
     if (user) {
       import('@/lib/db').then(({ db }) => {
         db.from('profiles').update({ onboarding_intent: intent.key }).eq('id', user.id);
@@ -84,7 +90,7 @@ export default function WelcomeIntentPage() {
   };
 
   const handleSkip = () => {
-    sessionStorage.setItem('sv_welcome_seen', 'true');
+    markSeen();
     navigate('/dashboard');
   };
 
