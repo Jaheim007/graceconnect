@@ -332,6 +332,17 @@ export function AdminProducts() {
   };
 
   const handleTogglePublish = async (p: any) => {
+    // Block republishing if product was moderated by superadmin
+    if (!p.is_published && p.publication_status === 'moderated') {
+      toast({
+        title: isFr ? 'Publication bloquée' : 'Publishing blocked',
+        description: isFr
+          ? 'Ce produit a été modéré par l\'administration. Contactez support@siteviral.com pour demander sa republication.'
+          : 'This product was moderated by administration. Contact support@siteviral.com to request republication.',
+        variant: 'destructive',
+      });
+      return;
+    }
     const newPublished = !p.is_published;
     await db.from('digital_products').update({
       is_published: newPublished,
