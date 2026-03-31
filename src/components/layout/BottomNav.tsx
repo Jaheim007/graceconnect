@@ -144,6 +144,8 @@ export function BottomNav() {
           ? (isFr ? 'Notre espace' : 'Our Space')
           : (isFr ? 'Ma boutique' : 'My Store'),
         items: [
+          { to: '/admin/content', icon: Package, label: isFr ? 'Mes contenus' : 'My Content' },
+          { to: '/gagner', icon: Share2, label: isFr ? 'Partager' : 'Share' },
           { to: '/admin', icon: BarChart3, label: isFr ? 'Vue d\'ensemble' : 'Overview' },
           ...(currentOrg ? [{ to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' }] : []),
           { to: '/admin/people', icon: Users, label: labels.clients },
