@@ -192,6 +192,147 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
         ? { subject: '❤️ Revenez sur Siteviral', html: wrap(`<h1 style="color:${red}">❤️ Revenez nous voir</h1><p>Bonjour ${d.name || ''},</p><p>Cela fait un mois depuis votre dernière visite. Votre communauté vous attend !</p><p>Besoin d'aide ? Répondez à cet email ou contactez <a href="mailto:support@siteviral.com" style="color:${blue}">support@siteviral.com</a>.</p>${cta('https://siteviral.com', 'Se reconnecter')}`, lang) }
         : { subject: '❤️ Come back to Siteviral', html: wrap(`<h1 style="color:${red}">❤️ Come back to us</h1><p>Hello ${d.name || ''},</p><p>It's been a month since your last visit. Your community is waiting!</p><p>Need help? Reply to this email or contact <a href="mailto:support@siteviral.com" style="color:${blue}">support@siteviral.com</a>.</p>${cta('https://siteviral.com', 'Log back in')}`, lang) };
 
+    // ═══ REACTIVATION CAMPAIGN ═══
+    case 'reactivation_ghost':
+      return isFr
+        ? { subject: '🎨 Votre studio IA vous attend – Créez en 3 minutes !', html: wrap(`
+            <h1 style="color:${blue}">🎨 Votre studio IA vous attend !</h1>
+            <p>Bonjour ${d.name || ''},</p>
+            <p>Vous vous êtes inscrit sur Siteviral, mais vous n'avez pas encore exploré tout ce que la plateforme peut faire pour vous.</p>
+            <div style="background:#f0f7ff;border-radius:12px;padding:20px;margin:20px 0">
+              <p style="margin:0 0 12px;font-weight:bold;color:${blue}">En 3 minutes, vous pouvez :</p>
+              <ul style="margin:0;padding-left:20px;line-height:2.2">
+                <li>📖 Créer un ebook complet avec l'IA</li>
+                <li>🎓 Générer une formation professionnelle</li>
+                <li>💰 Le mettre en vente et commencer à gagner</li>
+                <li>🔗 Partager et toucher des commissions sur chaque vente</li>
+              </ul>
+            </div>
+            <p>Vous avez <strong style="color:${green}">38,5 crédits gratuits par jour</strong> pour créer du contenu. Ne les laissez pas expirer !</p>
+            ${cta('https://siteviral.com/welcome', '🚀 Commencer maintenant')}
+            <p style="color:#888;font-size:12px">Pas besoin de compétences techniques. L'IA fait tout le travail.</p>
+          `, lang) }
+        : { subject: '🎨 Your AI studio is waiting – Create in 3 minutes!', html: wrap(`
+            <h1 style="color:${blue}">🎨 Your AI studio is waiting!</h1>
+            <p>Hello ${d.name || ''},</p>
+            <p>You signed up on Siteviral, but haven't explored everything the platform can do for you yet.</p>
+            <div style="background:#f0f7ff;border-radius:12px;padding:20px;margin:20px 0">
+              <p style="margin:0 0 12px;font-weight:bold;color:${blue}">In just 3 minutes, you can:</p>
+              <ul style="margin:0;padding-left:20px;line-height:2.2">
+                <li>📖 Create a complete ebook with AI</li>
+                <li>🎓 Generate a professional course</li>
+                <li>💰 Put it on sale and start earning</li>
+                <li>🔗 Share and earn commissions on every sale</li>
+              </ul>
+            </div>
+            <p>You get <strong style="color:${green}">38.5 free credits daily</strong> to create content. Don't let them expire!</p>
+            ${cta('https://siteviral.com/welcome', '🚀 Get started now')}
+            <p style="color:#888;font-size:12px">No technical skills needed. AI does all the work.</p>
+          `, lang) };
+
+    case 'reactivation_no_product':
+      return isFr
+        ? { subject: '📦 Votre espace ${d.org_name || ""} est prêt – Publiez votre 1er produit !', html: wrap(`
+            <h1 style="color:${blue}">📦 Plus qu'une étape !</h1>
+            <p>Bonjour ${d.name || ''},</p>
+            <p>Votre espace <strong>${d.org_name || 'sur Siteviral'}</strong> est créé, mais il est encore vide.</p>
+            <div style="background:#fff8e1;border-radius:12px;padding:20px;margin:20px 0;border:1px solid #ffd54f">
+              <p style="margin:0;font-weight:bold;color:#f57f17">⚡ Saviez-vous que ?</p>
+              <p style="margin:8px 0 0">Les créateurs qui publient dans les 48h ont <strong>3x plus de chances</strong> de faire leur première vente.</p>
+            </div>
+            <p>Utilisez le <strong>Viral AI Studio</strong> pour créer automatiquement :</p>
+            <ul style="color:#ccc;line-height:2">
+              <li>📚 Un ebook ou guide PDF</li>
+              <li>🎓 Une formation complète avec modules</li>
+              <li>🎨 Un livre de coloriage pour enfants</li>
+            </ul>
+            ${cta('https://siteviral.com/admin/create', '✨ Créer avec le Viral AI Studio')}
+          `, lang) }
+        : { subject: '📦 Your space ${d.org_name || ""} is ready – Publish your 1st product!', html: wrap(`
+            <h1 style="color:${blue}">📦 Just one more step!</h1>
+            <p>Hello ${d.name || ''},</p>
+            <p>Your space <strong>${d.org_name || 'on Siteviral'}</strong> is created, but it's still empty.</p>
+            <div style="background:#fff8e1;border-radius:12px;padding:20px;margin:20px 0;border:1px solid #ffd54f">
+              <p style="margin:0;font-weight:bold;color:#f57f17">⚡ Did you know?</p>
+              <p style="margin:8px 0 0">Creators who publish within 48h are <strong>3x more likely</strong> to make their first sale.</p>
+            </div>
+            <p>Use the <strong>Viral AI Studio</strong> to automatically create:</p>
+            <ul style="color:#ccc;line-height:2">
+              <li>📚 An ebook or PDF guide</li>
+              <li>🎓 A complete course with modules</li>
+              <li>🎨 A coloring book for kids</li>
+            </ul>
+            ${cta('https://siteviral.com/admin/create', '✨ Create with Viral AI Studio')}
+          `, lang) };
+
+    case 'reactivation_no_sales':
+      return isFr
+        ? { subject: '🔥 Votre produit attend ses premiers acheteurs !', html: wrap(`
+            <h1 style="color:${orange}">🔥 Passez à l'action !</h1>
+            <p>Bonjour ${d.name || ''},</p>
+            <p>Votre produit <strong>"${d.product_name || 'votre contenu'}"</strong> est publié – félicitations ! 🎉</p>
+            <p>Mais il n'a pas encore trouvé ses premiers acheteurs. Voici comment changer ça <strong>aujourd'hui</strong> :</p>
+            <div style="background:#e8f5e9;border-radius:12px;padding:20px;margin:20px 0;border:1px solid #66bb6a">
+              <p style="margin:0 0 12px;font-weight:bold;color:#2e7d32">3 actions qui marchent :</p>
+              <ol style="margin:0;padding-left:20px;line-height:2.2">
+                <li>📲 <strong>Partagez sur WhatsApp</strong> – 1 clic depuis votre tableau de bord</li>
+                <li>🔗 <strong>Devenez ambassadeur</strong> – Gagnez des commissions sur chaque vente</li>
+                <li>📢 <strong>Postez sur vos réseaux</strong> – Le lien est déjà prêt</li>
+              </ol>
+            </div>
+            ${cta('https://siteviral.com/admin/share', '📤 Partager mon produit')}
+            <p style="color:#888;font-size:12px">Chaque partage peut déclencher une vente. Les ambassadeurs les plus actifs gagnent en moyenne 15 000 FCFA/semaine.</p>
+          `, lang) }
+        : { subject: '🔥 Your product is waiting for its first buyers!', html: wrap(`
+            <h1 style="color:${orange}">🔥 Time to take action!</h1>
+            <p>Hello ${d.name || ''},</p>
+            <p>Your product <strong>"${d.product_name || 'your content'}"</strong> is published – congratulations! 🎉</p>
+            <p>But it hasn't found its first buyers yet. Here's how to change that <strong>today</strong>:</p>
+            <div style="background:#e8f5e9;border-radius:12px;padding:20px;margin:20px 0;border:1px solid #66bb6a">
+              <p style="margin:0 0 12px;font-weight:bold;color:#2e7d32">3 actions that work:</p>
+              <ol style="margin:0;padding-left:20px;line-height:2.2">
+                <li>📲 <strong>Share on WhatsApp</strong> – 1 click from your dashboard</li>
+                <li>🔗 <strong>Become an ambassador</strong> – Earn commissions on every sale</li>
+                <li>📢 <strong>Post on social media</strong> – The link is already ready</li>
+              </ol>
+            </div>
+            ${cta('https://siteviral.com/admin/share', '📤 Share my product')}
+            <p style="color:#888;font-size:12px">Every share can trigger a sale. The most active ambassadors earn an average of 15,000 XOF/week.</p>
+          `, lang) };
+
+    case 'reactivation_ambassador':
+      return isFr
+        ? { subject: '💸 Vos liens d\'ambassadeur dorment – Réveillez-les !', html: wrap(`
+            <h1 style="color:${green}">💸 Vos commissions vous attendent !</h1>
+            <p>Bonjour ${d.name || ''},</p>
+            <p>Vous avez des liens d'ambassadeur sur Siteviral, mais ils n'ont pas encore généré de clics.</p>
+            <div style="background:#f3e5f5;border-radius:12px;padding:20px;margin:20px 0;border:1px solid #ce93d8">
+              <p style="margin:0 0 8px;font-weight:bold;color:#7b1fa2">Comment ça marche :</p>
+              <p style="margin:0;line-height:1.8">Quelqu'un clique sur votre lien → Il achète → <strong>Vous gagnez une commission automatiquement</strong>.</p>
+              <p style="margin:8px 0 0;color:#7b1fa2;font-weight:bold">Aucun effort de création, juste du partage.</p>
+            </div>
+            <p>💡 <strong>Astuce :</strong> Partagez votre lien dans un groupe WhatsApp avec un message du type :</p>
+            <div style="background:#333;border-radius:8px;padding:12px;margin:12px 0;font-style:italic;color:#ccc;font-size:13px">
+              "J'ai trouvé cette ressource incroyable, ça peut vraiment aider 👉 [votre lien]"
+            </div>
+            ${cta('https://siteviral.com/admin/share', '🔗 Voir mes liens')}
+          `, lang) }
+        : { subject: '💸 Your ambassador links are sleeping – Wake them up!', html: wrap(`
+            <h1 style="color:${green}">💸 Your commissions are waiting!</h1>
+            <p>Hello ${d.name || ''},</p>
+            <p>You have ambassador links on Siteviral, but they haven't generated any clicks yet.</p>
+            <div style="background:#f3e5f5;border-radius:12px;padding:20px;margin:20px 0;border:1px solid #ce93d8">
+              <p style="margin:0 0 8px;font-weight:bold;color:#7b1fa2">How it works:</p>
+              <p style="margin:0;line-height:1.8">Someone clicks your link → They buy → <strong>You earn a commission automatically</strong>.</p>
+              <p style="margin:8px 0 0;color:#7b1fa2;font-weight:bold">No creation effort, just sharing.</p>
+            </div>
+            <p>💡 <strong>Tip:</strong> Share your link in a WhatsApp group with a message like:</p>
+            <div style="background:#333;border-radius:8px;padding:12px;margin:12px 0;font-style:italic;color:#ccc;font-size:13px">
+              "I found this incredible resource, it can really help 👉 [your link]"
+            </div>
+            ${cta('https://siteviral.com/admin/share', '🔗 View my links')}
+          `, lang) };
+
     case 'anniversary_1y':
       return isFr
         ? { subject: '🎂 1 an sur Siteviral !', html: wrap(`<h1 style="color:${green}">🎂 Joyeux anniversaire !</h1><p>Bonjour ${d.name || ''},</p><p>Cela fait <strong>1 an</strong> que vous avez rejoint Siteviral ! Voici votre année en résumé :</p><ul style="color:#ccc"><li>Organisations rejointes : ${d.orgs_count || 0}</li></ul><p>Merci de faire partie de la communauté ! 🎉</p>`, lang) }
