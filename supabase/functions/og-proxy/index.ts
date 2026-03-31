@@ -98,8 +98,21 @@ function renderOgHtml(title: string, description: string, image: string, canonic
     <link rel="canonical" href="${url}" />
   </head>
   <body>
-    <h1>${t}</h1>
-    <p>${d}</p>
+    <header>
+      <h1>${t}</h1>
+      <p>${d}</p>
+    </header>
+    <nav>
+      <a href="https://siteviral.com/discover">Explorer</a> |
+      <a href="https://siteviral.com/features">Fonctionnalités</a> |
+      <a href="https://siteviral.com/ambassador">Ambassadeur</a>
+    </nav>
+    <main>
+      <section>
+        <p>${d}</p>
+        <p>Découvrez ${sn} sur Siteviral — votre plateforme digitale tout-en-un pour créer, vendre et partager du contenu numérique.</p>
+      </section>
+    </main>
   </body>
 </html>`;
 }
