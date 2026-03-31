@@ -1350,7 +1350,12 @@ export function AdminSettings() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="org-currency" className="text-xs font-medium">{isFr ? 'Devise' : 'Currency'}</Label>
-                  <CurrencySelector value={orgCurrency} onChange={(c) => setOrgCurrency(c)} className="h-9 text-sm" />
+                  <CurrencySelector value={orgCurrency} onChange={(c) => {
+                    if (c !== orgCurrency && currentOrg) {
+                      setPendingCurrency(c);
+                      setCurrencyWizardOpen(true);
+                    }
+                  }} className="h-9 text-sm" />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="org-country" className="text-xs font-medium">{isFr ? 'Pays' : 'Country'}</Label>
