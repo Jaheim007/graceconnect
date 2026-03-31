@@ -18,16 +18,28 @@ const DEFAULT_IMAGE = 'https://siteviral.com/og-image.png';
 
 // ─── Bot detection ───
 
-const BOT_UA_PATTERNS = [
+const SOCIAL_BOT_PATTERNS = [
   'facebookexternalhit', 'facebot', 'meta-externalagent', 'meta-externalfetcher',
   'whatsapp', 'twitterbot', 'linkedinbot',
   'slackbot', 'slack-imgproxy', 'discordbot', 'telegrambot',
   'pinterestbot', 'redditbot', 'vkshare',
 ];
 
+const SEARCH_BOT_PATTERNS = [
+  'googlebot', 'google-inspectiontool', 'googleother',
+  'bingbot', 'yandexbot', 'baiduspider', 'duckduckbot',
+];
+
+const ALL_BOT_PATTERNS = [...SOCIAL_BOT_PATTERNS, ...SEARCH_BOT_PATTERNS];
+
 function isBot(userAgent: string): boolean {
   const ua = userAgent.toLowerCase();
-  return BOT_UA_PATTERNS.some((pattern) => ua.includes(pattern));
+  return ALL_BOT_PATTERNS.some((pattern) => ua.includes(pattern));
+}
+
+function isSearchBot(userAgent: string): boolean {
+  const ua = userAgent.toLowerCase();
+  return SEARCH_BOT_PATTERNS.some((pattern) => ua.includes(pattern));
 }
 
 // ─── HTML helpers ───
