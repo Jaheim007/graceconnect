@@ -86,7 +86,7 @@ export default function AdminPrograms() {
     <AdminPageShell
       title={isFr ? "Programmes & Formations" : "Programs & Courses"}
       subtitle={isFr ? "Créez des parcours d'apprentissage structurés avec modules et leçons." : "Create structured learning paths with modules and lessons."}
-      backRoute="/admin/create"
+      backRoute="/admin/content"
       actions={
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

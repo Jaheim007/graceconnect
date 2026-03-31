@@ -138,7 +138,7 @@ export default function AdminPromoCodes() {
   };
 
   return (
-    <AdminPageShell title={t('admin_promo.title')} backRoute="/admin/create">
+    <AdminPageShell title={t('admin_promo.title')} backRoute="/admin/content">
       <div className="space-y-4">
         <div className="bg-primary/8 border border-primary/20 rounded-2xl p-4 space-y-1">
           <p className="font-semibold text-sm flex items-center gap-2"><Tag className="h-4 w-4 text-primary" /> {t('admin_promo.info_title')}</p>

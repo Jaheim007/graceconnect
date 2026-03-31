@@ -79,7 +79,7 @@ export default function AdminViralTools() {
     <AdminPageShell
       title="Viral Tools"
       subtitle={isFr ? 'Outils avancés pour automatiser et optimiser' : 'Advanced tools to automate and optimize'}
-      backRoute="/admin/create"
+      backRoute="/admin/content"
     >
       <div className="grid gap-4 sm:grid-cols-2">
         {tools.map((item, i) => (

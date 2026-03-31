@@ -136,7 +136,7 @@ export default function AdminPopups() {
   };
 
   return (
-    <AdminPageShell title="Pop-ups & Bannières" backRoute="/admin/create">
+    <AdminPageShell title="Pop-ups & Bannières" backRoute="/admin/content">
       <div className="space-y-4">
         <div className="bg-primary/8 border border-primary/20 rounded-2xl p-4 space-y-1">
           <p className="font-semibold text-sm flex items-center gap-2">
