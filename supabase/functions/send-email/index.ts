@@ -952,10 +952,9 @@ Deno.serve(async (req) => {
       orgSlug = orgData?.slug || '';
     }
 
-    let lastResult: any = {};
-    let allOk = true;
+    // Pre-render all emails for each recipient
+    const renderedEmails: Array<{ recipient: string; from: string; subject: string; html: string; lang: Lang }> = [];
     for (const recipient of recipients) {
-      // Resolve language per recipient: explicit locale > user profile > default (fr)
       let lang: Lang = requestLocale || 'fr';
       if (!requestLocale) {
         lang = await resolveUserLang(supabaseAdmin, recipient);
@@ -968,42 +967,63 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: 'Unknown template' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
-      // Rewrite org-specific links to use custom domain
       if (orgDomainInfo && orgSlug && !orgDomainInfo.baseUrl.includes('siteviral.com/org/')) {
         tpl.html = rewriteOrgLinks(tpl.html, orgSlug, orgDomainInfo.baseUrl);
       }
 
-      // Use org name as sender name for org-related emails
       const senderName = orgDomainInfo?.orgName || 'Siteviral';
       const fromAddress = tpl.fromOverride || `${senderName} <noreply@siteviral.com>`;
 
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: fromAddress,
-          to: [recipient],
-          subject: tpl.subject,
-          html: tpl.html,
-        }),
-      });
-      const result = await res.json();
-      lastResult = result;
-      if (!res.ok) allOk = false;
-
-      await supabaseAdmin.from('email_logs').insert({
-        template,
-        recipient,
-        subject: tpl.subject,
-        status: res.ok ? 'sent' : 'failed',
-        resend_message_id: result.id || null,
-        error_message: res.ok ? null : (result.message || 'Unknown error'),
-        organization_id: organization_id || null,
-        metadata: { ...data, _lang: lang, _org_domain: orgDomainInfo?.baseUrl || null },
-      });
+      renderedEmails.push({ recipient, from: fromAddress, subject: tpl.subject, html: tpl.html, lang });
     }
 
-    return new Response(JSON.stringify({ ok: allOk, message_id: lastResult.id, recipients: recipients.length }), {
+    // Send via Resend Batch API (up to 100 per call) instead of individual calls
+    const BATCH_SIZE = 100;
+    let allOk = true;
+    let lastMessageId = '';
+
+    for (let i = 0; i < renderedEmails.length; i += BATCH_SIZE) {
+      const batch = renderedEmails.slice(i, i + BATCH_SIZE);
+
+      const batchPayload = batch.map(e => ({
+        from: e.from,
+        to: [e.recipient],
+        subject: e.subject,
+        html: e.html,
+      }));
+
+      const res = await fetch('https://api.resend.com/emails/batch', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(batchPayload),
+      });
+
+      const result = await res.json();
+
+      // Batch API returns { data: [{ id }, { id }, ...] } on success
+      const batchResults = result.data || [];
+
+      for (let j = 0; j < batch.length; j++) {
+        const email = batch[j];
+        const emailResult = batchResults[j];
+        const ok = res.ok && !!emailResult?.id;
+        if (!ok) allOk = false;
+        if (emailResult?.id) lastMessageId = emailResult.id;
+
+        await supabaseAdmin.from('email_logs').insert({
+          template,
+          recipient: email.recipient,
+          subject: email.subject,
+          status: ok ? 'sent' : 'failed',
+          resend_message_id: emailResult?.id || null,
+          error_message: ok ? null : (result.message || result.error || 'Batch send failed'),
+          organization_id: organization_id || null,
+          metadata: { ...data, _lang: email.lang, _org_domain: orgDomainInfo?.baseUrl || null },
+        });
+      }
+    }
+
+    return new Response(JSON.stringify({ ok: allOk, message_id: lastMessageId, recipients: recipients.length }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
