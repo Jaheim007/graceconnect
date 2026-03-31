@@ -160,7 +160,8 @@ export default function OrgPublicPage() {
   const hostname = window.location.hostname;
   const isOnOrgDomain = !isMainPlatformDomain(hostname);
   const orgBaseUrl = isOnOrgDomain ? window.location.origin : `https://siteviral.com/org/${slug}`;
-  const orgCanonical = isOnOrgDomain ? window.location.origin : `https://siteviral.com/org/${slug}`;
+  const tabSuffix = activeTab !== 'home' && activeTab !== defaultTab ? `/${activeTab}` : '';
+  const orgCanonical = isOnOrgDomain ? `${window.location.origin}${tabSuffix}` : `https://siteviral.com/org/${slug}${tabSuffix}`;
 
   const navigateTab = (tab: string) => {
     const base = `/org/${slug}`;
