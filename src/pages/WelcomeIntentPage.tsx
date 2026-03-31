@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Package, Store, Share2, Sparkles, ArrowRight, SkipForward } from 'lucide-react';
+import { Package, Upload, Share2, Sparkles, ArrowRight, SkipForward } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
