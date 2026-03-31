@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Zap, Copy, Check, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
@@ -16,7 +16,7 @@ import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
  */
 export function QuickShareWidget() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const { data: links = [], isLoading } = useQuery({
@@ -104,7 +104,14 @@ export function QuickShareWidget() {
         variant="ghost"
         size="sm"
         className="w-full mt-3 text-xs gap-1.5"
-        onClick={() => navigate('/gagner')}
+        onClick={() => {
+          const tabsEl = document.getElementById('gagner-tabs');
+          if (tabsEl) {
+            tabsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const mesLiensTab = tabsEl.querySelector<HTMLButtonElement>('[value="earnings"]');
+            if (mesLiensTab) setTimeout(() => mesLiensTab.click(), 400);
+          }
+        }}
       >
         Voir tous mes liens <ExternalLink className="h-3.5 w-3.5" />
       </Button>
