@@ -52,7 +52,8 @@ type EmailTemplate =
   | 'review_request'
   | 'org_welcome_j0' | 'org_onboarding_j1' | 'org_onboarding_j3'
   | 'post_purchase_ambassador_j1' | 'post_purchase_ambassador_j5' | 'post_purchase_ambassador_j10'
-  | 'buyer_to_creator' | 'visitor_to_creator' | 'first_commission_earned' | 'trending_product_nudge';
+  | 'buyer_to_creator' | 'visitor_to_creator' | 'first_commission_earned' | 'trending_product_nudge'
+  | 'reactivation_ghost' | 'reactivation_no_product' | 'reactivation_no_sales' | 'reactivation_ambassador';
 
 type Lang = 'fr' | 'en';
 
