@@ -459,9 +459,9 @@ export function AdminProducts() {
                 <div className="flex items-center justify-between gap-2 pl-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <Badge variant="outline" className={cn('text-[11px] border-0 shrink-0',
-                      p.publication_status === 'moderated' ? 'bg-destructive/10 text-destructive' :
+                      (p as any).publication_status === 'moderated' ? 'bg-destructive/10 text-destructive' :
                       p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
-                      {p.publication_status === 'moderated' ? (isFr ? '🚫 Modéré' : '🚫 Moderated') : p.is_published ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
+                      {(p as any).publication_status === 'moderated' ? (isFr ? '🚫 Modéré' : '🚫 Moderated') : p.is_published ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
                     </Badge>
                     {(p as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">{isFr ? 'Démo' : 'Demo'}</Badge>}
                   </div>
