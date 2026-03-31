@@ -50,6 +50,7 @@ const linkGroups = [
     items: [
       { to: '/superadmin/emails', label: 'Emails', icon: Mail },
       { to: '/superadmin/push', label: 'Push Notifs', icon: Bell },
+      { to: '/superadmin/ads', label: 'Publicité', icon: Target },
       { to: '/superadmin/partners', label: 'Partners', icon: Handshake },
     ],
   },

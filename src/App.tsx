@@ -51,6 +51,9 @@ const AuthPage = lazy(() => import("@/pages/AuthPage"));
 const AuthCallbackPage = lazy(() => import("@/pages/AuthCallbackPage"));
 const DiscoverPage = lazy(() => import("@/pages/DiscoverPage"));
 // SpotlightPage consolidated into Discover
+const PromoCataloguePage = lazy(() => import("@/pages/promo/PromoCataloguePage"));
+const PromoGratuitsPage = lazy(() => import("@/pages/promo/PromoGratuitsPage"));
+const PromoStarsPage = lazy(() => import("@/pages/promo/PromoStarsPage"));
 const OrgPublicPage = lazy(() => import("@/pages/OrgPublicPage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -238,6 +241,7 @@ const SuperadminAiPolicies = lazy(() => import("@/pages/superadmin/studio/AiPoli
 const SuperadminGlobalJobs = lazy(() => import("@/pages/superadmin/studio/GlobalAiJobsMonitor"));
 const SuperadminAiAbuse = lazy(() => import("@/pages/superadmin/studio/AiAbuseMonitor"));
 const SuperadminAIHistory = lazy(() => import("@/pages/superadmin/SuperadminAIHistory"));
+const SuperadminAds = lazy(() => import("@/pages/superadmin/SuperadminAds"));
 // Wrap lazy components that export named exports
 const LazyAdminAnnouncements = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminAnnouncements })));
 const LazyAdminEvents = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminEvents })));
@@ -393,6 +397,9 @@ const App = () => (
                 <Route element={<PublicLayout />}>
                   <Route path="/discover" element={<DiscoverPage />} />
                   <Route path="/spotlight" element={<Navigate to="/discover" replace />} />
+                  <Route path="/promo/catalogue" element={<PromoCataloguePage />} />
+                  <Route path="/promo/gratuits" element={<PromoGratuitsPage />} />
+                  <Route path="/promo/stars" element={<PromoStarsPage />} />
                   <Route path="/org/:slug" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/content" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/events" element={<OrgPublicPage />} />
@@ -533,6 +540,7 @@ const App = () => (
                   <Route path="studio/abuse-monitor" element={<SuperadminAiAbuse />} />
                   <Route path="health" element={<Suspense fallback={<PageLoader />}><SuperadminHealthDashboard /></Suspense>} />
                   <Route path="ai-history" element={<Suspense fallback={<PageLoader />}><SuperadminAIHistory /></Suspense>} />
+                  <Route path="ads" element={<SuperadminAds />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
