@@ -1,6 +1,8 @@
 // Generic stub for remaining admin pages
 import { stripHtml } from '@/lib/formatText';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
+import { CurrencyChangeWizard } from '@/components/currency/CurrencyChangeWizard';
+import { convertCurrency } from '@/lib/currencyConvert';
 import { AdminPageShell } from './AdminPageShell';
 import IdentityVerificationWizard from '@/components/verification/IdentityVerificationWizard';
 import { useOrg } from '@/contexts/OrgContext';
