@@ -412,8 +412,8 @@ export function ProductForm() {
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label>Type</Label>
-            <Select value={watch('product_type')} onValueChange={v => setValue('product_type', v as any)}>
-              <SelectTrigger><SelectValue placeholder={isFr ? 'Choisir un type' : 'Select type'} /></SelectTrigger>
+            <Select value={watch('product_type') || 'pdf'} onValueChange={v => setValue('product_type', v as any)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="pdf">PDF</SelectItem>
                 <SelectItem value="ebook">eBook</SelectItem>
