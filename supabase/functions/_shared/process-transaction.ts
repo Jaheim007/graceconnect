@@ -157,7 +157,15 @@ export async function processTransaction(
     if (affLink?.is_active && affLink.user_id !== user_id) {
       affiliateLinkId = affLink.id;
       affiliateUserId = affLink.user_id;
-      const commPct = org.affiliation_commission_percent ?? 10;
+      // Per-product commission rate overrides org default
+      let commPct = org.affiliation_commission_percent ?? 10;
+      if (product_id) {
+        const { data: prod } = await db.from('digital_products')
+          .select('commission_rate')
+          .eq('id', product_id)
+          .maybeSingle();
+        if (prod?.commission_rate != null) commPct = prod.commission_rate;
+      }
       affiliateCommission = parseFloat((amountPaid * commPct / 100).toFixed(2));
     }
   }
