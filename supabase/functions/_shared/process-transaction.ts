@@ -631,7 +631,7 @@ export async function processTransaction(
         data: {
           commission: affiliateCommission, currency, org_name: org.name,
           transaction_type: type, gross_amount: amountPaid,
-          commission_percent: org.affiliation_commission_percent ?? 10,
+          commission_percent: affiliateCommissionPct,
         },
         organization_id,
       }));
