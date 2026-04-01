@@ -1530,6 +1530,7 @@ export type Database = {
           ai_generated: boolean
           ai_project_id: string | null
           average_rating: number | null
+          commission_rate: number | null
           content_language: string | null
           cover_image_url: string | null
           created_at: string | null
@@ -1584,6 +1585,7 @@ export type Database = {
           ai_generated?: boolean
           ai_project_id?: string | null
           average_rating?: number | null
+          commission_rate?: number | null
           content_language?: string | null
           cover_image_url?: string | null
           created_at?: string | null
@@ -1638,6 +1640,7 @@ export type Database = {
           ai_generated?: boolean
           ai_project_id?: string | null
           average_rating?: number | null
+          commission_rate?: number | null
           content_language?: string | null
           cover_image_url?: string | null
           created_at?: string | null
