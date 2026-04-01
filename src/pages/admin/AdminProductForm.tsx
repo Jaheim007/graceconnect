@@ -489,7 +489,7 @@ export function ProductForm() {
 
         {/* Pay What You Want */}
         {!isFree && (() => {
-          const pwywCurrency = currentOrg?.currency || 'XOF';
+          const pwywCurrency = effectiveCurrency;
           const minFloors: Record<string, number> = { XOF: 500, XAF: 500, NGN: 500, USD: 1, EUR: 1, GBP: 1, GHS: 5, KES: 100, ZAR: 10, MAD: 10, TND: 3 };
           const pwywFloor = minFloors[pwywCurrency] || 500;
 
