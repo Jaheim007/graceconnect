@@ -210,7 +210,7 @@ export function ProductForm() {
         is_pwyw: data.is_free ? false : data.is_pwyw,
         min_price: (() => {
           if (!data.is_pwyw || data.is_free) return null;
-          const cur = currentOrg?.currency || 'XOF';
+          const cur = productCurrency || currentOrg?.currency || 'XOF';
           const floors: Record<string, number> = { XOF: 500, XAF: 500, NGN: 500, USD: 1, EUR: 1, GBP: 1, GHS: 5, KES: 100, ZAR: 10, MAD: 10, TND: 3 };
           const floor = floors[cur] || 500;
           return Math.max(data.min_price || 0, floor);
