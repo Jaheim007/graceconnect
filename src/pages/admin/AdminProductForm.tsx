@@ -163,6 +163,8 @@ export function ProductForm() {
       setGTag((item as any).google_tag_id || '');
       setSeoTitle((item as any).seo_title || '');
       setSeoDescription((item as any).seo_description || '');
+      setProductCurrency(item.currency && item.currency !== (currentOrg?.currency || 'XOF') ? item.currency : '');
+      setProductCommissionRate((item as any).commission_rate != null ? String((item as any).commission_rate) : '');
     }
   }, [item, reset]);
 
