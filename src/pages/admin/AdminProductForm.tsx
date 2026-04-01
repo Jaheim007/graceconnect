@@ -475,7 +475,7 @@ export function ProductForm() {
             )}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs">{isFr ? `Prix promo (${currentOrg?.currency || 'XOF'})` : `Sale price (${currentOrg?.currency || 'XOF'})`}</Label>
+                <Label className="text-xs">{isFr ? `Prix promo (${effectiveCurrency})` : `Sale price (${effectiveCurrency})`}</Label>
                 <Input type="number" value={salePrice} onChange={e => setSalePrice(e.target.value)} placeholder={isFr ? 'Ex: 2500' : 'E.g. 2500'} className="h-8 text-xs" disabled={watch('is_pwyw')} />
               </div>
               <div className="space-y-1.5">
