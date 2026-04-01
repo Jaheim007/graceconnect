@@ -417,7 +417,7 @@ export function ProductForm() {
               <SelectContent>
                 <SelectItem value="pdf">PDF</SelectItem>
                 <SelectItem value="ebook">eBook</SelectItem>
-                <SelectItem value="video">Video</SelectItem>
+               <SelectItem value="video">Video</SelectItem>
                 <SelectItem value="audio">Audio</SelectItem>
                 <SelectItem value="course">Course</SelectItem>
                 <SelectItem value="other">Other</SelectItem>
@@ -426,11 +426,43 @@ export function ProductForm() {
           </div>
            <div className="space-y-1.5">
             <div className="flex items-center gap-1.5">
-              <Label>{isFr ? `Prix (${currentOrg?.currency || 'XOF'})` : `Price (${currentOrg?.currency || 'XOF'})`}</Label>
+              <Label>{isFr ? `Prix (${effectiveCurrency})` : `Price (${effectiveCurrency})`}</Label>
               <ContextTip tipKey="product_price" />
             </div>
             <Input type="number" {...register('price')} disabled={isFree || watch('is_pwyw')} placeholder="Ex: 5000" className={watch('is_pwyw') ? 'opacity-50' : ''} />
             {!isFree && !watch('is_pwyw') && <SuggestedPriceHint productType={watch('product_type') || 'pdf'} />}
+          </div>
+        </div>
+
+        {/* Per-product currency & commission override */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs">{isFr ? 'Devise du produit' : 'Product currency'}</Label>
+            <CurrencySelector
+              value={effectiveCurrency}
+              onChange={(v) => setProductCurrency(v === (currentOrg?.currency || 'XOF') ? '' : v)}
+              className="h-9"
+            />
+            {productCurrency && productCurrency !== (currentOrg?.currency || 'XOF') && (
+              <p className="text-[10px] text-muted-foreground">
+                {isFr ? `Différent de la devise org (${currentOrg?.currency || 'XOF'})` : `Different from org currency (${currentOrg?.currency || 'XOF'})`}
+              </p>
+            )}
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">{isFr ? 'Commission ambassadeur (%)' : 'Ambassador commission (%)'}</Label>
+            <Input
+              type="number"
+              min={0}
+              max={50}
+              value={productCommissionRate}
+              onChange={e => setProductCommissionRate(e.target.value)}
+              placeholder={`${isFr ? 'Défaut org' : 'Org default'}: ${currentOrg?.affiliation_commission_percent ?? 10}%`}
+              className="h-9 text-xs"
+            />
+            <p className="text-[10px] text-muted-foreground">
+              {isFr ? 'Laissez vide pour utiliser le taux par défaut de l\'organisation.' : 'Leave empty to use the organization default rate.'}
+            </p>
           </div>
         </div>
 
