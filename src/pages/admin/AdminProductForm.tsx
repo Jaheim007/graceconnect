@@ -139,7 +139,7 @@ export function ProductForm() {
       reset({
         title: item.title,
         description: item.description || '',
-        product_type: (item.product_type as any) || 'pdf',
+        product_type: (['pdf', 'ebook', 'video', 'audio', 'course', 'other'].includes((item.product_type || '').toLowerCase()) ? (item.product_type as any).toLowerCase() : 'pdf') as any,
         price: item.price || 0,
         cover_image_url: item.cover_image_url || '',
         file_url: item.file_url || '',
@@ -429,7 +429,8 @@ export function ProductForm() {
               <Label>{isFr ? `Prix (${effectiveCurrency})` : `Price (${effectiveCurrency})`}</Label>
               <ContextTip tipKey="product_price" />
             </div>
-            <Input type="number" {...register('price')} disabled={isFree || watch('is_pwyw')} placeholder="Ex: 5000" className={watch('is_pwyw') ? 'opacity-50' : ''} />
+            <Input type="number" {...register('price')} disabled={isFree || watch('is_pwyw')} placeholder="Ex: 5000" className={watch('is_pwyw') ? 'opacity-50 cursor-not-allowed' : ''} />
+            {watch('is_pwyw') && <p className="text-[11px] text-amber-600">💰 {isFr ? '"Prix libre" est activé — le prix ci-dessus sert de prix suggéré.' : '"Pay What You Want" is active — the price above is used as suggested price.'}</p>}
             {!isFree && !watch('is_pwyw') && <SuggestedPriceHint productType={watch('product_type') || 'pdf'} />}
           </div>
         </div>
@@ -612,38 +613,47 @@ export function ProductForm() {
               <Sparkles className="h-4 w-4 text-primary" /> {isFr ? 'Produit généré par IA' : 'AI-generated product'}
             </p>
             <p className="text-xs text-muted-foreground">
-              {item?.ai_project_id
-                ? (isFr
-                    ? 'Si vous avez modifié la couverture ou le contenu, vous pouvez régénérer le PDF.'
-                    : 'If you modified the cover or content, you can regenerate the PDF.')
-                : (isFr
-                    ? "Ce produit IA n'a plus de projet source lié. Vous pouvez téléverser un nouveau PDF ci-dessus, mais la régénération automatique n'est pas disponible pour ce produit."
-                    : 'This AI product no longer has a linked source project. You can upload a new PDF above, but automatic regeneration is not available for this product.')}
+              {isFr
+                ? 'Si vous avez modifié la couverture ou le contenu, vous pouvez régénérer le PDF. Le nouveau fichier remplacera l\'ancien.'
+                : 'If you modified the cover or content, you can regenerate the PDF. The new file will replace the old one.'}
             </p>
             <Button
               type="button"
               variant="outline"
               size="sm"
               className="gap-2"
-              disabled={regeneratingPdf || !item?.ai_project_id}
+              disabled={regeneratingPdf}
               onClick={async () => {
-                if (!item?.ai_project_id) {
-                  toast({
-                    title: isFr ? 'Source IA introuvable' : 'AI source not found',
-                    description: isFr
-                      ? "Ce produit n'a pas de projet IA lié, donc le PDF ne peut pas être régénéré automatiquement."
-                      : 'This product has no linked AI project, so the PDF cannot be regenerated automatically.',
-                    variant: 'destructive',
-                  });
-                  return;
-                }
-
                 setRegeneratingPdf(true);
                 try {
+                  // Try to resolve the project ID: direct link, or lookup by linked_product_id
+                  let projectId = item?.ai_project_id;
+                  if (!projectId && item?.id) {
+                    const { data: linkedProject } = await supabase
+                      .from('ai_content_projects')
+                      .select('id')
+                      .eq('linked_product_id', item.id)
+                      .order('created_at', { ascending: false })
+                      .limit(1)
+                      .maybeSingle();
+                    projectId = linkedProject?.id || null;
+                  }
+
+                  if (!projectId) {
+                    toast({
+                      title: isFr ? 'Source IA introuvable' : 'AI source not found',
+                      description: isFr
+                        ? "Impossible de retrouver le projet source. Veuillez téléverser un nouveau PDF manuellement."
+                        : 'Could not find the source project. Please upload a new PDF manually.',
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+
                   const { data: pdfData, error: pdfError } = await supabase.functions.invoke('ai-generate-pdf', {
                     body: {
                       org_id: currentOrg.id,
-                      project_id: item.ai_project_id,
+                      project_id: projectId,
                       product_id: item.id,
                       format: 'ebook',
                       page_size: 'A4',
@@ -666,10 +676,8 @@ export function ProductForm() {
             >
               {regeneratingPdf ? (
                 <><Loader2 className="h-4 w-4 animate-spin" /> {isFr ? 'Régénération en cours…' : 'Regenerating…'}</>
-              ) : item?.ai_project_id ? (
-                <><RefreshCw className="h-4 w-4" /> {isFr ? 'Joindre / Régénérer le PDF' : 'Attach / Regenerate PDF'}</>
               ) : (
-                <><RefreshCw className="h-4 w-4" /> {isFr ? 'Régénération indisponible' : 'Regeneration unavailable'}</>
+                <><RefreshCw className="h-4 w-4" /> {isFr ? 'Joindre / Régénérer le PDF' : 'Attach / Regenerate PDF'}</>
               )}
             </Button>
           </div>
