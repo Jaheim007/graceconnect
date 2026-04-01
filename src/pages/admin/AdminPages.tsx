@@ -1,5 +1,6 @@
 // Generic stub for remaining admin pages
 import { stripHtml } from '@/lib/formatText';
+import { formatPrice as rawFormatPrice, formatCurrency as rawFormatCurrency } from '@/lib/currency';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { CurrencyChangeWizard } from '@/components/currency/CurrencyChangeWizard';
 import { convertCurrency } from '@/lib/currencyConvert';
