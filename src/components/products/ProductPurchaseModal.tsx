@@ -108,14 +108,14 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const [promoOpen, setPromoOpen] = useState(false);
   const [orderBumpChecked, setOrderBumpChecked] = useState(false);
   useEffect(() => {
+    if (!open) return;
     const autoCode = getAutoPromoCode();
-    if (autoCode && !promo.applied && !promo.code && open) {
+    // Only auto-fill short, human-readable promo codes (max 30 chars, alphanumeric)
+    if (autoCode && autoCode.length <= 30 && /^[A-Z0-9_-]+$/i.test(autoCode) && !promo.applied) {
       setPromo(p => ({ ...p, code: autoCode }));
       setPromoOpen(true);
-      setTimeout(() => {
-        clearAutoPromoCode();
-      }, 100);
     }
+    clearAutoPromoCode();
   }, [open]);
 
   const bumpProductId = (product as any)?.order_bump_product_id;

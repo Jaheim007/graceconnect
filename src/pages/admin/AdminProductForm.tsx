@@ -467,26 +467,76 @@ export function ProductForm() {
           </div>
         </div>
 
-        {/* Flash Sale — disabled when PWYW is active */}
-        {!isFree && (
-          <div className={cn('bg-destructive/5 border border-destructive/20 rounded-xl p-4 space-y-3', watch('is_pwyw') && 'opacity-40 pointer-events-none')}>
-            <p className="text-sm font-semibold flex items-center gap-2">🔥 {isFr ? 'Vente Flash' : 'Flash Sale'}</p>
-            {watch('is_pwyw') && (
-              <p className="text-[10px] text-muted-foreground italic">{isFr ? 'Désactivé lorsque "Pay What You Want" est actif.' : 'Disabled when "Pay What You Want" is active.'}</p>
-            )}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label className="text-xs">{isFr ? `Prix promo (${effectiveCurrency})` : `Sale price (${effectiveCurrency})`}</Label>
-                <Input type="number" value={salePrice} onChange={e => setSalePrice(e.target.value)} placeholder={isFr ? 'Ex: 2500' : 'E.g. 2500'} className="h-8 text-xs" disabled={watch('is_pwyw')} />
+        {/* Flash Sale — disabled when PWYW is active or no price */}
+        {!isFree && (() => {
+          const currentPrice = watch('price') || 0;
+          const hasNoPrice = currentPrice <= 0;
+          const isPwyw = watch('is_pwyw');
+          const isDisabled = isPwyw || hasNoPrice;
+          return (
+            <div className={cn('bg-destructive/5 border border-destructive/20 rounded-xl p-4 space-y-3', isDisabled && 'opacity-40 pointer-events-none')}>
+              <p className="text-sm font-semibold flex items-center gap-2">🔥 {isFr ? 'Vente Flash' : 'Flash Sale'}</p>
+              {isPwyw && (
+                <p className="text-[10px] text-muted-foreground italic">{isFr ? 'Désactivé lorsque "Pay What You Want" est actif.' : 'Disabled when "Pay What You Want" is active.'}</p>
+              )}
+              {hasNoPrice && !isPwyw && (
+                <p className="text-[10px] text-muted-foreground italic">{isFr ? 'Ajoutez un prix au produit pour activer la vente flash.' : 'Add a price to the product to enable flash sale.'}</p>
+              )}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">{isFr ? `Prix promo (${effectiveCurrency})` : `Sale price (${effectiveCurrency})`}</Label>
+                  <Input type="number" value={salePrice} onChange={e => setSalePrice(e.target.value)} placeholder={isFr ? 'Ex: 2500' : 'E.g. 2500'} className="h-8 text-xs" disabled={isDisabled} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">{isFr ? 'Fin de la promo' : 'Sale ends'}</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className={cn('h-8 text-xs w-full justify-start text-left font-normal', !saleEndsAt && 'text-muted-foreground')} disabled={isDisabled}>
+                        <CalendarIcon className="mr-2 h-3 w-3" />
+                        {saleEndsAt ? format(new Date(saleEndsAt), 'dd/MM/yyyy HH:mm') : (isFr ? 'Choisir une date' : 'Pick a date')}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={saleEndsAt ? new Date(saleEndsAt) : undefined}
+                        onSelect={(date) => {
+                          if (date) {
+                            // Keep the time part or default to end of day
+                            const existing = saleEndsAt ? new Date(saleEndsAt) : null;
+                            const hours = existing ? existing.getHours() : 23;
+                            const mins = existing ? existing.getMinutes() : 59;
+                            date.setHours(hours, mins, 0, 0);
+                            setSaleEndsAt(date.toISOString().slice(0, 16));
+                          } else {
+                            setSaleEndsAt('');
+                          }
+                        }}
+                        disabled={(date) => date < new Date()}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                      <div className="p-3 border-t flex items-center gap-2">
+                        <Label className="text-xs">{isFr ? 'Heure' : 'Time'}:</Label>
+                        <Input
+                          type="time"
+                          value={saleEndsAt ? saleEndsAt.slice(11, 16) : '23:59'}
+                          onChange={e => {
+                            if (saleEndsAt) {
+                              setSaleEndsAt(saleEndsAt.slice(0, 11) + e.target.value);
+                            }
+                          }}
+                          className="h-7 text-xs w-24"
+                        />
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">{isFr ? 'Fin de la promo' : 'Sale ends'}</Label>
-                <Input type="datetime-local" value={saleEndsAt} onChange={e => setSaleEndsAt(e.target.value)} className="h-8 text-xs" disabled={watch('is_pwyw')} />
-              </div>
+              <p className="text-[10px] text-muted-foreground">{isFr ? 'Laissez vide pour désactiver.' : 'Leave empty to disable.'}</p>
             </div>
-            <p className="text-[10px] text-muted-foreground">{isFr ? 'Laissez vide pour désactiver.' : 'Leave empty to disable.'}</p>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Pay What You Want */}
         {!isFree && (() => {
