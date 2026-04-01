@@ -576,7 +576,7 @@ export default function ProductDetailPage() {
                   <>
                     {(() => {
                       const effectiveP = getEffectivePrice(product as any);
-                      const hasDiscount = !product.is_free && (product as any).sale_price && (product as any).sale_price < (product.price || 0) && (!(product as any).sale_ends_at || new Date((product as any).sale_ends_at) > new Date());
+                      const hasDiscount = !product.is_free && (product as any).sale_price != null && (product as any).sale_price > 0 && (product as any).sale_price < (product.price || 0) && (!(product as any).sale_ends_at || new Date((product as any).sale_ends_at) > new Date());
                       return (
                         <>
                           <span className={cn('text-xl font-bold', product.is_free ? 'text-emerald-500' : 'text-primary')}>
