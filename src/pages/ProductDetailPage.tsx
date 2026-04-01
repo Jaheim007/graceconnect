@@ -576,7 +576,7 @@ export default function ProductDetailPage() {
                   <>
                     {(() => {
                       const effectiveP = getEffectivePrice(product as any);
-                      const hasDiscount = !product.is_free && (product as any).sale_price && (product as any).sale_price < (product.price || 0) && (!(product as any).sale_ends_at || new Date((product as any).sale_ends_at) > new Date());
+                      const hasDiscount = !product.is_free && (product as any).sale_price != null && (product as any).sale_price > 0 && (product as any).sale_price < (product.price || 0) && (!(product as any).sale_ends_at || new Date((product as any).sale_ends_at) > new Date());
                       return (
                         <>
                           <span className={cn('text-xl font-bold', product.is_free ? 'text-emerald-500' : 'text-primary')}>
@@ -659,8 +659,8 @@ export default function ProductDetailPage() {
                 averageRating={(product as any).average_rating || 0}
               />
 
-              {/* Urgency — hidden when PWYW is active (no flash sale applies) */}
-              {!(product as any).is_pwyw && (
+              {/* Urgency — hidden when PWYW is active or no valid sale price */}
+              {!(product as any).is_pwyw && (product as any).sale_price > 0 && (
                 <UrgencyWidget
                   saleEndsAt={(product as any).sale_ends_at}
                   salesCount={product.sales_count || 0}
