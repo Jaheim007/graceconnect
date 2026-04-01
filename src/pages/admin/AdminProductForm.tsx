@@ -99,6 +99,11 @@ export function ProductForm() {
   const [gTag, setGTag] = useState('');
   const [seoTitle, setSeoTitle] = useState('');
   const [seoDescription, setSeoDescription] = useState('');
+  const [productCurrency, setProductCurrency] = useState<string>('');
+  const [productCommissionRate, setProductCommissionRate] = useState<string>('');
+
+  // Effective currency: product override > org default
+  const effectiveCurrency = productCurrency || currentOrg?.currency || 'XOF';
 
   // Bundle & Recommendation hooks
   const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
