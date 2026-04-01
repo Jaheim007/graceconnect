@@ -269,7 +269,7 @@ export default function SuperadminHealthDashboard() {
           key: 'edge_functions',
           name: 'Edge Functions',
           icon: <Zap className="h-4 w-4" />,
-          status: latency < 3000 ? 'healthy' : 'warning',
+          status: latency < 5000 ? 'healthy' : 'warning',
           detail: `${isFr ? 'Latence' : 'Latency'}: ${latency}ms`,
           value: latency,
         });

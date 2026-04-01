@@ -24,7 +24,7 @@ async function checkService(name: string, nameEn: string, checkFn: () => Promise
       new Promise<boolean>((_, reject) => setTimeout(() => reject(false), 8000)),
     ]);
     const latency = Math.round(performance.now() - start);
-    return { name, nameEn, status: ok ? (latency > 3000 ? 'degraded' : 'operational') : 'degraded', latency };
+    return { name, nameEn, status: ok ? (latency > 5000 ? 'degraded' : 'operational') : 'degraded', latency };
   } catch {
     return { name, nameEn, status: 'degraded', latency: Math.round(performance.now() - start) };
   }
