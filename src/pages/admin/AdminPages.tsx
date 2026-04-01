@@ -451,8 +451,8 @@ export function AdminProducts() {
                     <p className="text-sm font-medium leading-snug line-clamp-2">{p.title}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {(p as any).is_pwyw
-                        ? `💰 ${isFr ? 'Prix libre' : 'Name your price'}${(p as any).min_price > 0 ? ` · ${isFr ? 'Dès' : 'From'} ${fmtPrice((p as any).min_price, false, p.currency)}` : ''}`
-                        : fmtPrice(p.price || 0, p.is_free, p.currency)} · {p.sales_count || 0} {isFr ? 'vente' : 'sale'}{(p.sales_count || 0) > 1 ? 's' : ''}
+                        ? `💰 ${isFr ? 'Prix libre' : 'Name your price'}${(p as any).min_price > 0 ? ` · ${isFr ? 'Dès' : 'From'} ${rawFormatPrice((p as any).min_price, false, p.currency)}` : ''}`
+                        : rawFormatPrice(p.price || 0, p.is_free, p.currency)} · {p.sales_count || 0} {isFr ? 'vente' : 'sale'}{(p.sales_count || 0) > 1 ? 's' : ''}
                     </p>
                   </div>
                 </div>
