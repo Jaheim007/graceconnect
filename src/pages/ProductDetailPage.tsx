@@ -659,8 +659,8 @@ export default function ProductDetailPage() {
                 averageRating={(product as any).average_rating || 0}
               />
 
-              {/* Urgency — hidden when PWYW is active (no flash sale applies) */}
-              {!(product as any).is_pwyw && (
+              {/* Urgency — hidden when PWYW is active or no valid sale price */}
+              {!(product as any).is_pwyw && (product as any).sale_price > 0 && (
                 <UrgencyWidget
                   saleEndsAt={(product as any).sale_ends_at}
                   salesCount={product.sales_count || 0}
