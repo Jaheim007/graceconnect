@@ -271,7 +271,7 @@ export function OrgPublicHeader({
                     <Users className="h-3.5 w-3.5" /> {memberCount} {memberCount !== 1 ? t('org_public.members_plural') : t('org_public.members')}
                   </span>
                   {org.country && (
-                    <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {org.country}</span>
+                    <span className="flex items-center gap-1"><span className="text-base leading-none">{countryFlag(org.country)}</span> {getCountryName(org.country, locale)}</span>
                   )}
                 </div>
               </motion.div>

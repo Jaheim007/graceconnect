@@ -46,6 +46,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { ChariowImportDialog } from '@/components/chariow/ChariowImportDialog';
 import { DomainSettings as DomainSettingsWidget } from '@/components/admin/DomainSettings';
+import { CountrySelector } from '@/components/ui/CountrySelector';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
