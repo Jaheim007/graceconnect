@@ -46,6 +46,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { ChariowImportDialog } from '@/components/chariow/ChariowImportDialog';
 import { DomainSettings as DomainSettingsWidget } from '@/components/admin/DomainSettings';
+import { CountrySelector } from '@/components/ui/CountrySelector';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -1456,7 +1457,7 @@ export function AdminSettings() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="org-country" className="text-xs font-medium">{isFr ? 'Pays' : 'Country'}</Label>
-                  <Input id="org-country" value={orgCountry} onChange={e => setOrgCountry(e.target.value)} placeholder="Ex: CI, SN, FR…" className="h-9 text-sm" />
+                  <CountrySelector value={orgCountry} onChange={setOrgCountry} className="h-9 text-sm w-full" />
                 </div>
               </div>
               <div className="flex justify-between text-xs px-1">
