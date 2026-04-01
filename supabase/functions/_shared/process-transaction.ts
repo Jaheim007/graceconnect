@@ -369,7 +369,7 @@ export async function processTransaction(
           transaction_id: transactionId!,
           gross_amount: amountPaid,
           commission_amount: affiliateCommission,
-          commission_percent: org.affiliation_commission_percent ?? 10,
+          commission_percent: affiliateCommissionPct,
           status: 'pending',
           payable_at: payableAt,
         });
