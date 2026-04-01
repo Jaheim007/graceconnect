@@ -141,7 +141,9 @@ export function Sidebar() {
     return items;
   };
 
-  const primaryItems = getPrimaryItems();
+  const primaryItems = getPrimaryItems().filter((item, idx, arr) => 
+    arr.findIndex(i => i.label === item.label) === idx
+  );
 
   const renderNavItem = (item: NavItem, index?: number) => {
     const active = isActive(item.to);
