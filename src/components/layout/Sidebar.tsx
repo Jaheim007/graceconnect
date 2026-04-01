@@ -143,13 +143,14 @@ export function Sidebar() {
 
   const primaryItems = getPrimaryItems();
 
-  const renderNavItem = (item: NavItem) => {
+  const renderNavItem = (item: NavItem, index?: number) => {
     const active = isActive(item.to);
     const Icon = item.icon;
+    const stableKey = `${item.label}-${index ?? item.to}`;
 
     const link = (
       <Link
-        key={item.to}
+        key={stableKey}
         to={item.to}
         aria-current={active ? 'page' : undefined}
         className={cn(
@@ -171,7 +172,7 @@ export function Sidebar() {
 
     if (collapsed || item.desc) {
       return (
-        <Tooltip key={item.to} delayDuration={collapsed ? 0 : 400}>
+        <Tooltip key={stableKey} delayDuration={collapsed ? 0 : 400}>
           <TooltipTrigger asChild>{link}</TooltipTrigger>
           <TooltipContent side="right" className="max-w-[220px]">
             <p className="font-semibold text-xs">{item.label}</p>
