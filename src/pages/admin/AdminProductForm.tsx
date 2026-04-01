@@ -139,7 +139,7 @@ export function ProductForm() {
       reset({
         title: item.title,
         description: item.description || '',
-        product_type: (item.product_type as any) || 'pdf',
+        product_type: (['pdf', 'ebook', 'video', 'audio', 'course', 'other'].includes((item.product_type || '').toLowerCase()) ? (item.product_type as any).toLowerCase() : 'pdf') as any,
         price: item.price || 0,
         cover_image_url: item.cover_image_url || '',
         file_url: item.file_url || '',
