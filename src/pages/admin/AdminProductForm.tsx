@@ -204,7 +204,8 @@ export function ProductForm() {
         ...data,
         organization_id: currentOrg.id,
         created_by: user.id,
-        currency: currentOrg.currency || 'XOF',
+        currency: productCurrency || currentOrg.currency || 'XOF',
+        commission_rate: productCommissionRate ? parseFloat(productCommissionRate) : null,
         price: data.is_free ? 0 : data.price,
         is_pwyw: data.is_free ? false : data.is_pwyw,
         min_price: (() => {
