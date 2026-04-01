@@ -494,7 +494,7 @@ export function ProductForm() {
                   <Label className="text-xs">{isFr ? 'Fin de la promo' : 'Sale ends'}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn('h-8 text-xs w-full justify-start text-left font-normal', !saleEndsAt && 'text-muted-foreground')} disabled={isDisabled}>
+                      <Button variant="outline" className={cn('h-8 text-xs w-full justify-start text-left font-normal', !saleEndsAt && 'text-muted-foreground')} disabled={isDisabled || !salePrice}>
                         <CalendarIcon className="mr-2 h-3 w-3" />
                         {saleEndsAt ? format(new Date(saleEndsAt), 'dd/MM/yyyy HH:mm') : (isFr ? 'Choisir une date' : 'Pick a date')}
                       </Button>
