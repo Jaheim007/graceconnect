@@ -429,7 +429,8 @@ export function ProductForm() {
               <Label>{isFr ? `Prix (${effectiveCurrency})` : `Price (${effectiveCurrency})`}</Label>
               <ContextTip tipKey="product_price" />
             </div>
-            <Input type="number" {...register('price')} disabled={isFree || watch('is_pwyw')} placeholder="Ex: 5000" className={watch('is_pwyw') ? 'opacity-50' : ''} />
+            <Input type="number" {...register('price')} disabled={isFree || watch('is_pwyw')} placeholder="Ex: 5000" className={watch('is_pwyw') ? 'opacity-50 cursor-not-allowed' : ''} />
+            {watch('is_pwyw') && <p className="text-[11px] text-amber-600">💰 {isFr ? '"Prix libre" est activé — le prix ci-dessus sert de prix suggéré.' : '"Pay What You Want" is active — the price above is used as suggested price.'}</p>}
             {!isFree && !watch('is_pwyw') && <SuggestedPriceHint productType={watch('product_type') || 'pdf'} />}
           </div>
         </div>
