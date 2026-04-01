@@ -19,6 +19,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { getOrgCategoryLabel } from '@/lib/categoryLabels';
+import { countryFlag, getCountryName } from '@/lib/countries';
 import { motion } from 'framer-motion';
 import {
   Globe, MessageCircle, CheckCircle2, Users, CalendarDays,
