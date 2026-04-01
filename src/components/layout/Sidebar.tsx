@@ -209,7 +209,7 @@ export function Sidebar() {
 
             {/* Primary nav */}
             <div className="mt-1 space-y-0.5">
-              {primaryItems.map(renderNavItem)}
+              {primaryItems.map((item, i) => renderNavItem(item, i))}
             </div>
 
             {/* Separator + Secondary nav */}
