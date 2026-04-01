@@ -804,7 +804,7 @@ export default function ProductDetailPage() {
         isFreePurchase={product.is_free || false}
         productType={product.product_type || undefined}
         price={getEffectivePrice(product as any)}
-        commissionRate={(product as any).commission_percent || (org as any)?.affiliation_commission_percent || 20}
+        commissionRate={(product as any).commission_rate ?? (product as any).commission_percent ?? (org as any)?.affiliation_commission_percent ?? 20}
         onGoToResources={() => { setShowCelebration(false); navigate('/resources'); }}
       />
 

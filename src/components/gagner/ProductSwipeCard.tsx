@@ -49,7 +49,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
   const SHARE_MESSAGES = isFr ? SHARE_MESSAGES_FR : SHARE_MESSAGES_EN;
 
   const org = product.organizations;
-  const commission = org?.affiliation_commission_percent || 10;
+  const commission = product.commission_rate ?? org?.affiliation_commission_percent ?? 10;
   const effectivePrice = getEffectivePrice(product);
   const potentialEarning = Math.round(effectivePrice * commission / 100);
 

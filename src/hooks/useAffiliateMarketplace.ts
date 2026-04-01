@@ -8,7 +8,7 @@ export function useAffiliateMarketplace(search?: string) {
     queryKey: ['affiliate-marketplace', search],
     queryFn: async () => {
       let query = db.from('digital_products')
-        .select('id, title, description, cover_image_url, price, sale_price, sale_ends_at, currency, is_free, is_pwyw, min_price, product_type, sales_count, slug, created_at, featured_score, organization_id, organizations!inner(id, name, slug, logo_url, affiliation_enabled, affiliation_commission_percent, is_verified)')
+        .select('id, title, description, cover_image_url, price, sale_price, sale_ends_at, currency, is_free, is_pwyw, min_price, product_type, sales_count, slug, created_at, featured_score, organization_id, commission_rate, organizations!inner(id, name, slug, logo_url, affiliation_enabled, affiliation_commission_percent, is_verified)')
         .eq('is_published', true)
         .eq('is_express_demo', false)
         .eq('organizations.affiliation_enabled', true)

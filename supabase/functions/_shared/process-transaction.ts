@@ -146,6 +146,7 @@ export async function processTransaction(
   let affiliateLinkId: string | null = null;
   let affiliateUserId: string | null = null;
   let affiliateCommission = 0;
+  let affiliateCommissionPct = org.affiliation_commission_percent ?? 10;
 
   if (affiliate_code && org.affiliation_enabled && type === 'product') {
     const { data: affLink } = await db.from('affiliate_links')
@@ -157,8 +158,15 @@ export async function processTransaction(
     if (affLink?.is_active && affLink.user_id !== user_id) {
       affiliateLinkId = affLink.id;
       affiliateUserId = affLink.user_id;
-      const commPct = org.affiliation_commission_percent ?? 10;
-      affiliateCommission = parseFloat((amountPaid * commPct / 100).toFixed(2));
+      // Per-product commission rate overrides org default
+      if (product_id) {
+        const { data: prod } = await db.from('digital_products')
+          .select('commission_rate')
+          .eq('id', product_id)
+          .maybeSingle();
+        if (prod?.commission_rate != null) affiliateCommissionPct = prod.commission_rate;
+      }
+      affiliateCommission = parseFloat((amountPaid * affiliateCommissionPct / 100).toFixed(2));
     }
   }
 
@@ -361,7 +369,7 @@ export async function processTransaction(
           transaction_id: transactionId!,
           gross_amount: amountPaid,
           commission_amount: affiliateCommission,
-          commission_percent: org.affiliation_commission_percent ?? 10,
+          commission_percent: affiliateCommissionPct,
           status: 'pending',
           payable_at: payableAt,
         });
@@ -623,7 +631,7 @@ export async function processTransaction(
         data: {
           commission: affiliateCommission, currency, org_name: org.name,
           transaction_type: type, gross_amount: amountPaid,
-          commission_percent: org.affiliation_commission_percent ?? 10,
+          commission_percent: affiliateCommissionPct,
         },
         organization_id,
       }));

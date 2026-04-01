@@ -1,4 +1,6 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { CurrencySelector } from '@/components/currency/CurrencySelector';
+import { SUPPORTED_CURRENCIES, type CurrencyCode } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import { getOrCreateShortLink, buildSocialShareUrl, buildShareUrlForPath } from '@/lib/shareMeta';
 import { getPublicUrl } from '@/lib/publicUrl';
@@ -97,6 +99,11 @@ export function ProductForm() {
   const [gTag, setGTag] = useState('');
   const [seoTitle, setSeoTitle] = useState('');
   const [seoDescription, setSeoDescription] = useState('');
+  const [productCurrency, setProductCurrency] = useState<string>('');
+  const [productCommissionRate, setProductCommissionRate] = useState<string>('');
+
+  // Effective currency: product override > org default
+  const effectiveCurrency = productCurrency || currentOrg?.currency || 'XOF';
 
   // Bundle & Recommendation hooks
   const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
@@ -156,6 +163,8 @@ export function ProductForm() {
       setGTag((item as any).google_tag_id || '');
       setSeoTitle((item as any).seo_title || '');
       setSeoDescription((item as any).seo_description || '');
+      setProductCurrency(item.currency && item.currency !== (currentOrg?.currency || 'XOF') ? item.currency : '');
+      setProductCommissionRate((item as any).commission_rate != null ? String((item as any).commission_rate) : '');
     }
   }, [item, reset]);
 
@@ -195,12 +204,13 @@ export function ProductForm() {
         ...data,
         organization_id: currentOrg.id,
         created_by: user.id,
-        currency: currentOrg.currency || 'XOF',
+        currency: productCurrency || currentOrg.currency || 'XOF',
+        commission_rate: productCommissionRate ? parseFloat(productCommissionRate) : null,
         price: data.is_free ? 0 : data.price,
         is_pwyw: data.is_free ? false : data.is_pwyw,
         min_price: (() => {
           if (!data.is_pwyw || data.is_free) return null;
-          const cur = currentOrg?.currency || 'XOF';
+          const cur = productCurrency || currentOrg?.currency || 'XOF';
           const floors: Record<string, number> = { XOF: 500, XAF: 500, NGN: 500, USD: 1, EUR: 1, GBP: 1, GHS: 5, KES: 100, ZAR: 10, MAD: 10, TND: 3 };
           const floor = floors[cur] || 500;
           return Math.max(data.min_price || 0, floor);
@@ -407,7 +417,7 @@ export function ProductForm() {
               <SelectContent>
                 <SelectItem value="pdf">PDF</SelectItem>
                 <SelectItem value="ebook">eBook</SelectItem>
-                <SelectItem value="video">Video</SelectItem>
+               <SelectItem value="video">Video</SelectItem>
                 <SelectItem value="audio">Audio</SelectItem>
                 <SelectItem value="course">Course</SelectItem>
                 <SelectItem value="other">Other</SelectItem>
@@ -416,11 +426,43 @@ export function ProductForm() {
           </div>
            <div className="space-y-1.5">
             <div className="flex items-center gap-1.5">
-              <Label>{isFr ? `Prix (${currentOrg?.currency || 'XOF'})` : `Price (${currentOrg?.currency || 'XOF'})`}</Label>
+              <Label>{isFr ? `Prix (${effectiveCurrency})` : `Price (${effectiveCurrency})`}</Label>
               <ContextTip tipKey="product_price" />
             </div>
             <Input type="number" {...register('price')} disabled={isFree || watch('is_pwyw')} placeholder="Ex: 5000" className={watch('is_pwyw') ? 'opacity-50' : ''} />
             {!isFree && !watch('is_pwyw') && <SuggestedPriceHint productType={watch('product_type') || 'pdf'} />}
+          </div>
+        </div>
+
+        {/* Per-product currency & commission override */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs">{isFr ? 'Devise du produit' : 'Product currency'}</Label>
+            <CurrencySelector
+              value={effectiveCurrency}
+              onChange={(v) => setProductCurrency(v === (currentOrg?.currency || 'XOF') ? '' : v)}
+              className="h-9"
+            />
+            {productCurrency && productCurrency !== (currentOrg?.currency || 'XOF') && (
+              <p className="text-[10px] text-muted-foreground">
+                {isFr ? `Différent de la devise org (${currentOrg?.currency || 'XOF'})` : `Different from org currency (${currentOrg?.currency || 'XOF'})`}
+              </p>
+            )}
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">{isFr ? 'Commission ambassadeur (%)' : 'Ambassador commission (%)'}</Label>
+            <Input
+              type="number"
+              min={0}
+              max={50}
+              value={productCommissionRate}
+              onChange={e => setProductCommissionRate(e.target.value)}
+              placeholder={`${isFr ? 'Défaut org' : 'Org default'}: ${currentOrg?.affiliation_commission_percent ?? 10}%`}
+              className="h-9 text-xs"
+            />
+            <p className="text-[10px] text-muted-foreground">
+              {isFr ? 'Laissez vide pour utiliser le taux par défaut de l\'organisation.' : 'Leave empty to use the organization default rate.'}
+            </p>
           </div>
         </div>
 
@@ -433,7 +475,7 @@ export function ProductForm() {
             )}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs">{isFr ? `Prix promo (${currentOrg?.currency || 'XOF'})` : `Sale price (${currentOrg?.currency || 'XOF'})`}</Label>
+                <Label className="text-xs">{isFr ? `Prix promo (${effectiveCurrency})` : `Sale price (${effectiveCurrency})`}</Label>
                 <Input type="number" value={salePrice} onChange={e => setSalePrice(e.target.value)} placeholder={isFr ? 'Ex: 2500' : 'E.g. 2500'} className="h-8 text-xs" disabled={watch('is_pwyw')} />
               </div>
               <div className="space-y-1.5">
@@ -447,7 +489,7 @@ export function ProductForm() {
 
         {/* Pay What You Want */}
         {!isFree && (() => {
-          const pwywCurrency = currentOrg?.currency || 'XOF';
+          const pwywCurrency = effectiveCurrency;
           const minFloors: Record<string, number> = { XOF: 500, XAF: 500, NGN: 500, USD: 1, EUR: 1, GBP: 1, GHS: 5, KES: 100, ZAR: 10, MAD: 10, TND: 3 };
           const pwywFloor = minFloors[pwywCurrency] || 500;
 

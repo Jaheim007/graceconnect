@@ -28,8 +28,8 @@ export function SwipeableFeed() {
   const sortedProducts = useMemo(() => {
     const sorted = [...filteredProducts].sort((a: any, b: any) => {
       if (sortMode === 'commission') {
-        const cA = a.organizations?.affiliation_commission_percent || 10;
-        const cB = b.organizations?.affiliation_commission_percent || 10;
+        const cA = a.commission_rate ?? a.organizations?.affiliation_commission_percent ?? 10;
+        const cB = b.commission_rate ?? b.organizations?.affiliation_commission_percent ?? 10;
         return cB - cA;
       }
       if (sortMode === 'price') {

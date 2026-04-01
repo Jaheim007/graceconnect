@@ -80,7 +80,7 @@ export function AmbassadorMarketplace() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {products.map((product: any, i: number) => {
             const org = product.organizations;
-            const commission = org?.affiliation_commission_percent || 10;
+            const commission = product.commission_rate ?? org?.affiliation_commission_percent ?? 10;
             const effectivePrice = getEffectivePrice(product);
             const potentialEarning = Math.round(effectivePrice * commission / 100);
 
