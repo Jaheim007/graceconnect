@@ -118,6 +118,26 @@ export default function AdminContentHub() {
         })}
       </div>
 
+      {/* Quick access to existing content */}
+      <div className="grid grid-cols-2 gap-2">
+        <Link
+          to="/admin/products"
+          className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-primary/20 bg-primary/5 text-primary text-xs font-semibold hover:bg-primary/10 transition-colors"
+        >
+          <PackageCheck className="h-3.5 w-3.5" />
+          {isFr ? `Voir mes produits (${counts?.products ?? 0})` : `View my products (${counts?.products ?? 0})`}
+          <ArrowRight className="h-3 w-3" />
+        </Link>
+        <Link
+          to="/admin/programs"
+          className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-emerald-600 text-xs font-semibold hover:bg-emerald-500/10 transition-colors"
+        >
+          <GraduationCap className="h-3.5 w-3.5" />
+          {isFr ? `Voir mes formations (${counts?.programs ?? 0})` : `View my courses (${counts?.programs ?? 0})`}
+          <ArrowRight className="h-3 w-3" />
+        </Link>
+      </div>
+
       {/* More tools */}
       <div>
         <button
