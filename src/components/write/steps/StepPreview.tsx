@@ -259,6 +259,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
           languageLevel: state.languageLevel,
           targetAudience: state.targetAudience,
           styleReference: state.styleReference || '',
+          editorialStrategy: state.editorialStrategy || null,
           religiousTradition: state.religiousTradition || null,
           prayerFormat: state.prayerFormat || null,
           singleChapter: true,
