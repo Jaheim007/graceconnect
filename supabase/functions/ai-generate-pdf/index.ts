@@ -823,8 +823,8 @@ async function buildProfessionalPdf(opts: {
       thickness: 0.5, color: C.rule,
     });
 
-    // ── CHAPTER ILLUSTRATION (from ai_project_assets, limit to first 3 chapters to save memory) ──
-    const chapterIllUrl = ci < 3 ? opts.chapterIllustrations?.[ci] : undefined;
+    // ── CHAPTER ILLUSTRATION (from ai_project_assets) ──
+    const chapterIllUrl = opts.chapterIllustrations?.[ci];
     if (chapterIllUrl) {
       try {
         await drawInlineImage(pdfDoc, openerPage, chapterIllUrl, M.outer, cty - 20, pg.width - M.outer * 2, 220);
