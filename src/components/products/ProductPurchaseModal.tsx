@@ -492,7 +492,16 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
                   {promo.applied && (
                     <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-1">
-                      <div className="flex justify-between"><span>{isFr ? 'Prix' : 'Price'}</span><span>{fmt(product.price)}</span></div>
+                      {isFlashSale && (
+                        <div className="flex justify-between text-muted-foreground">
+                          <span>{isFr ? 'Prix original' : 'Original price'}</span>
+                          <span className="line-through">{fmt(product.price)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between">
+                        <span>{isFlashSale ? (isFr ? 'Prix promo' : 'Sale price') : (isFr ? 'Prix' : 'Price')}</span>
+                        <span>{fmt(effectiveBasePrice)}</span>
+                      </div>
                         <div className="flex justify-between text-green-600 dark:text-green-400">
                           <span>{isFr ? 'Réduction' : 'Discount'} ({promo.discountType === 'fixed' ? `${promo.discountFixedAmount} ${isFr ? 'fixe' : 'fixed'}` : `-${promo.discountPercent}%`})</span>
                           <span>-{fmt(discountAmount)}</span>
