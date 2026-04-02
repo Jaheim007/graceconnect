@@ -67,7 +67,12 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
 
   const handleInsert = () => {
     if (result) {
-      onInsert(result);
+      // Strip leading/trailing empty paragraphs & whitespace from AI output
+      const cleaned = result
+        .replace(/^(\s*<p>\s*(<br\s*\/?>)?\s*<\/p>\s*)+/gi, '')
+        .replace(/(\s*<p>\s*(<br\s*\/?>)?\s*<\/p>\s*)+$/gi, '')
+        .trim();
+      onInsert(cleaned || result);
       onClose();
       setPrompt('');
       setResult('');
