@@ -973,6 +973,7 @@ export default function WriteWizard() {
   }, [publishing, handlePublish]);
 
   return (
+    <>
     <div className="pt-16 pb-20 min-h-screen">
       {step < CELEBRATION_STEP && (
         <>
