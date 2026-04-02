@@ -387,7 +387,7 @@ export function ProductForm() {
       )}
 
       {/* AI Assistants */}
-      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context={isFr ? 'description de produit numérique' : 'digital product description'} />
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => { const existing = (watch('description') || '').replace(/^(\s*<p>\s*(<br\s*\/?>)?\s*<\/p>\s*)+$/gi, '').trim(); setValue('description', existing ? existing + html : html, { shouldDirty: true, shouldTouch: true }); }} context={isFr ? 'description de produit numérique' : 'digital product description'} />
       
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">

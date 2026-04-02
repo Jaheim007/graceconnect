@@ -77,7 +77,7 @@ export function EventForm() {
 
   return (
     <AdminPageShell title={isEdit ? (isFr ? 'Modifier l\'événement' : 'Edit Event') : (isFr ? 'Nouvel événement' : 'New Event')} backRoute="/admin/events">
-      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context={isFr ? 'description d\'événement' : 'event description'} />
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => { const existing = (watch('description') || '').replace(/^(\s*<p>\s*(<br\s*\/?>)?\s*<\/p>\s*)+$/gi, '').trim(); setValue('description', existing ? existing + html : html, { shouldDirty: true, shouldTouch: true }); }} context={isFr ? 'description d\'événement' : 'event description'} />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
