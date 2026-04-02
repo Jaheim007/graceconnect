@@ -391,15 +391,31 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   <p className="font-semibold">{product.title}</p>
                   <Badge variant="outline" className="text-[10px] mt-1 capitalize">{product.product_type}</Badge>
                 </div>
-                {!isPwyw && (
+              {!isPwyw && (
                   <div className="text-right">
-                    <span className={`text-xl font-bold ${product.is_free ? 'text-green-500' : 'text-primary'}`}>
-                      {fmt(product.price)}
-                    </span>
-                    {!product.is_free && (product.price ?? 0) > 0 && (
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        {isFr ? 'Vous serez débité de' : 'You will be charged'} {formatCurrency(product.price ?? 0, product.currency)} {(product.currency || 'XOF').toUpperCase()}
-                      </p>
+                    {isFlashSale ? (
+                      <>
+                        <span className="text-sm text-muted-foreground line-through mr-1.5">
+                          {fmt(product.price)}
+                        </span>
+                        <span className="text-xl font-bold text-primary">
+                          {fmt(salePrice)}
+                        </span>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {isFr ? 'Vous serez débité de' : 'You will be charged'} {formatCurrency(salePrice, product.currency)} {(product.currency || 'XOF').toUpperCase()}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <span className={`text-xl font-bold ${product.is_free ? 'text-green-500' : 'text-primary'}`}>
+                          {fmt(product.price)}
+                        </span>
+                        {!product.is_free && (product.price ?? 0) > 0 && (
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {isFr ? 'Vous serez débité de' : 'You will be charged'} {formatCurrency(product.price ?? 0, product.currency)} {(product.currency || 'XOF').toUpperCase()}
+                          </p>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
@@ -476,7 +492,16 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
                   {promo.applied && (
                     <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-1">
-                      <div className="flex justify-between"><span>{isFr ? 'Prix' : 'Price'}</span><span>{fmt(product.price)}</span></div>
+                      {isFlashSale && (
+                        <div className="flex justify-between text-muted-foreground">
+                          <span>{isFr ? 'Prix original' : 'Original price'}</span>
+                          <span className="line-through">{fmt(product.price)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between">
+                        <span>{isFlashSale ? (isFr ? 'Prix promo' : 'Sale price') : (isFr ? 'Prix' : 'Price')}</span>
+                        <span>{fmt(effectiveBasePrice)}</span>
+                      </div>
                         <div className="flex justify-between text-green-600 dark:text-green-400">
                           <span>{isFr ? 'Réduction' : 'Discount'} ({promo.discountType === 'fixed' ? `${promo.discountFixedAmount} ${isFr ? 'fixe' : 'fixed'}` : `-${promo.discountPercent}%`})</span>
                           <span>-{fmt(discountAmount)}</span>
@@ -597,14 +622,26 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </>
               )}
 
-              <div className="rounded-lg bg-muted/50 p-3 text-sm">
+              <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-1">
+                {isFlashSale && (
+                  <div className="flex justify-between text-muted-foreground text-xs">
+                    <span>{isFr ? 'Prix original' : 'Original price'}</span>
+                    <span className="line-through">{fmt(product.price)}</span>
+                  </div>
+                )}
+                {isFlashSale && (
+                  <div className="flex justify-between text-xs text-destructive font-medium">
+                    <span>{isFr ? 'Réduction' : 'Sale discount'}</span>
+                    <span>-{fmt((product.price ?? 0) - salePrice)}</span>
+                  </div>
+                )}
                 {promo.applied && (
-                  <div className="flex justify-between text-green-600 dark:text-green-400 text-xs mb-1">
+                  <div className="flex justify-between text-green-600 dark:text-green-400 text-xs">
                     <span>🎟️ {promo.code} ({promo.discountType === 'fixed' ? `${promo.discountFixedAmount} ${isFr ? 'fixe' : 'fixed'}` : `-${promo.discountPercent}%`})</span>
                     <span>-{fmt(discountAmount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between font-semibold">
+                <div className="flex justify-between font-semibold border-t border-border pt-1">
                   <span>{isFr ? 'Total à payer' : 'Total to pay'}</span>
                   <span className="text-primary">{product.is_free ? (isFr ? 'Gratuit' : 'Free') : fmt(finalPrice)}</span>
                 </div>
