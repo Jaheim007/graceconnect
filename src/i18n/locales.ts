@@ -1422,7 +1422,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'create_hub.experiments_desc': 'Test & optimize conversions',
     // ─── People ───
     'people.title': 'People',
-    'people.subtitle': 'Members of your community and ambassadors',
+    'people.subtitle': 'Buyers, donors, ambassadors & members',
     'people.search': 'Search by name or email...',
     'people.members': 'Members',
     'people.ambassadors': 'Ambassadors',
@@ -3125,7 +3125,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'create_hub.experiments_desc': 'Testez & optimisez les conversions',
     // ─── People ───
     'people.title': 'Personnes',
-    'people.subtitle': 'Membres de votre communauté et ambassadeurs',
+    'people.subtitle': 'Acheteurs, donateurs, ambassadeurs & membres',
     'people.search': 'Rechercher par nom ou email...',
     'people.members': 'Membres',
     'people.ambassadors': 'Ambassadeurs',

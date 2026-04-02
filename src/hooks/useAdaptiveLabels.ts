@@ -26,7 +26,7 @@ type LabelSet = Record<keyof AdaptiveLabels, { fr: string; en: string }>;
 const STANDARD_LABELS: LabelSet = {
   sales:      { fr: 'Ventes',        en: 'Sales' },
   revenue:    { fr: 'Revenus',       en: 'Revenue' },
-  clients:    { fr: 'Clients',       en: 'Clients' },
+  clients:    { fr: 'Personnes',     en: 'People' },
   buy:        { fr: 'Acheter',       en: 'Buy' },
   price:      { fr: 'Prix',          en: 'Price' },
   mySales:    { fr: 'Mes ventes',    en: 'My Sales' },
@@ -40,7 +40,7 @@ const STANDARD_LABELS: LabelSet = {
 const RELIGIOUS_LABELS: LabelSet = {
   sales:      { fr: 'Contributions',        en: 'Contributions' },
   revenue:    { fr: 'Activité',             en: 'Activity' },
-  clients:    { fr: 'Membres',              en: 'Members' },
+  clients:    { fr: 'Personnes',            en: 'People' },
   buy:        { fr: 'Obtenir',              en: 'Get' },
   price:      { fr: 'Contribution suggérée', en: 'Suggested contribution' },
   mySales:    { fr: 'Nos contributions',    en: 'Our contributions' },
