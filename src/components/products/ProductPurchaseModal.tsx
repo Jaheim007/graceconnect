@@ -391,15 +391,31 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   <p className="font-semibold">{product.title}</p>
                   <Badge variant="outline" className="text-[10px] mt-1 capitalize">{product.product_type}</Badge>
                 </div>
-                {!isPwyw && (
+              {!isPwyw && (
                   <div className="text-right">
-                    <span className={`text-xl font-bold ${product.is_free ? 'text-green-500' : 'text-primary'}`}>
-                      {fmt(product.price)}
-                    </span>
-                    {!product.is_free && (product.price ?? 0) > 0 && (
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        {isFr ? 'Vous serez débité de' : 'You will be charged'} {formatCurrency(product.price ?? 0, product.currency)} {(product.currency || 'XOF').toUpperCase()}
-                      </p>
+                    {isFlashSale ? (
+                      <>
+                        <span className="text-sm text-muted-foreground line-through mr-1.5">
+                          {fmt(product.price)}
+                        </span>
+                        <span className="text-xl font-bold text-primary">
+                          {fmt(salePrice)}
+                        </span>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {isFr ? 'Vous serez débité de' : 'You will be charged'} {formatCurrency(salePrice, product.currency)} {(product.currency || 'XOF').toUpperCase()}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <span className={`text-xl font-bold ${product.is_free ? 'text-green-500' : 'text-primary'}`}>
+                          {fmt(product.price)}
+                        </span>
+                        {!product.is_free && (product.price ?? 0) > 0 && (
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {isFr ? 'Vous serez débité de' : 'You will be charged'} {formatCurrency(product.price ?? 0, product.currency)} {(product.currency || 'XOF').toUpperCase()}
+                          </p>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
