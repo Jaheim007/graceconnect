@@ -463,49 +463,61 @@ export default function WriteWizard() {
     toast({ title: `📝 ${t('write.new_draft_ready')}` });
   }, [saveCurrentDraftNow, step, syncDraftList, toast, t]);
 
-  const handleDeleteAndNew = useCallback(() => {
-    if (!window.confirm(t('write.confirm_delete_draft'))) return;
+  // ── Delete confirmation dialog state ──
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const pendingDeleteRef = useRef<string | null>(null);
 
-    // Remove current draft
+  const executeDeleteAndNew = useCallback(() => {
     const store = removeDraftSnapshot(draftId);
-
-    // Create fresh draft
     const newDraftId = createDraftId();
     const freshState = toHydratedState();
     const { store: updatedStore, updatedAt } = saveDraftSnapshot(newDraftId, freshState, 0);
-
     setDraftId(newDraftId);
     setState(freshState);
     setStep(0);
     setLastSavedAt(updatedAt);
     syncDraftList(updatedStore, newDraftId);
-
     toast({ title: `🗑️ ${t('write.draft_deleted')}` });
   }, [draftId, syncDraftList, toast, t]);
 
-  const handleDeleteDraftById = useCallback(async (targetId: string) => {
-    if (!window.confirm(t('write.confirm_delete_draft'))) return;
-
-    // Handle DB-backed drafts
+  const executeDeleteById = useCallback(async (targetId: string) => {
     if (targetId.startsWith('db:')) {
       const projectId = targetId.slice(3);
-      try {
-        await supabase.from('ai_content_projects').delete().eq('id', projectId);
-      } catch { /* ignore */ }
+      try { await supabase.from('ai_content_projects').delete().eq('id', projectId); } catch { /* ignore */ }
       setDbDrafts(prev => prev.filter(d => d.id !== targetId));
       toast({ title: `🗑️ ${t('write.draft_deleted')}` });
       return;
     }
-
-    // Handle local drafts
     if (targetId === draftId) {
-      handleDeleteAndNew();
+      executeDeleteAndNew();
       return;
     }
     const store = removeDraftSnapshot(targetId);
     syncDraftList(store, draftId);
     toast({ title: `🗑️ ${t('write.draft_deleted')}` });
-  }, [draftId, syncDraftList, toast, t, handleDeleteAndNew]);
+  }, [draftId, syncDraftList, toast, t, executeDeleteAndNew]);
+
+  const handleDeleteAndNew = useCallback(() => {
+    pendingDeleteRef.current = '__current__';
+    setDeleteConfirmOpen(true);
+  }, []);
+
+  const handleDeleteDraftById = useCallback((targetId: string) => {
+    pendingDeleteRef.current = targetId;
+    setDeleteConfirmOpen(true);
+  }, []);
+
+  const onConfirmDelete = useCallback(async () => {
+    const target = pendingDeleteRef.current;
+    setDeleteConfirmOpen(false);
+    pendingDeleteRef.current = null;
+    if (!target) return;
+    if (target === '__current__') {
+      executeDeleteAndNew();
+    } else {
+      await executeDeleteById(target);
+    }
+  }, [executeDeleteAndNew, executeDeleteById]);
 
   const handleExitWizard = useCallback(() => {
     if (step < CELEBRATION_STEP) saveCurrentDraftNow();
