@@ -1023,5 +1023,27 @@ export default function WriteWizard() {
         </AnimatePresence>
       </div>
     </div>
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('write.confirm_delete_draft')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {locale === 'fr'
+                ? 'Cette action est irréversible. Le brouillon sera définitivement supprimé.'
+                : locale === 'ar'
+                ? 'هذا الإجراء لا يمكن التراجع عنه. سيتم حذف المسودة نهائيًا.'
+                : 'This action cannot be undone. The draft will be permanently deleted.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{locale === 'fr' ? 'Annuler' : locale === 'ar' ? 'إلغاء' : 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction onClick={onConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {locale === 'fr' ? 'Supprimer' : locale === 'ar' ? 'حذف' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
