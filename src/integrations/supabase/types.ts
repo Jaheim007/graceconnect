@@ -6502,6 +6502,7 @@ export type Database = {
         | "preview"
         | "video"
         | "link"
+        | "illustration"
       ai_job_status: "queued" | "running" | "completed" | "failed" | "cancelled"
       ai_job_type:
         | "generate_outline"
@@ -6701,6 +6702,7 @@ export const Constants = {
         "preview",
         "video",
         "link",
+        "illustration",
       ],
       ai_job_status: ["queued", "running", "completed", "failed", "cancelled"],
       ai_job_type: [
