@@ -80,7 +80,7 @@ export function AnnouncementForm() {
 
   return (
     <AdminPageShell title={isEdit ? (isFr ? 'Modifier l\'annonce' : 'Edit Announcement') : (isFr ? 'Nouvelle annonce' : 'New Announcement')} backRoute="/admin/announcements">
-      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('body', (watch('body') || '') + html, { shouldDirty: true, shouldTouch: true })} context={isFr ? 'annonce d\'organisation' : 'organization announcement'} />
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => { const existing = (watch('body') || '').replace(/^(\s*<p>\s*(<br\s*\/?>)?\s*<\/p>\s*)+$/gi, '').trim(); setValue('body', existing ? existing + html : html, { shouldDirty: true, shouldTouch: true }); }} context={isFr ? 'annonce d\'organisation' : 'organization announcement'} />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
