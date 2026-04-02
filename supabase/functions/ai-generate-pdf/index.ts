@@ -485,27 +485,89 @@ function safeDrawText(page: PDFPage, text: string, opts: { x: number; y: number;
 // ══════════════════════════════════════════════════════════════════════
 // Image embedding helpers
 // ══════════════════════════════════════════════════════════════════════
-const MAX_IMAGE_BYTES = 800_000; // 800 KB per image to stay within edge function memory limits
+const MAX_IMAGE_BYTES = 3_000_000; // 3 MB per image so regenerated books keep their chapter illustrations
+const IMAGE_FETCH_TIMEOUT_MS = 8_000;
+const OPTIMIZED_IMAGE_WIDTH = 1400;
+const OPTIMIZED_IMAGE_QUALITY = 82;
+
+function getImageCandidateUrls(imageUrl: string): string[] {
+  const candidates = new Set<string>();
+
+  try {
+    const url = new URL(imageUrl);
+    const publicPrefix = '/storage/v1/object/public/';
+
+    if (url.pathname.includes(publicPrefix)) {
+      const storagePath = url.pathname.split(publicPrefix)[1] || '';
+      const [bucket, ...objectPathParts] = storagePath.split('/');
+
+      if (bucket && objectPathParts.length > 0) {
+        const renderUrl = new URL(`${url.origin}/storage/v1/render/image/public/${bucket}/${objectPathParts.join('/')}`);
+        renderUrl.searchParams.set('width', String(OPTIMIZED_IMAGE_WIDTH));
+        renderUrl.searchParams.set('quality', String(OPTIMIZED_IMAGE_QUALITY));
+        renderUrl.searchParams.set('format', 'origin');
+        candidates.add(renderUrl.toString());
+      }
+    }
+  } catch {
+    // Fall back to the original URL below.
+  }
+
+  candidates.add(imageUrl);
+  return Array.from(candidates);
+}
+
+async function fetchImageCandidate(candidateUrl: string): Promise<{ bytes: Uint8Array; contentType: string } | null> {
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), IMAGE_FETCH_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(candidateUrl, { signal: controller.signal });
+    if (!response.ok) return null;
+
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    return {
+      bytes,
+      contentType: (response.headers.get('content-type') || '').toLowerCase(),
+    };
+  } finally {
+    clearTimeout(tid);
+  }
+}
 
 async function tryEmbedImage(pdfDoc: any, imageUrl: string): Promise<any | null> {
   if (!imageUrl) return null;
-  try {
-    const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), 8_000); // 8s timeout per image
-    const response = await fetch(imageUrl, { signal: controller.signal });
-    clearTimeout(tid);
-    if (!response.ok) return null;
-    const bytes = new Uint8Array(await response.arrayBuffer());
-    if (bytes.length > MAX_IMAGE_BYTES) {
-      console.warn(`Skipping large image (${(bytes.length / 1e6).toFixed(1)} MB): ${imageUrl.slice(0, 80)}`);
-      return null;
+
+  let largestAttemptBytes = 0;
+  let lastError: unknown = null;
+
+  for (const candidateUrl of getImageCandidateUrls(imageUrl)) {
+    try {
+      const fetched = await fetchImageCandidate(candidateUrl);
+      if (!fetched) continue;
+
+      const { bytes, contentType } = fetched;
+      largestAttemptBytes = Math.max(largestAttemptBytes, bytes.length);
+
+      if (bytes.length > MAX_IMAGE_BYTES) continue;
+
+      const lower = candidateUrl.toLowerCase();
+      if (contentType.includes('png') || lower.endsWith('.png')) return await pdfDoc.embedPng(bytes);
+      if (contentType.includes('jpeg') || contentType.includes('jpg') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || contentType.includes('image')) {
+        return await pdfDoc.embedJpg(bytes);
+      }
+    } catch (e) {
+      lastError = e;
     }
-    const ct = (response.headers.get('content-type') || '').toLowerCase();
-    const lower = imageUrl.toLowerCase();
-    if (ct.includes('png') || lower.endsWith('.png')) return await pdfDoc.embedPng(bytes);
-    if (ct.includes('jpeg') || ct.includes('jpg') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || ct.includes('image')) return await pdfDoc.embedJpg(bytes);
-    return null;
-  } catch (e) { console.error('Image embed error:', (e as any)?.message?.slice(0, 100)); return null; }
+  }
+
+  if (largestAttemptBytes > MAX_IMAGE_BYTES) {
+    console.warn(`Skipping oversized image after optimization attempt (${(largestAttemptBytes / 1e6).toFixed(1)} MB): ${imageUrl.slice(0, 80)}`);
+  } else if (lastError) {
+    console.error('Image embed error:', (lastError as any)?.message?.slice(0, 100));
+  }
+
+  return null;
 }
 
 async function drawInlineImage(
