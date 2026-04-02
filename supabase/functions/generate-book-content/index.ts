@@ -1228,9 +1228,28 @@ Return ONLY JSON:
       let editorialContext = '';
       if (editorialStrategy && typeof editorialStrategy === 'object') {
         const s = editorialStrategy;
-        editorialContext = lang === 'fr'
-          ? `\n📋 POSITIONNEMENT ÉDITORIAL :\n- PROBLÈME DU LECTEUR : ${s.reader_problem || ''}\n- PROMESSE DU LIVRE : ${s.book_promise || ''}\n- ANGLE UNIQUE : ${s.unique_angle || ''}\n- THÈSE CENTRALE : ${s.central_thesis || ''}\n⚠️ Chaque chapitre doit servir la thèse et tenir la promesse.\n`
-          : `\n📋 EDITORIAL POSITIONING:\n- READER PROBLEM: ${s.reader_problem || ''}\n- BOOK PROMISE: ${s.book_promise || ''}\n- UNIQUE ANGLE: ${s.unique_angle || ''}\n- CENTRAL THESIS: ${s.central_thesis || ''}\n⚠️ Every chapter must serve the thesis and deliver the promise.\n`;
+        const stories = Array.isArray(s.suggested_stories) ? s.suggested_stories.filter((st: string) => st && st.trim().length > 0) : [];
+        const narrativeArc = s.narrative_arc || '';
+
+        if (lang === 'fr') {
+          editorialContext = `\n📋 POSITIONNEMENT ÉDITORIAL :\n- PROBLÈME DU LECTEUR : ${s.reader_problem || ''}\n- PROMESSE DU LIVRE : ${s.book_promise || ''}\n- ANGLE UNIQUE : ${s.unique_angle || ''}\n- THÈSE CENTRALE : ${s.central_thesis || ''}`;
+          if (narrativeArc) editorialContext += `\n- ARC NARRATIF : ${narrativeArc}`;
+          if (stories.length > 0) {
+            editorialContext += `\n- HISTOIRES/ANECDOTES À INTÉGRER DANS LE LIVRE :\n${stories.map((st: string, i: number) => `  ${i + 1}. ${st}`).join('\n')}\n⚠️ Tu DOIS intégrer ces histoires de manière naturelle dans les chapitres appropriés.`;
+          } else {
+            editorialContext += `\n⚠️ L'auteur n'a PAS sélectionné d'histoires ou anecdotes. N'invente PAS d'histoires personnelles fictives. Utilise uniquement des exemples concrets, des faits, des études de cas ou des situations hypothétiques clairement identifiées comme telles.`;
+          }
+          editorialContext += `\n⚠️ Chaque chapitre doit servir la thèse et tenir la promesse.\n`;
+        } else {
+          editorialContext = `\n📋 EDITORIAL POSITIONING:\n- READER PROBLEM: ${s.reader_problem || ''}\n- BOOK PROMISE: ${s.book_promise || ''}\n- UNIQUE ANGLE: ${s.unique_angle || ''}\n- CENTRAL THESIS: ${s.central_thesis || ''}`;
+          if (narrativeArc) editorialContext += `\n- NARRATIVE ARC: ${narrativeArc}`;
+          if (stories.length > 0) {
+            editorialContext += `\n- STORIES/ANECDOTES TO INTEGRATE IN THE BOOK:\n${stories.map((st: string, i: number) => `  ${i + 1}. ${st}`).join('\n')}\n⚠️ You MUST integrate these stories naturally into the appropriate chapters.`;
+          } else {
+            editorialContext += `\n⚠️ The author has NOT selected any stories or anecdotes. Do NOT invent fictional personal stories. Use only concrete examples, facts, case studies, or hypothetical situations clearly identified as such.`;
+          }
+          editorialContext += `\n⚠️ Every chapter must serve the thesis and deliver the promise.\n`;
+        }
       }
 
       userPrompt = lang === 'fr'
