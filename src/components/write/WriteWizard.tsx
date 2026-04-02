@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, Fragment } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -21,6 +21,10 @@ import { WriteProgress } from './WriteProgress';
 import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { resolveBookLanguageFromLocale, type SupportedBookLanguage } from './utils/bookLanguage';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export type SourceType = 'idea' | 'document' | 'youtube' | 'audio' | 'notes_photo';
 export type BookStyle = 'ebook' | 'guide' | 'prayers' | 'story' | 'novel' | 'devotional' | 'activity' | 'coloring';
@@ -459,49 +463,61 @@ export default function WriteWizard() {
     toast({ title: `📝 ${t('write.new_draft_ready')}` });
   }, [saveCurrentDraftNow, step, syncDraftList, toast, t]);
 
-  const handleDeleteAndNew = useCallback(() => {
-    if (!window.confirm(t('write.confirm_delete_draft'))) return;
+  // ── Delete confirmation dialog state ──
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const pendingDeleteRef = useRef<string | null>(null);
 
-    // Remove current draft
+  const executeDeleteAndNew = useCallback(() => {
     const store = removeDraftSnapshot(draftId);
-
-    // Create fresh draft
     const newDraftId = createDraftId();
     const freshState = toHydratedState();
     const { store: updatedStore, updatedAt } = saveDraftSnapshot(newDraftId, freshState, 0);
-
     setDraftId(newDraftId);
     setState(freshState);
     setStep(0);
     setLastSavedAt(updatedAt);
     syncDraftList(updatedStore, newDraftId);
-
     toast({ title: `🗑️ ${t('write.draft_deleted')}` });
   }, [draftId, syncDraftList, toast, t]);
 
-  const handleDeleteDraftById = useCallback(async (targetId: string) => {
-    if (!window.confirm(t('write.confirm_delete_draft'))) return;
-
-    // Handle DB-backed drafts
+  const executeDeleteById = useCallback(async (targetId: string) => {
     if (targetId.startsWith('db:')) {
       const projectId = targetId.slice(3);
-      try {
-        await supabase.from('ai_content_projects').delete().eq('id', projectId);
-      } catch { /* ignore */ }
+      try { await supabase.from('ai_content_projects').delete().eq('id', projectId); } catch { /* ignore */ }
       setDbDrafts(prev => prev.filter(d => d.id !== targetId));
       toast({ title: `🗑️ ${t('write.draft_deleted')}` });
       return;
     }
-
-    // Handle local drafts
     if (targetId === draftId) {
-      handleDeleteAndNew();
+      executeDeleteAndNew();
       return;
     }
     const store = removeDraftSnapshot(targetId);
     syncDraftList(store, draftId);
     toast({ title: `🗑️ ${t('write.draft_deleted')}` });
-  }, [draftId, syncDraftList, toast, t, handleDeleteAndNew]);
+  }, [draftId, syncDraftList, toast, t, executeDeleteAndNew]);
+
+  const handleDeleteAndNew = useCallback(() => {
+    pendingDeleteRef.current = '__current__';
+    setDeleteConfirmOpen(true);
+  }, []);
+
+  const handleDeleteDraftById = useCallback((targetId: string) => {
+    pendingDeleteRef.current = targetId;
+    setDeleteConfirmOpen(true);
+  }, []);
+
+  const onConfirmDelete = useCallback(async () => {
+    const target = pendingDeleteRef.current;
+    setDeleteConfirmOpen(false);
+    pendingDeleteRef.current = null;
+    if (!target) return;
+    if (target === '__current__') {
+      executeDeleteAndNew();
+    } else {
+      await executeDeleteById(target);
+    }
+  }, [executeDeleteAndNew, executeDeleteById]);
 
   const handleExitWizard = useCallback(() => {
     if (step < CELEBRATION_STEP) saveCurrentDraftNow();
@@ -957,6 +973,7 @@ export default function WriteWizard() {
   }, [publishing, handlePublish]);
 
   return (
+    <>
     <div className="pt-16 pb-20 min-h-screen">
       {step < CELEBRATION_STEP && (
         <>
@@ -1007,5 +1024,27 @@ export default function WriteWizard() {
         </AnimatePresence>
       </div>
     </div>
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('write.confirm_delete_draft')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {locale === 'fr'
+                ? 'Cette action est irréversible. Le brouillon sera définitivement supprimé.'
+                : locale === 'ar'
+                ? 'هذا الإجراء لا يمكن التراجع عنه. سيتم حذف المسودة نهائيًا.'
+                : 'This action cannot be undone. The draft will be permanently deleted.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{locale === 'fr' ? 'Annuler' : locale === 'ar' ? 'إلغاء' : 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction onClick={onConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {locale === 'fr' ? 'Supprimer' : locale === 'ar' ? 'حذف' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
