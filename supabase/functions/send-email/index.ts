@@ -19,7 +19,7 @@ type EmailTemplate =
   | 'org_created' | 'org_deleted' | 'org_suspended' | 'org_unsuspended'
   | 'org_inactive_30d' | 'member_milestone'
   | 'new_member_joined' | 'member_left' | 'invite_to_org' | 'role_changed'
-  | 'invite_accepted'
+  | 'invite_accepted' | 'member_auto_enrolled'
   | 'payout_requested' | 'payout_approved' | 'payout_processing' | 'payout_completed' | 'payout_rejected' | 'payouts_frozen'
   | 'affiliate_sale' | 'affiliate_payout_requested' | 'affiliate_payout_completed'
   | 'affiliate_welcome' | 'affiliate_first_click' | 'affiliate_first_conversion'
@@ -515,6 +515,11 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return isFr
         ? { subject: `✅ Invitation acceptée – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ Invitation Acceptée</h1><p><strong>${d.member_name}</strong> a accepté votre invitation à rejoindre <strong>${d.org_name}</strong>.</p>`, lang) }
         : { subject: `✅ Invitation accepted – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ Invitation Accepted</h1><p><strong>${d.member_name}</strong> accepted your invitation to join <strong>${d.org_name}</strong>.</p>`, lang) };
+
+    case 'member_auto_enrolled':
+      return isFr
+        ? { subject: `🎉 Vous êtes membre de ${d.org_name} !`, html: wrap(`<h1 style="color:${green}">🎉 Bienvenue !</h1><p>Bonjour ${d.name || ''},</p><p>Suite à votre ${d.reason === 'donation' ? 'don' : 'achat'}, vous êtes désormais <strong>membre</strong> de <strong>${d.org_name}</strong>.</p><p>Vous recevrez les dernières actualités, événements et contenus de cette organisation.</p>${cta(String(d.org_url || 'https://siteviral.com'), 'Découvrir →')}`, lang) }
+        : { subject: `🎉 You're now a member of ${d.org_name}!`, html: wrap(`<h1 style="color:${green}">🎉 Welcome!</h1><p>Hello ${d.name || ''},</p><p>Following your ${d.reason === 'donation' ? 'donation' : 'purchase'}, you are now a <strong>member</strong> of <strong>${d.org_name}</strong>.</p><p>You'll receive the latest news, events and content from this organization.</p>${cta(String(d.org_url || 'https://siteviral.com'), 'Discover →')}`, lang) };
 
     // ═══ PAYOUTS ═══
     case 'payout_requested':
