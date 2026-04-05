@@ -492,7 +492,7 @@ function DonationsSection({ orgId, orgSlug, currency }: { orgId: string | undefi
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate group-hover:text-rose-500 transition-colors">
-                  {d.donor_name || (isFr ? 'Donateur anonyme' : 'Anonymous donor')}
+                  {d.donor_name || d.donor_email?.split('@')[0] || (isFr ? 'Donateur' : 'Donor')}
                 </p>
                 <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
                   {d.donor_email && <span>{maskEmail(d.donor_email)}</span>}
