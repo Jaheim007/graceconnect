@@ -71,7 +71,7 @@ export default function BuyersList({ buyers, isLoading, currency, isFr }: Props)
           {/* Info */}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-              {buyer.display_name || buyer.email || (isFr ? 'Acheteur' : 'Buyer')}
+              {buyer.display_name || buyer.email?.split('@')[0] || (isFr ? 'Client' : 'Customer')}
             </p>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
               <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">

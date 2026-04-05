@@ -608,7 +608,7 @@ function PurchasesSection({ orgId, orgSlug, currency }: { orgId: string | undefi
                     {product?.title || (isFr ? 'Produit' : 'Product')}
                   </p>
                   <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
-                    <span className="font-medium">{p.buyer_name || (isFr ? 'Acheteur' : 'Buyer')}</span>
+                    <span className="font-medium">{p.buyer_name || p.buyer_email?.split('@')[0] || (isFr ? 'Client' : 'Customer')}</span>
                     {p.buyer_email && <><span>·</span><span>{maskEmail(p.buyer_email)}</span></>}
                     <span>·</span>
                     <Calendar className="h-3 w-3 inline" />
