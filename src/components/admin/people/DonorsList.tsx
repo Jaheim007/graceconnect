@@ -70,7 +70,7 @@ export default function DonorsList({ donors, isLoading, currency, isFr }: Props)
           {/* Info */}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold truncate group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
-              {donor.display_name || donor.email || (isFr ? 'Donateur anonyme' : 'Anonymous donor')}
+              {donor.display_name || donor.email?.split('@')[0] || (isFr ? 'Donateur' : 'Donor')}
             </p>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
               <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">

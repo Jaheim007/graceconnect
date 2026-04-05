@@ -67,8 +67,8 @@ export default function SuperadminFullDashboard() {
         db.rpc('get_top_orgs_by_revenue', { _limit: 8 }),
         db.rpc('get_org_category_breakdown'),
         db.rpc('get_org_country_breakdown', { _limit: 6 }),
-        db.from('donations').select('id, amount, status, donor_name, created_at, currency').order('created_at', { ascending: false }).limit(15),
-        db.from('product_purchases').select('id, amount, status, buyer_name, created_at, currency').order('created_at', { ascending: false }).limit(15),
+        db.from('donations').select('id, amount, status, donor_name, donor_email, created_at, currency').order('created_at', { ascending: false }).limit(15),
+        db.from('product_purchases').select('id, amount, status, buyer_name, buyer_email, created_at, currency').order('created_at', { ascending: false }).limit(15),
         db.from('profiles').select('id, display_name, created_at').order('created_at', { ascending: false }).limit(10),
         db.from('organization_members').select('role'),
         db.from('payout_requests').select('amount, status').eq('status', 'completed'),
@@ -81,11 +81,11 @@ export default function SuperadminFullDashboard() {
       const totalsRaw = totalsRes.data as any || {};
       const activityItems = [
         ...(recentDonations.data || []).map((d: any) => ({
-          id: `don-${d.id}`, name: d.donor_name || 'Anonyme', amount: d.amount || 0,
+          id: `don-${d.id}`, name: d.donor_name || d.donor_email?.split('@')[0] || 'Donateur', amount: d.amount || 0,
           status: d.status, created_at: d.created_at, type: 'donation' as const, currency: d.currency,
         })),
         ...(recentPurchases.data || []).map((p: any) => ({
-          id: `pur-${p.id}`, name: p.buyer_name || 'Acheteur', amount: p.amount || 0,
+          id: `pur-${p.id}`, name: p.buyer_name || p.buyer_email?.split('@')[0] || 'Client', amount: p.amount || 0,
           status: p.status, created_at: p.created_at, type: 'purchase' as const, currency: p.currency,
         })),
       ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 15);

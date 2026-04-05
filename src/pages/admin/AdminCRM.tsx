@@ -448,7 +448,7 @@ function DonationsSection({ orgId, orgSlug, currency }: { orgId: string | undefi
     downloadCSV(
       donations.map((d: any) => ({
         Date: d.created_at?.slice(0, 10),
-        [isFr ? 'Donateur' : 'Donor']: d.donor_name || (isFr ? 'Anonyme' : 'Anonymous'),
+        [isFr ? 'Donateur' : 'Donor']: d.donor_name || d.donor_email?.split('@')[0] || '—',
         [isFr ? 'Montant' : 'Amount']: d.amount,
         [isFr ? 'Reçu' : 'Received']: d.organization_amount || 0,
         [isFr ? 'Statut' : 'Status']: d.status,
@@ -492,7 +492,7 @@ function DonationsSection({ orgId, orgSlug, currency }: { orgId: string | undefi
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate group-hover:text-rose-500 transition-colors">
-                  {d.donor_name || (isFr ? 'Donateur anonyme' : 'Anonymous donor')}
+                  {d.donor_name || d.donor_email?.split('@')[0] || (isFr ? 'Donateur' : 'Donor')}
                 </p>
                 <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
                   {d.donor_email && <span>{maskEmail(d.donor_email)}</span>}
@@ -554,7 +554,7 @@ function PurchasesSection({ orgId, orgSlug, currency }: { orgId: string | undefi
       purchases.map((p: any) => ({
         Date: p.created_at?.slice(0, 10),
         [isFr ? 'Produit' : 'Product']: (p.digital_products as any)?.title || '—',
-        [isFr ? 'Acheteur' : 'Buyer']: p.buyer_name || '—',
+        [isFr ? 'Acheteur' : 'Buyer']: p.buyer_name || p.buyer_email?.split('@')[0] || '—',
         [isFr ? 'Montant' : 'Amount']: p.amount,
         [isFr ? 'Reçu' : 'Received']: p.organization_amount || 0,
         [isFr ? 'Statut' : 'Status']: p.status,
@@ -608,7 +608,7 @@ function PurchasesSection({ orgId, orgSlug, currency }: { orgId: string | undefi
                     {product?.title || (isFr ? 'Produit' : 'Product')}
                   </p>
                   <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
-                    <span className="font-medium">{p.buyer_name || (isFr ? 'Acheteur' : 'Buyer')}</span>
+                    <span className="font-medium">{p.buyer_name || p.buyer_email?.split('@')[0] || (isFr ? 'Client' : 'Customer')}</span>
                     {p.buyer_email && <><span>·</span><span>{maskEmail(p.buyer_email)}</span></>}
                     <span>·</span>
                     <Calendar className="h-3 w-3 inline" />
