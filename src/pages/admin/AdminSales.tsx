@@ -145,7 +145,7 @@ export default function AdminSales() {
         type: 'donation' as const,
         label: r.donation_campaigns?.title || (isFr ? 'Don (sans campagne)' : 'Donation (no campaign)'),
         gateway: detectGateway(r.paystack_reference),
-        buyer_display: r.donor_name || profileMap[r.user_id]?.display_name || r.donor_email || (isFr ? 'Anonyme' : 'Anonymous'),
+        buyer_display: r.donor_name || profileMap[r.user_id]?.display_name || r.donor_email?.split('@')[0] || (isFr ? 'Donateur' : 'Donor'),
         buyer_email: r.donor_email || null,
         buyer_phone: profileMap[r.user_id]?.phone || null,
         affiliate_name: r.affiliate_link_id ? (affLinkMap[r.affiliate_link_id]?.name || '—') : null,
