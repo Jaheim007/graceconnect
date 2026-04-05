@@ -48,29 +48,33 @@ export default function SuperadminActivityFeed() {
           if (p.display_name && p.display_name.trim()) globalNameMap[p.id] = p.display_name.trim();
         });
 
-        // For IDs still missing a name, try to find emails from transactions
+        // For IDs still missing a name, try to find emails from transactions + auth
         const missingIds = ids.filter(id => !globalNameMap[id]);
         if (missingIds.length > 0) {
-          const [pe, de] = await Promise.all([
+          const [pe, de, emailsRes] = await Promise.all([
             db.from('product_purchases').select('user_id, buyer_email, buyer_name').in('user_id', missingIds).limit(200),
             db.from('donations').select('user_id, donor_email, donor_name').in('user_id', missingIds).limit(200),
+            db.rpc('get_user_emails', { user_ids: missingIds }),
           ]);
+          // First populate from auth emails (most reliable)
+          (emailsRes.data || []).forEach((r: any) => {
+            if (!globalNameMap[r.id] && r.email) {
+              globalNameMap[r.id] = r.email.split('@')[0];
+            }
+          });
+          // Then override with transaction names/emails if better
           (pe.data || []).forEach((r: any) => {
-            if (!globalNameMap[r.user_id]) {
-              if (r.buyer_name && r.buyer_name.trim() && r.buyer_name.trim().toLowerCase() !== 'acheteur') {
-                globalNameMap[r.user_id] = r.buyer_name.trim();
-              } else if (r.buyer_email) {
-                globalNameMap[r.user_id] = r.buyer_email.split('@')[0];
-              }
+            if (r.buyer_name && r.buyer_name.trim() && r.buyer_name.trim().toLowerCase() !== 'acheteur') {
+              globalNameMap[r.user_id] = r.buyer_name.trim();
+            } else if (r.buyer_email && !globalNameMap[r.user_id]) {
+              globalNameMap[r.user_id] = r.buyer_email.split('@')[0];
             }
           });
           (de.data || []).forEach((r: any) => {
-            if (!globalNameMap[r.user_id]) {
-              if (r.donor_name && r.donor_name.trim()) {
-                globalNameMap[r.user_id] = r.donor_name.trim();
-              } else if (r.donor_email) {
-                globalNameMap[r.user_id] = r.donor_email.split('@')[0];
-              }
+            if (r.donor_name && r.donor_name.trim()) {
+              globalNameMap[r.user_id] = r.donor_name.trim();
+            } else if (r.donor_email && !globalNameMap[r.user_id]) {
+              globalNameMap[r.user_id] = r.donor_email.split('@')[0];
             }
           });
         }

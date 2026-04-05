@@ -6298,6 +6298,13 @@ export type Database = {
         Args: { _from?: string; _to?: string }
         Returns: Json
       }
+      get_user_emails: {
+        Args: { user_ids: string[] }
+        Returns: {
+          email: string
+          id: string
+        }[]
+      }
       get_weekly_user_cohorts: { Args: { _weeks?: number }; Returns: Json }
       grant_bonus_credits: {
         Args: {
