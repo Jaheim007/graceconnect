@@ -98,7 +98,7 @@ export default function AdminSales() {
         type: 'purchase' as const,
         label: r.digital_products?.title || (isFr ? 'Produit' : 'Product'),
         gateway: detectGateway(r.paystack_reference),
-        buyer_display: r.buyer_name || profileMap[r.user_id]?.display_name || '—',
+        buyer_display: r.buyer_name || profileMap[r.user_id]?.display_name || r.buyer_email?.split('@')[0] || (isFr ? 'Client' : 'Customer'),
         buyer_email: r.buyer_email || null,
         buyer_phone: profileMap[r.user_id]?.phone || null,
         affiliate_name: r.affiliate_link_id ? (affLinkMap[r.affiliate_link_id]?.name || '—') : null,
