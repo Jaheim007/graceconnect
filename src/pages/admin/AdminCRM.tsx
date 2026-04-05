@@ -448,7 +448,7 @@ function DonationsSection({ orgId, orgSlug, currency }: { orgId: string | undefi
     downloadCSV(
       donations.map((d: any) => ({
         Date: d.created_at?.slice(0, 10),
-        [isFr ? 'Donateur' : 'Donor']: d.donor_name || (isFr ? 'Anonyme' : 'Anonymous'),
+        [isFr ? 'Donateur' : 'Donor']: d.donor_name || d.donor_email?.split('@')[0] || '—',
         [isFr ? 'Montant' : 'Amount']: d.amount,
         [isFr ? 'Reçu' : 'Received']: d.organization_amount || 0,
         [isFr ? 'Statut' : 'Status']: d.status,
