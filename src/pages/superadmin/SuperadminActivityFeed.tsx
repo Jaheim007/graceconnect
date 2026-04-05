@@ -21,8 +21,8 @@ export default function SuperadminActivityFeed() {
     queryKey: ['sa-activity-feed'],
     queryFn: async () => {
       const [donations, purchases, profiles, kyc, members, reports, creditPurchases] = await Promise.all([
-        db.from('donations').select('id, donor_name, donor_email, amount, status, created_at, currency').order('created_at', { ascending: false }).limit(30),
-        db.from('product_purchases').select('id, amount, status, created_at, currency, buyer_name, buyer_email, digital_products(title)').order('created_at', { ascending: false }).limit(30),
+        db.from('donations').select('id, donor_name, donor_email, user_id, amount, status, created_at, currency').order('created_at', { ascending: false }).limit(30),
+        db.from('product_purchases').select('id, amount, status, created_at, currency, buyer_name, buyer_email, user_id, digital_products(title)').order('created_at', { ascending: false }).limit(30),
         db.from('profiles').select('id, display_name, created_at').order('created_at', { ascending: false }).limit(20),
         db.from('kyc_submissions').select('id, status, submitted_at, organization_id').order('submitted_at', { ascending: false }).limit(20),
         db.from('organization_members').select('id, role, joined_at, user_id, organizations(name), profiles(display_name)').order('joined_at', { ascending: false }).limit(20),
@@ -30,35 +30,71 @@ export default function SuperadminActivityFeed() {
         db.from('credit_purchases').select('id, user_id, pack_key, credits_amount, price_amount, price_currency, payment_gateway, status, created_at').order('created_at', { ascending: false }).limit(30),
       ]);
 
-      // Resolve auth emails for profiles without display_name
-      const blankProfileIds = (profiles.data || []).filter((p: any) => !p.display_name || !p.display_name.trim()).map((p: any) => p.id);
-      let authEmailMap: Record<string, string> = {};
-      if (blankProfileIds.length > 0) {
-        // Fetch emails from auth via a join through organization_members or product_purchases
-        // Since we can't query auth.users directly from client, we look for emails in transactions
-        const { data: purchaseEmails } = await db.from('product_purchases').select('user_id, buyer_email').in('user_id', blankProfileIds).limit(100);
-        const { data: donationEmails } = await db.from('donations').select('user_id, donor_email').in('user_id', blankProfileIds).limit(100);
-        (purchaseEmails || []).forEach((r: any) => { if (r.buyer_email && r.user_id) authEmailMap[r.user_id] = r.buyer_email; });
-        (donationEmails || []).forEach((r: any) => { if (r.donor_email && r.user_id) authEmailMap[r.user_id] = r.donor_email; });
+      // Collect ALL user_ids from every source to resolve names in bulk
+      const allUserIds = new Set<string>();
+      (purchases.data || []).forEach((p: any) => { if (p.user_id) allUserIds.add(p.user_id); });
+      (donations.data || []).forEach((d: any) => { if (d.user_id) allUserIds.add(d.user_id); });
+      (profiles.data || []).forEach((p: any) => allUserIds.add(p.id));
+      (members.data || []).forEach((m: any) => { if (m.user_id) allUserIds.add(m.user_id); });
+      (creditPurchases.data || []).forEach((c: any) => { if (c.user_id) allUserIds.add(c.user_id); });
+
+      // Build a global name map from profiles
+      const globalNameMap: Record<string, string> = {};
+      if (allUserIds.size > 0) {
+        const ids = [...allUserIds];
+        // Batch fetch profiles (Supabase .in() max ~300, safe here)
+        const { data: allProfiles } = await db.from('profiles').select('id, display_name').in('id', ids);
+        (allProfiles || []).forEach((p: any) => {
+          if (p.display_name && p.display_name.trim()) globalNameMap[p.id] = p.display_name.trim();
+        });
+
+        // For IDs still missing a name, try to find emails from transactions
+        const missingIds = ids.filter(id => !globalNameMap[id]);
+        if (missingIds.length > 0) {
+          const [pe, de] = await Promise.all([
+            db.from('product_purchases').select('user_id, buyer_email, buyer_name').in('user_id', missingIds).limit(200),
+            db.from('donations').select('user_id, donor_email, donor_name').in('user_id', missingIds).limit(200),
+          ]);
+          (pe.data || []).forEach((r: any) => {
+            if (!globalNameMap[r.user_id]) {
+              if (r.buyer_name && r.buyer_name.trim() && r.buyer_name.trim().toLowerCase() !== 'acheteur') {
+                globalNameMap[r.user_id] = r.buyer_name.trim();
+              } else if (r.buyer_email) {
+                globalNameMap[r.user_id] = r.buyer_email.split('@')[0];
+              }
+            }
+          });
+          (de.data || []).forEach((r: any) => {
+            if (!globalNameMap[r.user_id]) {
+              if (r.donor_name && r.donor_name.trim()) {
+                globalNameMap[r.user_id] = r.donor_name.trim();
+              } else if (r.donor_email) {
+                globalNameMap[r.user_id] = r.donor_email.split('@')[0];
+              }
+            }
+          });
+        }
       }
 
       const items: ActivityItem[] = [];
 
-      const resolveName = (name?: string | null, email?: string | null, fallbackFr?: string, fallbackEn?: string): string => {
+      // Resolve name: try explicit name/email, then global profile map, then email prefix
+      const resolveName = (name?: string | null, email?: string | null, userId?: string | null): string => {
         if (name && name.trim() && name.trim().toLowerCase() !== 'acheteur' && name.trim().toLowerCase() !== 'buyer') return name.trim();
+        if (userId && globalNameMap[userId]) return globalNameMap[userId];
         if (email) return email.split('@')[0];
-        return isFr ? (fallbackFr || 'Utilisateur inconnu') : (fallbackEn || 'Unknown user');
+        return isFr ? 'Visiteur' : 'Visitor';
       };
 
       (donations.data || []).forEach((d: any) => items.push({
         id: `don-${d.id}`, type: 'donation',
-        title: isFr ? `Don de ${resolveName(d.donor_name, d.donor_email, 'Donateur anonyme', 'Anonymous donor')}` : `Donation from ${resolveName(d.donor_name, d.donor_email, 'Anonymous donor', 'Anonymous donor')}`,
+        title: isFr ? `Don de ${resolveName(d.donor_name, d.donor_email, d.user_id)}` : `Donation from ${resolveName(d.donor_name, d.donor_email, d.user_id)}`,
         subtitle: `${fmt(d.amount, d.currency || 'XOF')}`, amount: d.amount, status: d.status,
         timestamp: d.created_at,
       }));
 
       (purchases.data || []).forEach((p: any) => {
-        const buyerName = resolveName(p.buyer_name, p.buyer_email, 'Acheteur inconnu', 'Unknown buyer');
+        const buyerName = resolveName(p.buyer_name, p.buyer_email, p.user_id);
         const productTitle = p.digital_products?.title;
         const subtitle = productTitle
           ? `${fmt(p.amount, p.currency || 'XOF')} — ${productTitle}`
@@ -72,7 +108,7 @@ export default function SuperadminActivityFeed() {
       });
 
       (profiles.data || []).forEach((p: any) => {
-        const name = resolveName(p.display_name, authEmailMap[p.id]);
+        const name = resolveName(p.display_name, null, p.id);
         items.push({
           id: `sig-${p.id}`, type: 'signup',
           title: isFr ? 'Nouvel utilisateur' : 'New user',
@@ -87,7 +123,7 @@ export default function SuperadminActivityFeed() {
       }));
 
       (members.data || []).forEach((m: any) => {
-        const memberName = resolveName(m.profiles?.display_name, authEmailMap[m.user_id], 'Membre', 'Member');
+        const memberName = resolveName(m.profiles?.display_name, null, m.user_id);
         items.push({
           id: `mem-${m.id}`, type: 'member',
           title: isFr ? 'Nouveau membre' : 'New member',
@@ -102,22 +138,8 @@ export default function SuperadminActivityFeed() {
         timestamp: r.created_at,
       }));
 
-      // Resolve credit purchase user names
-      const creditUserIds = (creditPurchases.data || []).map((c: any) => c.user_id).filter(Boolean);
-      let creditUserNames: Record<string, string> = {};
-      if (creditUserIds.length > 0) {
-        const { data: creditProfiles } = await db.from('profiles').select('id, display_name').in('id', creditUserIds);
-        (creditProfiles || []).forEach((p: any) => { if (p.display_name) creditUserNames[p.id] = p.display_name; });
-        // Fallback to emails from purchases/donations for users without display_name
-        const missingIds = creditUserIds.filter((id: string) => !creditUserNames[id]);
-        if (missingIds.length > 0) {
-          const { data: fallbackEmails } = await db.from('product_purchases').select('user_id, buyer_email').in('user_id', missingIds).limit(100);
-          (fallbackEmails || []).forEach((r: any) => { if (r.buyer_email && !creditUserNames[r.user_id]) creditUserNames[r.user_id] = r.buyer_email.split('@')[0]; });
-        }
-      }
-
       (creditPurchases.data || []).forEach((c: any) => {
-        const userName = creditUserNames[c.user_id] || (isFr ? 'Utilisateur' : 'User');
+        const userName = resolveName(null, null, c.user_id);
         const gateway = c.payment_gateway === 'stripe' ? 'Stripe' : 'Paystack';
         items.push({
           id: `crd-${c.id}`, type: 'credit_purchase',
