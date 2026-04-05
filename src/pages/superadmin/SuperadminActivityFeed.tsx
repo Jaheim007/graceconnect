@@ -87,7 +87,8 @@ export default function SuperadminActivityFeed() {
         if (name && name.trim() && name.trim().toLowerCase() !== 'acheteur' && name.trim().toLowerCase() !== 'buyer') return name.trim();
         if (userId && globalNameMap[userId]) return globalNameMap[userId];
         if (email) return email.split('@')[0];
-        return isFr ? 'Visiteur' : 'Visitor';
+        if (userId) return userId.slice(0, 8);
+        return isFr ? 'Utilisateur' : 'User';
       };
 
       (donations.data || []).forEach((d: any) => items.push({
