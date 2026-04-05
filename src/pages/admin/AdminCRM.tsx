@@ -554,7 +554,7 @@ function PurchasesSection({ orgId, orgSlug, currency }: { orgId: string | undefi
       purchases.map((p: any) => ({
         Date: p.created_at?.slice(0, 10),
         [isFr ? 'Produit' : 'Product']: (p.digital_products as any)?.title || '—',
-        [isFr ? 'Acheteur' : 'Buyer']: p.buyer_name || '—',
+        [isFr ? 'Acheteur' : 'Buyer']: p.buyer_name || p.buyer_email?.split('@')[0] || '—',
         [isFr ? 'Montant' : 'Amount']: p.amount,
         [isFr ? 'Reçu' : 'Received']: p.organization_amount || 0,
         [isFr ? 'Statut' : 'Status']: p.status,
