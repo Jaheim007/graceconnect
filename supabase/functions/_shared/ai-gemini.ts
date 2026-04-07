@@ -110,7 +110,6 @@ export async function geminiProImageBase64(opts: {
   const id = setTimeout(() => controller.abort(), opts.timeoutMs ?? 120_000);
 
   const candidateModels = [
-    'gemini-3-pro-image-preview',
     'gemini-3.1-flash-image-preview',
     'gemini-2.5-flash-image',
   ];

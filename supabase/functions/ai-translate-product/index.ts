@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
 
         // === PASS 1: Initial translation ===
         const pass1Raw = await aiGenerateText({
-          geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
+          geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash-lite',
           system: `You are a professional translator specializing in digital product marketing. Translate the following content to ${targetLang}. Maintain all HTML formatting, marketing tone, and persuasive copywriting style. Return ONLY a JSON object with the same keys.`,
           prompt: payload,
           jsonMode: true,
@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
         });
 
         const pass2Raw = await aiGenerateText({
-          geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
+          geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash-lite',
           system: `You are a bilingual editor reviewing a translation to ${targetLang}. Check for:
 1. Accuracy — does it faithfully convey the original meaning?
 2. Naturalness — does it read like native ${targetLang} content (not translated)?

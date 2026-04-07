@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
 
         const raw = await aiGenerateText({
           geminiKey: GEMINI_API_KEY,
-          model: 'gemini-2.5-flash',
+          model: 'gemini-2.5-flash-lite',
           system: 'You are a professional book subtitle creator. Return ONLY valid JSON. No markdown, no code fences. Every subtitle must be clean human-readable text with no regex, no special syntax, no programming patterns.',
           prompt,
         });
