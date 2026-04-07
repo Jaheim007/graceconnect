@@ -301,8 +301,8 @@ Each section: Constat → Analyse → Recommandation. Use percentages and trends
 
 
 
-    // Stream via Gemini Direct API (gemini-2.5-pro for best executive-grade analysis)
-    const geminiModel = 'gemini-2.5-pro';
+    // Stream via Gemini Direct API (gemini-2.5-flash — same quality for dashboards, 90% cheaper)
+    const geminiModel = 'gemini-2.5-flash';
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
 
     const geminiContents = messages.map((m: any) => ({

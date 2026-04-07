@@ -194,7 +194,7 @@ ${lesson_content.slice(0, 12000)}
 ACTION REQUESTED:
 ${actionPrompt}`;
 
-        const geminiModel = creditTier === 'premium' ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
+        const geminiModel = 'gemini-2.5-flash';
 
         const enrichedContent = await geminiGenerateText({
           apiKey: GEMINI_API_KEY,

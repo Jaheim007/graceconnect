@@ -513,9 +513,7 @@ MANDATORY REQUIREMENTS:
         const openaiModel = creditTier === 'premium' && !generate_images
           ? 'gpt-4o'
           : 'gpt-4o-mini';
-        const geminiModel = creditTier === 'premium'
-          ? 'gemini-2.5-pro'
-          : 'gemini-2.5-flash';
+        const geminiModel = 'gemini-2.5-flash';
 
         const requestCourseCompletion = async (promptText: string, maxTokens: number, preferredTimeoutMs: number) => {
           const safeTimeoutMs = getSafeTimeoutMs(preferredTimeoutMs);
