@@ -118,7 +118,7 @@ You MUST produce a complete, well-structured HTML text following this schema:
       action: async () => {
         const raw = await aiGenerateText({
           geminiKey: GEMINI_API_KEY,
-          model: 'gemini-2.5-flash',
+          model: 'gemini-2.5-flash-lite',
           system: systemPrompt,
           prompt: isFr ? `Rédige le texte pour : "${prompt}"` : `Write the text for: "${prompt}"`,
           maxOutputTokens: 4096,
