@@ -510,9 +510,7 @@ MANDATORY REQUIREMENTS:
 - Return ONLY valid JSON with no markdown fences.
 - Keep the total JSON compact to avoid truncation.`;
 
-        const openaiModel = creditTier === 'premium' && !generate_images
-          ? 'gpt-4o'
-          : 'gpt-4o-mini';
+        const openaiModel = 'gpt-4o-mini';
         const geminiModel = 'gemini-2.5-flash';
 
         const requestCourseCompletion = async (promptText: string, maxTokens: number, preferredTimeoutMs: number) => {
