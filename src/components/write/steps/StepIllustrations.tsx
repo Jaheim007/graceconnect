@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, ImagePlus, Loader2, SkipForward, Sparkles, RefreshCw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ImagePlus, Loader2, SkipForward, Sparkles, RefreshCw, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
+import { useCreditsBalance } from '@/hooks/useCredits';
 import type { WriteState } from '../WriteWizard';
 
 interface Props {
@@ -25,6 +26,10 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
   const [artStyle, setArtStyle] = useState<IllustrationStyle>('children_book');
   const [generatingAll, setGeneratingAll] = useState(false);
   const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
+  const { data: creditSummary } = useCreditsBalance();
+  
+  // Illustrations are a Premium feature — only available if user has purchased credits
+  const hasPurchasedCredits = (creditSummary?.purchased_remaining ?? 0) > 0;
 
   const chapters = state.chapters || [];
   const illustrations = state.chapterIllustrations || {};
@@ -160,6 +165,23 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
         </p>
       </div>
 
+      {/* Premium gate */}
+      {!hasPurchasedCredits && (
+        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-5 text-center space-y-3">
+          <Lock className="h-8 w-8 text-amber-500 mx-auto" />
+          <h3 className="font-bold text-sm">
+            {t('write.illust_premium_title') || '✨ Fonctionnalité Premium'}
+          </h3>
+          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+            {t('write.illust_premium_desc') || 'Les illustrations IA sont réservées aux utilisateurs ayant acheté un pack de crédits. Achetez des crédits pour débloquer cette fonctionnalité.'}
+          </p>
+          <Button variant="outline" size="sm" onClick={() => window.open('/admin/credits', '_blank')} className="gap-2">
+            {t('write.illust_buy_credits') || 'Acheter des crédits'}
+          </Button>
+        </div>
+      )}
+
+      {hasPurchasedCredits && <>
       {/* Art style selection — hidden for coloring books (forced to line_art) */}
       {!isColoringBook && (
         <div className="space-y-2">
@@ -261,6 +283,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
           🎨 {illustratedCount}/{chapters.length} {t('write.illust_progress') || 'illustrations générées'}
         </p>
       )}
+      </>}
 
       {/* Actions */}
       <div className="flex gap-3">

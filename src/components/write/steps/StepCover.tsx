@@ -128,28 +128,7 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
         <p className="text-muted-foreground text-sm">{t('write.cover_sub')}</p>
       </div>
 
-      {/* AI Generate button */}
-      <div className="flex justify-center">
-        <Button
-          variant="outline"
-          size="lg"
-          onClick={handleAiGenerate}
-          disabled={generating || !state.title}
-          className="gap-2 border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary"
-        >
-          {generating ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Génération en cours…
-            </>
-          ) : (
-            <>
-              <Wand2 className="h-4 w-4" />
-              ✨ Générer la couverture avec l'IA
-            </>
-          )}
-        </Button>
-      </div>
+      {/* AI cover generation removed — use Canva or upload */}
 
       {/* Upload / Canva */}
       <div>
