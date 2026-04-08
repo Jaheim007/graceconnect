@@ -37,28 +37,11 @@ export function Sidebar() {
   const { data: myPartner } = useMyPartner();
   const isApprovedPartner = myPartner?.status === 'approved';
   const isFr = locale === 'fr';
-  const { profile, hasAffiliateLinks } = useUserProfile();
+  const { profile } = useUserProfile();
   const labels = useAdaptiveLabels();
 
   const hasOrgs = userOrgs.length > 0;
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
-
-  const { data: kycStatus } = useQuery({
-    queryKey: ['sidebar-kyc-status', currentOrg?.id],
-    queryFn: async () => {
-      if (!currentOrg?.id) return null;
-      const { data } = await db
-        .from('organizations')
-        .select('kyc_status')
-        .eq('id', currentOrg.id)
-        .single();
-      return data?.kyc_status || 'none';
-    },
-    enabled: !!currentOrg?.id && canManageCurrentOrg,
-    staleTime: 120_000,
-  });
-
-  const kycIncomplete = !kycStatus || kycStatus === 'none' || kycStatus === 'pending';
 
   const isSA = location.pathname.startsWith('/superadmin');
 
@@ -74,74 +57,67 @@ export function Sidebar() {
     return location.pathname.startsWith(to);
   };
 
-  // ═══ PRIMARY NAV — adapts to user profile ═══
-  const getPrimaryItems = (): NavItem[] => {
+  // ═══ FLAT NAV — minimal, context-aware ═══
+  const getNavItems = (): NavItem[] => {
     const items: NavItem[] = [
       { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-      { to: '/resources', icon: Package, label: isFr ? 'Mes achats' : 'My Purchases' },
-      { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
     ];
 
-    // Ambassador: add share link
-    if (profile === 'ambassador') {
-      items.push(
-        { to: '/gagner', icon: Share2, label: isFr ? 'Partager & Gagner' : 'Share & Earn' },
-      );
-    }
-
-    // Creator / Org: create + share
+    // Creator/Org: create action
     if (profile === 'creator' || profile === 'org-religious') {
       items.push(
         { to: canManageCurrentOrg ? '/admin/create' : '/create-org', icon: Sparkles, label: isFr ? 'Créer' : 'Create' },
-        { to: canManageCurrentOrg ? '/admin/content' : '/create-org', icon: Package, label: isFr ? 'Mes Contenus' : 'My Content' },
-        { to: '/gagner', icon: Share2, label: isFr ? 'Partager' : 'Share' },
       );
     }
+
+    // Everyone can discover
+    items.push(
+      { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
+    );
+
+    // Earn/Share
+    items.push(
+      { to: '/gagner', icon: Share2, label: isFr ? 'Gagner' : 'Earn' },
+    );
+
+    // My content (creators only)
+    if ((profile === 'creator' || profile === 'org-religious') && canManageCurrentOrg) {
+      items.push(
+        { to: '/admin/content', icon: Package, label: isFr ? 'Contenus' : 'Content' },
+        { to: '/admin/sales', icon: Wallet, label: labels.sales },
+      );
+    }
+
+    // Purchases for everyone
+    items.push(
+      { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
+    );
 
     return items;
   };
 
-  // ═══ SECONDARY NAV — simplified ═══
-  const getSecondaryItems = (): NavItem[] => {
-    // Buyers: minimal
-    if (profile === 'buyer') {
-      return [
-        { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
-      ];
-    }
-
-    // Ambassador
-    if (profile === 'ambassador') {
-      return [
-        { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
-        { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
-      ];
-    }
-
-    // Creator / Org — essential items only
-    const items: NavItem[] = [
-      { to: '/bookmarks', icon: Bookmark, label: isFr ? 'Favoris' : 'Bookmarks' },
-    ];
+  // ═══ BOTTOM ITEMS — contextual ═══
+  const getBottomItems = (): NavItem[] => {
+    const items: NavItem[] = [];
 
     if (hasOrgs && canManageCurrentOrg) {
       items.push(
-        { to: '/admin', icon: BarChart3, label: isFr ? 'Vue d\'ensemble' : 'Overview' },
-        { to: '/admin/sales', icon: Wallet, label: labels.mySales },
-        { to: '/admin/people', icon: Users, label: labels.clients },
-        { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
         { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
       );
-      if (currentOrg) {
-        items.push(
-          { to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' },
-        );
-      }
+    }
+
+    if (isApprovedPartner) {
+      items.push({ to: '/partner', icon: Handshake, label: t('sidebar.partner_space') || 'Partenaire' });
+    }
+
+    if (isSuperadmin && !isSA) {
+      items.push({ to: '/superadmin', icon: Shield, label: 'Superadmin' });
     }
 
     return items;
   };
 
-  const primaryItems = getPrimaryItems().filter((item, idx, arr) => 
+  const navItems = getNavItems().filter((item, idx, arr) =>
     arr.findIndex(i => i.label === item.label) === idx
   );
 
@@ -172,13 +148,12 @@ export function Sidebar() {
       </Link>
     );
 
-    if (collapsed || item.desc) {
+    if (collapsed) {
       return (
-        <Tooltip key={stableKey} delayDuration={collapsed ? 0 : 400}>
+        <Tooltip key={stableKey} delayDuration={0}>
           <TooltipTrigger asChild>{link}</TooltipTrigger>
-          <TooltipContent side="right" className="max-w-[220px]">
+          <TooltipContent side="right">
             <p className="font-semibold text-xs">{item.label}</p>
-            {item.desc && <p className="text-[11px] text-muted-foreground mt-0.5">{item.desc}</p>}
           </TooltipContent>
         </Tooltip>
       );
@@ -191,60 +166,44 @@ export function Sidebar() {
     <aside
       className={cn(
         'h-screen sticky top-0 flex flex-col border-r border-border bg-sidebar transition-all duration-300 overflow-hidden',
-        collapsed ? 'w-16' : 'w-60'
+        collapsed ? 'w-16' : 'w-56'
       )}
     >
       {/* Logo */}
-      <div className={cn('flex items-center h-16 px-4 border-b border-border', collapsed && 'justify-center px-0')}>
+      <div className={cn('flex items-center h-14 px-4 border-b border-border', collapsed && 'justify-center px-0')}>
         <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
       </div>
 
-      <nav className="flex-1 overflow-y-auto py-1 px-2 space-y-0.5 scrollbar-hide">
+      <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5 scrollbar-hide">
         {isSA ? (
           superadminNav.map(renderNavItem)
         ) : (
           <>
-            {/* Org switcher for creators */}
+            {/* Org switcher */}
             {hasOrgs && canManageCurrentOrg && (
               <OrgSwitcher variant="sidebar" collapsed={collapsed} />
             )}
 
-            {/* Primary nav */}
+            {/* Flat nav — no sections, no separators */}
             <div className="mt-1 space-y-0.5">
-              {primaryItems.map((item, i) => renderNavItem(item, i))}
+              {navItems.map((item, i) => renderNavItem(item, i))}
             </div>
 
-            {/* Separator + Secondary nav */}
-            {!collapsed && (
-              <div className="px-3 pt-4 pb-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  {isFr ? 'Plus' : 'More'}
-                </span>
-              </div>
-            )}
-            {collapsed && <div className="mx-3 my-2 border-t border-border/50" />}
-            <div className="space-y-0.5">
-              {getSecondaryItems().map(renderNavItem)}
-            </div>
-
-            {isApprovedPartner && (
+            {/* Bottom contextual items */}
+            {getBottomItems().length > 0 && (
               <>
-                <div className="mx-3 my-2 border-t border-border/50" />
-                {renderNavItem({ to: '/partner', icon: Handshake, label: t('sidebar.partner_space') || 'Partenaire' })}
+                <div className="mx-3 my-3 border-t border-border/40" />
+                <div className="space-y-0.5">
+                  {getBottomItems().map(renderNavItem)}
+                </div>
               </>
             )}
           </>
         )}
-
-        {isSuperadmin && !isSA && !collapsed && (
-          <div className="mt-3">
-            {renderNavItem({ to: '/superadmin', icon: Shield, label: 'Superadmin' })}
-          </div>
-        )}
       </nav>
 
-      {/* Footer: Sign out */}
-      <div className={cn('border-t border-border space-y-0.5', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
+      {/* Sign out */}
+      <div className={cn('border-t border-border', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
         <button
           onClick={signOut}
           className={cn(
