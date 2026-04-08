@@ -1023,14 +1023,32 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ─── Cooldown check (max 3 book generations per hour) ───
+    if (!singleChapter) {
+      const { data: cooldownResult } = await admin.rpc('check_generation_cooldown', {
+        _user_id: auth.userId,
+        _action_key: 'generate_book',
+        _max_per_hour: 3,
+      });
+      if (cooldownResult && !cooldownResult.ok) {
+        const retryAfter = cooldownResult.retry_after || 60;
+        return new Response(JSON.stringify({
+          error: `Trop de générations. Réessaie dans ${Math.ceil(retryAfter / 60)} minute(s).`,
+        }), { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+    }
+
+    const creditTier = normalizeTier(tier);
     const lang = language || 'fr';
     const langName = langNameMap[lang] || langNameMap['fr'];
     const pages = Number(pageCount) > 0 ? Number(pageCount) : 20;
+    // Standard tier: max 8 chapters. Premium: up to 20.
+    const maxChaptersForTier = creditTier === 'premium' ? MAX_CHAPTERS : 8;
     const chapterCount = singleChapter
       ? 1
       : Number(requestedChapterCount) > 0
-        ? Math.max(MIN_CHAPTERS, Math.min(MAX_CHAPTERS, Number(requestedChapterCount)))
-        : Math.max(MIN_CHAPTERS, Math.min(MAX_CHAPTERS, Math.round(pages / 5)));
+        ? Math.max(MIN_CHAPTERS, Math.min(maxChaptersForTier, Number(requestedChapterCount)))
+        : Math.max(MIN_CHAPTERS, Math.min(maxChaptersForTier, Math.round(pages / 5)));
     const chapterWordTarget = singleChapter
       ? '450-700'
       : chapterCount >= 8 ? '250-400' : chapterCount >= 6 ? '320-520' : '420-650';
