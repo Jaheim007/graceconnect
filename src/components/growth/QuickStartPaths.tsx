@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { BookOpen, Store, Share2, Wallet } from 'lucide-react';
+import { BookOpen, Store, Share2, Compass, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,77 +15,72 @@ export function QuickStartPaths() {
 
   const hasManageableOrg = userOrgs.some(o => canManage(o.id));
 
-  // Smart routing: logged-in users go to functional pages, not marketing
-  const sellRoute = hasManageableOrg ? '/admin/products' : '/create-org';
-  const shareRoute = '/gagner';
-  const earnRoute = '/gagner';
-
   const paths = [
     {
       id: 'write',
       icon: BookOpen,
-      emoji: '✏️',
-      title: isFr ? 'Écrire' : 'Write',
-      subtitle: isFr ? "L'IA écrit ton livre" : 'AI writes your book',
+      title: isFr ? 'Écrire un livre' : 'Write a book',
+      subtitle: isFr ? "L'IA écrit, tu publies" : 'AI writes, you publish',
       route: '/ecrire',
-      accent: 'border-primary/30 hover:border-primary/60',
+      border: 'border-primary/30 hover:border-primary/60',
       iconColor: 'text-primary',
       bgColor: 'bg-primary/10',
     },
     {
       id: 'sell',
       icon: Store,
-      emoji: '🛒',
       title: isFr ? 'Vendre' : 'Sell',
       subtitle: isFr ? 'Publie et monétise' : 'Publish & monetize',
-      route: sellRoute,
-      accent: 'border-amber-500/30 hover:border-amber-500/60',
+      route: hasManageableOrg ? '/admin/products' : '/create-org',
+      border: 'border-amber-500/30 hover:border-amber-500/60',
       iconColor: 'text-amber-500',
       bgColor: 'bg-amber-500/10',
     },
     {
       id: 'share',
       icon: Share2,
-      emoji: '📲',
-      title: isFr ? 'Partager' : 'Share',
-      subtitle: isFr ? 'Deviens ambassadeur' : 'Become ambassador',
-      route: shareRoute,
-      accent: 'border-emerald-500/30 hover:border-emerald-500/60',
+      title: isFr ? 'Gagner' : 'Earn',
+      subtitle: isFr ? 'Partage et gagne' : 'Share & earn',
+      route: '/gagner',
+      border: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconColor: 'text-emerald-500',
       bgColor: 'bg-emerald-500/10',
     },
     {
-      id: 'earn',
-      icon: Wallet,
-      emoji: '💰',
-      title: isFr ? 'Gagner' : 'Earn',
-      subtitle: isFr ? 'Suis tes revenus' : 'Track your earnings',
-      route: earnRoute,
-      accent: 'border-violet-500/30 hover:border-violet-500/60',
+      id: 'discover',
+      icon: Compass,
+      title: isFr ? 'Découvrir' : 'Discover',
+      subtitle: isFr ? 'Livres, cours et plus' : 'Books, courses & more',
+      route: '/discover',
+      border: 'border-violet-500/30 hover:border-violet-500/60',
       iconColor: 'text-violet-500',
       bgColor: 'bg-violet-500/10',
     },
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-2">
+    <div className="space-y-2">
       {paths.map((path, i) => (
         <motion.button
           key={path.id}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.05, duration: 0.2 }}
+          transition={{ delay: i * 0.04, duration: 0.2 }}
           onClick={() => navigate(path.route)}
           className={cn(
-            'flex flex-col items-center gap-1.5 p-3 rounded-xl border bg-card transition-all',
-            path.accent
+            'w-full flex items-center gap-3 p-3 rounded-xl border bg-card transition-all group text-left',
+            'hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]',
+            path.border
           )}
         >
-          <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center', path.bgColor)}>
-            <path.icon className={cn('h-4 w-4', path.iconColor)} />
+          <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', path.bgColor)}>
+            <path.icon className={cn('h-4.5 w-4.5', path.iconColor)} />
           </div>
-          <span className="text-[11px] font-bold">{path.title}</span>
-          <span className="text-[9px] text-muted-foreground leading-tight text-center">{path.subtitle}</span>
+          <div className="flex-1 min-w-0">
+            <span className="text-sm font-bold block">{path.title}</span>
+            <span className="text-[11px] text-muted-foreground">{path.subtitle}</span>
+          </div>
+          <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
         </motion.button>
       ))}
     </div>
