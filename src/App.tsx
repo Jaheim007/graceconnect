@@ -45,6 +45,7 @@ const PageLoader = () => (
 
 // ─── Lazy-loaded pages ─── //
 // Public
+const ActionHub = lazy(() => import("@/pages/ActionHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
@@ -296,12 +297,10 @@ const App = () => (
               <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Public routes */}
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/dashboard-preview" element={<RequireSuperadmin><DashboardPreview /></RequireSuperadmin>} />
-                <Route path="/embed/checkout/:productId" element={<EmbedCheckoutPage />} />
-                <Route path="/terms" element={<TermsPage />} />
-                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/" element={<ActionHub />} />
+                <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
+                <Route path="/dashboard-preview" element={<RequireSuperadmin><DashboardPreview /></RequireSuperadmin>} />
                 <Route path="/aml" element={<AMLPage />} />
                 <Route path="/refund-policy" element={<RefundPolicyPage />} />
                 <Route path="/payout-policy" element={<PayoutPolicyPage />} />
@@ -384,7 +383,7 @@ const App = () => (
                 <Route path="/gagner" element={<GagnerPage />} />
                 <Route path="/earn" element={<Navigate to="/gagner" replace />} />
                 <Route path="/gagner-info" element={<Navigate to="/gagner" replace />} />
-                <Route path="/ecrire" element={<RequireAuth><EcrirePage /></RequireAuth>} />
+                <Route path="/ecrire" element={<EcrirePage />} />
                 <Route path="/write" element={<Navigate to="/ecrire" replace />} />
                 <Route path="/migrer" element={<Navigate to="/" replace />} />
                 <Route path="/migrate" element={<Navigate to="/" replace />} />
