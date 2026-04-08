@@ -771,16 +771,7 @@ export function ProgramForm() {
                 <div>
                   <Label className="text-xs">{isFr ? 'Image de couverture' : 'Cover image'}</Label>
                   <ImageUploader value={coverUrl} onChange={setCoverUrl} folder={`programs/${currentOrg?.id}`} label="" aspectRatio="video" />
-                  <Button
-                    type="button" variant="outline" size="sm"
-                    className="mt-2 gap-1.5 text-xs w-full"
-                    onClick={handleGenerateCover}
-                    disabled={generatingCover || !title.trim()}
-                  >
-                    {generatingCover ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />}
-                    {isFr ? 'Générer avec l\'IA' : 'Generate with AI'}
-                    <span className="text-[9px] text-muted-foreground ml-1">({isFr ? '~7.5 crédits' : '~7.5 credits'})</span>
-                  </Button>
+                  {/* AI cover generation removed — use upload or Canva */}
                 </div>
               </div>
             </div>
