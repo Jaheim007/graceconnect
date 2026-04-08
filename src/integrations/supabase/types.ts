@@ -457,6 +457,27 @@ export type Database = {
           },
         ]
       }
+      ai_generation_cooldowns: {
+        Row: {
+          action_key: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action_key: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action_key?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_generation_jobs: {
         Row: {
           completed_at: string | null
@@ -6194,6 +6215,10 @@ export type Database = {
         Returns: boolean
       }
       can_use_studio: { Args: { _org_id: string }; Returns: boolean }
+      check_generation_cooldown: {
+        Args: { _action_key: string; _max_per_hour?: number; _user_id: string }
+        Returns: Json
+      }
       check_product_quality: { Args: { _product_id: string }; Returns: Json }
       check_rate_limit: {
         Args: { _key: string; _max?: number; _window_seconds?: number }
