@@ -160,13 +160,7 @@ export default function ActionHub() {
               <motion.button
                 key={action.id}
                 variants={item}
-                onClick={() => {
-                  if (action.id === 'write' && !user) {
-                    navigate('/auth?mode=signup&next=/ecrire');
-                  } else {
-                    navigate(action.route);
-                  }
-                }}
+                onClick={() => navigate(action.route)}
                 className={cn(
                   'w-full flex items-center gap-4 p-4 rounded-2xl border bg-card transition-all duration-200 group text-left',
                   'hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5 active:scale-[0.98]',
