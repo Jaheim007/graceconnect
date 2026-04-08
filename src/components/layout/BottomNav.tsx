@@ -61,8 +61,8 @@ export function BottomNav() {
   // ═══ GUEST NAV ═══
   const guestItems: NavItemDef[] = [
     { to: '/', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+    { to: '/ecrire', icon: Sparkles, label: isFr ? 'Créer' : 'Create', center: true },
     { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-    { to: '/gagner', icon: Wallet, label: isFr ? 'Gagner' : 'Earn' },
     { to: '/auth?mode=signup', icon: UserPlus, label: isFr ? 'Inscription' : 'Sign up' },
   ];
 
