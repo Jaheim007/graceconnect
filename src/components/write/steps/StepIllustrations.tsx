@@ -160,23 +160,13 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
         </p>
       </div>
 
-      {/* Premium gate */}
-      {!hasPurchasedCredits && (
-        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-5 text-center space-y-3">
-          <Lock className="h-8 w-8 text-amber-500 mx-auto" />
-          <h3 className="font-bold text-sm">
-            {t('write.illust_premium_title') || '✨ Fonctionnalité Premium'}
-          </h3>
-          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-            {t('write.illust_premium_desc') || 'Les illustrations IA sont réservées aux utilisateurs ayant acheté un pack de crédits. Achetez des crédits pour débloquer cette fonctionnalité.'}
-          </p>
-          <Button variant="outline" size="sm" onClick={() => window.open('/admin/credits', '_blank')} className="gap-2">
-            {t('write.illust_buy_credits') || 'Acheter des crédits'}
-          </Button>
-        </div>
-      )}
+      {/* Cost info */}
+      <div className="bg-muted/50 border border-border rounded-xl p-4 text-center">
+        <p className="text-xs text-muted-foreground">
+          💰 {t('write.illust_cost_info') || 'Chaque illustration coûte ~10 crédits. Assure-toi d\'avoir assez de crédits.'}
+        </p>
+      </div>
 
-      {hasPurchasedCredits && <>
       {/* Art style selection — hidden for coloring books (forced to line_art) */}
       {!isColoringBook && (
         <div className="space-y-2">
