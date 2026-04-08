@@ -118,47 +118,26 @@ export function BottomNav() {
       },
     ];
 
-    // Upsell for buyers/ambassadors
-    if (profile === 'buyer') {
-      sections.push({
-        label: isFr ? 'Aller plus loin' : 'Go further',
-        items: [
-          { to: '/gagner', icon: Share2, label: isFr ? 'Partager & Gagner' : 'Share & Earn' },
-          { to: '/create-org', icon: Sparkles, label: isFr ? 'Créer du contenu' : 'Create Content' },
-        ],
-      });
-    } else if (profile === 'ambassador') {
-      sections.push({
-        label: isFr ? 'Aller plus loin' : 'Go further',
-        items: [
-          { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
-          { to: '/create-org', icon: Sparkles, label: isFr ? 'Créer du contenu' : 'Create Content' },
-        ],
-      });
-    }
-
-    // Creator/Org: platform tools
+    // Creator/Org tools — flat, no nesting
     if (hasManagedOrgs) {
       sections.push({
-        label: profile === 'org-religious'
-          ? (isFr ? 'Notre espace' : 'Our Space')
-          : (isFr ? 'Ma boutique' : 'My Store'),
+        label: isFr ? 'Outils' : 'Tools',
         items: [
-          { to: '/admin/content', icon: Package, label: isFr ? 'Mes contenus' : 'My Content' },
-          { to: '/gagner', icon: Share2, label: isFr ? 'Partager' : 'Share' },
-          { to: '/admin', icon: BarChart3, label: isFr ? 'Vue d\'ensemble' : 'Overview' },
+          { to: '/admin/content', icon: Package, label: isFr ? 'Contenus' : 'Content' },
           { to: '/admin/sales', icon: Wallet, label: labels.sales },
-          ...(currentOrg ? [{ to: `/org/${currentOrg.slug}/store`, icon: Eye, label: isFr ? 'Ma page' : 'My Page' }] : []),
-          { to: '/admin/people', icon: Users, label: labels.clients },
+          { to: '/gagner', icon: Share2, label: isFr ? 'Gagner' : 'Earn' },
           { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
           { to: getShortcutRoute('settings', shortcutContext), icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
           ...(isSuperadmin ? [{ to: '/superadmin', icon: Shield, label: 'Superadmin' }] : []),
         ],
       });
     } else {
+      // Non-creators: simpler
       sections.push({
-        label: isFr ? 'Réglages' : 'Settings',
+        label: isFr ? 'Plus' : 'More',
         items: [
+          { to: '/gagner', icon: Share2, label: isFr ? 'Gagner' : 'Earn' },
+          { to: '/credits', icon: Coins, label: isFr ? 'Crédits' : 'Credits' },
           { to: getShortcutRoute('settings', shortcutContext), icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
           ...(isSuperadmin ? [{ to: '/superadmin', icon: Shield, label: 'Superadmin' }] : []),
         ],
