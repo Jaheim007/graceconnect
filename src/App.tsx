@@ -383,7 +383,7 @@ const App = () => (
                 <Route path="/gagner" element={<GagnerPage />} />
                 <Route path="/earn" element={<Navigate to="/gagner" replace />} />
                 <Route path="/gagner-info" element={<Navigate to="/gagner" replace />} />
-                <Route path="/ecrire" element={<RequireAuth><EcrirePage /></RequireAuth>} />
+                <Route path="/ecrire" element={<EcrirePage />} />
                 <Route path="/write" element={<Navigate to="/ecrire" replace />} />
                 <Route path="/migrer" element={<Navigate to="/" replace />} />
                 <Route path="/migrate" element={<Navigate to="/" replace />} />
