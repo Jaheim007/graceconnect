@@ -190,61 +190,63 @@ export default function UserDashboard() {
           </div>
         </motion.div>
 
-        {/* ═══ MINI FINANCIAL SUMMARY — hidden for buyers ═══ */}
+        {/* ═══ CONVERSATIONAL SUMMARY ═══ */}
         {!isBuyer && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }}>
-          <div className="space-y-2">
-            {/* Row 1 – Mon activité */}
-            <div className={cn('grid gap-2', isAmbassador ? 'grid-cols-2' : 'grid-cols-3')}>
-              <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 text-center">
-                <p className="text-lg font-bold text-primary">{purchases.length}</p>
-                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Achats' : 'Purchases'}</p>
-              </div>
-              {isCreatorOrOrg && (
-              <div className="rounded-xl bg-rose-500/5 border border-rose-500/10 p-3 text-center">
-                <p className="text-lg font-bold text-rose-600">{donations.length}</p>
-                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dons' : 'Donations'}</p>
-              </div>
+          <PremiumCard variant="glass" delay={0.02} className="space-y-3">
+            {/* Natural language summary */}
+            <div className="space-y-1.5">
+              {isCreatorOrOrg && totalRevenue > 0 ? (
+                <>
+                  <p className="text-sm font-medium text-foreground">
+                    {isFr
+                      ? `Tu as généré ${fmt(totalRevenue)} au total.`
+                      : `You've generated ${fmt(totalRevenue)} in total.`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {isFr
+                      ? `${salesStats?.count || 0} vente${(salesStats?.count || 0) !== 1 ? 's' : ''} · ${donationsReceivedStats.count} don${donationsReceivedStats.count !== 1 ? 's' : ''} reçu${donationsReceivedStats.count !== 1 ? 's' : ''} · ${commissionStats.count} commission${commissionStats.count !== 1 ? 's' : ''}`
+                      : `${salesStats?.count || 0} sale${(salesStats?.count || 0) !== 1 ? 's' : ''} · ${donationsReceivedStats.count} donation${donationsReceivedStats.count !== 1 ? 's' : ''} · ${commissionStats.count} commission${commissionStats.count !== 1 ? 's' : ''}`}
+                  </p>
+                </>
+              ) : isCreatorOrOrg ? (
+                <p className="text-sm text-muted-foreground">
+                  {isFr
+                    ? "Tu n'as pas encore de revenus. Crée ton premier produit pour commencer !"
+                    : "No revenue yet. Create your first product to get started!"}
+                </p>
+              ) : commissionStats.amount > 0 ? (
+                <>
+                  <p className="text-sm font-medium text-foreground">
+                    {isFr
+                      ? `Tu as gagné ${fmt(commissionStats.amount)} en commissions.`
+                      : `You've earned ${fmt(commissionStats.amount)} in commissions.`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {commissionStats.count} {isFr ? 'vente' : 'sale'}{commissionStats.count !== 1 ? 's' : ''}
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {isFr
+                    ? 'Partage des produits pour gagner des commissions.'
+                    : 'Share products to earn commissions.'}
+                </p>
               )}
-              <div className="rounded-xl bg-violet-500/5 border border-violet-500/10 p-3 text-center">
-                <p className="text-lg font-bold text-violet-600">{fmt(commissionStats.amount)}</p>
-                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Commissions' : 'Commissions'}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {commissionStats.count} commission{commissionStats.count !== 1 ? 's' : ''}
-                </p>
-              </div>
             </div>
-            {/* Row 2 – Revenus (creators/orgs only) */}
-            {isCreatorOrOrg && (
-            <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-xl bg-blue-500/5 border border-blue-500/10 p-3 text-center">
-                <p className="text-lg font-bold text-blue-600">{fmt(salesStats?.revenue || 0)}</p>
-                <p className="text-[10px] text-muted-foreground font-medium">{labels.sales}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {salesStats?.count || 0} {labels.sales.toLowerCase()}{(salesStats?.count || 0) !== 1 ? 's' : ''}
-                </p>
-              </div>
-              <div className="rounded-xl bg-amber-500/5 border border-amber-500/10 p-3 text-center">
-                <p className="text-lg font-bold text-amber-600">{fmt(donationsReceivedStats.amount)}</p>
-                <p className="text-[10px] text-muted-foreground font-medium">{isFr ? 'Dons reçus' : 'Received'}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {donationsReceivedStats.count} {isFr ? 'don' : 'donation'}{donationsReceivedStats.count !== 1 ? 's' : ''}
-                </p>
-              </div>
-              <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/10 p-3 text-center">
-                <p className="text-lg font-bold text-emerald-600">{fmt(totalRevenue)}</p>
-                <p className="text-[10px] text-muted-foreground font-medium">{labels.myRevenue}</p>
-              </div>
-            </div>
+
+            {/* Contextual action */}
+            {isCreatorOrOrg && (salesStats?.count || 0) > 0 && (
+              <Button variant="outline" size="sm" className="w-full gap-2 text-xs" onClick={() => navigate('/admin/sales')}>
+                {isFr ? 'Voir le détail' : 'View details'} <ArrowRight className="h-3 w-3" />
+              </Button>
             )}
-            {currentOrg && (
-              <p className="text-[11px] text-muted-foreground px-1">
-                {isFr
-                  ? `${labels.sales}, dons reçus, commissions gagnées et ${labels.revenue.toLowerCase()} affichés pour : ${currentOrg.name}`
-                  : `${labels.sales}, received donations, earned commissions and ${labels.revenue.toLowerCase()} shown for: ${currentOrg.name}`}
-              </p>
+            {isAmbassador && (
+              <Button variant="outline" size="sm" className="w-full gap-2 text-xs" onClick={() => navigate('/gagner')}>
+                {isFr ? 'Voir mes commissions' : 'View commissions'} <ArrowRight className="h-3 w-3" />
+              </Button>
             )}
-          </div>
+          </PremiumCard>
         </motion.div>
         )}
 
