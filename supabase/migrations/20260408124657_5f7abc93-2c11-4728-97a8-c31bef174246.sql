@@ -1,0 +1,2 @@
+UPDATE credit_action_pricing SET cost_standard = 18, cost_premium = 30 WHERE action_key = 'generate_book';
+UPDATE credit_action_pricing SET cost_standard = 3, cost_premium = 5 WHERE action_key = 'export_pdf';
