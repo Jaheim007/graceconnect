@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, ImagePlus, Loader2, SkipForward, Sparkles, RefreshCw, Lock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ImagePlus, Loader2, SkipForward, Sparkles, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
-import { useCreditsBalance } from '@/hooks/useCredits';
 import type { WriteState } from '../WriteWizard';
 
 interface Props {
@@ -26,10 +25,6 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
   const [artStyle, setArtStyle] = useState<IllustrationStyle>('children_book');
   const [generatingAll, setGeneratingAll] = useState(false);
   const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
-  const { data: creditSummary } = useCreditsBalance();
-  
-  // Illustrations are a Premium feature — only available if user has purchased credits
-  const hasPurchasedCredits = (creditSummary?.purchased_remaining ?? 0) > 0;
 
   const chapters = state.chapters || [];
   const illustrations = state.chapterIllustrations || {};
