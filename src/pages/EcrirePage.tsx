@@ -31,9 +31,7 @@ export default function EcrirePage() {
           keywords="écrire un livre IA, créer ebook, publier livre numérique, vendre ebook Afrique, write book AI"
         />
         <header className="h-14 sticky top-0 z-40 glass border-b border-border flex items-center px-4 gap-3">
-          <button onClick={() => navigate('/')} className="shrink-0">
-            <SiteLogo size="sm" animate />
-          </button>
+          <SiteLogo size="sm" animate linked to="/" />
           <div className="flex-1" />
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
