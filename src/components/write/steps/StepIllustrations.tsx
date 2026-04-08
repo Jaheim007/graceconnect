@@ -268,7 +268,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
           🎨 {illustratedCount}/{chapters.length} {t('write.illust_progress') || 'illustrations générées'}
         </p>
       )}
-      </>}
+      
 
       {/* Actions */}
       <div className="flex gap-3">
