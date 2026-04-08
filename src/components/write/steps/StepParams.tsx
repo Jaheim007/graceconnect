@@ -547,13 +547,13 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
               value={[state.chapterCount]}
               onValueChange={([v]) => update({ chapterCount: v })}
               min={3}
-              max={20}
+              max={8}
               step={1}
               className="w-full"
             />
             <div className="flex justify-between text-[10px] text-muted-foreground">
               <span>3 {t('write.chapters') || 'chapitres'}</span>
-              <span>20 {t('write.chapters') || 'chapitres'}</span>
+              <span>8 {t('write.chapters') || 'chapitres'}</span>
             </div>
           </div>
         </div>

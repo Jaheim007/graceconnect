@@ -664,6 +664,33 @@ export function ProductForm() {
                     return;
                   }
 
+                  // Charge credits for PDF regeneration
+                  const { data: pricing } = await supabase
+                    .from('credit_action_pricing')
+                    .select('cost_standard, action_label')
+                    .eq('action_key', 'regenerate_pdf')
+                    .eq('is_active', true)
+                    .single();
+
+                  if (pricing) {
+                    const { data: session } = await supabase.auth.getSession();
+                    const userId = session?.session?.user?.id;
+                    if (userId) {
+                      const { data: creditResult } = await supabase.rpc('consume_credits', {
+                        _user_id: userId,
+                        _amount: (pricing as any).cost_standard,
+                        _action_key: 'regenerate_pdf',
+                        _action_label: (pricing as any).action_label || 'Régénération PDF',
+                        _metadata: { product_id: item.id } as any,
+                      });
+                      if (creditResult && !(creditResult as any).ok) {
+                        throw new Error((creditResult as any).reason === 'insufficient_credits'
+                          ? (isFr ? 'Crédits insuffisants pour régénérer le PDF' : 'Insufficient credits to regenerate PDF')
+                          : ((creditResult as any).reason || 'Credit error'));
+                      }
+                    }
+                  }
+
                   const { data: pdfData, error: pdfError } = await supabase.functions.invoke('ai-generate-pdf', {
                     body: {
                       org_id: currentOrg.id,
