@@ -206,6 +206,17 @@ serve(async (req) => {
 
     if (!title?.trim()) return jsonResp({ error: 'Title is required' }, 400);
 
+    // ─── Cooldown check (max 3 course generations per hour) ───
+    const { data: cooldownResult } = await admin.rpc('check_generation_cooldown', {
+      _user_id: userId,
+      _action_key: 'ai_course_structure',
+      _max_per_hour: 3,
+    });
+    if (cooldownResult && !cooldownResult.ok) {
+      const retryAfter = cooldownResult.retry_after || 60;
+      return jsonResp({ error: `Trop de générations. Réessaie dans ${Math.ceil(retryAfter / 60)} minute(s).` }, 429);
+    }
+
     const creditTier = normalizeTier(tier);
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
