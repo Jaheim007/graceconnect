@@ -43,7 +43,10 @@ export function Sidebar() {
 
   const isActive = (route: string) => {
     if (route === '/') return location.pathname === '/';
-    return location.pathname.startsWith(route.split('?')[0]);
+    const clean = route.split('?')[0];
+    // Exact match for short routes like /admin to avoid false positives
+    if (clean === '/admin') return location.pathname === '/admin' || location.pathname === '/admin/';
+    return location.pathname.startsWith(clean);
   };
 
   const renderNavItem = (item: ActionNavItem) => {
