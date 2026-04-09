@@ -53,7 +53,7 @@ export function Sidebar() {
   ];
 
   const isActive = (to: string) => {
-    if (to === '/admin' || to === '/dashboard' || to === '/superadmin') return location.pathname === to;
+    if (to === '/' || to === '/admin' || to === '/dashboard' || to === '/superadmin') return location.pathname === to;
     return location.pathname.startsWith(to);
   };
 
