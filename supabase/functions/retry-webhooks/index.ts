@@ -160,9 +160,15 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Housekeeping: expire stale credit purchases (pending > 24h)
+    const { data: expiredCount } = await supabase.rpc('expire_stale_credit_purchases');
+    if (expiredCount && expiredCount > 0) {
+      console.log(`[retry-webhooks] Expired ${expiredCount} stale credit purchases`);
+    }
+
     console.log(`[retry-webhooks] Processed ${retried} retries, ${succeeded} succeeded, ${permanentlyFailed} permanently failed`);
 
-    return new Response(JSON.stringify({ retried, succeeded, permanentlyFailed }), {
+    return new Response(JSON.stringify({ retried, succeeded, permanentlyFailed, expiredCreditPurchases: expiredCount || 0 }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err: any) {

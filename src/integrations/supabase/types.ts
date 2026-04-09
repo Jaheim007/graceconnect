@@ -6301,6 +6301,7 @@ export type Database = {
       delete_partner: { Args: { _partner_id: string }; Returns: Json }
       delete_user_account: { Args: { _user_id: string }; Returns: undefined }
       expire_credit_lots: { Args: { _user_id: string }; Returns: number }
+      expire_stale_credit_purchases: { Args: never; Returns: number }
       get_credit_summary: { Args: { _user_id: string }; Returns: Json }
       get_org_category_breakdown: { Args: never; Returns: Json }
       get_org_country_breakdown: { Args: { _limit?: number }; Returns: Json }
