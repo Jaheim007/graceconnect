@@ -418,8 +418,8 @@ const App = () => (
                   <Route path="/program/:programId" element={<ProgramDetailPage />} />
                 </Route>
 
-                {/* Welcome intent (post-signup) */}
-                <Route path="/welcome" element={<RequireAuth><WelcomeIntentPage /></RequireAuth>} />
+                {/* /welcome now redirects to home — unified ActionHub */}
+                <Route path="/welcome" element={<Navigate to="/" replace />} />
 
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
