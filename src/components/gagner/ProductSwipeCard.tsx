@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { getEffectivePrice } from '@/lib/effectivePrice';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Check, Zap, Eye, ChevronDown, ChevronUp, Flame, BadgeCheck } from 'lucide-react';
+import { Copy, Check, Zap, Eye, ChevronDown, ChevronUp, Flame, BadgeCheck, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
