@@ -71,14 +71,14 @@ export function BottomNav() {
     switch (profile) {
       case 'buyer':
         return [
-          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+          { to: '/', icon: Home, label: isFr ? 'Accueil' : 'Home' },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
           { to: '/resources', icon: Package, label: isFr ? 'Bibliothèque' : 'Library' },
           { to: '#more', icon: MoreHorizontal, label: isFr ? 'Plus' : 'More' },
         ];
       case 'ambassador':
         return [
-          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+          { to: '/', icon: Home, label: isFr ? 'Accueil' : 'Home' },
           { to: '/discover', icon: Store, label: isFr ? 'Catalogue' : 'Catalog' },
           { to: '/gagner', icon: Share2, label: isFr ? 'Gagner' : 'Earn' },
           { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
@@ -86,7 +86,7 @@ export function BottomNav() {
         ];
       case 'org-religious':
         return [
-          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+          { to: '/', icon: Home, label: isFr ? 'Accueil' : 'Home' },
           { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
           { to: '/admin/sales', icon: BarChart3, label: labels.activity },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
@@ -95,7 +95,7 @@ export function BottomNav() {
       case 'creator':
       default:
         return [
-          { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+          { to: '/', icon: Home, label: isFr ? 'Accueil' : 'Home' },
           { to: hasManagedOrgs ? '/admin/create' : '/create-org', icon: Plus, label: isFr ? 'Créer' : 'Create', center: true },
           { to: '/admin/sales', icon: Wallet, label: labels.sales },
           { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },

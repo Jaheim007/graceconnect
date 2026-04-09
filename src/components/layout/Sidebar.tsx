@@ -53,14 +53,14 @@ export function Sidebar() {
   ];
 
   const isActive = (to: string) => {
-    if (to === '/admin' || to === '/dashboard' || to === '/superadmin') return location.pathname === to;
+    if (to === '/' || to === '/admin' || to === '/dashboard' || to === '/superadmin') return location.pathname === to;
     return location.pathname.startsWith(to);
   };
 
   // ═══ FLAT NAV — minimal, context-aware ═══
   const getNavItems = (): NavItem[] => {
     const items: NavItem[] = [
-      { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+      { to: '/', icon: Home, label: isFr ? 'Accueil' : 'Home' },
     ];
 
     // Creator/Org: create action
