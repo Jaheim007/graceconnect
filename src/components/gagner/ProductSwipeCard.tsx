@@ -46,6 +46,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
   const [enrolling, setEnrolling] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showShareKit, setShowShareKit] = useState(false);
+  const [showGuestGate, setShowGuestGate] = useState(false);
 
   const SHARE_MESSAGES = isFr ? SHARE_MESSAGES_FR : SHARE_MESSAGES_EN;
 
