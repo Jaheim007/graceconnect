@@ -62,6 +62,12 @@
     --glow-emerald: 0 0 20px -4px hsla(155, 75%, 40%, 0.25);
     --premium-gradient: linear-gradient(135deg, hsl(220 20% 98%) 0%, hsl(220 30% 95%) 50%, hsl(220 20% 97%) 100%);
     --stat-gradient: linear-gradient(160deg, hsl(0 0% 100%) 0%, hsl(220 25% 96%) 100%);
+    --app-height: 100dvh;
+    --keyboard-height: 0px;
+    --safe-area-top: 0px;
+    --safe-area-bottom: 0px;
+    --safe-area-left: 0px;
+    --safe-area-right: 0px;
   }
 
   .dark {
@@ -407,31 +413,108 @@ body > div[style*="position: fixed"][style*="opacity"] {
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-left: env(safe-area-inset-left, 0px);
   --safe-area-right: env(safe-area-inset-right, 0px);
+  overscroll-behavior: none;
+  scrollbar-width: none;
+  background: hsl(var(--background));
 }
 
-/* Main layout adjusts for safe areas on native */
+/* Root should always match the visible viewport on native */
+.capacitor-app,
 .capacitor-app #root {
-  padding-top: var(--safe-area-top);
-  min-height: 100dvh;
+  background: hsl(var(--background));
+}
+
+.capacitor-app #root {
+  min-height: var(--app-height);
+  height: var(--app-height);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-/* Ensure full height layout works with safe areas */
-.capacitor-app .h-\[100dvh\] {
-  height: calc(100dvh - var(--safe-area-top) - var(--safe-area-bottom)) !important;
+/* App shells */
+.capacitor-app .native-app-shell {
+  height: var(--app-height) !important;
+  min-height: var(--app-height);
+  padding-top: var(--safe-area-top);
 }
 
-/* Bottom nav respects safe area */
-.capacitor-app nav[aria-label="Navigation mobile"] {
+.capacitor-app .native-public-screen {
+  min-height: var(--app-height);
   padding-bottom: var(--safe-area-bottom);
 }
 
-/* Main content scrollable area needs proper height on native */
-.capacitor-app #main-content {
+.capacitor-app .native-page-screen {
+  min-height: 100%;
+  padding-bottom: calc(1rem + var(--safe-area-bottom));
+}
+
+/* Scroll areas */
+.capacitor-app .native-main-scroll,
+.capacitor-app #main-content,
+.capacitor-app .overflow-y-auto,
+.capacitor-app .overflow-y-scroll,
+.capacitor-app .overflow-auto {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
+}
+
+.capacitor-app .native-main-scroll {
+  padding-left: var(--safe-area-left);
+  padding-right: var(--safe-area-right);
+  padding-bottom: calc(5.5rem + var(--safe-area-bottom));
+}
+
+.capacitor-app .native-main-scroll.no-bottom-nav {
+  padding-bottom: calc(1rem + var(--safe-area-bottom));
+}
+
+/* Top bars */
+.capacitor-app .native-public-topbar,
+.capacitor-app .native-landing-topbar {
+  min-height: calc(3.5rem + var(--safe-area-top));
+  padding-top: var(--safe-area-top);
+  background: hsl(var(--background) / 0.94);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* Bottom navigation */
+.capacitor-app .native-bottom-nav-shell {
+  padding-left: max(0.25rem, var(--safe-area-left));
+  padding-right: max(0.25rem, var(--safe-area-right));
+  padding-bottom: var(--safe-area-bottom);
+}
+
+.capacitor-app .native-bottom-nav {
+  margin: 0 0.5rem 0.5rem;
+  border-radius: 1.35rem;
+}
+
+/* Auth screen */
+.capacitor-app .native-auth-screen {
+  min-height: var(--app-height);
+  padding: calc(var(--safe-area-top) + 1rem) max(1rem, var(--safe-area-left)) max(calc(var(--safe-area-bottom) + 1rem), 1rem) max(1rem, var(--safe-area-right));
+  align-items: flex-start;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: hsl(var(--background));
+}
+
+.capacitor-app .native-auth-background {
+  background:
+    radial-gradient(circle at top center, hsl(var(--primary) / 0.14), transparent 38%),
+    linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--surface)) 100%);
+}
+
+.capacitor-app .native-auth-card {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.capacitor-app.keyboard-visible .native-auth-screen {
+  padding-bottom: max(calc(var(--keyboard-height) + 1rem), calc(var(--safe-area-bottom) + 1rem));
 }
 
 /* Disable text selection on native (feels more app-like) */
@@ -451,14 +534,6 @@ body > div[style*="position: fixed"][style*="opacity"] {
   user-select: text;
 }
 
-/* Smooth scrolling with native-like momentum */
-.capacitor-app .overflow-y-auto,
-.capacitor-app .overflow-y-scroll,
-.capacitor-app .overflow-auto {
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-}
-
 /* Keyboard visible: hide bottom nav */
 .capacitor-app.keyboard-visible nav[aria-label="Navigation mobile"] {
   display: none !important;
@@ -472,17 +547,9 @@ body > div[style*="position: fixed"][style*="opacity"] {
   transition: opacity 0.1s ease;
 }
 
-/* Disable overscroll bounce on the body (Android) */
-.capacitor-app {
-  overscroll-behavior: none;
-}
-
 /* Hide scrollbars on native (more app-like) */
 .capacitor-app ::-webkit-scrollbar {
   display: none;
-}
-.capacitor-app {
-  scrollbar-width: none;
 }
 
 /* Pull-to-refresh indicator styling */

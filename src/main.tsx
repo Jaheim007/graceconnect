@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react";
 import App from "./App.tsx";
 import { capturePromoFromUrl } from './hooks/usePromoCapture';
 import { prefetchRates } from './lib/currencyConvert';
-import { SplashScreen as NativeIntroSplash, wasSplashShown } from './components/splash/SplashScreen';
+import { SplashScreen as NativeIntroSplash } from './components/splash/SplashScreen';
 import { hideNativeSplash, initNativePlugins, isNativePlatform } from './lib/capacitor';
 import "./index.css";
 
@@ -165,16 +165,22 @@ if (isNativeApp) {
 }
 
 function RootApp() {
-  const [showNativeIntro, setShowNativeIntro] = useState(() => isNativeApp && !wasSplashShown());
+  const [showNativeIntro, setShowNativeIntro] = useState(() => isNativeApp);
 
   useEffect(() => {
     if (!isNativeApp) return;
 
-    const timeout = window.setTimeout(() => {
-      void hideNativeSplash();
-    }, 60);
+    let timeout = 0;
+    const frame = window.requestAnimationFrame(() => {
+      timeout = window.setTimeout(() => {
+        void hideNativeSplash();
+      }, 140);
+    });
 
-    return () => window.clearTimeout(timeout);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timeout);
+    };
   }, []);
 
   return (

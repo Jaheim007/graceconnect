@@ -43,42 +43,40 @@ export function BottomNav() {
   };
 
   return (
-    <>
-      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden" aria-label="Navigation mobile">
-        <div className="mx-2 mb-2 rounded-2xl bg-card/95 backdrop-blur-md border border-border shadow-lg shadow-black/10">
-          <div
-            ref={scrollRef}
-            className="flex items-center gap-1 px-2 py-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
-          >
-            {navItems.map((item) => {
-              const active = isActive(item.route);
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => navigate(item.route)}
-                  className={cn(
-                    'flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 snap-center shrink-0 min-w-[64px]',
-                    active
-                      ? cn('bg-card shadow-sm border', item.borderClass.replace('hover:', ''))
-                      : 'border border-transparent'
-                  )}
-                >
-                  <div className={cn('h-8 w-8 rounded-lg flex items-center justify-center', item.iconBg)}>
-                    <Icon className={cn('h-4 w-4', item.iconColor)} />
-                  </div>
-                  <span className={cn(
-                    'text-[9px] font-medium leading-tight text-center whitespace-nowrap',
-                    active ? 'text-foreground font-bold' : 'text-muted-foreground'
-                  )}>
-                    {isFr ? item.titleFr : item.titleEn}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+    <div className="native-bottom-nav pointer-events-auto">
+      <div className="rounded-[1.35rem] border border-border bg-card/95 backdrop-blur-xl shadow-elevated">
+        <div
+          ref={scrollRef}
+          className="flex items-center gap-1 overflow-x-auto px-2 py-2 scrollbar-hide snap-x snap-mandatory"
+        >
+          {navItems.map((item) => {
+            const active = isActive(item.route);
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => navigate(item.route)}
+                className={cn(
+                  'flex min-w-[64px] shrink-0 snap-center flex-col items-center gap-1 rounded-xl px-3 py-2 transition-all duration-200',
+                  active
+                    ? cn('bg-card shadow-sm border', item.borderClass.replace('hover:', ''))
+                    : 'border border-transparent'
+                )}
+              >
+                <div className={cn('flex h-8 w-8 items-center justify-center rounded-lg', item.iconBg)}>
+                  <Icon className={cn('h-4 w-4', item.iconColor)} />
+                </div>
+                <span className={cn(
+                  'text-[9px] font-medium leading-tight text-center whitespace-nowrap',
+                  active ? 'text-foreground font-bold' : 'text-muted-foreground'
+                )}>
+                  {isFr ? item.titleFr : item.titleEn}
+                </span>
+              </button>
+            );
+          })}
         </div>
-      </nav>
-    </>
+      </div>
+    </div>
   );
 }

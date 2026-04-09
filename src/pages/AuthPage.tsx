@@ -12,6 +12,8 @@ import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import authBg from '@/assets/auth-bg.jpg';
+import { cn } from '@/lib/utils';
+import { isNativePlatform } from '@/lib/capacitor';
 
 export default function AuthPage() {
   const [searchParams] = useSearchParams();
@@ -26,6 +28,7 @@ export default function AuthPage() {
   const { signInWithGoogle, signInWithFacebook, signInWithLinkedin, signInWithMagicLink, verifyOtp, user } = useAuth();
   const { userOrgs } = useOrg();
   const { t } = useI18n();
+  const nativeApp = isNativePlatform();
 
   const returnTo = searchParams.get('returnTo');
   const inviteCode = searchParams.get('invite');
@@ -128,14 +131,20 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex">
+    <div className={cn('relative flex', nativeApp ? 'native-auth-screen' : 'min-h-screen')}>
       <SEOHead title={document.documentElement.lang === 'fr' ? 'Connexion — Siteviral' : 'Sign in — Siteviral'} description={document.documentElement.lang === 'fr' ? 'Connectez-vous à Siteviral pour gérer votre plateforme, vos ressources et vos commissions.' : 'Sign in to Siteviral to manage your platform, resources, and commissions.'} noindex />
       <div className="absolute inset-0 z-0">
-        <img src={authBg} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
+        {nativeApp ? (
+          <div className="native-auth-background absolute inset-0" />
+        ) : (
+          <>
+            <img src={authBg} alt="" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
+          </>
+        )}
       </div>
 
-      <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 relative z-10">
+      <div className={cn('hidden lg:flex flex-col justify-between w-1/2 p-12 relative z-10', nativeApp && 'lg:hidden')}>
         <SiteLogo size="xl" animate />
         <div className="space-y-4">
           <h1 className="text-4xl font-bold leading-tight">
@@ -151,10 +160,22 @@ export default function AuthPage() {
         <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Siteviral · Hacktualiz Inc.</p>
       </div>
 
-      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-6 relative z-10">
-        <div className="w-full max-w-md">
-          <div className="bg-card/95 backdrop-blur-md rounded-3xl border border-border shadow-elevated p-7 space-y-6">
-            <div className="flex lg:hidden items-center justify-center mb-2">
+      <div className={cn('flex-1 lg:w-1/2 flex items-center justify-center p-6 relative z-10', nativeApp && 'w-full items-start justify-center p-0')}>
+        <div className={cn('w-full max-w-md', nativeApp && 'native-auth-card max-w-lg')}>
+          <div className={cn('bg-card/95 backdrop-blur-md rounded-3xl border border-border shadow-elevated p-7 space-y-6', nativeApp && 'rounded-[2rem] border-border/80 shadow-premium')}>
+            {nativeApp && (
+              <div className="flex items-center justify-center gap-3">
+                <SiteLogo size="lg" animate />
+                <div className="space-y-0.5">
+                  <p className="text-base font-bold leading-none text-foreground">SiteViral</p>
+                  <p className="text-xs text-muted-foreground">
+                    {document.documentElement.lang === 'fr' ? 'Connexion sécurisée' : 'Secure sign in'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className={cn('flex lg:hidden items-center justify-center mb-2', nativeApp && 'hidden')}>
               <SiteLogo size="md" animate />
             </div>
 
@@ -267,7 +288,7 @@ export default function AuthPage() {
                     <Label htmlFor="magic-email">{t('auth.your_email')}</Label>
                     <div className="relative mt-1.5">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="magic-email" type="email" placeholder="you@example.com" className="pl-9 h-11" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
+                      <Input id="magic-email" type="email" placeholder={document.documentElement.lang === 'fr' ? 'vous@exemple.com' : 'you@example.com'} className="pl-9 h-12 text-base" value={email} onChange={(e) => setEmail(e.target.value)} inputMode="email" autoCapitalize="none" autoCorrect="off" enterKeyHint="done" required autoFocus />
                     </div>
                   </div>
                   <Button type="submit" className="w-full h-11 bg-primary text-primary-foreground" disabled={sending || !email}>
