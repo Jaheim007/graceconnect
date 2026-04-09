@@ -5,6 +5,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
+import { AdaptiveLayout } from '@/components/layout/AdaptiveLayout';
 
 import { FeaturedSection } from '@/components/discover/FeaturedSection';
 import { ForYouFeed } from '@/components/discover/ForYouFeed';
@@ -23,6 +24,7 @@ export default function DiscoverPage() {
   const isSearching = debouncedSearch.length > 0;
 
   return (
+    <AdaptiveLayout>
     <div className="bg-background min-h-screen">
       <SEOHead title={t('discover.seo_title')} description={t('discover.seo_desc')} />
 
@@ -72,5 +74,6 @@ export default function DiscoverPage() {
         )}
       </div>
     </div>
+    </AdaptiveLayout>
   );
 }
