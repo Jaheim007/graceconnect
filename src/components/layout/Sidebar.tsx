@@ -1,11 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import {
-  Home, Eye, Settings, ChevronLeft, ChevronRight, Shield,
-  FileCheck, LogOut, BarChart3, Users, Wallet,
-  Store, Package, Handshake, Share2,
-  Sparkles, Coins, Bookmark
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,19 +8,8 @@ import { OrgSwitcher } from '@/components/org/OrgSwitcher';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useMyPartner } from '@/hooks/usePartner';
-import { useQuery } from '@tanstack/react-query';
-import { db } from '@/lib/db';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { useAdaptiveLabels } from '@/hooks/useAdaptiveLabels';
-
-interface NavItem {
-  to: string;
-  icon: typeof Home;
-  label: string;
-  desc?: string;
-  badge?: boolean;
-}
+import { getActionNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
 
 export function Sidebar() {
   const location = useLocation();
@@ -34,126 +18,70 @@ export function Sidebar() {
   const { user, isSuperadmin, signOut } = useAuth();
   const { currentOrg, canManage, userOrgs } = useOrg();
   const { t, locale } = useI18n();
-  const { data: myPartner } = useMyPartner();
-  const isApprovedPartner = myPartner?.status === 'approved';
   const isFr = locale === 'fr';
-  const { profile } = useUserProfile();
-  const labels = useAdaptiveLabels();
+  const { hasPurchases, hasOrgs } = useUserProfile();
 
-  const hasOrgs = userOrgs.length > 0;
+  const hasManageableOrg = userOrgs.some(o => canManage(o.id));
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
 
-  const isSA = location.pathname.startsWith('/superadmin');
-
-  const superadminNav: NavItem[] = [
-    { to: '/superadmin', icon: Shield, label: t('sidebar.overview') },
-    { to: '/superadmin/orgs', icon: Users, label: t('sidebar.organizations') },
-    { to: '/superadmin/kyc', icon: FileCheck, label: t('sidebar.kyc') },
-    { to: '/superadmin/transactions', icon: BarChart3, label: t('sidebar.transactions') },
-  ];
-
-  const isActive = (to: string) => {
-    if (to === '/' || to === '/admin' || to === '/dashboard' || to === '/superadmin') return location.pathname === to;
-    return location.pathname.startsWith(to);
+  const resolveRoute = (id: string) => {
+    switch (id) {
+      case 'course': return hasManageableOrg ? '/admin/programs' : user ? '/create-org' : '/creer-formation';
+      case 'sell': return hasManageableOrg ? '/admin/products' : user ? '/create-org' : '/vendre';
+      case 'orgs': return hasManageableOrg ? '/admin' : '/create-org';
+      default: return '';
+    }
   };
 
-  // ═══ FLAT NAV — minimal, context-aware ═══
-  const getNavItems = (): NavItem[] => {
-    const items: NavItem[] = [
-      { to: '/', icon: Home, label: isFr ? 'Accueil' : 'Home' },
-    ];
+  const navItems = getActionNavItems({
+    isAuthenticated: !!user,
+    hasPurchases,
+    hasManageableOrg,
+    hasOrgs,
+    isSuperadmin,
+  }, resolveRoute);
 
-    // Creator/Org: create action
-    if (profile === 'creator' || profile === 'org-religious') {
-      items.push(
-        { to: canManageCurrentOrg ? '/admin/create' : '/create-org', icon: Sparkles, label: isFr ? 'Créer' : 'Create' },
-      );
-    }
-
-    // Everyone can discover
-    items.push(
-      { to: '/discover', icon: Store, label: isFr ? 'Découvrir' : 'Discover' },
-    );
-
-    // Earn/Share
-    items.push(
-      { to: '/gagner', icon: Share2, label: isFr ? 'Gagner' : 'Earn' },
-    );
-
-    // My content (creators only)
-    if ((profile === 'creator' || profile === 'org-religious') && canManageCurrentOrg) {
-      items.push(
-        { to: '/admin/content', icon: Package, label: isFr ? 'Contenus' : 'Content' },
-        { to: '/admin/sales', icon: Wallet, label: labels.sales },
-      );
-    }
-
-    // Purchases for everyone
-    items.push(
-      { to: '/resources', icon: Package, label: isFr ? 'Achats' : 'Purchases' },
-    );
-
-    return items;
+  const isActive = (route: string) => {
+    if (route === '/') return location.pathname === '/';
+    return location.pathname.startsWith(route.split('?')[0]);
   };
 
-  // ═══ BOTTOM ITEMS — contextual ═══
-  const getBottomItems = (): NavItem[] => {
-    const items: NavItem[] = [];
-
-    if (hasOrgs && canManageCurrentOrg) {
-      items.push(
-        { to: '/admin/settings', icon: Settings, label: isFr ? 'Paramètres' : 'Settings' },
-      );
-    }
-
-    if (isApprovedPartner) {
-      items.push({ to: '/partner', icon: Handshake, label: t('sidebar.partner_space') || 'Partenaire' });
-    }
-
-    if (isSuperadmin && !isSA) {
-      items.push({ to: '/superadmin', icon: Shield, label: 'Superadmin' });
-    }
-
-    return items;
-  };
-
-  const navItems = getNavItems().filter((item, idx, arr) =>
-    arr.findIndex(i => i.label === item.label) === idx
-  );
-
-  const renderNavItem = (item: NavItem, index?: number) => {
-    const active = isActive(item.to);
+  const renderNavItem = (item: ActionNavItem) => {
+    const active = isActive(item.route);
     const Icon = item.icon;
-    const stableKey = `${item.label}-${index ?? item.to}`;
 
     const link = (
       <Link
-        key={stableKey}
-        to={item.to}
+        key={item.id}
+        to={item.route}
         aria-current={active ? 'page' : undefined}
         className={cn(
-          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative group',
+          'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group border',
           active
-            ? 'bg-primary text-primary-foreground'
-            : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+            ? cn('bg-card shadow-sm', item.borderClass.replace('hover:', ''))
+            : cn('border-transparent hover:bg-card/60', item.borderClass)
         )}
       >
-        <div className="relative shrink-0">
-          <Icon className="h-4 w-4" />
-          {item.badge && (
-            <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive ring-2 ring-sidebar" />
-          )}
+        <div className={cn('h-9 w-9 rounded-lg flex items-center justify-center shrink-0', item.iconBg)}>
+          <Icon className={cn('h-4 w-4', item.iconColor)} />
         </div>
-        {!collapsed && <span className="truncate">{item.label}</span>}
+        {!collapsed && (
+          <div className="min-w-0">
+            <div className="font-semibold text-xs text-foreground truncate">
+              {isFr ? item.titleFr : item.titleEn}
+            </div>
+          </div>
+        )}
       </Link>
     );
 
     if (collapsed) {
       return (
-        <Tooltip key={stableKey} delayDuration={0}>
+        <Tooltip key={item.id} delayDuration={0}>
           <TooltipTrigger asChild>{link}</TooltipTrigger>
           <TooltipContent side="right">
-            <p className="font-semibold text-xs">{item.label}</p>
+            <p className="font-semibold text-xs">{isFr ? item.titleFr : item.titleEn}</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? item.descFr : item.descEn}</p>
           </TooltipContent>
         </Tooltip>
       );
@@ -174,45 +102,41 @@ export function Sidebar() {
         <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
       </div>
 
-      <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5 scrollbar-hide">
-        {isSA ? (
-          superadminNav.map(renderNavItem)
-        ) : (
-          <>
-            {/* Org switcher */}
-            {hasOrgs && canManageCurrentOrg && (
-              <OrgSwitcher variant="sidebar" collapsed={collapsed} />
-            )}
+      {/* Org switcher */}
+      {hasOrgs && canManageCurrentOrg && (
+        <div className="px-2 pt-2">
+          <OrgSwitcher variant="sidebar" collapsed={collapsed} />
+        </div>
+      )}
 
-            {/* Flat nav — no sections, no separators */}
-            <div className="mt-1 space-y-0.5">
-              {navItems.map((item, i) => renderNavItem(item, i))}
-            </div>
-
-            {/* Bottom contextual items */}
-            {getBottomItems().length > 0 && (
-              <>
-                <div className="mx-3 my-3 border-t border-border/40" />
-                <div className="space-y-0.5">
-                  {getBottomItems().map(renderNavItem)}
-                </div>
-              </>
-            )}
-          </>
-        )}
+      {/* Navigation items */}
+      <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-1 scrollbar-hide">
+        {navItems.map(renderNavItem)}
       </nav>
 
-      {/* Sign out */}
-      <div className={cn('border-t border-border', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
+      {/* Settings + Sign out */}
+      <div className={cn('border-t border-border', collapsed ? 'px-1 py-2' : 'px-2 py-2')}>
+        {hasManageableOrg && (
+          <Link
+            to="/admin/settings"
+            className={cn(
+              'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-muted-foreground hover:text-foreground hover:bg-muted',
+              collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'
+            )}
+          >
+            <Settings className="h-4 w-4 shrink-0" />
+            {!collapsed && <span className="text-xs">{isFr ? 'Paramètres' : 'Settings'}</span>}
+          </Link>
+        )}
         <button
           onClick={signOut}
           className={cn(
             'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-destructive hover:bg-destructive/10',
-            collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
+            collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'
           )}
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>{t('sidebar.sign_out')}</span>}
+          {!collapsed && <span className="text-xs">{t('sidebar.sign_out')}</span>}
         </button>
       </div>
 
