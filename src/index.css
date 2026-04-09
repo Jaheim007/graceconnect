@@ -407,8 +407,31 @@ body > div[style*="position: fixed"][style*="opacity"] {
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-left: env(safe-area-inset-left, 0px);
   --safe-area-right: env(safe-area-inset-right, 0px);
+}
+
+/* Main layout adjusts for safe areas on native */
+.capacitor-app #root {
   padding-top: var(--safe-area-top);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure full height layout works with safe areas */
+.capacitor-app .h-\[100dvh\] {
+  height: calc(100dvh - var(--safe-area-top) - var(--safe-area-bottom)) !important;
+}
+
+/* Bottom nav respects safe area */
+.capacitor-app nav[aria-label="Navigation mobile"] {
   padding-bottom: var(--safe-area-bottom);
+}
+
+/* Main content scrollable area needs proper height on native */
+.capacitor-app #main-content {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
 }
 
 /* Disable text selection on native (feels more app-like) */
@@ -436,8 +459,8 @@ body > div[style*="position: fixed"][style*="opacity"] {
   overscroll-behavior-y: contain;
 }
 
-/* Keyboard visible: adjust bottom nav */
-.capacitor-app.keyboard-visible .mobile-bottom-nav {
+/* Keyboard visible: hide bottom nav */
+.capacitor-app.keyboard-visible nav[aria-label="Navigation mobile"] {
   display: none !important;
 }
 
@@ -454,6 +477,14 @@ body > div[style*="position: fixed"][style*="opacity"] {
   overscroll-behavior: none;
 }
 
+/* Hide scrollbars on native (more app-like) */
+.capacitor-app ::-webkit-scrollbar {
+  display: none;
+}
+.capacitor-app {
+  scrollbar-width: none;
+}
+
 /* Pull-to-refresh indicator styling */
 .capacitor-app .pull-refresh-indicator {
   position: fixed;
@@ -461,4 +492,14 @@ body > div[style*="position: fixed"][style*="opacity"] {
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
+}
+
+/* Native page transitions feel snappier */
+.capacitor-app [data-motion-pop-id] {
+  transition-duration: 0.15s !important;
+}
+
+/* PublicLayout also needs full height on native */
+.capacitor-app .min-h-\[100dvh\] {
+  min-height: calc(100dvh - var(--safe-area-top)) !important;
 }

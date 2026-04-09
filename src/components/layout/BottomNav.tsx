@@ -44,7 +44,7 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden" aria-label="Navigation mobile">
         <div className="mx-2 mb-2 rounded-2xl bg-card/95 backdrop-blur-md border border-border shadow-lg shadow-black/10">
           <div
             ref={scrollRef}
@@ -78,7 +78,6 @@ export function BottomNav() {
             })}
           </div>
         </div>
-        <div className="h-safe-area-inset-bottom bg-transparent" />
       </nav>
     </>
   );
