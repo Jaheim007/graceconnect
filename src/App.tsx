@@ -84,7 +84,7 @@ const CampaignDetailPage = lazy(() => import("@/pages/CampaignDetailPage"));
 const OfferingDetailPage = lazy(() => import("@/pages/OfferingDetailPage"));
 const AnnouncementDetailPage = lazy(() => import("@/pages/AnnouncementDetailPage"));
 const EventDetailPage = lazy(() => import("@/pages/EventDetailPage"));
-const WelcomeIntentPage = lazy(() => import("@/pages/WelcomeIntentPage"));
+// WelcomeIntentPage removed — ActionHub handles all entry
 
 const ChangelogPage = lazy(() => import("@/pages/ChangelogPage"));
 const MaintenancePage = lazy(() => import("@/pages/MaintenancePage"));
