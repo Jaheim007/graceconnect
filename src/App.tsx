@@ -399,9 +399,11 @@ const App = () => (
                 <Route path="/explorer" element={<Navigate to="/discover" replace />} />
                 <Route path="/hub" element={<Navigate to="/discover" replace />} />
                 <Route path="/store/:slug" element={<StoreRedirect />} />
+                {/* Discover — uses AdaptiveLayout (sidebar when logged in) */}
+                <Route path="/discover" element={<DiscoverPage />} />
+
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
-                  <Route path="/discover" element={<DiscoverPage />} />
                   <Route path="/spotlight" element={<Navigate to="/discover" replace />} />
                   <Route path="/promo/catalogue" element={<PromoCataloguePage />} />
                   <Route path="/promo/gratuits" element={<PromoGratuitsPage />} />

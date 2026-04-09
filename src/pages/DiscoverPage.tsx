@@ -5,6 +5,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
+import { AdaptiveLayout } from '@/components/layout/AdaptiveLayout';
 
 import { FeaturedSection } from '@/components/discover/FeaturedSection';
 import { ForYouFeed } from '@/components/discover/ForYouFeed';
