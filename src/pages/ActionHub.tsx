@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { BookOpen, Store, Share2, Compass, ArrowRight, Sparkles, Package } from 'lucide-react';
+import { BookOpen, Store, Share2, Compass, ArrowRight, Sparkles, Package, LayoutDashboard, Building2, GraduationCap, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -28,18 +28,18 @@ const item = {
 
 export default function ActionHub() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isSuperadmin } = useAuth();
   const { userOrgs, canManage } = useOrg();
   const { locale, t } = useI18n();
   const { theme, toggleTheme } = useTheme();
-  const { hasPurchases } = useUserProfile();
+  const { hasPurchases, hasOrgs, hasAffiliateLinks } = useUserProfile();
   const isFr = locale === 'fr';
   const hasManageableOrg = userOrgs.some(o => canManage(o.id));
+  const hasActivity = hasManageableOrg || hasAffiliateLinks || hasPurchases;
 
   const displayName = user?.user_metadata?.display_name || user?.user_metadata?.full_name;
 
   const actions = [
-    // Show "My Purchases" for logged-in users who have purchases
     ...(user && hasPurchases ? [{
       id: 'purchases',
       icon: Package,
@@ -47,7 +47,6 @@ export default function ActionHub() {
       title: isFr ? 'Mes achats' : 'My Purchases',
       desc: isFr ? 'Accéder à mes livres et ressources' : 'Access my books and resources',
       route: '/resources',
-      gradient: 'from-primary/20 to-primary/5',
       border: 'border-primary/30 hover:border-primary/60',
       iconBg: 'bg-primary/15',
       iconColor: 'text-primary',
@@ -57,12 +56,22 @@ export default function ActionHub() {
       icon: BookOpen,
       emoji: '✏️',
       title: isFr ? 'Écrire un livre' : 'Write a book',
-      desc: isFr ? "Crée ton livre avec l'IA en quelques minutes" : 'Create your book with AI in minutes',
+      desc: isFr ? "Crée ton livre avec l'IA et vends-le" : 'Create your book with AI and sell it',
       route: '/ecrire',
-      gradient: 'from-primary/20 to-primary/5',
       border: 'border-primary/30 hover:border-primary/60',
       iconBg: 'bg-primary/15',
       iconColor: 'text-primary',
+    },
+    {
+      id: 'course',
+      icon: GraduationCap,
+      emoji: '🎓',
+      title: isFr ? 'Créer une formation' : 'Create a course',
+      desc: isFr ? "Crée ta formation avec l'IA en quelques minutes" : 'Create your course with AI in minutes',
+      route: hasManageableOrg ? '/admin/programs' : user ? '/create-org' : '/auth?mode=signup&next=/create-org',
+      border: 'border-sky-500/30 hover:border-sky-500/60',
+      iconBg: 'bg-sky-500/15',
+      iconColor: 'text-sky-500',
     },
     {
       id: 'sell',
@@ -71,7 +80,6 @@ export default function ActionHub() {
       title: isFr ? 'Vendre' : 'Sell',
       desc: isFr ? 'Vends tes livres, formations et plus' : 'Sell your books, courses & more',
       route: hasManageableOrg ? '/admin/products' : user ? '/create-org' : '/auth?mode=signup&next=/create-org',
-      gradient: 'from-amber-500/20 to-amber-500/5',
       border: 'border-amber-500/30 hover:border-amber-500/60',
       iconBg: 'bg-amber-500/15',
       iconColor: 'text-amber-500',
@@ -83,7 +91,6 @@ export default function ActionHub() {
       title: isFr ? 'Gagner' : 'Earn',
       desc: isFr ? 'Partage et gagne de l\'argent' : 'Share & earn money',
       route: '/gagner',
-      gradient: 'from-emerald-500/20 to-emerald-500/5',
       border: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconBg: 'bg-emerald-500/15',
       iconColor: 'text-emerald-500',
@@ -95,11 +102,43 @@ export default function ActionHub() {
       title: isFr ? 'Découvrir' : 'Discover',
       desc: isFr ? 'Voir et acheter des livres, formations et plus' : 'Browse & buy books, courses & more',
       route: '/discover',
-      gradient: 'from-violet-500/20 to-violet-500/5',
       border: 'border-violet-500/30 hover:border-violet-500/60',
       iconBg: 'bg-violet-500/15',
       iconColor: 'text-violet-500',
     },
+    ...(user && hasActivity ? [{
+      id: 'dashboard',
+      icon: LayoutDashboard,
+      emoji: '📊',
+      title: isFr ? 'Tableau de bord' : 'Dashboard',
+      desc: isFr ? 'Voir tes chiffres et statistiques' : 'View your stats and numbers',
+      route: '/dashboard',
+      border: 'border-slate-500/30 hover:border-slate-500/60',
+      iconBg: 'bg-slate-500/15',
+      iconColor: 'text-slate-500',
+    }] : []),
+    ...(user && hasOrgs ? [{
+      id: 'orgs',
+      icon: Building2,
+      emoji: '🏪',
+      title: isFr ? 'Mes organisations' : 'My organizations',
+      desc: isFr ? 'Voir ou créer une boutique / organisation' : 'View or create a store / organization',
+      route: '/dashboard',
+      border: 'border-orange-500/30 hover:border-orange-500/60',
+      iconBg: 'bg-orange-500/15',
+      iconColor: 'text-orange-500',
+    }] : []),
+    ...(isSuperadmin ? [{
+      id: 'superadmin',
+      icon: Shield,
+      emoji: '🛡️',
+      title: 'Super Admin',
+      desc: isFr ? 'Gérer la plateforme' : 'Manage the platform',
+      route: '/superadmin',
+      border: 'border-rose-500/30 hover:border-rose-500/60',
+      iconBg: 'bg-rose-500/15',
+      iconColor: 'text-rose-500',
+    }] : []),
   ];
 
   return (
