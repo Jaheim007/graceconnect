@@ -60,7 +60,7 @@ export function Sidebar() {
   // ═══ FLAT NAV — minimal, context-aware ═══
   const getNavItems = (): NavItem[] => {
     const items: NavItem[] = [
-      { to: '/dashboard', icon: Home, label: isFr ? 'Accueil' : 'Home' },
+      { to: '/', icon: Home, label: isFr ? 'Accueil' : 'Home' },
     ];
 
     // Creator/Org: create action

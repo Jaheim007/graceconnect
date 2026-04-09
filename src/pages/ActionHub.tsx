@@ -123,7 +123,7 @@ export default function ActionHub() {
       emoji: '🏪',
       title: isFr ? 'Mes organisations' : 'My organizations',
       desc: isFr ? 'Voir ou créer une boutique / organisation' : 'View or create a store / organization',
-      route: '/dashboard',
+      route: hasManageableOrg ? '/admin' : '/create-org',
       border: 'border-orange-500/30 hover:border-orange-500/60',
       iconBg: 'bg-orange-500/15',
       iconColor: 'text-orange-500',
@@ -177,7 +177,7 @@ export default function ActionHub() {
         </Button>
         {user ? (
           <Button size="sm" className="h-8 text-xs" onClick={() => navigate('/dashboard')}>
-            {isFr ? 'Mon espace' : 'My space'}
+            {isFr ? 'Tableau de bord' : 'Dashboard'}
           </Button>
         ) : (
           <Button size="sm" className="h-8 text-xs" onClick={() => navigate('/auth')}>
