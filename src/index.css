@@ -568,5 +568,10 @@ body > div[style*="position: fixed"][style*="opacity"] {
 
 /* PublicLayout also needs full height on native */
 .capacitor-app .min-h-\[100dvh\] {
-  min-height: calc(100dvh - var(--safe-area-top)) !important;
+  min-height: var(--app-height) !important;
+}
+
+/* On native, cookie consent is not needed (no browser cookies) */
+.capacitor-app .cookie-consent-banner {
+  display: none !important;
 }
