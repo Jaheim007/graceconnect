@@ -1,9 +1,11 @@
+import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import * as Sentry from "@sentry/react";
 import App from "./App.tsx";
 import { capturePromoFromUrl } from './hooks/usePromoCapture';
 import { prefetchRates } from './lib/currencyConvert';
-import { initNativePlugins, isNativePlatform } from './lib/capacitor';
+import { SplashScreen as NativeIntroSplash, wasSplashShown } from './components/splash/SplashScreen';
+import { hideNativeSplash, initNativePlugins, isNativePlatform } from './lib/capacitor';
 import "./index.css";
 
 // Capture promo code from URL params on page load
@@ -66,6 +68,8 @@ else { const m = document.createElement('meta'); m.name = 'theme-color'; m.conte
 const savedLocale = localStorage.getItem('sv_locale') || navigator.language.slice(0, 2) || 'fr';
 document.documentElement.lang = ['en', 'fr'].includes(savedLocale) ? savedLocale : 'fr';
 
+const isNativeApp = isNativePlatform();
+
 // ── PWA Service Worker Registration with Update Prompt ──
 const clearLegacySupabaseRestCache = async () => {
   if (!('caches' in window)) return;
@@ -82,7 +86,34 @@ const clearLegacySupabaseRestCache = async () => {
   }
 };
 
+const clearNativeServiceWorkerState = async () => {
+  if (!isNativeApp) return;
+
+  try {
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.unregister()));
+    }
+  } catch {
+    // Non-fatal cleanup
+  }
+
+  if (!('caches' in window)) return;
+
+  try {
+    const cacheKeys = await caches.keys();
+    await Promise.all(cacheKeys.map((key) => caches.delete(key)));
+  } catch {
+    // Non-fatal cleanup
+  }
+};
+
 const registerSW = async () => {
+  if (isNativeApp) {
+    await clearNativeServiceWorkerState();
+    return;
+  }
+
   if ('serviceWorker' in navigator && import.meta.env.PROD) {
     try {
       const { registerSW } = await import('virtual:pwa-register');
@@ -129,8 +160,29 @@ registerSW();
 initNativePlugins();
 
 // Add native platform class for CSS targeting
-if (isNativePlatform()) {
+if (isNativeApp) {
   document.body.classList.add('capacitor-app');
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
+function RootApp() {
+  const [showNativeIntro, setShowNativeIntro] = useState(() => isNativeApp && !wasSplashShown());
+
+  useEffect(() => {
+    if (!isNativeApp) return;
+
+    const timeout = window.setTimeout(() => {
+      void hideNativeSplash();
+    }, 60);
+
+    return () => window.clearTimeout(timeout);
+  }, []);
+
+  return (
+    <>
+      <App />
+      {showNativeIntro && <NativeIntroSplash onComplete={() => setShowNativeIntro(false)} />}
+    </>
+  );
+}
+
+createRoot(document.getElementById("root")!).render(<RootApp />);

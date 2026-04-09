@@ -1,17 +1,23 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
+const liveReloadUrl = process.env.CAP_SERVER_URL?.trim();
+
 const config: CapacitorConfig = {
   appId: 'app.lovable.fdcfbb7e0039431a853389045b2dbc70',
-  appName: 'graceconnect',
+  appName: 'SiteViral',
   webDir: 'dist',
-  server: {
-    url: 'https://fdcfbb7e-0039-431a-8533-89045b2dbc70.lovableproject.com?forceHideBadge=true',
-    cleartext: true,
-  },
+  ...(liveReloadUrl
+    ? {
+        server: {
+          url: liveReloadUrl,
+          cleartext: true,
+        },
+      }
+    : {}),
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
-      launchAutoHide: true,
+      launchShowDuration: 300,
+      launchAutoHide: false,
       backgroundColor: '#0a0a0a',
       showSpinner: false,
       androidScaleType: 'CENTER_CROP',
