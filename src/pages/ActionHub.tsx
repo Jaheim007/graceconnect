@@ -28,13 +28,14 @@ const item = {
 
 export default function ActionHub() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isSuperadmin } = useAuth();
   const { userOrgs, canManage } = useOrg();
   const { locale, t } = useI18n();
   const { theme, toggleTheme } = useTheme();
-  const { hasPurchases } = useUserProfile();
+  const { hasPurchases, hasOrgs, hasAffiliateLinks } = useUserProfile();
   const isFr = locale === 'fr';
   const hasManageableOrg = userOrgs.some(o => canManage(o.id));
+  const hasActivity = hasManageableOrg || hasAffiliateLinks || hasPurchases;
 
   const displayName = user?.user_metadata?.display_name || user?.user_metadata?.full_name;
 
