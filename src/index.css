@@ -398,3 +398,67 @@ body > div[style*="position: fixed"][style*="opacity"] {
   pointer-events: none;
   z-index: 2;
 }
+
+/* ── Capacitor / Native Mobile Styles ── */
+
+/* Safe area insets for notched devices */
+.capacitor-app {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+  padding-top: var(--safe-area-top);
+  padding-bottom: var(--safe-area-bottom);
+}
+
+/* Disable text selection on native (feels more app-like) */
+.capacitor-app * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Re-enable selection for inputs and text areas */
+.capacitor-app input,
+.capacitor-app textarea,
+.capacitor-app [contenteditable="true"],
+.capacitor-app pre,
+.capacitor-app code {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Smooth scrolling with native-like momentum */
+.capacitor-app .overflow-y-auto,
+.capacitor-app .overflow-y-scroll,
+.capacitor-app .overflow-auto {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Keyboard visible: adjust bottom nav */
+.capacitor-app.keyboard-visible .mobile-bottom-nav {
+  display: none !important;
+}
+
+/* Native-like active state on tappable elements */
+.capacitor-app button:active,
+.capacitor-app a:active,
+.capacitor-app [role="button"]:active {
+  opacity: 0.7;
+  transition: opacity 0.1s ease;
+}
+
+/* Disable overscroll bounce on the body (Android) */
+.capacitor-app {
+  overscroll-behavior: none;
+}
+
+/* Pull-to-refresh indicator styling */
+.capacitor-app .pull-refresh-indicator {
+  position: fixed;
+  top: var(--safe-area-top, 0px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+}

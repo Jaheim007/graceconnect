@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/react";
 import App from "./App.tsx";
 import { capturePromoFromUrl } from './hooks/usePromoCapture';
 import { prefetchRates } from './lib/currencyConvert';
+import { initNativePlugins, isNativePlatform } from './lib/capacitor';
 import "./index.css";
 
 // Capture promo code from URL params on page load
@@ -123,5 +124,13 @@ const registerSW = async () => {
 };
 void clearLegacySupabaseRestCache();
 registerSW();
+
+// Initialize Capacitor native plugins
+initNativePlugins();
+
+// Add native platform class for CSS targeting
+if (isNativePlatform()) {
+  document.body.classList.add('capacitor-app');
+}
 
 createRoot(document.getElementById("root")!).render(<App />);
