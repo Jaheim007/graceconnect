@@ -162,10 +162,22 @@ initNativePlugins();
 // Add native platform class for CSS targeting
 if (isNativeApp) {
   document.body.classList.add('capacitor-app');
+  // Ensure status bar area doesn't create white gaps
+  // Set viewport-fit=cover for edge-to-edge rendering
+  let viewportMeta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement | null;
+  if (viewportMeta) {
+    if (!viewportMeta.content.includes('viewport-fit=cover')) {
+      viewportMeta.content += ', viewport-fit=cover';
+    }
+  }
 }
 
 function RootApp() {
-  const [showNativeIntro, setShowNativeIntro] = useState(() => isNativeApp);
+  const [showNativeIntro, setShowNativeIntro] = useState(() => {
+    // Show splash only once per session on native
+    if (!isNativeApp) return false;
+    return !sessionStorage.getItem('sv_splash_shown');
+  });
 
   useEffect(() => {
     if (!isNativeApp) return;

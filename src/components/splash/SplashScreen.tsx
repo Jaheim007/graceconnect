@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const SPLASH_DURATION = 2800; // total animation time in ms
+const SPLASH_DURATION = 2200; // total animation time in ms — fast enough for native feel
 const SESSION_KEY = 'sv_splash_shown';
 
 /**
@@ -12,8 +12,8 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<'enter' | 'hold' | 'exit'>('enter');
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('hold'), 600);
-    const t2 = setTimeout(() => setPhase('exit'), SPLASH_DURATION - 600);
+    const t1 = setTimeout(() => setPhase('hold'), 400);
+    const t2 = setTimeout(() => setPhase('exit'), SPLASH_DURATION - 500);
     const t3 = setTimeout(() => {
       sessionStorage.setItem(SESSION_KEY, '1');
       onComplete();

@@ -13,9 +13,9 @@ let themeObserverAttached = false;
 
 function syncNativeViewportHeight() {
   if (typeof window === 'undefined') return;
-
-  const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-  document.documentElement.style.setProperty('--app-height', `${viewportHeight}px`);
+  // Use visualViewport when available for accurate height (keyboard-aware)
+  const vh = window.visualViewport?.height ?? window.innerHeight;
+  document.documentElement.style.setProperty('--app-height', `${vh}px`);
 }
 
 function attachNativeViewportListeners() {
@@ -28,8 +28,12 @@ function attachNativeViewportListeners() {
   document.documentElement.style.setProperty('--keyboard-height', '0px');
   window.addEventListener('resize', update, { passive: true });
   window.addEventListener('orientationchange', update, { passive: true });
-  window.visualViewport?.addEventListener('resize', update);
-  window.visualViewport?.addEventListener('scroll', update);
+
+  // visualViewport is the key to handling keyboard on Android when resize:"none"
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', update);
+    window.visualViewport.addEventListener('scroll', update);
+  }
 }
 
 async function syncStatusBarTheme() {
@@ -113,6 +117,9 @@ export async function initNativePlugins() {
     Keyboard.addListener('keyboardDidShow', ({ keyboardHeight }) => {
       document.body.classList.add('keyboard-visible');
       document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
+      // With resize:"none", the webview stays full-size.
+      // We rely on --app-height (from visualViewport) to shrink content naturally.
+      // Do NOT add extra padding — that causes the double-offset white gap.
       syncNativeViewportHeight();
     });
     Keyboard.addListener('keyboardDidHide', () => {
