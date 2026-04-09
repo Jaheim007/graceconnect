@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { BookOpen, Store, Share2, Compass, ArrowRight, Sparkles, Package } from 'lucide-react';
+import { BookOpen, Store, Share2, Compass, ArrowRight, Sparkles, Package, LayoutDashboard, Building2, GraduationCap, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
