@@ -495,7 +495,7 @@ body > div[style*="position: fixed"][style*="opacity"] {
 /* Auth screen */
 .capacitor-app .native-auth-screen {
   min-height: var(--app-height);
-  padding: calc(var(--safe-area-top) + 1rem) max(1rem, var(--safe-area-left)) max(calc(var(--safe-area-bottom) + 1rem), 1rem) max(1rem, var(--safe-area-right));
+  padding: 1rem max(1rem, var(--safe-area-left)) max(calc(var(--safe-area-bottom) + 1rem), 1rem) max(1rem, var(--safe-area-right));
   align-items: flex-start;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -513,8 +513,9 @@ body > div[style*="position: fixed"][style*="opacity"] {
   margin: 0 auto;
 }
 
+/* Keyboard visible: --app-height already shrinks via visualViewport, no extra padding */
 .capacitor-app.keyboard-visible .native-auth-screen {
-  padding-bottom: max(calc(var(--keyboard-height) + 1rem), calc(var(--safe-area-bottom) + 1rem));
+  min-height: var(--app-height);
 }
 
 /* Disable text selection on native (feels more app-like) */
