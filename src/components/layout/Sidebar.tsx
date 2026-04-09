@@ -56,10 +56,10 @@ export function Sidebar() {
         to={item.route}
         aria-current={active ? 'page' : undefined}
         className={cn(
-          'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group border',
+        'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group border',
           active
-            ? cn('bg-card shadow-sm', item.borderClass.replace('hover:', ''))
-            : cn('border-transparent hover:bg-card/60', item.borderClass)
+            ? cn('bg-card shadow-md dark:shadow-sm', item.borderClass.replace('hover:', ''))
+            : cn('border-transparent hover:bg-accent/60', item.borderClass)
         )}
       >
         <div className={cn('h-9 w-9 rounded-lg flex items-center justify-center shrink-0', item.iconBg)}>
