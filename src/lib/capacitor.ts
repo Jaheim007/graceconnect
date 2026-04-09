@@ -27,6 +27,16 @@ export async function hapticSuccess() {
   await Haptics.notification({ type: NotificationType.Success });
 }
 
+export async function hideNativeSplash() {
+  if (!isNativePlatform()) return;
+  try {
+    const { SplashScreen } = await import('@capacitor/splash-screen');
+    await SplashScreen.hide();
+  } catch (e) {
+    console.warn('[capacitor] SplashScreen hide failed:', e);
+  }
+}
+
 /** Initialize native plugins on app start */
 export async function initNativePlugins() {
   if (!isNativePlatform()) return;
@@ -54,14 +64,6 @@ export async function initNativePlugins() {
     });
   } catch (e) {
     console.warn('[capacitor] Keyboard init failed:', e);
-  }
-
-  // Splash screen auto-hide after content loads
-  try {
-    const { SplashScreen } = await import('@capacitor/splash-screen');
-    await SplashScreen.hide();
-  } catch (e) {
-    console.warn('[capacitor] SplashScreen hide failed:', e);
   }
 
   // App back button handler (Android)

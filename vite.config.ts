@@ -32,8 +32,8 @@ export default defineConfig(({ mode }) => ({
       ],
       manifest: {
         id: "/",
-        name: "Siteviral",
-        short_name: "Siteviral",
+        name: "SiteViral",
+        short_name: "SiteViral",
         description: "Plateforme d'infrastructure pour organisations digitales — communauté, produits, dons, affiliation",
         start_url: "/",
         display: "standalone",
@@ -106,14 +106,14 @@ export default defineConfig(({ mode }) => ({
             sizes: "1200x630",
             type: "image/png",
             form_factor: "wide",
-            label: "Tableau de bord Siteviral",
+              label: "Tableau de bord SiteViral",
           },
           {
             src: "/pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
             form_factor: "narrow",
-            label: "Siteviral Mobile",
+              label: "SiteViral Mobile",
           },
         ],
         shortcuts: [
