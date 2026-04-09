@@ -42,7 +42,16 @@ export function AdaptiveLayout({ children }: { children: ReactNode }) {
     return (
       <div className={cn('bg-background', nativeApp ? 'native-public-screen flex flex-col' : 'min-h-screen')}>
         {nativeApp ? <PublicTopBar /> : <LandingNav />}
-        <main className={cn('flex-1', nativeApp ? 'native-main-scroll no-bottom-nav' : 'pt-14')}>
+        <main
+          id="main-content"
+          role="main"
+          className={cn(
+            'flex-1',
+            nativeApp
+              ? 'native-main-scroll no-bottom-nav min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain'
+              : 'pt-14'
+          )}
+        >
           {children}
         </main>
       </div>

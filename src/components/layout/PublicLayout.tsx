@@ -14,7 +14,14 @@ export function PublicLayout() {
   return (
     <div className={cn('flex flex-col bg-background', nativeApp ? 'native-public-screen' : 'min-h-[100dvh]')}>
       <PublicTopBar />
-      <main id="main-content" role="main" className={cn('flex-1', nativeApp && 'native-main-scroll no-bottom-nav')}>
+      <main
+        id="main-content"
+        role="main"
+        className={cn(
+          'flex-1 min-h-0',
+          nativeApp && 'native-main-scroll no-bottom-nav overflow-y-auto overflow-x-hidden overscroll-contain'
+        )}
+      >
         <Outlet />
       </main>
       {!nativeApp && <LandingFooterCompact />}
