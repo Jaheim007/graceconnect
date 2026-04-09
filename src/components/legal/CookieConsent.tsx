@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Cookie, X, Settings2 } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
+import { isNativePlatform } from '@/lib/capacitor';
 
 const CONSENT_KEY = 'sv-cookie-consent';
 
@@ -33,8 +34,11 @@ export function CookieConsent() {
   const [prefs, setPrefs] = useState<CookiePrefs>({ essential: true, analytics: true, marketing: false });
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+  const nativeApp = isNativePlatform();
 
   useEffect(() => {
+    // Never show cookie consent on native apps (no browser cookies)
+    if (nativeApp) return;
     const stored = getStoredConsent();
     if (!stored) {
       // Delay showing the banner to not overwhelm users
