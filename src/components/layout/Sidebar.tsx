@@ -56,10 +56,10 @@ export function Sidebar() {
         to={item.route}
         aria-current={active ? 'page' : undefined}
         className={cn(
-        'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group border',
+          'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group border',
           active
-            ? cn('bg-card shadow-md dark:shadow-sm', item.borderClass.replace('hover:', ''))
-            : cn('border-transparent hover:bg-accent/60', item.borderClass)
+            ? cn('bg-card text-card-foreground shadow-md dark:shadow-sm', item.borderClass.replace('hover:', ''))
+            : cn('border-transparent text-sidebar-foreground hover:bg-sidebar-accent/80', item.borderClass)
         )}
       >
         <div className={cn('h-9 w-9 rounded-lg flex items-center justify-center shrink-0', item.iconBg)}>
@@ -67,7 +67,7 @@ export function Sidebar() {
         </div>
         {!collapsed && (
           <div className="min-w-0">
-            <div className="font-semibold text-xs text-foreground truncate">
+            <div className={cn('font-semibold text-xs truncate', active ? 'text-card-foreground' : 'text-sidebar-foreground')}>
               {isFr ? item.titleFr : item.titleEn}
             </div>
           </div>
@@ -120,7 +120,7 @@ export function Sidebar() {
           <Link
             to="/admin/settings"
             className={cn(
-              'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-muted-foreground hover:text-foreground hover:bg-muted',
+              'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-sidebar-foreground opacity-80 hover:opacity-100 hover:bg-sidebar-accent',
               collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'
             )}
           >
@@ -142,7 +142,7 @@ export function Sidebar() {
 
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="flex items-center justify-center h-10 w-full border-t border-border text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
+        className="flex items-center justify-center h-10 w-full border-t border-border text-sidebar-foreground opacity-70 hover:opacity-100 hover:bg-sidebar-accent transition-colors"
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </button>
