@@ -282,6 +282,44 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
           )}
         </div>
       </div>
+
+      {/* Guest gate dialog */}
+      <Dialog open={showGuestGate} onOpenChange={setShowGuestGate}>
+        <DialogContent className="max-w-sm text-center space-y-4 p-6">
+          <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
+            <Zap className="h-7 w-7 text-primary" />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-lg font-bold">
+              {isFr ? 'Promouvoir & Gagner' : 'Promote & Earn'}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {isFr
+                ? 'Crée ton compte gratuit pour partager ce produit et gagner des commissions.'
+                : 'Create your free account to share this product and earn commissions.'}
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Button
+              size="lg"
+              className="w-full gap-2 text-sm font-bold"
+              onClick={() => navigate(`/auth?mode=signup&next=${encodeURIComponent('/gagner')}&intent=ambassador`)}
+            >
+              <Sparkles className="h-4 w-4" />
+              {isFr ? 'Créer mon compte gratuit' : 'Create my free account'}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full text-xs text-muted-foreground"
+              onClick={() => navigate(`/auth?next=${encodeURIComponent('/gagner')}`)}
+            >
+              {isFr ? "J'ai déjà un compte" : 'I already have an account'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
