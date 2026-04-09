@@ -97,7 +97,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
 
   const handleEnroll = async () => {
     if (!user) {
-      navigate('/auth?intent=ambassador&redirect=/gagner');
+      navigate(`/auth?mode=signup&next=${encodeURIComponent('/gagner')}&intent=ambassador`);
       return;
     }
     setEnrolling(true);

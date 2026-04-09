@@ -93,6 +93,8 @@ const QuickStartPage = lazy(() => import("@/pages/QuickStartPage"));
 const QuickPublishPage = lazy(() => import("@/pages/QuickPublishPage"));
 const GagnerPage = lazy(() => import("@/pages/GagnerPage"));
 const EcrirePage = lazy(() => import("@/pages/EcrirePage"));
+const CreerFormationPage = lazy(() => import("@/pages/CreerFormationPage"));
+const VendrePage = lazy(() => import("@/pages/VendrePage"));
 // MigrerPage removed — marginal feature
 const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
 // VendreLandingPage consolidated — redirect to landing
@@ -385,6 +387,10 @@ const App = () => (
                 <Route path="/gagner-info" element={<Navigate to="/gagner" replace />} />
                 <Route path="/ecrire" element={<EcrirePage />} />
                 <Route path="/write" element={<Navigate to="/ecrire" replace />} />
+                <Route path="/creer-formation" element={<CreerFormationPage />} />
+                <Route path="/create-course" element={<Navigate to="/creer-formation" replace />} />
+                <Route path="/vendre" element={<VendrePage />} />
+                <Route path="/sell" element={<Navigate to="/vendre" replace />} />
                 <Route path="/migrer" element={<Navigate to="/" replace />} />
                 <Route path="/migrate" element={<Navigate to="/" replace />} />
                 <Route path="/vendre" element={<Navigate to="/" replace />} />
