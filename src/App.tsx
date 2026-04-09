@@ -84,7 +84,7 @@ const CampaignDetailPage = lazy(() => import("@/pages/CampaignDetailPage"));
 const OfferingDetailPage = lazy(() => import("@/pages/OfferingDetailPage"));
 const AnnouncementDetailPage = lazy(() => import("@/pages/AnnouncementDetailPage"));
 const EventDetailPage = lazy(() => import("@/pages/EventDetailPage"));
-const WelcomeIntentPage = lazy(() => import("@/pages/WelcomeIntentPage"));
+// WelcomeIntentPage removed — ActionHub handles all entry
 
 const ChangelogPage = lazy(() => import("@/pages/ChangelogPage"));
 const MaintenancePage = lazy(() => import("@/pages/MaintenancePage"));
@@ -418,8 +418,8 @@ const App = () => (
                   <Route path="/program/:programId" element={<ProgramDetailPage />} />
                 </Route>
 
-                {/* Welcome intent (post-signup) */}
-                <Route path="/welcome" element={<RequireAuth><WelcomeIntentPage /></RequireAuth>} />
+                {/* /welcome now redirects to home — unified ActionHub */}
+                <Route path="/welcome" element={<Navigate to="/" replace />} />
 
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>

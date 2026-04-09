@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { BookOpen, Store, Share2, Compass, ArrowRight, Sparkles } from 'lucide-react';
+import { BookOpen, Store, Share2, Compass, ArrowRight, Sparkles, Package } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -11,6 +11,7 @@ import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { GlobalPreferencesSelector } from '@/components/global/GlobalPreferencesSelector';
 import { cn } from '@/lib/utils';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 const container = {
   hidden: { opacity: 0 },
@@ -31,17 +32,33 @@ export default function ActionHub() {
   const { userOrgs, canManage } = useOrg();
   const { locale, t } = useI18n();
   const { theme, toggleTheme } = useTheme();
+  const { hasPurchases } = useUserProfile();
   const isFr = locale === 'fr';
   const hasManageableOrg = userOrgs.some(o => canManage(o.id));
 
+  const displayName = user?.user_metadata?.display_name || user?.user_metadata?.full_name;
+
   const actions = [
+    // Show "My Purchases" for logged-in users who have purchases
+    ...(user && hasPurchases ? [{
+      id: 'purchases',
+      icon: Package,
+      emoji: '📚',
+      title: isFr ? 'Mes achats' : 'My Purchases',
+      desc: isFr ? 'Accéder à mes livres et ressources' : 'Access my books and resources',
+      route: '/resources',
+      gradient: 'from-primary/20 to-primary/5',
+      border: 'border-primary/30 hover:border-primary/60',
+      iconBg: 'bg-primary/15',
+      iconColor: 'text-primary',
+    }] : []),
     {
       id: 'write',
       icon: BookOpen,
       emoji: '✏️',
       title: isFr ? 'Écrire un livre' : 'Write a book',
       desc: isFr ? "L'IA écrit, tu publies en 5 min" : 'AI writes, you publish in 5 min',
-      route: user ? '/ecrire' : '/ecrire',
+      route: '/ecrire',
       gradient: 'from-primary/20 to-primary/5',
       border: 'border-primary/30 hover:border-primary/60',
       iconBg: 'bg-primary/15',
@@ -145,12 +162,14 @@ export default function ActionHub() {
               {isFr ? 'Gratuit pour commencer' : 'Free to start'}
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-              {isFr ? 'Que veux-tu faire ?' : 'What do you want to do?'}
+              {user && displayName
+                ? (isFr ? `Salut ${displayName} 👋` : `Hey ${displayName} 👋`)
+                : (isFr ? 'Que veux-tu faire ?' : 'What do you want to do?')}
             </h1>
             <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-              {isFr
-                ? 'Crée, vends et gagne — tout en un seul endroit.'
-                : 'Create, sell & earn — all in one place.'}
+              {user
+                ? (isFr ? 'Que veux-tu faire aujourd\'hui ?' : 'What would you like to do today?')
+                : (isFr ? 'Crée, vends et gagne — tout en un seul endroit.' : 'Create, sell & earn — all in one place.')}
             </p>
           </motion.div>
 
