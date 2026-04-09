@@ -25,7 +25,7 @@ export default function DiscoverPage() {
 
   return (
     <AdaptiveLayout>
-    <div className="bg-background min-h-screen">
+    <div className="bg-background native-page-screen">
       <SEOHead title={t('discover.seo_title')} description={t('discover.seo_desc')} />
 
       {/* Header with search */}

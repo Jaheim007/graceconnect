@@ -6,16 +6,27 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { GlobalPreferencesSelector } from '@/components/global/GlobalPreferencesSelector';
+import { cn } from '@/lib/utils';
+import { isNativePlatform } from '@/lib/capacitor';
 
 export function PublicTopBar() {
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useI18n();
+  const nativeApp = isNativePlatform();
 
   return (
-    <header className="h-14 sticky top-0 z-40 glass border-b border-border flex items-center px-4 gap-3">
-      <SiteLogo size="sm" animate />
+    <header className={cn(
+      'sticky top-0 z-40 flex items-center gap-3 border-b border-border px-4',
+      nativeApp ? 'native-public-topbar bg-background/95 py-2' : 'h-14 glass'
+    )}>
+      <div className="flex items-center gap-2">
+        <SiteLogo size="sm" animate />
+        <span className={cn('text-sm font-semibold tracking-tight text-foreground', !nativeApp && 'hidden sm:inline')}>
+          SiteViral
+        </span>
+      </div>
       <div className="flex-1" />
 
       <GlobalPreferencesSelector />

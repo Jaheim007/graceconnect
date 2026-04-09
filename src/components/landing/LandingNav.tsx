@@ -8,6 +8,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { GlobalPreferencesSelector } from '@/components/global/GlobalPreferencesSelector';
+import { cn } from '@/lib/utils';
+import { isNativePlatform } from '@/lib/capacitor';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -18,6 +20,7 @@ export function LandingNav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useI18n();
   const { user, profile, signOut } = useAuth();
+  const nativeApp = isNativePlatform();
 
   const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
   const avatarUrl = profile?.avatar_url || googleAvatar;
@@ -32,9 +35,15 @@ export function LandingNav() {
   ];
 
   return (
-    <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
+    <header className={cn(
+      'fixed top-0 z-50 w-full border-b border-border/40',
+      nativeApp ? 'native-landing-topbar bg-background/95' : 'glass'
+    )}>
       <div className="container flex items-center justify-between h-14 px-4">
-        <SiteLogo size="md" animate />
+        <div className="flex items-center gap-2">
+          <SiteLogo size="md" animate />
+          {nativeApp && <span className="text-sm font-semibold tracking-tight text-foreground">SiteViral</span>}
+        </div>
         
         <div className="hidden md:flex items-center gap-1">
           {navItems.map((item) => (

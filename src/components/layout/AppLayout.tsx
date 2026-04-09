@@ -51,7 +51,7 @@ export function AppLayout() {
     <CompareProvider>
     <SkipToContent />
     <OfflineIndicator />
-    <div className="h-[100dvh] flex w-full bg-background overflow-hidden">
+    <div className="native-app-shell h-[100dvh] flex w-full bg-background overflow-hidden">
       {!hideNav && (
         <nav className="hidden lg:flex shrink-0" aria-label="Navigation principale">
           <Sidebar />
@@ -60,7 +60,7 @@ export function AppLayout() {
 
       <div className="flex flex-col flex-1 min-w-0 h-full">
         {!hideNav && <TopBar />}
-        <main id="main-content" role="main" className={`flex-1 overflow-y-auto overflow-x-hidden overscroll-contain ${!hideNav ? 'pb-20 lg:pb-0' : ''}`}>
+        <main id="main-content" role="main" className={`native-main-scroll flex-1 overflow-y-auto overflow-x-hidden overscroll-contain ${!hideNav ? 'pb-24 lg:pb-0' : 'no-bottom-nav'}`}>
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -76,7 +76,7 @@ export function AppLayout() {
       </div>
 
       {!hideNav && (
-        <nav id="bottom-nav" aria-label="Navigation mobile" className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
+        <nav id="bottom-nav" aria-label="Navigation mobile" className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-50 lg:hidden">
           <BottomNav />
         </nav>
       )}

@@ -1,19 +1,23 @@
 import { Outlet } from 'react-router-dom';
 import { PublicTopBar } from './PublicTopBar';
 import { LandingFooterCompact } from '@/components/landing/LandingFooterCompact';
+import { cn } from '@/lib/utils';
+import { isNativePlatform } from '@/lib/capacitor';
 
 /**
  * PublicLayout — Universe 1: Buyer / Public
  * Minimal chrome: logo, login, footer. No sidebar, no bottom nav, no commission language.
  */
 export function PublicLayout() {
+  const nativeApp = isNativePlatform();
+
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-background">
+    <div className={cn('flex flex-col bg-background', nativeApp ? 'native-public-screen' : 'min-h-[100dvh]')}>
       <PublicTopBar />
-      <main id="main-content" role="main" className="flex-1">
+      <main id="main-content" role="main" className={cn('flex-1', nativeApp && 'native-main-scroll no-bottom-nav')}>
         <Outlet />
       </main>
-      <LandingFooterCompact />
+      {!nativeApp && <LandingFooterCompact />}
     </div>
   );
 }

@@ -8,6 +8,62 @@ export const getPlatform = () => Capacitor.getPlatform(); // 'web' | 'ios' | 'an
 export const isIOS = () => getPlatform() === 'ios';
 export const isAndroid = () => getPlatform() === 'android';
 
+let viewportListenersAttached = false;
+let themeObserverAttached = false;
+
+function syncNativeViewportHeight() {
+  if (typeof window === 'undefined') return;
+
+  const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+  document.documentElement.style.setProperty('--app-height', `${viewportHeight}px`);
+}
+
+function attachNativeViewportListeners() {
+  if (viewportListenersAttached || typeof window === 'undefined') return;
+  viewportListenersAttached = true;
+
+  const update = () => window.requestAnimationFrame(syncNativeViewportHeight);
+
+  update();
+  document.documentElement.style.setProperty('--keyboard-height', '0px');
+  window.addEventListener('resize', update, { passive: true });
+  window.addEventListener('orientationchange', update, { passive: true });
+  window.visualViewport?.addEventListener('resize', update);
+  window.visualViewport?.addEventListener('scroll', update);
+}
+
+async function syncStatusBarTheme() {
+  if (!isNativePlatform()) return;
+
+  try {
+    const { StatusBar, Style } = await import('@capacitor/status-bar');
+    const isDarkTheme = document.documentElement.classList.contains('dark');
+
+    await StatusBar.setStyle({ style: isDarkTheme ? Style.Light : Style.Dark });
+
+    if (isAndroid()) {
+      await StatusBar.setBackgroundColor({ color: isDarkTheme ? '#0a0a0a' : '#ffffff' });
+      await StatusBar.setOverlaysWebView({ overlay: false });
+    }
+  } catch (e) {
+    console.warn('[capacitor] StatusBar theme sync failed:', e);
+  }
+}
+
+function observeThemeChanges() {
+  if (themeObserverAttached || typeof MutationObserver === 'undefined') return;
+  themeObserverAttached = true;
+
+  const observer = new MutationObserver(() => {
+    void syncStatusBarTheme();
+  });
+
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
+}
+
 /** Safe haptic feedback — no-op on web */
 export async function hapticLight() {
   if (!isNativePlatform()) return;
@@ -41,14 +97,12 @@ export async function hideNativeSplash() {
 export async function initNativePlugins() {
   if (!isNativePlatform()) return;
 
+  attachNativeViewportListeners();
+
   // Status bar
   try {
-    const { StatusBar, Style } = await import('@capacitor/status-bar');
-    await StatusBar.setStyle({ style: Style.Dark });
-    if (isAndroid()) {
-      await StatusBar.setBackgroundColor({ color: '#0a0a0a' });
-      await StatusBar.setOverlaysWebView({ overlay: false });
-    }
+    await syncStatusBarTheme();
+    observeThemeChanges();
   } catch (e) {
     console.warn('[capacitor] StatusBar init failed:', e);
   }
@@ -56,11 +110,15 @@ export async function initNativePlugins() {
   // Keyboard
   try {
     const { Keyboard } = await import('@capacitor/keyboard');
-    Keyboard.addListener('keyboardWillShow', () => {
+    Keyboard.addListener('keyboardDidShow', ({ keyboardHeight }) => {
       document.body.classList.add('keyboard-visible');
+      document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
+      syncNativeViewportHeight();
     });
-    Keyboard.addListener('keyboardWillHide', () => {
+    Keyboard.addListener('keyboardDidHide', () => {
       document.body.classList.remove('keyboard-visible');
+      document.documentElement.style.setProperty('--keyboard-height', '0px');
+      syncNativeViewportHeight();
     });
   } catch (e) {
     console.warn('[capacitor] Keyboard init failed:', e);
