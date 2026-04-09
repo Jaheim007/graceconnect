@@ -24,6 +24,7 @@ export default function DiscoverPage() {
   const isSearching = debouncedSearch.length > 0;
 
   return (
+    <AdaptiveLayout>
     <div className="bg-background min-h-screen">
       <SEOHead title={t('discover.seo_title')} description={t('discover.seo_desc')} />
 
@@ -73,5 +74,6 @@ export default function DiscoverPage() {
         )}
       </div>
     </div>
+    </AdaptiveLayout>
   );
 }
