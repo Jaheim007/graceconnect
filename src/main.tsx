@@ -125,4 +125,12 @@ const registerSW = async () => {
 void clearLegacySupabaseRestCache();
 registerSW();
 
+// Initialize Capacitor native plugins
+initNativePlugins();
+
+// Add native platform class for CSS targeting
+if (isNativePlatform()) {
+  document.body.classList.add('capacitor-app');
+}
+
 createRoot(document.getElementById("root")!).render(<App />);
