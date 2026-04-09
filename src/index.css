@@ -436,7 +436,7 @@ body > div[style*="position: fixed"][style*="opacity"] {
 .capacitor-app .native-app-shell {
   height: var(--app-height) !important;
   min-height: var(--app-height);
-  padding-top: var(--safe-area-top);
+  padding-top: 0;
 }
 
 .capacitor-app .native-public-screen {
@@ -463,7 +463,7 @@ body > div[style*="position: fixed"][style*="opacity"] {
 .capacitor-app .native-main-scroll {
   padding-left: var(--safe-area-left);
   padding-right: var(--safe-area-right);
-  padding-bottom: calc(5.5rem + var(--safe-area-bottom));
+  padding-bottom: calc(4.5rem + var(--safe-area-bottom));
 }
 
 .capacitor-app .native-main-scroll.no-bottom-nav {
@@ -473,8 +473,8 @@ body > div[style*="position: fixed"][style*="opacity"] {
 /* Top bars */
 .capacitor-app .native-public-topbar,
 .capacitor-app .native-landing-topbar {
-  min-height: calc(3.5rem + var(--safe-area-top));
-  padding-top: var(--safe-area-top);
+  min-height: 3.5rem;
+  padding-top: 0;
   background: hsl(var(--background) / 0.94);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);

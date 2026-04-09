@@ -14,6 +14,7 @@ export function getPublicOrigin(): string {
     host === 'www.siteviral.com' ||
     host === 'api.siteviral.com' ||
     host === 'graceconnect.lovable.app'
+    || host === 'siteviral.lovable.app'
   ) {
     return window.location.origin;
   }
