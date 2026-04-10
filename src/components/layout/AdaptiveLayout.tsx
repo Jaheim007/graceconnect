@@ -46,14 +46,17 @@ export function AdaptiveLayout({ children }: { children: ReactNode }) {
           id="main-content"
           role="main"
           className={cn(
-            'flex-1',
+            'flex-1 pb-24 lg:pb-0',
             nativeApp
               ? 'native-main-scroll no-bottom-nav min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain'
               : 'pt-14'
           )}
         >
-          {children}
+        {children}
         </main>
+        <nav className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-50 lg:hidden" aria-label="Navigation mobile">
+          <BottomNav />
+        </nav>
       </div>
     );
   }
