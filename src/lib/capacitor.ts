@@ -13,7 +13,6 @@ let themeObserverAttached = false;
 
 function syncNativeViewportHeight() {
   if (typeof window === 'undefined') return;
-  // Use visualViewport when available for accurate height (keyboard-aware)
   const vh = window.visualViewport?.height ?? window.innerHeight;
   document.documentElement.style.setProperty('--app-height', `${vh}px`);
 }
@@ -29,7 +28,6 @@ function attachNativeViewportListeners() {
   window.addEventListener('resize', update, { passive: true });
   window.addEventListener('orientationchange', update, { passive: true });
 
-  // visualViewport is the key to handling keyboard on Android when resize:"none"
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', update);
     window.visualViewport.addEventListener('scroll', update);
@@ -68,6 +66,8 @@ function observeThemeChanges() {
   });
 }
 
+// ─── Haptics ───────────────────────────────────────────────
+
 /** Safe haptic feedback — no-op on web */
 export async function hapticLight() {
   if (!isNativePlatform()) return;
@@ -87,6 +87,14 @@ export async function hapticSuccess() {
   await Haptics.notification({ type: NotificationType.Success });
 }
 
+export async function hapticError() {
+  if (!isNativePlatform()) return;
+  const { Haptics, NotificationType } = await import('@capacitor/haptics');
+  await Haptics.notification({ type: NotificationType.Error });
+}
+
+// ─── Splash Screen ────────────────────────────────────────
+
 export async function hideNativeSplash() {
   if (!isNativePlatform()) return;
   try {
@@ -96,6 +104,91 @@ export async function hideNativeSplash() {
     console.warn('[capacitor] SplashScreen hide failed:', e);
   }
 }
+
+// ─── Native Share ─────────────────────────────────────────
+
+/** Share content using native share sheet. Falls back to clipboard on web. */
+export async function nativeShare(opts: { title?: string; text?: string; url?: string }) {
+  if (isNativePlatform()) {
+    try {
+      const { Share } = await import('@capacitor/share');
+      await Share.share(opts);
+      await hapticLight();
+      return;
+    } catch (e) {
+      console.warn('[capacitor] Share failed:', e);
+    }
+  }
+  // Web fallback
+  if (navigator.share) {
+    await navigator.share(opts);
+  } else if (opts.url) {
+    await navigator.clipboard.writeText(opts.url);
+  }
+}
+
+// ─── In-App Browser ───────────────────────────────────────
+
+/** Open URL in native in-app browser. Falls back to window.open on web. */
+export async function openInAppBrowser(url: string) {
+  if (isNativePlatform()) {
+    try {
+      const { Browser } = await import('@capacitor/browser');
+      await Browser.open({ url, presentationStyle: 'popover' });
+      return;
+    } catch (e) {
+      console.warn('[capacitor] Browser open failed:', e);
+    }
+  }
+  window.open(url, '_blank', 'noopener');
+}
+
+// ─── Camera ───────────────────────────────────────────────
+
+export interface CameraPhoto {
+  dataUrl: string;
+  format: string;
+}
+
+/** Take a photo or pick from gallery. Returns base64 data URL. */
+export async function takePhoto(fromGallery = false): Promise<CameraPhoto | null> {
+  if (!isNativePlatform()) return null;
+  try {
+    const { Camera, CameraResultType, CameraSource } = await import('@capacitor/camera');
+    const photo = await Camera.getPhoto({
+      quality: 85,
+      allowEditing: true,
+      resultType: CameraResultType.DataUrl,
+      source: fromGallery ? CameraSource.Photos : CameraSource.Prompt,
+      width: 1024,
+      height: 1024,
+    });
+    await hapticSuccess();
+    return photo.dataUrl ? { dataUrl: photo.dataUrl, format: photo.format } : null;
+  } catch (e) {
+    console.warn('[capacitor] Camera failed:', e);
+    return null;
+  }
+}
+
+// ─── Network ──────────────────────────────────────────────
+
+/** Network status listener */
+export async function onNetworkChange(callback: (connected: boolean) => void) {
+  if (!isNativePlatform()) return;
+  try {
+    const { Network } = await import('@capacitor/network');
+    Network.addListener('networkStatusChange', (status) => {
+      callback(status.connected);
+    });
+    const current = await Network.getStatus();
+    callback(current.connected);
+  } catch (e) {
+    console.warn('[capacitor] Network init failed:', e);
+  }
+}
+
+// ─── Init ─────────────────────────────────────────────────
 
 /** Initialize native plugins on app start */
 export async function initNativePlugins() {
@@ -117,9 +210,6 @@ export async function initNativePlugins() {
     Keyboard.addListener('keyboardDidShow', ({ keyboardHeight }) => {
       document.body.classList.add('keyboard-visible');
       document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
-      // With resize:"none", the webview stays full-size.
-      // We rely on --app-height (from visualViewport) to shrink content naturally.
-      // Do NOT add extra padding — that causes the double-offset white gap.
       syncNativeViewportHeight();
     });
     Keyboard.addListener('keyboardDidHide', () => {
@@ -143,20 +233,5 @@ export async function initNativePlugins() {
     });
   } catch (e) {
     console.warn('[capacitor] App back button init failed:', e);
-  }
-}
-
-/** Network status listener */
-export async function onNetworkChange(callback: (connected: boolean) => void) {
-  if (!isNativePlatform()) return;
-  try {
-    const { Network } = await import('@capacitor/network');
-    Network.addListener('networkStatusChange', (status) => {
-      callback(status.connected);
-    });
-    const current = await Network.getStatus();
-    callback(current.connected);
-  } catch (e) {
-    console.warn('[capacitor] Network init failed:', e);
   }
 }
