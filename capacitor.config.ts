@@ -33,6 +33,13 @@ const config: CapacitorConfig = {
       resize: 'none',
       resizeOnFullScreen: false,
     },
+    Camera: {
+      // iOS: Permissions are declared in Info.plist (auto-added by Capacitor)
+      // Android: Permissions auto-added to AndroidManifest.xml
+    },
+    Browser: {
+      // In-app browser for external links
+    },
   },
 };
 
