@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+import { isNativePlatform } from '@/lib/capacitor';
 
 /**
- * Reactive hook that tracks browser online/offline status.
- * Returns true when the browser is online, false when offline.
+ * Reactive hook that tracks online/offline status.
+ * Uses Capacitor Network plugin on native, browser events on web.
  */
 export function useOnlineStatus(): boolean {
   const [online, setOnline] = useState(
@@ -10,6 +11,29 @@ export function useOnlineStatus(): boolean {
   );
 
   useEffect(() => {
+    // On native, prefer Capacitor Network plugin for reliability
+    if (isNativePlatform()) {
+      let cleanup: (() => void) | undefined;
+
+      (async () => {
+        try {
+          const { Network } = await import('@capacitor/network');
+          const status = await Network.getStatus();
+          setOnline(status.connected);
+
+          const handle = await Network.addListener('networkStatusChange', (s) => {
+            setOnline(s.connected);
+          });
+          cleanup = () => handle.remove();
+        } catch {
+          // Fallback to browser events if plugin fails
+        }
+      })();
+
+      return () => cleanup?.();
+    }
+
+    // Web fallback
     const goOnline = () => setOnline(true);
     const goOffline = () => setOnline(false);
 
