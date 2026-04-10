@@ -40,7 +40,7 @@ export default function InstallPage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-10">
-      <SEOHead title="Installer l'app Siteviral — Téléphone, tablette, PC" description="Installez Siteviral sur votre téléphone, tablette ou ordinateur. Accès rapide, notifications push, mode hors ligne. Application gratuite." canonicalUrl="https://siteviral.com/install" keywords="installer Siteviral, application mobile, PWA, télécharger Siteviral" />
+      <SEOHead title="Installer l'app Siteviral" description="Installez Siteviral sur votre appareil." noindex />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
