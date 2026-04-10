@@ -188,6 +188,22 @@ export default function InstallPage() {
                 </ol>
               </div>
             )}
+
+            {/* Native Android APK download */}
+            <div className="bg-card border border-primary/30 rounded-2xl p-5 space-y-3 text-center">
+              <Badge className="bg-primary/10 text-primary border-primary/20 text-xs">📱 App Native Android</Badge>
+              <p className="text-sm text-muted-foreground">
+                Téléchargez l'application native SiteViral pour Android — expérience complète et optimisée.
+              </p>
+              <a href="/downloads/siteviral-android.apk" download="SiteViral.apk">
+                <Button size="lg" className="w-full h-12 text-base gap-2 bg-green-600 hover:bg-green-700 text-white">
+                  <Download className="h-5 w-5" /> Télécharger l'APK Android
+                </Button>
+              </a>
+              <p className="text-[11px] text-muted-foreground">
+                Activez « Sources inconnues » dans vos paramètres pour installer.
+              </p>
+            </div>
           </div>
         )}
 
