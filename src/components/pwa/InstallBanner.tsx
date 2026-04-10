@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, X, Share, Plus } from 'lucide-react';
+import { isNativePlatform } from '@/lib/capacitor';
 import { Button } from '@/components/ui/button';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useI18n } from '@/i18n/I18nContext';
