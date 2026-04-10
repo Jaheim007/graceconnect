@@ -88,17 +88,31 @@ export default function InstallPage() {
               ))}
             </div>
 
-            {/* Native install button (Chrome/Edge on Android/Desktop) */}
-            {canInstall && !isIOS && (
-              <Button size="lg" className="w-full bg-primary text-primary-foreground h-12 text-base gap-2" onClick={handleInstall} disabled={installing}>
-                <Download className="h-5 w-5" /> {installing ? 'Installation…' : t('install.install_now')}
-              </Button>
+            {/* ===== Android APK — PRIMARY ===== */}
+            {!isIOS && (
+              <div className="bg-card border-2 border-primary rounded-2xl p-5 space-y-3 text-center">
+                <Badge className="bg-primary/10 text-primary border-primary/20 text-xs">📱 Android — App Native</Badge>
+                <p className="text-sm text-muted-foreground">
+                  Téléchargez et installez l'application native SiteViral directement sur votre téléphone.
+                </p>
+                <a href="/downloads/siteviral-android.apk" download="SiteViral.apk">
+                  <Button size="lg" className="w-full h-12 text-base gap-2 bg-primary text-primary-foreground">
+                    <Download className="h-5 w-5" /> Télécharger SiteViral (.apk)
+                  </Button>
+                </a>
+                <p className="text-[11px] text-muted-foreground">
+                  Après le téléchargement, ouvrez le fichier. Si demandé, autorisez l'installation depuis « Sources inconnues ».
+                </p>
+              </div>
             )}
 
-            {/* iOS Instructions */}
+            {/* ===== iOS Instructions ===== */}
             {isIOS && (
               <div className="bg-card border border-border rounded-2xl p-5 space-y-3 text-left">
                 <Badge variant="secondary" className="text-xs">iPhone / iPad</Badge>
+                <p className="text-sm text-muted-foreground mb-2">
+                  L'app native iOS arrive bientôt. En attendant, installez via Safari :
+                </p>
                 <ol className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="font-bold text-foreground shrink-0">1.</span>
@@ -116,37 +130,20 @@ export default function InstallPage() {
               </div>
             )}
 
-            {/* Desktop browser instructions */}
-            {!canInstall && !isIOS && (
-              <div className="bg-card border border-border rounded-2xl p-5 space-y-3 text-left">
-                <Badge variant="secondary" className="text-xs">
-                  {isChrome ? 'Google Chrome' : isEdge ? 'Microsoft Edge' : isFirefox ? 'Firefox' : isSafariDesktop ? 'Safari' : 'Navigateur'}
-                </Badge>
-                <ol className="space-y-2 text-sm text-muted-foreground">
-                  {isChrome || isEdge ? (
-                    <>
-                      <li className="flex items-start gap-2">
-                        <span className="font-bold text-foreground shrink-0">1.</span>
-                        Cliquez sur l'icône d'installation <Download className="inline h-4 w-4 text-primary mx-0.5" /> dans la barre d'adresse
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="font-bold text-foreground shrink-0">2.</span>
-                        Cliquez sur <strong className="text-foreground">« Installer »</strong>
-                      </li>
-                    </>
-                  ) : isFirefox ? (
-                    <>
-                      <li className="flex items-start gap-2">
-                        <span className="font-bold text-foreground shrink-0">1.</span>
-                        Ouvrez le menu <strong className="text-foreground">(☰)</strong>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="font-bold text-foreground shrink-0">2.</span>
-                        Sélectionnez <strong className="text-foreground">« Installer cette application »</strong>
-                      </li>
-                    </>
-                  ) : isSafariDesktop ? (
-                    <>
+            {/* ===== PWA as secondary option on desktop ===== */}
+            {!isIOS && (canInstall || isSafariDesktop) && (
+              <details className="bg-card border border-border rounded-2xl p-4">
+                <summary className="text-xs text-muted-foreground cursor-pointer font-medium">
+                  💻 Autre option : installer depuis le navigateur (PWA)
+                </summary>
+                <div className="mt-3 space-y-3">
+                  {canInstall && (
+                    <Button size="sm" variant="outline" className="w-full gap-2" onClick={handleInstall} disabled={installing}>
+                      <Download className="h-4 w-4" /> {installing ? 'Installation…' : 'Installer la version web'}
+                    </Button>
+                  )}
+                  {!canInstall && isSafariDesktop && (
+                    <ol className="space-y-2 text-sm text-muted-foreground">
                       <li className="flex items-start gap-2">
                         <span className="font-bold text-foreground shrink-0">1.</span>
                         Cliquez sur <strong className="text-foreground">Fichier → Ajouter au Dock</strong>
@@ -155,55 +152,11 @@ export default function InstallPage() {
                         <span className="font-bold text-foreground shrink-0">2.</span>
                         Confirmez avec <strong className="text-foreground">« Ajouter »</strong>
                       </li>
-                    </>
-                  ) : (
-                    <>
-                      <li className="flex items-start gap-2">
-                        <span className="font-bold text-foreground shrink-0">1.</span>
-                        Ouvrez le menu du navigateur <strong className="text-foreground">(⋮)</strong>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="font-bold text-foreground shrink-0">2.</span>
-                        Sélectionnez <strong className="text-foreground">« Installer l'application »</strong>
-                      </li>
-                    </>
+                    </ol>
                   )}
-                </ol>
-              </div>
+                </div>
+              </details>
             )}
-
-            {/* Android fallback instructions */}
-            {!canInstall && !isIOS && !isSafariDesktop && (
-              <div className="bg-card border border-border rounded-2xl p-5 space-y-3 text-left">
-                <Badge variant="secondary" className="text-xs">Android</Badge>
-                <ol className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <span className="font-bold text-foreground shrink-0">1.</span>
-                    Appuyez sur le menu <strong className="text-foreground">(⋮)</strong> du navigateur
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="font-bold text-foreground shrink-0">2.</span>
-                    Sélectionnez <strong className="text-foreground">« Ajouter à l'écran d'accueil »</strong>
-                  </li>
-                </ol>
-              </div>
-            )}
-
-            {/* Native Android APK download */}
-            <div className="bg-card border border-primary/30 rounded-2xl p-5 space-y-3 text-center">
-              <Badge className="bg-primary/10 text-primary border-primary/20 text-xs">📱 App Native Android</Badge>
-              <p className="text-sm text-muted-foreground">
-                Téléchargez l'application native SiteViral pour Android — expérience complète et optimisée.
-              </p>
-              <a href="/downloads/siteviral-android.apk" download="SiteViral.apk">
-                <Button size="lg" className="w-full h-12 text-base gap-2 bg-green-600 hover:bg-green-700 text-white">
-                  <Download className="h-5 w-5" /> Télécharger l'APK Android
-                </Button>
-              </a>
-              <p className="text-[11px] text-muted-foreground">
-                Activez « Sources inconnues » dans vos paramètres pour installer.
-              </p>
-            </div>
           </div>
         )}
 
