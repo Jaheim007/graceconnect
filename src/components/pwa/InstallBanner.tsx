@@ -43,7 +43,7 @@ export function InstallBanner() {
     }
   };
 
-  if (isInstalled || !visible) return null;
+  if (isInstalled || !visible || isNativePlatform()) return null;
 
   return (
     <AnimatePresence>
