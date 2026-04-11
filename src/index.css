@@ -603,3 +603,47 @@ body > div[style*="position: fixed"][style*="opacity"] {
 .capacitor-app .cookie-consent-banner {
   display: none !important;
 }
+
+/* ══════════════════════════════════════════════
+   PLATFORM-ADAPTIVE CSS LAYER
+   Uses data-platform (web|pwa|android|ios) and
+   data-shell (browser|standalone|native-wrapper)
+   set by applyPlatformClasses() in platform.ts
+   ══════════════════════════════════════════════ */
+
+/* PWA standalone — subtle overscroll containment */
+[data-shell="standalone"] body {
+  overscroll-behavior-y: contain;
+}
+
+/* PWA standalone — hide install prompts */
+[data-shell="standalone"] .pwa-install-prompt,
+[data-shell="standalone"] .install-banner {
+  display: none !important;
+}
+
+/* iOS native — extra bottom padding for home indicator */
+[data-platform="ios"] .native-bottom-nav {
+  padding-bottom: max(env(safe-area-inset-bottom), 8px);
+}
+
+/* Android native — status bar tinting handled by Capacitor */
+[data-platform="android"] .native-app-shell {
+  padding-top: 0;
+}
+
+/* Touch devices — larger hit targets */
+[data-touch="true"] button,
+[data-touch="true"] a,
+[data-touch="true"] [role="button"] {
+  min-height: 40px;
+  min-width: 40px;
+}
+
+/* Non-touch (desktop) — show hover effects */
+@media (hover: hover) and (pointer: fine) {
+  [data-shell="browser"] .action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -8px hsl(var(--primary) / 0.15);
+  }
+}

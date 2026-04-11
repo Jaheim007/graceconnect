@@ -6,6 +6,7 @@ import { Sidebar } from './Sidebar';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useOrg } from '@/contexts/OrgContext';
 import { InstallBanner } from '@/components/pwa/InstallBanner';
+import { PWAUpdateToast } from '@/components/pwa/PWAUpdateToast';
 import { PushNotificationPrompt } from '@/components/pwa/PushNotificationPrompt';
 import { useNewUserRedirect } from '@/hooks/useNewUserRedirect';
 import { CommandPalette } from '@/components/command/CommandPalette';
@@ -79,6 +80,7 @@ export function AppLayout() {
 
       <CommandPalette />
       <InstallBanner />
+      <PWAUpdateToast />
       <PushNotificationPrompt />
       <BackToTopProgress />
       <CookieConsent />

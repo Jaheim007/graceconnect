@@ -6,6 +6,7 @@ import { capturePromoFromUrl } from './hooks/usePromoCapture';
 import { prefetchRates } from './lib/currencyConvert';
 import { SplashScreen as NativeIntroSplash } from './components/splash/SplashScreen';
 import { hideNativeSplash, initNativePlugins, isNativePlatform } from './lib/capacitor';
+import { applyPlatformClasses } from './lib/platform';
 import "./index.css";
 
 // Capture promo code from URL params on page load
@@ -120,10 +121,10 @@ const registerSW = async () => {
       const updateSW = registerSW({
         immediate: true,
         onNeedRefresh() {
-          // Show update notification
-          if (confirm('Une nouvelle version de Siteviral est disponible. Mettre à jour maintenant ?')) {
-            updateSW(true);
-          }
+          // Dispatch event so a React component can show a proper UI toast
+          window.dispatchEvent(new CustomEvent('sv:sw-update-available', {
+            detail: { update: () => updateSW(true) },
+          }));
         },
         onOfflineReady() {
           console.log('[PWA] App prête pour utilisation hors ligne');
@@ -158,6 +159,9 @@ registerSW();
 
 // Initialize Capacitor native plugins
 initNativePlugins();
+
+// Apply platform detection classes (data-platform, data-shell, data-touch)
+applyPlatformClasses();
 
 // Add native platform class for CSS targeting
 if (isNativeApp) {
