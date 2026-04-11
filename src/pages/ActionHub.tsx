@@ -18,13 +18,13 @@ const container = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.15 },
+    transition: { staggerChildren: 0.05, delayChildren: 0.1 },
   },
 };
 
 const item = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 400, damping: 28 } },
 };
 
 export default function ActionHub() {
@@ -80,8 +80,8 @@ export default function ActionHub() {
         }]}
       />
 
-      {/* Minimal top bar */}
-      <header className="h-14 sticky top-0 z-40 glass border-b border-border flex items-center px-4 gap-3">
+      {/* Compact mobile-first top bar */}
+      <header className="h-12 sm:h-14 sticky top-0 z-40 glass border-b border-border flex items-center px-3 sm:px-4 gap-2">
         <SiteLogo size="sm" animate />
         <div className="flex-1" />
         <GlobalPreferencesSelector />
@@ -89,72 +89,73 @@ export default function ActionHub() {
           {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
         {user ? (
-          <Button size="sm" className="h-8 text-xs" onClick={() => navigate('/dashboard')}>
+          <Button size="sm" className="h-8 text-xs font-semibold rounded-xl px-4" onClick={() => navigate('/dashboard')}>
             {isFr ? 'Tableau de bord' : 'Dashboard'}
           </Button>
         ) : (
-          <Button size="sm" className="h-8 text-xs" onClick={() => navigate('/auth')}>
+          <Button size="sm" className="h-8 text-xs font-semibold rounded-xl px-4" onClick={() => navigate('/auth')}>
             {isFr ? 'Connexion' : 'Sign in'}
           </Button>
         )}
       </header>
 
-      {/* Main content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+      {/* Main content — centered vertically, mobile-optimized spacing */}
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 pb-28 sm:pb-8">
         <motion.div
           variants={container}
           initial="hidden"
           animate="show"
-          className="w-full max-w-md space-y-6"
+          className="w-full max-w-md space-y-5"
         >
-          {/* Hero text */}
-          <motion.div variants={item} className="text-center space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-2">
+          {/* Compact hero */}
+          <motion.div variants={item} className="text-center space-y-1.5">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-semibold mb-1">
               <Sparkles className="h-3 w-3" />
               {isFr ? 'Gratuit pour commencer' : 'Free to start'}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground leading-tight">
               {user && displayName
                 ? (isFr ? `Salut ${displayName} 👋` : `Hey ${displayName} 👋`)
                 : (isFr ? 'Que veux-tu faire ?' : 'What do you want to do?')}
             </h1>
-            <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-              {user
-                ? (isFr ? "Que veux-tu faire aujourd'hui ?" : 'What would you like to do today?')
-                : (isFr ? 'Crée, vends et gagne — tout en un seul endroit.' : 'Create, sell & earn — all in one place.')}
-            </p>
+            {!user && (
+              <p className="text-xs text-muted-foreground max-w-[260px] mx-auto">
+                {isFr ? 'Crée, vends et gagne — tout en un seul endroit.' : 'Create, sell & earn — all in one place.'}
+              </p>
+            )}
           </motion.div>
 
-          {/* Action cards */}
-          <div className="space-y-3">
+          {/* Action cards — larger touch targets */}
+          <div className="space-y-2.5">
             {actions.map((action) => (
               <motion.button
                 key={action.id}
                 variants={item}
                 onClick={() => navigate(action.route)}
                 className={cn(
-                  'w-full flex items-center gap-4 p-4 rounded-2xl border bg-card transition-all duration-200 group text-left',
-                  'hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5 active:scale-[0.98]',
+                  'w-full flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl border bg-card transition-all duration-150 group text-left',
+                  'active:scale-[0.97] active:opacity-80',
+                  'hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5',
                   action.borderClass
                 )}
               >
-                <div className={cn('h-12 w-12 rounded-xl flex items-center justify-center shrink-0', action.iconBg)}>
+                <div className={cn('h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0', action.iconBg)}>
                   <action.icon className={cn('h-5 w-5', action.iconColor)} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-sm text-foreground">{isFr ? action.titleFr : action.titleEn}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{isFr ? action.descFr : action.descEn}</div>
+                  <div className="font-bold text-[13px] sm:text-sm text-foreground leading-tight">{isFr ? action.titleFr : action.titleEn}</div>
+                  <div className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 leading-snug">{isFr ? action.descFr : action.descEn}</div>
                 </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
+                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-all shrink-0" />
               </motion.button>
             ))}
           </div>
 
-          {/* Secondary link */}
-          <motion.div variants={item} className="text-center pt-2">
+          {/* Footer link */}
+          <motion.div variants={item} className="text-center pt-1">
             <button
               onClick={() => navigate('/a-propos')}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
+              className="text-[10px] text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
             >
               {isFr ? 'En savoir plus sur SiteViral' : 'Learn more about SiteViral'}
             </button>

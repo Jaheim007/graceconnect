@@ -55,7 +55,7 @@ export function TopBar() {
 
   return (
     <>
-      <header className="h-14 shrink-0 z-40 glass border-b border-border flex items-center px-3 sm:px-4 gap-2">
+      <header className="h-12 sm:h-14 shrink-0 z-40 glass border-b border-border flex items-center px-3 sm:px-4 gap-1.5 sm:gap-2">
         <div className="flex lg:hidden items-center mr-0.5">
           <SiteLogo size="sm" animate />
         </div>

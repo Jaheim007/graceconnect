@@ -548,7 +548,31 @@ body > div[style*="position: fixed"][style*="opacity"] {
 .capacitor-app a:active,
 .capacitor-app [role="button"]:active {
   opacity: 0.7;
-  transition: opacity 0.1s ease;
+  transform: scale(0.97);
+  transition: opacity 0.08s ease, transform 0.08s ease;
+}
+
+/* Mobile-first: minimum 44px touch targets */
+@media (max-width: 640px) {
+  button, a, [role="button"], input[type="submit"], input[type="button"] {
+    min-height: 40px;
+  }
+}
+
+/* Smooth momentum scrolling everywhere */
+@media (pointer: coarse) {
+  .overflow-y-auto, .overflow-auto, .overflow-y-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* Reduce motion for performance on low-end devices */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Hide scrollbars on native (more app-like) */
