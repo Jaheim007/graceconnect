@@ -54,9 +54,7 @@ export function AdaptiveLayout({ children }: { children: ReactNode }) {
         >
         {children}
         </main>
-        <nav className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-50 lg:hidden" aria-label="Navigation mobile">
-          <BottomNav />
-        </nav>
+        {/* BottomNav is now rendered globally by GlobalBottomNav */}
       </div>
     );
   }
@@ -85,9 +83,7 @@ export function AdaptiveLayout({ children }: { children: ReactNode }) {
         </main>
       </div>
 
-      <nav className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-50 lg:hidden" aria-label="Navigation mobile">
-        <BottomNav />
-      </nav>
+      {/* BottomNav is now rendered globally by GlobalBottomNav */}
       <CommandPalette />
     </div>
   );

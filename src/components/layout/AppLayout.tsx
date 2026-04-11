@@ -75,11 +75,7 @@ export function AppLayout() {
         </main>
       </div>
 
-      {!hideNav && (
-        <nav id="bottom-nav" aria-label="Navigation mobile" className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-50 lg:hidden">
-          <BottomNav />
-        </nav>
-      )}
+      {/* BottomNav is now rendered globally by GlobalBottomNav */}
 
       <CommandPalette />
       <InstallBanner />
