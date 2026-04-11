@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
-import { BottomNav } from './BottomNav';
+
 import { PublicTopBar } from './PublicTopBar';
 import { useAuth } from '@/contexts/AuthContext';
 import { LandingNav } from '@/components/landing/LandingNav';
