@@ -55,7 +55,15 @@ export function BottomNav() {
             return (
               <button
                 key={item.id}
-                onClick={() => navigate(item.route)}
+                onClick={() => {
+                  // Items that require auth for non-connected users
+                  const authRequired = ['purchases', 'sales', 'orgs', 'superadmin'];
+                  if (!user && authRequired.includes(item.id)) {
+                    navigate('/auth');
+                    return;
+                  }
+                  navigate(item.route);
+                }}
                 className={cn(
                   'flex min-w-[64px] shrink-0 snap-center flex-col items-center gap-1 rounded-xl px-3 py-2 transition-all duration-200',
                   active
