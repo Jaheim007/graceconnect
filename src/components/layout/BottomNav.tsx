@@ -47,7 +47,7 @@ export function BottomNav() {
       <div className="rounded-[1.35rem] border border-border bg-card/95 backdrop-blur-xl shadow-elevated">
         <div
           ref={scrollRef}
-          className="flex items-center gap-1 overflow-x-auto px-2 py-2 scrollbar-hide snap-x snap-mandatory"
+          className="flex items-center gap-0.5 overflow-x-auto px-1.5 py-1.5 scrollbar-hide snap-x snap-mandatory"
         >
           {navItems.map((item) => {
             const active = isActive(item.route);
@@ -56,7 +56,6 @@ export function BottomNav() {
               <button
                 key={item.id}
                 onClick={() => {
-                  // Items that require auth for non-connected users
                   const authRequired = ['purchases', 'sales', 'orgs', 'superadmin'];
                   if (!user && authRequired.includes(item.id)) {
                     navigate('/auth');
@@ -65,17 +64,18 @@ export function BottomNav() {
                   navigate(item.route);
                 }}
                 className={cn(
-                  'flex min-w-[64px] shrink-0 snap-center flex-col items-center gap-1 rounded-xl px-3 py-2 transition-all duration-200',
+                  'flex min-w-[60px] shrink-0 snap-center flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 transition-all duration-150',
+                  'active:scale-95 active:opacity-70',
                   active
                     ? cn('bg-card shadow-sm border', item.borderClass.replace('hover:', ''))
                     : 'border border-transparent'
                 )}
               >
-                <div className={cn('flex h-8 w-8 items-center justify-center rounded-lg', item.iconBg)}>
-                  <Icon className={cn('h-4 w-4', item.iconColor)} />
+                <div className={cn('flex h-7 w-7 items-center justify-center rounded-lg', item.iconBg)}>
+                  <Icon className={cn('h-3.5 w-3.5', item.iconColor)} />
                 </div>
                 <span className={cn(
-                  'text-[9px] font-medium leading-tight text-center whitespace-nowrap',
+                  'text-[8px] font-medium leading-none text-center whitespace-nowrap',
                   active ? 'text-foreground font-bold' : 'text-muted-foreground'
                 )}>
                   {isFr ? item.titleFr : item.titleEn}
