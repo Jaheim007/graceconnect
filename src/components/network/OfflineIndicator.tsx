@@ -1,37 +1,33 @@
-import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { WifiOff, Wifi } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useState, useEffect } from 'react';
 
 /**
- * OfflineIndicator — Shows a persistent banner when the user loses
- * internet connectivity, and a brief "back online" message on reconnect.
+ * OfflineIndicator — Unified offline/online banner.
+ * Uses Capacitor Network plugin on native, browser events on web/PWA.
  */
 export function OfflineIndicator() {
-  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const isOnline = useOnlineStatus();
   const [showReconnected, setShowReconnected] = useState(false);
+  const [wasOffline, setWasOffline] = useState(false);
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
   useEffect(() => {
-    const handleOffline = () => setIsOffline(true);
-    const handleOnline = () => {
-      setIsOffline(false);
+    if (!isOnline) {
+      setWasOffline(true);
+    } else if (wasOffline) {
       setShowReconnected(true);
-      setTimeout(() => setShowReconnected(false), 3000);
-    };
-
-    window.addEventListener('offline', handleOffline);
-    window.addEventListener('online', handleOnline);
-    return () => {
-      window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('online', handleOnline);
-    };
-  }, []);
+      const t = setTimeout(() => setShowReconnected(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [isOnline, wasOffline]);
 
   return (
     <AnimatePresence>
-      {isOffline && (
+      {!isOnline && (
         <motion.div
           initial={{ y: -40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -42,7 +38,7 @@ export function OfflineIndicator() {
           {isFr ? 'Vous êtes hors ligne. Certaines fonctionnalités peuvent être limitées.' : 'You are offline. Some features may be limited.'}
         </motion.div>
       )}
-      {showReconnected && !isOffline && (
+      {showReconnected && isOnline && (
         <motion.div
           initial={{ y: -40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

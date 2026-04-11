@@ -6,6 +6,7 @@ import { capturePromoFromUrl } from './hooks/usePromoCapture';
 import { prefetchRates } from './lib/currencyConvert';
 import { SplashScreen as NativeIntroSplash } from './components/splash/SplashScreen';
 import { hideNativeSplash, initNativePlugins, isNativePlatform } from './lib/capacitor';
+import { applyPlatformClasses } from './lib/platform';
 import "./index.css";
 
 // Capture promo code from URL params on page load
