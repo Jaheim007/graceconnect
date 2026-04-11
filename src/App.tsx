@@ -14,6 +14,7 @@ import { I18nProvider } from "@/i18n/I18nContext";
 // Layout (always loaded)
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PublicLayout } from "@/components/layout/PublicLayout";
+import { GlobalBottomNav } from "@/components/layout/GlobalBottomNav";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { RequireAuth, RequireSuperadmin, RequireOrgManage } from "@/components/layout/RouteGuard";
 import { GDPRBanner } from "@/components/layout/GDPRBanner";
@@ -555,6 +556,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </Suspense>
+              <GlobalBottomNav />
             
             
             </BrowserRouter>
