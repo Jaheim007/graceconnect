@@ -121,10 +121,10 @@ const registerSW = async () => {
       const updateSW = registerSW({
         immediate: true,
         onNeedRefresh() {
-          // Show update notification
-          if (confirm('Une nouvelle version de Siteviral est disponible. Mettre à jour maintenant ?')) {
-            updateSW(true);
-          }
+          // Dispatch event so a React component can show a proper UI toast
+          window.dispatchEvent(new CustomEvent('sv:sw-update-available', {
+            detail: { update: () => updateSW(true) },
+          }));
         },
         onOfflineReady() {
           console.log('[PWA] App prête pour utilisation hors ligne');
