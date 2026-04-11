@@ -2,7 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
-import { BottomNav } from './BottomNav';
+
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useOrg } from '@/contexts/OrgContext';
 import { InstallBanner } from '@/components/pwa/InstallBanner';
@@ -75,11 +75,7 @@ export function AppLayout() {
         </main>
       </div>
 
-      {!hideNav && (
-        <nav id="bottom-nav" aria-label="Navigation mobile" className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-50 lg:hidden">
-          <BottomNav />
-        </nav>
-      )}
+      {/* BottomNav is now rendered globally by GlobalBottomNav */}
 
       <CommandPalette />
       <InstallBanner />
