@@ -160,6 +160,9 @@ registerSW();
 // Initialize Capacitor native plugins
 initNativePlugins();
 
+// Apply platform detection classes (data-platform, data-shell, data-touch)
+applyPlatformClasses();
+
 // Add native platform class for CSS targeting
 if (isNativeApp) {
   document.body.classList.add('capacitor-app');
