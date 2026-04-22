@@ -53,7 +53,8 @@ type EmailTemplate =
   | 'org_welcome_j0' | 'org_onboarding_j1' | 'org_onboarding_j3'
   | 'post_purchase_ambassador_j1' | 'post_purchase_ambassador_j5' | 'post_purchase_ambassador_j10'
   | 'buyer_to_creator' | 'visitor_to_creator' | 'first_commission_earned' | 'trending_product_nudge'
-  | 'reactivation_ghost' | 'reactivation_no_product' | 'reactivation_no_sales' | 'reactivation_ambassador';
+  | 'reactivation_ghost' | 'reactivation_no_product' | 'reactivation_no_sales' | 'reactivation_ambassador'
+  | 'inspiration_digest';
 
 type Lang = 'fr' | 'en';
 
@@ -972,6 +973,26 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
           ${cta('https://siteviral.com/admin/products', 'View my content')}
         `, lang),
         fromOverride: 'Siteviral Team <team@siteviral.com>',
+      };
+    }
+
+    // ═══ INSPIRATION DIGEST (AI-generated marketing email, Tue/Thu) ═══
+    case 'inspiration_digest': {
+      const subj = String(d.subject_line || (isFr ? '✨ Inspiration SiteViral' : '✨ SiteViral Inspiration'));
+      const headline = String(d.headline || (isFr ? 'Inspiration du jour' : 'Today\'s inspiration'));
+      const bodyHtml = String(d.body_html || '');
+      const ctaText = String(d.cta_text || (isFr ? 'Découvrir →' : 'Discover →'));
+      const ctaUrl = String(d.cta_url || 'https://siteviral.com');
+      const tagline = String(d.tagline || (isFr ? 'L\'équipe SiteViral' : 'The SiteViral team'));
+      return {
+        subject: subj,
+        html: wrap(`
+          <p style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:${blue};margin:0 0 8px">${isFr ? 'Inspiration' : 'Inspiration'}</p>
+          <h1 style="color:#fff;margin:0 0 20px;font-size:22px;line-height:1.3">${headline}</h1>
+          <div style="color:#ddd;line-height:1.6;font-size:14px">${bodyHtml}</div>
+          ${cta(ctaUrl, ctaText)}
+          <p style="font-size:13px;color:#999;margin-top:24px">${isFr ? 'À très vite,' : 'Talk soon,'}<br/><strong style="color:#ccc">${tagline}</strong></p>
+        `, lang),
       };
     }
 
