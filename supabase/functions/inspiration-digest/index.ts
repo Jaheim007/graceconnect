@@ -170,10 +170,9 @@ async function getRecipients(db: any, segment: Segment): Promise<Array<{ email: 
     for (let i = 0; i < userIds.length; i += 100) {
       const batch = userIds.slice(i, i + 100);
       const { data: profiles } = await db.from('profiles')
-        .select('id, display_name, language, email_marketing_opted_out')
+        .select('id, display_name, preferred_language')
         .in('id', batch);
       for (const p of profiles || []) {
-        if (p.email_marketing_opted_out) continue;
         try {
           const { data } = await db.auth.admin.getUserById(p.id);
           const email = data?.user?.email;
@@ -182,7 +181,7 @@ async function getRecipients(db: any, segment: Segment): Promise<Array<{ email: 
             out.push({
               email,
               name: p.display_name,
-              lang: (p.language === 'en' ? 'en' : 'fr') as Lang,
+              lang: (p.preferred_language === 'en' ? 'en' : 'fr') as Lang,
             });
           }
         } catch {}
@@ -195,14 +194,13 @@ async function getRecipients(db: any, segment: Segment): Promise<Array<{ email: 
     const { data: actives } = await db.from('profiles')
       .select('id')
       .gte('updated_at', ninetyDaysAgo)
-      .eq('email_marketing_opted_out', false)
       .limit(2000);
     const ids = (actives || []).map((r: any) => r.id);
     return emailsForUsers(ids);
   }
 
   if (segment === 'creators') {
-    const { data: roles } = await db.from('user_organization_roles')
+    const { data: roles } = await db.from('organization_members')
       .select('user_id')
       .in('role', ['admin', 'owner', 'editor'])
       .limit(2000);
