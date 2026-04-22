@@ -1597,6 +1597,7 @@ export type Database = {
           social_snippets_json: Json | null
           submitted_for_review_at: string | null
           testimonials_json: Json | null
+          themes: string[] | null
           tiktok_pixel_id: string | null
           title: string
           updated_at: string | null
@@ -1652,6 +1653,7 @@ export type Database = {
           social_snippets_json?: Json | null
           submitted_for_review_at?: string | null
           testimonials_json?: Json | null
+          themes?: string[] | null
           tiktok_pixel_id?: string | null
           title: string
           updated_at?: string | null
@@ -1707,6 +1709,7 @@ export type Database = {
           social_snippets_json?: Json | null
           submitted_for_review_at?: string | null
           testimonials_json?: Json | null
+          themes?: string[] | null
           tiktok_pixel_id?: string | null
           title?: string
           updated_at?: string | null
@@ -1787,6 +1790,7 @@ export type Database = {
           is_featured: boolean | null
           is_published: boolean | null
           organization_id: string
+          themes: string[] | null
           title: string
           updated_at: string | null
         }
@@ -1806,6 +1810,7 @@ export type Database = {
           is_featured?: boolean | null
           is_published?: boolean | null
           organization_id: string
+          themes?: string[] | null
           title: string
           updated_at?: string | null
         }
@@ -1825,6 +1830,7 @@ export type Database = {
           is_featured?: boolean | null
           is_published?: boolean | null
           organization_id?: string
+          themes?: string[] | null
           title?: string
           updated_at?: string | null
         }
@@ -2100,6 +2106,7 @@ export type Database = {
           reviewed_by: string | null
           scheduled_at: string | null
           submitted_for_review_at: string | null
+          themes: string[] | null
           title: string
           updated_at: string | null
           video_url: string | null
@@ -2123,6 +2130,7 @@ export type Database = {
           reviewed_by?: string | null
           scheduled_at?: string | null
           submitted_for_review_at?: string | null
+          themes?: string[] | null
           title: string
           updated_at?: string | null
           video_url?: string | null
@@ -2146,6 +2154,7 @@ export type Database = {
           reviewed_by?: string | null
           scheduled_at?: string | null
           submitted_for_review_at?: string | null
+          themes?: string[] | null
           title?: string
           updated_at?: string | null
           video_url?: string | null
@@ -2672,6 +2681,7 @@ export type Database = {
           speaker: string | null
           submitted_for_review_at: string | null
           tags: string[] | null
+          themes: string[] | null
           thumbnail_url: string | null
           title: string
           updated_at: string | null
@@ -2701,6 +2711,7 @@ export type Database = {
           speaker?: string | null
           submitted_for_review_at?: string | null
           tags?: string[] | null
+          themes?: string[] | null
           thumbnail_url?: string | null
           title: string
           updated_at?: string | null
@@ -2730,6 +2741,7 @@ export type Database = {
           speaker?: string | null
           submitted_for_review_at?: string | null
           tags?: string[] | null
+          themes?: string[] | null
           thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
@@ -4901,6 +4913,7 @@ export type Database = {
           reviewed_by: string | null
           scheduled_at: string | null
           submitted_for_review_at: string | null
+          themes: string[] | null
           title: string
           updated_at: string
         }
@@ -4931,6 +4944,7 @@ export type Database = {
           reviewed_by?: string | null
           scheduled_at?: string | null
           submitted_for_review_at?: string | null
+          themes?: string[] | null
           title: string
           updated_at?: string
         }
@@ -4961,6 +4975,7 @@ export type Database = {
           reviewed_by?: string | null
           scheduled_at?: string | null
           submitted_for_review_at?: string | null
+          themes?: string[] | null
           title?: string
           updated_at?: string
         }
@@ -6206,6 +6221,7 @@ export type Database = {
         Args: { _org_id: string; _partner_code: string }
         Returns: Json
       }
+      auto_detect_themes: { Args: { p_text: string }; Returns: string[] }
       can_admin_org: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
@@ -6302,6 +6318,7 @@ export type Database = {
       delete_user_account: { Args: { _user_id: string }; Returns: undefined }
       expire_credit_lots: { Args: { _user_id: string }; Returns: number }
       expire_stale_credit_purchases: { Args: never; Returns: number }
+      f_unaccent: { Args: { "": string }; Returns: string }
       get_credit_summary: { Args: { _user_id: string }; Returns: Json }
       get_org_category_breakdown: { Args: never; Returns: Json }
       get_org_country_breakdown: { Args: { _limit?: number }; Returns: Json }
@@ -6317,6 +6334,13 @@ export type Database = {
           avatar_url: string
           display_name: string
           id: string
+        }[]
+      }
+      get_theme_counts: {
+        Args: never
+        Returns: {
+          count: number
+          theme: string
         }[]
       }
       get_top_orgs_by_revenue: { Args: { _limit?: number }; Returns: Json }
@@ -6415,6 +6439,7 @@ export type Database = {
       }
       release_matured_affiliate_sales: { Args: never; Returns: number }
       release_matured_partner_commissions: { Args: never; Returns: number }
+      resolve_affiliate_link: { Args: { _code: string }; Returns: Json }
       review_org_kyc: {
         Args: { _action: string; _org_id: string; _reason?: string }
         Returns: Json
@@ -6423,10 +6448,32 @@ export type Database = {
         Args: { _action: string; _partner_id: string; _reason?: string }
         Returns: Json
       }
+      score_pattern: {
+        Args: { _pattern: string; _text: string; _weight: number }
+        Returns: number
+      }
       self_enroll_affiliate: { Args: { _org_id: string }; Returns: undefined }
       set_partner_rate_override: {
         Args: { _partner_id: string; _rate: number }
         Returns: Json
+      }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
+      smart_search: {
+        Args: { p_filter?: string; p_limit?: number; p_query: string }
+        Returns: {
+          currency: string
+          id: string
+          image_url: string
+          media_type: string
+          org_name: string
+          org_slug: string
+          price: number
+          rank: number
+          result_type: string
+          subtitle: string
+          title: string
+        }[]
       }
       submit_org_kyc:
         | {
@@ -6511,6 +6558,7 @@ export type Database = {
         Args: { _new_partner_id: string; _reason: string; _referral_id: string }
         Returns: Json
       }
+      unaccent: { Args: { "": string }; Returns: string }
       upsert_scripture_reference: {
         Args: {
           _book: string
