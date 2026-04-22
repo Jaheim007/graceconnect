@@ -4559,6 +4559,7 @@ export type Database = {
           country: string | null
           created_at: string | null
           display_name: string | null
+          email_marketing_opted_out: boolean
           first_action_at: string | null
           id: string
           onboarding_intent: string | null
@@ -4583,6 +4584,7 @@ export type Database = {
           country?: string | null
           created_at?: string | null
           display_name?: string | null
+          email_marketing_opted_out?: boolean
           first_action_at?: string | null
           id: string
           onboarding_intent?: string | null
@@ -4607,6 +4609,7 @@ export type Database = {
           country?: string | null
           created_at?: string | null
           display_name?: string | null
+          email_marketing_opted_out?: boolean
           first_action_at?: string | null
           id?: string
           onboarding_intent?: string | null
