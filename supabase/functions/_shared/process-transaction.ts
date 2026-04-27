@@ -736,6 +736,25 @@ export async function processTransaction(
     });
   }
 
+  // ── 14. Record commission savings (Pro/Org/Founder) or paid (Free) for monthly recap email ──
+  try {
+    if (org.owner_id) {
+      const monthKey = new Date().toISOString().slice(0, 7); // YYYY-MM
+      await db.from('platform_commission_savings').insert({
+        user_id: org.owner_id,
+        organization_id,
+        transaction_id: transactionId,
+        saved_amount_cents: Math.round(savedFee * 100),
+        paid_amount_cents: Math.round(platformFee * 100),
+        currency,
+        tier: resolvedOwnerTier || 'free',
+        month_key: monthKey,
+      });
+    }
+  } catch (e) {
+    console.warn('[process-transaction] Could not log commission savings:', e);
+  }
+
   console.log(`[process-transaction] ✅ ${gateway}/${source} ${type} processed: ${reference} — ${amountPaid} ${currency}`);
 
   return {
