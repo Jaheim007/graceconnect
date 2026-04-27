@@ -369,7 +369,7 @@ export default function PricingPage() {
 
         {/* Founder Lifetime */}
         {foundersLeft !== null && foundersLeft > 0 && !plan.isFounder && (
-          <section className="container max-w-4xl px-4 py-16">
+          <section id="founder" className="container max-w-4xl px-4 py-16 scroll-mt-24">
             <motion.div
               initial="hidden"
               whileInView="visible"
