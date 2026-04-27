@@ -60,7 +60,8 @@ type EmailTemplate =
   | 'subscription_payment_failed' | 'subscription_past_due_reminder'
   | 'trial_ending_3d' | 'trial_ending_1d' | 'trial_ending_today'
   | 'grandfather_ending_soon' | 'grandfather_expired'
-  | 'founder_welcome';
+  | 'founder_welcome'
+  | 'monthly_commission_recap_paid' | 'monthly_commission_recap_saved';
 
 type Lang = 'fr' | 'en';
 
@@ -1076,6 +1077,20 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return isFr
         ? { subject: `👑 Bienvenue parmi les 50 Founders`, html: wrap(`<h1 style="color:${blue}">👑 Vous êtes Founder #${d.slot || '—'}</h1><p>Votre accès <strong>Pro à vie</strong> est activé. Aucune facturation récurrente — vous êtes parmi les 50 fondateurs de SiteViral.</p><p>Merci de croire en cette aventure.</p>${cta('https://siteviral.com/billing', 'Voir mon statut Founder')}`, lang) }
         : { subject: `👑 Welcome to the 50 Founders`, html: wrap(`<h1 style="color:${blue}">👑 You're Founder #${d.slot || '—'}</h1><p>Your <strong>lifetime Pro</strong> access is active. No recurring billing — you're one of SiteViral's 50 founders.</p><p>Thanks for believing in this journey.</p>${cta('https://siteviral.com/billing', 'View Founder status')}`, lang) };
+    }
+
+    case 'monthly_commission_recap_paid': {
+      // Free tier — show what they paid in commissions and tease Pro savings
+      return isFr
+        ? { subject: `📊 Récap ${d.month || ''} : ${d.paid_formatted || ''} de commissions versées`, html: wrap(`<h1 style="color:${orange}">Votre récap commissions de ${d.month || ''}</h1><p>Ce mois-ci, vous avez versé <strong>${d.paid_formatted || '—'}</strong> à SiteViral en commissions de plateforme.</p><p>💡 Avec <strong>Pro</strong> à 19 000 XOF / mois, vous gardez <strong>100% de vos revenus</strong>. Vous auriez économisé ${d.paid_formatted || '—'} ce mois-ci.</p>${cta('https://siteviral.com/billing', 'Passer à Pro')}`, lang) }
+        : { subject: `📊 ${d.month || ''} recap: ${d.paid_formatted || ''} in platform fees`, html: wrap(`<h1 style="color:${orange}">Your commission recap for ${d.month || ''}</h1><p>This month you paid <strong>${d.paid_formatted || '—'}</strong> in SiteViral platform fees.</p><p>💡 On <strong>Pro</strong> ($30/mo), you keep <strong>100% of revenue</strong>. You would have saved ${d.paid_formatted || '—'} this month.</p>${cta('https://siteviral.com/billing', 'Upgrade to Pro')}`, lang) };
+    }
+
+    case 'monthly_commission_recap_saved': {
+      // Pro/Org/Founder — show savings to reinforce value
+      return isFr
+        ? { subject: `🎉 ${d.month || ''} : ${d.saved_formatted || ''} économisés grâce à votre abonnement`, html: wrap(`<h1 style="color:${green}">Bravo ! 🎉</h1><p>Grâce à votre plan <strong>${d.tier_label || 'Pro'}</strong>, vous avez économisé <strong>${d.saved_formatted || '—'}</strong> de commissions ce mois-ci sur SiteViral.</p><p>Total cumulé : <strong>${d.lifetime_saved_formatted || '—'}</strong>.</p>${cta('https://siteviral.com/dashboard', 'Voir mon dashboard')}`, lang) }
+        : { subject: `🎉 ${d.month || ''}: ${d.saved_formatted || ''} saved on platform fees`, html: wrap(`<h1 style="color:${green}">Well done! 🎉</h1><p>Thanks to your <strong>${d.tier_label || 'Pro'}</strong> plan, you saved <strong>${d.saved_formatted || '—'}</strong> in platform fees this month.</p><p>Lifetime saved: <strong>${d.lifetime_saved_formatted || '—'}</strong>.</p>${cta('https://siteviral.com/dashboard', 'View my dashboard')}`, lang) };
     }
 
     default:
