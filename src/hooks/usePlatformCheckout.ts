@@ -10,6 +10,8 @@ interface CheckoutOptions {
   provider: PaymentProvider;
   /** Used by Paystack to pick MoMo currency. Defaults to XOF. */
   currency?: 'XOF' | 'GHS' | 'KES' | 'NGN';
+  /** Optional waitlist coupon code (e.g. EARLY-XXXX) for -20% à vie */
+  couponCode?: string;
 }
 
 /**
@@ -19,7 +21,7 @@ interface CheckoutOptions {
 export function usePlatformCheckout() {
   const [loading, setLoading] = useState(false);
 
-  const startCheckout = async ({ plan, provider, currency = 'XOF' }: CheckoutOptions) => {
+  const startCheckout = async ({ plan, provider, currency = 'XOF', couponCode }: CheckoutOptions) => {
     setLoading(true);
     try {
       const origin = window.location.origin;
@@ -28,7 +30,7 @@ export function usePlatformCheckout() {
 
       if (provider === 'stripe') {
         const { data, error } = await supabase.functions.invoke('create-platform-subscription', {
-          body: { plan_key: plan, success_url: successUrl, cancel_url: cancelUrl },
+          body: { plan_key: plan, success_url: successUrl, cancel_url: cancelUrl, coupon_code: couponCode },
         });
         if (error) throw error;
         if (!data?.url) throw new Error('No checkout URL');
