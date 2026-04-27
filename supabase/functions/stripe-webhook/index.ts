@@ -41,6 +41,126 @@ async function fetchStripeEvent(eventId: string, stripeSecret: string) {
 
 const zeroDecimalCurrencies = ['XOF', 'XAF', 'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG', 'RWF', 'UGX', 'VND', 'VUV'];
 
+const STATUS_MAP: Record<string, string> = {
+  trialing: 'trialing', active: 'active', past_due: 'past_due',
+  canceled: 'canceled', incomplete: 'incomplete', incomplete_expired: 'expired',
+  unpaid: 'past_due', paused: 'past_due',
+};
+
+/**
+ * Handle Stripe events related to a SiteViral platform subscription
+ * (Pro / Org monthly subs and Founder lifetime payments).
+ * Returns `true` if the event was a platform-subscription event (handled or skipped),
+ * `false` if it should fall through to the regular payment flow.
+ */
+async function handlePlatformSubscriptionEvent(event: any, db: any, stripeSecret: string): Promise<boolean> {
+  const obj = event.data?.object;
+  if (!obj) return false;
+
+  // Resolve metadata across event types
+  const meta = obj.metadata || {};
+  const isPlatformSub = meta.platform_subscription === 'true' || meta.founder_lifetime === 'true';
+
+  // For invoice/subscription events, fetch the parent subscription metadata
+  let userId = meta.user_id as string | undefined;
+  let planKey = meta.plan_key as string | undefined;
+  let isFounder = meta.founder_lifetime === 'true';
+
+  if ((!userId || !planKey) && (event.type.startsWith('customer.subscription.') || event.type.startsWith('invoice.'))) {
+    const subId = event.type.startsWith('invoice.') ? obj.subscription : obj.id;
+    if (subId) {
+      try {
+        const r = await fetch(`https://api.stripe.com/v1/subscriptions/${subId}`, {
+          headers: { Authorization: `Bearer ${stripeSecret}` },
+        });
+        const sub = await r.json();
+        userId = sub.metadata?.user_id;
+        planKey = sub.metadata?.plan_key;
+      } catch { /* noop */ }
+    }
+  }
+
+  // checkout.session.completed: distinguish platform sub from regular product payment
+  if (event.type === 'checkout.session.completed') {
+    if (!isPlatformSub) return false; // not us → regular flow
+    // Subscription mode: status update happens via subscription.created event
+    // Founder lifetime (one-off payment_intent): claim slot now
+    if (isFounder && userId) {
+      const paymentIntent = obj.payment_intent;
+      const { data: slot } = await db.rpc('claim_founder_slot', {
+        _user_id: userId,
+        _provider: 'stripe',
+        _external_payment_id: paymentIntent || obj.id,
+        _amount_xof: 49000,
+      });
+      await db.from('platform_subscriptions').upsert({
+        user_id: userId,
+        plan: 'pro',
+        status: 'active',
+        provider: 'founder',
+        stripe_customer_id: obj.customer,
+        amount_xof: 49000,
+        currency: 'USD',
+        billing_interval: 'lifetime',
+        metadata: { plan_key: planKey, founder_slot: slot, payment_intent: paymentIntent },
+      }, { onConflict: 'user_id' });
+      await db.from('platform_subscription_events').insert({
+        user_id: userId, provider: 'stripe', event_type: event.type,
+        external_event_id: event.id, payload: event,
+      });
+      console.log(`[platform-sub] Founder slot ${slot} claimed for ${userId}`);
+    }
+    return true;
+  }
+
+  if (!userId) {
+    console.warn('[platform-sub] No user_id in metadata, skipping', event.type);
+    return true;
+  }
+
+  // Determine plan from plan_key
+  const plan = planKey?.startsWith('org') ? 'org' : 'pro';
+
+  if (event.type.startsWith('customer.subscription.')) {
+    const sub = obj;
+    const update: any = {
+      user_id: userId,
+      plan,
+      status: STATUS_MAP[sub.status] || sub.status,
+      provider: 'stripe',
+      stripe_customer_id: sub.customer,
+      stripe_subscription_id: sub.id,
+      current_period_start: sub.current_period_start ? new Date(sub.current_period_start * 1000).toISOString() : null,
+      current_period_end: sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null,
+      cancel_at_period_end: sub.cancel_at_period_end,
+      canceled_at: sub.canceled_at ? new Date(sub.canceled_at * 1000).toISOString() : null,
+      trial_start: sub.trial_start ? new Date(sub.trial_start * 1000).toISOString() : null,
+      trial_end: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
+      amount_xof: planKey === 'org_monthly' ? 49000 : 19000,
+      currency: 'USD',
+      billing_interval: 'month',
+      metadata: { plan_key: planKey },
+    };
+    await db.from('platform_subscriptions').upsert(update, { onConflict: 'user_id' });
+  } else if (event.type === 'invoice.paid') {
+    await db.from('platform_subscriptions').update({
+      status: 'active',
+    }).eq('user_id', userId);
+  } else if (event.type === 'invoice.payment_failed') {
+    await db.from('platform_subscriptions').update({
+      status: 'past_due',
+    }).eq('user_id', userId);
+  }
+
+  await db.from('platform_subscription_events').insert({
+    user_id: userId, provider: 'stripe', event_type: event.type,
+    external_event_id: event.id, payload: event,
+  });
+
+  console.log(`[platform-sub] ${event.type} processed for ${userId} (${plan})`);
+  return true;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
