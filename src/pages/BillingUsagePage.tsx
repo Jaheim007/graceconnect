@@ -24,8 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useBillingUsage } from '@/hooks/useBillingUsage';
 import { usePlatformPlan } from '@/hooks/usePlatformPlan';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { SEO } from '@/components/SEO';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const T = {
   fr: {
@@ -104,15 +103,16 @@ function StatCard({
 }
 
 export default function BillingUsagePage() {
-  const { language } = useLanguage();
-  const t = T[language === 'en' ? 'en' : 'fr'];
+  // Detect language from browser; falls back to FR (project default).
+  const isEn = typeof navigator !== 'undefined' && navigator.language?.startsWith('en');
+  const t = T[isEn ? 'en' : 'fr'];
   const { data, isLoading } = useBillingUsage();
   const { tier, isTrialing } = usePlatformPlan();
 
   const isPaid = tier === 'pro' || tier === 'org';
-  const fmt = (n: number) => new Intl.NumberFormat(language === 'en' ? 'en-US' : 'fr-FR').format(n);
+  const fmt = (n: number) => new Intl.NumberFormat(isEn ? 'en-US' : 'fr-FR').format(n);
   const fmtMoney = (n: number) =>
-    new Intl.NumberFormat(language === 'en' ? 'en-US' : 'fr-FR', {
+    new Intl.NumberFormat(isEn ? 'en-US' : 'fr-FR', {
       style: 'currency',
       currency: 'XOF',
       maximumFractionDigits: 0,
@@ -120,7 +120,7 @@ export default function BillingUsagePage() {
 
   return (
     <>
-      <SEO
+      <SEOHead
         title={`${t.title} · SiteViral`}
         description={t.subtitle}
         noindex
@@ -193,8 +193,7 @@ export default function BillingUsagePage() {
             <Crown className="h-5 w-5 text-primary shrink-0" />
             <p className="text-sm">
               {t.proValue}
-              {isTrialing && language === 'fr' && ' (essai en cours)'}
-              {isTrialing && language === 'en' && ' (trial active)'}
+              {isTrialing && (isEn ? ' (trial active)' : ' (essai en cours)')}
             </p>
           </Card>
         ) : (
