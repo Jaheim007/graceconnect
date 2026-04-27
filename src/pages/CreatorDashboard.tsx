@@ -14,6 +14,7 @@ import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { CommissionSavingsCard } from '@/components/billing/CommissionSavingsCard';
 
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
