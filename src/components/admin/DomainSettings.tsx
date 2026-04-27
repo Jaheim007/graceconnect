@@ -208,6 +208,7 @@ export function DomainSettings() {
           </TabsContent>
 
           <TabsContent value="custom" className="space-y-4">
+            <RequirePro inline feature={isFr ? 'Domaine personnalisé' : 'Custom domain'}>
             <p className="text-sm text-muted-foreground">
               {isFr
                 ? 'Connectez votre propre domaine (ex: monsite.com). Suivez les instructions ci-dessous.'
