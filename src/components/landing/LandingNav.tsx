@@ -31,7 +31,7 @@ export function LandingNav() {
     { to: '/ecrire', label: t('landing_nav.write') },
     { to: '/gagner', label: t('landing_nav.earn') },
     { to: '/discover', label: t('landing_nav.explore') },
-    { to: '#pricing', label: t('landing_nav.pricing'), isAnchor: true },
+    { to: '/pricing', label: t('landing_nav.pricing') },
   ];
 
   return (
