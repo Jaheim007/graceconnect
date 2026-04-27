@@ -1,9 +1,11 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, PenLine, Share2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { trackEvent } from '@/hooks/useClientAnalytics';
+import { useExperiment } from '@/hooks/useExperiment';
 import { RotatingWords } from './RotatingWords';
 import { GradientText } from './GradientText';
 import { useI18n } from '@/i18n/I18nContext';
@@ -24,7 +26,23 @@ export function LandingHeroManifesto() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
-  return (
+  // A/B test: A = creator-focused (current), B = established-pro positioning
+  const heroVariant = useExperiment('hero_positioning_v1', ['a', 'b'] as const, user?.id);
+  useEffect(() => {
+    trackEvent('experiment_exposure', { exp: 'hero_positioning_v1', variant: heroVariant }, user?.id);
+  }, [heroVariant, user?.id]);
+
+  const badgeText = heroVariant === 'b'
+    ? (isFr ? 'Pour coachs, formateurs et créateurs établis' : 'For coaches, trainers and established creators')
+    : (isFr ? 'Tout le monde peut devenir auteur' : 'Anyone can become an author');
+
+  const subText = heroVariant === 'b'
+    ? (isFr
+        ? <>Garde <strong className="text-white">100% de tes ventes en Pro</strong>. Mobile Money inclus. Ambassadeurs intégrés.</>
+        : <><strong className="text-white">Keep 100% of your sales</strong> on Pro. Mobile Money included. Built-in ambassadors.</>)
+    : (isFr
+        ? <>En <strong className="text-white">5 minutes</strong>. Sans banque. Dans le <strong className="text-white">monde entier</strong>.</>
+        : <>In <strong className="text-white">5 minutes</strong>. No bank needed. <strong className="text-white">Worldwide</strong>.</>);
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* Clean dark gradient - no dots, no clutter */}
       <div className="absolute inset-0 bg-gradient-to-b from-[hsl(220,70%,8%)] via-[hsl(220,60%,12%)] to-background" />
