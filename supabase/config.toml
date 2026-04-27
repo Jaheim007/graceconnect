@@ -245,3 +245,9 @@ verify_jwt = false
 
 [functions.invite-waitlist-batch]
 verify_jwt = false
+
+[functions.public-api]
+verify_jwt = false
+
+[functions.api-keys-manage]
+verify_jwt = false
