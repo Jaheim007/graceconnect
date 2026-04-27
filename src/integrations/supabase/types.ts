@@ -4233,6 +4233,50 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_plan_waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          locale: string | null
+          note: string | null
+          organization_id: string | null
+          plan: Database["public"]["Enums"]["platform_plan_tier"]
+          source: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          locale?: string | null
+          note?: string | null
+          organization_id?: string | null
+          plan: Database["public"]["Enums"]["platform_plan_tier"]
+          source?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          locale?: string | null
+          note?: string | null
+          organization_id?: string | null
+          plan?: Database["public"]["Enums"]["platform_plan_tier"]
+          source?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_plan_waitlist_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_settings: {
         Row: {
           id: string
@@ -6646,6 +6690,7 @@ export type Database = {
       partner_scope: "country" | "regional" | "international"
       partner_status: "pending" | "approved" | "rejected" | "suspended"
       payment_status: "pending" | "completed" | "failed" | "refunded"
+      platform_plan_tier: "free" | "pro" | "org"
       platform_role: "superadmin" | "user"
       purchase_status: "pending" | "completed" | "failed"
       report_status: "pending" | "reviewed" | "resolved" | "dismissed"
@@ -6853,6 +6898,7 @@ export const Constants = {
       partner_scope: ["country", "regional", "international"],
       partner_status: ["pending", "approved", "rejected", "suspended"],
       payment_status: ["pending", "completed", "failed", "refunded"],
+      platform_plan_tier: ["free", "pro", "org"],
       platform_role: ["superadmin", "user"],
       purchase_status: ["pending", "completed", "failed"],
       report_status: ["pending", "reviewed", "resolved", "dismissed"],

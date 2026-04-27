@@ -96,6 +96,7 @@ const GagnerPage = lazy(() => import("@/pages/GagnerPage"));
 const EcrirePage = lazy(() => import("@/pages/EcrirePage"));
 const CreerFormationPage = lazy(() => import("@/pages/CreerFormationPage"));
 const VendrePage = lazy(() => import("@/pages/VendrePage"));
+const PricingPage = lazy(() => import("@/pages/PricingPage"));
 // MigrerPage removed — marginal feature
 const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
 // VendreLandingPage consolidated — redirect to landing
@@ -303,6 +304,8 @@ const App = () => (
                 <Route path="/" element={<ActionHub />} />
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
+                <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/tarifs" element={<Navigate to="/pricing" replace />} />
                 <Route path="/dashboard-preview" element={<RequireSuperadmin><DashboardPreview /></RequireSuperadmin>} />
                 <Route path="/aml" element={<AMLPage />} />
                 <Route path="/refund-policy" element={<RefundPolicyPage />} />

@@ -21,6 +21,7 @@ import { DashboardSection } from '@/components/ui/DashboardSection';
 import PartnerPendingPopup from '@/components/partner/PartnerPendingPopup';
 import { QuickStartPaths } from '@/components/growth/QuickStartPaths';
 import { SmartNudge } from '@/components/growth/SmartNudge';
+import { CommissionBanner } from '@/components/dashboard/CommissionBanner';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useAdaptiveLabels } from '@/hooks/useAdaptiveLabels';
 
@@ -189,6 +190,9 @@ export default function UserDashboard() {
             <p className="text-xs text-muted-foreground">{isFr ? 'Voici ton espace personnel' : 'Your personal space'}</p>
           </div>
         </motion.div>
+
+        {/* ═══ COMMISSION ROI BANNER (creators/orgs with sales) ═══ */}
+        {isCreatorOrOrg && <CommissionBanner />}
 
         {/* ═══ CONVERSATIONAL SUMMARY ═══ */}
         {!isBuyer && (
