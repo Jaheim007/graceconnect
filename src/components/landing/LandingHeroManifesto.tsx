@@ -43,6 +43,8 @@ export function LandingHeroManifesto() {
     : (isFr
         ? <>En <strong className="text-white">5 minutes</strong>. Sans banque. Dans le <strong className="text-white">monde entier</strong>.</>
         : <>In <strong className="text-white">5 minutes</strong>. No bank needed. <strong className="text-white">Worldwide</strong>.</>);
+
+  return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* Clean dark gradient - no dots, no clutter */}
       <div className="absolute inset-0 bg-gradient-to-b from-[hsl(220,70%,8%)] via-[hsl(220,60%,12%)] to-background" />
@@ -62,7 +64,7 @@ export function LandingHeroManifesto() {
             className="inline-flex items-center gap-1.5 bg-white/5 text-white/80 border border-white/10 rounded-full px-4 py-2 text-xs font-semibold backdrop-blur-sm"
           >
             <Sparkles className="h-3.5 w-3.5 animate-[pulse_2s_ease-in-out_infinite] text-accent" />
-            {isFr ? 'Tout le monde peut devenir auteur' : 'Anyone can become an author'}
+            {badgeText}
           </motion.div>
 
           {/* Main headline */}
@@ -77,11 +79,7 @@ export function LandingHeroManifesto() {
           </motion.h1>
 
           <motion.p variants={fadeUp} className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
-            {isFr ? (
-              <>En <strong className="text-white">5 minutes</strong>. Sans banque. Dans le <strong className="text-white">monde entier</strong>.</>
-            ) : (
-              <>In <strong className="text-white">5 minutes</strong>. No bank needed. <strong className="text-white">Worldwide</strong>.</>
-            )}
+            {subText}
           </motion.p>
 
           {/* Country flags */}
