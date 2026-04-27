@@ -3,6 +3,7 @@ import { createHmac } from 'node:crypto';
 import { getPaystackSecretKey } from '../_shared/paystack-key.ts';
 import { processTransaction, TransactionError } from '../_shared/process-transaction.ts';
 import { rateLimit } from '../_shared/rate-limit.ts';
+import { sendEmail, getUserEmail } from '../_shared/send-email-helper.ts';
 
 /**
  * paystack-webhook: Receives Paystack webhook events.
