@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Globe, Star, Trash2, Plus, CheckCircle, Clock, AlertCircle, Copy, ExternalLink } from 'lucide-react';
 import { ProBadge } from '@/components/pricing/ProBadge';
+import { RequirePro } from '@/components/billing/PaywallGate';
 
 export function DomainSettings() {
   const { currentOrg } = useOrg();
