@@ -171,6 +171,14 @@ Deno.serve(async (req) => {
           amount_xof: 49000, currency: 'XOF', billing_interval: 'lifetime',
           metadata: { plan_key: planKey, founder_slot: slot, paystack_reference: reference },
         }, { onConflict: 'user_id' });
+        const fEmail = await getUserEmail(userId);
+        if (fEmail) {
+          await sendEmail({
+            template: 'founder_welcome' as any,
+            to: fEmail,
+            data: { slot: String(slot || ''), plan: 'pro' },
+          }).catch(() => null);
+        }
         console.log(`[platform-sub-paystack] Founder slot ${slot} claimed for ${userId}`);
       } else if (interval === 'monthly') {
         const trialEnd = meta.trial_end ? new Date(meta.trial_end as string) : new Date(Date.now() + 14 * 86400000);
@@ -184,6 +192,20 @@ Deno.serve(async (req) => {
           current_period_end: trialEnd.toISOString(),
           metadata: { plan_key: planKey, paystack_reference: reference, paystack_authorization: txData.authorization?.authorization_code },
         }, { onConflict: 'user_id' });
+        const aEmail = await getUserEmail(userId);
+        if (aEmail) {
+          await sendEmail({
+            template: 'platform_subscription_activated' as any,
+            to: aEmail,
+            data: {
+              plan,
+              amount: String(amountXof),
+              currency: 'XOF',
+              next_billing: trialEnd.toISOString().slice(0, 10),
+              billing_url: 'https://siteviral.com/billing',
+            },
+          }).catch(() => null);
+        }
         console.log(`[platform-sub-paystack] Trial subscription started for ${userId} (${plan})`);
       }
 
