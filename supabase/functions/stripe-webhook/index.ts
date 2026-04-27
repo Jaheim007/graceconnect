@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { processTransaction, TransactionError } from '../_shared/process-transaction.ts';
+import { sendEmail, getUserEmail } from '../_shared/send-email-helper.ts';
 
 /**
  * Stripe Webhook handler.
@@ -108,6 +109,15 @@ async function handlePlatformSubscriptionEvent(event: any, db: any, stripeSecret
         user_id: userId, provider: 'stripe', event_type: event.type,
         external_event_id: event.id, payload: event,
       });
+      // Founder welcome email (non-blocking)
+      const fEmail = await getUserEmail(userId);
+      if (fEmail) {
+        await sendEmail({
+          template: 'founder_welcome' as any,
+          to: fEmail,
+          data: { slot: String(slot || ''), plan: 'pro' },
+        }).catch(() => null);
+      }
       console.log(`[platform-sub] Founder slot ${slot} claimed for ${userId}`);
     }
     return true;
@@ -142,6 +152,33 @@ async function handlePlatformSubscriptionEvent(event: any, db: any, stripeSecret
       metadata: { plan_key: planKey },
     };
     await db.from('platform_subscriptions').upsert(update, { onConflict: 'user_id' });
+
+    // Lifecycle emails
+    if (event.type === 'customer.subscription.created') {
+      const e = await getUserEmail(userId);
+      if (e) {
+        await sendEmail({
+          template: 'platform_subscription_activated' as any,
+          to: e,
+          data: {
+            plan,
+            amount: String(update.amount_xof),
+            currency: update.currency,
+            next_billing: update.current_period_end?.slice(0, 10) || '',
+            billing_url: 'https://siteviral.com/billing',
+          },
+        }).catch(() => null);
+      }
+    } else if (event.type === 'customer.subscription.deleted') {
+      const e = await getUserEmail(userId);
+      if (e) {
+        await sendEmail({
+          template: 'platform_subscription_canceled' as any,
+          to: e,
+          data: { plan, period_end: update.current_period_end?.slice(0, 10) || '' },
+        }).catch(() => null);
+      }
+    }
   } else if (event.type === 'invoice.paid') {
     await db.from('platform_subscriptions').update({
       status: 'active',
@@ -150,6 +187,14 @@ async function handlePlatformSubscriptionEvent(event: any, db: any, stripeSecret
     await db.from('platform_subscriptions').update({
       status: 'past_due',
     }).eq('user_id', userId);
+    const e = await getUserEmail(userId);
+    if (e) {
+      await sendEmail({
+        template: 'subscription_payment_failed' as any,
+        to: e,
+        data: { plan, attempt: 1, recovery_url: 'https://siteviral.com/billing' },
+      }).catch(() => null);
+    }
   }
 
   await db.from('platform_subscription_events').insert({

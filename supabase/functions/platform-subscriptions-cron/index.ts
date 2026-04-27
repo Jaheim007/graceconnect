@@ -126,7 +126,6 @@ Deno.serve(async (req) => {
 
         if (result.success) {
           summary.paystack_charges_succeeded++;
-          // Extend the period one month forward
           const periodStart = new Date(sub.current_period_end || nowIso);
           const periodEnd = new Date(periodStart);
           periodEnd.setMonth(periodEnd.getMonth() + 1);
@@ -137,6 +136,17 @@ Deno.serve(async (req) => {
             last_payment_at: nowIso,
             failed_payment_count: 0,
           }).eq('id', sub.id);
+
+          await sendEmail({
+            template: 'platform_subscription_renewed' as any,
+            to: email,
+            data: {
+              plan: sub.plan,
+              amount: Number(sub.amount_xof || 0).toLocaleString(),
+              currency: sub.currency || 'XOF',
+              next_billing: periodEnd.toISOString().slice(0, 10),
+            },
+          }).catch(() => null);
         } else {
           summary.paystack_charges_failed++;
           const failed = (sub.failed_payment_count || 0) + 1;

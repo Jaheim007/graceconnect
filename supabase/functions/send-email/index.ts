@@ -54,7 +54,13 @@ type EmailTemplate =
   | 'post_purchase_ambassador_j1' | 'post_purchase_ambassador_j5' | 'post_purchase_ambassador_j10'
   | 'buyer_to_creator' | 'visitor_to_creator' | 'first_commission_earned' | 'trending_product_nudge'
   | 'reactivation_ghost' | 'reactivation_no_product' | 'reactivation_no_sales' | 'reactivation_ambassador'
-  | 'inspiration_digest';
+  | 'inspiration_digest'
+  // ═══ PLATFORM BILLING (Pro / Org subscriptions) ═══
+  | 'platform_subscription_activated' | 'platform_subscription_renewed' | 'platform_subscription_canceled'
+  | 'subscription_payment_failed' | 'subscription_past_due_reminder'
+  | 'trial_ending_3d' | 'trial_ending_1d' | 'trial_ending_today'
+  | 'grandfather_ending_soon' | 'grandfather_expired'
+  | 'founder_welcome';
 
 type Lang = 'fr' | 'en';
 
@@ -994,6 +1000,82 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
           <p style="font-size:13px;color:#999;margin-top:24px">${isFr ? 'À très vite,' : 'Talk soon,'}<br/><strong style="color:#ccc">${tagline}</strong></p>
         `, lang),
       };
+    }
+
+    // ═══ PLATFORM BILLING (Pro / Org) ═══
+    case 'platform_subscription_activated': {
+      const planLabel = String(d.plan || 'Pro').toUpperCase();
+      const url = String(d.billing_url || 'https://siteviral.com/billing');
+      return isFr
+        ? { subject: `🎉 Abonnement ${planLabel} activé`, html: wrap(`<h1 style="color:${green}">🎉 Bienvenue dans ${planLabel}</h1><p>Votre abonnement <strong>${planLabel}</strong> est actif. Profitez immédiatement de toutes les fonctionnalités.</p><p>Prochaine facturation : <strong>${d.next_billing || '—'}</strong> · ${d.amount || ''} ${d.currency || ''}</p>${cta(url, 'Gérer mon abonnement')}`, lang) }
+        : { subject: `🎉 ${planLabel} subscription activated`, html: wrap(`<h1 style="color:${green}">🎉 Welcome to ${planLabel}</h1><p>Your <strong>${planLabel}</strong> subscription is active. Enjoy all features right away.</p><p>Next billing: <strong>${d.next_billing || '—'}</strong> · ${d.amount || ''} ${d.currency || ''}</p>${cta(url, 'Manage subscription')}`, lang) };
+    }
+
+    case 'platform_subscription_renewed': {
+      const planLabel = String(d.plan || 'Pro').toUpperCase();
+      return isFr
+        ? { subject: `🔄 Renouvellement ${planLabel} confirmé`, html: wrap(`<h1 style="color:${green}">🔄 Renouvellement confirmé</h1><p>Votre abonnement <strong>${planLabel}</strong> a été renouvelé.</p><p>Montant : <strong>${d.amount} ${d.currency}</strong> · Prochaine échéance : <strong>${d.next_billing || '—'}</strong></p>${cta('https://siteviral.com/billing', 'Voir la facture')}`, lang) }
+        : { subject: `🔄 ${planLabel} renewal confirmed`, html: wrap(`<h1 style="color:${green}">🔄 Renewal confirmed</h1><p>Your <strong>${planLabel}</strong> subscription has been renewed.</p><p>Amount: <strong>${d.amount} ${d.currency}</strong> · Next: <strong>${d.next_billing || '—'}</strong></p>${cta('https://siteviral.com/billing', 'View invoice')}`, lang) };
+    }
+
+    case 'platform_subscription_canceled': {
+      const planLabel = String(d.plan || 'Pro').toUpperCase();
+      return isFr
+        ? { subject: `🚫 Abonnement ${planLabel} annulé`, html: wrap(`<h1 style="color:${red}">Abonnement annulé</h1><p>Votre abonnement <strong>${planLabel}</strong> a été annulé.</p><p>Vous gardez l'accès jusqu'au <strong>${d.period_end || '—'}</strong>.</p>${cta('https://siteviral.com/pricing', 'Réactiver')}`, lang) }
+        : { subject: `🚫 ${planLabel} subscription canceled`, html: wrap(`<h1 style="color:${red}">Subscription canceled</h1><p>Your <strong>${planLabel}</strong> subscription has been canceled.</p><p>You keep access until <strong>${d.period_end || '—'}</strong>.</p>${cta('https://siteviral.com/pricing', 'Reactivate')}`, lang) };
+    }
+
+    case 'subscription_payment_failed': {
+      const url = String(d.recovery_url || 'https://siteviral.com/billing');
+      return isFr
+        ? { subject: `⚠️ Paiement échoué – ${d.plan || ''}`, html: wrap(`<h1 style="color:${red}">⚠️ Paiement échoué</h1><p>Nous n'avons pas pu débiter votre moyen de paiement (tentative ${d.attempt || 1}).</p><p>Votre abonnement passe en période de grâce. Mettez à jour votre paiement pour ne pas perdre vos avantages.</p>${cta(url, 'Mettre à jour mon paiement')}`, lang) }
+        : { subject: `⚠️ Payment failed – ${d.plan || ''}`, html: wrap(`<h1 style="color:${red}">⚠️ Payment failed</h1><p>We couldn't charge your payment method (attempt ${d.attempt || 1}).</p><p>Your subscription enters a grace period. Please update your payment to keep your benefits.</p>${cta(url, 'Update payment method')}`, lang) };
+    }
+
+    case 'subscription_past_due_reminder': {
+      const url = String(d.recovery_url || 'https://siteviral.com/billing');
+      return isFr
+        ? { subject: `⏰ Action requise – Abonnement en attente`, html: wrap(`<h1 style="color:${orange}">⏰ Dernière chance</h1><p>Votre abonnement <strong>${d.plan || 'Pro'}</strong> sera désactivé sous peu si le paiement n'est pas régularisé.</p>${cta(url, 'Régulariser maintenant')}`, lang) }
+        : { subject: `⏰ Action required – Subscription past due`, html: wrap(`<h1 style="color:${orange}">⏰ Last chance</h1><p>Your <strong>${d.plan || 'Pro'}</strong> subscription will be deactivated soon if payment isn't fixed.</p>${cta(url, 'Fix payment now')}`, lang) };
+    }
+
+    case 'trial_ending_3d': {
+      const url = String(d.billing_url || 'https://siteviral.com/billing');
+      return isFr
+        ? { subject: `⏳ Plus que 3 jours d'essai`, html: wrap(`<h1 style="color:${orange}">⏳ Votre essai se termine dans 3 jours</h1><p>Activez votre abonnement <strong>${d.plan || 'Pro'}</strong> pour conserver vos fonctionnalités.</p>${cta(url, 'Choisir mon plan')}`, lang) }
+        : { subject: `⏳ 3 days left in your trial`, html: wrap(`<h1 style="color:${orange}">⏳ Your trial ends in 3 days</h1><p>Activate your <strong>${d.plan || 'Pro'}</strong> subscription to keep all features.</p>${cta(url, 'Choose plan')}`, lang) };
+    }
+
+    case 'trial_ending_1d': {
+      const url = String(d.billing_url || 'https://siteviral.com/billing');
+      return isFr
+        ? { subject: `⚠️ Dernier jour d'essai`, html: wrap(`<h1 style="color:${orange}">⚠️ Plus que 24 h</h1><p>Votre essai <strong>${d.plan || 'Pro'}</strong> expire demain. Activez votre abonnement pour ne rien perdre.</p>${cta(url, 'Activer maintenant')}`, lang) }
+        : { subject: `⚠️ Last day of trial`, html: wrap(`<h1 style="color:${orange}">⚠️ Only 24h left</h1><p>Your <strong>${d.plan || 'Pro'}</strong> trial ends tomorrow. Activate your plan now.</p>${cta(url, 'Activate now')}`, lang) };
+    }
+
+    case 'trial_ending_today': {
+      const url = String(d.billing_url || 'https://siteviral.com/billing');
+      return isFr
+        ? { subject: `🚨 Votre essai expire aujourd'hui`, html: wrap(`<h1 style="color:${red}">🚨 Dernière chance</h1><p>Votre essai <strong>${d.plan || 'Pro'}</strong> se termine aujourd'hui. Sans action, votre compte repassera en plan Free.</p>${cta(url, 'Conserver mes avantages')}`, lang) }
+        : { subject: `🚨 Your trial ends today`, html: wrap(`<h1 style="color:${red}">🚨 Last chance</h1><p>Your <strong>${d.plan || 'Pro'}</strong> trial ends today. Without action, your account reverts to Free.</p>${cta(url, 'Keep my benefits')}`, lang) };
+    }
+
+    case 'grandfather_ending_soon': {
+      return isFr
+        ? { subject: `🎁 Votre Pro gratuit se termine bientôt`, html: wrap(`<h1 style="color:${blue}">Merci d'être avec nous depuis le début 🙏</h1><p>Votre période <strong>Pro gratuit</strong> (offerte aux utilisateurs historiques) se termine le <strong>${d.ends_at || '—'}</strong>.</p><p>Devenez <strong>Founder à vie</strong> (50 places, prix à vie) ou choisissez un plan mensuel.</p>${cta('https://siteviral.com/pricing#founder', 'Voir les offres Founder')}`, lang) }
+        : { subject: `🎁 Your free Pro is ending soon`, html: wrap(`<h1 style="color:${blue}">Thank you for being an early user 🙏</h1><p>Your <strong>free Pro</strong> period ends on <strong>${d.ends_at || '—'}</strong>.</p><p>Become a <strong>lifetime Founder</strong> (50 seats, lifetime price) or pick a monthly plan.</p>${cta('https://siteviral.com/pricing#founder', 'See Founder offer')}`, lang) };
+    }
+
+    case 'grandfather_expired': {
+      return isFr
+        ? { subject: `Votre Pro gratuit a pris fin`, html: wrap(`<h1 style="color:${orange}">Votre période Pro gratuite est terminée</h1><p>Votre compte est repassé en plan <strong>Free</strong>. Vos données sont conservées intactes.</p><p>Reprenez l'accès complet en quelques clics.</p>${cta('https://siteviral.com/pricing', 'Voir les plans')}`, lang) }
+        : { subject: `Your free Pro period has ended`, html: wrap(`<h1 style="color:${orange}">Your free Pro period has ended</h1><p>Your account is now on the <strong>Free</strong> plan. All your data is safe.</p><p>Get full access back in a few clicks.</p>${cta('https://siteviral.com/pricing', 'See plans')}`, lang) };
+    }
+
+    case 'founder_welcome': {
+      return isFr
+        ? { subject: `👑 Bienvenue parmi les 50 Founders`, html: wrap(`<h1 style="color:${blue}">👑 Vous êtes Founder #${d.slot || '—'}</h1><p>Votre accès <strong>Pro à vie</strong> est activé. Aucune facturation récurrente — vous êtes parmi les 50 fondateurs de SiteViral.</p><p>Merci de croire en cette aventure.</p>${cta('https://siteviral.com/billing', 'Voir mon statut Founder')}`, lang) }
+        : { subject: `👑 Welcome to the 50 Founders`, html: wrap(`<h1 style="color:${blue}">👑 You're Founder #${d.slot || '—'}</h1><p>Your <strong>lifetime Pro</strong> access is active. No recurring billing — you're one of SiteViral's 50 founders.</p><p>Thanks for believing in this journey.</p>${cta('https://siteviral.com/billing', 'View Founder status')}`, lang) };
     }
 
     default:
