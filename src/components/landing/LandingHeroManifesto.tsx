@@ -1,9 +1,11 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, PenLine, Share2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { trackEvent } from '@/hooks/useClientAnalytics';
+import { useExperiment } from '@/hooks/useExperiment';
 import { RotatingWords } from './RotatingWords';
 import { GradientText } from './GradientText';
 import { useI18n } from '@/i18n/I18nContext';
@@ -23,6 +25,24 @@ export function LandingHeroManifesto() {
   const { user } = useAuth();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+
+  // A/B test: A = creator-focused (current), B = established-pro positioning
+  const heroVariant = useExperiment('hero_positioning_v1', ['a', 'b'] as const, user?.id);
+  useEffect(() => {
+    trackEvent('experiment_exposure', { exp: 'hero_positioning_v1', variant: heroVariant }, user?.id);
+  }, [heroVariant, user?.id]);
+
+  const badgeText = heroVariant === 'b'
+    ? (isFr ? 'Pour coachs, formateurs et créateurs établis' : 'For coaches, trainers and established creators')
+    : (isFr ? 'Tout le monde peut devenir auteur' : 'Anyone can become an author');
+
+  const subText = heroVariant === 'b'
+    ? (isFr
+        ? <>Garde <strong className="text-white">100% de tes ventes en Pro</strong>. Mobile Money inclus. Ambassadeurs intégrés.</>
+        : <><strong className="text-white">Keep 100% of your sales</strong> on Pro. Mobile Money included. Built-in ambassadors.</>)
+    : (isFr
+        ? <>En <strong className="text-white">5 minutes</strong>. Sans banque. Dans le <strong className="text-white">monde entier</strong>.</>
+        : <>In <strong className="text-white">5 minutes</strong>. No bank needed. <strong className="text-white">Worldwide</strong>.</>);
 
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
@@ -44,7 +64,7 @@ export function LandingHeroManifesto() {
             className="inline-flex items-center gap-1.5 bg-white/5 text-white/80 border border-white/10 rounded-full px-4 py-2 text-xs font-semibold backdrop-blur-sm"
           >
             <Sparkles className="h-3.5 w-3.5 animate-[pulse_2s_ease-in-out_infinite] text-accent" />
-            {isFr ? 'Tout le monde peut devenir auteur' : 'Anyone can become an author'}
+            {badgeText}
           </motion.div>
 
           {/* Main headline */}
@@ -59,11 +79,7 @@ export function LandingHeroManifesto() {
           </motion.h1>
 
           <motion.p variants={fadeUp} className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
-            {isFr ? (
-              <>En <strong className="text-white">5 minutes</strong>. Sans banque. Dans le <strong className="text-white">monde entier</strong>.</>
-            ) : (
-              <>In <strong className="text-white">5 minutes</strong>. No bank needed. <strong className="text-white">Worldwide</strong>.</>
-            )}
+            {subText}
           </motion.p>
 
           {/* Country flags */}
