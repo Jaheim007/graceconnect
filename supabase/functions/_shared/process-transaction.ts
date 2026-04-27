@@ -755,6 +755,24 @@ export async function processTransaction(
     console.warn('[process-transaction] Could not log commission savings:', e);
   }
 
+  // ─── Sprint 10: activate referral when creator gets a sale ─── //
+  try {
+    if (org.owner_id) {
+      await db.rpc('activate_referral', { _referred_id: org.owner_id });
+      // Find the referrer to check if they unlock a reward
+      const { data: refRow } = await db
+        .from('user_referrals')
+        .select('referrer_id')
+        .eq('referred_id', org.owner_id)
+        .maybeSingle();
+      if (refRow?.referrer_id) {
+        await db.rpc('check_referral_reward', { _referrer_id: refRow.referrer_id });
+      }
+    }
+  } catch (e) {
+    console.warn('[process-transaction] referral activation failed:', e);
+  }
+
   console.log(`[process-transaction] ✅ ${gateway}/${source} ${type} processed: ${reference} — ${amountPaid} ${currency}`);
 
   return {
