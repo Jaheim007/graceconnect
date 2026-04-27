@@ -186,6 +186,7 @@ const NotificationPreferencesPage = lazy(() => import("@/pages/NotificationPrefe
 const MyInvoicesPage = lazy(() => import("@/pages/MyInvoicesPage"));
 const MyProgramsPage = lazy(() => import("@/pages/MyProgramsPage"));
 const UserAnalyticsPage = lazy(() => import("@/pages/UserAnalyticsPage"));
+const CreatorAdvancedAnalyticsPage = lazy(() => import("@/pages/CreatorAdvancedAnalyticsPage"));
 const CreditsPage = lazy(() => import("@/pages/CreditsPage"));
 
 // Admin
@@ -484,6 +485,7 @@ const App = () => (
                   <Route path="/partner" element={<PartnerPortalPage />} />
                   <Route path="/invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
+                  <Route path="/creator/analytics" element={<CreatorAdvancedAnalyticsPage />} />
                   <Route path="/my-programs" element={<MyProgramsPage />} />
                   <Route path="/credits" element={<CreditsPage />} />
 

@@ -7168,6 +7168,17 @@ export type Database = {
           total_organizations: number
         }[]
       }
+      get_buyer_cohorts: {
+        Args: { _org_id: string }
+        Returns: {
+          buyers_count: number
+          cohort_month: string
+          m1_retained: number
+          m2_retained: number
+          m3_retained: number
+          m6_retained: number
+        }[]
+      }
       get_credit_summary: { Args: { _user_id: string }; Returns: Json }
       get_founders_wall: {
         Args: never
@@ -7183,6 +7194,16 @@ export type Database = {
         Returns: Json
       }
       get_org_category_breakdown: { Args: never; Returns: Json }
+      get_org_churn_metrics: {
+        Args: { _org_id: string }
+        Returns: {
+          active_buyers: number
+          at_risk_buyers: number
+          churn_rate: number
+          churned_buyers: number
+          total_buyers: number
+        }[]
+      }
       get_org_country_breakdown: { Args: { _limit?: number }; Returns: Json }
       get_org_role: {
         Args: { _org_id: string; _user_id: string }
@@ -7215,11 +7236,33 @@ export type Database = {
           id: string
         }[]
       }
+      get_revenue_breakdown: {
+        Args: { _days?: number; _org_id: string }
+        Returns: {
+          product_id: string
+          product_title: string
+          revenue: number
+          unique_buyers: number
+          units_sold: number
+        }[]
+      }
       get_theme_counts: {
         Args: never
         Returns: {
           count: number
           theme: string
+        }[]
+      }
+      get_top_customers: {
+        Args: { _limit?: number; _org_id: string }
+        Returns: {
+          buyer_email: string
+          buyer_name: string
+          first_purchase_at: string
+          last_purchase_at: string
+          purchase_count: number
+          total_spent: number
+          user_id: string
         }[]
       }
       get_top_orgs_by_revenue: { Args: { _limit?: number }; Returns: Json }
@@ -7280,6 +7323,10 @@ export type Database = {
       }
       increment_view_count: { Args: { media_id: string }; Returns: undefined }
       is_org_member: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_org_owner: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }

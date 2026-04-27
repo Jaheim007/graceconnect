@@ -257,6 +257,10 @@ export default function CreatorDashboard() {
               <ShoppingBag className="h-4 w-4" />
               <span className="text-xs">Mes produits</span>
             </Button>
+            <Button variant="outline" className="h-auto py-3 flex-col gap-1 col-span-2" onClick={() => navigate('/creator/analytics')}>
+              <BarChart3 className="h-4 w-4" />
+              <span className="text-xs">Analytics avancé · Cohortes & Churn</span>
+            </Button>
           </div>
         </motion.div>
       </div>
