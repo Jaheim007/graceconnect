@@ -250,7 +250,8 @@ Deno.serve(async (req) => {
         amount_xof: body.plan_key === 'pro_monthly' ? 19000 : 49000,
         currency: 'USD',
         billing_interval: config.interval,
-        metadata: { plan_key: body.plan_key, checkout_session_id: session.id },
+        coupon_code: body.coupon_code || null,
+        metadata: { plan_key: body.plan_key, checkout_session_id: session.id, coupon_code: body.coupon_code || null },
       }, { onConflict: 'user_id' });
     }
 
