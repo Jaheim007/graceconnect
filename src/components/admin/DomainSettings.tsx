@@ -364,6 +364,7 @@ export function DomainSettings() {
                 ))}
               </div>
             )}
+            </RequirePro>
           </TabsContent>
         </Tabs>
       </CardContent>
