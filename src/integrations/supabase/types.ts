@@ -2282,6 +2282,39 @@ export type Database = {
         }
         Relationships: []
       }
+      founders_lifetime: {
+        Row: {
+          amount_paid_xof: number
+          claimed_at: string
+          created_at: string
+          external_payment_id: string | null
+          id: string
+          provider: Database["public"]["Enums"]["subscription_provider"]
+          slot_number: number
+          user_id: string
+        }
+        Insert: {
+          amount_paid_xof?: number
+          claimed_at?: string
+          created_at?: string
+          external_payment_id?: string | null
+          id?: string
+          provider: Database["public"]["Enums"]["subscription_provider"]
+          slot_number: number
+          user_id: string
+        }
+        Update: {
+          amount_paid_xof?: number
+          claimed_at?: string
+          created_at?: string
+          external_payment_id?: string | null
+          id?: string
+          provider?: Database["public"]["Enums"]["subscription_provider"]
+          slot_number?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       fraud_flags: {
         Row: {
           created_at: string
@@ -4301,6 +4334,128 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_subscription_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          external_event_id: string | null
+          id: string
+          payload: Json
+          processed_at: string
+          provider: Database["public"]["Enums"]["subscription_provider"]
+          subscription_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          external_event_id?: string | null
+          id?: string
+          payload?: Json
+          processed_at?: string
+          provider: Database["public"]["Enums"]["subscription_provider"]
+          subscription_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          external_event_id?: string | null
+          id?: string
+          payload?: Json
+          processed_at?: string
+          provider?: Database["public"]["Enums"]["subscription_provider"]
+          subscription_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_subscription_events_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "platform_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_subscriptions: {
+        Row: {
+          amount_xof: number | null
+          billing_interval: string | null
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          created_at: string
+          currency: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          grandfather_until: string | null
+          id: string
+          is_grandfather: boolean
+          metadata: Json
+          paystack_customer_code: string | null
+          paystack_subscription_code: string | null
+          plan: Database["public"]["Enums"]["platform_plan"]
+          provider: Database["public"]["Enums"]["subscription_provider"] | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          trial_end: string | null
+          trial_start: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_xof?: number | null
+          billing_interval?: string | null
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          created_at?: string
+          currency?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          grandfather_until?: string | null
+          id?: string
+          is_grandfather?: boolean
+          metadata?: Json
+          paystack_customer_code?: string | null
+          paystack_subscription_code?: string | null
+          plan?: Database["public"]["Enums"]["platform_plan"]
+          provider?: Database["public"]["Enums"]["subscription_provider"] | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_xof?: number | null
+          billing_interval?: string | null
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          created_at?: string
+          currency?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          grandfather_until?: string | null
+          id?: string
+          is_grandfather?: boolean
+          metadata?: Json
+          paystack_customer_code?: string | null
+          paystack_subscription_code?: string | null
+          plan?: Database["public"]["Enums"]["platform_plan"]
+          provider?: Database["public"]["Enums"]["subscription_provider"] | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       point_transactions: {
         Row: {
           created_at: string
@@ -6314,6 +6469,15 @@ export type Database = {
         Args: { _key: string; _max?: number; _window_seconds?: number }
         Returns: Json
       }
+      claim_founder_slot: {
+        Args: {
+          _amount_xof?: number
+          _external_payment_id: string
+          _provider: Database["public"]["Enums"]["subscription_provider"]
+          _user_id: string
+        }
+        Returns: number
+      }
       cleanup_rate_limits: { Args: never; Returns: undefined }
       complete_credit_purchase: {
         Args: { _payment_reference: string; _purchase_id: string }
@@ -6393,6 +6557,7 @@ export type Database = {
       expire_credit_lots: { Args: { _user_id: string }; Returns: number }
       expire_stale_credit_purchases: { Args: never; Returns: number }
       f_unaccent: { Args: { "": string }; Returns: string }
+      founders_remaining: { Args: never; Returns: number }
       get_credit_summary: { Args: { _user_id: string }; Returns: Json }
       get_org_category_breakdown: { Args: never; Returns: Json }
       get_org_country_breakdown: { Args: { _limit?: number }; Returns: Json }
@@ -6428,6 +6593,10 @@ export type Database = {
           email: string
           id: string
         }[]
+      }
+      get_user_platform_tier: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["platform_plan"]
       }
       get_weekly_user_cohorts: { Args: { _weeks?: number }; Returns: Json }
       grant_bonus_credits: {
@@ -6717,10 +6886,24 @@ export type Database = {
       partner_scope: "country" | "regional" | "international"
       partner_status: "pending" | "approved" | "rejected" | "suspended"
       payment_status: "pending" | "completed" | "failed" | "refunded"
+      platform_plan: "free" | "pro" | "org"
       platform_plan_tier: "free" | "pro" | "org"
       platform_role: "superadmin" | "user"
       purchase_status: "pending" | "completed" | "failed"
       report_status: "pending" | "reviewed" | "resolved" | "dismissed"
+      subscription_provider:
+        | "stripe"
+        | "paystack"
+        | "manual"
+        | "grandfather"
+        | "founder"
+      subscription_status:
+        | "trialing"
+        | "active"
+        | "past_due"
+        | "canceled"
+        | "incomplete"
+        | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -6925,10 +7108,26 @@ export const Constants = {
       partner_scope: ["country", "regional", "international"],
       partner_status: ["pending", "approved", "rejected", "suspended"],
       payment_status: ["pending", "completed", "failed", "refunded"],
+      platform_plan: ["free", "pro", "org"],
       platform_plan_tier: ["free", "pro", "org"],
       platform_role: ["superadmin", "user"],
       purchase_status: ["pending", "completed", "failed"],
       report_status: ["pending", "reviewed", "resolved", "dismissed"],
+      subscription_provider: [
+        "stripe",
+        "paystack",
+        "manual",
+        "grandfather",
+        "founder",
+      ],
+      subscription_status: [
+        "trialing",
+        "active",
+        "past_due",
+        "canceled",
+        "incomplete",
+        "expired",
+      ],
     },
   },
 } as const

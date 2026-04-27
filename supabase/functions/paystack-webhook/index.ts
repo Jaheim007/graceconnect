@@ -149,6 +149,53 @@ Deno.serve(async (req) => {
     const donorEmail = (meta.donor_email as string | undefined) || (meta.buyer_email as string | undefined) || txData.customer?.email;
     const affiliateCode = meta.affiliate_code as string | undefined;
 
+    // ── PLATFORM SUBSCRIPTION (Pro/Org/Founder) ──
+    const isPlatformSub = meta.platform_subscription === true || meta.platform_subscription === 'true';
+    const isFounderLifetime = meta.founder_lifetime === true || meta.founder_lifetime === 'true';
+
+    if (isPlatformSub && userId) {
+      const planKey = meta.plan_key as string;
+      const plan = (meta.plan as string) || (planKey?.startsWith('org') ? 'org' : 'pro');
+      const interval = meta.interval as string | null;
+      const amountXof = Number(meta.amount_xof) || (plan === 'org' ? 49000 : 19000);
+
+      if (isFounderLifetime) {
+        const { data: slot } = await db.rpc('claim_founder_slot', {
+          _user_id: userId, _provider: 'paystack',
+          _external_payment_id: reference, _amount_xof: 49000,
+        });
+        await db.from('platform_subscriptions').upsert({
+          user_id: userId, plan: 'pro', status: 'active', provider: 'founder',
+          paystack_customer_code: txData.customer?.customer_code,
+          amount_xof: 49000, currency: 'XOF', billing_interval: 'lifetime',
+          metadata: { plan_key: planKey, founder_slot: slot, paystack_reference: reference },
+        }, { onConflict: 'user_id' });
+        console.log(`[platform-sub-paystack] Founder slot ${slot} claimed for ${userId}`);
+      } else if (interval === 'monthly') {
+        const trialEnd = meta.trial_end ? new Date(meta.trial_end as string) : new Date(Date.now() + 14 * 86400000);
+        await db.from('platform_subscriptions').upsert({
+          user_id: userId, plan, status: 'trialing', provider: 'paystack',
+          paystack_customer_code: txData.customer?.customer_code,
+          amount_xof: amountXof, currency: 'XOF', billing_interval: 'month',
+          trial_start: new Date().toISOString(),
+          trial_end: trialEnd.toISOString(),
+          current_period_start: new Date().toISOString(),
+          current_period_end: trialEnd.toISOString(),
+          metadata: { plan_key: planKey, paystack_reference: reference, paystack_authorization: txData.authorization?.authorization_code },
+        }, { onConflict: 'user_id' });
+        console.log(`[platform-sub-paystack] Trial subscription started for ${userId} (${plan})`);
+      }
+
+      await db.from('platform_subscription_events').insert({
+        user_id: userId, provider: 'paystack', event_type: event.event,
+        external_event_id: String(eventId), payload: event,
+      });
+      await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, kind: 'platform_subscription' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // ── CREDIT PURCHASE: dedicated branch (no org needed) ──
     const purchaseId = meta.purchase_id as string | undefined;
     const isCreditPurchase = type === 'credit_purchase' || !!purchaseId || organizationId === 'platform';
