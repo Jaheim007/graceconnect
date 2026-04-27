@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingHeroManifesto } from '@/components/landing/LandingHeroManifesto';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { FounderBanner } from '@/components/billing/FounderBanner';
 
 const LandingHowItWorks = lazy(() => import('@/components/landing/LandingHowItWorksSimple').then(m => ({ default: m.LandingHowItWorksSimple })));
 const LandingResultsShowcase = lazy(() => import('@/components/landing/LandingResultsShowcase'));
@@ -53,6 +54,9 @@ export default function LandingPage() {
         ]}
       />
       <LandingNav />
+      <div className="container max-w-6xl mx-auto px-4 pt-3">
+        <FounderBanner />
+      </div>
       <LandingHeroManifesto />
 
       <Suspense fallback={null}>
