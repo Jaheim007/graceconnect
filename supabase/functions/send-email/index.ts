@@ -54,7 +54,13 @@ type EmailTemplate =
   | 'post_purchase_ambassador_j1' | 'post_purchase_ambassador_j5' | 'post_purchase_ambassador_j10'
   | 'buyer_to_creator' | 'visitor_to_creator' | 'first_commission_earned' | 'trending_product_nudge'
   | 'reactivation_ghost' | 'reactivation_no_product' | 'reactivation_no_sales' | 'reactivation_ambassador'
-  | 'inspiration_digest';
+  | 'inspiration_digest'
+  // ═══ PLATFORM BILLING (Pro / Org subscriptions) ═══
+  | 'platform_subscription_activated' | 'platform_subscription_renewed' | 'platform_subscription_canceled'
+  | 'subscription_payment_failed' | 'subscription_past_due_reminder'
+  | 'trial_ending_3d' | 'trial_ending_1d' | 'trial_ending_today'
+  | 'grandfather_ending_soon' | 'grandfather_expired'
+  | 'founder_welcome';
 
 type Lang = 'fr' | 'en';
 
