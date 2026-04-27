@@ -4423,6 +4423,7 @@ export type Database = {
           billing_interval: string | null
           cancel_at_period_end: boolean
           canceled_at: string | null
+          coupon_code: string | null
           created_at: string
           currency: string | null
           current_period_end: string | null
@@ -4441,6 +4442,7 @@ export type Database = {
           provider: Database["public"]["Enums"]["subscription_provider"] | null
           status: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id: string | null
+          stripe_price_id: string | null
           stripe_subscription_id: string | null
           trial_end: string | null
           trial_start: string | null
@@ -4452,6 +4454,7 @@ export type Database = {
           billing_interval?: string | null
           cancel_at_period_end?: boolean
           canceled_at?: string | null
+          coupon_code?: string | null
           created_at?: string
           currency?: string | null
           current_period_end?: string | null
@@ -4470,6 +4473,7 @@ export type Database = {
           provider?: Database["public"]["Enums"]["subscription_provider"] | null
           status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
+          stripe_price_id?: string | null
           stripe_subscription_id?: string | null
           trial_end?: string | null
           trial_start?: string | null
@@ -4481,6 +4485,7 @@ export type Database = {
           billing_interval?: string | null
           cancel_at_period_end?: boolean
           canceled_at?: string | null
+          coupon_code?: string | null
           created_at?: string
           currency?: string | null
           current_period_end?: string | null
@@ -4499,6 +4504,7 @@ export type Database = {
           provider?: Database["public"]["Enums"]["subscription_provider"] | null
           status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
+          stripe_price_id?: string | null
           stripe_subscription_id?: string | null
           trial_end?: string | null
           trial_start?: string | null
@@ -5648,6 +5654,30 @@ export type Database = {
         }
         Relationships: []
       }
+      stripe_webhook_events: {
+        Row: {
+          event_type: string
+          id: string
+          payload: Json
+          processed_at: string
+          stripe_event_id: string
+        }
+        Insert: {
+          event_type: string
+          id?: string
+          payload: Json
+          processed_at?: string
+          stripe_event_id: string
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string
+          stripe_event_id?: string
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           created_at: string
@@ -6249,6 +6279,45 @@ export type Database = {
           },
         ]
       }
+      waitlist_coupons: {
+        Row: {
+          code: string
+          created_at: string
+          discount_percent: number
+          email: string
+          expires_at: string | null
+          id: string
+          redeemed_at: string | null
+          source: string
+          stripe_coupon_id: string | null
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          discount_percent?: number
+          email: string
+          expires_at?: string | null
+          id?: string
+          redeemed_at?: string | null
+          source?: string
+          stripe_coupon_id?: string | null
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          discount_percent?: number
+          email?: string
+          expires_at?: string | null
+          id?: string
+          redeemed_at?: string | null
+          source?: string
+          stripe_coupon_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       waitlist_entries: {
         Row: {
           created_at: string
@@ -6280,6 +6349,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      waitlist_invitations: {
+        Row: {
+          converted_at: string | null
+          coupon_code: string | null
+          email: string
+          id: string
+          invited_at: string
+          tier: string
+          user_id: string
+        }
+        Insert: {
+          converted_at?: string | null
+          coupon_code?: string | null
+          email: string
+          id?: string
+          invited_at?: string
+          tier: string
+          user_id: string
+        }
+        Update: {
+          converted_at?: string | null
+          coupon_code?: string | null
+          email?: string
+          id?: string
+          invited_at?: string
+          tier?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       waitlists: {
         Row: {
@@ -6742,6 +6841,15 @@ export type Database = {
       }
       is_partner_owner: { Args: { _partner_id: string }; Returns: boolean }
       is_superadmin: { Args: { _user_id: string }; Returns: boolean }
+      issue_waitlist_coupon: {
+        Args: {
+          _discount_percent?: number
+          _email: string
+          _source?: string
+          _user_id: string
+        }
+        Returns: string
+      }
       link_project_to_product: {
         Args: { _org_id: string; _product_id: string; _project_id: string }
         Returns: Json
