@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useBillingUsage } from '@/hooks/useBillingUsage';
 import { usePlatformPlan } from '@/hooks/usePlatformPlan';
+import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 
 const T = {
@@ -103,8 +104,8 @@ function StatCard({
 }
 
 export default function BillingUsagePage() {
-  // Detect language from browser; falls back to FR (project default).
-  const isEn = typeof navigator !== 'undefined' && navigator.language?.startsWith('en');
+  const { locale } = useI18n();
+  const isEn = locale === 'en';
   const t = T[isEn ? 'en' : 'fr'];
   const { data, isLoading } = useBillingUsage();
   const { tier, isTrialing } = usePlatformPlan();
