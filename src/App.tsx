@@ -25,6 +25,7 @@ import { SkipLink } from "@/components/layout/SkipLink";
 import { ShortcutRedirect } from "@/components/layout/ShortcutRedirect";
 import { FloatingProofToast } from "@/components/social-proof/FloatingProofToast";
 import { DomainRouter } from "@/components/layout/DomainRouter";
+import { ReferralCapture } from "@/components/referral/ReferralCapture";
 
 /** Redirect /store/:slug → /org/:slug/store */
 function StoreRedirect() {
@@ -103,6 +104,8 @@ const ComparerPage = lazy(() => import("@/pages/ComparerPage"));
 const BillingPage = lazy(() => import("@/pages/BillingPage"));
 const BillingSuccessPage = lazy(() => import("@/pages/BillingSuccessPage"));
 const BillingUsagePage = lazy(() => import("@/pages/BillingUsagePage"));
+const ReferralsPage = lazy(() => import("@/pages/ReferralsPage"));
+const ShowcasePage = lazy(() => import("@/pages/ShowcasePage"));
 // MigrerPage removed — marginal feature
 const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
 // VendreLandingPage consolidated — redirect to landing
@@ -300,6 +303,7 @@ const App = () => (
               <SkipLink />
               <OfflineBanner />
               <ScrollToTop />
+              <ReferralCapture />
               <GDPRBanner />
               <FloatingProofToast />
               <DomainRouter />
@@ -318,6 +322,10 @@ const App = () => (
                 <Route path="/billing" element={<BillingPage />} />
                 <Route path="/billing/success" element={<BillingSuccessPage />} />
                 <Route path="/billing/usage" element={<BillingUsagePage />} />
+                <Route path="/referrals" element={<RequireAuth><ReferralsPage /></RequireAuth>} />
+                <Route path="/parrainage" element={<Navigate to="/referrals" replace />} />
+                <Route path="/showcase" element={<ShowcasePage />} />
+                <Route path="/top-creators" element={<Navigate to="/showcase" replace />} />
                 <Route path="/dashboard-preview" element={<RequireSuperadmin><DashboardPreview /></RequireSuperadmin>} />
                 <Route path="/aml" element={<AMLPage />} />
                 <Route path="/refund-policy" element={<RefundPolicyPage />} />

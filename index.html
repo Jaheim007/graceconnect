@@ -83,6 +83,30 @@
     <!-- Branding OG -->
     <meta property="og:site_name" content="Siteviral" />
     <meta property="og:locale" content="fr_FR" />
+
+    <!-- Schema.org Organization (global) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "SiteViral",
+      "alternateName": "Siteviral",
+      "url": "https://siteviral.com",
+      "logo": "https://siteviral.com/logo-s.png",
+      "description": "Plateforme tout-en-un pour créateurs : vendre des produits numériques, formations, livres, et organiser des événements. 0% de commission sur le plan Pro.",
+      "sameAs": [
+        "https://www.facebook.com/siteviral",
+        "https://twitter.com/siteviral",
+        "https://www.linkedin.com/company/siteviral"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "email": "support@siteviral.com",
+        "availableLanguage": ["French", "English"]
+      }
+    }
+    </script>
     <!-- I16: CSP meta tag for XSS protection -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com https://onesignal.com https://js.stripe.com https://js.paystack.co https://*.paystack.com https://cdnjs.cloudflare.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co https://api.siteviral.com https://api.stripe.com https://api.paystack.co https://*.paystack.com https://onesignal.com https://cdn.onesignal.com https://cdnjs.cloudflare.com https://ipapi.co https://www.youtube.com; frame-src https://js.stripe.com https://js.paystack.co https://*.paystack.com https://onesignal.com https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; media-src 'self' blob: https:;" />
   </head>
