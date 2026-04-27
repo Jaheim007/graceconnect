@@ -207,6 +207,24 @@ Deno.serve(async (req) => {
       sessionParams['payment_intent_data[metadata][founder_lifetime]'] = 'true';
     }
 
+    // Apply waitlist coupon if provided (subscription mode only — Stripe doesn't allow
+    // discounts on payment mode with price_data, and lifetime is already a one-time deal)
+    if (body.coupon_code && config.interval) {
+      try {
+        const stripeCouponId = await resolveStripeCoupon(db, STRIPE_SECRET, body.coupon_code, user.id);
+        if (stripeCouponId) {
+          sessionParams['discounts[0][coupon]'] = stripeCouponId;
+          sessionParams['metadata[coupon_code]'] = body.coupon_code;
+          sessionParams['subscription_data[metadata][coupon_code]'] = body.coupon_code;
+        }
+      } catch (couponErr: any) {
+        console.warn('[create-platform-subscription] coupon error', couponErr?.message);
+        return new Response(JSON.stringify({ error: couponErr?.message || 'Invalid coupon' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     const sessionRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
       headers: {
