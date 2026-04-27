@@ -15,6 +15,7 @@ import { I18nProvider } from "@/i18n/I18nContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { GlobalBottomNav } from "@/components/layout/GlobalBottomNav";
+import { TrialBillingBanner } from "@/components/billing/TrialBillingBanner";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { RequireAuth, RequireSuperadmin, RequireOrgManage } from "@/components/layout/RouteGuard";
 import { GDPRBanner } from "@/components/layout/GDPRBanner";
