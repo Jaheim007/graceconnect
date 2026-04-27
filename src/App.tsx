@@ -97,6 +97,7 @@ const EcrirePage = lazy(() => import("@/pages/EcrirePage"));
 const CreerFormationPage = lazy(() => import("@/pages/CreerFormationPage"));
 const VendrePage = lazy(() => import("@/pages/VendrePage"));
 const PricingPage = lazy(() => import("@/pages/PricingPage"));
+const ComparerPage = lazy(() => import("@/pages/ComparerPage"));
 // MigrerPage removed — marginal feature
 const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
 // VendreLandingPage consolidated — redirect to landing
@@ -346,7 +347,8 @@ const App = () => (
                 <Route path="/pour/photographes" element={<PourPhotographesPage />} />
                 <Route path="/pour/podcasters" element={<PourPodcastersPage />} />
                 <Route path="/pour/associations" element={<PourAssociationsPage />} />
-                <Route path="/comparer" element={<Navigate to="/discover" replace />} />
+                <Route path="/comparer" element={<ComparerPage />} />
+                <Route path="/compare" element={<ComparerPage />} />
                 <Route path="/pour/coaches" element={<PourCoachesPage />} />
                 <Route path="/pour/designers" element={<PourDesignersPage />} />
                 <Route path="/pour/entrepreneurs" element={<PourEntrepreneursPage />} />
