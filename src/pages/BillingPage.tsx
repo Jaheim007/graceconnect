@@ -136,6 +136,40 @@ export default function BillingPage() {
           </CardContent>
         </Card>
 
+        {/* Waitlist coupon (-20% à vie) */}
+        {coupon && plan.isFree && (
+          <Card className="mb-6 border-amber-500/30 bg-amber-500/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Ticket className="h-5 w-5 text-amber-600" />
+                {isFr ? `Ton code early-adopter — ${coupon.discount_percent}% à vie` : `Your early-adopter code — ${coupon.discount_percent}% forever`}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <p className="text-muted-foreground">
+                {isFr
+                  ? 'En tant qu\'inscrit·e à la waitlist, tu bénéficies d\'une remise permanente sur ton abonnement Pro. Le code est appliqué automatiquement au checkout.'
+                  : 'As a waitlist member, you get a permanent discount on your Pro subscription. The code is auto-applied at checkout.'}
+              </p>
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-background border border-border">
+                <code className="flex-1 font-mono text-base font-semibold tracking-wider">{coupon.code}</code>
+                <Button size="sm" variant="ghost" onClick={copyCode} className="gap-1.5">
+                  {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                  {copied ? (isFr ? 'Copié' : 'Copied') : (isFr ? 'Copier' : 'Copy')}
+                </Button>
+              </div>
+              <Button
+                size="lg"
+                className="w-full gap-2"
+                onClick={() => navigate(`/pricing?coupon=${coupon.code}`)}
+              >
+                <Crown className="h-4 w-4" />
+                {isFr ? `Activer Pro avec ${coupon.discount_percent}% de remise` : `Activate Pro with ${coupon.discount_percent}% off`}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Actions */}
         <div className="flex flex-wrap gap-3">
           {plan.isFree && (
