@@ -1,5 +1,8 @@
 project_id = "xzgpzbrgsxtcsktiprik"
 
+[functions.monthly-commission-recap]
+verify_jwt = false
+
 [functions.verify-payment]
 verify_jwt = false
 
