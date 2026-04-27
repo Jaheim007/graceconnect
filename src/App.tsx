@@ -309,6 +309,8 @@ const App = () => (
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/tarifs" element={<Navigate to="/pricing" replace />} />
+                <Route path="/billing" element={<BillingPage />} />
+                <Route path="/billing/success" element={<BillingSuccessPage />} />
                 <Route path="/dashboard-preview" element={<RequireSuperadmin><DashboardPreview /></RequireSuperadmin>} />
                 <Route path="/aml" element={<AMLPage />} />
                 <Route path="/refund-policy" element={<RefundPolicyPage />} />
