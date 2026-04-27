@@ -61,9 +61,13 @@ export default function BillingPage() {
         <h1 className="text-3xl font-extrabold mb-2">
           {isFr ? 'Mon abonnement' : 'My subscription'}
         </h1>
-        <p className="text-muted-foreground mb-8">
+        <p className="text-muted-foreground mb-4">
           {isFr ? 'Gère ton plan SiteViral et ton mode de paiement.' : 'Manage your SiteViral plan and payment method.'}
         </p>
+        <Button variant="outline" size="sm" onClick={() => navigate('/billing/usage')} className="mb-8 gap-1.5">
+          <Sparkles className="h-3.5 w-3.5" />
+          {isFr ? 'Voir mon usage du mois' : 'View my monthly usage'}
+        </Button>
 
         {/* Current plan card */}
         <Card className="mb-6">
