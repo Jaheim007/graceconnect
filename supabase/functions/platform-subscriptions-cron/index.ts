@@ -227,7 +227,45 @@ Deno.serve(async (req) => {
     }
 
     // ════════════════════════════════════════════════════════════
-    // 3. GRANDFATHER EXPIRATION (60d after launch)
+    // 3a. GRANDFATHER REMINDER (J-7 before expiration)
+    // ════════════════════════════════════════════════════════════
+    const j7Start = new Date(now.getTime() + 6.5 * 86400000).toISOString();
+    const j7End = new Date(now.getTime() + 7.5 * 86400000).toISOString();
+    const { data: grandSoon } = await db
+      .from('platform_subscriptions')
+      .select('id, user_id, trial_end')
+      .eq('provider', 'grandfather')
+      .eq('status', 'trialing')
+      .gte('trial_end', j7Start)
+      .lte('trial_end', j7End)
+      .limit(500);
+
+    for (const g of grandSoon || []) {
+      const { count } = await db
+        .from('platform_subscription_events')
+        .select('id', { count: 'exact', head: true })
+        .eq('subscription_id', g.id)
+        .eq('event_type', 'grandfather_reminder_j7');
+      if ((count || 0) > 0) continue;
+
+      const email = await getUserEmail(g.user_id);
+      if (email) {
+        await sendEmail({
+          template: 'grandfather_ending_soon' as any,
+          to: email,
+          data: { ends_at: String(g.trial_end || '').slice(0, 10) },
+        }).catch(() => null);
+      }
+      await db.from('platform_subscription_events').insert({
+        subscription_id: g.id,
+        provider: 'system',
+        event_type: 'grandfather_reminder_j7',
+        payload: { sent_at: nowIso },
+      });
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // 3b. GRANDFATHER EXPIRATION (60d after launch)
     // ════════════════════════════════════════════════════════════
     const { data: grandExpired } = await db
       .from('platform_subscriptions')
