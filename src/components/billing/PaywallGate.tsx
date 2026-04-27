@@ -104,13 +104,13 @@ function PaywallCard({
 }
 
 /** Convenience wrapper: route guard for Pro-only screens. */
-export function RequirePro({ children, feature }: { children: ReactNode; feature?: string }) {
-  return <PaywallGate required="pro" feature={feature}>{children}</PaywallGate>;
+export function RequirePro({ children, feature, inline }: { children: ReactNode; feature?: string; inline?: boolean }) {
+  return <PaywallGate required="pro" feature={feature} inline={inline}>{children}</PaywallGate>;
 }
 
 /** Convenience wrapper: route guard for Org-only screens. */
-export function RequireOrg({ children, feature }: { children: ReactNode; feature?: string }) {
-  return <PaywallGate required="org" feature={feature}>{children}</PaywallGate>;
+export function RequireOrg({ children, feature, inline }: { children: ReactNode; feature?: string; inline?: boolean }) {
+  return <PaywallGate required="org" feature={feature} inline={inline}>{children}</PaywallGate>;
 }
 
 /** Loader re-export so callers don't depend on RouteGuard internals. */

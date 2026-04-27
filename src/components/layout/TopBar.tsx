@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Bell, Sun, Moon, LogOut, User, Shield, Plus, Search, ArrowLeftRight, Building2, Check } from 'lucide-react';
+import { Bell, Sun, Moon, LogOut, User, Shield, Plus, Search, ArrowLeftRight, Building2, Check, CreditCard } from 'lucide-react';
+import { PlanBadge } from '@/components/billing/PlanBadge';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
@@ -117,10 +118,15 @@ export function TopBar() {
                 <div className="min-w-0">
                   <p className="text-sm font-semibold truncate">{profile?.display_name || 'User'}</p>
                   <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  <div className="mt-1"><PlanBadge /></div>
                 </div>
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate('/profile')}><User className="h-3.5 w-3.5 mr-2" /> {t('topbar.profile')}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/billing')}>
+                <CreditCard className="h-3.5 w-3.5 mr-2" />
+                {isFr ? 'Abonnement & facturation' : 'Subscription & billing'}
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/create-org')}>
                 <Plus className="h-3.5 w-3.5 mr-2" />
                 {isFr ? 'Créer une plateforme' : 'Create a platform'}

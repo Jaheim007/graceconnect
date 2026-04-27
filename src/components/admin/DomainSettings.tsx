@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Globe, Star, Trash2, Plus, CheckCircle, Clock, AlertCircle, Copy, ExternalLink } from 'lucide-react';
 import { ProBadge } from '@/components/pricing/ProBadge';
+import { RequirePro } from '@/components/billing/PaywallGate';
 
 export function DomainSettings() {
   const { currentOrg } = useOrg();
@@ -207,6 +208,7 @@ export function DomainSettings() {
           </TabsContent>
 
           <TabsContent value="custom" className="space-y-4">
+            <RequirePro inline feature={isFr ? 'Domaine personnalisé' : 'Custom domain'}>
             <p className="text-sm text-muted-foreground">
               {isFr
                 ? 'Connectez votre propre domaine (ex: monsite.com). Suivez les instructions ci-dessous.'
@@ -362,6 +364,7 @@ export function DomainSettings() {
                 ))}
               </div>
             )}
+            </RequirePro>
           </TabsContent>
         </Tabs>
       </CardContent>
