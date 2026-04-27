@@ -4388,10 +4388,14 @@ export type Database = {
           currency: string | null
           current_period_end: string | null
           current_period_start: string | null
+          failed_payment_count: number
           grandfather_until: string | null
           id: string
           is_grandfather: boolean
+          last_payment_at: string | null
+          last_payment_error: string | null
           metadata: Json
+          paystack_authorization_code: string | null
           paystack_customer_code: string | null
           paystack_subscription_code: string | null
           plan: Database["public"]["Enums"]["platform_plan"]
@@ -4413,10 +4417,14 @@ export type Database = {
           currency?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          failed_payment_count?: number
           grandfather_until?: string | null
           id?: string
           is_grandfather?: boolean
+          last_payment_at?: string | null
+          last_payment_error?: string | null
           metadata?: Json
+          paystack_authorization_code?: string | null
           paystack_customer_code?: string | null
           paystack_subscription_code?: string | null
           plan?: Database["public"]["Enums"]["platform_plan"]
@@ -4438,10 +4446,14 @@ export type Database = {
           currency?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          failed_payment_count?: number
           grandfather_until?: string | null
           id?: string
           is_grandfather?: boolean
+          last_payment_at?: string | null
+          last_payment_error?: string | null
           metadata?: Json
+          paystack_authorization_code?: string | null
           paystack_customer_code?: string | null
           paystack_subscription_code?: string | null
           plan?: Database["public"]["Enums"]["platform_plan"]
@@ -6439,7 +6451,23 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      platform_billing_metrics: {
+        Row: {
+          active_monthly: number | null
+          active_yearly: number | null
+          arr_xof_monthly: number | null
+          arr_xof_yearly: number | null
+          canceled: number | null
+          grandfather_active: number | null
+          mrr_xof: number | null
+          mrr_yearly_xof: number | null
+          org_total: number | null
+          past_due: number | null
+          pro_total: number | null
+          trialing: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       approve_ai_quality: {
@@ -6566,6 +6594,23 @@ export type Database = {
         Returns: Database["public"]["Enums"]["org_member_role"]
       }
       get_partner_rate: { Args: { _partner_id: string }; Returns: number }
+      get_platform_billing_metrics: {
+        Args: never
+        Returns: {
+          active_monthly: number
+          active_yearly: number
+          arr_xof: number
+          canceled: number
+          founders_remaining: number
+          founders_used: number
+          grandfather_active: number
+          mrr_xof: number
+          org_total: number
+          past_due: number
+          pro_total: number
+          trialing: number
+        }[]
+      }
       get_platform_totals: { Args: never; Returns: Json }
       get_public_profiles: {
         Args: { _user_ids: string[] }
