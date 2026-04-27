@@ -103,6 +103,8 @@ const ComparerPage = lazy(() => import("@/pages/ComparerPage"));
 const BillingPage = lazy(() => import("@/pages/BillingPage"));
 const BillingSuccessPage = lazy(() => import("@/pages/BillingSuccessPage"));
 const BillingUsagePage = lazy(() => import("@/pages/BillingUsagePage"));
+const ReferralsPage = lazy(() => import("@/pages/ReferralsPage"));
+const ShowcasePage = lazy(() => import("@/pages/ShowcasePage"));
 // MigrerPage removed — marginal feature
 const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
 // VendreLandingPage consolidated — redirect to landing
@@ -318,6 +320,10 @@ const App = () => (
                 <Route path="/billing" element={<BillingPage />} />
                 <Route path="/billing/success" element={<BillingSuccessPage />} />
                 <Route path="/billing/usage" element={<BillingUsagePage />} />
+                <Route path="/referrals" element={<RequireAuth><ReferralsPage /></RequireAuth>} />
+                <Route path="/parrainage" element={<Navigate to="/referrals" replace />} />
+                <Route path="/showcase" element={<ShowcasePage />} />
+                <Route path="/top-creators" element={<Navigate to="/showcase" replace />} />
                 <Route path="/dashboard-preview" element={<RequireSuperadmin><DashboardPreview /></RequireSuperadmin>} />
                 <Route path="/aml" element={<AMLPage />} />
                 <Route path="/refund-policy" element={<RefundPolicyPage />} />
