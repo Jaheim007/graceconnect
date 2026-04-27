@@ -4897,6 +4897,54 @@ export type Database = {
         }
         Relationships: []
       }
+      proactive_alerts_log: {
+        Row: {
+          alert_type: string
+          created_at: string
+          email_sent: boolean
+          id: string
+          metadata: Json
+          notification_id: string | null
+          organization_id: string
+          week_bucket: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          email_sent?: boolean
+          id?: string
+          metadata?: Json
+          notification_id?: string | null
+          organization_id: string
+          week_bucket?: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          email_sent?: boolean
+          id?: string
+          metadata?: Json
+          notification_id?: string | null
+          organization_id?: string
+          week_bucket?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proactive_alerts_log_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proactive_alerts_log_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+        ]
+      }
       product_page_sections: {
         Row: {
           content_json: Json
@@ -7208,6 +7256,19 @@ export type Database = {
       get_org_role: {
         Args: { _org_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["org_member_role"]
+      }
+      get_orgs_needing_alerts: {
+        Args: never
+        Returns: {
+          active_buyers: number
+          alert_type: string
+          at_risk_count: number
+          churn_rate: number
+          org_name: string
+          organization_id: string
+          owner_email: string
+          owner_id: string
+        }[]
       }
       get_partner_rate: { Args: { _partner_id: string }; Returns: number }
       get_platform_billing_metrics: {

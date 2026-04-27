@@ -15,6 +15,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { CommissionSavingsCard } from '@/components/billing/CommissionSavingsCard';
+import { ProactiveAlertsWidget } from '@/components/dashboard/ProactiveAlertsWidget';
 
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
@@ -245,6 +246,9 @@ export default function CreatorDashboard() {
             </div>
           </motion.div>
         )}
+
+        {/* Alertes intelligentes Sprint 12 */}
+        <ProactiveAlertsWidget />
 
         {/* ═══ ACCÈS RAPIDE ═══ */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
