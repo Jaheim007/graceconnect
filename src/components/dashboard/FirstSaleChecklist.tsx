@@ -59,7 +59,7 @@ export function FirstSaleChecklist() {
       const [productsRes, salesRes, affRes, orgRes] = await Promise.all([
         db.from('digital_products').select('id, is_published').eq('organization_id', orgId).limit(5),
         db.from('product_purchases').select('id').eq('organization_id', orgId).eq('status', 'completed').limit(1),
-        db.from('affiliates').select('code').eq('user_id', user.id).limit(1),
+        db.from('affiliate_links').select('code').eq('user_id', user.id).limit(1),
         db.from('organizations').select('logo_url, description').eq('id', orgId).maybeSingle(),
       ]);
 
