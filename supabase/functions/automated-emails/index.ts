@@ -1668,18 +1668,21 @@ Deno.serve(async (req) => {
     let proUpsellCount = 0;
 
     try {
+      const COMMISSION_RATE = 0.10;
       const sinceCommission = new Date(now.getTime() - 30 * 86400000).toISOString();
-      const { data: recentCommissions } = await db
-        .from('commission_records')
-        .select('organization_id, amount_xof, created_at')
-        .gte('created_at', sinceCommission);
+      const { data: recentPurchases } = await db
+        .from('product_purchases')
+        .select('organization_id, amount, status, created_at')
+        .eq('status', 'completed')
+        .gte('created_at', sinceCommission)
+        .limit(10000);
 
-      // Aggregate commission per org over last 30d
+      // Aggregate gross sales → commission per org over last 30d
       const commissionByOrg = new Map<string, number>();
-      for (const row of (recentCommissions || []) as Array<{ organization_id: string; amount_xof: number | null }>) {
+      for (const row of (recentPurchases || []) as Array<{ organization_id: string; amount: number | null }>) {
         if (!row.organization_id) continue;
         const cur = commissionByOrg.get(row.organization_id) || 0;
-        commissionByOrg.set(row.organization_id, cur + Number(row.amount_xof || 0));
+        commissionByOrg.set(row.organization_id, cur + Number(row.amount || 0) * COMMISSION_RATE);
       }
 
       // Filter: only orgs above Pro break-even
@@ -1712,7 +1715,7 @@ Deno.serve(async (req) => {
             const savings = Math.max(0, totalRounded - PRO_PRICE_XOF);
 
             try {
-              const email = await getUserEmail(db, org.owner_id);
+              const email = await getUserEmail(org.owner_id);
               if (!email) continue;
 
               const subject = `Tu as payé ${totalRounded.toLocaleString('fr-FR')} XOF de commission ce mois-ci`;
