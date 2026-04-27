@@ -518,3 +518,85 @@ export default function PricingPage() {
     </div>
   );
 }
+
+// ───────────────────────────────────────────────
+// ROI calculator — interactive break-even widget
+// ───────────────────────────────────────────────
+function RoiCalculator({ isFr }: { isFr: boolean }) {
+  const [monthlyXof, setMonthlyXof] = useState(300_000);
+  const proCost = 19_000; // XOF
+  const commissionToday = Math.round(monthlyXof * 0.10);
+  const savedYearly = (commissionToday - proCost) * 12;
+  const breakeven = 190_000;
+  const isProfitable = monthlyXof >= breakeven;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1 }}
+      className="mt-10 mx-auto max-w-2xl rounded-2xl border border-primary/30 bg-card/60 backdrop-blur p-6 text-left"
+    >
+      <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">
+        {isFr ? 'Calculateur ROI' : 'ROI calculator'}
+      </p>
+      <h3 className="text-lg font-bold mb-4">
+        {isFr ? 'Combien Pro vous fait économiser ?' : 'How much does Pro save you?'}
+      </h3>
+      <label className="block text-sm text-muted-foreground mb-2">
+        {isFr ? 'Vos ventes mensuelles (XOF)' : 'Your monthly sales (XOF)'}
+      </label>
+      <input
+        type="range"
+        min={50_000}
+        max={2_000_000}
+        step={10_000}
+        value={monthlyXof}
+        onChange={(e) => setMonthlyXof(Number(e.target.value))}
+        className="w-full accent-primary"
+        aria-label={isFr ? 'Ventes mensuelles' : 'Monthly sales'}
+      />
+      <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
+        <span>50 000</span>
+        <span className="font-bold text-foreground text-base">
+          {monthlyXof.toLocaleString('fr-FR')} XOF
+        </span>
+        <span>2 000 000</span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mt-5">
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3">
+          <p className="text-[11px] uppercase text-destructive/80 font-semibold">
+            {isFr ? 'Commission Free (10 %)' : 'Free commission (10%)'}
+          </p>
+          <p className="text-2xl font-extrabold text-destructive mt-1">
+            -{commissionToday.toLocaleString('fr-FR')}
+          </p>
+          <p className="text-[11px] text-muted-foreground">XOF / {isFr ? 'mois' : 'mo'}</p>
+        </div>
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3">
+          <p className="text-[11px] uppercase text-emerald-700 dark:text-emerald-400 font-semibold">
+            {isFr ? 'Économie nette / an avec Pro' : 'Net yearly savings with Pro'}
+          </p>
+          <p className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
+            {savedYearly > 0 ? '+' : ''}{savedYearly.toLocaleString('fr-FR')}
+          </p>
+          <p className="text-[11px] text-muted-foreground">XOF / {isFr ? 'an' : 'yr'}</p>
+        </div>
+      </div>
+
+      <p className={cn(
+        'mt-4 text-sm font-medium text-center',
+        isProfitable ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
+      )}>
+        {isProfitable
+          ? (isFr
+              ? `✅ Pro est rentable pour vous (seuil : ${breakeven.toLocaleString('fr-FR')} XOF/mois).`
+              : `✅ Pro is profitable for you (break-even: ${breakeven.toLocaleString('fr-FR')} XOF/mo).`)
+          : (isFr
+              ? `Pro devient rentable dès ${breakeven.toLocaleString('fr-FR')} XOF de ventes/mois.`
+              : `Pro becomes profitable from ${breakeven.toLocaleString('fr-FR')} XOF/mo in sales.`)}
+      </p>
+    </motion.div>
+  );
+}
