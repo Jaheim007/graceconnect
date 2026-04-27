@@ -98,6 +98,7 @@ const EcrirePage = lazy(() => import("@/pages/EcrirePage"));
 const CreerFormationPage = lazy(() => import("@/pages/CreerFormationPage"));
 const VendrePage = lazy(() => import("@/pages/VendrePage"));
 const PricingPage = lazy(() => import("@/pages/PricingPage"));
+const FoundersPage = lazy(() => import("@/pages/FoundersPage"));
 const ComparerPage = lazy(() => import("@/pages/ComparerPage"));
 const BillingPage = lazy(() => import("@/pages/BillingPage"));
 const BillingSuccessPage = lazy(() => import("@/pages/BillingSuccessPage"));
@@ -311,6 +312,8 @@ const App = () => (
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/tarifs" element={<Navigate to="/pricing" replace />} />
+                <Route path="/founders" element={<FoundersPage />} />
+                <Route path="/fondateurs" element={<Navigate to="/founders" replace />} />
                 <Route path="/billing" element={<BillingPage />} />
                 <Route path="/billing/success" element={<BillingSuccessPage />} />
                 <Route path="/dashboard-preview" element={<RequireSuperadmin><DashboardPreview /></RequireSuperadmin>} />
