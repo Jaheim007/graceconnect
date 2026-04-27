@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Crown, Trophy, ArrowLeft, AlertTriangle, Sparkles, Calendar, CreditCard, Smartphone } from 'lucide-react';
+import { Crown, Trophy, ArrowLeft, AlertTriangle, Sparkles, Calendar, CreditCard, Smartphone, Ticket, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +14,8 @@ import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePlatformPlan } from '@/hooks/usePlatformPlan';
 import { usePlatformCheckout } from '@/hooks/usePlatformCheckout';
+import { useWaitlistCoupon } from '@/hooks/useWaitlistCoupon';
+import { toast } from 'sonner';
 
 export default function BillingPage() {
   const { locale } = useI18n();
