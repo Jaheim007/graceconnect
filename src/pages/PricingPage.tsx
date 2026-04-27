@@ -270,17 +270,20 @@ export default function PricingPage() {
             </Badge>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4">
               {isFr ? (
-                <>Choisis le plan qui <span className="text-primary">paie pour lui-même</span>.</>
+                <>Gardez <span className="text-primary">100 %</span> de vos revenus.</>
               ) : (
-                <>Pick the plan that <span className="text-primary">pays for itself</span>.</>
+                <>Keep <span className="text-primary">100%</span> of your revenue.</>
               )}
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               {isFr
-                ? 'Démarre gratuitement. 14 jours d\'essai sur Pro & Org. Aucun engagement, annulable à tout moment.'
-                : 'Start free. 14-day trial on Pro & Org. No commitment, cancel anytime.'}
+                ? "L'unique plateforme africaine où vous arrêtez de partager 10 % sur chaque vente. Pro est rentable dès 190 000 XOF de ventes/mois."
+                : "The only African platform where you stop sharing 10% on every sale. Pro pays for itself from $300/mo in sales."}
             </p>
           </motion.div>
+
+          {/* ROI calculator */}
+          <RoiCalculator isFr={isFr} />
         </section>
 
         {/* Tiers */}
