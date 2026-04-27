@@ -139,7 +139,20 @@ export async function processTransaction(
   }
 
   // ── 4. Fee calculations ──
-  const platformFeePct = org.platform_fee_percent ?? 10;
+  // Platform commission is waived (0%) when the org's owner has an active
+  // Pro or Org platform subscription (incl. founder lifetime & grandfather).
+  // Otherwise we apply the org's configured rate (default 10%).
+  let platformFeePct = org.platform_fee_percent ?? 10;
+  try {
+    if (org.owner_id) {
+      const { data: ownerTier } = await db.rpc('get_user_platform_tier', { _user_id: org.owner_id });
+      if (ownerTier === 'pro' || ownerTier === 'org') {
+        platformFeePct = 0;
+      }
+    }
+  } catch (e) {
+    console.warn('[process-transaction] Could not resolve owner tier, falling back to org rate:', e);
+  }
   const platformFee = parseFloat((amountPaid * platformFeePct / 100).toFixed(2));
 
   // ── 5. Affiliate resolution (products only, never donations) ──

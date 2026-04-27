@@ -14,6 +14,7 @@ import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { CommissionSavingsCard } from '@/components/billing/CommissionSavingsCard';
 
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
@@ -165,6 +166,9 @@ export default function CreatorDashboard() {
             <Button size="sm" variant="destructive" onClick={() => navigate('/admin/kyc')} className="h-7 text-xs shrink-0">Vérifier</Button>
           </motion.div>
         )}
+
+        {/* ═══ COMMISSION SAVINGS / UPSELL ═══ */}
+        <CommissionSavingsCard />
 
         {/* ═══ REVENUS ═══ */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
