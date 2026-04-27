@@ -11,6 +11,7 @@ export function LandingFooterCompact() {
 
   const mainLinks = [
     { to: '/features', label: isFr ? 'Fonctionnalités' : 'Features' },
+    { to: '/pricing', label: isFr ? 'Tarifs' : 'Pricing' },
     { to: '/discover', label: isFr ? 'Explorer' : 'Explore' },
     { to: '/ambassador-program', label: isFr ? 'Ambassadeur' : 'Ambassador' },
     { to: '/blog', label: 'Blog' },

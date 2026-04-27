@@ -11,6 +11,7 @@ const LandingAmbassadorLoop = lazy(() => import('@/components/landing/LandingAmb
 const LandingMobileMoney = lazy(() => import('@/components/landing/LandingMobileMoney').then(m => ({ default: m.LandingMobileMoney })));
 const LandingTrustShield = lazy(() => import('@/components/landing/LandingTrustShield').then(m => ({ default: m.LandingTrustShield })));
 const LandingPricingSimple = lazy(() => import('@/components/landing/LandingPricingSimple').then(m => ({ default: m.LandingPricingSimple })));
+const LandingThreeTiers = lazy(() => import('@/components/landing/LandingThreeTiers').then(m => ({ default: m.LandingThreeTiers })));
 const LandingFinalCTA = lazy(() => import('@/components/landing/LandingFinalCTA').then(m => ({ default: m.LandingFinalCTA })));
 const LandingFooterCompact = lazy(() => import('@/components/landing/LandingFooterCompact').then(m => ({ default: m.LandingFooterCompact })));
 
@@ -66,8 +67,9 @@ export default function LandingPage() {
         <LandingMobileMoney />
         {/* 6. Trust & sécurité */}
         <LandingTrustShield />
-        {/* 7. Pricing simple */}
+        {/* 7. Pricing — calculator + 3 tiers */}
         <LandingPricingSimple />
+        <LandingThreeTiers />
         {/* 8. CTA final + footer */}
         <LandingFinalCTA />
         <LandingFooterCompact />
