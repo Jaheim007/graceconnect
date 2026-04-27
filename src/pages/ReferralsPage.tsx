@@ -8,11 +8,12 @@ import { useReferrals } from "@/hooks/useReferrals";
 import { useI18n } from "@/i18n/I18nContext";
 import { Copy, Check, Gift, Users, Sparkles, Share2 } from "lucide-react";
 import { toast } from "sonner";
-import SEOHead from "@/components/seo/SEOHead";
+import { SEOHead } from "@/components/seo/SEOHead";
 
 export default function ReferralsPage() {
   const { stats, loading } = useReferrals();
-  const { lang } = useI18n();
+  const { locale } = useI18n();
+  const lang = locale;
   const [copied, setCopied] = useState(false);
 
   const isFr = lang === "fr";

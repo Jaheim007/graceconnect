@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, TrendingUp, Package } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
-import SEOHead from "@/components/seo/SEOHead";
+import { SEOHead } from "@/components/seo/SEOHead";
 
 interface TopCreator {
   organization_id: string;
@@ -18,7 +18,8 @@ interface TopCreator {
 }
 
 export default function ShowcasePage() {
-  const { lang } = useI18n();
+  const { locale } = useI18n();
+  const lang = locale;
   const [creators, setCreators] = useState<TopCreator[]>([]);
   const [loading, setLoading] = useState(true);
 
