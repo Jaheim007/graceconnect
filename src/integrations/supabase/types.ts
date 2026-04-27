@@ -965,6 +965,113 @@ export type Database = {
           },
         ]
       }
+      api_keys: {
+        Row: {
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          key_hash: string
+          key_prefix: string
+          last_used_at: string | null
+          name: string
+          org_id: string
+          revoked_at: string | null
+          scopes: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          key_hash: string
+          key_prefix: string
+          last_used_at?: string | null
+          name: string
+          org_id: string
+          revoked_at?: string | null
+          scopes?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          key_hash?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          name?: string
+          org_id?: string
+          revoked_at?: string | null
+          scopes?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_keys_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "api_keys_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+        ]
+      }
+      api_request_logs: {
+        Row: {
+          api_key_id: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string | null
+          latency_ms: number | null
+          method: string
+          org_id: string
+          status_code: number
+          user_agent: string | null
+        }
+        Insert: {
+          api_key_id?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address?: string | null
+          latency_ms?: number | null
+          method: string
+          org_id: string
+          status_code: number
+          user_agent?: string | null
+        }
+        Update: {
+          api_key_id?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string | null
+          latency_ms?: number | null
+          method?: string
+          org_id?: string
+          status_code?: number
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_request_logs_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -7416,6 +7523,19 @@ export type Database = {
         }
         Returns: string
       }
+      log_api_request: {
+        Args: {
+          _api_key_id: string
+          _endpoint: string
+          _ip_address?: string
+          _latency_ms?: number
+          _method: string
+          _org_id: string
+          _status_code: number
+          _user_agent?: string
+        }
+        Returns: undefined
+      }
       log_kyc_document_access: {
         Args: { _document_type: string; _org_id: string }
         Returns: undefined
@@ -7578,6 +7698,15 @@ export type Database = {
           _verse_start: number
         }
         Returns: string
+      }
+      verify_api_key: {
+        Args: { _key_hash: string }
+        Returns: {
+          api_key_id: string
+          is_valid: boolean
+          org_id: string
+          scopes: Json
+        }[]
       }
     }
     Enums: {
