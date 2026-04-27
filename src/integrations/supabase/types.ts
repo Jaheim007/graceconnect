@@ -6626,6 +6626,15 @@ export type Database = {
       f_unaccent: { Args: { "": string }; Returns: string }
       founders_remaining: { Args: never; Returns: number }
       get_credit_summary: { Args: { _user_id: string }; Returns: Json }
+      get_founders_wall: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          claimed_at: string
+          display_name: string
+          slot_number: number
+        }[]
+      }
       get_monthly_commission_recap: {
         Args: { _month_key?: string; _user_id: string }
         Returns: Json
