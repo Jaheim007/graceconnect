@@ -25,6 +25,7 @@ export function LandingFooter() {
               <li><Link to="/discover" className="hover:text-foreground transition-colors">{t('nav.discover')}</Link></li>
               <li><Link to="/auth?mode=signup" className="hover:text-foreground transition-colors">{t('landing.get_started')}</Link></li>
               <li><Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link></li>
+              <li><Link to="/founders" className="hover:text-foreground transition-colors">👑 Founders</Link></li>
               <li><Link to="/changelog" className="hover:text-foreground transition-colors">{t('landing.footer_changelog')}</Link></li>
             </ul>
           </div>

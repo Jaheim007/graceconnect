@@ -23,10 +23,14 @@ export function FounderBanner({ className }: { className?: string }) {
     if (typeof window !== 'undefined') {
       setDismissed(localStorage.getItem(STORAGE_KEY) === '1');
     }
-    (async () => {
+    let active = true;
+    const fetchRemaining = async () => {
       const { data } = await supabase.rpc('founders_remaining');
-      if (typeof data === 'number') setRemaining(data);
-    })();
+      if (active && typeof data === 'number') setRemaining(data);
+    };
+    fetchRemaining();
+    const id = setInterval(fetchRemaining, 60_000);
+    return () => { active = false; clearInterval(id); };
   }, []);
 
   const dismiss = () => {
@@ -64,6 +68,10 @@ export function FounderBanner({ className }: { className?: string }) {
             {isFr
               ? 'Pro à vie pour 49 000 XOF — un seul paiement, plus jamais d’abonnement.'
               : 'Lifetime Pro for 49,000 XOF — one-time payment, never billed again.'}
+            {' · '}
+            <Link to="/founders" className="underline hover:text-foreground">
+              {isFr ? 'Voir le mur' : 'See the wall'}
+            </Link>
           </p>
         </div>
         <Button
