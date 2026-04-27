@@ -4339,6 +4339,33 @@ export type Database = {
           },
         ]
       }
+      pro_upsell_email_log: {
+        Row: {
+          commission_amount_xof_30d: number
+          created_at: string
+          id: string
+          organization_id: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          commission_amount_xof_30d?: number
+          created_at?: string
+          id?: string
+          organization_id: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          commission_amount_xof_30d?: number
+          created_at?: string
+          id?: string
+          organization_id?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       product_page_sections: {
         Row: {
           content_json: Json

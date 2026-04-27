@@ -1657,6 +1657,118 @@ Deno.serve(async (req) => {
     }
     results['trending_nudges'] = trendingNudgeCount;
 
+    // ═══════════════════════════════════════════
+    // 12. PRO UPSELL — creators paying significant commission
+    // ═══════════════════════════════════════════
+    // Sends an upsell email to org owners whose 30-day platform commission
+    // exceeds the Pro monthly fee (so Pro is already profitable for them).
+    // Cooldown: only send once every 30 days per organization.
+    const PRO_PRICE_XOF = 19000;
+    const COOLDOWN_DAYS = 30;
+    let proUpsellCount = 0;
+
+    try {
+      const COMMISSION_RATE = 0.10;
+      const sinceCommission = new Date(now.getTime() - 30 * 86400000).toISOString();
+      const { data: recentPurchases } = await db
+        .from('product_purchases')
+        .select('organization_id, amount, status, created_at')
+        .eq('status', 'completed')
+        .gte('created_at', sinceCommission)
+        .limit(10000);
+
+      // Aggregate gross sales → commission per org over last 30d
+      const commissionByOrg = new Map<string, number>();
+      for (const row of (recentPurchases || []) as Array<{ organization_id: string; amount: number | null }>) {
+        if (!row.organization_id) continue;
+        const cur = commissionByOrg.get(row.organization_id) || 0;
+        commissionByOrg.set(row.organization_id, cur + Number(row.amount || 0) * COMMISSION_RATE);
+      }
+
+      // Filter: only orgs above Pro break-even
+      const eligibleOrgIds = Array.from(commissionByOrg.entries())
+        .filter(([, total]) => total >= PRO_PRICE_XOF)
+        .map(([orgId]) => orgId);
+
+      if (eligibleOrgIds.length > 0) {
+        // Cooldown check
+        const cooldownSince = new Date(now.getTime() - COOLDOWN_DAYS * 86400000).toISOString();
+        const { data: recentSent } = await db
+          .from('pro_upsell_email_log')
+          .select('organization_id')
+          .in('organization_id', eligibleOrgIds)
+          .gte('sent_at', cooldownSince);
+
+        const alreadySent = new Set((recentSent || []).map((r: { organization_id: string }) => r.organization_id));
+        const toSend = eligibleOrgIds.filter(id => !alreadySent.has(id));
+
+        if (toSend.length > 0) {
+          const { data: orgs } = await db
+            .from('organizations')
+            .select('id, name, owner_id')
+            .in('id', toSend);
+
+          for (const org of (orgs || []) as Array<{ id: string; name: string; owner_id: string }>) {
+            if (!org.owner_id) continue;
+            const total = commissionByOrg.get(org.id) || 0;
+            const totalRounded = Math.round(total);
+            const savings = Math.max(0, totalRounded - PRO_PRICE_XOF);
+
+            try {
+              const email = await getUserEmail(org.owner_id);
+              if (!email) continue;
+
+              const subject = `Tu as payé ${totalRounded.toLocaleString('fr-FR')} XOF de commission ce mois-ci`;
+              const html = `
+                <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1a1a1a">
+                  <h1 style="font-size:22px;margin:0 0 16px">Bonjour 👋</h1>
+                  <p>Sur les 30 derniers jours, <strong>${org.name}</strong> a généré
+                     <strong>${totalRounded.toLocaleString('fr-FR')} XOF</strong> de commission plateforme.</p>
+                  <div style="background:#f5f5f7;border-radius:12px;padding:16px;margin:16px 0">
+                    <p style="margin:0 0 8px"><strong>Avec le plan Pro</strong> à 19 000 XOF/mois :</p>
+                    <ul style="margin:0;padding-left:20px">
+                      <li>0% de commission sur tes ventes</li>
+                      <li>Domaine personnalisé inclus</li>
+                      <li>Économies estimées ce mois : <strong>${savings.toLocaleString('fr-FR')} XOF</strong></li>
+                    </ul>
+                  </div>
+                  <p>
+                    <a href="https://siteviral.com/pricing"
+                       style="display:inline-block;background:#1a1a1a;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">
+                      Rejoindre la liste d'attente Pro →
+                    </a>
+                  </p>
+                  <p style="color:#888;font-size:12px;margin-top:24px">
+                    Tu reçois cet email car ton organisation est éligible au plan Pro.
+                    Aucune action n'est requise — tu peux ignorer ce message.
+                  </p>
+                </div>`;
+
+              await sendEmail({
+                to: email,
+                subject,
+                html,
+                tags: [{ name: 'category', value: 'pro_upsell' }],
+              });
+
+              await db.from('pro_upsell_email_log').insert({
+                organization_id: org.id,
+                user_id: org.owner_id,
+                commission_amount_xof_30d: totalRounded,
+              });
+
+              proUpsellCount++;
+            } catch (e) {
+              console.error('[pro_upsell] failed for org', org.id, e);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('[pro_upsell] block error:', e);
+    }
+    results['pro_upsell_emails'] = proUpsellCount;
+
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
