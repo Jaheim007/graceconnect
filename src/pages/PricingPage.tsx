@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check, Sparkles, Crown, Building2, Star, CreditCard, Smartphone, Loader2, Trophy, Clock, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,6 +35,8 @@ export default function PricingPage() {
   const { fmt } = useDisplayCurrency();
   const plan = usePlatformPlan();
   const { startCheckout, loading: checkoutLoading } = usePlatformCheckout();
+  const [searchParams] = useSearchParams();
+  const couponFromUrl = searchParams.get('coupon') || undefined;
 
   const [providerOpen, setProviderOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanKey>('pro_monthly');
@@ -476,7 +478,7 @@ export default function PricingPage() {
           </DialogHeader>
           <div className="grid gap-3 py-2">
             <button
-              onClick={() => { setProviderOpen(false); startCheckout({ plan: selectedPlan, provider: 'paystack', currency: 'XOF' }); }}
+              onClick={() => { setProviderOpen(false); startCheckout({ plan: selectedPlan, provider: 'paystack', currency: 'XOF', couponCode: couponFromUrl }); }}
               disabled={checkoutLoading}
               className="flex items-center gap-4 p-4 rounded-xl border-2 border-primary/30 hover:border-primary hover:bg-primary/5 transition-all text-left disabled:opacity-50"
             >
