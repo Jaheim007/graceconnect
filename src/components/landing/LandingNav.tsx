@@ -47,15 +47,9 @@ export function LandingNav() {
         
         <div className="hidden md:flex items-center gap-1">
           {navItems.map((item) => (
-            item.isAnchor ? (
-              <Button key={item.label} variant="ghost" size="sm" asChild className="text-xs">
-                <a href={item.to}>{item.label}</a>
-              </Button>
-            ) : (
-              <Button key={item.label} variant="ghost" size="sm" asChild className="text-xs">
-                <Link to={item.to}>{item.label}</Link>
-              </Button>
-            )
+            <Button key={item.label} variant="ghost" size="sm" asChild className="text-xs">
+              <Link to={item.to}>{item.label}</Link>
+            </Button>
           ))}
         </div>
 
@@ -118,15 +112,9 @@ export function LandingNav() {
           >
             <nav className="container px-4 py-4 space-y-1">
               {navItems.map((item) => (
-                item.isAnchor ? (
-                  <a key={item.label} href={item.to} onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors">
-                    {item.label}
-                  </a>
-                ) : (
-                  <Link key={item.label} to={item.to} onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors">
-                    {item.label}
-                  </Link>
-                )
+                <Link key={item.label} to={item.to} onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors">
+                  {item.label}
+                </Link>
               ))}
               {user ? (
                 <div className="pt-2 border-t border-border/40 mt-2 space-y-2">
