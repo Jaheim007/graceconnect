@@ -38,6 +38,7 @@ import { WaitlistWidget } from '@/components/org/WaitlistWidget';
 import { SubscriptionPlansWidget } from '@/components/subscriptions/SubscriptionPlansWidget';
 import { PhotoLightbox } from '@/components/photos/PhotoLightbox';
 import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
+import { PoweredBySiteViral } from '@/components/billing/PoweredBySiteViral';
 import { useWaitlists } from '@/hooks/useWaitlists';
 import { isMainPlatformDomain } from '@/hooks/useDomainResolver';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
@@ -534,8 +535,9 @@ export default function OrgPublicPage() {
                   )}
                 </TabsContent>
               </Tabs>
-            </div>
-          </div>
+        </div>
+      </div>
+      <PoweredBySiteViral ownerId={(org as any)?.owner_id} />
 
           {/* Admin inline panel — desktop sidebar, mobile collapsible */}
           {isAdmin && org && (

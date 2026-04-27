@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { PDFDocument, rgb, degrees, PDFPage, PDFFont, PDFName, PDFArray, PDFRef } from 'https://esm.sh/pdf-lib@1.17.1';
+import { shouldWatermark, applyWatermark } from '../_shared/pdf-watermark.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -201,7 +202,7 @@ Deno.serve(async (req) => {
       if (desc) chapters = [{ title: docTitle, content: desc }];
     }
 
-    const pdfBytes = await buildProfessionalPdf({
+    let pdfBytes = await buildProfessionalPdf({
       title: docTitle,
       subtitle: docSubtitle,
       orgName: asText(org?.name, 'Siteviral'),
@@ -212,6 +213,19 @@ Deno.serve(async (req) => {
       format: projectFormat,
       chapterIllustrations: illustrationMap,
     });
+
+    // Apply "Made with SiteViral" watermark on Free tier (skipped for Pro/Org/Founder)
+    try {
+      const { data: orgRow } = await admin.from('organizations').select('owner_id').eq('id', effectiveOrgId).maybeSingle();
+      const ownerId = (orgRow as any)?.owner_id || null;
+      if (await shouldWatermark(admin, ownerId)) {
+        const wmDoc = await PDFDocument.load(pdfBytes);
+        await applyWatermark(wmDoc, docLanguage === 'fr' ? 'fr' : 'en');
+        pdfBytes = await wmDoc.save();
+      }
+    } catch (wmErr) {
+      console.warn('[ai-generate-pdf] watermark skipped:', wmErr);
+    }
 
     const storagePath = `${effectiveOrgId}/${project_id}/exports/document-${Date.now()}.pdf`;
     const blob = new Blob([pdfBytes], { type: 'application/pdf' });

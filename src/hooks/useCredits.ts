@@ -175,17 +175,36 @@ export function useGrantDailyCredits() {
     mutationFn: async () => {
       if (!user) throw new Error('Not authenticated');
 
+      // Daily login grant
       const { data, error } = await supabase.rpc('grant_daily_credits', {
         _user_id: user.id,
       });
-
       if (error) throw error;
-      return data as unknown as { ok: boolean; reason?: string; granted?: number; balance?: number };
+
+      // Monthly tier grant (idempotent — only credits once per calendar month)
+      let monthly: { ok: boolean; tier?: string; granted?: number } | null = null;
+      try {
+        const { data: m } = await supabase.rpc('grant_monthly_platform_credits', {
+          _user_id: user.id,
+        });
+        monthly = m as any;
+      } catch (e) {
+        console.warn('[grant_monthly_platform_credits] skipped', e);
+      }
+
+      return {
+        daily: data as unknown as { ok: boolean; reason?: string; granted?: number; balance?: number },
+        monthly,
+      };
     },
-    onSuccess: (data) => {
+    onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ['credits', 'summary'] });
-      if (data?.ok && data.granted) {
-        toast.success(`+${data.granted} crédits quotidiens reçus !`);
+      if (res.daily?.ok && res.daily.granted) {
+        toast.success(`+${res.daily.granted} crédits quotidiens reçus !`);
+      }
+      if (res.monthly?.ok && res.monthly.granted) {
+        const tierLabel = res.monthly.tier === 'pro' ? 'Pro' : res.monthly.tier === 'org' ? 'Org' : res.monthly.tier === 'founder' ? 'Founder' : 'Free';
+        toast.success(`+${res.monthly.granted} crédits mensuels (${tierLabel}) ✨`, { duration: 6000 });
       }
     },
   });

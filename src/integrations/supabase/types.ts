@@ -4221,6 +4221,45 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_commission_savings: {
+        Row: {
+          created_at: string
+          currency: string
+          id: string
+          month_key: string
+          organization_id: string | null
+          paid_amount_cents: number
+          saved_amount_cents: number
+          tier: string
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          id?: string
+          month_key: string
+          organization_id?: string | null
+          paid_amount_cents?: number
+          saved_amount_cents?: number
+          tier: string
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: string
+          month_key?: string
+          organization_id?: string | null
+          paid_amount_cents?: number
+          saved_amount_cents?: number
+          tier?: string
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_metrics_daily: {
         Row: {
           active_affiliates: number | null
@@ -6587,6 +6626,10 @@ export type Database = {
       f_unaccent: { Args: { "": string }; Returns: string }
       founders_remaining: { Args: never; Returns: number }
       get_credit_summary: { Args: { _user_id: string }; Returns: Json }
+      get_monthly_commission_recap: {
+        Args: { _month_key?: string; _user_id: string }
+        Returns: Json
+      }
       get_org_category_breakdown: { Args: never; Returns: Json }
       get_org_country_breakdown: { Args: { _limit?: number }; Returns: Json }
       get_org_role: {
@@ -6659,6 +6702,10 @@ export type Database = {
       }
       grant_daily_credits: {
         Args: { _amount?: number; _user_id: string }
+        Returns: Json
+      }
+      grant_monthly_platform_credits: {
+        Args: { _user_id: string }
         Returns: Json
       }
       increment_affiliate_link_stats: {

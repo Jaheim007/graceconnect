@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
+import { shouldWatermark, applyWatermark } from "../_shared/pdf-watermark.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,7 +33,7 @@ serve(async (req) => {
     // Fetch certificate data
     const { data: cert, error: certErr } = await sb
       .from("program_certificates")
-      .select("*, programs:program_id(title, organizations:organization_id(name, logo_url, slug))")
+      .select("*, programs:program_id(title, organizations:organization_id(name, logo_url, slug, owner_id))")
       .eq("id", certificateId)
       .eq("user_id", user.id)
       .single();
@@ -202,6 +203,12 @@ serve(async (req) => {
       font: fontItalic,
       color: rgb(0.7, 0.7, 0.7),
     });
+
+    // Apply watermark for Free tier (skipped for Pro/Org/Founder)
+    const ownerId = (cert as any).programs?.organizations?.owner_id || null;
+    if (await shouldWatermark(sb, ownerId)) {
+      await applyWatermark(pdfDoc, "en");
+    }
 
     const pdfBytes = await pdfDoc.save();
 

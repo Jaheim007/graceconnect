@@ -143,10 +143,13 @@ export async function processTransaction(
   // Pro or Org platform subscription (incl. founder lifetime & grandfather).
   // Otherwise we apply the org's configured rate (default 10%).
   let platformFeePct = org.platform_fee_percent ?? 10;
+  let resolvedOwnerTier: string | null = null;
+  let baselineFeePct = platformFeePct;
   try {
     if (org.owner_id) {
       const { data: ownerTier } = await db.rpc('get_user_platform_tier', { _user_id: org.owner_id });
-      if (ownerTier === 'pro' || ownerTier === 'org') {
+      resolvedOwnerTier = (ownerTier as string) || 'free';
+      if (resolvedOwnerTier === 'pro' || resolvedOwnerTier === 'org' || resolvedOwnerTier === 'founder') {
         platformFeePct = 0;
       }
     }
@@ -154,6 +157,8 @@ export async function processTransaction(
     console.warn('[process-transaction] Could not resolve owner tier, falling back to org rate:', e);
   }
   const platformFee = parseFloat((amountPaid * platformFeePct / 100).toFixed(2));
+  const wouldHaveBeenFee = parseFloat((amountPaid * baselineFeePct / 100).toFixed(2));
+  const savedFee = parseFloat((wouldHaveBeenFee - platformFee).toFixed(2));
 
   // ── 5. Affiliate resolution (products only, never donations) ──
   let affiliateLinkId: string | null = null;
@@ -729,6 +734,25 @@ export async function processTransaction(
       gross_amount: amountPaid,
       currency,
     });
+  }
+
+  // ── 14. Record commission savings (Pro/Org/Founder) or paid (Free) for monthly recap email ──
+  try {
+    if (org.owner_id) {
+      const monthKey = new Date().toISOString().slice(0, 7); // YYYY-MM
+      await db.from('platform_commission_savings').insert({
+        user_id: org.owner_id,
+        organization_id,
+        transaction_id: transactionId,
+        saved_amount_cents: Math.round(savedFee * 100),
+        paid_amount_cents: Math.round(platformFee * 100),
+        currency,
+        tier: resolvedOwnerTier || 'free',
+        month_key: monthKey,
+      });
+    }
+  } catch (e) {
+    console.warn('[process-transaction] Could not log commission savings:', e);
   }
 
   console.log(`[process-transaction] ✅ ${gateway}/${source} ${type} processed: ${reference} — ${amountPaid} ${currency}`);
