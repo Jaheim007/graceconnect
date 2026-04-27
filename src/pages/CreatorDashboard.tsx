@@ -166,6 +166,9 @@ export default function CreatorDashboard() {
           </motion.div>
         )}
 
+        {/* ═══ COMMISSION SAVINGS / UPSELL ═══ */}
+        <CommissionSavingsCard />
+
         {/* ═══ REVENUS ═══ */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
           className="bg-card border border-primary/20 rounded-2xl p-5"
