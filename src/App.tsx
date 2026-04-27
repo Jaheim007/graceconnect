@@ -25,6 +25,7 @@ import { SkipLink } from "@/components/layout/SkipLink";
 import { ShortcutRedirect } from "@/components/layout/ShortcutRedirect";
 import { FloatingProofToast } from "@/components/social-proof/FloatingProofToast";
 import { DomainRouter } from "@/components/layout/DomainRouter";
+import { ReferralCapture } from "@/components/referral/ReferralCapture";
 
 /** Redirect /store/:slug → /org/:slug/store */
 function StoreRedirect() {
@@ -302,6 +303,7 @@ const App = () => (
               <SkipLink />
               <OfflineBanner />
               <ScrollToTop />
+              <ReferralCapture />
               <GDPRBanner />
               <FloatingProofToast />
               <DomainRouter />
