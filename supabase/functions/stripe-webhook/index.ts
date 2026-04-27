@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { processTransaction, TransactionError } from '../_shared/process-transaction.ts';
+import { sendEmail, getUserEmail } from '../_shared/send-email-helper.ts';
 
 /**
  * Stripe Webhook handler.
