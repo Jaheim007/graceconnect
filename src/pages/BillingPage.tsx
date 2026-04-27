@@ -64,10 +64,15 @@ export default function BillingPage() {
         <p className="text-muted-foreground mb-4">
           {isFr ? 'Gère ton plan SiteViral et ton mode de paiement.' : 'Manage your SiteViral plan and payment method.'}
         </p>
-        <Button variant="outline" size="sm" onClick={() => navigate('/billing/usage')} className="mb-8 gap-1.5">
-          <Sparkles className="h-3.5 w-3.5" />
-          {isFr ? 'Voir mon usage du mois' : 'View my monthly usage'}
-        </Button>
+        <div className="flex flex-wrap gap-2 mb-8">
+          <Button variant="outline" size="sm" onClick={() => navigate('/billing/usage')} className="gap-1.5">
+            <Sparkles className="h-3.5 w-3.5" />
+            {isFr ? 'Voir mon usage du mois' : 'View my monthly usage'}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate('/referrals')} className="gap-1.5">
+            🎁 {isFr ? 'Parrainer & gagner du Pro gratuit' : 'Refer & earn free Pro'}
+          </Button>
+        </div>
 
         {/* Current plan card */}
         <Card className="mb-6">
