@@ -24,6 +24,75 @@ interface Body {
   plan_key: PlanKey;
   success_url: string;
   cancel_url: string;
+  coupon_code?: string; // Code waitlist (EARLY-XXXX) ou code Stripe direct
+}
+
+/**
+ * Convert a SiteViral waitlist coupon code into a Stripe coupon ID.
+ * - If the code matches a row in `waitlist_coupons` (and isn't redeemed),
+ *   ensure a matching Stripe coupon exists (create on the fly), and mark redeemed.
+ * - Otherwise, treat the input as a raw Stripe coupon ID and return as-is.
+ */
+async function resolveStripeCoupon(
+  db: any,
+  stripeSecret: string,
+  inputCode: string,
+  userId: string,
+): Promise<string | null> {
+  if (!inputCode) return null;
+
+  const { data: row } = await db
+    .from('waitlist_coupons')
+    .select('id, code, stripe_coupon_id, discount_percent, redeemed_at')
+    .eq('code', inputCode.toUpperCase())
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (!row) {
+    // Treat as a raw Stripe coupon ID — Stripe will reject if invalid.
+    return inputCode;
+  }
+
+  if (row.redeemed_at) {
+    throw new Error('Coupon already redeemed');
+  }
+
+  let stripeCouponId = row.stripe_coupon_id as string | null;
+
+  if (!stripeCouponId) {
+    // Create a forever-percent coupon in Stripe for this code.
+    const couponRes = await fetch('https://api.stripe.com/v1/coupons', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${stripeSecret}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        id: row.code, // reuse our own code as the Stripe coupon ID
+        percent_off: String(row.discount_percent),
+        duration: 'forever',
+        name: `SiteViral early-adopter ${row.discount_percent}% off`,
+      }),
+    });
+    const created = await couponRes.json();
+    if (!created?.id) {
+      // Coupon may already exist with that ID — try to fetch it
+      const fetchRes = await fetch(
+        `https://api.stripe.com/v1/coupons/${encodeURIComponent(row.code)}`,
+        { headers: { Authorization: `Bearer ${stripeSecret}` } },
+      );
+      const existing = await fetchRes.json();
+      if (!existing?.id) throw new Error(`Stripe coupon create failed: ${JSON.stringify(created)}`);
+      stripeCouponId = existing.id;
+    } else {
+      stripeCouponId = created.id;
+    }
+    await db.from('waitlist_coupons').update({ stripe_coupon_id: stripeCouponId }).eq('id', row.id);
+  }
+
+  // Mark redeemed (best-effort — webhook on first invoice will keep status in sync)
+  await db.from('waitlist_coupons').update({ redeemed_at: new Date().toISOString() }).eq('id', row.id);
+  return stripeCouponId;
 }
 
 Deno.serve(async (req) => {
