@@ -24,7 +24,17 @@ export default function BillingPage() {
   const { user } = useAuth();
   const plan = usePlatformPlan();
   const { cancelSubscription, loading } = usePlatformCheckout();
+  const { coupon } = useWaitlistCoupon();
   const [cancelOpen, setCancelOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copyCode = async () => {
+    if (!coupon?.code) return;
+    await navigator.clipboard.writeText(coupon.code);
+    setCopied(true);
+    toast.success(isFr ? 'Code copié' : 'Code copied');
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   if (!user) {
     navigate('/auth?next=/billing');
