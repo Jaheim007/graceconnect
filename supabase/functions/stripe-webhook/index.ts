@@ -187,6 +187,29 @@ async function handlePlatformSubscriptionEvent(event: any, db: any, stripeSecret
     await db.from('platform_subscriptions').update({
       status: 'past_due',
     }).eq('user_id', userId);
+
+    // Lookup the platform_subscription record so we can log the dunning attempt
+    const { data: subRow } = await db
+      .from('platform_subscriptions')
+      .select('id, currency')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const invoice: any = (event as any).data?.object || {};
+    if (subRow?.id) {
+      await db.from('dunning_attempts').upsert({
+        subscription_id: subRow.id,
+        user_id: userId,
+        provider: 'stripe',
+        step: 'd1',
+        invoice_id: invoice.id,
+        amount_due: (invoice.amount_due ?? 0) / 100,
+        currency: (invoice.currency || subRow.currency || 'usd').toUpperCase(),
+      }, { onConflict: 'subscription_id,step', ignoreDuplicates: true });
+    }
+
     const e = await getUserEmail(userId);
     if (e) {
       await sendEmail({

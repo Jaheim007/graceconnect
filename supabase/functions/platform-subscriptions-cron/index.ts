@@ -296,7 +296,81 @@ Deno.serve(async (req) => {
     }
 
     // ════════════════════════════════════════════════════════════
-    // 4. CLEAN UP STALE PAST_DUE (>14d)
+    // 4. STRIPE DUNNING ESCALATION (J+3, J+7, FINAL)
+    // ════════════════════════════════════════════════════════════
+    const dunningSteps: Array<{ next: 'd3'|'d7'|'final'; afterDays: number; prev: string; tpl: string }> = [
+      { next: 'd3',    afterDays: 2, prev: 'd1', tpl: 'subscription_payment_failed' },
+      { next: 'd7',    afterDays: 4, prev: 'd3', tpl: 'subscription_payment_failed' },
+      { next: 'final', afterDays: 7, prev: 'd7', tpl: 'subscription_payment_failed' },
+    ];
+    for (const step of dunningSteps) {
+      const cutoffIso = new Date(now.getTime() - step.afterDays * 86400000).toISOString();
+      const { data: prevAttempts } = await db
+        .from('dunning_attempts')
+        .select('id, subscription_id, user_id, invoice_id, amount_due, currency, sent_at')
+        .eq('provider', 'stripe')
+        .eq('step', step.prev)
+        .lte('sent_at', cutoffIso)
+        .is('recovered_at', null)
+        .limit(200);
+
+      for (const pa of prevAttempts || []) {
+        // Skip if next step already exists for this subscription
+        const { count } = await db
+          .from('dunning_attempts')
+          .select('id', { count: 'exact', head: true })
+          .eq('subscription_id', pa.subscription_id)
+          .eq('step', step.next);
+        if ((count || 0) > 0) continue;
+
+        // Skip if subscription is no longer past_due (recovered)
+        const { data: sub } = await db
+          .from('platform_subscriptions')
+          .select('status, plan')
+          .eq('id', pa.subscription_id)
+          .maybeSingle();
+        if (!sub || sub.status !== 'past_due') {
+          await db.from('dunning_attempts').update({ recovered_at: nowIso }).eq('id', pa.id);
+          continue;
+        }
+
+        await db.from('dunning_attempts').insert({
+          subscription_id: pa.subscription_id,
+          user_id: pa.user_id,
+          provider: 'stripe',
+          step: step.next,
+          invoice_id: pa.invoice_id,
+          amount_due: pa.amount_due,
+          currency: pa.currency,
+        });
+
+        const email = await getUserEmail(pa.user_id);
+        if (email) {
+          await sendEmail({
+            template: step.tpl as any,
+            to: email,
+            data: {
+              plan: sub.plan,
+              attempt: step.next === 'd3' ? 2 : step.next === 'd7' ? 3 : 4,
+              recovery_url: 'https://siteviral.com/billing',
+              final: step.next === 'final',
+            },
+          }).catch(() => null);
+        }
+
+        // Final step: cancel the subscription
+        if (step.next === 'final') {
+          await db.from('platform_subscriptions').update({
+            status: 'canceled',
+            canceled_at: nowIso,
+          }).eq('id', pa.subscription_id);
+          summary.past_due_canceled++;
+        }
+      }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // 5. CLEAN UP STALE PAST_DUE (>14d) — fallback safety net
     // ════════════════════════════════════════════════════════════
     const cutoff = new Date(now.getTime() - 14 * 24 * 3600000).toISOString();
     const { data: stale } = await db

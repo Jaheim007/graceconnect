@@ -62,6 +62,20 @@ function PaywallCard({
     ? `« ${feature} » nécessite un abonnement ${isOrg ? 'Organisation' : 'Pro'}.`
     : `Cette fonctionnalité nécessite un abonnement ${isOrg ? 'Organisation' : 'Pro'}.`;
 
+  const benefits = isOrg
+    ? [
+        'Multi-utilisateurs & rôles avancés',
+        'Domaines personnalisés illimités',
+        'Crédits IA illimités pour toute l\'équipe',
+        'Support prioritaire 24/7',
+      ]
+    : [
+        '0 % commission sur tes ventes',
+        '5 000 crédits IA / mois inclus',
+        'Domaines personnalisés',
+        'Statistiques avancées',
+      ];
+
   const card = (
     <Card className="p-6 md:p-8 text-center space-y-4 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-background">
       <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -73,6 +87,16 @@ function PaywallCard({
         </h2>
         <p className="text-sm text-muted-foreground">{desc}</p>
       </div>
+
+      <ul className="text-sm text-left max-w-sm mx-auto space-y-1.5 pt-2">
+        {benefits.map((b) => (
+          <li key={b} className="flex items-start gap-2">
+            <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+            <span>{b}</span>
+          </li>
+        ))}
+      </ul>
+
       <div className="flex flex-col sm:flex-row gap-2 justify-center pt-2">
         <Button asChild size="lg">
           <Link to="/pricing">
@@ -81,7 +105,7 @@ function PaywallCard({
           </Link>
         </Button>
         <Button asChild variant="outline" size="lg">
-          <Link to="/billing">Gérer mon abonnement</Link>
+          <Link to="/billing/usage">Voir mes stats d'usage</Link>
         </Button>
       </div>
       <button
