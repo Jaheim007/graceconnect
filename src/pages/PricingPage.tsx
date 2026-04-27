@@ -494,7 +494,7 @@ export default function PricingPage() {
               <Badge variant="secondary" className="shrink-0">{isFr ? 'Recommandé' : 'Recommended'}</Badge>
             </button>
             <button
-              onClick={() => { setProviderOpen(false); startCheckout({ plan: selectedPlan, provider: 'stripe' }); }}
+              onClick={() => { setProviderOpen(false); startCheckout({ plan: selectedPlan, provider: 'stripe', couponCode: couponFromUrl }); }}
               disabled={checkoutLoading}
               className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-muted/50 transition-all text-left disabled:opacity-50"
             >
