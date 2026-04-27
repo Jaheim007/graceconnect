@@ -300,6 +300,7 @@ const App = () => (
               <GDPRBanner />
               <FloatingProofToast />
               <DomainRouter />
+              <TrialBillingBanner />
               
               <Suspense fallback={<PageLoader />}>
               <Routes>
