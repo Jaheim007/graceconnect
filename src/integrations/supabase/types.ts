@@ -1985,6 +1985,45 @@ export type Database = {
           },
         ]
       }
+      dunning_attempts: {
+        Row: {
+          amount_due: number | null
+          currency: string | null
+          id: string
+          invoice_id: string | null
+          provider: string
+          recovered_at: string | null
+          sent_at: string
+          step: string
+          subscription_id: string
+          user_id: string
+        }
+        Insert: {
+          amount_due?: number | null
+          currency?: string | null
+          id?: string
+          invoice_id?: string | null
+          provider: string
+          recovered_at?: string | null
+          sent_at?: string
+          step: string
+          subscription_id: string
+          user_id: string
+        }
+        Update: {
+          amount_due?: number | null
+          currency?: string | null
+          id?: string
+          invoice_id?: string | null
+          provider?: string
+          recovered_at?: string | null
+          sent_at?: string
+          step?: string
+          subscription_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_campaigns: {
         Row: {
           body: string
@@ -6724,6 +6763,17 @@ export type Database = {
       expire_stale_credit_purchases: { Args: never; Returns: number }
       f_unaccent: { Args: { "": string }; Returns: string }
       founders_remaining: { Args: never; Returns: number }
+      get_billing_usage_stats: {
+        Args: { _user_id: string }
+        Returns: {
+          active_products: number
+          ai_credits_used_month: number
+          commission_saved_month: number
+          products_sold_month: number
+          revenue_net_month: number
+          total_organizations: number
+        }[]
+      }
       get_credit_summary: { Args: { _user_id: string }; Returns: Json }
       get_founders_wall: {
         Args: never
