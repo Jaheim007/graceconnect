@@ -109,6 +109,15 @@ async function handlePlatformSubscriptionEvent(event: any, db: any, stripeSecret
         user_id: userId, provider: 'stripe', event_type: event.type,
         external_event_id: event.id, payload: event,
       });
+      // Founder welcome email (non-blocking)
+      const fEmail = await getUserEmail(userId);
+      if (fEmail) {
+        await sendEmail({
+          template: 'founder_welcome' as any,
+          to: fEmail,
+          data: { slot: String(slot || ''), plan: 'pro' },
+        }).catch(() => null);
+      }
       console.log(`[platform-sub] Founder slot ${slot} claimed for ${userId}`);
     }
     return true;
