@@ -132,6 +132,26 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ── Handle PLATFORM SUBSCRIPTION events (Pro/Org/Founder) ──
+    const platformSubEvents = [
+      'checkout.session.completed',
+      'customer.subscription.created',
+      'customer.subscription.updated',
+      'customer.subscription.deleted',
+      'customer.subscription.trial_will_end',
+      'invoice.paid',
+      'invoice.payment_failed',
+    ];
+    if (platformSubEvents.includes(event.type)) {
+      const handled = await handlePlatformSubscriptionEvent(event, db, STRIPE_SECRET);
+      if (handled) {
+        return new Response(JSON.stringify({ ok: true, kind: 'platform_subscription', event: event.type }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      // Not a platform sub event → fall through to normal handling
+    }
+
     // Only handle checkout.session.completed for payments
     if (event.type !== 'checkout.session.completed') {
       return new Response(JSON.stringify({ received: true, skipped: event.type }), {
