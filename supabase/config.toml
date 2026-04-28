@@ -257,3 +257,6 @@ verify_jwt = false
 
 [functions.api-keys-manage]
 verify_jwt = false
+
+[functions.register-mobile-device]
+verify_jwt = false

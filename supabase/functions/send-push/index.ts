@@ -52,11 +52,7 @@ Deno.serve(async (req) => {
     else if (organization_id) query = query.eq('organization_id', organization_id);
 
     const { data: subs } = await query;
-    if (!subs?.length) {
-      return new Response(JSON.stringify({ ok: true, sent: 0 }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    }
-
-    const sent = subs.length;
+    const webPushSent = subs?.length ?? 0;
 
     // Also insert in-app notifications
     if (user_id) {
@@ -70,7 +66,56 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ ok: true, sent, pending_push: !VAPID_PRIVATE_KEY }), {
+    // Send native push via OneSignal (FCM/APNs) targeting external_user_id
+    let nativeSent = 0;
+    const ONESIGNAL_REST_API_KEY = Deno.env.get('ONESIGNAL_REST_API_KEY');
+    const ONESIGNAL_APP_ID = '8b981e58-37db-409f-8372-7a1299547e2b';
+    if (ONESIGNAL_REST_API_KEY) {
+      try {
+        let externalIds: string[] = [];
+        if (user_id) {
+          externalIds = [user_id];
+        } else if (organization_id) {
+          const { data: tokens } = await db
+            .from('mobile_device_tokens')
+            .select('user_id')
+            .eq('organization_id', organization_id);
+          externalIds = [...new Set((tokens || []).map((t: any) => t.user_id))];
+        }
+        if (externalIds.length > 0) {
+          const osPayload: any = {
+            app_id: ONESIGNAL_APP_ID,
+            include_aliases: { external_id: externalIds },
+            target_channel: 'push',
+            headings: { en: title, fr: title },
+            contents: { en: body, fr: body },
+          };
+          if (url) osPayload.url = url;
+          if (tag) osPayload.android_group = tag;
+          const osRes = await fetch('https://api.onesignal.com/notifications', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Basic ${ONESIGNAL_REST_API_KEY}`,
+            },
+            body: JSON.stringify(osPayload),
+          });
+          const osData = await osRes.json();
+          nativeSent = osData?.recipients ?? 0;
+          if (!osRes.ok) console.warn('OneSignal send failed:', osData);
+        }
+      } catch (e) {
+        console.warn('OneSignal send error:', e);
+      }
+    }
+
+    return new Response(JSON.stringify({
+      ok: true,
+      sent: webPushSent + nativeSent,
+      web_push_sent: webPushSent,
+      native_sent: nativeSent,
+      pending_push: !VAPID_PRIVATE_KEY,
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {

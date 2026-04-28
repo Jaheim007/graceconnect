@@ -3485,6 +3485,45 @@ export type Database = {
           },
         ]
       }
+      mobile_device_tokens: {
+        Row: {
+          app_version: string | null
+          created_at: string | null
+          device_model: string | null
+          id: string
+          last_active_at: string | null
+          organization_id: string | null
+          platform: string
+          token: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          app_version?: string | null
+          created_at?: string | null
+          device_model?: string | null
+          id?: string
+          last_active_at?: string | null
+          organization_id?: string | null
+          platform: string
+          token: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          app_version?: string | null
+          created_at?: string | null
+          device_model?: string | null
+          id?: string
+          last_active_at?: string | null
+          organization_id?: string | null
+          platform?: string
+          token?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       moderation_actions: {
         Row: {
           action: string
