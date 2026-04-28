@@ -3071,6 +3071,90 @@ export type Database = {
           },
         ]
       }
+      marketplace_template_pending_clones: {
+        Row: {
+          amount: number
+          clone_id: string | null
+          cloned_product_id: string | null
+          cloner_org_id: string
+          cloner_user_id: string
+          completed_at: string | null
+          created_at: string
+          currency: string
+          id: string
+          payment_reference: string
+          provider: string
+          status: string
+          template_id: string
+        }
+        Insert: {
+          amount: number
+          clone_id?: string | null
+          cloned_product_id?: string | null
+          cloner_org_id: string
+          cloner_user_id: string
+          completed_at?: string | null
+          created_at?: string
+          currency: string
+          id?: string
+          payment_reference: string
+          provider: string
+          status?: string
+          template_id: string
+        }
+        Update: {
+          amount?: number
+          clone_id?: string | null
+          cloned_product_id?: string | null
+          cloner_org_id?: string
+          cloner_user_id?: string
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_reference?: string
+          provider?: string
+          status?: string
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_template_pending_clones_clone_id_fkey"
+            columns: ["clone_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_template_clones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_template_pending_clones_cloned_product_id_fkey"
+            columns: ["cloned_product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_template_pending_clones_cloner_org_id_fkey"
+            columns: ["cloner_org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_template_pending_clones_cloner_org_id_fkey"
+            columns: ["cloner_org_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "marketplace_template_pending_clones_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_template_reviews: {
         Row: {
           comment: string | null
@@ -7537,6 +7621,10 @@ export type Database = {
       expire_credit_lots: { Args: { _user_id: string }; Returns: number }
       expire_stale_credit_purchases: { Args: never; Returns: number }
       f_unaccent: { Args: { "": string }; Returns: string }
+      finalize_template_clone_payment: {
+        Args: { _payment_reference: string }
+        Returns: Json
+      }
       founders_remaining: { Args: never; Returns: number }
       get_billing_usage_stats: {
         Args: { _user_id: string }

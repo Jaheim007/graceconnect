@@ -387,8 +387,26 @@ Deno.serve(async (req) => {
     }
 
     const reference = meta.sv_reference;
-    const type = meta.type as 'donation' | 'product';
+    const type = meta.type as 'donation' | 'product' | 'template_clone';
     const organizationId = meta.organization_id;
+
+    // ── TEMPLATE CLONE branch ──
+    if (type === 'template_clone') {
+      const tplRef = meta.payment_reference || session.client_reference_id;
+      if (!tplRef) {
+        await db.from('payment_events').update({ status: 'error', processed_at: new Date().toISOString() }).eq('event_id', String(stripeEventId));
+        return new Response(JSON.stringify({ error: 'Missing payment_reference for template_clone' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      const { data: result, error: cloneErr } = await db.rpc('finalize_template_clone_payment', { _payment_reference: tplRef });
+      if (cloneErr) {
+        console.error('[stripe-webhook] template_clone error:', cloneErr.message);
+        await db.from('payment_events').update({ status: 'error', processed_at: new Date().toISOString() }).eq('event_id', String(stripeEventId));
+        return new Response(JSON.stringify({ ok: false, error: cloneErr.message }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(stripeEventId));
+      console.log('[stripe-webhook] template_clone finalized:', tplRef, result);
+      return new Response(JSON.stringify({ ok: true, template_clone: result }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
 
     if (!reference || !type || !organizationId) {
       console.error('[stripe-webhook] Missing metadata:', meta);
