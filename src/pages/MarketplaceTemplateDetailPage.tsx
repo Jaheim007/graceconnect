@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { db, supabase } from '@/lib/db';
 import { useI18n } from '@/i18n/I18nContext';
-import { useOrganizations } from '@/hooks/useOrganizations';
+import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,8 +21,8 @@ export default function MarketplaceTemplateDetailPage() {
   const { locale } = useI18n();
   const fr = locale === 'fr';
   const { user } = useAuth();
-  const { data: orgs = [] } = useOrganizations();
-  const ownedOrgs = orgs.filter((o: any) => ['owner', 'admin'].includes(o.role));
+  const { userOrgs, canManage } = useOrg();
+  const ownedOrgs = userOrgs.filter((o: any) => canManage(o.id));
   const [targetOrg, setTargetOrg] = useState<string>('');
   const [cloning, setCloning] = useState(false);
 

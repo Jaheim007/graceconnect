@@ -28,7 +28,8 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function AdminMarketplaceTemplates() {
-  const { activeOrgId } = useOrg();
+  const { currentOrg } = useOrg();
+  const activeOrgId = currentOrg?.id;
   const { locale } = useI18n();
   const fr = locale === 'fr';
   const qc = useQueryClient();
