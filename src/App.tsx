@@ -209,6 +209,10 @@ const AdminNotifications = lazy(() => import("@/pages/admin/AdminNotifications")
 const AdminExperiments = lazy(() => import("@/pages/admin/AdminExperiments"));
 const AdminWebhooks = lazy(() => import("@/pages/admin/AdminWebhooks"));
 const AdminApiKeys = lazy(() => import("@/pages/admin/AdminApiKeys"));
+const AdminMarketplaceTemplates = lazy(() => import("@/pages/admin/AdminMarketplaceTemplates"));
+const MarketplaceTemplatesPage = lazy(() => import("@/pages/MarketplaceTemplatesPage"));
+const MarketplaceTemplateDetailPage = lazy(() => import("@/pages/MarketplaceTemplateDetailPage"));
+const SuperadminMarketplaceModeration = lazy(() => import("@/pages/superadmin/SuperadminMarketplaceModeration"));
 const AdminOfferings = lazy(() => import("@/pages/admin/AdminOfferings"));
 const AdminPrograms = lazy(() => import("@/pages/admin/AdminPrograms"));
 const AdminProgramForm = lazy(() => import("@/pages/admin/AdminProgramForm").then(m => ({ default: m.ProgramForm })));
@@ -428,6 +432,8 @@ const App = () => (
                 <Route path="/store/:slug" element={<StoreRedirect />} />
                 {/* Discover — uses AdaptiveLayout (sidebar when logged in) */}
                 <Route path="/discover" element={<DiscoverPage />} />
+                <Route path="/marketplace/templates" element={<MarketplaceTemplatesPage />} />
+                <Route path="/marketplace/templates/:id" element={<MarketplaceTemplateDetailPage />} />
 
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
@@ -528,6 +534,7 @@ const App = () => (
                   <Route path="experiments" element={<AdminExperiments />} />
                   <Route path="webhooks" element={<AdminWebhooks />} />
                   <Route path="api-keys" element={<AdminApiKeys />} />
+                  <Route path="marketplace-templates" element={<AdminMarketplaceTemplates />} />
                   <Route path="popups" element={<AdminPopups />} />
                   <Route path="viral-tools" element={<AdminViralTools />} />
                   <Route path="offerings" element={<AdminOfferings />} />
@@ -565,6 +572,7 @@ const App = () => (
                   <Route path="investor" element={<SuperadminInvestorSnapshot />} />
                   <Route path="risk" element={<SuperadminRiskAML />} />
                   <Route path="directory" element={<SuperadminDirectory />} />
+                  <Route path="marketplace-moderation" element={<SuperadminMarketplaceModeration />} />
                   <Route path="emails" element={<SuperadminEmailLogs />} />
                   <Route path="push" element={<SuperadminPush />} />
                   <Route path="support" element={<SuperadminSupport />} />
