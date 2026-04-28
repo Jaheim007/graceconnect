@@ -432,6 +432,8 @@ const App = () => (
                 <Route path="/store/:slug" element={<StoreRedirect />} />
                 {/* Discover — uses AdaptiveLayout (sidebar when logged in) */}
                 <Route path="/discover" element={<DiscoverPage />} />
+                <Route path="/marketplace/templates" element={<MarketplaceTemplatesPage />} />
+                <Route path="/marketplace/templates/:id" element={<MarketplaceTemplateDetailPage />} />
 
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
@@ -570,6 +572,7 @@ const App = () => (
                   <Route path="investor" element={<SuperadminInvestorSnapshot />} />
                   <Route path="risk" element={<SuperadminRiskAML />} />
                   <Route path="directory" element={<SuperadminDirectory />} />
+                  <Route path="marketplace-moderation" element={<SuperadminMarketplaceModeration />} />
                   <Route path="emails" element={<SuperadminEmailLogs />} />
                   <Route path="push" element={<SuperadminPush />} />
                   <Route path="support" element={<SuperadminSupport />} />
