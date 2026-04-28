@@ -3003,6 +3003,232 @@ export type Database = {
           },
         ]
       }
+      marketplace_template_clones: {
+        Row: {
+          amount_paid: number
+          author_commission_amount: number
+          cloned_product_id: string | null
+          cloner_org_id: string
+          cloner_user_id: string
+          created_at: string
+          currency: string
+          id: string
+          platform_fee_amount: number
+          template_id: string
+        }
+        Insert: {
+          amount_paid?: number
+          author_commission_amount?: number
+          cloned_product_id?: string | null
+          cloner_org_id: string
+          cloner_user_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          platform_fee_amount?: number
+          template_id: string
+        }
+        Update: {
+          amount_paid?: number
+          author_commission_amount?: number
+          cloned_product_id?: string | null
+          cloner_org_id?: string
+          cloner_user_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          platform_fee_amount?: number
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_template_clones_cloned_product_id_fkey"
+            columns: ["cloned_product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_template_clones_cloner_org_id_fkey"
+            columns: ["cloner_org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_template_clones_cloner_org_id_fkey"
+            columns: ["cloner_org_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "marketplace_template_clones_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_template_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          reviewer_org_id: string
+          reviewer_user_id: string
+          template_id: string
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          reviewer_org_id: string
+          reviewer_user_id: string
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          reviewer_org_id?: string
+          reviewer_user_id?: string
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_template_reviews_reviewer_org_id_fkey"
+            columns: ["reviewer_org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_template_reviews_reviewer_org_id_fkey"
+            columns: ["reviewer_org_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "marketplace_template_reviews_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_templates: {
+        Row: {
+          author_commission_percent: number
+          author_org_id: string
+          author_user_id: string
+          avg_rating: number | null
+          clone_price: number
+          clones_count: number
+          content_snapshot: Json
+          cover_image_url: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          kind: Database["public"]["Enums"]["marketplace_template_kind"]
+          language: string
+          preview_url: string | null
+          published_at: string | null
+          rejection_reason: string | null
+          reviews_count: number
+          source_product_id: string | null
+          status: Database["public"]["Enums"]["marketplace_template_status"]
+          tags: string[] | null
+          title: string
+          total_revenue: number
+          updated_at: string
+        }
+        Insert: {
+          author_commission_percent?: number
+          author_org_id: string
+          author_user_id: string
+          avg_rating?: number | null
+          clone_price?: number
+          clones_count?: number
+          content_snapshot?: Json
+          cover_image_url?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["marketplace_template_kind"]
+          language?: string
+          preview_url?: string | null
+          published_at?: string | null
+          rejection_reason?: string | null
+          reviews_count?: number
+          source_product_id?: string | null
+          status?: Database["public"]["Enums"]["marketplace_template_status"]
+          tags?: string[] | null
+          title: string
+          total_revenue?: number
+          updated_at?: string
+        }
+        Update: {
+          author_commission_percent?: number
+          author_org_id?: string
+          author_user_id?: string
+          avg_rating?: number | null
+          clone_price?: number
+          clones_count?: number
+          content_snapshot?: Json
+          cover_image_url?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["marketplace_template_kind"]
+          language?: string
+          preview_url?: string | null
+          published_at?: string | null
+          rejection_reason?: string | null
+          reviews_count?: number
+          source_product_id?: string | null
+          status?: Database["public"]["Enums"]["marketplace_template_status"]
+          tags?: string[] | null
+          title?: string
+          total_revenue?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_templates_author_org_id_fkey"
+            columns: ["author_org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_templates_author_org_id_fkey"
+            columns: ["author_org_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "marketplace_templates_source_product_id_fkey"
+            columns: ["source_product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media_content: {
         Row: {
           aspect_ratio: string | null
@@ -7561,6 +7787,17 @@ export type Database = {
         Args: { _code: string; _referred_id: string }
         Returns: string
       }
+      register_template_clone: {
+        Args: {
+          _amount_paid: number
+          _cloned_product_id: string
+          _cloner_org_id: string
+          _cloner_user_id: string
+          _currency: string
+          _template_id: string
+        }
+        Returns: string
+      }
       reject_ai_quality: {
         Args: { _notes?: string; _org_id: string; _quality_score_id: string }
         Returns: Json
@@ -7757,6 +7994,19 @@ export type Database = {
         | "refund"
         | "cashback"
       kyc_status: "none" | "pending" | "level1" | "level2" | "rejected"
+      marketplace_template_kind:
+        | "formation"
+        | "ebook"
+        | "prompt"
+        | "landing"
+        | "email_sequence"
+        | "other"
+      marketplace_template_status:
+        | "draft"
+        | "pending_review"
+        | "approved"
+        | "rejected"
+        | "archived"
       media_type: "video" | "audio" | "reel" | "live_replay"
       org_category:
         | "church"
@@ -7977,6 +8227,21 @@ export const Constants = {
         "cashback",
       ],
       kyc_status: ["none", "pending", "level1", "level2", "rejected"],
+      marketplace_template_kind: [
+        "formation",
+        "ebook",
+        "prompt",
+        "landing",
+        "email_sequence",
+        "other",
+      ],
+      marketplace_template_status: [
+        "draft",
+        "pending_review",
+        "approved",
+        "rejected",
+        "archived",
+      ],
       media_type: ["video", "audio", "reel", "live_replay"],
       org_category: [
         "church",
