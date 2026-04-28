@@ -51,6 +51,9 @@ verify_jwt = false
 [functions.marketplace-templates]
 verify_jwt = false
 
+[functions.checkout-template-clone]
+verify_jwt = false
+
 [functions.watermark-download]
 verify_jwt = false
 
