@@ -298,6 +298,21 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── TEMPLATE CLONE ──
+    if (type === 'template_clone') {
+      const { data: result, error: cloneErr } = await db.rpc('finalize_template_clone_payment', {
+        _payment_reference: reference,
+      });
+      if (cloneErr) {
+        console.error(`[webhook] template_clone error for ${reference}:`, cloneErr.message);
+        await db.from('payment_events').update({ status: 'error', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
+        return new Response(JSON.stringify({ ok: false, error: cloneErr.message }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
+      console.log(`[webhook] template_clone finalized for ${reference}`, result);
+      return new Response(JSON.stringify({ ok: true, template_clone: result }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     if (!organizationId) {
       await db.from('payment_events').update({ status: 'skipped', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
       return new Response(JSON.stringify({ ok: true, warning: 'no_metadata' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
