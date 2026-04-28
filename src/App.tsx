@@ -311,6 +311,7 @@ const App = () => (
               <OfflineBanner />
               <ScrollToTop />
               <ReferralCapture />
+              <NativePushBootstrap />
               <GDPRBanner />
               <FloatingProofToast />
               <DomainRouter />
