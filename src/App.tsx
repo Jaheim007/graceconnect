@@ -26,6 +26,7 @@ import { ShortcutRedirect } from "@/components/layout/ShortcutRedirect";
 import { FloatingProofToast } from "@/components/social-proof/FloatingProofToast";
 import { DomainRouter } from "@/components/layout/DomainRouter";
 import { ReferralCapture } from "@/components/referral/ReferralCapture";
+import { NativePushBootstrap } from "@/components/pwa/NativePushBootstrap";
 
 /** Redirect /store/:slug → /org/:slug/store */
 function StoreRedirect() {
