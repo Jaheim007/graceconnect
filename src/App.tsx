@@ -209,6 +209,10 @@ const AdminNotifications = lazy(() => import("@/pages/admin/AdminNotifications")
 const AdminExperiments = lazy(() => import("@/pages/admin/AdminExperiments"));
 const AdminWebhooks = lazy(() => import("@/pages/admin/AdminWebhooks"));
 const AdminApiKeys = lazy(() => import("@/pages/admin/AdminApiKeys"));
+const AdminMarketplaceTemplates = lazy(() => import("@/pages/admin/AdminMarketplaceTemplates"));
+const MarketplaceTemplatesPage = lazy(() => import("@/pages/MarketplaceTemplatesPage"));
+const MarketplaceTemplateDetailPage = lazy(() => import("@/pages/MarketplaceTemplateDetailPage"));
+const SuperadminMarketplaceModeration = lazy(() => import("@/pages/superadmin/SuperadminMarketplaceModeration"));
 const AdminOfferings = lazy(() => import("@/pages/admin/AdminOfferings"));
 const AdminPrograms = lazy(() => import("@/pages/admin/AdminPrograms"));
 const AdminProgramForm = lazy(() => import("@/pages/admin/AdminProgramForm").then(m => ({ default: m.ProgramForm })));
@@ -528,6 +532,7 @@ const App = () => (
                   <Route path="experiments" element={<AdminExperiments />} />
                   <Route path="webhooks" element={<AdminWebhooks />} />
                   <Route path="api-keys" element={<AdminApiKeys />} />
+                  <Route path="marketplace-templates" element={<AdminMarketplaceTemplates />} />
                   <Route path="popups" element={<AdminPopups />} />
                   <Route path="viral-tools" element={<AdminViralTools />} />
                   <Route path="offerings" element={<AdminOfferings />} />
