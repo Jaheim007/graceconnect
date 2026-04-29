@@ -9,7 +9,7 @@ import {
   BarChart3, Play, Megaphone, CalendarDays, Heart, ShoppingBag,
   Users, Link2, FileCheck, Settings, ChevronDown, ArrowLeft, Loader2,
   Camera, Tag, Clock, CreditCard, TrendingUp, MailCheck, Bell, HandHeart, Receipt, GraduationCap, Wallet, PenLine, MoreHorizontal,
-  Home, Package, Plus, Share2
+  Home, Package, Plus, Share2, Store, KeyRound, LineChart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
