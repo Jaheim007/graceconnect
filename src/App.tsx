@@ -332,6 +332,11 @@ const App = () => (
                 <Route path="/billing/usage" element={<BillingUsagePage />} />
                 <Route path="/referrals" element={<RequireAuth><ReferralsPage /></RequireAuth>} />
                 <Route path="/parrainage" element={<Navigate to="/referrals" replace />} />
+                {/* Legacy / convenience aliases */}
+                <Route path="/my-purchases" element={<Navigate to="/my-programs" replace />} />
+                <Route path="/mes-achats" element={<Navigate to="/my-programs" replace />} />
+                <Route path="/creator/advanced-analytics" element={<Navigate to="/creator/analytics" replace />} />
+                <Route path="/account" element={<Navigate to="/billing" replace />} />
                 <Route path="/showcase" element={<ShowcasePage />} />
                 <Route path="/top-creators" element={<Navigate to="/showcase" replace />} />
                 <Route path="/dashboard-preview" element={<RequireSuperadmin><DashboardPreview /></RequireSuperadmin>} />
