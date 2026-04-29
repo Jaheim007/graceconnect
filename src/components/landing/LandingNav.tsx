@@ -156,10 +156,30 @@ export function LandingNav() {
                 </Link>
               ))}
               {user ? (
-                <div className="pt-2 border-t border-border/40 mt-2 space-y-2">
-                  <Button variant="outline" className="w-full gap-2" onClick={() => { navigate('/dashboard'); setMenuOpen(false); }}>
-                    <User className="h-3.5 w-3.5" /> {t('sidebar.home') || 'Dashboard'}
-                  </Button>
+                <div className="pt-2 border-t border-border/40 mt-2 space-y-1">
+                  {[
+                    { to: '/dashboard', icon: User, label: 'Dashboard' },
+                    { to: '/my-programs', icon: Package, label: isFr ? 'Mes achats' : 'My purchases' },
+                    { to: '/billing', icon: CreditCard, label: isFr ? 'Mon abonnement' : 'My subscription' },
+                    { to: '/billing/usage', icon: Sparkles, label: isFr ? 'Mon usage du mois' : 'Monthly usage' },
+                    { to: '/referrals', icon: Gift, label: isFr ? 'Parrainage' : 'Referrals' },
+                    { to: '/admin', icon: Settings, label: isFr ? 'Espace admin' : 'Admin panel' },
+                    { to: '/creator/analytics', icon: BarChart3, label: isFr ? 'Analytics avancées' : 'Advanced analytics' },
+                  ].map((it) => (
+                    <button
+                      key={it.to}
+                      onClick={() => { navigate(it.to); setMenuOpen(false); }}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors text-left"
+                    >
+                      <it.icon className="h-4 w-4 text-muted-foreground" /> {it.label}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => { signOut(); setMenuOpen(false); }}
+                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors text-left"
+                  >
+                    <LogOut className="h-4 w-4" /> {isFr ? 'Déconnexion' : 'Sign out'}
+                  </button>
                 </div>
               ) : (
                 <div className="pt-2 border-t border-border/40 mt-2 space-y-2">
