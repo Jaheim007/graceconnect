@@ -88,17 +88,19 @@ function StatCard({
 }) {
   return (
     <Card
-      className={`p-5 space-y-2 ${
-        highlight ? 'border-primary/40 bg-gradient-to-br from-primary/5 to-background' : ''
+      className={`p-5 space-y-3 transition-all hover:shadow-md ${
+        highlight ? 'border-primary/40 bg-gradient-to-br from-primary/10 via-background to-emerald-500/5' : ''
       }`}
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs uppercase tracking-wider text-muted-foreground">
+        <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
           {label}
         </span>
-        <Icon className={`h-4 w-4 ${highlight ? 'text-primary' : 'text-muted-foreground'}`} />
+        <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${highlight ? 'bg-primary/15' : 'bg-muted'}`}>
+          <Icon className={`h-4 w-4 ${highlight ? 'text-primary' : 'text-muted-foreground'}`} />
+        </div>
       </div>
-      <div className="text-2xl font-semibold tabular-nums">{value}</div>
+      <div className="text-3xl font-bold tabular-nums tracking-tight">{value}</div>
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </Card>
   );
