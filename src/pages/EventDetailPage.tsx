@@ -215,6 +215,12 @@ export default function EventDetailPage() {
               <MessageCircle className="h-3.5 w-3.5 text-green-500" /> WhatsApp
             </Button>
             {user && <BookmarkButton contentType="event" contentId={event.id} />}
+            <PrintableQRCode
+              productTitle={event.title}
+              productUrl={socialShareUrl}
+              coverImageUrl={(event as any).cover_image_url || (event as any).image_url}
+              orgName={org?.name}
+            />
           </div>
 
           {/* Organization info */}
