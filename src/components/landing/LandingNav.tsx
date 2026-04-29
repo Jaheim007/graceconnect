@@ -19,8 +19,9 @@ export function LandingNav() {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
-  const { t } = useI18n();
-  const { user, profile, signOut } = useAuth();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
+  const { user, profile, signOut, isSuperadmin } = useAuth();
   const nativeApp = isNativePlatform();
 
   const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
