@@ -31,6 +31,7 @@ import { ProductMainContentExtras } from '@/components/products/ProductMainConte
 
 import { ProductPreviewViewer } from '@/components/products/ProductPreviewViewer';
 import { ShareButtons } from '@/components/social/ShareButtons';
+import { PrintableQRCode } from '@/components/sharing/PrintableQRCode';
 import { useBundleItems, useProductRecommendations } from '@/hooks/useBundlesAndRecommendations';
 import { ProductCard } from '@/components/products/ProductCard';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
