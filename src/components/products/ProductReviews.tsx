@@ -553,11 +553,31 @@ export function ProductReviews({ productId, organizationId, isPurchased, isOrgOw
       {isLoading ? (
         <div className="py-8 text-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto" /></div>
       ) : !hasReviews && !myReview ? (
-        <p className="text-sm text-muted-foreground py-6 text-center">
-          {isFr
-            ? `Aucun avis pour le moment.${isPurchased ? ' Soyez le premier !' : ''}`
-            : `No reviews yet.${isPurchased ? ' Be the first!' : ''}`}
-        </p>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-dashed border-border bg-gradient-to-br from-card via-background to-primary/5 p-8 text-center space-y-3"
+        >
+          <div className="mx-auto h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+            <Star className="h-6 w-6 text-primary" />
+          </div>
+          <h3 className="text-base font-semibold text-foreground">
+            {isFr ? 'Aucun avis pour le moment' : 'No reviews yet'}
+          </h3>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+            {isPurchased
+              ? (isFr ? 'Vous avez acheté ce produit — soyez le premier à partager votre expérience !' : 'You purchased this product — be the first to share your experience!')
+              : !user
+                ? (isFr ? 'Connectez-vous et achetez ce produit pour laisser le premier avis.' : 'Sign in and purchase this product to leave the first review.')
+                : (isFr ? 'Soyez le premier à laisser un avis dès votre achat.' : 'Be the first to leave a review after your purchase.')}
+          </p>
+          {isPurchased && !showForm && (
+            <Button size="sm" className="gap-1.5" onClick={() => setShowForm(true)}>
+              <Pencil className="h-3.5 w-3.5" />
+              {isFr ? 'Écrire le premier avis' : 'Write the first review'}
+            </Button>
+          )}
+        </motion.div>
       ) : (
         <div className="space-y-3">
           {otherReviews.map((review, i) => (

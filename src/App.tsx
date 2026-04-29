@@ -186,6 +186,7 @@ const BookmarksPage = lazy(() => import("@/pages/BookmarksPage"));
 const NotificationPreferencesPage = lazy(() => import("@/pages/NotificationPreferencesPage"));
 const MyInvoicesPage = lazy(() => import("@/pages/MyInvoicesPage"));
 const MyProgramsPage = lazy(() => import("@/pages/MyProgramsPage"));
+const MyReviewsPage = lazy(() => import("@/pages/MyReviewsPage"));
 const UserAnalyticsPage = lazy(() => import("@/pages/UserAnalyticsPage"));
 const CreatorAdvancedAnalyticsPage = lazy(() => import("@/pages/CreatorAdvancedAnalyticsPage"));
 const CreditsPage = lazy(() => import("@/pages/CreditsPage"));
@@ -501,6 +502,8 @@ const App = () => (
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
                   <Route path="/creator/analytics" element={<CreatorAdvancedAnalyticsPage />} />
                   <Route path="/my-programs" element={<MyProgramsPage />} />
+                  <Route path="/my-reviews" element={<MyReviewsPage />} />
+                  <Route path="/mes-avis" element={<Navigate to="/my-reviews" replace />} />
                   <Route path="/credits" element={<CreditsPage />} />
 
                   {/* Admin — inside AppLayout for seamless navigation */}
