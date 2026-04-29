@@ -1095,14 +1095,43 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     }
 
     case 'product_unpublished_no_cover': {
-      // Forced English per request — sent to authors of cover-less books that were unpublished.
       const productTitle = String(d.product_title || 'your book');
       const productId = String(d.product_id || '');
-      // Always link directly to the specific book's edit page when we know the id.
       const editUrl = productId
         ? `https://siteviral.com/admin/products/${productId}/edit`
         : String(d.edit_url || 'https://siteviral.com/admin/products');
-      const guidelinesUrl = 'https://siteviral.com/help';
+      const isFr = String(d.locale || '').toLowerCase().startsWith('fr');
+      const guidelinesUrl = isFr ? 'https://siteviral.com/help?lang=fr' : 'https://siteviral.com/help';
+
+      if (isFr) {
+        const subject = `Action requise : "${productTitle}" a été dépublié — image de couverture manquante`;
+        const html = wrap(`
+          <div style="text-align:center;margin-bottom:24px">
+            <img src="https://siteviral.com/logo-s.png" alt="Siteviral" width="64" height="64" style="border-radius:14px;display:inline-block" />
+            <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;margin-top:10px">Siteviral</div>
+            <h1 style="color:${blue};margin:14px 0 4px;font-size:22px">Votre livre a été dépublié</h1>
+            <p style="color:#aaa;margin:0;font-size:13px">Une image de couverture est désormais obligatoire pour rester dans le catalogue Siteviral.</p>
+          </div>
+          <p>Bonjour ${d.author_name || 'créateur'},</p>
+          <p>Nous avons temporairement <strong>dépublié</strong> votre livre <strong>"${productTitle}"</strong> du fil de découverte Siteviral car il ne possède pas encore d'<strong>image de couverture</strong>.</p>
+          <div style="background:#0d2540;border-left:3px solid ${info};padding:14px 16px;border-radius:8px;margin:18px 0">
+            <p style="margin:0 0 6px;font-weight:bold;color:${info}">Pourquoi c'est important</p>
+            <p style="margin:0;font-size:13px;color:#cbd5e1;line-height:1.6">Les livres sans couverture convertissent mal, paraissent inachevés et nuisent à la crédibilité de tout le catalogue. Pour protéger chaque créateur de la plateforme, une couverture est maintenant obligatoire avant publication.</p>
+          </div>
+          <p style="margin:18px 0 8px"><strong>Ce que vous devez faire</strong></p>
+          <ol style="padding-left:20px;line-height:1.8;color:#ddd;font-size:14px">
+            <li>Ouvrez votre livre dans l'éditeur admin.</li>
+            <li>Téléversez une image de couverture nette (recommandé : 1200×1800 px, JPG ou PNG).</li>
+            <li>Réactivez <em>Publier</em> puis enregistrez.</li>
+          </ol>
+          <p style="font-size:13px;color:#aaa">Astuce : vous pouvez générer une couverture gratuitement avec notre AI Studio si vous n'en avez pas encore.</p>
+          ${cta(editUrl, 'Republier mon livre')}
+          <p style="font-size:12px;color:#888;margin-top:24px">Besoin d'aide ? Répondez à cet email ou consultez <a href="${guidelinesUrl}" style="color:${blue}">notre centre d'aide</a>. Dès que la couverture est ajoutée et le livre republié, il réapparaîtra en découverte en quelques minutes.</p>
+          <p style="font-size:12px;color:#888;margin-top:8px">— L'équipe Qualité Siteviral</p>
+        `, 'fr');
+        return { subject, html };
+      }
+
       const subject = `Action required: "${productTitle}" was unpublished — cover image needed`;
       const html = wrap(`
         <div style="text-align:center;margin-bottom:24px">
