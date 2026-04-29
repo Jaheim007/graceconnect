@@ -1097,13 +1097,18 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     case 'product_unpublished_no_cover': {
       // Forced English per request — sent to authors of cover-less books that were unpublished.
       const productTitle = String(d.product_title || 'your book');
-      const editUrl = String(d.edit_url || 'https://siteviral.com/admin');
+      const productId = String(d.product_id || '');
+      // Always link directly to the specific book's edit page when we know the id.
+      const editUrl = productId
+        ? `https://siteviral.com/admin/products/${productId}/edit`
+        : String(d.edit_url || 'https://siteviral.com/admin/products');
       const guidelinesUrl = 'https://siteviral.com/help';
       const subject = `Action required: "${productTitle}" was unpublished — cover image needed`;
       const html = wrap(`
         <div style="text-align:center;margin-bottom:24px">
-          <img src="https://siteviral.com/icon-192.png" alt="Siteviral" width="56" height="56" style="border-radius:12px" />
-          <h1 style="color:${blue};margin:16px 0 4px;font-size:22px">Your book has been unpublished</h1>
+          <img src="https://siteviral.com/logo-s.png" alt="Siteviral" width="64" height="64" style="border-radius:14px;display:inline-block" />
+          <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;margin-top:10px">Siteviral</div>
+          <h1 style="color:${blue};margin:14px 0 4px;font-size:22px">Your book has been unpublished</h1>
           <p style="color:#aaa;margin:0;font-size:13px">A cover image is required to keep books listed on Siteviral.</p>
         </div>
         <p>Hello ${d.author_name || 'Creator'},</p>
