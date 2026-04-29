@@ -26,6 +26,7 @@ import { useBillingUsage } from '@/hooks/useBillingUsage';
 import { usePlatformPlan } from '@/hooks/usePlatformPlan';
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { LandingNav } from '@/components/landing/LandingNav';
 
 const T = {
   fr: {
