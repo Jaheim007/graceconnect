@@ -36,12 +36,170 @@ export function PrintableQRCode({ productTitle, productUrl, coverImageUrl, orgNa
 
   const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(shareUrl)}&color=1a1a2e&bgcolor=ffffff&margin=1`;
 
-  const handleDownload = () => {
-    const link = document.createElement('a');
-    link.href = qrApiUrl;
-    link.target = '_blank';
-    link.download = `qr-${productTitle.slice(0, 30).replace(/\s+/g, '-')}.png`;
-    link.click();
+  const loadImg = (src: string): Promise<HTMLImageElement> =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+
+  const handleDownload = async () => {
+    try {
+      // Card dimensions (high-res for print quality)
+      const W = 700;
+      const H = 1000;
+      const canvas = document.createElement('canvas');
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d')!;
+
+      // Background card with rounded corners
+      ctx.fillStyle = '#ffffff';
+      const r = 36;
+      ctx.beginPath();
+      ctx.moveTo(r, 0);
+      ctx.lineTo(W - r, 0);
+      ctx.quadraticCurveTo(W, 0, W, r);
+      ctx.lineTo(W, H - r);
+      ctx.quadraticCurveTo(W, H, W - r, H);
+      ctx.lineTo(r, H);
+      ctx.quadraticCurveTo(0, H, 0, H - r);
+      ctx.lineTo(0, r);
+      ctx.quadraticCurveTo(0, 0, r, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      let cursorY = 60;
+
+      // Cover image
+      if (coverImageUrl) {
+        try {
+          const cover = await loadImg(coverImageUrl);
+          const cw = 220;
+          const ch = 320;
+          const cx = (W - cw) / 2;
+          // Rounded cover
+          ctx.save();
+          const cr = 16;
+          ctx.beginPath();
+          ctx.moveTo(cx + cr, cursorY);
+          ctx.lineTo(cx + cw - cr, cursorY);
+          ctx.quadraticCurveTo(cx + cw, cursorY, cx + cw, cursorY + cr);
+          ctx.lineTo(cx + cw, cursorY + ch - cr);
+          ctx.quadraticCurveTo(cx + cw, cursorY + ch, cx + cw - cr, cursorY + ch);
+          ctx.lineTo(cx + cr, cursorY + ch);
+          ctx.quadraticCurveTo(cx, cursorY + ch, cx, cursorY + ch - cr);
+          ctx.lineTo(cx, cursorY + cr);
+          ctx.quadraticCurveTo(cx, cursorY, cx + cr, cursorY);
+          ctx.closePath();
+          ctx.clip();
+          ctx.drawImage(cover, cx, cursorY, cw, ch);
+          ctx.restore();
+          cursorY += ch + 28;
+        } catch {
+          /* skip cover if it fails to load (CORS) */
+        }
+      }
+
+      // Title (wrap to 2 lines)
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 32px system-ui, -apple-system, Segoe UI, sans-serif';
+      ctx.textAlign = 'center';
+      const wrap = (text: string, maxWidth: number, maxLines = 2): string[] => {
+        const words = text.split(/\s+/);
+        const lines: string[] = [];
+        let line = '';
+        for (const w of words) {
+          const test = line ? `${line} ${w}` : w;
+          if (ctx.measureText(test).width > maxWidth && line) {
+            lines.push(line);
+            line = w;
+            if (lines.length === maxLines - 1) break;
+          } else {
+            line = test;
+          }
+        }
+        if (lines.length < maxLines && line) lines.push(line);
+        // Add ellipsis if truncated
+        if (lines.length === maxLines) {
+          let last = lines[maxLines - 1];
+          const remaining = words.slice(words.indexOf(last.split(' ').pop() || '') + 1);
+          if (remaining.length) {
+            while (last && ctx.measureText(last + '…').width > maxWidth) {
+              last = last.slice(0, -1);
+            }
+            lines[maxLines - 1] = last + '…';
+          }
+        }
+        return lines;
+      };
+      const titleLines = wrap(productTitle, W - 80, 2);
+      titleLines.forEach((line) => {
+        ctx.fillText(line, W / 2, cursorY + 32);
+        cursorY += 40;
+      });
+      cursorY += 4;
+
+      // Org name
+      if (orgName) {
+        ctx.fillStyle = '#64748b';
+        ctx.font = '18px system-ui, -apple-system, sans-serif';
+        ctx.fillText(orgName, W / 2, cursorY + 18);
+        cursorY += 32;
+      }
+
+      // Price
+      if (price && price > 0) {
+        ctx.fillStyle = '#059669';
+        ctx.font = 'bold 22px system-ui, -apple-system, sans-serif';
+        const priceText = `${new Intl.NumberFormat(isFr ? 'fr-FR' : 'en-US').format(price)} ${currency || 'FCFA'}`;
+        ctx.fillText(priceText, W / 2, cursorY + 22);
+        cursorY += 34;
+      }
+
+      // QR
+      const qr = await loadImg(qrApiUrl);
+      const qs = 280;
+      ctx.drawImage(qr, (W - qs) / 2, cursorY, qs, qs);
+      cursorY += qs + 22;
+
+      // Scan label
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '16px system-ui, -apple-system, sans-serif';
+      ctx.fillText(isFr ? '📱 Scannez pour découvrir et acheter' : '📱 Scan to discover and buy', W / 2, cursorY);
+      cursorY += 28;
+
+      // Brand
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = 'bold 14px system-ui, -apple-system, sans-serif';
+      ctx.fillText('SITEVIRAL.COM', W / 2, cursorY);
+
+      // Trigger download
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `qr-card-${productTitle.slice(0, 30).replace(/\s+/g, '-')}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 30_000);
+      }, 'image/png');
+    } catch (err) {
+      console.error('QR card download failed:', err);
+      // Fallback to bare QR if compositing fails
+      const link = document.createElement('a');
+      link.href = qrApiUrl;
+      link.target = '_blank';
+      link.download = `qr-${productTitle.slice(0, 30).replace(/\s+/g, '-')}.png`;
+      link.click();
+    }
   };
 
   const handlePrint = () => {
