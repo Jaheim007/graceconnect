@@ -121,31 +121,39 @@ export default function BillingUsagePage() {
     }).format(n);
 
   return (
-    <>
+    <div className="min-h-screen bg-background">
       <SEOHead
         title={`${t.title} · SiteViral`}
         description={t.subtitle}
         noindex
       />
-      <div className="container max-w-5xl mx-auto py-8 px-4 space-y-6">
-        <div className="flex items-center gap-3">
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/billing">
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              {t.back}
-            </Link>
-          </Button>
-        </div>
+      <LandingNav />
 
-        <header className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight">{t.title}</h1>
-          <p className="text-muted-foreground">{t.subtitle}</p>
-        </header>
+      <main className="container max-w-5xl mx-auto pt-24 pb-24 px-4 space-y-6">
+        <Button asChild variant="ghost" size="sm" className="gap-1.5">
+          <Link to="/billing">
+            <ArrowLeft className="h-4 w-4" />
+            {t.back}
+          </Link>
+        </Button>
+
+        {/* Hero header */}
+        <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-background to-emerald-500/10 p-8">
+          <div className="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
+          <div className="relative">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-3">
+              <Sparkles className="h-3 w-3" />
+              {isEn ? 'This month' : 'Ce mois-ci'}
+            </div>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">{t.title}</h1>
+            <p className="text-muted-foreground mt-2 max-w-2xl">{t.subtitle}</p>
+          </div>
+        </div>
 
         {isLoading || !data ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-32 rounded-lg" />
+              <Skeleton key={i} className="h-32 rounded-xl" />
             ))}
           </div>
         ) : (
@@ -191,26 +199,31 @@ export default function BillingUsagePage() {
         )}
 
         {isPaid ? (
-          <Card className="p-5 border-primary/30 bg-primary/5 flex items-center gap-3">
-            <Crown className="h-5 w-5 text-primary shrink-0" />
-            <p className="text-sm">
+          <Card className="p-5 border-primary/30 bg-gradient-to-r from-primary/5 to-emerald-500/5 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <Crown className="h-5 w-5 text-primary" />
+            </div>
+            <p className="text-sm font-medium">
               {t.proValue}
               {isTrialing && (isEn ? ' (trial active)' : ' (essai en cours)')}
             </p>
           </Card>
         ) : (
-          <Card className="p-6 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-background space-y-3">
+          <Card className="p-6 border-primary/30 bg-gradient-to-br from-primary/10 via-background to-amber-500/10 space-y-3">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <Crown className="h-5 w-5 text-primary" />
               {t.upsellTitle}
             </h2>
             <p className="text-sm text-muted-foreground">{t.upsellDesc}</p>
-            <Button asChild>
-              <Link to="/pricing">{t.upsellCta}</Link>
+            <Button asChild className="gap-1.5">
+              <Link to="/pricing">
+                <Crown className="h-4 w-4" />
+                {t.upsellCta}
+              </Link>
             </Button>
           </Card>
         )}
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
