@@ -201,6 +201,16 @@ export function ProductForm() {
       toast({ title: 'Fichier requis', description: 'Impossible de publier un produit sans fichier ni lien externe.', variant: 'destructive' });
       return;
     }
+    if (data.is_published && !data.cover_image_url) {
+      toast({
+        title: isFr ? 'Couverture requise' : 'Cover required',
+        description: isFr
+          ? 'Une image de couverture est obligatoire pour publier. Ajoutez une couverture puis réessayez.'
+          : 'A cover image is required to publish. Please add a cover and try again.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setLoading(true);
     try {
       const payload = {
