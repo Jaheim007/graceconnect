@@ -9,7 +9,7 @@ import {
   BarChart3, Play, Megaphone, CalendarDays, Heart, ShoppingBag,
   Users, Link2, FileCheck, Settings, ChevronDown, ArrowLeft, Loader2,
   Camera, Tag, Clock, CreditCard, TrendingUp, MailCheck, Bell, HandHeart, Receipt, GraduationCap, Wallet, PenLine, MoreHorizontal,
-  Home, Package, Plus, Share2
+  Home, Package, Plus, Share2, Store, KeyRound, LineChart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -45,6 +45,7 @@ const adminLinks: AdminLink[] = [
   // Gérer — progressive
   { to: '/admin/members', label: 'Membres', icon: Users, group: 'manage', showWhen: 'always' },
   { to: '/admin/analytics', label: 'Analyses', icon: BarChart3, group: 'manage', showWhen: 'has-products' },
+  { to: '/creator/analytics', label: 'Analyses avancées', icon: LineChart, group: 'manage', showWhen: 'has-sales' },
   { to: '/admin/kyc', label: 'Vérification', icon: FileCheck, group: 'manage', showWhen: 'always' },
   { to: '/admin/settings', label: 'Paramètres', icon: Settings, group: 'manage', showWhen: 'always' },
   // Plus — secondary, shown on expand
@@ -56,6 +57,8 @@ const adminLinks: AdminLink[] = [
   { to: '/admin/waitlists', label: 'Listes d\'attente', icon: Clock, group: 'more', showWhen: 'has-products' },
   { to: '/admin/programs', label: 'Programmes', icon: GraduationCap, group: 'more', showWhen: 'always' },
   { to: '/admin/offerings', label: 'Dons', icon: HandHeart, group: 'more', showWhen: 'always' },
+  { to: '/admin/marketplace-templates', label: 'Templates marketplace', icon: Store, group: 'more', showWhen: 'has-products' },
+  { to: '/admin/api-keys', label: 'API publique', icon: KeyRound, group: 'more', showWhen: 'always' },
 ];
 
 const groupLabels: Record<string, { label: string; icon: typeof BarChart3 }> = {
