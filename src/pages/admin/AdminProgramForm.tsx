@@ -284,6 +284,8 @@ export function ProgramForm() {
     if (!id) return;
     setApplyingAI(true);
     try {
+      const deferredImageJobs: Array<{ id: string; title: string; imagePrompt: string }> = [];
+
       for (let mi = 0; mi < structure.modules.length; mi++) {
         const mod = structure.modules[mi];
         const modResult = await createModule.mutateAsync({
@@ -292,18 +294,67 @@ export function ProgramForm() {
           description: mod.description,
           display_order: modules.length + mi,
         });
-        for (let li = 0; li < mod.lessons.length; li++) {
+        for (let li = 0; li < (mod.lessons || []).length; li++) {
           const lesson = mod.lessons[li];
-          await createLesson.mutateAsync({
+          const lessonResult = await createLesson.mutateAsync({
             module_id: modResult.id,
             title: lesson.title,
             content_type: lesson.content_type || 'text',
+            content: lesson.content || '',
             duration_minutes: lesson.duration_minutes,
             display_order: li,
             programId: id,
           });
+          if (lesson?.image_prompt && lessonResult?.data?.id) {
+            deferredImageJobs.push({
+              id: lessonResult.data.id,
+              title: lesson.title,
+              imagePrompt: lesson.image_prompt,
+            });
+          }
         }
       }
+
+      // Final assessment as a separate module
+      if (structure?.final_assessment?.questions?.length > 0) {
+        const assessmentModule = await createModule.mutateAsync({
+          program_id: id,
+          title: structure.final_assessment.title || (isFr ? 'Évaluation finale' : 'Final Assessment'),
+          description: structure.final_assessment.description || '',
+          display_order: modules.length + structure.modules.length,
+        });
+        const quizComments = structure.final_assessment.questions
+          .map((q: any) => `<!-- QUIZ:${JSON.stringify(q)} -->`)
+          .join('\n');
+        await createLesson.mutateAsync({
+          module_id: assessmentModule.id,
+          title: isFr ? 'Évaluation finale' : 'Final Assessment',
+          content_type: 'text',
+          content: `<h2>${isFr ? '🏆 Évaluation finale' : '🏆 Final Assessment'}</h2><p>${isFr ? 'Testez vos connaissances sur le cours complet.' : 'Test your knowledge of the entire course.'}</p>${quizComments}`,
+          duration_minutes: 15,
+          display_order: 0,
+          programId: id,
+        });
+      }
+
+      // Queue lesson image generation in background (fire-and-forget)
+      if (deferredImageJobs.length > 0) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.access_token) {
+            const { queueDeferredCourseLessonImages } = await import('@/lib/programImageGeneration');
+            void queueDeferredCourseLessonImages({
+              programId: id,
+              lessonJobs: deferredImageJobs,
+              sessionToken: session.access_token,
+              tier: 'standard',
+            });
+          }
+        } catch (imgErr) {
+          console.warn('[AdminProgramForm] Lesson image queueing failed:', imgErr);
+        }
+      }
+
       toast({ title: isFr ? '✅ Structure appliquée !' : '✅ Structure applied!' });
       setShowAIGenerator(false);
     } catch (e: any) {
