@@ -713,6 +713,16 @@ export default function ProductDetailPage() {
                   </div>
                   <WishlistButton productId={product.id} variant="full" />
                 </div>
+                <div className="flex flex-wrap gap-2">
+                  <PrintableQRCode
+                    productTitle={product.title}
+                    productUrl={buildShareUrl()}
+                    coverImageUrl={(product as any).cover_image_url || (product as any).cover_url}
+                    orgName={org?.name}
+                    price={getEffectivePrice(product as any)?.finalPrice}
+                    currency={(product as any).currency}
+                  />
+                </div>
                 {user && (
                   <button
                     className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-destructive transition-colors"
