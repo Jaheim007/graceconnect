@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Sun, Moon, Menu, X, ArrowRight, User, LogOut } from 'lucide-react';
+import { Sun, Moon, Menu, X, ArrowRight, User, LogOut, CreditCard, Sparkles, Gift, BarChart3, Package, Settings, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useState } from 'react';
@@ -8,10 +8,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { GlobalPreferencesSelector } from '@/components/global/GlobalPreferencesSelector';
+import { PlanBadge } from '@/components/billing/PlanBadge';
 import { cn } from '@/lib/utils';
 import { isNativePlatform } from '@/lib/capacitor';
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
 export function LandingNav() {
