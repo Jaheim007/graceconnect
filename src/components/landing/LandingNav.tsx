@@ -56,6 +56,7 @@ export function LandingNav() {
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2">
+          {user && <PlanBadge compact />}
           <GlobalPreferencesSelector />
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -76,13 +77,49 @@ export function LandingNav() {
                   <span className="hidden sm:block text-xs font-medium text-foreground max-w-[100px] truncate">{displayName}</span>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-60">
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  {isFr ? 'Mon compte' : 'My account'}
+                </DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => navigate('/dashboard')} className="text-xs gap-2">
-                  <User className="h-3.5 w-3.5" /> {t('sidebar.home') || 'Dashboard'}
+                  <User className="h-3.5 w-3.5" /> Dashboard
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/my-programs')} className="text-xs gap-2">
+                  <Package className="h-3.5 w-3.5" /> {isFr ? 'Mes achats' : 'My purchases'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/billing')} className="text-xs gap-2">
+                  <CreditCard className="h-3.5 w-3.5" /> {isFr ? 'Mon abonnement' : 'My subscription'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/billing/usage')} className="text-xs gap-2">
+                  <Sparkles className="h-3.5 w-3.5" /> {isFr ? 'Mon usage du mois' : 'Monthly usage'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/referrals')} className="text-xs gap-2">
+                  <Gift className="h-3.5 w-3.5" /> {isFr ? 'Parrainage' : 'Referrals'}
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  {isFr ? 'Créateur' : 'Creator'}
+                </DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => navigate('/admin')} className="text-xs gap-2">
+                  <Settings className="h-3.5 w-3.5" /> {isFr ? 'Espace admin' : 'Admin panel'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/creator/analytics')} className="text-xs gap-2">
+                  <BarChart3 className="h-3.5 w-3.5" /> {isFr ? 'Analytics avancées' : 'Advanced analytics'}
+                </DropdownMenuItem>
+
+                {isSuperadmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/superadmin')} className="text-xs gap-2">
+                      <ShieldCheck className="h-3.5 w-3.5" /> Superadmin
+                    </DropdownMenuItem>
+                  </>
+                )}
+
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()} className="text-xs gap-2 text-destructive">
-                  <LogOut className="h-3.5 w-3.5" /> {t('sidebar.sign_out') || 'Déconnexion'}
+                  <LogOut className="h-3.5 w-3.5" /> {t('sidebar.sign_out') || (isFr ? 'Déconnexion' : 'Sign out')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
