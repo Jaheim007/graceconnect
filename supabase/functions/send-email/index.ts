@@ -61,7 +61,8 @@ type EmailTemplate =
   | 'trial_ending_3d' | 'trial_ending_1d' | 'trial_ending_today'
   | 'grandfather_ending_soon' | 'grandfather_expired'
   | 'founder_welcome'
-  | 'monthly_commission_recap_paid' | 'monthly_commission_recap_saved';
+  | 'monthly_commission_recap_paid' | 'monthly_commission_recap_saved'
+  | 'product_unpublished_no_cover';
 
 type Lang = 'fr' | 'en';
 
@@ -1091,6 +1092,38 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return isFr
         ? { subject: `🎉 ${d.month || ''} : ${d.saved_formatted || ''} économisés grâce à votre abonnement`, html: wrap(`<h1 style="color:${green}">Bravo ! 🎉</h1><p>Grâce à votre plan <strong>${d.tier_label || 'Pro'}</strong>, vous avez économisé <strong>${d.saved_formatted || '—'}</strong> de commissions ce mois-ci sur SiteViral.</p><p>Total cumulé : <strong>${d.lifetime_saved_formatted || '—'}</strong>.</p>${cta('https://siteviral.com/dashboard', 'Voir mon dashboard')}`, lang) }
         : { subject: `🎉 ${d.month || ''}: ${d.saved_formatted || ''} saved on platform fees`, html: wrap(`<h1 style="color:${green}">Well done! 🎉</h1><p>Thanks to your <strong>${d.tier_label || 'Pro'}</strong> plan, you saved <strong>${d.saved_formatted || '—'}</strong> in platform fees this month.</p><p>Lifetime saved: <strong>${d.lifetime_saved_formatted || '—'}</strong>.</p>${cta('https://siteviral.com/dashboard', 'View my dashboard')}`, lang) };
+    }
+
+    case 'product_unpublished_no_cover': {
+      // Forced English per request — sent to authors of cover-less books that were unpublished.
+      const productTitle = String(d.product_title || 'your book');
+      const editUrl = String(d.edit_url || 'https://siteviral.com/admin');
+      const guidelinesUrl = 'https://siteviral.com/help';
+      const subject = `Action required: "${productTitle}" was unpublished — cover image needed`;
+      const html = wrap(`
+        <div style="text-align:center;margin-bottom:24px">
+          <img src="https://siteviral.com/icon-192.png" alt="Siteviral" width="56" height="56" style="border-radius:12px" />
+          <h1 style="color:${blue};margin:16px 0 4px;font-size:22px">Your book has been unpublished</h1>
+          <p style="color:#aaa;margin:0;font-size:13px">A cover image is required to keep books listed on Siteviral.</p>
+        </div>
+        <p>Hello ${d.author_name || 'Creator'},</p>
+        <p>We've temporarily <strong>unpublished</strong> your title <strong>"${productTitle}"</strong> from the Siteviral discovery feed because it does not yet have a <strong>cover image</strong>.</p>
+        <div style="background:#0d2540;border-left:3px solid ${info};padding:14px 16px;border-radius:8px;margin:18px 0">
+          <p style="margin:0 0 6px;font-weight:bold;color:${info}">Why this matters</p>
+          <p style="margin:0;font-size:13px;color:#cbd5e1;line-height:1.6">Books without a cover convert poorly, look unfinished to buyers, and hurt the credibility of the whole catalogue. To protect every creator on the platform, a cover is now mandatory before publishing.</p>
+        </div>
+        <p style="margin:18px 0 8px"><strong>What you need to do</strong></p>
+        <ol style="padding-left:20px;line-height:1.8;color:#ddd;font-size:14px">
+          <li>Open your book in the admin editor.</li>
+          <li>Upload a clean cover image (recommended 1200×1800 px, JPG or PNG).</li>
+          <li>Toggle <em>Publish</em> back on and save.</li>
+        </ol>
+        <p style="font-size:13px;color:#aaa">Tip: you can generate a cover for free with our AI Studio if you don't have one yet.</p>
+        ${cta(editUrl, 'Republish my book')}
+        <p style="font-size:12px;color:#888;margin-top:24px">Need help? Reply to this email or visit <a href="${guidelinesUrl}" style="color:${blue}">our help center</a>. Once the cover is added and the book is republished, it will reappear in discovery within minutes.</p>
+        <p style="font-size:12px;color:#888;margin-top:8px">— The Siteviral Quality Team</p>
+      `, 'en');
+      return { subject, html };
     }
 
     default:
