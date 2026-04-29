@@ -719,7 +719,7 @@ export default function ProductDetailPage() {
                     productUrl={buildShareUrl()}
                     coverImageUrl={(product as any).cover_image_url || (product as any).cover_url}
                     orgName={org?.name}
-                    price={getEffectivePrice(product as any)?.finalPrice}
+                    price={getEffectivePrice(product as any) as number}
                     currency={(product as any).currency}
                   />
                 </div>
