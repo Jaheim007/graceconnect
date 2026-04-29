@@ -58,20 +58,56 @@ export default function BillingPage() {
           {isFr ? 'Retour' : 'Back'}
         </Button>
 
-        <h1 className="text-3xl font-extrabold mb-2">
-          {isFr ? 'Mon abonnement' : 'My subscription'}
-        </h1>
-        <p className="text-muted-foreground mb-4">
-          {isFr ? 'Gère ton plan SiteViral et ton mode de paiement.' : 'Manage your SiteViral plan and payment method.'}
-        </p>
-        <div className="flex flex-wrap gap-2 mb-8">
-          <Button variant="outline" size="sm" onClick={() => navigate('/billing/usage')} className="gap-1.5">
-            <Sparkles className="h-3.5 w-3.5" />
-            {isFr ? 'Voir mon usage du mois' : 'View my monthly usage'}
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/referrals')} className="gap-1.5">
-            🎁 {isFr ? 'Parrainer & gagner du Pro gratuit' : 'Refer & earn free Pro'}
-          </Button>
+        {/* Hero header */}
+        <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-background to-amber-500/10 p-8 mb-6">
+          <div className="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
+          <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-amber-500/15 blur-3xl" />
+          <div className="relative">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-3">
+              <Crown className="h-3 w-3" />
+              {isFr ? 'Mon compte' : 'My account'}
+            </div>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+              {isFr ? 'Mon abonnement' : 'My subscription'}
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              {isFr ? 'Gère ton plan SiteViral et ton mode de paiement.' : 'Manage your SiteViral plan and payment method.'}
+            </p>
+          </div>
+        </div>
+
+        {/* Quick links */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+          <button
+            onClick={() => navigate('/billing/usage')}
+            className="group flex items-center gap-3 rounded-xl border bg-card p-4 text-left transition-all hover:border-primary/40 hover:shadow-md"
+          >
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Sparkles className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-sm">{isFr ? 'Mon usage du mois' : 'My monthly usage'}</div>
+              <div className="text-xs text-muted-foreground">
+                {isFr ? 'Crédits IA, ventes, économies…' : 'AI credits, sales, savings…'}
+              </div>
+            </div>
+            <ArrowLeft className="h-4 w-4 text-muted-foreground rotate-180 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+          </button>
+          <button
+            onClick={() => navigate('/referrals')}
+            className="group flex items-center gap-3 rounded-xl border bg-card p-4 text-left transition-all hover:border-amber-500/40 hover:shadow-md"
+          >
+            <div className="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0 text-xl">
+              🎁
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-sm">{isFr ? 'Parrainer & gagner du Pro' : 'Refer & earn free Pro'}</div>
+              <div className="text-xs text-muted-foreground">
+                {isFr ? '3 amis = 1 mois Pro offert.' : '3 friends = 1 free Pro month.'}
+              </div>
+            </div>
+            <ArrowLeft className="h-4 w-4 text-muted-foreground rotate-180 group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all" />
+          </button>
         </div>
 
         {/* Current plan card */}
