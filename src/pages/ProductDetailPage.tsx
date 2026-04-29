@@ -31,6 +31,7 @@ import { ProductMainContentExtras } from '@/components/products/ProductMainConte
 
 import { ProductPreviewViewer } from '@/components/products/ProductPreviewViewer';
 import { ShareButtons } from '@/components/social/ShareButtons';
+import { PrintableQRCode } from '@/components/sharing/PrintableQRCode';
 import { useBundleItems, useProductRecommendations } from '@/hooks/useBundlesAndRecommendations';
 import { ProductCard } from '@/components/products/ProductCard';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
@@ -711,6 +712,16 @@ export default function ProductDetailPage() {
                     />
                   </div>
                   <WishlistButton productId={product.id} variant="full" />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <PrintableQRCode
+                    productTitle={product.title}
+                    productUrl={buildShareUrl()}
+                    coverImageUrl={(product as any).cover_image_url || (product as any).cover_url}
+                    orgName={org?.name}
+                    price={getEffectivePrice(product as any) as number}
+                    currency={(product as any).currency}
+                  />
                 </div>
                 {user && (
                   <button
