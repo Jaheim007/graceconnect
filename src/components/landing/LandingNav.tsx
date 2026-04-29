@@ -93,6 +93,9 @@ export function LandingNav() {
                 <DropdownMenuItem onClick={() => navigate('/billing/usage')} className="text-xs gap-2">
                   <Sparkles className="h-3.5 w-3.5" /> {isFr ? 'Mon usage du mois' : 'Monthly usage'}
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/my-reviews')} className="text-xs gap-2">
+                  <MessageSquare className="h-3.5 w-3.5" /> {isFr ? 'Mes avis' : 'My reviews'}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/referrals')} className="text-xs gap-2">
                   <Gift className="h-3.5 w-3.5" /> {isFr ? 'Parrainage' : 'Referrals'}
                 </DropdownMenuItem>
@@ -162,6 +165,7 @@ export function LandingNav() {
                     { to: '/my-programs', icon: Package, label: isFr ? 'Mes achats' : 'My purchases' },
                     { to: '/billing', icon: CreditCard, label: isFr ? 'Mon abonnement' : 'My subscription' },
                     { to: '/billing/usage', icon: Sparkles, label: isFr ? 'Mon usage du mois' : 'Monthly usage' },
+                    { to: '/my-reviews', icon: MessageSquare, label: isFr ? 'Mes avis' : 'My reviews' },
                     { to: '/referrals', icon: Gift, label: isFr ? 'Parrainage' : 'Referrals' },
                     { to: '/admin', icon: Settings, label: isFr ? 'Espace admin' : 'Admin panel' },
                     { to: '/creator/analytics', icon: BarChart3, label: isFr ? 'Analytics avancées' : 'Advanced analytics' },
