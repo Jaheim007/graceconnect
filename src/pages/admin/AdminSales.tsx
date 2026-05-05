@@ -28,9 +28,9 @@ export default function AdminSales() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const dateFnsLocale = isFr ? fr : enUS;
-  const { fmt } = useDisplayCurrency();
   const orgId = currentOrg?.id;
   const orgCurrency = currentOrg?.currency || 'XOF';
+  const fmt = (amount: number, _src?: string | null) => formatCurrency(amount, orgCurrency, locale);
 
   const [filter, setFilter] = useState<'all' | 'purchase' | 'donation'>('all');
   const [search, setSearch] = useState('');
