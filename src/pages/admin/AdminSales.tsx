@@ -13,7 +13,7 @@ import { format, startOfDay, startOfWeek, startOfMonth, subDays, subMonths } fro
 import { fr, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/csvExport';
-import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { formatCurrency } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import { CurrencyIcon } from '@/components/ui/CurrencyIcon';
 import { motion } from 'framer-motion';
@@ -28,9 +28,9 @@ export default function AdminSales() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const dateFnsLocale = isFr ? fr : enUS;
-  const { fmt } = useDisplayCurrency();
   const orgId = currentOrg?.id;
   const orgCurrency = currentOrg?.currency || 'XOF';
+  const fmt = (amount: number, _src?: string | null) => formatCurrency(amount, orgCurrency, locale);
 
   const [filter, setFilter] = useState<'all' | 'purchase' | 'donation'>('all');
   const [search, setSearch] = useState('');
