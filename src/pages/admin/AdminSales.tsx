@@ -13,7 +13,7 @@ import { format, startOfDay, startOfWeek, startOfMonth, subDays, subMonths } fro
 import { fr, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/csvExport';
-import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { formatCurrency } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import { CurrencyIcon } from '@/components/ui/CurrencyIcon';
 import { motion } from 'framer-motion';
