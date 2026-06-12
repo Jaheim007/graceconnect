@@ -219,6 +219,16 @@ export default function PaymentSuccessPage() {
                 if (found2) { await queryClient.invalidateQueries({ queryKey: ['my-purchases'] }); setTx(found2); setLoading(false); return; }
               }
             } catch (verifyErr) { console.error('[PaymentSuccess] stripe-verify error:', verifyErr); }
+          } else if (gateway === 'geniuspay' || referenceRef.current.startsWith('MTX-')) {
+            try {
+              const { callFn } = await import('@/lib/api');
+              const result = await callFn('geniuspay-verify', { reference: referenceRef.current }, true);
+              if (result?.ok) {
+                await wait(1500);
+                const found2 = await lookupTransaction();
+                if (found2) { await queryClient.invalidateQueries({ queryKey: ['my-purchases'] }); setTx(found2); setLoading(false); return; }
+              }
+            } catch (verifyErr) { console.error('[PaymentSuccess] geniuspay-verify error:', verifyErr); }
           } else if (referenceRef.current.startsWith('SV-')) {
             try {
               const { verifyPayment } = await import('@/lib/api');
