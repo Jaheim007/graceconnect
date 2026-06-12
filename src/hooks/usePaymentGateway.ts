@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
-import { usePaystack } from './usePaystack';
+import { useGeniusPay } from './useGeniusPay';
 import { callFn } from '@/lib/api';
+import { resolveGateway, type PaymentGateway } from '@/lib/paymentRouting';
 
 export type PaymentMethod = 'mobile_money' | 'card' | 'apple_pay';
-export type PaymentGateway = 'paystack' | 'stripe';
+export type { PaymentGateway };
 
 interface PaymentParams {
   method: PaymentMethod;
@@ -15,9 +16,10 @@ interface PaymentParams {
   campaign_id?: string;
   product_id?: string;
   buyer_name?: string;
+  customer_phone?: string;
   affiliate_code?: string | null;
   promo_code?: string;
-  // Paystack split payment params
+  // Legacy Paystack split-payment params (ignored under GeniusPay; manual payouts handle org split)
   subaccount?: string;
   platformFeeAmount?: number;
   metadata?: Record<string, unknown>;
@@ -28,64 +30,57 @@ interface PaymentParams {
 
 /**
  * Unified payment gateway hook.
- * Routing policy:
- * - Mobile Money / Apple Pay => Paystack
- * - Card => Stripe
+ *
+ * Routing policy (post-Paystack migration):
+ *   - Mobile Money / Apple Pay  →  GeniusPay hosted checkout (Wave, Orange, MTN, Moov, card)
+ *   - Card (non-African region) →  Stripe Checkout
+ *
+ * GeniusPay flow is REDIRECT-based, not popup: openPayment() returns after redirect kicks off,
+ * onSuccess is only called from the /payment/success page once the webhook confirms.
  */
 export function usePaymentGateway() {
-  const { openPayment: openPaystack, hasKey: hasPaystackKey } = usePaystack();
+  const { openCheckout: openGeniusPay } = useGeniusPay();
 
   const openPayment = useCallback(async (params: PaymentParams) => {
     const {
       method, email, amount, currency, type,
       organization_id, campaign_id, product_id,
-      buyer_name, affiliate_code, promo_code,
-      subaccount, platformFeeAmount, metadata,
-      onSuccess, onClose,
+      buyer_name, customer_phone, affiliate_code, promo_code,
+      metadata, onClose,
     } = params;
 
-    const usePaystackGateway = method === 'mobile_money' || method === 'apple_pay';
+    // Resolve gateway: African currencies → GeniusPay, else Stripe.
+    const gateway = method === 'card'
+      ? resolveGateway(currency) === 'stripe' ? 'stripe' : 'geniuspay'
+      : 'geniuspay';
 
-    if (usePaystackGateway && !hasPaystackKey) {
-      throw new Error(method === 'apple_pay'
-        ? 'Apple Pay est temporairement indisponible. Choisissez Carte bancaire ou réessayez dans quelques instants.'
-        : 'Mobile Money est temporairement indisponible. Choisissez Carte bancaire ou réessayez dans quelques instants.');
-    }
-
-    // Defensive: validate currency is Paystack-compatible
-    const PAYSTACK_SUPPORTED = new Set(['NGN', 'GHS', 'ZAR', 'KES', 'XOF', 'EGP', 'RWF', 'XAF']);
-    if (usePaystackGateway && currency && !PAYSTACK_SUPPORTED.has(currency.toUpperCase())) {
-      throw new Error(`La devise ${currency} n'est pas supportée par ${method === 'apple_pay' ? 'Apple Pay' : 'Mobile Money'}. Veuillez choisir Carte bancaire.`);
-    }
-
-    if (usePaystackGateway) {
-      // ── PAYSTACK (Mobile Money / Apple Pay) ──
-      // Build metadata: spread custom metadata LAST so caller can override defaults
-      // (e.g. credit purchases set type='credit_purchase' which must not be overwritten)
-      const paystackMeta = {
-        type,
-        organization_id,
-        campaign_id: campaign_id || null,
-        product_id: product_id || null,
-        buyer_name: buyer_name || null,
-        affiliate_code: affiliate_code || null,
-        payment_channel: method === 'apple_pay' ? 'apple_pay' : 'mobile_money',
-        ...metadata, // caller metadata takes priority
-      };
-
-      await openPaystack({
-        email,
-        amount,
-        currency,
-        channels: method === 'apple_pay' ? ['apple_pay'] : undefined,
-        metadata: paystackMeta,
-        onSuccess: (reference) => onSuccess(reference, 'paystack'),
-        onClose,
-      });
+    if (gateway === 'geniuspay') {
+      // ── GENIUSPAY (Mobile Money / Card / Apple Pay via hosted checkout) ──
+      try {
+        await openGeniusPay({
+          type,
+          amount,
+          currency,
+          email,
+          customer_name: buyer_name,
+          customer_phone,
+          organization_id,
+          campaign_id,
+          product_id,
+          buyer_name,
+          affiliate_code: affiliate_code || undefined,
+          promo_code,
+          metadata,
+        });
+        // Browser is being redirected to the GeniusPay checkout page.
+      } catch (err) {
+        onClose();
+        throw err;
+      }
       return;
     }
 
-    // ── STRIPE (all card payments) ──
+    // ── STRIPE (card payments outside Africa) ──
     const currentUrl = window.location.origin;
     const successUrl = `${currentUrl}/payment/success`;
     const cancelUrl = window.location.href;
@@ -110,10 +105,13 @@ export function usePaymentGateway() {
     } else {
       throw new Error(result?.error || 'Failed to create Stripe checkout session');
     }
-  }, [openPaystack, hasPaystackKey]);
+  }, [openGeniusPay]);
 
   return {
     openPayment,
-    hasPaystackKey,
+    // Legacy alias kept so older callers don't break: GeniusPay key is server-side only,
+    // so from the client's perspective it is always "available".
+    hasPaystackKey: true,
   };
 }
+
