@@ -7,6 +7,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { Buffer } from 'node:buffer';
 import { processTransaction } from '../_shared/process-transaction.ts';
 import { rateLimit } from '../_shared/rate-limit.ts';
 import { sendEmail, getUserEmail } from '../_shared/send-email-helper.ts';
