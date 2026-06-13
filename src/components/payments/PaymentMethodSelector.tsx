@@ -84,7 +84,7 @@ export function PaymentMethodSelector({ value, onChange, currency, className, pa
       <p className="text-[10px] text-muted-foreground">
         {!showMoMo && moMoRegionAvailable
           ? (isFr ? 'Mobile Money temporairement indisponible. Utilisez Carte bancaire.' : 'Mobile Money temporarily unavailable. Use bank card.')
-          : (isFr ? `Paiement sécurisé par ${effectiveValue === 'mobile_money' || effectiveValue === 'apple_pay' ? 'Paystack' : 'Stripe'}` : `Secure payment via ${effectiveValue === 'mobile_money' || effectiveValue === 'apple_pay' ? 'Paystack' : 'Stripe'}`)}
+          : (isFr ? `Paiement sécurisé par ${effectiveValue === 'mobile_money' ? 'GeniusPay' : effectiveValue === 'apple_pay' ? 'Stripe' : 'Stripe'}` : `Secure payment via ${effectiveValue === 'mobile_money' ? 'GeniusPay' : effectiveValue === 'apple_pay' ? 'Stripe' : 'Stripe'}`)}
       </p>
     </div>
   );
