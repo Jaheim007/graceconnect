@@ -104,7 +104,9 @@ export default function CreditsPage() {
 
     setPurchasing(packKey);
     try {
-      const gateway = paymentMethod === 'mobile_money' || paymentMethod === 'apple_pay' ? 'paystack' : 'stripe';
+      // Apple Pay → Stripe Checkout. Mobile Money → GeniusPay (legacy "paystack" label kept for DB enum).
+      // Card → Stripe.
+      const gateway = paymentMethod === 'mobile_money' ? 'paystack' : 'stripe';
       const { data, error } = await supabase.functions.invoke('purchase-credits', {
         body: { pack_key: packKey, payment_gateway: gateway },
       });
