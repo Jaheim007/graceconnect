@@ -49,10 +49,16 @@ export function usePaymentGateway() {
       metadata, onClose,
     } = params;
 
-    // Resolve gateway: African currencies → GeniusPay, else Stripe.
-    const gateway = method === 'card'
-      ? resolveGateway(currency) === 'stripe' ? 'stripe' : 'geniuspay'
-      : 'geniuspay';
+    // Routing:
+    //  - Apple Pay  → Stripe (Apple Pay only supported via Stripe now)
+    //  - Mobile Money → GeniusPay
+    //  - Card → GeniusPay for African currencies, Stripe otherwise
+    const gateway: PaymentGateway =
+      method === 'apple_pay'
+        ? 'stripe'
+        : method === 'mobile_money'
+          ? 'geniuspay'
+          : (resolveGateway(currency) === 'stripe' ? 'stripe' : 'geniuspay');
 
     if (gateway === 'geniuspay') {
       // ── GENIUSPAY (Mobile Money / Card / Apple Pay via hosted checkout) ──
