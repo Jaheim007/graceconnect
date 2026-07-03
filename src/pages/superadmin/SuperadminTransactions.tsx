@@ -240,7 +240,7 @@ export function SuperadminTransactions() {
         type: 'purchase' as const,
         label: r.digital_products?.title || 'Produit',
         org_name: r.digital_products?.organizations?.name || '—',
-        gateway: detectGateway(r.paystack_reference),
+        gateway: detectGateway(r.paystack_reference, r.gateway),
         buyer_display: r.buyer_name || profileMap[r.user_id]?.display_name || r.buyer_email?.split('@')[0] || 'Client',
         buyer_phone: profileMap[r.user_id]?.phone || null,
         affiliate_name: r.affiliate_link_id ? (affLinkMap[r.affiliate_link_id]?.name || '—') : null,
