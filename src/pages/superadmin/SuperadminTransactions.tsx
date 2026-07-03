@@ -688,6 +688,7 @@ export function SuperadminTransactions() {
         </div>
       ) : (
         <div className="rounded-2xl border border-border/60 overflow-hidden bg-card">
+
           <div className="overflow-x-auto">
           <Table className="min-w-[1280px]">
             <TableHeader>
