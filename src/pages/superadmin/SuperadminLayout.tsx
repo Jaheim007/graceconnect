@@ -9,6 +9,9 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import logoSiteViral from '@/assets/logo-s.png';
+
+
 
 const linkGroups = [
   {
@@ -87,16 +90,19 @@ export default function SuperadminLayout() {
       )}>
         {/* Logo header */}
         <div className={cn('p-4 border-b border-border/40 flex items-center gap-3', collapsed && 'justify-center')}>
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
-            <Shield className="h-4.5 w-4.5 text-primary-foreground" />
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400/20 via-amber-500/10 to-orange-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 shadow-md shadow-amber-500/10 overflow-hidden">
+            <img src={logoSiteViral} alt="SiteViral" className="h-8 w-8 object-contain" />
           </div>
           {!collapsed && (
             <div className="overflow-hidden">
-              <p className="text-sm font-bold tracking-tight text-foreground">SiteViral</p>
-              <p className="text-[10px] text-muted-foreground font-medium">Superadmin</p>
+              <p className="text-sm font-bold tracking-tight text-foreground leading-tight">SiteViral</p>
+              <p className="text-[10px] text-muted-foreground font-medium flex items-center gap-1">
+                <Shield className="h-2.5 w-2.5" /> Superadmin
+              </p>
             </div>
           )}
         </div>
+
 
         {/* Nav links — grouped */}
         <ScrollArea className="flex-1 py-3">
@@ -154,9 +160,10 @@ export default function SuperadminLayout() {
       {/* ═══ MOBILE TOP BAR ═══ */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-card/95 backdrop-blur-xl">
         <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-hide">
-          <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
-            <Shield className="h-3.5 w-3.5 text-primary-foreground" />
+          <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-amber-400/20 to-orange-500/10 border border-amber-500/30 flex items-center justify-center shrink-0 overflow-hidden">
+            <img src={logoSiteViral} alt="SiteViral" className="h-5 w-5 object-contain" />
           </div>
+
           {allLinks.map(({ to, label, icon: Icon, end }) => (
             <NavLink key={to} to={to} end={end}
               className={({ isActive }) => cn('shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors',

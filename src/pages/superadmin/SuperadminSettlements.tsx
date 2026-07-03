@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { InfoTooltip, LegendBanner } from '@/components/superadmin/InfoTooltip';
 
 const fmt = (n: number, c?: string) => formatCurrency(n, c);
 
@@ -144,8 +145,9 @@ export default function SuperadminSettlements() {
 
   const cards = settlementStats ? [
     {
-      label: 'HELD',
-      sublabel: '72h retention',
+      label: 'RETENU (HELD)',
+      sublabel: 'Rétention 72h',
+      info: 'Fonds encaissés mais bloqués pendant 72h après le paiement (protection anti-fraude et anti-remboursement). Ils passent automatiquement à "Libéré" une fois le délai écoulé, si aucun litige n\'est ouvert.',
       value: fmt(settlementStats.held),
       count: settlementStats.heldCount,
       icon: Clock,
@@ -156,8 +158,9 @@ export default function SuperadminSettlements() {
       pct: totalVolume > 0 ? Math.round((settlementStats.held / totalVolume) * 100) : 0,
     },
     {
-      label: 'RELEASED',
-      sublabel: 'Available to orgs',
+      label: 'LIBÉRÉ (RELEASED)',
+      sublabel: 'Disponible pour les orgs',
+      info: 'Fonds validés et disponibles pour l\'organisation. Ils peuvent être demandés en payout dès que l\'organisation atteint le seuil (10 000 XOF) et a validé son KYC.',
       value: fmt(settlementStats.released),
       count: settlementStats.releasedCount,
       icon: CheckCircle,
@@ -168,8 +171,9 @@ export default function SuperadminSettlements() {
       pct: totalVolume > 0 ? Math.round((settlementStats.released / totalVolume) * 100) : 0,
     },
     {
-      label: 'FROZEN',
-      sublabel: 'Under review',
+      label: 'GELÉ (FROZEN)',
+      sublabel: 'En revue',
+      info: 'Fonds mis en pause par l\'équipe risque (flag AML, KYC incomplet, comportement suspect). Nécessite une revue manuelle avant libération.',
       value: fmt(settlementStats.frozen),
       count: settlementStats.frozenCount,
       icon: Snowflake,
@@ -180,8 +184,9 @@ export default function SuperadminSettlements() {
       pct: totalVolume > 0 ? Math.round((settlementStats.frozen / totalVolume) * 100) : 0,
     },
     {
-      label: 'DISPUTED',
-      sublabel: 'Requires action',
+      label: 'LITIGE (DISPUTED)',
+      sublabel: 'Action requise',
+      info: 'Transaction contestée par l\'acheteur (chargeback, dispute Stripe / Paystack). À traiter rapidement pour éviter des pertes ou pénalités PSP.',
       value: fmt(settlementStats.disputed),
       count: settlementStats.disputedCount,
       icon: AlertTriangle,
@@ -192,6 +197,7 @@ export default function SuperadminSettlements() {
       pct: totalVolume > 0 ? Math.round((settlementStats.disputed / totalVolume) * 100) : 0,
     },
   ] : [];
+
 
   return (
     <div className="space-y-8">
@@ -248,7 +254,20 @@ export default function SuperadminSettlements() {
         </div>
       </div>
 
+      {/* ── Legend ── */}
+      <LegendBanner title="Comprendre Settlements & Finance">
+        <p>
+          Cette page pilote le cycle de vie des fonds encaissés : <span className="font-semibold">Retenu → Libéré → Payout</span>.
+          Les cartes ci-dessous montrent le montant cumulé dans chaque état. Cliquez sur l'icône <span className="font-mono">ⓘ</span> pour la définition précise.
+        </p>
+        <p>
+          <span className="font-semibold text-emerald-600">Release 72h-held funds</span> traite le passage automatique Retenu → Libéré.{' '}
+          <span className="font-semibold">Payouts manuels</span> (bas de page) sert à verser aux organisations vérifiées KYC.
+        </p>
+      </LegendBanner>
+
       {/* ── Settlement KPI Cards ── */}
+
       {isLoading ? <SkeletonRow count={4} /> : (
         <motion.div
           variants={stagger}
@@ -278,7 +297,10 @@ export default function SuperadminSettlements() {
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{c.label}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{c.label}</p>
+                    <InfoTooltip title={c.label}>{c.info}</InfoTooltip>
+                  </div>
                   <p className="text-lg font-extrabold tracking-tight mt-0.5">{c.value}</p>
                 </div>
 

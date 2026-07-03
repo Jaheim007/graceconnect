@@ -20,10 +20,11 @@ import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { InfoTooltip, LegendBanner } from '@/components/superadmin/InfoTooltip';
 
 type TxFilter = 'all' | 'purchase' | 'donation' | 'credit';
 type StatusFilter = 'all' | 'completed' | 'pending' | 'failed';
-type GatewayFilter = 'all' | 'stripe' | 'paystack' | 'free';
+type GatewayFilter = 'all' | 'stripe' | 'paystack' | 'geniuspay' | 'free';
 type PeriodFilter = 'all' | 'today' | '7d' | '30d' | '90d' | 'this_month' | 'this_week' | 'custom';
 
 const PERIOD_OPTIONS: { key: PeriodFilter; label: string }[] = [
@@ -37,12 +38,22 @@ const PERIOD_OPTIONS: { key: PeriodFilter; label: string }[] = [
   { key: 'custom', label: 'Personnalisé' },
 ];
 
-function detectGateway(ref: string | null): string {
+/**
+ * Detect the gateway used for a transaction from its reference / stored gateway value.
+ * GeniusPay refs start with `MTX-` (see mem://payments/geniuspay-migration).
+ * Legacy Paystack refs are anything else that isn't Stripe or free.
+ */
+function detectGateway(ref: string | null, storedGateway?: string | null): string {
+  if (storedGateway && ['geniuspay', 'stripe', 'paystack', 'free'].includes(storedGateway)) {
+    return storedGateway;
+  }
   if (!ref) return 'unknown';
   if (ref.startsWith('free-')) return 'free';
+  if (ref.startsWith('MTX-') || ref.startsWith('GP-')) return 'geniuspay';
   if (ref.includes('STRIPE')) return 'stripe';
   return 'paystack';
 }
+
 
 function getDateRange(periodFilter: PeriodFilter, customFrom?: Date, customTo?: Date) {
   const now = new Date();
@@ -129,8 +140,9 @@ function FilterChip({ active, onClick, children, variant = 'default' }: {
 /* ─── Gateway Badge ─── */
 function GatewayBadge({ gateway }: { gateway: string }) {
   const config = {
+    geniuspay: { label: 'GeniusPay', icon: Zap, className: 'bg-amber-500/10 text-amber-600 border-amber-500/30' },
     stripe: { label: 'Stripe', icon: CreditCard, className: 'bg-violet-500/10 text-violet-500 border-violet-500/20' },
-    paystack: { label: 'Paystack', icon: Smartphone, className: 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20' },
+    paystack: { label: 'Paystack · Héritage', icon: Smartphone, className: 'bg-slate-500/10 text-slate-500 border-slate-500/20' },
     free: { label: 'Gratuit', icon: Gift, className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
   }[gateway] || { label: gateway, icon: CreditCard, className: 'bg-muted text-muted-foreground border-border' };
 
@@ -142,6 +154,7 @@ function GatewayBadge({ gateway }: { gateway: string }) {
     </span>
   );
 }
+
 
 /* ─── Status Dot ─── */
 function StatusIndicator({ status }: { status: string }) {
@@ -196,7 +209,7 @@ export function SuperadminTransactions() {
     queryKey: ['sa-all-purchases'],
     queryFn: async () => {
       const { data, error } = await db.from('product_purchases')
-        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, user_id, organization_id, affiliate_link_id, buyer_email, buyer_name, digital_products!left(title, organization_id, organizations!left(name))')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, gateway, platform_fee, affiliate_commission, organization_amount, settlement_status, user_id, organization_id, affiliate_link_id, buyer_email, buyer_name, digital_products!left(title, organization_id, organizations!left(name))')
         .order('created_at', { ascending: false })
         .limit(2000);
       if (error) { console.error('sa-purchases error:', error); return []; }
@@ -228,7 +241,7 @@ export function SuperadminTransactions() {
         type: 'purchase' as const,
         label: r.digital_products?.title || 'Produit',
         org_name: r.digital_products?.organizations?.name || '—',
-        gateway: detectGateway(r.paystack_reference),
+        gateway: detectGateway(r.paystack_reference, r.gateway),
         buyer_display: r.buyer_name || profileMap[r.user_id]?.display_name || r.buyer_email?.split('@')[0] || 'Client',
         buyer_phone: profileMap[r.user_id]?.phone || null,
         affiliate_name: r.affiliate_link_id ? (affLinkMap[r.affiliate_link_id]?.name || '—') : null,
@@ -241,7 +254,7 @@ export function SuperadminTransactions() {
     queryKey: ['sa-all-donations'],
     queryFn: async () => {
       const { data, error } = await db.from('donations')
-        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, donor_name, donor_email, user_id, affiliate_link_id, organizations!left(name), donation_campaigns!left(title)')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, gateway, platform_fee, affiliate_commission, organization_amount, settlement_status, donor_name, donor_email, user_id, affiliate_link_id, organizations!left(name), donation_campaigns!left(title)')
         .order('created_at', { ascending: false })
         .limit(2000);
       if (error) { console.error('sa-donations error:', error); return []; }
@@ -273,7 +286,7 @@ export function SuperadminTransactions() {
         type: 'donation' as const,
         label: r.donation_campaigns?.title || r.donor_name || 'Don',
         org_name: r.organizations?.name || '—',
-        gateway: detectGateway(r.paystack_reference),
+        gateway: detectGateway(r.paystack_reference, r.gateway),
         buyer_display: r.donor_name || profileMap[r.user_id]?.display_name || r.donor_email?.split('@')[0] || 'Donateur',
         buyer_phone: profileMap[r.user_id]?.phone || null,
         affiliate_name: r.affiliate_link_id ? (affLinkMap[r.affiliate_link_id]?.name || '—') : null,
@@ -305,7 +318,7 @@ export function SuperadminTransactions() {
         type: 'credit' as const,
         label: `Pack crédits: ${r.pack_key} (${r.credits_amount} crédits)`,
         org_name: 'Plateforme',
-        gateway: r.payment_gateway === 'stripe' ? 'stripe' : 'paystack',
+        gateway: r.payment_gateway === 'stripe' ? 'stripe' : r.payment_gateway === 'geniuspay' ? 'geniuspay' : 'paystack',
         buyer_display: profileMap[r.user_id]?.display_name || '—',
         buyer_phone: profileMap[r.user_id]?.phone || null,
         buyer_email: null,
@@ -363,8 +376,25 @@ export function SuperadminTransactions() {
       return (data || { gmv: 0, platform_fees: 0, affiliate_commissions: 0, total_count: 0 }) as any;
     },
   });
-
   const fmt = (n: number) => n.toLocaleString() + ' XOF';
+
+  /* ─── Gateway split (Nouveau GeniusPay vs Héritage Paystack) ─── */
+  const gatewaySplit = useMemo(() => {
+    const merged = [...purchases, ...donations, ...creditPurchases].filter(t => t.status === 'completed');
+    const split: Record<string, { count: number; amount: number }> = {
+      geniuspay: { count: 0, amount: 0 },
+      paystack: { count: 0, amount: 0 },
+      stripe: { count: 0, amount: 0 },
+      free: { count: 0, amount: 0 },
+    };
+    merged.forEach(t => {
+      const g = split[t.gateway] || (split[t.gateway] = { count: 0, amount: 0 });
+      g.count += 1;
+      g.amount += t.amount || 0;
+    });
+    return split;
+  }, [purchases, donations, creditPurchases]);
+
 
   const handleExport = () => {
     downloadCSV(allTx.map(t => ({
@@ -411,7 +441,50 @@ export function SuperadminTransactions() {
         </Button>
       </div>
 
+      {/* ─── Legend: what this page shows ─── */}
+      <LegendBanner title="Comprendre cette page">
+        <p>
+          Toutes les transactions financières de la plateforme (achats de produits, dons, achats de crédits IA).
+          Utilisez les filtres pour isoler une passerelle, un statut, une période ou un type.
+        </p>
+        <p>
+          <span className="font-semibold text-amber-600">GeniusPay</span> = nouveau processeur (depuis mi‑2026) ·{' '}
+          <span className="font-semibold text-slate-500">Paystack</span> = héritage (transactions antérieures) ·{' '}
+          <span className="font-semibold text-violet-500">Stripe</span> = paiements internationaux ·{' '}
+          <span className="font-semibold text-emerald-500">Gratuit</span> = accès sans paiement.
+        </p>
+      </LegendBanner>
+
+      {/* ─── Gateway split (Nouveau vs Héritage) ─── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { key: 'geniuspay', label: 'GeniusPay', sub: 'Nouveau', accent: 'text-amber-600', ring: 'ring-amber-500/30', icon: Zap },
+          { key: 'paystack', label: 'Paystack', sub: 'Héritage', accent: 'text-slate-500', ring: 'ring-slate-400/30', icon: Smartphone },
+          { key: 'stripe', label: 'Stripe', sub: 'International', accent: 'text-violet-500', ring: 'ring-violet-500/30', icon: CreditCard },
+          { key: 'free', label: 'Gratuit', sub: 'Sans paiement', accent: 'text-emerald-500', ring: 'ring-emerald-500/30', icon: Gift },
+        ].map(g => {
+          const stat = gatewaySplit[g.key] || { count: 0, amount: 0 };
+          const Icon = g.icon;
+          return (
+            <div key={g.key} className={cn('rounded-xl border border-border/60 bg-card p-3 flex items-center gap-3 ring-1 ring-transparent hover:ring-2', g.ring)}>
+              <div className={cn('h-9 w-9 rounded-lg bg-muted/50 flex items-center justify-center', g.accent)}>
+                <Icon className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs font-semibold truncate">{g.label}</p>
+                  <span className="text-[9px] text-muted-foreground uppercase tracking-wide">{g.sub}</span>
+                </div>
+                <p className="text-sm font-bold tabular-nums">{fmt(stat.amount)}</p>
+                <p className="text-[10px] text-muted-foreground">{stat.count} tx</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
       {/* ─── Stat Cards ─── */}
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Volume total"
@@ -529,15 +602,19 @@ export function SuperadminTransactions() {
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Passerelle</label>
                 <div className="flex flex-wrap gap-2">
                   <FilterChip active={gatewayFilter === 'all'} onClick={() => setGatewayFilter('all')}>Toutes</FilterChip>
-                  <FilterChip active={gatewayFilter === 'stripe'} onClick={() => setGatewayFilter('stripe')}>
-                    <CreditCard className="h-3 w-3" /> Stripe
+                  <FilterChip active={gatewayFilter === 'geniuspay'} onClick={() => setGatewayFilter('geniuspay')}>
+                    <Zap className="h-3 w-3" /> GeniusPay <span className="text-[9px] opacity-70">(Nouveau)</span>
                   </FilterChip>
                   <FilterChip active={gatewayFilter === 'paystack'} onClick={() => setGatewayFilter('paystack')}>
-                    <Smartphone className="h-3 w-3" /> Paystack
+                    <Smartphone className="h-3 w-3" /> Paystack <span className="text-[9px] opacity-70">(Héritage)</span>
+                  </FilterChip>
+                  <FilterChip active={gatewayFilter === 'stripe'} onClick={() => setGatewayFilter('stripe')}>
+                    <CreditCard className="h-3 w-3" /> Stripe
                   </FilterChip>
                   <FilterChip active={gatewayFilter === 'free'} onClick={() => setGatewayFilter('free')}>
                     <Gift className="h-3 w-3" /> Gratuit
                   </FilterChip>
+
                 </div>
               </div>
 

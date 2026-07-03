@@ -28,6 +28,7 @@ import { WelcomeBanner } from '@/components/superadmin/dashboard/WelcomeBanner';
 import { MetricCard } from '@/components/superadmin/dashboard/MetricCard';
 import { CommandModule } from '@/components/superadmin/dashboard/CommandModule';
 import { DashboardPanel } from '@/components/superadmin/dashboard/DashboardPanel';
+import { LegendBanner, InfoTooltip } from '@/components/superadmin/InfoTooltip';
 
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
 const fmtNum = (n: number) => new Intl.NumberFormat().format(n);
@@ -143,7 +144,37 @@ export default function SuperadminFullDashboard() {
     },
   });
 
+  // ─── Gateway breakdown (Nouveau GeniusPay vs Héritage Paystack vs Stripe) ───
+  const { data: gatewayBreakdown } = useQuery({
+    queryKey: ['sa-gateway-breakdown-v1'],
+    queryFn: async () => {
+      const [purchases, donations, credits, offerings] = await Promise.all([
+        db.from('product_purchases').select('amount, gateway').eq('status', 'completed'),
+        db.from('donations').select('amount, gateway').eq('status', 'completed'),
+        db.from('credit_purchases').select('price_amount, payment_gateway').eq('status', 'completed'),
+        db.from('offering_transactions').select('amount, payment_gateway').eq('status', 'completed'),
+      ]);
+      const buckets: Record<string, { amount: number; count: number }> = {
+        geniuspay: { amount: 0, count: 0 },
+        paystack: { amount: 0, count: 0 },
+        stripe: { amount: 0, count: 0 },
+        free: { amount: 0, count: 0 },
+      };
+      const add = (g: string | null | undefined, amt: number) => {
+        const key = g && ['geniuspay', 'paystack', 'stripe', 'free'].includes(g) ? g : 'paystack';
+        buckets[key].amount += amt || 0;
+        buckets[key].count += 1;
+      };
+      (purchases.data || []).forEach((r: any) => add(r.gateway, r.amount));
+      (donations.data || []).forEach((r: any) => add(r.gateway, r.amount));
+      (credits.data || []).forEach((r: any) => add(r.payment_gateway, r.price_amount));
+      (offerings.data || []).forEach((r: any) => add(r.payment_gateway, r.amount));
+      return buckets;
+    },
+  });
+
   const pendingAlerts = (stats?.pendingKYC || 0) + (stats?.pendingReports || 0) + (stats?.pendingPayouts || 0);
+
 
   // ─── Command Center modules ───
   const modules = [
@@ -183,6 +214,55 @@ export default function SuperadminFullDashboard() {
         <MetricCard label="Orgs reçoivent" value={fmt(stats?.orgReceived || 0)} sub={`Payé: ${fmt(stats?.payoutsPaidAmount || 0)} · Reste: ${fmt(stats?.netOwedToOrgs || 0)}`} icon={Building2} accentColor="violet" delay={0.18} />
         <MetricCard label="Ambassadeurs" value={fmt(stats?.affiliateCommissions || 0)} sub="Commissions versées" icon={Handshake} accentColor="cyan" delay={0.21} />
       </div>
+
+      {/* ═══ 2b. LEGEND ═══ */}
+      <LegendBanner title="Comment lire ce tableau de bord">
+        <p>
+          <span className="font-semibold">GMV Total</span> = tous les paiements encaissés (ventes + dons + crédits + offrandes).{' '}
+          <span className="font-semibold">Commission 10%</span> = notre part sur les ventes/dons.{' '}
+          <span className="font-semibold">Revenu Plateforme</span> = commission + achats de crédits IA.{' '}
+          <span className="font-semibold">Orgs reçoivent</span> = part reversée aux organisations (Payé = déjà versé, Reste = solde à verser).
+        </p>
+      </LegendBanner>
+
+      {/* ═══ 2c. GATEWAY BREAKDOWN — Nouveau (GeniusPay) vs Héritage (Paystack) ═══ */}
+      <div className="rounded-2xl border border-border/60 bg-card p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">Répartition par passerelle de paiement</h3>
+            <InfoTooltip title="Nouveau vs Héritage">
+              <p><span className="font-semibold text-amber-600">GeniusPay</span> est notre nouveau processeur (depuis mi‑2026, Wave/Orange/MTN/Moov/carte).</p>
+              <p><span className="font-semibold text-slate-500">Paystack</span> représente l'ancien flux (transactions antérieures à la migration).</p>
+              <p>Cette section permet de suivre la transition sans mélanger les revenus.</p>
+            </InfoTooltip>
+          </div>
+          <Badge variant="secondary" className="text-[10px]">Ventes + Dons + Crédits + Offrandes</Badge>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[
+            { key: 'geniuspay', label: 'GeniusPay', sub: 'Nouveau', color: 'text-amber-600 border-amber-500/30 bg-amber-500/5', icon: Zap },
+            { key: 'paystack', label: 'Paystack', sub: 'Héritage', color: 'text-slate-500 border-slate-400/30 bg-slate-500/5', icon: CreditCard },
+            { key: 'stripe', label: 'Stripe', sub: 'International', color: 'text-violet-500 border-violet-500/30 bg-violet-500/5', icon: Globe },
+            { key: 'free', label: 'Gratuit', sub: 'Sans paiement', color: 'text-emerald-500 border-emerald-500/30 bg-emerald-500/5', icon: Heart },
+          ].map(g => {
+            const b = gatewayBreakdown?.[g.key] || { amount: 0, count: 0 };
+            const Icon = g.icon;
+            return (
+              <div key={g.key} className={cn('rounded-xl border p-3', g.color)}>
+                <div className="flex items-center justify-between mb-1">
+                  <Icon className="h-3.5 w-3.5" />
+                  <span className="text-[9px] uppercase tracking-wider opacity-70">{g.sub}</span>
+                </div>
+                <p className="text-[11px] font-semibold">{g.label}</p>
+                <p className="text-base font-extrabold tabular-nums text-foreground">{fmt(b.amount)}</p>
+                <p className="text-[10px] text-muted-foreground">{fmtNum(b.count)} tx</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+
 
       {/* ═══ QUICK STATS ROW ═══ */}
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
