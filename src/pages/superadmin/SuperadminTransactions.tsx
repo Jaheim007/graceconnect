@@ -459,7 +459,7 @@ export function SuperadminTransactions() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { key: 'geniuspay', label: 'GeniusPay', sub: 'Nouveau', accent: 'text-amber-600', ring: 'ring-amber-500/30', icon: Zap },
-          { key: 'paystack', label: 'Paystack', sub: 'Héritage', accent: 'text-slate-500', ring: 'ring-slate-400/30', icon: Smartphone },
+          { key: 'paystack', label: 'Paystack', sub: 'Héritage', accent: 'text-slate-600 dark:text-slate-300', ring: 'ring-slate-400/30', icon: Smartphone },
           { key: 'stripe', label: 'Stripe', sub: 'International', accent: 'text-violet-500', ring: 'ring-violet-500/30', icon: CreditCard },
           { key: 'free', label: 'Gratuit', sub: 'Sans paiement', accent: 'text-emerald-500', ring: 'ring-emerald-500/30', icon: Gift },
         ].map(g => {
