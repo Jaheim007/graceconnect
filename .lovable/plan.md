@@ -1,197 +1,242 @@
-# 🎯 PLAN COMPLET — Rendre SiteViral "Payable"
+# SiteViral Beauty — MVP Build Plan
 
-## 🧭 Vision stratégique
-
-**Pivot narratif** : Passer de _"outil gratuit pour créateurs africains"_ → _"plateforme de scaling pour créateurs sérieux qui veulent garder 100% de leurs revenus"_.
-
-**Modèle d'inversion** : Au lieu de payer pour utiliser, on paie pour **arrêter de partager 10%**. C'est psychologiquement beaucoup plus puissant.
+A booking marketplace for beauty services in Abidjan, running as a **vertical inside SiteViral** (reusing auth, KYC, payouts, GeniusPay/Paystack/Stripe, disputes, notifications, ambassador system). It introduces its own routes, schema, chat, calendar, and escrow logic.
 
 ---
 
-## 📐 ARCHITECTURE DES 3 OFFRES
+## 1. Product scope (MVP)
 
-### Tier 1 — FREE (Discovery)
-- ✅ Tout l'AI Studio (avec watermark sur PDFs/exports)
-- ✅ Vente illimitée de produits
-- ❌ **Commission 10% sur chaque vente**
-- ❌ Pas de domaine personnalisé (`slug.siteviral.com` seulement)
-- ❌ 50 crédits IA/mois
-- ❌ Branding "Powered by SiteViral" sur boutique publique
+**Two sides:**
+- **Clients** — browse providers, book with deposit or full escrow, chat, review.
+- **Providers** — publish services, manage calendar, chat, receive payouts after completion.
 
-### Tier 2 — PRO (19 000 XOF/mois ou 29€/mois) — _Le sweet spot_
-- ✅ **0% de commission** (le pitch principal)
-- ✅ Domaine personnalisé inclus
-- ✅ 500 crédits IA/mois
-- ✅ PDFs sans watermark
-- ✅ Analytics avancés (cohortes, LTV)
-- ✅ Email marketing automation (Inspiration Digest custom)
-- ✅ Suppression du branding "Powered by"
-- ✅ Support prioritaire (24h)
+**Three booking modes** (per service, provider chooses which they accept):
+1. **Full escrow** — client pays 100% online, held until "service completed" confirmation.
+2. **Deposit / Reserve** — client pays 20% on-platform, balance in cash at appointment.
+3. **Cash on arrival** — no money on platform (only offered to providers with high trust score; disabled by default at launch).
 
-### Tier 3 — ORG / WHITE-LABEL (65 000 XOF/mois ou 99€/mois)
-- ✅ Tout du Pro
-- ✅ Multi-utilisateurs (5+ admins)
-- ✅ White-label complet (logo, couleurs, emails)
-- ✅ 2000 crédits IA/mois
-- ✅ API access
-- ✅ Onboarding dédié + manager
-- ✅ Cible : Églises, ONGs, centres de formation, agences
+**Core rules (from your strategy):**
+- No contact info / external payment shared before booking is confirmed.
+- Reviews unlocked only after a paid or deposit booking.
+- Provider payout only after client "completed" confirmation OR auto-release J+3 (72h).
+- Refunds/disputes = manual arbitration by superadmin (reuse existing dispute shell).
+- 50/50 no-show split.
+- Optional **tip** at review time (0% commission).
+- Commission: same 10% platform base as SiteViral core (configurable per category).
 
 ---
 
-## 🛠️ PHASES D'IMPLÉMENTATION
+## 2. Routes & pages
 
-### **PHASE 1 — Fondations Billing (Semaine 1)**
-
-#### 1.1 Base de données
-- Table `subscription_plans` (déjà partiellement existante via `useSubscriptions`)
-  - Colonnes : `tier` (free/pro/org), `price_xof`, `price_eur`, `commission_rate`, `ai_credits_monthly`, `features` (jsonb)
-- Table `org_subscriptions`
-  - `org_id`, `plan_tier`, `status` (active/past_due/canceled), `current_period_end`, `payment_provider` (stripe/paystack)
-- Table `subscription_invoices` (historique paiements)
-- Trigger : reset crédits IA mensuels au début de chaque cycle
-
-#### 1.2 Logique de commission dynamique
-- Modifier `calculate_platform_commission()` (function SQL existante) :
-  ```sql
-  IF org has active 'pro' or 'org' subscription → return 0
-  ELSE → return amount * 0.10
-  ```
-- Mettre à jour `process-purchase` et `process-donation` edge functions
-
-#### 1.3 Edge Functions billing
-- `create-subscription-checkout` (Stripe pour EUR/USD, Paystack pour XOF/NGN)
-- `cancel-subscription`
-- `subscription-webhook` (Stripe) + `paystack-subscription-webhook`
-- `check-subscription-status` (cron quotidien)
-
----
-
-### **PHASE 2 — Feature Gating (Semaine 2)**
-
-#### 2.1 Hook central `usePlan()`
-```typescript
-const { tier, isPro, isOrg, hasFeature, aiCreditsRemaining } = usePlan();
+**Public / client side** (`/beauty/*`)
+```
+/beauty                          Landing (hero, categories, top providers, how it works)
+/beauty/search                   Search + filters (category, zone, price, availability, rating)
+/beauty/provider/:slug           Provider profile (services, gallery, reviews, calendar)
+/beauty/service/:id              Service detail + booking CTA
+/beauty/book/:serviceId          Booking flow (slot → mode → payment)
+/beauty/checkout/success         Post-payment confirmation
+/beauty/bookings                 Client's bookings dashboard
+/beauty/bookings/:id             Booking detail + chat + status actions
+/beauty/messages                 Inbox (all conversations)
 ```
 
-#### 2.2 Gates à implémenter
-| Feature | Free | Pro | Org |
-|---------|------|-----|-----|
-| Custom domain | ❌ Modal upgrade | ✅ | ✅ |
-| White-label | ❌ | ❌ Modal upgrade | ✅ |
-| Watermark PDF | ✅ Visible | ❌ | ❌ |
-| AI credits/mo | 50 | 500 | 2000 |
-| Email automation | ❌ | ✅ | ✅ |
-| Multi-admins | 1 | 1 | 5+ |
-| Analytics avancés | ❌ | ✅ | ✅ |
+**Provider side** (`/beauty/pro/*`, gated by `beauty_provider` role)
+```
+/beauty/pro/onboarding           KYC + profile + service setup wizard
+/beauty/pro/dashboard            KPIs (bookings, revenue, response time, rating)
+/beauty/pro/services             CRUD services & pricing modes
+/beauty/pro/calendar             Availability grid + booked slots
+/beauty/pro/bookings             Booking queue (pending, upcoming, completed)
+/beauty/pro/messages             Inbox
+/beauty/pro/reviews              Reviews received + reply
+/beauty/pro/payouts              Reuse existing payout profile flow
+```
 
-#### 2.3 Composants UI
-- `<UpgradeGate feature="custom_domain">` — wrapper qui affiche modal si pas le bon tier
-- `<PlanBadge tier="pro" />` — badge visuel
-- `<CommissionBanner />` — sur dashboard Free : "Vous avez payé X XOF de commissions ce mois. Économisez avec Pro."
-
----
-
-### **PHASE 3 — Page Pricing & Conversion (Semaine 3)**
-
-#### 3.1 Page `/pricing` repensée
-- Hero : **"Gardez 100% de vos revenus"** (pas "Commencez gratuitement")
-- Calculateur ROI interactif :
-  - "Vous vendez X XOF/mois → vous économisez Y avec Pro"
-  - Breakeven affiché : "Pro est rentable dès 190 000 XOF de ventes/mois"
-- Comparaison 3 colonnes (Free / Pro / Org)
-- FAQ orientée objections (pourquoi payer si gratuit existe ?)
-- Témoignages segmentés par tier
-
-#### 3.2 Triggers d'upgrade contextuels
-- Après chaque vente Free : toast "Vous venez de payer X XOF de commission"
-- Dashboard : graphique "Commissions cumulées" avec CTA upgrade
-- Email mensuel : "Récap commissions" → upsell Pro
-- Limite crédits IA atteinte → modal "Passez à Pro pour 10x plus"
-
-#### 3.3 Repositionnement messaging
-- Landing page : nouveau hero **"L'unique plateforme africaine où vous gardez tout"**
-- Persona pages : ajouter section ROI Pro
-- Onboarding : présenter Pro dès l'étape 3 (pas en bas du menu)
+**Superadmin** (extend `/superadmin`)
+```
+/superadmin/beauty/providers     KYC review, suspend, trust score
+/superadmin/beauty/bookings      Live bookings, disputes queue
+/superadmin/beauty/disputes      Arbitration workspace
+/superadmin/beauty/reviews       Fake-review flags
+```
 
 ---
 
-### **PHASE 4 — Rétention & Expansion (Semaine 4)**
+## 3. Data model (new tables, all under `public`, with GRANTs + RLS)
 
-#### 4.1 Trial Pro 14 jours
-- Activation auto pour tout nouvel inscrit
-- Email J-3 avant expiration : "Vous avez économisé X XOF cette semaine"
-- Downgrade auto vers Free si pas converti
+```
+beauty_providers          (user_id, business_name, slug, bio, zones[], home_service_ok,
+                           trust_score, response_time_avg_min, avg_rating, total_bookings,
+                           status: pending|active|suspended, kyc_submission_id)
+beauty_services           (provider_id, category, title, description, duration_min,
+                           price_xof, allow_full_escrow, allow_deposit, deposit_pct,
+                           allow_cash, at_salon, at_home, images[], active)
+beauty_availability       (provider_id, weekday, start_time, end_time)  -- weekly template
+beauty_availability_blocks(provider_id, starts_at, ends_at, reason)     -- vacation/exception
+beauty_bookings           (id, service_id, provider_id, client_id, slot_start, slot_end,
+                           location_type: salon|home, address, mode: escrow|deposit|cash,
+                           price_xof, deposit_xof, commission_xof, tip_xof,
+                           status: pending_payment|confirmed|in_progress|completed
+                                  |cancelled|no_show|disputed|refunded,
+                           payment_intent_id, gateway, created_at, confirmed_at,
+                           completed_at, auto_release_at)
+beauty_booking_events     (booking_id, actor_id, event_type, payload, created_at)  -- audit
+beauty_conversations      (id, booking_id NULL, client_id, provider_id, last_message_at)
+beauty_messages           (conversation_id, sender_id, body, redacted_body,
+                           contains_contact_attempt, created_at, read_at)
+beauty_reviews            (booking_id UNIQUE, client_id, provider_id, rating 1-5,
+                           title, body, tip_xof, provider_reply, created_at)
+beauty_disputes           (booking_id, opened_by, reason, evidence[], status,
+                           resolution, resolved_by, resolved_at)
+beauty_provider_stats     (provider_id, day, bookings_count, revenue_xof, no_shows,
+                           avg_response_min)  -- materialized daily
+```
 
-#### 4.2 Annual billing (-20%)
-- Pro Annual : 182 400 XOF/an (vs 228 000 mensuel)
-- Org Annual : 624 000 XOF/an
-
-#### 4.3 Programme de fidélité
-- 6 mois Pro consécutifs → bonus 1000 crédits IA
-- Parrainage : 1 mois offert pour le parrain ET le filleul
-
-#### 4.4 Win-back automation
-- Cancel → email J+1, J+7, J+30 avec offre dégressive (-30%, -50%)
-
----
-
-### **PHASE 5 — Focus & Différenciation (Semaine 5)**
-
-#### 5.1 Choisir 2 niches prioritaires (au lieu de "tout pour tous")
-**Recommandation** : 
-- 🎯 **Coaches/Formateurs** (forte intent, ARPU élevé)
-- 🎯 **Églises/ONGs** (récurrence, multi-users, ticket moyen Org)
-
-#### 5.2 Landing pages dédiées avec preuve sociale
-- `/pour-coaches` → cas concret + ROI calculator coach
-- `/pour-eglises` → témoignages pasteurs + dashboard offrandes
-
-#### 5.3 Killer feature par niche
-- Coaches : **"Tunnels de vente IA"** (génère VSL + page + email seq en 1 clic)
-- Églises : **"Live Giving"** (QR code projeté, dons en temps réel pendant culte)
+Reuse existing: `kyc_submissions`, `payout_profiles`, `manual_payouts`, `refund_requests`, `moderation_actions`, `user_notifications`, `audit_logs`.
 
 ---
 
-## 📊 KPIs À TRACKER
+## 4. Escrow & payout flow
 
-| Métrique | Cible 3 mois | Cible 6 mois |
-|----------|--------------|--------------|
-| Conversion Free → Pro | 3% | 7% |
-| Trial → Paid | 25% | 40% |
-| MRR | 500 000 XOF | 3 000 000 XOF |
-| Churn mensuel | <10% | <5% |
-| LTV/CAC | 2x | 4x |
+```
+client pays → payment_events row → booking.status = confirmed
+      ↓
+   appointment happens
+      ↓
+   client marks "completed"  OR  72h auto-release after slot_end
+      ↓
+   funds move from escrow ledger → provider payout balance
+      ↓
+   provider requests payout via existing SiteViral payout system
+```
 
----
-
-## 🚀 ORDRE D'EXÉCUTION RECOMMANDÉ
-
-1. **Sprint 1 (Phase 1)** : Backend billing — base inviolable
-2. **Sprint 2 (Phase 3.1)** : Page pricing + messaging — sans ça, rien ne se vend
-3. **Sprint 3 (Phase 2)** : Feature gating — créer la friction
-4. **Sprint 4 (Phase 3.2)** : Triggers contextuels — convertir
-5. **Sprint 5 (Phase 4)** : Trial + rétention — réduire churn
-6. **Sprint 6 (Phase 5)** : Niches + killer features — accélérer
-
----
-
-## ⚠️ RISQUES & MITIGATION
-
-| Risque | Mitigation |
-|--------|------------|
-| Backlash communauté gratuit | Garder Free généreux, grandfather les early users 6 mois Pro offerts |
-| Churn élevé | Trial obligatoire + onboarding qui démontre ROI rapide |
-| Concurrence baisse prix | Différenciation par features Afrique-spécifiques (MoMo, devises locales) |
-| Paystack subscription instable | Fallback Stripe pour cartes + relances manuelles MoMo |
+Cancellation matrix:
+- Client cancels >24h before: full refund minus gateway fee.
+- Client cancels <24h: 50% to provider, 50% refund.
+- Provider cancels: full refund + trust score penalty.
+- No-show (client): 50/50 split, requires provider proof (photo/GPS ping).
+- Dispute: funds frozen until superadmin arbitrates.
 
 ---
 
-## 💡 QUICK WINS (à faire MAINTENANT, avant tout le reste)
+## 5. Chat & anti-leak
 
-1. **Ajouter "Powered by SiteViral"** sur toutes les boutiques Free → friction immédiate
-2. **Watermark sur PDFs** générés en Free → friction visible
-3. **Bannière dashboard** : "Vous avez payé X XOF de commissions" → prise de conscience
-4. **Page `/pricing`** avec les 3 tiers même si Pro pas encore activable → tester l'intent
+- Realtime via Supabase Realtime on `beauty_messages`.
+- Server-side redaction (edge function) before insert:
+  - Phone/email/WhatsApp regex → replaced with `[masked]` in `redacted_body`.
+  - Flag `contains_contact_attempt` for moderation.
+- Client sees `redacted_body` until booking is confirmed & paid; then full `body` is revealed.
+- Rate limiting + spam score to prevent flood.
 
-Ces 4 actions peuvent être faites en 2 jours et génèrent les premiers signaux de demande.
+---
+
+## 6. Calendar
+
+- Weekly availability template + exception blocks.
+- Slot generator RPC returns bookable 30-min slots for a given service/day, subtracting existing bookings and blocks.
+- Provider view: week grid; client view: next-14-days flat list per service.
+
+---
+
+## 7. Ranking signals (search)
+
+Weighted score:
+- Avg rating (30%)
+- Total completed bookings (20%)
+- Response time (20%)  ← your addition
+- Trust score / KYC level (15%)
+- Recency of activity (10%)
+- Zone match (5%)
+
+---
+
+## 8. Reuse map (don't rebuild)
+
+| Beauty need | Reuse from SiteViral |
+|---|---|
+| Auth, roles | `user_platform_roles` + new `beauty_provider` role |
+| KYC | `kyc_submissions` |
+| Payments | Existing Paystack + Stripe routers |
+| Payouts | `payout_profiles`, `manual_payouts` |
+| Refunds | `refund_requests` |
+| Notifications | `user_notifications`, bilingual email engine |
+| Ambassadors | Existing attribution (referral of clients & providers) |
+| Superadmin shell | Extend `/superadmin` with Beauty section |
+| i18n | `useI18n` FR/EN |
+| Design tokens | Existing semantic tokens |
+
+---
+
+## 9. Build phases
+
+**Phase A — Foundations (schema + roles + shell)**
+- Migrations for all `beauty_*` tables with GRANTs and RLS.
+- `beauty_provider` role + role check helpers.
+- `/beauty` landing + navigation entry.
+- Provider onboarding wizard (KYC → profile → first service).
+
+**Phase B — Discovery & profiles**
+- Search + filters + provider profile + service detail.
+- Availability template + slot generator RPC.
+- Public provider gallery + reviews display.
+
+**Phase C — Booking & escrow**
+- Booking flow (slot → mode → payment via existing gateways).
+- Escrow ledger + auto-release cron edge function (J+3).
+- Cancellation matrix + refund path.
+- Booking dashboards (client & provider).
+
+**Phase D — Chat**
+- Conversations + messages + realtime.
+- Redaction edge function + reveal-on-confirm.
+- Inbox UI both sides.
+
+**Phase E — Reviews, tips, ranking**
+- Post-booking review flow with optional tip.
+- Ranking score RPC + search integration.
+- Provider reply to reviews.
+
+**Phase F — Superadmin Beauty console**
+- Providers KYC queue, bookings monitor, disputes workspace, reviews moderation.
+- Trust score adjustments + suspension actions.
+
+**Phase G — Polish**
+- Provider stats page (response time, revenue, cohort).
+- Notification templates FR/EN for all lifecycle events.
+- Empty states, loading skeletons, mobile-first pass, dark mode audit.
+
+---
+
+## 10. Design direction
+
+- **Distinct sub-brand within SiteViral**: warmer palette (rose/gold accent) layered on existing semantic tokens — a new `beauty` theme scope in `index.css` (`.beauty-scope { --primary: ...; --accent: ... }`) so it doesn't leak into the core app.
+- Mobile-first, native-feel per project standards (40px touch targets, safe-area-insets).
+- Provider cards: rounded image tile + rating pill + response-time chip + "Réserver" CTA.
+- Booking flow as a 3-step stepper (Créneau → Formule → Paiement).
+
+---
+
+## 11. Out of scope for MVP (queued for v2)
+
+- Home-service safety (panic button, live GPS share) — schema hooks reserved.
+- Recurring appointments / packages.
+- Provider teams / multi-staff calendars.
+- In-app video consultation.
+- Loyalty points specific to Beauty.
+
+---
+
+## 12. Deliverable order for the first coding turn
+
+If you approve, I'll start with **Phase A**:
+1. Migration: all `beauty_*` tables + `beauty_provider` role + RLS + GRANTs.
+2. `/beauty` landing page (hero, categories, how-it-works) with warm sub-theme.
+3. Nav entry + route wiring.
+4. Provider onboarding wizard skeleton (KYC step reuses existing flow).
+
+Then we iterate phase by phase, verifying after each.
+
+---
+
+**Confirm to proceed with Phase A, or tell me what to adjust** (scope, order, theme direction, commission %, deposit %, auto-release delay).
