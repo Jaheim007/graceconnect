@@ -570,39 +570,68 @@ export function SuperadminReports() {
     dismissed: '✕',
   };
 
+  const tabConfig: Record<string, { label: string; tone: string }> = {
+    all:       { label: 'Tous',      tone: 'text-foreground bg-muted ring-border' },
+    pending:   { label: 'À traiter', tone: 'text-amber-600 dark:text-amber-400 bg-amber-500/10 ring-amber-500/25' },
+    reviewed:  { label: 'Examinés',  tone: 'text-blue-600 dark:text-blue-400 bg-blue-500/10 ring-blue-500/25' },
+    resolved:  { label: 'Résolus',   tone: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 ring-emerald-500/25' },
+    dismissed: { label: 'Rejetés',   tone: 'text-muted-foreground bg-muted/50 ring-border' },
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            <Shield className="h-5 w-5 text-destructive" />
-            Signalements
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{data.length} signalement{data.length !== 1 ? 's' : ''} au total</p>
+    <div className="space-y-5 tabular-nums">
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-destructive to-destructive/60 flex items-center justify-center shadow-sm ring-1 ring-destructive/25">
+            <Shield className="h-5 w-5 text-destructive-foreground" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">Signalements</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {data.length.toLocaleString()} signalement{data.length !== 1 ? 's' : ''} au total ·
+              <span className="ml-1 text-amber-600 dark:text-amber-400 font-medium">{statusCounts.pending} à traiter</span>
+            </p>
+          </div>
         </div>
+        {statusCounts.pending > 0 && (
+          <Badge className="text-[10px] h-5 px-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/25 border-0">
+            Action requise
+          </Badge>
+        )}
       </div>
 
-      {/* Status filter tabs */}
-      <div className="flex gap-2 flex-wrap">
-        {(['all', 'pending', 'reviewed', 'resolved', 'dismissed'] as const).map((s) => (
-          <button
-            key={s}
-            onClick={() => setStatusFilter(s)}
-            className={cn(
-              'px-3 py-1.5 rounded-full text-xs font-medium border transition-all',
-              statusFilter === s
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-card border-border hover:bg-muted'
-            )}
-          >
-            {s === 'all' ? 'Tous' : s.charAt(0).toUpperCase() + s.slice(1)} ({statusCounts[s]})
-          </button>
-        ))}
+      {/* Toolbar */}
+      <div className="rounded-2xl border border-border/60 bg-card/50 backdrop-blur p-2 flex flex-wrap items-center gap-1.5">
+        {(['all', 'pending', 'reviewed', 'resolved', 'dismissed'] as const).map((s) => {
+          const cfg = tabConfig[s];
+          const active = statusFilter === s;
+          return (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all',
+                active
+                  ? cn(cfg.tone, 'ring-1')
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              )}
+            >
+              {cfg.label}
+              <span className={cn(
+                'text-[10px] px-1.5 py-0.5 rounded-md font-semibold',
+                active ? 'bg-background/60' : 'bg-muted text-muted-foreground'
+              )}>
+                {statusCounts[s].toLocaleString()}
+              </span>
+            </button>
+          );
+        })}
         {contentTypes.length > 1 && (
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-3 py-1.5 rounded-full text-xs font-medium border border-border bg-card ml-auto"
+            className="ml-auto px-2.5 py-1.5 rounded-lg text-xs font-medium border border-border bg-background hover:bg-muted transition-colors"
           >
             <option value="all">Tous les types</option>
             {contentTypes.map((t: string) => (
@@ -613,20 +642,31 @@ export function SuperadminReports() {
       </div>
 
       {isLoading ? <SkeletonRow count={4} /> : filteredData.length === 0 ? (
-        <div className="p-12 text-center text-muted-foreground text-sm border border-dashed rounded-2xl">
-          {data.length === 0 ? '🎉 Aucun signalement' : 'Aucun signalement pour ce filtre'}
+        <div className="rounded-2xl border border-dashed border-border p-14 text-center">
+          <Shield className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="text-sm font-medium">
+            {data.length === 0 ? '🎉 Aucun signalement' : 'Aucun signalement pour ce filtre'}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {data.length === 0 ? 'La plateforme est saine.' : 'Essayez un autre statut.'}
+          </p>
+          {data.length > 0 && statusFilter !== 'all' && (
+            <Button variant="outline" size="sm" className="mt-4 text-xs" onClick={() => setStatusFilter('all')}>
+              Voir tous
+            </Button>
+          )}
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {filteredData.map((r: any) => {
             const isExpanded = expandedId === r.id;
             return (
               <div
                 key={r.id}
                 className={cn(
-                  'rounded-xl border bg-card transition-all',
-                  r.status === 'pending' ? 'border-amber-500/30' : 'border-border',
-                  isExpanded && 'ring-1 ring-primary/20'
+                  'rounded-2xl border bg-card transition-all',
+                  r.status === 'pending' ? 'border-amber-500/30 shadow-[0_0_0_1px_rgba(245,158,11,0.06)]' : 'border-border/60',
+                  isExpanded && 'ring-1 ring-primary/20 shadow-sm'
                 )}
               >
                 {/* Main row — clickable to expand */}
