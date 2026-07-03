@@ -50,9 +50,9 @@ export function MetricCard({ label, value, sub, icon: Icon, accentColor = 'prima
         )}
       </div>
 
-      <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">{label}</p>
-      <p className="text-2xl font-extrabold mt-1 tracking-tight">{value}</p>
-      {sub && <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>}
+      <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest truncate">{label}</p>
+      <p className="text-xl lg:text-[22px] font-extrabold mt-1 tracking-tight tabular-nums truncate" title={String(value)}>{value}</p>
+      {sub && <p className="text-[11px] text-muted-foreground mt-0.5 truncate" title={sub}>{sub}</p>}
     </motion.div>
   );
 }

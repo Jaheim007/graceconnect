@@ -204,14 +204,14 @@ export default function SuperadminFullDashboard() {
       />
 
       {/* ═══ 2. HERO KPI METRICS ═══ */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         <MetricCard label="GMV Total" value={fmt(stats?.gmv || 0)} sub={`${fmtNum(stats?.totalTransactions || 0)} transactions`} icon={DollarSign} accentColor="primary" delay={0} />
-        <MetricCard label="Revenu Ventes" value={fmt(stats?.purchaseGMV || 0)} sub="Produits numériques" icon={ShoppingBag} accentColor="violet" delay={0.03} />
-        <MetricCard label="Revenu Dons" value={fmt(stats?.donationGMV || 0)} sub="Campagnes & dons" icon={Heart} accentColor="rose" delay={0.06} />
-        <MetricCard label="Commission 10%" value={fmt(stats?.platformFeesSales || 0)} sub={`Take ${stats?.takeRate || 0}%`} icon={TrendingUp} accentColor="emerald" delay={0.09} />
-        <MetricCard label="Crédits IA" value={fmt(stats?.creditGMV || 0)} sub={`${fmtNum(stats?.creditCount || 0)} achats`} icon={Zap} accentColor="amber" delay={0.12} />
-        <MetricCard label="Revenu Plateforme" value={fmt(stats?.platformFees || 0)} sub="Commission + Crédits" icon={Wallet} accentColor="emerald" delay={0.15} />
-        <MetricCard label="Orgs reçoivent" value={fmt(stats?.orgReceived || 0)} sub={`Payé: ${fmt(stats?.payoutsPaidAmount || 0)} · Reste: ${fmt(stats?.netOwedToOrgs || 0)}`} icon={Building2} accentColor="violet" delay={0.18} />
+        <MetricCard label="Revenu Plateforme" value={fmt(stats?.platformFees || 0)} sub="Commission + Crédits IA" icon={Wallet} accentColor="emerald" delay={0.03} />
+        <MetricCard label="Commission 10%" value={fmt(stats?.platformFeesSales || 0)} sub={`Take rate ${stats?.takeRate || 0}%`} icon={TrendingUp} accentColor="emerald" delay={0.06} />
+        <MetricCard label="Orgs reçoivent" value={fmt(stats?.orgReceived || 0)} sub={`Payé ${fmt(stats?.payoutsPaidAmount || 0)} · Reste ${fmt(stats?.netOwedToOrgs || 0)}`} icon={Building2} accentColor="violet" delay={0.09} />
+        <MetricCard label="Revenu Ventes" value={fmt(stats?.purchaseGMV || 0)} sub="Produits numériques" icon={ShoppingBag} accentColor="violet" delay={0.12} />
+        <MetricCard label="Revenu Dons" value={fmt(stats?.donationGMV || 0)} sub="Campagnes & dons" icon={Heart} accentColor="rose" delay={0.15} />
+        <MetricCard label="Crédits IA" value={fmt(stats?.creditGMV || 0)} sub={`${fmtNum(stats?.creditCount || 0)} achats`} icon={Zap} accentColor="amber" delay={0.18} />
         <MetricCard label="Ambassadeurs" value={fmt(stats?.affiliateCommissions || 0)} sub="Commissions versées" icon={Handshake} accentColor="cyan" delay={0.21} />
       </div>
 
