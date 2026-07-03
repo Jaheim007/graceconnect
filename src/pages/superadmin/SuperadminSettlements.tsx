@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { InfoTooltip, LegendBanner } from '@/components/superadmin/InfoTooltip';
 
 const fmt = (n: number, c?: string) => formatCurrency(n, c);
@@ -266,7 +267,21 @@ export default function SuperadminSettlements() {
         </p>
       </LegendBanner>
 
+      {/* ── Tabbed Sections ── */}
+      <Tabs defaultValue="lifecycle" className="w-full">
+        <TabsList className="grid grid-cols-2 lg:grid-cols-4 h-auto p-1 bg-muted/50 rounded-xl">
+          <TabsTrigger value="lifecycle" className="text-xs data-[state=active]:bg-card data-[state=active]:shadow-sm py-2">Cycle de vie</TabsTrigger>
+          <TabsTrigger value="payouts" className="text-xs data-[state=active]:bg-card data-[state=active]:shadow-sm py-2 gap-1.5">
+            Payouts manuels
+            {pendingPayoutCount > 0 && <Badge className="bg-amber-500/15 text-amber-600 border-amber-500/30 text-[9px] h-4 px-1.5">{pendingPayoutCount}</Badge>}
+          </TabsTrigger>
+          <TabsTrigger value="migration" className="text-xs data-[state=active]:bg-card data-[state=active]:shadow-sm py-2">Migration</TabsTrigger>
+          <TabsTrigger value="reconciliation" className="text-xs data-[state=active]:bg-card data-[state=active]:shadow-sm py-2">Réconciliation</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="lifecycle" className="mt-6 space-y-4">
       {/* ── Settlement KPI Cards ── */}
+
 
       {isLoading ? <SkeletonRow count={4} /> : (
         <motion.div
