@@ -284,7 +284,10 @@ export default function SuperadminSettlements() {
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{c.label}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{c.label}</p>
+                    <InfoTooltip title={c.label}>{c.info}</InfoTooltip>
+                  </div>
                   <p className="text-lg font-extrabold tracking-tight mt-0.5">{c.value}</p>
                 </div>
 
