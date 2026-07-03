@@ -254,7 +254,20 @@ export default function SuperadminSettlements() {
         </div>
       </div>
 
+      {/* ── Legend ── */}
+      <LegendBanner title="Comprendre Settlements & Finance">
+        <p>
+          Cette page pilote le cycle de vie des fonds encaissés : <span className="font-semibold">Retenu → Libéré → Payout</span>.
+          Les cartes ci-dessous montrent le montant cumulé dans chaque état. Cliquez sur l'icône <span className="font-mono">ⓘ</span> pour la définition précise.
+        </p>
+        <p>
+          <span className="font-semibold text-emerald-600">Release 72h-held funds</span> traite le passage automatique Retenu → Libéré.{' '}
+          <span className="font-semibold">Payouts manuels</span> (bas de page) sert à verser aux organisations vérifiées KYC.
+        </p>
+      </LegendBanner>
+
       {/* ── Settlement KPI Cards ── */}
+
       {isLoading ? <SkeletonRow count={4} /> : (
         <motion.div
           variants={stagger}
