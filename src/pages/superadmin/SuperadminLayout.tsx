@@ -160,9 +160,10 @@ export default function SuperadminLayout() {
       {/* ═══ MOBILE TOP BAR ═══ */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-card/95 backdrop-blur-xl">
         <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-hide">
-          <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
-            <Shield className="h-3.5 w-3.5 text-primary-foreground" />
+          <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-amber-400/20 to-orange-500/10 border border-amber-500/30 flex items-center justify-center shrink-0 overflow-hidden">
+            <img src={logoSiteViral} alt="SiteViral" className="h-5 w-5 object-contain" />
           </div>
+
           {allLinks.map(({ to, label, icon: Icon, end }) => (
             <NavLink key={to} to={to} end={end}
               className={({ isActive }) => cn('shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors',
