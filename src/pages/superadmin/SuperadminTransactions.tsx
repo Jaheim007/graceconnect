@@ -139,8 +139,9 @@ function FilterChip({ active, onClick, children, variant = 'default' }: {
 /* ─── Gateway Badge ─── */
 function GatewayBadge({ gateway }: { gateway: string }) {
   const config = {
+    geniuspay: { label: 'GeniusPay', icon: Zap, className: 'bg-amber-500/10 text-amber-600 border-amber-500/30' },
     stripe: { label: 'Stripe', icon: CreditCard, className: 'bg-violet-500/10 text-violet-500 border-violet-500/20' },
-    paystack: { label: 'Paystack', icon: Smartphone, className: 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20' },
+    paystack: { label: 'Paystack · Héritage', icon: Smartphone, className: 'bg-slate-500/10 text-slate-500 border-slate-500/20' },
     free: { label: 'Gratuit', icon: Gift, className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
   }[gateway] || { label: gateway, icon: CreditCard, className: 'bg-muted text-muted-foreground border-border' };
 
@@ -152,6 +153,7 @@ function GatewayBadge({ gateway }: { gateway: string }) {
     </span>
   );
 }
+
 
 /* ─── Status Dot ─── */
 function StatusIndicator({ status }: { status: string }) {
