@@ -234,6 +234,10 @@ export default function SuperadminLayout() {
               {allLinks.find(l => l.to === location.pathname)?.label || 'Superadmin'}
             </p>
           </div>
+          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Passer en clair' : 'Passer en sombre'}>
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
         </div>
       </div>
 
