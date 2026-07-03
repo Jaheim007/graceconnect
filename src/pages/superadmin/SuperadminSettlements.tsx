@@ -331,191 +331,191 @@ export default function SuperadminSettlements() {
         </motion.div>
       )}
 
-      {/* ── Operations Grid ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Migration Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="rounded-2xl border border-border/50 bg-card overflow-hidden"
-        >
-          <div className="p-5 space-y-4">
-            <div className="flex items-center justify-between">
+        </TabsContent>
+
+        <TabsContent value="payouts" className="mt-6">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-border/50 bg-card overflow-hidden"
+          >
+            <div className="border-b border-border/30 bg-gradient-to-r from-primary/5 to-transparent px-5 py-3">
+              <div className="flex items-center gap-2">
+                <Wallet className="h-4 w-4 text-primary" />
+                <span className="font-bold text-sm">Manual Payouts</span>
+                {pendingPayoutCount > 0 && (
+                  <Badge className="bg-amber-500/15 text-amber-600 border-amber-500/30 text-[10px]">
+                    {pendingPayoutCount} pending
+                  </Badge>
+                )}
+              </div>
+            </div>
+            <div className="p-5">
+              <ManualPayoutsDashboard />
+            </div>
+          </motion.div>
+        </TabsContent>
+
+        <TabsContent value="migration" className="mt-6">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-border/50 bg-card overflow-hidden"
+          >
+            <div className="p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Building2 className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-sm">Subaccount Migration</h2>
+                    <p className="text-[10px] text-muted-foreground">
+                      {orgsWithout.length} org{orgsWithout.length !== 1 ? 's' : ''} without Paystack subaccount
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleMigrate(true)} disabled={migrating || !orgsWithout.length} className="flex-1 gap-1.5 text-xs">
+                  {migrating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
+                  Dry Run
+                </Button>
+                <Button size="sm" onClick={() => handleMigrate(false)} disabled={migrating || !orgsWithout.length} className="flex-1 gap-1.5 text-xs bg-primary text-primary-foreground">
+                  {migrating ? <Loader2 className="h-3 w-3 animate-spin" /> : <ArrowUpRight className="h-3 w-3" />}
+                  Migrate (10)
+                </Button>
+              </div>
+
+              {orgsWithout.length > 0 && (
+                <div className="space-y-1 max-h-80 overflow-y-auto rounded-xl bg-muted/30 p-2">
+                  {orgsWithout.slice(0, 30).map((o: any) => (
+                    <div key={o.id} className="flex items-center gap-2 text-[11px] p-1.5 rounded-lg hover:bg-muted/50 transition-colors">
+                      <Building2 className="h-3 w-3 text-muted-foreground shrink-0" />
+                      <span className="font-medium truncate">{o.name}</span>
+                      <span className="text-muted-foreground text-[10px]">({o.slug})</span>
+                      {o.monetization_enabled && (
+                        <Badge variant="outline" className="text-[8px] ml-auto h-4 px-1.5 border-emerald-500/30 text-emerald-600">Monetized</Badge>
+                      )}
+                    </div>
+                  ))}
+                  {orgsWithout.length > 30 && (
+                    <p className="text-[10px] text-muted-foreground text-center py-1">+{orgsWithout.length - 30} more</p>
+                  )}
+                </div>
+              )}
+
+              {migrateLog && (
+                <div className="rounded-xl bg-muted/50 p-3 space-y-1.5 text-xs border border-border/30">
+                  <p className="font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Migration Result</p>
+                  <div className="flex gap-3">
+                    <span className="text-emerald-600 font-medium">✓ {migrateLog.migrated}</span>
+                    <span className="text-amber-600 font-medium">⊘ {migrateLog.skipped}</span>
+                    <span className="text-destructive font-medium">✕ {migrateLog.failed}</span>
+                  </div>
+                  {migrateLog.details?.map((d: any, i: number) => (
+                    <div key={i} className="flex items-center gap-2 text-[10px]">
+                      <Badge variant="outline" className={cn('text-[8px] h-4',
+                        d.status === 'migrated' ? 'border-emerald-500/30 text-emerald-600' :
+                        d.status === 'skipped' ? 'border-amber-500/30 text-amber-600' :
+                        d.status === 'dry_run_ok' ? 'border-blue-500/30 text-blue-600' :
+                        'border-destructive/30 text-destructive'
+                      )}>{d.status}</Badge>
+                      <span className="truncate">{d.name}</span>
+                      {d.error && <span className="text-destructive truncate">— {d.error}</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </TabsContent>
+
+        <TabsContent value="reconciliation" className="mt-6">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-border/50 bg-card overflow-hidden"
+          >
+            <div className="p-5 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Building2 className="h-4.5 w-4.5 text-primary" />
+                <div className="h-9 w-9 rounded-xl bg-violet-500/10 flex items-center justify-center">
+                  <Search className="h-4 w-4 text-violet-500" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-sm">Subaccount Migration</h2>
+                  <h2 className="font-bold text-sm">Payment Reconciliation</h2>
                   <p className="text-[10px] text-muted-foreground">
-                    {orgsWithout.length} org{orgsWithout.length !== 1 ? 's' : ''} without Paystack subaccount
+                    Scan Paystack & recover missing transactions
                   </p>
                 </div>
               </div>
-            </div>
 
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => handleMigrate(true)} disabled={migrating || !orgsWithout.length} className="flex-1 gap-1.5 text-xs">
-                {migrating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
-                Dry Run
-              </Button>
-              <Button size="sm" onClick={() => handleMigrate(false)} disabled={migrating || !orgsWithout.length} className="flex-1 gap-1.5 text-xs bg-primary text-primary-foreground">
-                {migrating ? <Loader2 className="h-3 w-3 animate-spin" /> : <ArrowUpRight className="h-3 w-3" />}
-                Migrate (10)
-              </Button>
-            </div>
-
-            {orgsWithout.length > 0 && (
-              <div className="space-y-1 max-h-40 overflow-y-auto rounded-xl bg-muted/30 p-2">
-                {orgsWithout.slice(0, 15).map((o: any) => (
-                  <div key={o.id} className="flex items-center gap-2 text-[11px] p-1.5 rounded-lg hover:bg-muted/50 transition-colors">
-                    <Building2 className="h-3 w-3 text-muted-foreground shrink-0" />
-                    <span className="font-medium truncate">{o.name}</span>
-                    <span className="text-muted-foreground text-[10px]">({o.slug})</span>
-                    {o.monetization_enabled && (
-                      <Badge variant="outline" className="text-[8px] ml-auto h-4 px-1.5 border-emerald-500/30 text-emerald-600">Monetized</Badge>
-                    )}
-                  </div>
-                ))}
-                {orgsWithout.length > 15 && (
-                  <p className="text-[10px] text-muted-foreground text-center py-1">+{orgsWithout.length - 15} more</p>
-                )}
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleReconcile(7)} disabled={reconciling} className="flex-1 gap-1.5 text-xs">
+                  {reconciling ? <Loader2 className="h-3 w-3 animate-spin" /> : <Search className="h-3 w-3" />}
+                  Last 7 days
+                </Button>
+                <Button size="sm" onClick={() => handleReconcile(30)} disabled={reconciling} className="flex-1 gap-1.5 text-xs bg-violet-600 hover:bg-violet-700 text-white border-0">
+                  {reconciling ? <Loader2 className="h-3 w-3 animate-spin" /> : <Search className="h-3 w-3" />}
+                  Last 30 days
+                </Button>
               </div>
-            )}
 
-            {migrateLog && (
-              <div className="rounded-xl bg-muted/50 p-3 space-y-1.5 text-xs border border-border/30">
-                <p className="font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Migration Result</p>
-                <div className="flex gap-3">
-                  <span className="text-emerald-600 font-medium">✓ {migrateLog.migrated}</span>
-                  <span className="text-amber-600 font-medium">⊘ {migrateLog.skipped}</span>
-                  <span className="text-destructive font-medium">✕ {migrateLog.failed}</span>
+              {reconcileLog && (
+                <div className="rounded-xl bg-muted/50 p-3 space-y-2 text-xs border border-border/30">
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div className="flex items-center gap-1.5">
+                      <ArrowDown className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-muted-foreground">Scanned:</span>
+                      <span className="font-bold">{reconcileLog.total_scanned}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle className="h-3 w-3 text-emerald-500" />
+                      <span className="text-muted-foreground">Recovered:</span>
+                      <span className="font-bold text-emerald-600">{reconcileLog.reconciled?.length || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <AlertTriangle className="h-3 w-3 text-destructive" />
+                      <span className="text-muted-foreground">Errors:</span>
+                      <span className="font-bold text-destructive">{reconcileLog.errors?.length || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <ArrowUp className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-muted-foreground">Existed:</span>
+                      <span className="font-bold">{reconcileLog.already_existed || 0}</span>
+                    </div>
+                  </div>
+                  {reconcileLog.reconciled?.length > 0 && (
+                    <div className="space-y-1 mt-2">
+                      <p className="font-bold text-[10px] uppercase tracking-wider text-emerald-600">Recovered Transactions</p>
+                      {reconcileLog.reconciled.map((r: any, i: number) => (
+                        <div key={i} className="flex items-center gap-2 p-1.5 rounded-lg bg-emerald-500/10">
+                          <CheckCircle className="h-3 w-3 text-emerald-600 shrink-0" />
+                          <span className="font-mono text-[10px]">{r.reference}</span>
+                          <span className="ml-auto font-bold text-[10px]">{formatCurrency(r.amount)} XOF</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {reconcileLog.errors?.length > 0 && (
+                    <div className="space-y-1 mt-2">
+                      <p className="font-bold text-[10px] uppercase tracking-wider text-destructive">Errors</p>
+                      {reconcileLog.errors.map((r: any, i: number) => (
+                        <div key={i} className="flex items-center gap-2 p-1.5 rounded-lg bg-destructive/10">
+                          <AlertTriangle className="h-3 w-3 text-destructive shrink-0" />
+                          <span className="font-mono text-[10px]">{r.reference}</span>
+                          <span className="ml-auto text-destructive truncate max-w-36 text-[10px]">{r.error}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                {migrateLog.details?.map((d: any, i: number) => (
-                  <div key={i} className="flex items-center gap-2 text-[10px]">
-                    <Badge variant="outline" className={cn('text-[8px] h-4',
-                      d.status === 'migrated' ? 'border-emerald-500/30 text-emerald-600' :
-                      d.status === 'skipped' ? 'border-amber-500/30 text-amber-600' :
-                      d.status === 'dry_run_ok' ? 'border-blue-500/30 text-blue-600' :
-                      'border-destructive/30 text-destructive'
-                    )}>{d.status}</Badge>
-                    <span className="truncate">{d.name}</span>
-                    {d.error && <span className="text-destructive truncate">— {d.error}</span>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Reconciliation Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="rounded-2xl border border-border/50 bg-card overflow-hidden"
-        >
-          <div className="p-5 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-violet-500/10 flex items-center justify-center">
-                <Search className="h-4.5 w-4.5 text-violet-500" />
-              </div>
-              <div>
-                <h2 className="font-bold text-sm">Payment Reconciliation</h2>
-                <p className="text-[10px] text-muted-foreground">
-                  Scan Paystack & recover missing transactions
-                </p>
-              </div>
+              )}
             </div>
-
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => handleReconcile(7)} disabled={reconciling} className="flex-1 gap-1.5 text-xs">
-                {reconciling ? <Loader2 className="h-3 w-3 animate-spin" /> : <Search className="h-3 w-3" />}
-                Last 7 days
-              </Button>
-              <Button size="sm" onClick={() => handleReconcile(30)} disabled={reconciling} className="flex-1 gap-1.5 text-xs bg-violet-600 hover:bg-violet-700 text-white border-0">
-                {reconciling ? <Loader2 className="h-3 w-3 animate-spin" /> : <Search className="h-3 w-3" />}
-                Last 30 days
-              </Button>
-            </div>
-
-            {reconcileLog && (
-              <div className="rounded-xl bg-muted/50 p-3 space-y-2 text-xs border border-border/30">
-                <div className="grid grid-cols-2 gap-2 text-[11px]">
-                  <div className="flex items-center gap-1.5">
-                    <ArrowDown className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Scanned:</span>
-                    <span className="font-bold">{reconcileLog.total_scanned}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle className="h-3 w-3 text-emerald-500" />
-                    <span className="text-muted-foreground">Recovered:</span>
-                    <span className="font-bold text-emerald-600">{reconcileLog.reconciled?.length || 0}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <AlertTriangle className="h-3 w-3 text-destructive" />
-                    <span className="text-muted-foreground">Errors:</span>
-                    <span className="font-bold text-destructive">{reconcileLog.errors?.length || 0}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <ArrowUp className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Existed:</span>
-                    <span className="font-bold">{reconcileLog.already_existed || 0}</span>
-                  </div>
-                </div>
-                {reconcileLog.reconciled?.length > 0 && (
-                  <div className="space-y-1 mt-2">
-                    <p className="font-bold text-[10px] uppercase tracking-wider text-emerald-600">Recovered Transactions</p>
-                    {reconcileLog.reconciled.map((r: any, i: number) => (
-                      <div key={i} className="flex items-center gap-2 p-1.5 rounded-lg bg-emerald-500/10">
-                        <CheckCircle className="h-3 w-3 text-emerald-600 shrink-0" />
-                        <span className="font-mono text-[10px]">{r.reference}</span>
-                        <span className="ml-auto font-bold text-[10px]">{formatCurrency(r.amount)} XOF</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {reconcileLog.errors?.length > 0 && (
-                  <div className="space-y-1 mt-2">
-                    <p className="font-bold text-[10px] uppercase tracking-wider text-destructive">Errors</p>
-                    {reconcileLog.errors.map((r: any, i: number) => (
-                      <div key={i} className="flex items-center gap-2 p-1.5 rounded-lg bg-destructive/10">
-                        <AlertTriangle className="h-3 w-3 text-destructive shrink-0" />
-                        <span className="font-mono text-[10px]">{r.reference}</span>
-                        <span className="ml-auto text-destructive truncate max-w-36 text-[10px]">{r.error}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </motion.div>
-      </div>
-
-      {/* ── Manual Payouts ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="rounded-2xl border border-border/50 bg-card overflow-hidden"
-      >
-        <div className="border-b border-border/30 bg-gradient-to-r from-primary/5 to-transparent px-5 py-3">
-          <div className="flex items-center gap-2">
-            <Wallet className="h-4 w-4 text-primary" />
-            <span className="font-bold text-sm">Manual Payouts</span>
-            {pendingPayoutCount > 0 && (
-              <Badge className="bg-amber-500/15 text-amber-600 border-amber-500/30 text-[10px]">
-                {pendingPayoutCount} pending
-              </Badge>
-            )}
-          </div>
-        </div>
-        <div className="p-5">
-          <ManualPayoutsDashboard />
-        </div>
-      </motion.div>
+          </motion.div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
