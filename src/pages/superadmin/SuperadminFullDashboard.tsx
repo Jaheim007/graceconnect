@@ -28,6 +28,7 @@ import { WelcomeBanner } from '@/components/superadmin/dashboard/WelcomeBanner';
 import { MetricCard } from '@/components/superadmin/dashboard/MetricCard';
 import { CommandModule } from '@/components/superadmin/dashboard/CommandModule';
 import { DashboardPanel } from '@/components/superadmin/dashboard/DashboardPanel';
+import { LegendBanner, InfoTooltip } from '@/components/superadmin/InfoTooltip';
 
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
 const fmtNum = (n: number) => new Intl.NumberFormat().format(n);
