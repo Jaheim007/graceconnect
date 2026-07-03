@@ -147,8 +147,14 @@ export default function SuperadminLayout() {
           </nav>
         </ScrollArea>
 
-        {/* Collapse toggle + Back to app */}
+        {/* Theme toggle + Collapse + Back to app */}
         <div className="p-3 border-t border-border/40 space-y-1">
+          <button onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Passer en clair' : 'Passer en sombre'}
+            className={cn('flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors w-full', collapsed && 'justify-center')}>
+            {theme === 'dark' ? <Sun className="h-3.5 w-3.5 shrink-0" /> : <Moon className="h-3.5 w-3.5 shrink-0" />}
+            {!collapsed && <span>{theme === 'dark' ? 'Mode clair' : 'Mode sombre'}</span>}
+          </button>
           <NavLink to="/feed"
             className={cn('flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors', collapsed && 'justify-center')}>
             <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
