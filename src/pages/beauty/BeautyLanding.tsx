@@ -33,14 +33,8 @@ const TRUST = [
 export default function BeautyLanding() {
   return (
     <div className="beauty-scope min-h-screen bg-background text-foreground">
-      <Helmet>
-        <title>SiteViral Beauty — Réserve tes soins beauté à Abidjan en toute confiance</title>
-        <meta name="description" content="La marketplace beauté d'Abidjan. Coiffure, ongles, maquillage, spa. Réserve en 2 clics, paiement sécurisé, avis vérifiés." />
-        <meta property="og:title" content="SiteViral Beauty — Beauté Abidjan, réservée en confiance" />
-        <meta property="og:description" content="Coiffure, ongles, maquillage, spa. Paiement sécurisé, chat intégré, avis vérifiés." />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
-      </Helmet>
+      <SeoHead />
+
 
       {/* Top bar */}
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
