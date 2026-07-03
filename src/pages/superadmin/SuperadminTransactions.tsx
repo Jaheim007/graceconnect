@@ -441,7 +441,50 @@ export function SuperadminTransactions() {
         </Button>
       </div>
 
+      {/* ─── Legend: what this page shows ─── */}
+      <LegendBanner title="Comprendre cette page">
+        <p>
+          Toutes les transactions financières de la plateforme (achats de produits, dons, achats de crédits IA).
+          Utilisez les filtres pour isoler une passerelle, un statut, une période ou un type.
+        </p>
+        <p>
+          <span className="font-semibold text-amber-600">GeniusPay</span> = nouveau processeur (depuis mi‑2026) ·{' '}
+          <span className="font-semibold text-slate-500">Paystack</span> = héritage (transactions antérieures) ·{' '}
+          <span className="font-semibold text-violet-500">Stripe</span> = paiements internationaux ·{' '}
+          <span className="font-semibold text-emerald-500">Gratuit</span> = accès sans paiement.
+        </p>
+      </LegendBanner>
+
+      {/* ─── Gateway split (Nouveau vs Héritage) ─── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { key: 'geniuspay', label: 'GeniusPay', sub: 'Nouveau', accent: 'text-amber-600', ring: 'ring-amber-500/30', icon: Zap },
+          { key: 'paystack', label: 'Paystack', sub: 'Héritage', accent: 'text-slate-500', ring: 'ring-slate-400/30', icon: Smartphone },
+          { key: 'stripe', label: 'Stripe', sub: 'International', accent: 'text-violet-500', ring: 'ring-violet-500/30', icon: CreditCard },
+          { key: 'free', label: 'Gratuit', sub: 'Sans paiement', accent: 'text-emerald-500', ring: 'ring-emerald-500/30', icon: Gift },
+        ].map(g => {
+          const stat = gatewaySplit[g.key] || { count: 0, amount: 0 };
+          const Icon = g.icon;
+          return (
+            <div key={g.key} className={cn('rounded-xl border border-border/60 bg-card p-3 flex items-center gap-3 ring-1 ring-transparent hover:ring-2', g.ring)}>
+              <div className={cn('h-9 w-9 rounded-lg bg-muted/50 flex items-center justify-center', g.accent)}>
+                <Icon className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs font-semibold truncate">{g.label}</p>
+                  <span className="text-[9px] text-muted-foreground uppercase tracking-wide">{g.sub}</span>
+                </div>
+                <p className="text-sm font-bold tabular-nums">{fmt(stat.amount)}</p>
+                <p className="text-[10px] text-muted-foreground">{stat.count} tx</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
       {/* ─── Stat Cards ─── */}
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Volume total"
