@@ -144,7 +144,37 @@ export default function SuperadminFullDashboard() {
     },
   });
 
+  // ─── Gateway breakdown (Nouveau GeniusPay vs Héritage Paystack vs Stripe) ───
+  const { data: gatewayBreakdown } = useQuery({
+    queryKey: ['sa-gateway-breakdown-v1'],
+    queryFn: async () => {
+      const [purchases, donations, credits, offerings] = await Promise.all([
+        db.from('product_purchases').select('amount, gateway').eq('status', 'completed'),
+        db.from('donations').select('amount, gateway').eq('status', 'completed'),
+        db.from('credit_purchases').select('price_amount, payment_gateway').eq('status', 'completed'),
+        db.from('offering_transactions').select('amount, payment_gateway').eq('status', 'completed'),
+      ]);
+      const buckets: Record<string, { amount: number; count: number }> = {
+        geniuspay: { amount: 0, count: 0 },
+        paystack: { amount: 0, count: 0 },
+        stripe: { amount: 0, count: 0 },
+        free: { amount: 0, count: 0 },
+      };
+      const add = (g: string | null | undefined, amt: number) => {
+        const key = g && ['geniuspay', 'paystack', 'stripe', 'free'].includes(g) ? g : 'paystack';
+        buckets[key].amount += amt || 0;
+        buckets[key].count += 1;
+      };
+      (purchases.data || []).forEach((r: any) => add(r.gateway, r.amount));
+      (donations.data || []).forEach((r: any) => add(r.gateway, r.amount));
+      (credits.data || []).forEach((r: any) => add(r.payment_gateway, r.price_amount));
+      (offerings.data || []).forEach((r: any) => add(r.payment_gateway, r.amount));
+      return buckets;
+    },
+  });
+
   const pendingAlerts = (stats?.pendingKYC || 0) + (stats?.pendingReports || 0) + (stats?.pendingPayouts || 0);
+
 
   // ─── Command Center modules ───
   const modules = [
