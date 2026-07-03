@@ -232,7 +232,7 @@ export default function SuperadminFullDashboard() {
             <h3 className="text-sm font-semibold">Répartition par passerelle de paiement</h3>
             <InfoTooltip title="Nouveau vs Héritage">
               <p><span className="font-semibold text-amber-600">GeniusPay</span> est notre nouveau processeur (depuis mi‑2026, Wave/Orange/MTN/Moov/carte).</p>
-              <p><span className="font-semibold text-slate-500">Paystack</span> représente l'ancien flux (transactions antérieures à la migration).</p>
+              <p><span className="font-semibold text-slate-600 dark:text-slate-300">Paystack</span> représente l'ancien flux (transactions antérieures à la migration).</p>
               <p>Cette section permet de suivre la transition sans mélanger les revenus.</p>
             </InfoTooltip>
           </div>
