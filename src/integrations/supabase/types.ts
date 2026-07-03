@@ -1159,6 +1159,534 @@ export type Database = {
           },
         ]
       }
+      beauty_availability: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          provider_id: string
+          start_time: string
+          weekday: number
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          provider_id: string
+          start_time: string
+          weekday: number
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          provider_id?: string
+          start_time?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_availability_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beauty_availability_blocks: {
+        Row: {
+          created_at: string
+          ends_at: string
+          id: string
+          provider_id: string
+          reason: string | null
+          starts_at: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at: string
+          id?: string
+          provider_id: string
+          reason?: string | null
+          starts_at: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string
+          id?: string
+          provider_id?: string
+          reason?: string | null
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_availability_blocks_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beauty_booking_events: {
+        Row: {
+          actor_id: string | null
+          booking_id: string
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+        }
+        Insert: {
+          actor_id?: string | null
+          booking_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json
+        }
+        Update: {
+          actor_id?: string | null
+          booking_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_booking_events_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beauty_bookings: {
+        Row: {
+          address: string | null
+          auto_release_at: string | null
+          cancelled_at: string | null
+          client_id: string
+          commission_xof: number
+          completed_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          deposit_xof: number
+          gateway: string | null
+          id: string
+          location_type: Database["public"]["Enums"]["beauty_location_type"]
+          mode: Database["public"]["Enums"]["beauty_booking_mode"]
+          payment_intent_id: string | null
+          price_xof: number
+          provider_id: string
+          service_id: string
+          slot_end: string
+          slot_start: string
+          status: Database["public"]["Enums"]["beauty_booking_status"]
+          tip_xof: number
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          auto_release_at?: string | null
+          cancelled_at?: string | null
+          client_id: string
+          commission_xof?: number
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          deposit_xof?: number
+          gateway?: string | null
+          id?: string
+          location_type?: Database["public"]["Enums"]["beauty_location_type"]
+          mode: Database["public"]["Enums"]["beauty_booking_mode"]
+          payment_intent_id?: string | null
+          price_xof: number
+          provider_id: string
+          service_id: string
+          slot_end: string
+          slot_start: string
+          status?: Database["public"]["Enums"]["beauty_booking_status"]
+          tip_xof?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          auto_release_at?: string | null
+          cancelled_at?: string | null
+          client_id?: string
+          commission_xof?: number
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          deposit_xof?: number
+          gateway?: string | null
+          id?: string
+          location_type?: Database["public"]["Enums"]["beauty_location_type"]
+          mode?: Database["public"]["Enums"]["beauty_booking_mode"]
+          payment_intent_id?: string | null
+          price_xof?: number
+          provider_id?: string
+          service_id?: string
+          slot_end?: string
+          slot_start?: string
+          status?: Database["public"]["Enums"]["beauty_booking_status"]
+          tip_xof?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_bookings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beauty_bookings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beauty_conversations: {
+        Row: {
+          booking_id: string | null
+          client_id: string
+          created_at: string
+          id: string
+          last_message_at: string | null
+          provider_id: string
+        }
+        Insert: {
+          booking_id?: string | null
+          client_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          provider_id: string
+        }
+        Update: {
+          booking_id?: string | null
+          client_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          provider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_conversations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beauty_conversations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beauty_disputes: {
+        Row: {
+          booking_id: string
+          created_at: string
+          evidence: string[]
+          id: string
+          opened_by: string
+          reason: string
+          resolution: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["beauty_dispute_status"]
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          evidence?: string[]
+          id?: string
+          opened_by: string
+          reason: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["beauty_dispute_status"]
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          evidence?: string[]
+          id?: string
+          opened_by?: string
+          reason?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["beauty_dispute_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_disputes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beauty_messages: {
+        Row: {
+          body: string
+          contains_contact_attempt: boolean
+          conversation_id: string
+          created_at: string
+          id: string
+          read_at: string | null
+          redacted_body: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          contains_contact_attempt?: boolean
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          redacted_body: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          contains_contact_attempt?: boolean
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          redacted_body?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beauty_providers: {
+        Row: {
+          at_salon_ok: boolean
+          avatar_url: string | null
+          avg_rating: number
+          bio: string | null
+          business_name: string
+          city: string | null
+          cover_url: string | null
+          created_at: string
+          home_service_ok: boolean
+          id: string
+          kyc_submission_id: string | null
+          phone: string | null
+          response_time_avg_min: number
+          slug: string
+          status: Database["public"]["Enums"]["beauty_provider_status"]
+          total_bookings: number
+          total_reviews: number
+          trust_score: number
+          updated_at: string
+          user_id: string
+          zones: string[]
+        }
+        Insert: {
+          at_salon_ok?: boolean
+          avatar_url?: string | null
+          avg_rating?: number
+          bio?: string | null
+          business_name: string
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string
+          home_service_ok?: boolean
+          id?: string
+          kyc_submission_id?: string | null
+          phone?: string | null
+          response_time_avg_min?: number
+          slug: string
+          status?: Database["public"]["Enums"]["beauty_provider_status"]
+          total_bookings?: number
+          total_reviews?: number
+          trust_score?: number
+          updated_at?: string
+          user_id: string
+          zones?: string[]
+        }
+        Update: {
+          at_salon_ok?: boolean
+          avatar_url?: string | null
+          avg_rating?: number
+          bio?: string | null
+          business_name?: string
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string
+          home_service_ok?: boolean
+          id?: string
+          kyc_submission_id?: string | null
+          phone?: string | null
+          response_time_avg_min?: number
+          slug?: string
+          status?: Database["public"]["Enums"]["beauty_provider_status"]
+          total_bookings?: number
+          total_reviews?: number
+          trust_score?: number
+          updated_at?: string
+          user_id?: string
+          zones?: string[]
+        }
+        Relationships: []
+      }
+      beauty_reviews: {
+        Row: {
+          body: string | null
+          booking_id: string
+          client_id: string
+          created_at: string
+          id: string
+          provider_id: string
+          provider_reply: string | null
+          provider_reply_at: string | null
+          rating: number
+          tip_xof: number
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          booking_id: string
+          client_id: string
+          created_at?: string
+          id?: string
+          provider_id: string
+          provider_reply?: string | null
+          provider_reply_at?: string | null
+          rating: number
+          tip_xof?: number
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          booking_id?: string
+          client_id?: string
+          created_at?: string
+          id?: string
+          provider_id?: string
+          provider_reply?: string | null
+          provider_reply_at?: string | null
+          rating?: number
+          tip_xof?: number
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "beauty_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beauty_reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beauty_services: {
+        Row: {
+          active: boolean
+          allow_cash: boolean
+          allow_deposit: boolean
+          allow_full_escrow: boolean
+          at_home: boolean
+          at_salon: boolean
+          category: string
+          created_at: string
+          deposit_pct: number
+          description: string | null
+          duration_min: number
+          id: string
+          images: string[]
+          price_xof: number
+          provider_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          allow_cash?: boolean
+          allow_deposit?: boolean
+          allow_full_escrow?: boolean
+          at_home?: boolean
+          at_salon?: boolean
+          category: string
+          created_at?: string
+          deposit_pct?: number
+          description?: string | null
+          duration_min?: number
+          id?: string
+          images?: string[]
+          price_xof: number
+          provider_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          allow_cash?: boolean
+          allow_deposit?: boolean
+          allow_full_escrow?: boolean
+          at_home?: boolean
+          at_salon?: boolean
+          category?: string
+          created_at?: string
+          deposit_pct?: number
+          description?: string | null
+          duration_min?: number
+          id?: string
+          images?: string[]
+          price_xof?: number
+          provider_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_services_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bundle_items: {
         Row: {
           bundle_product_id: string
@@ -8111,6 +8639,19 @@ export type Database = {
         | "sermon_pack"
         | "bible_pack"
         | "marketing_pack"
+      beauty_booking_mode: "escrow" | "deposit" | "cash"
+      beauty_booking_status:
+        | "pending_payment"
+        | "confirmed"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
+        | "no_show"
+        | "disputed"
+        | "refunded"
+      beauty_dispute_status: "open" | "investigating" | "resolved" | "rejected"
+      beauty_location_type: "salon" | "home"
+      beauty_provider_status: "pending" | "active" | "suspended"
       credit_lot_type: "daily" | "bonus" | "purchased"
       credit_tx_type:
         | "daily_grant"
@@ -8343,6 +8884,20 @@ export const Constants = {
         "bible_pack",
         "marketing_pack",
       ],
+      beauty_booking_mode: ["escrow", "deposit", "cash"],
+      beauty_booking_status: [
+        "pending_payment",
+        "confirmed",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "no_show",
+        "disputed",
+        "refunded",
+      ],
+      beauty_dispute_status: ["open", "investigating", "resolved", "rejected"],
+      beauty_location_type: ["salon", "home"],
+      beauty_provider_status: ["pending", "active", "suspended"],
       credit_lot_type: ["daily", "bonus", "purchased"],
       credit_tx_type: [
         "daily_grant",
