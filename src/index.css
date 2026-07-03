@@ -647,3 +647,24 @@ body > div[style*="position: fixed"][style*="opacity"] {
     box-shadow: 0 8px 24px -8px hsl(var(--primary) / 0.15);
   }
 }
+
+/* ---------- SiteViral Beauty sub-theme (rose / gold) ---------- */
+.beauty-scope {
+  --primary: 340 72% 52%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 32 88% 58%;
+  --accent-foreground: 24 40% 12%;
+  --ring: 340 72% 52%;
+  --beauty-gradient: linear-gradient(135deg, hsl(340 78% 58%), hsl(18 88% 62%));
+  --beauty-soft: linear-gradient(135deg, hsl(340 60% 96%), hsl(30 80% 96%));
+  --beauty-shadow: 0 20px 60px -20px hsl(340 60% 40% / 0.35);
+}
+.dark .beauty-scope {
+  --primary: 340 78% 60%;
+  --accent: 34 92% 62%;
+  --beauty-soft: linear-gradient(135deg, hsl(340 40% 12%), hsl(18 45% 12%));
+  --beauty-shadow: 0 20px 60px -20px hsl(340 80% 20% / 0.6);
+}
+.beauty-gradient { background: var(--beauty-gradient); }
+.beauty-soft { background: var(--beauty-soft); }
+.beauty-shadow { box-shadow: var(--beauty-shadow); }

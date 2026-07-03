@@ -50,6 +50,8 @@ const PageLoader = () => (
 // ─── Lazy-loaded pages ─── //
 // Public
 const ActionHub = lazy(() => import("@/pages/ActionHub"));
+const BeautyLanding = lazy(() => import("@/pages/beauty/BeautyLanding"));
+const BeautyProviderOnboarding = lazy(() => import("@/pages/beauty/BeautyProviderOnboarding"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
@@ -322,6 +324,9 @@ const App = () => (
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<ActionHub />} />
+                {/* SiteViral Beauty */}
+                <Route path="/beauty" element={<BeautyLanding />} />
+                <Route path="/beauty/pro/onboarding" element={<RequireAuth><BeautyProviderOnboarding /></RequireAuth>} />
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
