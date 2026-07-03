@@ -285,7 +285,7 @@ export function SuperadminTransactions() {
         type: 'donation' as const,
         label: r.donation_campaigns?.title || r.donor_name || 'Don',
         org_name: r.organizations?.name || '—',
-        gateway: detectGateway(r.paystack_reference),
+        gateway: detectGateway(r.paystack_reference, r.gateway),
         buyer_display: r.donor_name || profileMap[r.user_id]?.display_name || r.donor_email?.split('@')[0] || 'Donateur',
         buyer_phone: profileMap[r.user_id]?.phone || null,
         affiliate_name: r.affiliate_link_id ? (affLinkMap[r.affiliate_link_id]?.name || '—') : null,
