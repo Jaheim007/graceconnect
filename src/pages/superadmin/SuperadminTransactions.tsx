@@ -317,7 +317,7 @@ export function SuperadminTransactions() {
         type: 'credit' as const,
         label: `Pack crédits: ${r.pack_key} (${r.credits_amount} crédits)`,
         org_name: 'Plateforme',
-        gateway: r.payment_gateway === 'stripe' ? 'stripe' : 'paystack',
+        gateway: r.payment_gateway === 'stripe' ? 'stripe' : r.payment_gateway === 'geniuspay' ? 'geniuspay' : 'paystack',
         buyer_display: profileMap[r.user_id]?.display_name || '—',
         buyer_phone: profileMap[r.user_id]?.phone || null,
         buyer_email: null,
