@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { ShieldAlert, Flag, Snowflake, AlertTriangle, CheckCircle, Search, LifeBuoy } from 'lucide-react';
 import { onPayoutsFrozen, onTicketResolved } from '@/lib/notifications';
+import { LegendBanner } from '@/components/superadmin/InfoTooltip';
 
 export default function SuperadminRiskAML() {
   const { toast } = useToast();
@@ -102,18 +103,38 @@ export default function SuperadminRiskAML() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <ShieldAlert className="h-5 w-5 text-destructive" />
-        <h1 className="text-xl font-bold">Risk & AML Center</h1>
-        <Badge className="text-[10px] bg-destructive/15 text-destructive border-0">{unresolvedFlags.length} open flags</Badge>
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-destructive/10 flex items-center justify-center">
+            <ShieldAlert className="h-5 w-5 text-destructive" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">Risk &amp; AML Center</h1>
+            <p className="text-xs text-muted-foreground">Détection fraude, gel des payouts, tickets support sensibles</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge className="text-[10px] bg-destructive/15 text-destructive border-0">{unresolvedFlags.length} flags ouverts</Badge>
+          <Badge className="text-[10px] bg-blue-500/15 text-blue-600 border-0">{frozenOrgs.length} orgs gelées</Badge>
+        </div>
       </div>
 
+      <LegendBanner title="Comprendre cette page">
+        <p>
+          <span className="font-semibold text-destructive">Fraud Flags</span> — alertes automatiques (patterns suspects, chargebacks).
+          {' '}<span className="font-semibold text-blue-600">Frozen Payouts</span> — orgs dont les retraits sont bloqués manuellement.
+          {' '}<span className="font-semibold">Orgs</span> — vue de contrôle pour geler/dégeler.
+          {' '}<span className="font-semibold text-amber-600">Support</span> — tickets à traiter.
+        </p>
+      </LegendBanner>
+
       <Tabs defaultValue="flags">
-        <TabsList>
-          <TabsTrigger value="flags" className="gap-1"><Flag className="h-3.5 w-3.5" /> Fraud Flags ({unresolvedFlags.length})</TabsTrigger>
-          <TabsTrigger value="frozen" className="gap-1"><Snowflake className="h-3.5 w-3.5" /> Frozen Payouts ({frozenOrgs.length})</TabsTrigger>
-          <TabsTrigger value="orgs" className="gap-1"><AlertTriangle className="h-3.5 w-3.5" /> Orgs</TabsTrigger>
-          <TabsTrigger value="tickets" className="gap-1"><LifeBuoy className="h-3.5 w-3.5" /> Support ({tickets.filter((t: any) => t.status !== 'resolved' && t.status !== 'closed').length})</TabsTrigger>
+        <TabsList className="grid grid-cols-2 lg:grid-cols-4 h-auto p-1 bg-muted/50 rounded-xl w-full">
+          <TabsTrigger value="flags" className="gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:shadow-sm py-2"><Flag className="h-3.5 w-3.5" /> Fraud Flags ({unresolvedFlags.length})</TabsTrigger>
+          <TabsTrigger value="frozen" className="gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:shadow-sm py-2"><Snowflake className="h-3.5 w-3.5" /> Frozen ({frozenOrgs.length})</TabsTrigger>
+          <TabsTrigger value="orgs" className="gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:shadow-sm py-2"><AlertTriangle className="h-3.5 w-3.5" /> Orgs</TabsTrigger>
+          <TabsTrigger value="tickets" className="gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:shadow-sm py-2"><LifeBuoy className="h-3.5 w-3.5" /> Support ({tickets.filter((t: any) => t.status !== 'resolved' && t.status !== 'closed').length})</TabsTrigger>
         </TabsList>
 
         {/* Fraud Flags */}
