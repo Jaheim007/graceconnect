@@ -208,7 +208,7 @@ export function SuperadminTransactions() {
     queryKey: ['sa-all-purchases'],
     queryFn: async () => {
       const { data, error } = await db.from('product_purchases')
-        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, user_id, organization_id, affiliate_link_id, buyer_email, buyer_name, digital_products!left(title, organization_id, organizations!left(name))')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, gateway, platform_fee, affiliate_commission, organization_amount, settlement_status, user_id, organization_id, affiliate_link_id, buyer_email, buyer_name, digital_products!left(title, organization_id, organizations!left(name))')
         .order('created_at', { ascending: false })
         .limit(2000);
       if (error) { console.error('sa-purchases error:', error); return []; }
