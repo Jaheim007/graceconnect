@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 type TxFilter = 'all' | 'purchase' | 'donation' | 'credit';
 type StatusFilter = 'all' | 'completed' | 'pending' | 'failed';
-type GatewayFilter = 'all' | 'stripe' | 'paystack' | 'free';
+type GatewayFilter = 'all' | 'stripe' | 'paystack' | 'geniuspay' | 'free';
 type PeriodFilter = 'all' | 'today' | '7d' | '30d' | '90d' | 'this_month' | 'this_week' | 'custom';
 
 const PERIOD_OPTIONS: { key: PeriodFilter; label: string }[] = [
@@ -37,12 +37,22 @@ const PERIOD_OPTIONS: { key: PeriodFilter; label: string }[] = [
   { key: 'custom', label: 'Personnalisé' },
 ];
 
-function detectGateway(ref: string | null): string {
+/**
+ * Detect the gateway used for a transaction from its reference / stored gateway value.
+ * GeniusPay refs start with `MTX-` (see mem://payments/geniuspay-migration).
+ * Legacy Paystack refs are anything else that isn't Stripe or free.
+ */
+function detectGateway(ref: string | null, storedGateway?: string | null): string {
+  if (storedGateway && ['geniuspay', 'stripe', 'paystack', 'free'].includes(storedGateway)) {
+    return storedGateway;
+  }
   if (!ref) return 'unknown';
   if (ref.startsWith('free-')) return 'free';
+  if (ref.startsWith('MTX-') || ref.startsWith('GP-')) return 'geniuspay';
   if (ref.includes('STRIPE')) return 'stripe';
   return 'paystack';
 }
+
 
 function getDateRange(periodFilter: PeriodFilter, customFrom?: Date, customTo?: Date) {
   const now = new Date();
