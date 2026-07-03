@@ -253,7 +253,7 @@ export function SuperadminTransactions() {
     queryKey: ['sa-all-donations'],
     queryFn: async () => {
       const { data, error } = await db.from('donations')
-        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, donor_name, donor_email, user_id, affiliate_link_id, organizations!left(name), donation_campaigns!left(title)')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, gateway, platform_fee, affiliate_commission, organization_amount, settlement_status, donor_name, donor_email, user_id, affiliate_link_id, organizations!left(name), donation_campaigns!left(title)')
         .order('created_at', { ascending: false })
         .limit(2000);
       if (error) { console.error('sa-donations error:', error); return []; }
