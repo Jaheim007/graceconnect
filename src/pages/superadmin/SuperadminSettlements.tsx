@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { InfoTooltip, LegendBanner } from '@/components/superadmin/InfoTooltip';
 
 const fmt = (n: number, c?: string) => formatCurrency(n, c);
 
