@@ -20,6 +20,7 @@ import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { InfoTooltip, LegendBanner } from '@/components/superadmin/InfoTooltip';
 
 type TxFilter = 'all' | 'purchase' | 'donation' | 'credit';
 type StatusFilter = 'all' | 'completed' | 'pending' | 'failed';
