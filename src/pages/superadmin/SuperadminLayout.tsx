@@ -161,18 +161,65 @@ export default function SuperadminLayout() {
 
       {/* ═══ MOBILE TOP BAR ═══ */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-card/95 backdrop-blur-xl">
-        <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-hide">
-          <div className="h-7 w-7 rounded-lg overflow-hidden shrink-0 ring-1 ring-border/40">
+        <div className="px-3 py-2.5 flex items-center gap-3">
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-9 w-9 -ml-1">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 p-0 flex flex-col">
+              <div className="p-4 border-b border-border/40 flex items-center gap-3">
+                <div className="h-9 w-9 rounded-xl overflow-hidden ring-1 ring-border/40">
+                  <img src={logoSiteViral} alt="SiteViral" className="h-full w-full object-cover" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold">SiteViral</p>
+                  <p className="text-[10px] text-muted-foreground flex items-center gap-1"><Shield className="h-2.5 w-2.5" /> Superadmin</p>
+                </div>
+              </div>
+              <ScrollArea className="flex-1 py-3">
+                <nav className="px-2 space-y-4">
+                  {linkGroups.map((group) => (
+                    <div key={group.label}>
+                      <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">{group.label}</p>
+                      <div className="space-y-0.5">
+                        {group.items.map(({ to, label, icon: Icon, end }) => (
+                          <NavLink key={to} to={to} end={end}
+                            onClick={() => setMobileOpen(false)}
+                            className={({ isActive }) => cn(
+                              'relative flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
+                              isActive
+                                ? 'bg-primary/10 text-primary before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-0.5 before:rounded-r-full before:bg-primary'
+                                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                            )}>
+                            <Icon className="h-4 w-4 shrink-0" />
+                            <span>{label}</span>
+                          </NavLink>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </nav>
+              </ScrollArea>
+              <div className="p-3 border-t border-border/40">
+                <NavLink to="/feed" onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+                  <ArrowLeft className="h-3.5 w-3.5" /> Retour à l'app
+                </NavLink>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <div className="h-8 w-8 rounded-lg overflow-hidden ring-1 ring-border/40">
             <img src={logoSiteViral} alt="SiteViral" className="h-full w-full object-cover" />
           </div>
-
-          {allLinks.map(({ to, label, icon: Icon, end }) => (
-            <NavLink key={to} to={to} end={end}
-              className={({ isActive }) => cn('shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors',
-                isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted')}>
-              <Icon className="h-3.5 w-3.5" />{label}
-            </NavLink>
-          ))}
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold leading-tight truncate">SiteViral</p>
+            <p className="text-[10px] text-muted-foreground leading-tight truncate">
+              {allLinks.find(l => l.to === location.pathname)?.label || 'Superadmin'}
+            </p>
+          </div>
         </div>
       </div>
 
