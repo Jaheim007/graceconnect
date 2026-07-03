@@ -232,7 +232,7 @@ export default function SuperadminFullDashboard() {
             <h3 className="text-sm font-semibold">Répartition par passerelle de paiement</h3>
             <InfoTooltip title="Nouveau vs Héritage">
               <p><span className="font-semibold text-amber-600">GeniusPay</span> est notre nouveau processeur (depuis mi‑2026, Wave/Orange/MTN/Moov/carte).</p>
-              <p><span className="font-semibold text-slate-500">Paystack</span> représente l'ancien flux (transactions antérieures à la migration).</p>
+              <p><span className="font-semibold text-slate-600 dark:text-slate-300">Paystack</span> représente l'ancien flux (transactions antérieures à la migration).</p>
               <p>Cette section permet de suivre la transition sans mélanger les revenus.</p>
             </InfoTooltip>
           </div>
@@ -241,7 +241,7 @@ export default function SuperadminFullDashboard() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
             { key: 'geniuspay', label: 'GeniusPay', sub: 'Nouveau', color: 'text-amber-600 border-amber-500/30 bg-amber-500/5', icon: Zap },
-            { key: 'paystack', label: 'Paystack', sub: 'Héritage', color: 'text-slate-500 border-slate-400/30 bg-slate-500/5', icon: CreditCard },
+            { key: 'paystack', label: 'Paystack', sub: 'Héritage', color: 'text-slate-600 dark:text-slate-300 border-slate-400/30 bg-slate-500/5', icon: CreditCard },
             { key: 'stripe', label: 'Stripe', sub: 'International', color: 'text-violet-500 border-violet-500/30 bg-violet-500/5', icon: Globe },
             { key: 'free', label: 'Gratuit', sub: 'Sans paiement', color: 'text-emerald-500 border-emerald-500/30 bg-emerald-500/5', icon: Heart },
           ].map(g => {

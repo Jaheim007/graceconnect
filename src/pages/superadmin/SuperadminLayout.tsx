@@ -3,13 +3,14 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield, Users, FileCheck, BarChart3, Megaphone, Sparkles, LayoutDashboard, Activity, Settings, Download,
-  UserCircle, Target, ShieldAlert, Mail, ChevronLeft, ChevronRight, ArrowLeft, Bell, HelpCircle, Wallet, Handshake, ShieldCheck, Brain, Menu
+  UserCircle, Target, ShieldAlert, Mail, ChevronLeft, ChevronRight, ArrowLeft, Bell, HelpCircle, Wallet, Handshake, ShieldCheck, Brain, Menu, Sun, Moon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTheme } from '@/contexts/ThemeContext';
 import logoSiteViral from '@/assets/logo-siteviral-mark.png';
 
 
@@ -82,6 +83,7 @@ export default function SuperadminLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -145,8 +147,14 @@ export default function SuperadminLayout() {
           </nav>
         </ScrollArea>
 
-        {/* Collapse toggle + Back to app */}
+        {/* Theme toggle + Collapse + Back to app */}
         <div className="p-3 border-t border-border/40 space-y-1">
+          <button onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Passer en clair' : 'Passer en sombre'}
+            className={cn('flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors w-full', collapsed && 'justify-center')}>
+            {theme === 'dark' ? <Sun className="h-3.5 w-3.5 shrink-0" /> : <Moon className="h-3.5 w-3.5 shrink-0" />}
+            {!collapsed && <span>{theme === 'dark' ? 'Mode clair' : 'Mode sombre'}</span>}
+          </button>
           <NavLink to="/feed"
             className={cn('flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors', collapsed && 'justify-center')}>
             <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
@@ -202,7 +210,13 @@ export default function SuperadminLayout() {
                   ))}
                 </nav>
               </ScrollArea>
-              <div className="p-3 border-t border-border/40">
+              <div className="p-3 border-t border-border/40 space-y-1">
+                <button onClick={toggleTheme}
+                  aria-label={theme === 'dark' ? 'Passer en clair' : 'Passer en sombre'}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors w-full">
+                  {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+                  <span>{theme === 'dark' ? 'Mode clair' : 'Mode sombre'}</span>
+                </button>
                 <NavLink to="/feed" onClick={() => setMobileOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                   <ArrowLeft className="h-3.5 w-3.5" /> Retour à l'app
@@ -220,6 +234,10 @@ export default function SuperadminLayout() {
               {allLinks.find(l => l.to === location.pathname)?.label || 'Superadmin'}
             </p>
           </div>
+          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Passer en clair' : 'Passer en sombre'}>
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
         </div>
       </div>
 
