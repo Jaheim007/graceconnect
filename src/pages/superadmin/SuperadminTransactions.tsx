@@ -541,15 +541,19 @@ export function SuperadminTransactions() {
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Passerelle</label>
                 <div className="flex flex-wrap gap-2">
                   <FilterChip active={gatewayFilter === 'all'} onClick={() => setGatewayFilter('all')}>Toutes</FilterChip>
-                  <FilterChip active={gatewayFilter === 'stripe'} onClick={() => setGatewayFilter('stripe')}>
-                    <CreditCard className="h-3 w-3" /> Stripe
+                  <FilterChip active={gatewayFilter === 'geniuspay'} onClick={() => setGatewayFilter('geniuspay')}>
+                    <Zap className="h-3 w-3" /> GeniusPay <span className="text-[9px] opacity-70">(Nouveau)</span>
                   </FilterChip>
                   <FilterChip active={gatewayFilter === 'paystack'} onClick={() => setGatewayFilter('paystack')}>
-                    <Smartphone className="h-3 w-3" /> Paystack
+                    <Smartphone className="h-3 w-3" /> Paystack <span className="text-[9px] opacity-70">(Héritage)</span>
+                  </FilterChip>
+                  <FilterChip active={gatewayFilter === 'stripe'} onClick={() => setGatewayFilter('stripe')}>
+                    <CreditCard className="h-3 w-3" /> Stripe
                   </FilterChip>
                   <FilterChip active={gatewayFilter === 'free'} onClick={() => setGatewayFilter('free')}>
                     <Gift className="h-3 w-3" /> Gratuit
                   </FilterChip>
+
                 </div>
               </div>
 
