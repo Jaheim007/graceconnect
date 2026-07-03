@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import logoSiteViral from '@/assets/logo-s.png';
+import logoSiteViral from '@/assets/logo-siteviral-mark.png';
 
 
 
@@ -90,8 +90,8 @@ export default function SuperadminLayout() {
       )}>
         {/* Logo header */}
         <div className={cn('p-4 border-b border-border/40 flex items-center gap-3', collapsed && 'justify-center')}>
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400/20 via-amber-500/10 to-orange-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 shadow-md shadow-amber-500/10 overflow-hidden">
-            <img src={logoSiteViral} alt="SiteViral" className="h-8 w-8 object-contain" />
+          <div className="h-10 w-10 rounded-xl overflow-hidden shrink-0 shadow-md ring-1 ring-border/40">
+            <img src={logoSiteViral} alt="SiteViral" className="h-full w-full object-cover" />
           </div>
           {!collapsed && (
             <div className="overflow-hidden">
@@ -117,13 +117,13 @@ export default function SuperadminLayout() {
                     const linkEl = (
                       <NavLink key={to} to={to} end={end}
                         className={({ isActive }) => cn(
-                          'flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 group',
+                          'relative flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 group',
                           isActive
-                            ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/60',
+                            ? 'bg-primary/10 text-primary before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-0.5 before:rounded-r-full before:bg-primary'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
                           collapsed && 'justify-center px-2.5'
                         )}>
-                        <Icon className={cn('h-4 w-4 shrink-0', collapsed ? '' : 'mr-0')} />
+                        <Icon className={cn('h-4 w-4 shrink-0')} />
                         {!collapsed && <span>{label}</span>}
                       </NavLink>
                     );
@@ -160,8 +160,8 @@ export default function SuperadminLayout() {
       {/* ═══ MOBILE TOP BAR ═══ */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-card/95 backdrop-blur-xl">
         <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-hide">
-          <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-amber-400/20 to-orange-500/10 border border-amber-500/30 flex items-center justify-center shrink-0 overflow-hidden">
-            <img src={logoSiteViral} alt="SiteViral" className="h-5 w-5 object-contain" />
+          <div className="h-7 w-7 rounded-lg overflow-hidden shrink-0 ring-1 ring-border/40">
+            <img src={logoSiteViral} alt="SiteViral" className="h-full w-full object-cover" />
           </div>
 
           {allLinks.map(({ to, label, icon: Icon, end }) => (
@@ -177,7 +177,7 @@ export default function SuperadminLayout() {
       {/* ═══ MAIN CONTENT ═══ */}
       <main className="flex-1 min-w-0 lg:max-h-screen lg:overflow-y-auto">
         <div className="pt-14 lg:pt-0">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 tabular-nums">
             <AnimatePresence mode="wait">
               <motion.div key={location.pathname} {...pageTransition}>
                 <Outlet />
