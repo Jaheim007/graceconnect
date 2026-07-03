@@ -145,8 +145,9 @@ export default function SuperadminSettlements() {
 
   const cards = settlementStats ? [
     {
-      label: 'HELD',
-      sublabel: '72h retention',
+      label: 'RETENU (HELD)',
+      sublabel: 'Rétention 72h',
+      info: 'Fonds encaissés mais bloqués pendant 72h après le paiement (protection anti-fraude et anti-remboursement). Ils passent automatiquement à "Libéré" une fois le délai écoulé, si aucun litige n\'est ouvert.',
       value: fmt(settlementStats.held),
       count: settlementStats.heldCount,
       icon: Clock,
@@ -157,8 +158,9 @@ export default function SuperadminSettlements() {
       pct: totalVolume > 0 ? Math.round((settlementStats.held / totalVolume) * 100) : 0,
     },
     {
-      label: 'RELEASED',
-      sublabel: 'Available to orgs',
+      label: 'LIBÉRÉ (RELEASED)',
+      sublabel: 'Disponible pour les orgs',
+      info: 'Fonds validés et disponibles pour l\'organisation. Ils peuvent être demandés en payout dès que l\'organisation atteint le seuil (10 000 XOF) et a validé son KYC.',
       value: fmt(settlementStats.released),
       count: settlementStats.releasedCount,
       icon: CheckCircle,
@@ -169,8 +171,9 @@ export default function SuperadminSettlements() {
       pct: totalVolume > 0 ? Math.round((settlementStats.released / totalVolume) * 100) : 0,
     },
     {
-      label: 'FROZEN',
-      sublabel: 'Under review',
+      label: 'GELÉ (FROZEN)',
+      sublabel: 'En revue',
+      info: 'Fonds mis en pause par l\'équipe risque (flag AML, KYC incomplet, comportement suspect). Nécessite une revue manuelle avant libération.',
       value: fmt(settlementStats.frozen),
       count: settlementStats.frozenCount,
       icon: Snowflake,
@@ -181,8 +184,9 @@ export default function SuperadminSettlements() {
       pct: totalVolume > 0 ? Math.round((settlementStats.frozen / totalVolume) * 100) : 0,
     },
     {
-      label: 'DISPUTED',
-      sublabel: 'Requires action',
+      label: 'LITIGE (DISPUTED)',
+      sublabel: 'Action requise',
+      info: 'Transaction contestée par l\'acheteur (chargeback, dispute Stripe / Paystack). À traiter rapidement pour éviter des pertes ou pénalités PSP.',
       value: fmt(settlementStats.disputed),
       count: settlementStats.disputedCount,
       icon: AlertTriangle,
@@ -193,6 +197,7 @@ export default function SuperadminSettlements() {
       pct: totalVolume > 0 ? Math.round((settlementStats.disputed / totalVolume) * 100) : 0,
     },
   ] : [];
+
 
   return (
     <div className="space-y-8">
