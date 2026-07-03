@@ -31,9 +31,24 @@ const TRUST = [
 ];
 
 export default function BeautyLanding() {
+  useEffect(() => {
+    const prevTitle = document.title;
+    document.title = "SiteViral Beauty — Beauté Abidjan, réservée en confiance";
+    const meta = document.querySelector('meta[name="description"]');
+    const prevDesc = meta?.getAttribute("content") ?? "";
+    meta?.setAttribute(
+      "content",
+      "Marketplace beauté d'Abidjan. Coiffure, ongles, maquillage, spa. Paiement sécurisé, chat intégré, avis vérifiés.",
+    );
+    return () => {
+      document.title = prevTitle;
+      if (meta && prevDesc) meta.setAttribute("content", prevDesc);
+    };
+  }, []);
+
   return (
     <div className="beauty-scope min-h-screen bg-background text-foreground">
-      <SeoHead />
+
 
 
       {/* Top bar */}
