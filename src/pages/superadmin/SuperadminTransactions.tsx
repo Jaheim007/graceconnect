@@ -376,8 +376,25 @@ export function SuperadminTransactions() {
       return (data || { gmv: 0, platform_fees: 0, affiliate_commissions: 0, total_count: 0 }) as any;
     },
   });
-
   const fmt = (n: number) => n.toLocaleString() + ' XOF';
+
+  /* ─── Gateway split (Nouveau GeniusPay vs Héritage Paystack) ─── */
+  const gatewaySplit = useMemo(() => {
+    const merged = [...purchases, ...donations, ...creditPurchases].filter(t => t.status === 'completed');
+    const split: Record<string, { count: number; amount: number }> = {
+      geniuspay: { count: 0, amount: 0 },
+      paystack: { count: 0, amount: 0 },
+      stripe: { count: 0, amount: 0 },
+      free: { count: 0, amount: 0 },
+    };
+    merged.forEach(t => {
+      const g = split[t.gateway] || (split[t.gateway] = { count: 0, amount: 0 });
+      g.count += 1;
+      g.amount += t.amount || 0;
+    });
+    return split;
+  }, [purchases, donations, creditPurchases]);
+
 
   const handleExport = () => {
     downloadCSV(allTx.map(t => ({
