@@ -449,7 +449,7 @@ export function SuperadminTransactions() {
         </p>
         <p>
           <span className="font-semibold text-amber-600">GeniusPay</span> = nouveau processeur (depuis mi‑2026) ·{' '}
-          <span className="font-semibold text-slate-500">Paystack</span> = héritage (transactions antérieures) ·{' '}
+          <span className="font-semibold text-slate-600 dark:text-slate-300">Paystack</span> = héritage (transactions antérieures) ·{' '}
           <span className="font-semibold text-violet-500">Stripe</span> = paiements internationaux ·{' '}
           <span className="font-semibold text-emerald-500">Gratuit</span> = accès sans paiement.
         </p>
