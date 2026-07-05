@@ -21,7 +21,7 @@ export default function BeautyProviderProfile() {
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"services" | "reviews">("services");
+  const [tab, setTab] = useState<"services" | "gallery" | "videos" | "reviews">("services");
 
   const { data: provider, isLoading } = useQuery({
     queryKey: ["beauty-provider-profile", slug],
