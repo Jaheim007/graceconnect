@@ -62,6 +62,23 @@ export default function BeautyProviderProfile() {
     },
   });
 
+  const { data: media } = useQuery({
+    queryKey: ["beauty-provider-media", provider?.id],
+    enabled: !!provider?.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("beauty_provider_media")
+        .select("id, kind, url, embed_url, caption, position")
+        .eq("provider_id", provider!.id)
+        .order("position", { ascending: true })
+        .order("created_at", { ascending: false });
+      return data ?? [];
+    },
+  });
+
+  const photos = (media ?? []).filter((m: any) => m.kind === "photo");
+  const videos = (media ?? []).filter((m: any) => m.kind === "video");
+
   const { data: reviews } = useQuery({
     queryKey: ["beauty-provider-reviews", provider?.id],
     enabled: !!provider?.id,
