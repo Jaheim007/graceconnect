@@ -191,7 +191,7 @@ export default function BeautySearch() {
             </button>
           ))}
         </div>
-      </header>
+      </div>
 
       {/* Filters row */}
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 py-3">
