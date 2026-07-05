@@ -597,7 +597,7 @@ function BookingsTab({ providerId }: { providerId: string }) {
                   {new Date(b.slot_start).toLocaleString("fr-FR")} · {b.location_type} · {formatCurrency(b.price_amount ?? 0, b.currency)}
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  Client: {b.profiles?.display_name ?? "—"}{b.address ? ` · ${b.address}` : ""}
+                  Client #{b.client_id?.slice(0, 6)}{b.address ? ` · ${b.address}` : ""}
                 </div>
               </div>
               <div className="flex flex-col gap-1">
