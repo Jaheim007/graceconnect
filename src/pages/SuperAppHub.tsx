@@ -213,7 +213,7 @@ export default function SuperAppHub() {
       <footer className="border-t border-border/60 py-6 text-center text-xs text-muted-foreground">
         © {new Date().getFullYear()} SiteViral
         <span className="mx-2">·</span>
-        <Link to="/a-propos" className="hover:text-foreground">{t('À propos', 'About')}</Link>
+        <Link to="/digital/about" className="hover:text-foreground">{t('À propos', 'About')}</Link>
         <span className="mx-2">·</span>
         <Link to="/contact" className="hover:text-foreground">Contact</Link>
         <span className="mx-2">·</span>
