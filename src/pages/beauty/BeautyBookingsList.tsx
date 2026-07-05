@@ -11,6 +11,7 @@ import { formatCurrency } from "@/lib/currency";
 import { useI18n } from "@/i18n/I18nContext";
 import { BeautyHeader } from "@/components/beauty/BeautyHeader";
 import { GuestGate } from "@/components/auth/GuestGate";
+import { BeautyPendingReviewNag } from "@/components/beauty/BeautyPendingReviewNag";
 import { cn } from "@/lib/utils";
 
 const STATUS_TONE: Record<string, string> = {
