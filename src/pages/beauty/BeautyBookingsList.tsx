@@ -31,6 +31,20 @@ export default function BeautyBookingsList() {
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
 
+  if (!user) {
+    return (
+      <GuestGate
+        icon={Calendar}
+        title={t("Prends ton prochain rendez-vous beauté", "Book your next beauty appointment")}
+        subtitle={t(
+          "Réserve, suis et gère toutes tes prestations. Gratuit pour commencer.",
+          "Book, track and manage all your services. Free to start.",
+        )}
+        nextUrl="/beauty/bookings"
+      />
+    );
+  }
+
   const { data: bookings, isLoading } = useQuery({
     queryKey: ["beauty-my-bookings", user?.id],
     enabled: !!user,
