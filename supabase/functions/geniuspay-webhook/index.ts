@@ -255,6 +255,8 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ ok: true, kind: 'beauty_extra_charge' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
 
 
     // ── CREDIT PURCHASE ──
