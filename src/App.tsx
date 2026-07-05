@@ -58,6 +58,8 @@ const BeautyProviderProfile = lazy(() => import("@/pages/beauty/BeautyProviderPr
 const BeautyBookingWizard = lazy(() => import("@/pages/beauty/BeautyBookingWizard"));
 const BeautyBookingDetail = lazy(() => import("@/pages/beauty/BeautyBookingDetail"));
 const BeautyBookingsList = lazy(() => import("@/pages/beauty/BeautyBookingsList"));
+const BeautyMessagesList = lazy(() => import("@/pages/beauty/BeautyMessagesList"));
+const BeautyConversation = lazy(() => import("@/pages/beauty/BeautyConversation"));
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
