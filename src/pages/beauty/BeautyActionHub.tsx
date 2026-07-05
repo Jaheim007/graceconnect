@@ -60,7 +60,7 @@ export default function BeautyActionHub() {
           "id, status, slot_start, location_type, beauty_services(title), beauty_providers(business_name, avatar_url, city)",
         )
         .eq("client_id", user!.id)
-        .in("status", ["pending", "confirmed", "paid"])
+        .in("status", ["pending_payment", "confirmed", "in_progress"])
         .gte("slot_start", nowIso)
         .order("slot_start", { ascending: true })
         .limit(1)
