@@ -185,17 +185,27 @@ export default function BeautyProDashboard() {
 
           {provider.status !== "active" && (
             <Card className="mb-6 p-4 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30">
-              <div className="flex items-start gap-3">
+              <div className="flex flex-col sm:flex-row items-start gap-3">
                 <ShieldCheck className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
-                <div className="text-sm flex-1">
-                  <div className="font-semibold">Ton profil est en attente de validation KYC.</div>
+                <div className="text-sm flex-1 min-w-0">
+                  <div className="font-semibold">
+                    Ton profil n'apparaît pas encore dans <span className="text-primary">Explore SiteViral Beauty</span>.
+                  </div>
                   <div className="text-muted-foreground mt-1">
-                    Configure tes services et disponibilités dès maintenant. Ils seront visibles publiquement après validation.
+                    Pour être visible dans la découverte et recevoir des demandes de clients, complète la vérification KYC.
+                    En attendant, ton lien public reste partageable manuellement pour tester ton profil.
                   </div>
                 </div>
-                <Button size="sm" variant="default" asChild>
-                  <Link to="/settings/kyc">Compléter le KYC</Link>
-                </Button>
+                <div className="flex flex-wrap gap-2 shrink-0">
+                  <Button size="sm" variant="outline" asChild>
+                    <Link to={`/beauty/p/${provider.slug}`} target="_blank">
+                      <Eye className="h-3.5 w-3.5 mr-1.5" /> Aperçu privé
+                    </Link>
+                  </Button>
+                  <Button size="sm" asChild className="beauty-gradient text-white">
+                    <Link to="/settings/kyc">Compléter le KYC</Link>
+                  </Button>
+                </div>
               </div>
             </Card>
           )}
