@@ -1,83 +1,57 @@
+## What already exists (reuse, don't rebuild)
 
-# Beauty pivot — Chat-first bookings + Provider portfolios
+- `beauty_chat_violations` — logs blocked messages (created last round)
+- `user_notifications` — in-app notification center
+- `send-email` edge function + Resend
+- `_shared/ai-gemini.ts` — direct Gemini call using `GEMINI_API_KEY` (your own key, not `LOVABLE_API_KEY`) ✅
+- `has_role` / superadmin gating
 
-## 1. New booking flow (Fiverr-style)
+## What to build now (phase 1 — essentials)
 
-Primary path: **provider sends the offer in chat**, client pays it.
+### 1. DB migration — trust core
+- `account_trust_profiles` (user_id PK, trust_score 100 default, status enum: `ok | warned | chat_frozen | limited | hidden | suspended | banned`, `restricted_until`, `hidden_until`, `payout_hold`, counters)
+- Extend `beauty_chat_violations`: `severity`, `ai_category`, `ai_confidence`, `ai_recommended_action`, `ai_admin_summary`, `ai_user_message`, `action_taken`, `admin_review_required`, `admin_reviewed_by`, `admin_decision`, `score_before`, `score_after`
+- `trust_notifications_log` (user_id, violation_id, notification_type, channel `in_app|email`, subject, message, delivery_status, sent_at)
+- Trigger on `beauty_chat_violations` insert → calls edge function `trust-process-violation` via `pg_net` (async)
+- GRANTs + RLS (user sees own; superadmin sees all)
 
-```text
-Client → Explore (providers) → Provider page → "Discuter"
-   → Chat opens (no payment yet)
-   → Provider taps "Envoyer une offre" in chat:
-        · pick service · pick date/time · confirm price · optional note
-   → Special message bubble appears in the thread: "Offre — Coupe femme
-     15/07 14:00 · 15 000 XOF" with [Payer & confirmer] button (client side)
-     and [Annuler l'offre] (provider side, before payment)
-   → Client taps Pay → existing beauty-create-booking flow →
-     escrow → confirmed booking (same downstream logic as today)
-```
+### 2. Edge function `trust-process-violation`
+- Loads violation + user history (24h / 7d counts)
+- Calls Gemini (`gemini-2.5-flash`, JSON mode) with the schema you listed → returns category, severity, confidence, recommended_action, user_message, admin_summary, review_required
+- Applies automatic action per severity + history:
+  - 1st soft → warning only
+  - 2nd in 24h → chat frozen (this booking)
+  - 3rd / hard → account limited + provider hidden + payout hold + admin review
+  - severe (fraud) → 24h suspend + admin review (never auto-ban)
+- Updates trust_score & `account_trust_profiles.status`
+- Writes in-app notif (`user_notifications`) with short FR message
+- Calls `send-email` with template key + logs both to `trust_notifications_log`
 
-Fallback path kept: the **"Réserver"** button on the service card / provider page
-still works exactly as today for clients who want to self-book without chatting.
+### 3. Email templates (in `send-email` template map)
+9 short bilingual templates: warning, message_blocked, chat_frozen, account_limited, provider_hidden, payout_held, suspended_24h, banned, restored. Each: name + reason + action + "contact support if mistake".
 
-## 2. Provider portfolio
+### 4. Admin dashboard page `/superadmin/trust`
+- List violations with Gemini analysis card (severity badge, confidence bar, recommendation)
+- Filters: pending review, severity, user
+- Action buttons: confirm / override / false positive / warn / freeze chat / hide / suspend 24h-7d-30d / ban / restore / hold-release payout
+- Each action calls edge function `trust-admin-action` (audit-logged, sends notif + email)
 
-Provider profile (`/beauty/pro/:id`) gets three tabs:
+### 5. User-facing surfacing
+- Toast on blocked message (already done) — add link "Voir mon statut de compte"
+- `/account/trust` page: current status, restrictions in effect, violation history (own), appeal button
 
-- **Services** — existing services list with prices (already built).
-- **Galerie** — photo grid (before/after, salon interior, work samples).
-- **Vidéos** — short uploads + pasted YouTube / TikTok / Instagram / Vimeo
-  links, rendered with the existing `getVideoEmbedUrl` helper.
+## What I'm NOT building now (tell me if you want any)
 
-Provider space (`/beauty/pro`) gets a **"Mon portfolio"** section to upload
-photos, add/remove videos, and reorder.
+- ❌ **Vertical-agnostic reuse layer** — build it Beauty-first, generalize later when a 2nd vertical needs it. Premature abstraction now = wasted work.
+- ❌ **Automatic 7d / 30d / permanent ban** — too risky without human review. Auto caps at 24h suspend; longer = admin only.
+- ❌ **Payout hold auto-release cron** — admin releases manually for now (low volume, safer).
+- ❌ **Appeal ticket workflow** — the "contact support" mailto link is enough for v1; full ticketing later.
+- ❌ **Gemini analysis on non-chat violations** (no-shows, disputes) — only chat bypass for now, since that's the only detector wired.
+- ❌ **Trust badges on public profiles** (already in earlier backlog under reliability score) — separate feature.
 
-## 3. Explore page becomes provider-first
+## Tech notes
+- Gemini call uses your `GEMINI_API_KEY` via existing `_shared/ai-gemini.ts` `geminiGenerateText` with `jsonMode: true`. Not `LOVABLE_API_KEY`.
+- All auto-actions capped at 24h suspend, so a Gemini hallucination can't nuke an account.
+- All notification sends double-logged so superadmin can audit "was the user told?"
 
-`/beauty/search` cards now show **providers** (salon/barber shops) with:
-cover photo, business name, city, rating, service count, starting-from price.
-Tap → provider page with the new tabs + a prominent **"Discuter"** button
-(and a secondary **"Voir les services"**).
-
-## 4. Technical changes
-
-### Database (one migration)
-- `beauty_provider_media` table: `id, provider_id, kind ('photo'|'video'),
-  url, embed_url, position, created_at`. RLS: provider owns write, everyone
-  reads. GRANTs to anon/authenticated/service_role.
-- `beauty_offers` table: `id, conversation_id, provider_id, client_id,
-  service_id, slot_start, slot_end, location_type, address, price_amount,
-  currency, status ('pending'|'accepted'|'declined'|'expired'|'cancelled'),
-  booking_id nullable, expires_at, created_at`. RLS: participants only.
-- Storage: reuse existing `beauty-media` bucket (or create if missing) for
-  photo/video uploads.
-
-### Edge functions
-- `beauty-send-offer` (new): provider creates a `beauty_offers` row + posts
-  a system message into the conversation with `type='offer'` referencing the
-  offer id. Validates slot availability.
-- `beauty-accept-offer` (new): client-side; reuses `beauty-create-booking`
-  internally to mint a pending booking and returns the checkout URL. On
-  webhook success, offer row flips to `accepted` and links `booking_id`.
-
-### Frontend
-- `BeautyConversation.tsx`: add offer message renderer + provider-only
-  "Envoyer une offre" sheet (service picker, date/time, price override).
-- New `BeautyProviderPortfolioEditor.tsx` under `/beauty/pro/portfolio`.
-- `BeautyProviderProfile.tsx`: add Services / Galerie / Vidéos tabs.
-- `BeautySearch.tsx`: switch from service cards to provider cards.
-- Keep `BeautyBookingWizard.tsx` and its "Réserver" entry point unchanged
-  as the fallback self-booking path.
-
-## 5. Out of scope for this round
-
-- No changes to payout timing, escrow rules, KYC, or currency logic.
-- No changes to reviews, disputes, cancellation windows.
-- No provider-scheduled bookings for a specific known client from the
-  dashboard (can add later — it's option 3 from your answer, you picked
-  option 2).
-
----
-
-Approve and I'll ship it in this order: migration → portfolio UI (upload +
-tabs) → explore switch → chat offers (send + accept + pay).
+Confirm and I'll ship phase 1 (migration → edge functions → admin page → user page). Or tell me which pieces to skip / add.
