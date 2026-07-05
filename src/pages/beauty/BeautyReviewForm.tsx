@@ -118,12 +118,13 @@ export default function BeautyReviewForm({ bookingId, providerId, currency, onSu
         className="mb-3"
       />
       <Textarea
-        placeholder={t("Raconte ton expérience…", "Tell us about your experience…")}
+        placeholder={t("Raconte ton expérience (obligatoire, min. 10 caractères)…", "Tell us about your experience (required, min 10 chars)…")}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={4}
         maxLength={800}
         className="mb-4"
+        required
       />
 
       {/* Tip */}
