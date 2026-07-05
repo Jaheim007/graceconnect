@@ -1,6 +1,7 @@
 import {
   BookOpen, Store, Share2, Compass, Package, LayoutDashboard,
-  Building2, GraduationCap, Shield
+  Building2, GraduationCap, Shield, Sparkles, Calendar, MessageCircle,
+  Scissors, Search, Home
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
