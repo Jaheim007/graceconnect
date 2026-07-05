@@ -52,7 +52,7 @@ export default function BeautyBookingsList() {
           <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate("/beauty")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="text-sm font-bold">{t("Mes réservations", "My bookings")}</div>
+          <div className="text-sm font-bold">{t("Mes rendez-vous", "My appointments")}</div>
         </div>
       </header>
 

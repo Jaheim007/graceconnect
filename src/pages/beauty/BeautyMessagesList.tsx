@@ -70,8 +70,8 @@ export default function BeautyMessagesList() {
             <MessageCircle className="mx-auto h-10 w-10 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">
               {t(
-                "Aucune conversation. Réservez une prestation pour discuter avec votre pro.",
-                "No conversations yet. Book a service to chat with your pro.",
+                "Aucune conversation. Réserve un rendez-vous pour discuter avec ton expert(e).",
+                "No conversations yet. Book an appointment to chat with your expert.",
               )}
             </p>
             <Button onClick={() => navigate("/beauty/search")}>

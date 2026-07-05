@@ -100,7 +100,7 @@ export default function BeautyProDashboard() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex-1 min-w-0">
-            <div className="text-xs uppercase tracking-wider text-primary font-semibold">Espace pro</div>
+            <div className="text-xs uppercase tracking-wider text-primary font-semibold">Mon espace</div>
             <div className="font-bold truncate">{provider.business_name}</div>
           </div>
           <Badge
@@ -139,7 +139,7 @@ export default function BeautyProDashboard() {
             <TabsTrigger value="overview"><TrendingUp className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Vue d’ensemble</span><span className="sm:hidden">Vue</span></TabsTrigger>
             <TabsTrigger value="services"><Scissors className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Services</span><span className="sm:hidden">Serv.</span></TabsTrigger>
             <TabsTrigger value="availability"><Clock className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Disponibilités</span><span className="sm:hidden">Dispo.</span></TabsTrigger>
-            <TabsTrigger value="bookings"><Calendar className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Réservations</span><span className="sm:hidden">Résa.</span></TabsTrigger>
+            <TabsTrigger value="bookings"><Calendar className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Rendez-vous</span><span className="sm:hidden">RDV</span></TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
