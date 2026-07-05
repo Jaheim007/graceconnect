@@ -61,18 +61,19 @@ export default function BeautyBookingDetail() {
     },
   });
 
-  const { data: existingReview } = useQuery({
-    queryKey: ["beauty-review", id],
+  const { data: reviews } = useQuery({
+    queryKey: ["beauty-reviews", id],
     enabled: !!id,
     queryFn: async () => {
       const { data } = await supabase
         .from("beauty_reviews")
-        .select("id, rating, title, body")
-        .eq("booking_id", id!)
-        .maybeSingle();
-      return data;
+        .select("id, rating, title, body, reviewer_role")
+        .eq("booking_id", id!);
+      return (data ?? []) as any[];
     },
   });
+  const clientReview = reviews?.find((r) => r.reviewer_role === "client");
+  const providerReview = reviews?.find((r) => r.reviewer_role === "provider");
 
   // Verify Stripe payment on landing from success
   useEffect(() => {
