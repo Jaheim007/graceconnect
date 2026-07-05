@@ -166,7 +166,7 @@ export default function BeautyReviewForm({ bookingId, providerId, currency, onSu
 
       <Button
         onClick={submit}
-        disabled={submitting || rating < 1}
+        disabled={submitting || rating < 1 || body.trim().length < 10}
         className="w-full gap-1.5 beauty-gradient text-white hover:opacity-90"
       >
         {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
