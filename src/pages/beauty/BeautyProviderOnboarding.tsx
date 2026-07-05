@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { SUPPORTED_CURRENCIES, formatCurrency } from "@/lib/currency";
+import { GuestGate } from "@/components/auth/GuestGate";
 
 const CATEGORIES = [
   "Coiffure", "Ongles", "Maquillage", "Soins visage",
