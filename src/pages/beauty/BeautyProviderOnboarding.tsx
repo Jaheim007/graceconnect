@@ -162,6 +162,18 @@ export default function BeautyProviderOnboarding() {
     }
   }
 
+  if (!authLoading && !user) {
+    const GuestGate = require("@/components/auth/GuestGate").GuestGate;
+    return (
+      <GuestGate
+        icon={Scissors}
+        title="Propose tes services beauté"
+        subtitle="Crée ton compte pour proposer tes prestations et recevoir des réservations. Gratuit pour commencer."
+        nextUrl="/beauty/pro/onboarding"
+      />
+    );
+  }
+
   return (
     <div className="beauty-scope min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
