@@ -18,7 +18,7 @@ const CATEGORIES = [
 ];
 
 const STEPS = [
-  { icon: Sparkles, title: "Choisis ton service", body: "Parcours les pros vérifiées d’Abidjan et repère ta favorite en un scroll." },
+  { icon: Sparkles, title: "Choisis ton service", body: "Parcours les pros vérifiées près de toi et repère ta favorite en un scroll." },
   { icon: Wallet, title: "Réserve en confiance", body: "Paiement 100% sécurisé ou acompte 20% — les fonds sont bloqués jusqu’à la prestation." },
   { icon: MessageCircle, title: "Discute avec la pro", body: "Chat intégré, contacts protégés jusqu’à confirmation. Aucun no-show impuni." },
   { icon: Star, title: "Confirme & note", body: "Tu confirmes après le service, la pro est payée, tu laisses un avis (et un tip si tu veux)." },
@@ -27,18 +27,18 @@ const STEPS = [
 const TRUST = [
   { icon: ShieldCheck, title: "Paiement sécurisé", body: "Fonds bloqués côté SiteViral jusqu’à la confirmation. Zéro arnaque." },
   { icon: Clock, title: "Zéro no-show", body: "Créneaux garantis par acompte, calendrier temps réel, rappels auto." },
-  { icon: MapPin, title: "100% Abidjan", body: "Cocody, Marcory, Yopougon, Riviera… en salon ou à domicile." },
+  { icon: MapPin, title: "Partout en Afrique", body: "Démarrage à Abidjan, extension progressive à Dakar, Douala, Accra, Lagos et au-delà." },
 ];
 
 export default function BeautyLanding() {
   useEffect(() => {
     const prevTitle = document.title;
-    document.title = "SiteViral Beauty — Beauté Abidjan, réservée en confiance";
+    document.title = "SiteViral Beauty — La beauté d'Afrique, réservée en confiance";
     const meta = document.querySelector('meta[name="description"]');
     const prevDesc = meta?.getAttribute("content") ?? "";
     meta?.setAttribute(
       "content",
-      "Marketplace beauté d'Abidjan. Coiffure, ongles, maquillage, spa. Paiement sécurisé, chat intégré, avis vérifiés.",
+      "Marketplace beauté panafricaine. Coiffure, ongles, maquillage, spa. Paiement sécurisé, chat intégré, avis vérifiés. Démarrage Abidjan.",
     );
     return () => {
       document.title = prevTitle;
@@ -81,9 +81,9 @@ export default function BeautyLanding() {
         <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-accent/40 blur-3xl" />
 
         <div className="relative mx-auto max-w-6xl px-4 py-16 sm:py-24">
-          <Badge className="mb-5 bg-primary/10 text-primary hover:bg-primary/15">Nouveau · Beta Abidjan</Badge>
+          <Badge className="mb-5 bg-primary/10 text-primary hover:bg-primary/15">Nouveau · Beta panafricaine</Badge>
           <h1 className="max-w-3xl text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl">
-            La beauté d’Abidjan,
+            La beauté d’Afrique,
             <span className="block bg-clip-text text-transparent" style={{ backgroundImage: "var(--beauty-gradient)" }}>
               réservée en confiance.
             </span>
@@ -221,7 +221,7 @@ export default function BeautyLanding() {
       </section>
 
       <footer className="border-t border-border/60 py-8 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} SiteViral Beauty — Abidjan, Côte d’Ivoire.
+        © {new Date().getFullYear()} SiteViral Beauty — Une app panafricaine.
         <span className="mx-2">·</span>
         <Link to="/" className="hover:text-foreground">Retour à SiteViral</Link>
       </footer>

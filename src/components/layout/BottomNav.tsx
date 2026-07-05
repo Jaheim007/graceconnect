@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { getActionNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
+import { getActionNavItems, getBeautyNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
 import { useRef } from 'react';
 
 export function BottomNav() {
@@ -29,13 +29,23 @@ export function BottomNav() {
     }
   };
 
-  const navItems = getActionNavItems({
-    isAuthenticated: !!user,
-    hasPurchases,
-    hasManageableOrg,
-    hasOrgs,
-    isSuperadmin,
-  }, resolveRoute);
+  // Vertical-aware nav: /beauty/* shows Beauty items, everything else shows Digital items.
+  const isBeauty = location.pathname.startsWith('/beauty');
+  const navItems = isBeauty
+    ? getBeautyNavItems({
+        isAuthenticated: !!user,
+        hasPurchases,
+        hasManageableOrg,
+        hasOrgs,
+        isSuperadmin,
+      })
+    : getActionNavItems({
+        isAuthenticated: !!user,
+        hasPurchases,
+        hasManageableOrg,
+        hasOrgs,
+        isSuperadmin,
+      }, resolveRoute);
 
   const isActive = (route: string) => {
     if (route === '/') return location.pathname === '/';
