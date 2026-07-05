@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Search, MapPin, Star, Filter, ArrowLeft, Scissors, Hand, Brush,
+  Search, MapPin, Star, Filter, Scissors, Hand, Brush,
   Flower2, Sparkles, HeartHandshake, ShieldCheck, Home, Store,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/currency";
 import { useI18n } from "@/i18n/I18nContext";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { BeautyHeader } from "@/components/beauty/BeautyHeader";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
