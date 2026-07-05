@@ -147,6 +147,28 @@ export default function BeautyProviderProfile() {
         description={provider.bio ?? `${provider.business_name} · ${provider.city ?? ""}`}
       />
 
+      {isOwnerPreview && (
+        <div className="border-b border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
+          <div className="mx-auto flex max-w-3xl items-start gap-2">
+            <Eye className="mt-0.5 h-4 w-4 shrink-0" />
+            <div className="flex-1">
+              <div className="font-semibold">
+                {t("Aperçu privé — ton profil n'est pas encore visible dans l'Explore SiteViral Beauty.",
+                  "Private preview — your profile isn't visible in SiteViral Beauty Explore yet.")}
+              </div>
+              <div className="mt-0.5 text-xs opacity-90">
+                {t("Complète ta vérification KYC pour apparaître dans les résultats. Ton lien reste partageable manuellement.",
+                  "Complete your KYC verification to appear in results. Your link stays shareable manually.")}
+              </div>
+            </div>
+            <Button asChild size="sm" variant="outline" className="border-amber-400 bg-white text-amber-900 hover:bg-amber-100 dark:bg-transparent dark:text-amber-100">
+              <Link to="/settings/kyc">{t("Compléter le KYC", "Complete KYC")}</Link>
+            </Button>
+          </div>
+        </div>
+      )}
+
+
       {/* Cover + back */}
       <div className="relative">
         <div className="h-56 w-full overflow-hidden bg-muted">
