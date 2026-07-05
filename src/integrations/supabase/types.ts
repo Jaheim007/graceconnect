@@ -1381,6 +1381,44 @@ export type Database = {
           },
         ]
       }
+      beauty_chat_violations: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          matched: string | null
+          original_body: string
+          reason: string
+          sender_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          matched?: string | null
+          original_body: string
+          reason: string
+          sender_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          matched?: string | null
+          original_body?: string
+          reason?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_chat_violations_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       beauty_conversations: {
         Row: {
           booking_id: string | null
