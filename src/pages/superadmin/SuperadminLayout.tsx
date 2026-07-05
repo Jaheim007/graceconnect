@@ -60,6 +60,12 @@ const linkGroups = [
     ],
   },
   {
+    label: 'Verticals',
+    items: [
+      { to: '/superadmin/beauty', label: 'Beauty', icon: Sparkles },
+    ],
+  },
+  {
     label: 'System',
     items: [
       { to: '/superadmin/metrics', label: 'Metrics', icon: BarChart3 },
