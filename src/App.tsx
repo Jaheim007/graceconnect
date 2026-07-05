@@ -278,6 +278,7 @@ const SuperadminGlobalJobs = lazy(() => import("@/pages/superadmin/studio/Global
 const SuperadminAiAbuse = lazy(() => import("@/pages/superadmin/studio/AiAbuseMonitor"));
 const SuperadminAIHistory = lazy(() => import("@/pages/superadmin/SuperadminAIHistory"));
 const SuperadminAds = lazy(() => import("@/pages/superadmin/SuperadminAds"));
+const SuperadminBeauty = lazy(() => import("@/pages/superadmin/SuperadminBeauty"));
 // Wrap lazy components that export named exports
 const LazyAdminAnnouncements = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminAnnouncements })));
 const LazyAdminEvents = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminEvents })));
