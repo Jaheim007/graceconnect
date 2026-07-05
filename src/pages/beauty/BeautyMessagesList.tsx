@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { BeautyHeader } from "@/components/beauty/BeautyHeader";
-import GuestGate from "@/components/auth/GuestGate";
+import { GuestGate } from "@/components/auth/GuestGate";
 
 export default function BeautyMessagesList() {
   const { user } = useAuth();
