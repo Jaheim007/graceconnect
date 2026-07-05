@@ -156,7 +156,7 @@ export default function SuperAppHub() {
                       className="rounded-full bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur"
                       style={{ color: 'hsl(340 82% 45%)' }}
                     >
-                      {t('Nouveau · Abidjan', 'New · Abidjan')}
+                      {t('Nouveau', 'New')}
                     </span>
                   </div>
                   <div className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
