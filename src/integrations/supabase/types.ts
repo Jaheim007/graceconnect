@@ -1270,16 +1270,19 @@ export type Database = {
           auto_release_at: string | null
           cancelled_at: string | null
           client_id: string
+          commission_amount: number | null
           commission_xof: number
           completed_at: string | null
           confirmed_at: string | null
           created_at: string
+          currency: string
           deposit_xof: number
           gateway: string | null
           id: string
           location_type: Database["public"]["Enums"]["beauty_location_type"]
           mode: Database["public"]["Enums"]["beauty_booking_mode"]
           payment_intent_id: string | null
+          price_amount: number | null
           price_xof: number
           provider_id: string
           service_id: string
@@ -1294,16 +1297,19 @@ export type Database = {
           auto_release_at?: string | null
           cancelled_at?: string | null
           client_id: string
+          commission_amount?: number | null
           commission_xof?: number
           completed_at?: string | null
           confirmed_at?: string | null
           created_at?: string
+          currency?: string
           deposit_xof?: number
           gateway?: string | null
           id?: string
           location_type?: Database["public"]["Enums"]["beauty_location_type"]
           mode: Database["public"]["Enums"]["beauty_booking_mode"]
           payment_intent_id?: string | null
+          price_amount?: number | null
           price_xof: number
           provider_id: string
           service_id: string
@@ -1318,16 +1324,19 @@ export type Database = {
           auto_release_at?: string | null
           cancelled_at?: string | null
           client_id?: string
+          commission_amount?: number | null
           commission_xof?: number
           completed_at?: string | null
           confirmed_at?: string | null
           created_at?: string
+          currency?: string
           deposit_xof?: number
           gateway?: string | null
           id?: string
           location_type?: Database["public"]["Enums"]["beauty_location_type"]
           mode?: Database["public"]["Enums"]["beauty_booking_mode"]
           payment_intent_id?: string | null
+          price_amount?: number | null
           price_xof?: number
           provider_id?: string
           service_id?: string
@@ -1670,11 +1679,13 @@ export type Database = {
           at_salon: boolean
           category: string
           created_at: string
+          currency: string
           deposit_pct: number
           description: string | null
           duration_min: number
           id: string
           images: string[]
+          price_amount: number | null
           price_xof: number
           provider_id: string
           title: string
@@ -1689,11 +1700,13 @@ export type Database = {
           at_salon?: boolean
           category: string
           created_at?: string
+          currency?: string
           deposit_pct?: number
           description?: string | null
           duration_min?: number
           id?: string
           images?: string[]
+          price_amount?: number | null
           price_xof: number
           provider_id: string
           title: string
@@ -1708,11 +1721,13 @@ export type Database = {
           at_salon?: boolean
           category?: string
           created_at?: string
+          currency?: string
           deposit_pct?: number
           description?: string | null
           duration_min?: number
           id?: string
           images?: string[]
+          price_amount?: number | null
           price_xof?: number
           provider_id?: string
           title?: string
