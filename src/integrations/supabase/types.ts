@@ -1270,9 +1270,12 @@ export type Database = {
           auto_release_at: string | null
           cancelled_at: string | null
           client_id: string
+          client_no_show_at: string | null
+          code_attempts: number
           commission_amount: number | null
           commission_xof: number
           completed_at: string | null
+          completion_code: string | null
           confirmed_at: string | null
           created_at: string
           currency: string
@@ -1285,9 +1288,12 @@ export type Database = {
           price_amount: number | null
           price_xof: number
           provider_id: string
+          provider_no_show_at: string | null
           service_id: string
           slot_end: string
           slot_start: string
+          start_code: string | null
+          started_at: string | null
           status: Database["public"]["Enums"]["beauty_booking_status"]
           tip_xof: number
           updated_at: string
@@ -1297,9 +1303,12 @@ export type Database = {
           auto_release_at?: string | null
           cancelled_at?: string | null
           client_id: string
+          client_no_show_at?: string | null
+          code_attempts?: number
           commission_amount?: number | null
           commission_xof?: number
           completed_at?: string | null
+          completion_code?: string | null
           confirmed_at?: string | null
           created_at?: string
           currency?: string
@@ -1312,9 +1321,12 @@ export type Database = {
           price_amount?: number | null
           price_xof: number
           provider_id: string
+          provider_no_show_at?: string | null
           service_id: string
           slot_end: string
           slot_start: string
+          start_code?: string | null
+          started_at?: string | null
           status?: Database["public"]["Enums"]["beauty_booking_status"]
           tip_xof?: number
           updated_at?: string
@@ -1324,9 +1336,12 @@ export type Database = {
           auto_release_at?: string | null
           cancelled_at?: string | null
           client_id?: string
+          client_no_show_at?: string | null
+          code_attempts?: number
           commission_amount?: number | null
           commission_xof?: number
           completed_at?: string | null
+          completion_code?: string | null
           confirmed_at?: string | null
           created_at?: string
           currency?: string
@@ -1339,9 +1354,12 @@ export type Database = {
           price_amount?: number | null
           price_xof?: number
           provider_id?: string
+          provider_no_show_at?: string | null
           service_id?: string
           slot_end?: string
           slot_start?: string
+          start_code?: string | null
+          started_at?: string | null
           status?: Database["public"]["Enums"]["beauty_booking_status"]
           tip_xof?: number
           updated_at?: string
@@ -1763,6 +1781,7 @@ export type Database = {
           provider_reply: string | null
           provider_reply_at: string | null
           rating: number
+          reviewer_role: string
           tip_xof: number
           title: string | null
           updated_at: string
@@ -1777,6 +1796,7 @@ export type Database = {
           provider_reply?: string | null
           provider_reply_at?: string | null
           rating: number
+          reviewer_role?: string
           tip_xof?: number
           title?: string | null
           updated_at?: string
@@ -1791,6 +1811,7 @@ export type Database = {
           provider_reply?: string | null
           provider_reply_at?: string | null
           rating?: number
+          reviewer_role?: string
           tip_xof?: number
           title?: string | null
           updated_at?: string
@@ -1799,7 +1820,7 @@ export type Database = {
           {
             foreignKeyName: "beauty_reviews_booking_id_fkey"
             columns: ["booking_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "beauty_bookings"
             referencedColumns: ["id"]
           },
@@ -8267,6 +8288,7 @@ export type Database = {
       }
     }
     Functions: {
+      _beauty_gen_code: { Args: never; Returns: string }
       activate_referral: { Args: { _referred_id: string }; Returns: undefined }
       approve_ai_quality: {
         Args: { _notes?: string; _org_id: string; _quality_score_id: string }
@@ -8277,6 +8299,10 @@ export type Database = {
         Returns: Json
       }
       auto_detect_themes: { Args: { p_text: string }; Returns: string[] }
+      beauty_complete_service: {
+        Args: { _booking_id: string; _code?: string }
+        Returns: Json
+      }
       beauty_get_available_slots: {
         Args: {
           _date_from: string
@@ -8289,6 +8315,10 @@ export type Database = {
           slot_start: string
         }[]
       }
+      beauty_mark_no_show: {
+        Args: { _booking_id: string; _who: string }
+        Returns: Json
+      }
       beauty_recompute_provider_stats: {
         Args: { _provider_id: string }
         Returns: undefined
@@ -8296,6 +8326,10 @@ export type Database = {
       beauty_refresh_provider_stats: {
         Args: { p_provider_id: string }
         Returns: undefined
+      }
+      beauty_submit_start_code: {
+        Args: { _booking_id: string; _code: string }
+        Returns: Json
       }
       can_admin_org: {
         Args: { _org_id: string; _user_id: string }
