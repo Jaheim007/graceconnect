@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Search, Calendar, MessageCircle, Scissors, LayoutDashboard,
+  Search, Calendar, Scissors, LayoutDashboard,
   ArrowRight, Sparkles, Clock,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
