@@ -175,8 +175,8 @@ export default function SuperAppHub() {
                   </div>
                   <p className="mt-3 text-sm text-muted-foreground sm:text-base">
                     {t(
-                      'Coiffure, ongles, maquillage, spa. Réserve les meilleures pros d\'Abidjan. Paiement sécurisé, avis vérifiés.',
-                      'Hair, nails, makeup, spa. Book the best pros in Abidjan. Secure payment, verified reviews.',
+                      'Coiffure, ongles, maquillage, spa. Réserve les meilleures pros beauté près de toi. Paiement sécurisé, avis vérifiés.',
+                      'Hair, nails, makeup, spa. Book the best beauty pros near you. Secure payment, verified reviews.',
                     )}
                   </p>
                   <div
