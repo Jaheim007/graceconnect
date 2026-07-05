@@ -633,6 +633,7 @@ const App = () => (
                   <Route path="trust" element={<SuperadminTrust />} />
                 </Route>
 
+                <Route path="/account/trust" element={<AccountTrustPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </Suspense>
