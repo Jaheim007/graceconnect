@@ -5,6 +5,8 @@ import {
   Sparkles, ArrowLeft, Plus, Trash2, Pencil, Loader2, Calendar,
   Scissors, Clock, ShieldCheck, MessageCircle, TrendingUp, Wallet, ChevronRight,
   Check, X, Ban, Image as ImageIcon, Video, Upload,
+  Menu, Bell, Search, Settings as SettingsIcon, LogOut, Home, BarChart3,
+  User, CreditCard, Star, ArrowUpRight, ArrowDownRight, ExternalLink, Copy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -23,6 +25,9 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { AreaChart, Area, ResponsiveContainer, Tooltip as ReTooltip, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -35,15 +40,63 @@ const CATEGORIES = BEAUTY_CATEGORIES;
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]; // 1..7 iso; we use 0..6 (Mon=0)
 
 const STATUS_TONE: Record<string, string> = {
-  pending_payment: "bg-amber-100 text-amber-700",
-  confirmed: "bg-emerald-100 text-emerald-700",
-  in_progress: "bg-blue-100 text-blue-700",
+  pending_payment: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  confirmed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+  in_progress: "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300",
   completed: "bg-primary/10 text-primary",
-  cancelled: "bg-rose-100 text-rose-700",
+  cancelled: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
   refunded: "bg-muted text-muted-foreground",
-  no_show: "bg-rose-100 text-rose-700",
-  disputed: "bg-rose-100 text-rose-700",
+  no_show: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
+  disputed: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
 };
+
+const STATUS_LABEL: Record<string, string> = {
+  pending_payment: "Paiement en attente",
+  confirmed: "Confirmé",
+  in_progress: "En cours",
+  completed: "Terminé",
+  cancelled: "Annulé",
+  refunded: "Remboursé",
+  no_show: "Absence",
+  disputed: "Litige",
+};
+
+const NAV_SECTIONS: {
+  label: string;
+  items: { key: string; label: string; icon: any; badge?: string }[];
+}[] = [
+  {
+    label: "Pilotage",
+    items: [
+      { key: "overview", label: "Vue d'ensemble", icon: Home },
+      { key: "bookings", label: "Rendez-vous", icon: Calendar },
+      { key: "stats", label: "Statistiques", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "Catalogue",
+    items: [
+      { key: "services", label: "Services", icon: Scissors },
+      { key: "portfolio", label: "Portfolio", icon: ImageIcon },
+      { key: "availability", label: "Disponibilités", icon: Clock },
+    ],
+  },
+  {
+    label: "Communication",
+    items: [
+      { key: "messages", label: "Messages", icon: MessageCircle },
+      { key: "reviews", label: "Avis clients", icon: Star },
+    ],
+  },
+  {
+    label: "Compte",
+    items: [
+      { key: "settings", label: "Paramètres", icon: SettingsIcon },
+      { key: "payouts", label: "Paiements & KYC", icon: CreditCard },
+    ],
+  },
+];
+
 
 export default function BeautyProDashboard() {
   const { user, loading: authLoading } = useAuth();
@@ -92,99 +145,193 @@ export default function BeautyProDashboard() {
   const stats = (provider as any).beauty_provider_stats;
 
   return (
-    <div className="beauty-scope min-h-dvh bg-gradient-to-b from-primary/5 via-background to-background pb-24">
-      {/* Gradient hero header */}
-      <header className="relative overflow-hidden beauty-gradient text-white">
-        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,white,transparent_60%)]" />
-        <div className="relative mx-auto max-w-3xl px-4 pt-5 pb-8">
-          <div className="flex items-center justify-between">
-            <button onClick={() => navigate("/beauty")} className="flex items-center gap-2 text-white/90 hover:text-white text-sm">
-              <ArrowLeft className="h-4 w-4" /> SiteViral Beauty
-            </button>
-            <Badge className={cn(
-              "border-0 backdrop-blur bg-white/20 text-white hover:bg-white/25",
-            )}>
-              {provider.status === "active" ? "✓ Actif" :
-               provider.status === "pending" ? "⏳ KYC en cours" : provider.status}
-            </Badge>
-          </div>
-          <div className="mt-5 flex items-center gap-4">
-            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white/15 backdrop-blur ring-1 ring-white/25">
-              {provider.avatar_url ? (
-                <img src={provider.avatar_url} alt="" className="h-full w-full rounded-2xl object-cover" />
-              ) : (
-                <Scissors className="h-6 w-6" />
-              )}
-            </div>
-            <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-[0.18em] font-bold text-white/70">Mon espace pro</div>
-              <div className="text-2xl font-black truncate">{provider.business_name}</div>
-              {provider.city && (
-                <div className="text-xs text-white/80 mt-0.5 flex items-center gap-1">
-                  <span className="opacity-70">📍</span> {provider.city}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="beauty-scope min-h-dvh bg-muted/40 dark:bg-background flex">
+      {/* Desktop sidebar */}
+      <ProSidebar provider={provider} tab={tab} onNavigate={(k) => setSp({ tab: k })} className="hidden lg:flex" />
 
-      <main className="mx-auto max-w-3xl px-4 -mt-4">
-        {provider.status !== "active" && (
-          <Card className="mb-4 p-4 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30 shadow-md">
-            <div className="flex items-start gap-3">
-              <ShieldCheck className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
-              <div className="text-sm">
-                <div className="font-semibold">Ton profil est en attente de validation KYC.</div>
-                <div className="text-muted-foreground mt-1">
-                  Tu peux configurer tes services et disponibilités dès maintenant.
-                  Ils seront visibles publiquement après validation.
+      {/* Mobile sidebar */}
+      <Sheet>
+        <SheetContent side="left" className="p-0 w-72">
+          <ProSidebar provider={provider} tab={tab} onNavigate={(k) => setSp({ tab: k })} className="flex w-full border-none" />
+        </SheetContent>
+        {/* Trigger lives inside TopBar */}
+        <TopBar provider={provider} navigate={navigate}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="lg:hidden">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+        </TopBar>
+      </Sheet>
+
+      <div className="flex-1 min-w-0 flex flex-col">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full mx-auto">
+          {/* Page title */}
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
+                {NAV_SECTIONS.flatMap(s => s.items).find(i => i.key === tab)?.label ?? "Vue d'ensemble"}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Bienvenue <span className="font-semibold text-foreground">{provider.business_name}</span> — voici l'état de ton activité.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link to={`/beauty/p/${provider.slug}`} target="_blank"><ExternalLink className="h-4 w-4 mr-1.5" />Voir profil public</Link>
+              </Button>
+            </div>
+          </div>
+
+          {provider.status !== "active" && (
+            <Card className="mb-6 p-4 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30">
+              <div className="flex items-start gap-3">
+                <ShieldCheck className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+                <div className="text-sm flex-1">
+                  <div className="font-semibold">Ton profil est en attente de validation KYC.</div>
+                  <div className="text-muted-foreground mt-1">
+                    Configure tes services et disponibilités dès maintenant. Ils seront visibles publiquement après validation.
+                  </div>
                 </div>
-                <Button size="sm" variant="link" className="px-0 mt-1" asChild>
-                  <Link to="/settings/kyc">Compléter le KYC →</Link>
+                <Button size="sm" variant="default" asChild>
+                  <Link to="/settings/kyc">Compléter le KYC</Link>
                 </Button>
               </div>
-            </div>
-          </Card>
-        )}
+            </Card>
+          )}
 
-        <Tabs value={tab} onValueChange={(v) => setSp({ tab: v })} className="mt-2">
-          <TabsList className="grid grid-cols-5 w-full bg-card/80 backdrop-blur border shadow-sm">
-            <TabsTrigger value="overview"><TrendingUp className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Vue d'ensemble</span><span className="sm:hidden">Vue</span></TabsTrigger>
-            <TabsTrigger value="services"><Scissors className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Services</span><span className="sm:hidden">Serv.</span></TabsTrigger>
-            <TabsTrigger value="portfolio"><ImageIcon className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Portfolio</span><span className="sm:hidden">Photos</span></TabsTrigger>
-            <TabsTrigger value="availability"><Clock className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Disponibilités</span><span className="sm:hidden">Dispo.</span></TabsTrigger>
-            <TabsTrigger value="bookings"><Calendar className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Rendez-vous</span><span className="sm:hidden">RDV</span></TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="mt-6">
-            <OverviewTab providerId={providerId!} provider={provider} stats={stats} />
-          </TabsContent>
-          <TabsContent value="services" className="mt-6">
-            <ServicesTab providerId={providerId!} providerCurrency={(provider as any).__payout_currency ?? "XOF"} />
-          </TabsContent>
-          <TabsContent value="portfolio" className="mt-6">
-            <PortfolioTab providerId={providerId!} />
-          </TabsContent>
-          <TabsContent value="availability" className="mt-6">
-            <AvailabilityTab providerId={providerId!} />
-          </TabsContent>
-          <TabsContent value="bookings" className="mt-6">
-            <BookingsTab providerId={providerId!} />
-          </TabsContent>
-        </Tabs>
-      </main>
+          {tab === "overview"     && <OverviewTab providerId={providerId!} provider={provider} stats={stats} onNavigate={(k) => setSp({ tab: k })} />}
+          {tab === "services"     && <ServicesTab providerId={providerId!} providerCurrency={(provider as any).__payout_currency ?? "XOF"} />}
+          {tab === "portfolio"    && <PortfolioTab providerId={providerId!} />}
+          {tab === "availability" && <AvailabilityTab providerId={providerId!} />}
+          {tab === "bookings"     && <BookingsTab providerId={providerId!} />}
+          {tab === "stats"        && <StatsTab providerId={providerId!} />}
+          {tab === "messages"     && <ExternalRedirectPanel to="/beauty/messages" title="Messagerie" description="Ouvre la messagerie SiteViral Beauty dans un espace dédié." icon={MessageCircle} />}
+          {tab === "reviews"      && <ExternalRedirectPanel to={`/beauty/p/${provider.slug}?tab=reviews`} title="Avis clients" description="Consulte les avis publiés sur ton profil public." icon={Star} />}
+          {tab === "settings"     && <SettingsTab provider={provider} />}
+          {tab === "payouts"      && <PayoutsTab />}
+        </main>
+      </div>
     </div>
+  );
+}
+
+/* ───────────────────────── SHELL ───────────────────────── */
+
+function ProSidebar({ provider, tab, onNavigate, className }: {
+  provider: any; tab: string; onNavigate: (k: string) => void; className?: string;
+}) {
+  const navigate = useNavigate();
+  return (
+    <aside className={cn(
+      "w-64 shrink-0 border-r bg-card flex-col",
+      className
+    )}>
+      {/* Brand */}
+      <div className="h-16 flex items-center gap-2.5 px-5 border-b">
+        <span className="grid h-9 w-9 place-items-center rounded-xl beauty-gradient text-white shadow-sm">
+          <Scissors className="h-4 w-4" />
+        </span>
+        <div className="leading-tight">
+          <div className="text-sm font-black tracking-tight">SiteViral</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Beauty Pro</div>
+        </div>
+      </div>
+
+      {/* Business summary */}
+      <div className="px-4 py-4 border-b">
+        <div className="flex items-center gap-3">
+          <div className="grid h-10 w-10 place-items-center rounded-full beauty-gradient text-white text-sm font-black shrink-0">
+            {provider.business_name?.charAt(0) ?? "?"}
+          </div>
+          <div className="min-w-0">
+            <div className="text-sm font-bold truncate">{provider.business_name}</div>
+            <div className="text-[11px] text-muted-foreground truncate">{provider.city ?? "—"}</div>
+          </div>
+        </div>
+        <div className="mt-3">
+          <Badge className={cn(
+            "text-[10px] font-bold border-0",
+            provider.status === "active" ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" :
+            provider.status === "pending" ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" :
+            "bg-muted text-muted-foreground"
+          )}>
+            {provider.status === "active" ? "✓ Actif" : provider.status === "pending" ? "⏳ KYC en cours" : provider.status}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <ScrollArea className="flex-1 py-2">
+        <nav className="px-3">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.label} className="mb-4">
+              <div className="px-3 mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                {section.label}
+              </div>
+              {section.items.map((item) => {
+                const active = tab === item.key;
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => onNavigate(item.key)}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      active
+                        ? "bg-primary/10 text-primary"
+                        : "text-foreground/70 hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    <Icon className={cn("h-4 w-4", active && "text-primary")} />
+                    <span className="flex-1 text-left">{item.label}</span>
+                    {active && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </nav>
+      </ScrollArea>
+
+      {/* Footer */}
+      <div className="border-t p-3 space-y-1">
+        <button
+          onClick={() => navigate("/beauty")}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" /> Retour à SiteViral Beauty
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+function TopBar({ provider, navigate, children }: { provider: any; navigate: any; children?: React.ReactNode }) {
+  return (
+    <header className="h-16 border-b bg-card/80 backdrop-blur sticky top-0 z-30 flex items-center gap-3 px-4 sm:px-6 lg:hidden">
+      {children}
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <span className="grid h-8 w-8 place-items-center rounded-lg beauty-gradient text-white shrink-0">
+          <Scissors className="h-4 w-4" />
+        </span>
+        <div className="min-w-0">
+          <div className="text-sm font-black truncate">{provider.business_name}</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-primary">Beauty Pro</div>
+        </div>
+      </div>
+      <Button variant="ghost" size="icon"><Bell className="h-5 w-5" /></Button>
+    </header>
   );
 }
 
 /* ───────────────────────── OVERVIEW ───────────────────────── */
 
-function OverviewTab({ providerId, provider, stats }: { providerId: string; provider: any; stats: any }) {
+function OverviewTab({ providerId, provider, stats, onNavigate }: { providerId: string; provider: any; stats: any; onNavigate: (k: string) => void }) {
   const { data: counts } = useQuery({
     queryKey: ["beauty-pro-counts", providerId],
     queryFn: async () => {
-      const [pending, upcoming, unread] = await Promise.all([
+      const [pending, upcoming, unread, completed30] = await Promise.all([
         supabase.from("beauty_bookings").select("id", { count: "exact", head: true })
           .eq("provider_id", providerId).eq("status", "pending_payment"),
         supabase.from("beauty_bookings").select("id", { count: "exact", head: true })
@@ -192,61 +339,414 @@ function OverviewTab({ providerId, provider, stats }: { providerId: string; prov
           .gte("slot_start", new Date().toISOString()),
         supabase.from("beauty_messages").select("id", { count: "exact", head: true })
           .is("read_at", null),
+        supabase.from("beauty_bookings").select("id", { count: "exact", head: true })
+          .eq("provider_id", providerId).eq("status", "completed")
+          .gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString()),
       ]);
       return {
         pending: pending.count ?? 0,
         upcoming: upcoming.count ?? 0,
         unread: unread.count ?? 0,
+        completed30: completed30.count ?? 0,
       };
     },
   });
 
+  const { data: revenueSeries } = useQuery({
+    queryKey: ["beauty-pro-revenue-30", providerId],
+    queryFn: async () => {
+      const since = new Date(Date.now() - 30 * 86400000).toISOString();
+      const { data } = await supabase.from("beauty_bookings")
+        .select("total_amount, currency, created_at, status")
+        .eq("provider_id", providerId)
+        .in("status", ["completed", "confirmed", "in_progress"])
+        .gte("created_at", since);
+      // Bucket by day
+      const buckets: Record<string, number> = {};
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(Date.now() - i * 86400000);
+        const key = d.toISOString().slice(0, 10);
+        buckets[key] = 0;
+      }
+      (data ?? []).forEach((b: any) => {
+        const key = String(b.created_at).slice(0, 10);
+        if (key in buckets) buckets[key] += Number(b.total_amount ?? 0);
+      });
+      return Object.entries(buckets).map(([date, value]) => ({
+        date: date.slice(5),
+        value,
+      }));
+    },
+  });
+
+  const { data: upcoming } = useQuery({
+    queryKey: ["beauty-pro-upcoming", providerId],
+    queryFn: async () => {
+      const { data } = await supabase.from("beauty_bookings")
+        .select("id, slot_start, status, total_amount, currency, client_id, service_id, beauty_services(title)")
+        .eq("provider_id", providerId)
+        .in("status", ["confirmed", "in_progress", "pending_payment"])
+        .gte("slot_start", new Date().toISOString())
+        .order("slot_start", { ascending: true })
+        .limit(6);
+      return data ?? [];
+    },
+  });
+
+  const { data: activity } = useQuery({
+    queryKey: ["beauty-pro-activity", providerId],
+    queryFn: async () => {
+      const { data } = await supabase.from("beauty_bookings")
+        .select("id, status, updated_at, created_at, total_amount, currency, beauty_services(title)")
+        .eq("provider_id", providerId)
+        .order("updated_at", { ascending: false })
+        .limit(8);
+      return data ?? [];
+    },
+  });
+
+  const totalRevenue = (revenueSeries ?? []).reduce((s, d) => s + d.value, 0);
+  const currency = (provider as any).__payout_currency ?? "XOF";
+
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard icon={Calendar} label="À venir" value={counts?.upcoming ?? 0} tone="rose" />
-        <StatCard icon={Clock} label="En attente" value={counts?.pending ?? 0} tone="amber" />
-        <StatCard icon={MessageCircle} label="Messages" value={counts?.unread ?? 0} tone="violet" />
-        <StatCard icon={TrendingUp} label="Note" value={stats?.avg_rating?.toFixed(1) ?? "—"} tone="emerald" />
+    <div className="space-y-6">
+      {/* KPI row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <KpiCard tone="rose" icon={Calendar} label="Rendez-vous à venir" value={counts?.upcoming ?? 0} sub="Prochains 30 jours" />
+        <KpiCard tone="amber" icon={Clock} label="En attente de paiement" value={counts?.pending ?? 0} sub="À finaliser côté client" />
+        <KpiCard tone="emerald" icon={TrendingUp} label="Terminés (30j)" value={counts?.completed30 ?? 0} sub="Prestations complétées" />
+        <KpiCard tone="violet" icon={Star} label="Note moyenne" value={stats?.avg_rating?.toFixed(1) ?? "—"} sub={`${stats?.total_reviews ?? 0} avis clients`} />
       </div>
 
-      <Card className="p-5 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-        <div className="flex items-center gap-3 mb-3">
-          <span className="grid h-9 w-9 place-items-center rounded-xl beauty-gradient text-white">
-            <Wallet className="h-4 w-4" />
+      {/* Chart + Activity */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <Card className="p-5 xl:col-span-2">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground font-bold">Chiffre d'affaires · 30 derniers jours</div>
+              <div className="text-2xl font-black mt-1">{formatCurrency(totalRevenue, currency)}</div>
+            </div>
+            <Badge variant="outline" className="text-[10px]">Escrow inclus</Badge>
+          </div>
+          <div className="h-56 -ml-4">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={revenueSeries ?? []}>
+                <defs>
+                  <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} width={40} />
+                <ReTooltip
+                  contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                  formatter={(v: any) => formatCurrency(Number(v), currency)}
+                />
+                <Area type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#rev)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card className="p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-xs uppercase tracking-wider text-muted-foreground font-bold">Activité récente</div>
+          </div>
+          {activity && activity.length > 0 ? (
+            <div className="space-y-4">
+              {activity.slice(0, 6).map((a: any) => (
+                <div key={a.id} className="flex items-start gap-3">
+                  <div className={cn("mt-1 h-2 w-2 rounded-full shrink-0",
+                    a.status === "completed" ? "bg-emerald-500" :
+                    a.status === "confirmed" ? "bg-blue-500" :
+                    a.status === "cancelled" || a.status === "no_show" ? "bg-rose-500" :
+                    "bg-amber-500"
+                  )} />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium truncate">{a.beauty_services?.title ?? "Réservation"}</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      {STATUS_LABEL[a.status] ?? a.status} · {new Date(a.updated_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                    </div>
+                  </div>
+                  <div className="text-xs font-semibold shrink-0">{formatCurrency(Number(a.total_amount ?? 0), a.currency ?? currency)}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-8 text-center text-sm text-muted-foreground">Aucune activité pour l'instant.</div>
+          )}
+        </Card>
+      </div>
+
+      {/* Upcoming appointments table */}
+      <Card className="overflow-hidden">
+        <div className="flex items-center justify-between p-5 pb-3">
+          <div>
+            <div className="text-xs uppercase tracking-wider text-muted-foreground font-bold">Prochains rendez-vous</div>
+            <div className="text-sm text-muted-foreground mt-0.5">Les {(upcoming ?? []).length} suivants</div>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => onNavigate("bookings")}>
+            Tout voir <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
+        {upcoming && upcoming.length > 0 ? (
+          <div className="border-t">
+            <div className="grid grid-cols-12 gap-3 px-5 py-2.5 text-[10px] uppercase tracking-wider text-muted-foreground font-bold border-b bg-muted/40">
+              <div className="col-span-5">Service</div>
+              <div className="col-span-3">Date</div>
+              <div className="col-span-2">Statut</div>
+              <div className="col-span-2 text-right">Montant</div>
+            </div>
+            {upcoming.map((b: any) => (
+              <div key={b.id} className="grid grid-cols-12 gap-3 px-5 py-3 text-sm border-b last:border-b-0 hover:bg-muted/40 transition-colors">
+                <div className="col-span-5 min-w-0">
+                  <div className="font-medium truncate">{b.beauty_services?.title ?? "Prestation"}</div>
+                  <div className="text-[11px] text-muted-foreground">#{b.id.slice(0, 8)}</div>
+                </div>
+                <div className="col-span-3 text-muted-foreground">
+                  {new Date(b.slot_start).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                </div>
+                <div className="col-span-2">
+                  <Badge className={cn("border-0 text-[10px]", STATUS_TONE[b.status])}>
+                    {STATUS_LABEL[b.status] ?? b.status}
+                  </Badge>
+                </div>
+                <div className="col-span-2 text-right font-semibold">
+                  {formatCurrency(Number(b.total_amount ?? 0), b.currency ?? currency)}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="border-t px-5 py-10 text-center text-sm text-muted-foreground">
+            Aucun rendez-vous à venir. Partage ton <Link to={`/beauty/p/${provider.slug}`} className="text-primary underline">profil public</Link> pour recevoir des réservations.
+          </div>
+        )}
+      </Card>
+
+      {/* Quick actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <QuickAction icon={Scissors} title="Gérer mes services" description="Ajoute, modifie ou active tes prestations." onClick={() => onNavigate("services")} />
+        <QuickAction icon={Clock} title="Mes disponibilités" description="Configure tes horaires et créneaux bloqués." onClick={() => onNavigate("availability")} />
+        <QuickAction icon={ImageIcon} title="Enrichir mon portfolio" description="Ajoute des photos avant/après pour rassurer." onClick={() => onNavigate("portfolio")} />
+      </div>
+    </div>
+  );
+}
+
+function KpiCard({ tone, icon: Icon, label, value, sub }: {
+  tone: "rose" | "amber" | "emerald" | "violet" | "primary";
+  icon: any; label: string; value: any; sub?: string;
+}) {
+  const tones: Record<string, { bg: string; text: string }> = {
+    primary: { bg: "bg-primary/15", text: "text-primary" },
+    rose: { bg: "bg-rose-500/15", text: "text-rose-500 dark:text-rose-400" },
+    amber: { bg: "bg-amber-500/15", text: "text-amber-600 dark:text-amber-400" },
+    emerald: { bg: "bg-emerald-500/15", text: "text-emerald-600 dark:text-emerald-400" },
+    violet: { bg: "bg-violet-500/15", text: "text-violet-500 dark:text-violet-400" },
+  };
+  const t = tones[tone];
+  return (
+    <Card className="p-5">
+      <div className="flex items-center gap-4">
+        <div className={cn("grid h-12 w-12 place-items-center rounded-full shrink-0", t.bg)}>
+          <Icon className={cn("h-5 w-5", t.text)} />
+        </div>
+        <div className="min-w-0">
+          <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">{label}</div>
+          <div className="text-2xl font-black leading-tight">{value}</div>
+          {sub && <div className="text-[11px] text-muted-foreground mt-0.5 truncate">{sub}</div>}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function QuickAction({ icon: Icon, title, description, onClick }: { icon: any; title: string; description: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="text-left p-5 rounded-2xl border bg-card hover:border-primary/50 hover:shadow-md transition-all group"
+    >
+      <div className="flex items-center gap-3 mb-2">
+        <span className="grid h-9 w-9 place-items-center rounded-lg beauty-gradient text-white">
+          <Icon className="h-4 w-4" />
+        </span>
+        <div className="font-semibold">{title}</div>
+        <ArrowUpRight className="h-4 w-4 ml-auto text-muted-foreground group-hover:text-primary transition-colors" />
+      </div>
+      <div className="text-xs text-muted-foreground">{description}</div>
+    </button>
+  );
+}
+
+function ExternalRedirectPanel({ to, title, description, icon: Icon }: { to: string; title: string; description: string; icon: any }) {
+  return (
+    <Card className="p-8 text-center">
+      <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl beauty-gradient text-white mb-4">
+        <Icon className="h-6 w-6" />
+      </span>
+      <h2 className="text-xl font-black">{title}</h2>
+      <p className="text-sm text-muted-foreground mt-2 mb-5 max-w-md mx-auto">{description}</p>
+      <Button asChild className="beauty-gradient text-white">
+        <Link to={to}>Ouvrir <ChevronRight className="h-4 w-4 ml-1" /></Link>
+      </Button>
+    </Card>
+  );
+}
+
+function StatsTab({ providerId }: { providerId: string }) {
+  return (
+    <Card className="p-8 text-center">
+      <BarChart3 className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+      <h2 className="text-xl font-black">Statistiques avancées</h2>
+      <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
+        Cohortes clients, taux de complétion, revenus par service et fidélisation. Disponible bientôt.
+      </p>
+    </Card>
+  );
+}
+
+function SettingsTab({ provider }: { provider: any }) {
+  const [copied, setCopied] = useState(false);
+  const publicUrl = `/beauty/p/${provider.slug}`;
+  const fullUrl = typeof window !== "undefined" ? `${window.location.origin}${publicUrl}` : publicUrl;
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <Card className="p-5 lg:col-span-2">
+        <div className="flex items-center gap-3 mb-4">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">
+            <User className="h-4 w-4" />
           </span>
-          <div className="font-semibold">Profil public</div>
+          <div>
+            <div className="font-bold">Profil professionnel</div>
+            <div className="text-xs text-muted-foreground">Nom, bio, ville, photo</div>
+          </div>
         </div>
-        <div className="text-sm text-muted-foreground mb-3">
-          Ton profil est visible à l'adresse <code className="text-xs bg-muted px-1.5 py-0.5 rounded">/beauty/p/{provider.slug}</code>
+        <div className="space-y-2 text-sm">
+          <Row label="Nom" value={provider.business_name} />
+          <Row label="Ville" value={provider.city ?? "—"} />
+          <Row label="Adresse" value={provider.address ?? "—"} />
+          <Row label="Spécialités" value={(provider.specialties ?? []).join(", ") || "—"} />
+          <Row label="En salon" value={provider.at_salon_ok ? "Oui" : "Non"} />
+          <Row label="À domicile" value={provider.home_service_ok ? "Oui" : "Non"} />
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <Button asChild size="sm" className="beauty-gradient text-white hover:opacity-90">
-            <Link to={`/beauty/p/${provider.slug}`}>Voir mon profil</Link>
+        <div className="mt-4 flex gap-2 flex-wrap">
+          <Button size="sm" variant="outline" disabled>Modifier <Pencil className="h-3.5 w-3.5 ml-1.5" /></Button>
+          <span className="text-[11px] text-muted-foreground self-center">Édition détaillée bientôt disponible.</span>
+        </div>
+      </Card>
+
+      <Card className="p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">
+            <ExternalLink className="h-4 w-4" />
+          </span>
+          <div>
+            <div className="font-bold">Profil public</div>
+            <div className="text-xs text-muted-foreground">Lien partageable</div>
+          </div>
+        </div>
+        <div className="text-xs bg-muted px-3 py-2 rounded-lg break-all">{fullUrl}</div>
+        <div className="mt-3 flex gap-2">
+          <Button size="sm" variant="outline" className="flex-1"
+            onClick={() => { navigator.clipboard.writeText(fullUrl); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>
+            {copied ? <Check className="h-3.5 w-3.5 mr-1.5" /> : <Copy className="h-3.5 w-3.5 mr-1.5" />}
+            {copied ? "Copié" : "Copier"}
           </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/beauty/messages">Messages</Link>
+          <Button size="sm" asChild className="flex-1 beauty-gradient text-white">
+            <Link to={publicUrl} target="_blank">Ouvrir</Link>
           </Button>
         </div>
+      </Card>
+
+      <Card className="p-5">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">
+            <Bell className="h-4 w-4" />
+          </span>
+          <div className="font-bold">Notifications</div>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">Configure les alertes email et in-app.</p>
+        <Button size="sm" variant="outline" asChild className="w-full">
+          <Link to="/notifications/preferences">Ouvrir les préférences</Link>
+        </Button>
+      </Card>
+
+      <Card className="p-5">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">
+            <ShieldCheck className="h-4 w-4" />
+          </span>
+          <div className="font-bold">Sécurité & compte</div>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">Mot de passe, sessions, suppression du compte.</p>
+        <Button size="sm" variant="outline" asChild className="w-full">
+          <Link to="/settings">Ouvrir les paramètres</Link>
+        </Button>
+      </Card>
+
+      <Card className="p-5">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">
+            <ShieldCheck className="h-4 w-4" />
+          </span>
+          <div className="font-bold">Statut du compte</div>
+        </div>
+        <Link to="/account/trust" className="text-xs text-primary underline">Voir mon score de confiance →</Link>
       </Card>
     </div>
   );
 }
 
-function StatCard({ icon: Icon, label, value, tone = "primary" }: { icon: any; label: string; value: any; tone?: "primary" | "rose" | "amber" | "violet" | "emerald" }) {
-  const tones: Record<string, string> = {
-    primary: "from-primary/10 to-primary/5 text-primary",
-    rose: "from-rose-500/10 to-rose-500/5 text-rose-500 dark:text-rose-400",
-    amber: "from-amber-500/10 to-amber-500/5 text-amber-600 dark:text-amber-400",
-    violet: "from-violet-500/10 to-violet-500/5 text-violet-500 dark:text-violet-400",
-    emerald: "from-emerald-500/10 to-emerald-500/5 text-emerald-600 dark:text-emerald-400",
-  };
+function PayoutsTab() {
   return (
-    <Card className={`p-4 bg-gradient-to-br ${tones[tone]} border-border/60`}>
-      <Icon className="h-4 w-4 mb-2 opacity-80" />
-      <div className="text-2xl font-black text-foreground">{value}</div>
-      <div className="text-xs text-muted-foreground mt-0.5">{label}</div>
-    </Card>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Card className="p-6">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+            <ShieldCheck className="h-5 w-5" />
+          </span>
+          <div>
+            <div className="font-bold">KYC</div>
+            <div className="text-xs text-muted-foreground">Vérification d'identité obligatoire</div>
+          </div>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Le KYC est indispensable pour recevoir tes paiements. Prévoit une pièce d'identité et un justificatif de domicile.
+        </p>
+        <Button asChild className="w-full beauty-gradient text-white">
+          <Link to="/settings/kyc">Compléter le KYC</Link>
+        </Button>
+      </Card>
+      <Card className="p-6">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+            <Wallet className="h-5 w-5" />
+          </span>
+          <div>
+            <div className="font-bold">Paiements</div>
+            <div className="text-xs text-muted-foreground">Devise, compte de réception, historique</div>
+          </div>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Payout minimum 10 000 XOF (≈ 15 EUR / 16 USD). Fonds débloqués 24-48h après la prestation confirmée.
+        </p>
+        <Button asChild variant="outline" className="w-full">
+          <Link to="/settings/payouts">Gérer mes paiements</Link>
+        </Button>
+      </Card>
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between py-2 border-b last:border-b-0">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="font-medium text-right max-w-[60%] truncate">{value}</div>
+    </div>
   );
 }
 
