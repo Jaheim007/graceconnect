@@ -27,7 +27,7 @@ const STEPS = [
 const TRUST = [
   { icon: ShieldCheck, title: "Paiement sécurisé", body: "Fonds bloqués côté SiteViral jusqu’à la confirmation. Zéro arnaque." },
   { icon: Clock, title: "Zéro no-show", body: "Créneaux garantis par acompte, calendrier temps réel, rappels auto." },
-  { icon: MapPin, title: "100% Abidjan", body: "Cocody, Marcory, Yopougon, Riviera… en salon ou à domicile." },
+  { icon: MapPin, title: "Partout en Afrique", body: "Démarrage à Abidjan, extension progressive à Dakar, Douala, Accra, Lagos et au-delà." },
 ];
 
 export default function BeautyLanding() {
