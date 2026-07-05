@@ -81,9 +81,9 @@ export default function BeautyLanding() {
         <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-accent/40 blur-3xl" />
 
         <div className="relative mx-auto max-w-6xl px-4 py-16 sm:py-24">
-          <Badge className="mb-5 bg-primary/10 text-primary hover:bg-primary/15">Nouveau · Beta Abidjan</Badge>
+          <Badge className="mb-5 bg-primary/10 text-primary hover:bg-primary/15">Nouveau · Beta panafricaine</Badge>
           <h1 className="max-w-3xl text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl">
-            La beauté d’Abidjan,
+            La beauté d’Afrique,
             <span className="block bg-clip-text text-transparent" style={{ backgroundImage: "var(--beauty-gradient)" }}>
               réservée en confiance.
             </span>
