@@ -53,7 +53,7 @@ export default function BeautyBookingDetail() {
       const { data } = await supabase
         .from("beauty_bookings")
         .select(
-          "*, beauty_services(title, category, duration_min), beauty_providers(business_name, avatar_url, city, slug)",
+          "*, beauty_services(title, category, duration_min), beauty_providers(user_id, business_name, avatar_url, city, slug)",
         )
         .eq("id", id!)
         .maybeSingle();
