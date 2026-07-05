@@ -404,7 +404,6 @@ function ServicesTab({ providerId, providerCurrency }: { providerId: string; pro
               <div className="grid grid-cols-2 gap-2">
                 <label className="flex items-center justify-between rounded border p-2 text-sm">Salon<Switch checked={!!editing.at_salon} onCheckedChange={(v) => setEditing({ ...editing, at_salon: v })} /></label>
                 <label className="flex items-center justify-between rounded border p-2 text-sm">Domicile<Switch checked={!!editing.at_home} onCheckedChange={(v) => setEditing({ ...editing, at_home: v })} /></label>
-                <label className="flex items-center justify-between rounded border p-2 text-sm">Acompte 20%<Switch checked={!!editing.allow_deposit} onCheckedChange={(v) => setEditing({ ...editing, allow_deposit: v })} /></label>
                 <label className="flex items-center justify-between rounded border p-2 text-sm">Actif<Switch checked={!!editing.active} onCheckedChange={(v) => setEditing({ ...editing, active: v })} /></label>
               </div>
             </div>
