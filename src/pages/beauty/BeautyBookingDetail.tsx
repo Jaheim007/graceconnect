@@ -303,7 +303,59 @@ export default function BeautyBookingDetail() {
               {t("Annuler", "Cancel")}
             </Button>
           )}
+          {isClient && booking.status === "completed" && (
+            <Button
+              variant="ghost"
+              onClick={async () => {
+                const reason = prompt(t("Décris le problème :", "Describe the issue:")) || "";
+                if (!reason.trim()) return;
+                const { error } = await supabase.from("beauty_disputes").insert({
+                  booking_id: booking.id,
+                  opened_by: user!.id,
+                  reason: reason.trim(),
+                  status: "open" as any,
+                });
+                if (error) {
+                  toast({ title: t("Erreur", "Error"), description: error.message, variant: "destructive" });
+                } else {
+                  toast({
+                    title: t("Litige ouvert", "Dispute opened"),
+                    description: t("Notre équipe reviendra vers toi sous 24h.", "Our team will reply within 24h."),
+                  });
+                }
+              }}
+              className="text-amber-700 hover:text-amber-800"
+            >
+              <AlertTriangle className="mr-1.5 h-4 w-4" />
+              {t("Signaler un problème", "Report an issue")}
+            </Button>
+          )}
         </div>
+
+        {/* Review form — only for the client, after completion, once */}
+        {isClient && booking.status === "completed" && !existingReview && (
+          <BeautyReviewForm
+            bookingId={booking.id}
+            providerId={booking.provider_id}
+            currency={currency}
+            onSubmitted={() => {
+              qc.invalidateQueries({ queryKey: ["beauty-review", id] });
+              refetch();
+            }}
+          />
+        )}
+
+        {existingReview && (
+          <div className="rounded-2xl border border-border/60 bg-card p-5">
+            <div className="mb-2 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-semibold">{t("Ton avis publié", "Your review")}</span>
+              <span className="ml-auto text-sm font-black">{existingReview.rating}/5 ★</span>
+            </div>
+            {existingReview.title && <div className="text-sm font-bold">{existingReview.title}</div>}
+            {existingReview.body && <p className="mt-1 text-sm text-muted-foreground">{existingReview.body}</p>}
+          </div>
+        )}
       </main>
     </div>
   );
