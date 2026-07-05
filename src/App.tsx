@@ -55,7 +55,7 @@ const BeautyActionHub = lazy(() => import("@/pages/beauty/BeautyActionHub"));
 const BeautyProviderOnboarding = lazy(() => import("@/pages/beauty/BeautyProviderOnboarding"));
 const BeautySearch = lazy(() => import("@/pages/beauty/BeautySearch"));
 const BeautyProviderProfile = lazy(() => import("@/pages/beauty/BeautyProviderProfile"));
-const BeautyBookingWizard = lazy(() => import("@/pages/beauty/BeautyBookingWizard"));
+
 const BeautyBookingDetail = lazy(() => import("@/pages/beauty/BeautyBookingDetail"));
 const BeautyBookingsList = lazy(() => import("@/pages/beauty/BeautyBookingsList"));
 const BeautyMessagesList = lazy(() => import("@/pages/beauty/BeautyMessagesList"));
