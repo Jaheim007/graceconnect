@@ -15,6 +15,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import BeautyReviewForm from "./BeautyReviewForm";
+import BeautyOtpPanel from "@/components/beauty/BeautyOtpPanel";
 
 const STATUS_LABELS: Record<
   string,
