@@ -175,3 +175,98 @@ export function getActionNavItems(
 
   return items;
 }
+
+/**
+ * Beauty vertical nav items — used when the user is inside /beauty/*.
+ * The bottom nav swaps to this set so the app feels like a dedicated Beauty app.
+ */
+export function getBeautyNavItems(ctx: NavContext): ActionNavItem[] {
+  const items: ActionNavItem[] = [
+    {
+      id: 'beauty-home',
+      icon: Sparkles,
+      emoji: '✨',
+      titleFr: 'Beauty',
+      titleEn: 'Beauty',
+      descFr: "Accueil SiteViral Beauty",
+      descEn: 'SiteViral Beauty home',
+      route: '/beauty',
+      borderClass: 'border-pink-500/30 hover:border-pink-500/60',
+      iconBg: 'bg-pink-500/15',
+      iconColor: 'text-pink-500',
+    },
+    {
+      id: 'beauty-search',
+      icon: Search,
+      emoji: '🔎',
+      titleFr: 'Explorer',
+      titleEn: 'Explore',
+      descFr: 'Trouver une pro beauté',
+      descEn: 'Find a beauty pro',
+      route: '/beauty/search',
+      borderClass: 'border-rose-500/30 hover:border-rose-500/60',
+      iconBg: 'bg-rose-500/15',
+      iconColor: 'text-rose-500',
+    },
+  ];
+
+  if (ctx.isAuthenticated) {
+    items.push({
+      id: 'beauty-bookings',
+      icon: Calendar,
+      emoji: '📅',
+      titleFr: 'Réservations',
+      titleEn: 'Bookings',
+      descFr: 'Mes rendez-vous beauté',
+      descEn: 'My beauty appointments',
+      route: '/beauty/bookings',
+      borderClass: 'border-amber-500/30 hover:border-amber-500/60',
+      iconBg: 'bg-amber-500/15',
+      iconColor: 'text-amber-500',
+    });
+    items.push({
+      id: 'beauty-chat',
+      icon: MessageCircle,
+      emoji: '💬',
+      titleFr: 'Messages',
+      titleEn: 'Messages',
+      descFr: 'Discuter avec les pros',
+      descEn: 'Chat with pros',
+      route: '/beauty/messages',
+      borderClass: 'border-violet-500/30 hover:border-violet-500/60',
+      iconBg: 'bg-violet-500/15',
+      iconColor: 'text-violet-500',
+    });
+  }
+
+  items.push({
+    id: 'beauty-pro',
+    icon: Scissors,
+    emoji: '💇🏾',
+    titleFr: 'Je suis pro',
+    titleEn: "I'm a pro",
+    descFr: 'Devenir pro beauté',
+    descEn: 'Become a beauty pro',
+    route: '/beauty/pro/onboarding',
+    borderClass: 'border-fuchsia-500/30 hover:border-fuchsia-500/60',
+    iconBg: 'bg-fuchsia-500/15',
+    iconColor: 'text-fuchsia-500',
+  });
+
+  items.push({
+    id: 'beauty-switch',
+    icon: Home,
+    emoji: '🏠',
+    titleFr: 'SiteViral',
+    titleEn: 'SiteViral',
+    descFr: "Retour à l'accueil",
+    descEn: 'Back to home hub',
+    route: '/',
+    borderClass: 'border-primary/30 hover:border-primary/60',
+    iconBg: 'bg-primary/15',
+    iconColor: 'text-primary',
+  });
+
+  return items;
+}
+
