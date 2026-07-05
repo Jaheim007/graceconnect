@@ -332,8 +332,10 @@ export default function BeautyBookingDetail() {
           )}
         </div>
 
-        {/* Review form — only for the client, after completion, once */}
-        {isClient && booking.status === "completed" && !existingReview && (
+        {/* Review form — for the client after completion OR cancellation, once */}
+        {isClient &&
+          (booking.status === "completed" || booking.status === "cancelled" || booking.status === "no_show") &&
+          !existingReview && (
           <BeautyReviewForm
             bookingId={booking.id}
             providerId={booking.provider_id}
