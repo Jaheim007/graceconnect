@@ -262,6 +262,18 @@ export default function BeautyBookingDetail() {
           />
         )}
 
+        {/* Extra charges — visible once the service has started */}
+        {(isClient || isProvider) && (
+          <BeautyExtraCharges
+            bookingId={booking.id}
+            currency={currency}
+            isClient={isClient}
+            isProvider={isProvider}
+            bookingStarted={!!booking.started_at}
+            bookingCompleted={!!booking.completed_at}
+          />
+        )}
+
         {/* Actions */}
         <div className="flex flex-wrap gap-2">
           <Button
