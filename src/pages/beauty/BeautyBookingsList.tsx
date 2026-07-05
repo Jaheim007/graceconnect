@@ -65,6 +65,7 @@ export default function BeautyBookingsList() {
   return (
     <div className="beauty-scope min-h-screen bg-background pb-24 text-foreground">
       <BeautyHeader showBack />
+      <BeautyPendingReviewNag />
       <div className="mx-auto max-w-3xl px-4 pt-4">
         <h1 className="text-lg font-bold">{t("Mes rendez-vous", "My appointments")}</h1>
       </div>
