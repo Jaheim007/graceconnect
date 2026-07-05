@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessageCircle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { BeautyHeader } from "@/components/beauty/BeautyHeader";
+import GuestGate from "@/components/auth/GuestGate";
 
 export default function BeautyMessagesList() {
   const { user } = useAuth();
