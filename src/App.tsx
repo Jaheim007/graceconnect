@@ -53,6 +53,8 @@ const ActionHub = lazy(() => import("@/pages/ActionHub"));
 const BeautyLanding = lazy(() => import("@/pages/beauty/BeautyLanding"));
 const BeautyActionHub = lazy(() => import("@/pages/beauty/BeautyActionHub"));
 const BeautyProviderOnboarding = lazy(() => import("@/pages/beauty/BeautyProviderOnboarding"));
+const BeautySearch = lazy(() => import("@/pages/beauty/BeautySearch"));
+const BeautyProviderProfile = lazy(() => import("@/pages/beauty/BeautyProviderProfile"));
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
@@ -334,6 +336,8 @@ const App = () => (
                 {/* SiteViral Beauty */}
                 <Route path="/beauty" element={<BeautyActionHub />} />
                 <Route path="/beauty/about" element={<BeautyLanding />} />
+                <Route path="/beauty/search" element={<BeautySearch />} />
+                <Route path="/beauty/p/:slug" element={<BeautyProviderProfile />} />
                 <Route path="/beauty/pro/onboarding" element={<RequireAuth><BeautyProviderOnboarding /></RequireAuth>} />
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
