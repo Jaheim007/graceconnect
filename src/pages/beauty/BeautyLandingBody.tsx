@@ -154,7 +154,7 @@ export function BeautyLandingBody() {
           <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
           <div className="relative grid gap-8 md:grid-cols-2 md:items-center">
             <div>
-              <Badge className="mb-4 bg-white/20 text-white hover:bg-white/25">Pour les pros</Badge>
+              <Badge className="mb-4 bg-white/20 text-white hover:bg-white/25">Pour les experts</Badge>
               <h3 className="text-3xl font-black leading-tight sm:text-4xl">
                 Remplis ton agenda. On s’occupe du reste.
               </h3>
@@ -163,7 +163,7 @@ export function BeautyLandingBody() {
                 Commission plateforme : 10%. Paiement sous 72h.
               </p>
               <Button asChild size="lg" className="mt-6 bg-white text-primary hover:bg-white/90">
-                <Link to="/beauty/pro/onboarding">Créer mon profil pro</Link>
+                <Link to="/beauty/pro/onboarding">Créer mon profil</Link>
               </Button>
             </div>
             <ul className="space-y-3 text-sm">
