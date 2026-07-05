@@ -163,6 +163,24 @@ export default function BeautyConversation() {
     } as any);
     setSending(false);
     if (error) {
+      const msg = (error as any)?.message ?? "";
+      if (msg.includes("beauty_chat_blocked")) {
+        const reason = msg.split("beauty_chat_blocked:")[1]?.trim() ?? "contact";
+        const label: Record<string, [string, string]> = {
+          phone: ["Numéro de téléphone détecté — message bloqué.", "Phone number detected — message blocked."],
+          email: ["Adresse email détectée — message bloqué.", "Email detected — message blocked."],
+          social_handle: ["Réseau social détecté — message bloqué.", "Social handle detected — message blocked."],
+          payment_bypass: ["Paiement hors plateforme détecté — message bloqué.", "Off-platform payment detected — message blocked."],
+        };
+        const [fr, en] = label[reason] ?? ["Message bloqué par la sécurité du chat.", "Message blocked by chat safety."];
+        toast.error(t(fr, en), {
+          description: t(
+            "Restez dans le chat. Tout paiement se fait via SiteViral pour votre protection.",
+            "Stay in chat. All payments go through SiteViral for your protection.",
+          ),
+        });
+        return;
+      }
       toast.error(t("Envoi impossible", "Failed to send"));
       return;
     }
