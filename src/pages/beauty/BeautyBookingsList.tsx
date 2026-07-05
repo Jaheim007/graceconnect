@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Calendar, ChevronRight, CircleAlert } from "lucide-react";
+import { Calendar, ChevronRight, CircleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatCurrency } from "@/lib/currency";
 import { useI18n } from "@/i18n/I18nContext";
+import { BeautyHeader } from "@/components/beauty/BeautyHeader";
 import { cn } from "@/lib/utils";
 
 const STATUS_TONE: Record<string, string> = {
