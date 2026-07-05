@@ -16,6 +16,7 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import BeautyReviewForm from "./BeautyReviewForm";
 import BeautyOtpPanel from "@/components/beauty/BeautyOtpPanel";
+import BeautyExtraCharges from "@/components/beauty/BeautyExtraCharges";
 
 const STATUS_LABELS: Record<
   string,
