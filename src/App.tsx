@@ -51,6 +51,7 @@ const PageLoader = () => (
 // Public
 const ActionHub = lazy(() => import("@/pages/ActionHub"));
 const BeautyLanding = lazy(() => import("@/pages/beauty/BeautyLanding"));
+const BeautyActionHub = lazy(() => import("@/pages/beauty/BeautyActionHub"));
 const BeautyProviderOnboarding = lazy(() => import("@/pages/beauty/BeautyProviderOnboarding"));
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
