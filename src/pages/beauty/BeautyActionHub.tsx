@@ -84,10 +84,10 @@ export default function BeautyActionHub() {
     {
       id: "explore",
       icon: Search,
-      titleFr: "Explorer",
-      titleEn: "Discover",
-      descFr: "Parcours les pros beauté vérifiées",
-      descEn: "Browse verified beauty pros",
+      titleFr: "Explorer les services",
+      titleEn: "Explore services",
+      descFr: "Coiffure, ongles, maquillage, spa près de toi",
+      descEn: "Hair, nails, makeup, spa near you",
       route: "/beauty/search",
       iconBg: "bg-rose-100 dark:bg-rose-500/15",
       iconColor: "text-rose-600 dark:text-rose-400",
@@ -104,18 +104,6 @@ export default function BeautyActionHub() {
       iconBg: "bg-amber-100 dark:bg-amber-500/15",
       iconColor: "text-amber-600 dark:text-amber-400",
       borderClass: "hover:border-amber-300 dark:hover:border-amber-500/40",
-    },
-    {
-      id: "messages",
-      icon: MessageCircle,
-      titleFr: "Messages",
-      titleEn: "Messages",
-      descFr: "Discute avec ton expert(e)",
-      descEn: "Chat with your expert",
-      route: user ? "/beauty/messages" : "/auth?returnTo=/beauty/messages",
-      iconBg: "bg-fuchsia-100 dark:bg-fuchsia-500/15",
-      iconColor: "text-fuchsia-600 dark:text-fuchsia-400",
-      borderClass: "hover:border-fuchsia-300 dark:hover:border-fuchsia-500/40",
     },
     ...(isProvider
       ? [
