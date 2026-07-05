@@ -14,6 +14,7 @@ import { formatCurrency } from "@/lib/currency";
 import { useI18n } from "@/i18n/I18nContext";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import BeautyReviewForm from "./BeautyReviewForm";
 
 const STATUS_LABELS: Record<
   string,
