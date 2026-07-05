@@ -324,6 +324,7 @@ const App = () => (
               <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Public routes */}
+                <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 <Route path="/" element={<ActionHub />} />
                 {/* SiteViral Beauty */}
                 <Route path="/beauty" element={<BeautyLanding />} />
