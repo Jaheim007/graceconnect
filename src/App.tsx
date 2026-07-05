@@ -350,6 +350,7 @@ const App = () => (
                 <Route path="/beauty/messages" element={<RequireAuth><BeautyMessagesList /></RequireAuth>} />
                 <Route path="/beauty/messages/:id" element={<RequireAuth><BeautyConversation /></RequireAuth>} />
                 <Route path="/beauty/pro/onboarding" element={<RequireAuth><BeautyProviderOnboarding /></RequireAuth>} />
+                <Route path="/beauty/pro" element={<RequireAuth><BeautyProDashboard /></RequireAuth>} />
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
