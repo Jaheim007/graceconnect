@@ -206,6 +206,38 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ── BEAUTY BOOKING ──
+    const bookingId = meta.booking_id as string | undefined;
+    if (type === 'beauty_booking' && bookingId) {
+      const { data: bk } = await db
+        .from('beauty_bookings')
+        .select('id, status, slot_end')
+        .eq('id', bookingId)
+        .maybeSingle();
+      if (bk && bk.status === 'pending_payment') {
+        const autoRelease = new Date(
+          new Date(bk.slot_end).getTime() + 24 * 60 * 60 * 1000,
+        ).toISOString();
+        await db.from('beauty_bookings').update({
+          status: 'confirmed',
+          confirmed_at: new Date().toISOString(),
+          auto_release_at: autoRelease,
+        }).eq('id', bookingId);
+        await db.from('beauty_booking_events').insert({
+          booking_id: bookingId,
+          event_type: 'payment_confirmed',
+          payload: { gateway: 'geniuspay', reference },
+        });
+      }
+      await db.from('payment_events').update({
+        status: 'processed', processed_at: new Date().toISOString(),
+      }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, kind: 'beauty_booking' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+
     // ── CREDIT PURCHASE ──
     const purchaseId = meta.purchase_id as string | undefined;
     if (type === 'credit_purchase' && purchaseId) {

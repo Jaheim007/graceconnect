@@ -55,6 +55,9 @@ const BeautyActionHub = lazy(() => import("@/pages/beauty/BeautyActionHub"));
 const BeautyProviderOnboarding = lazy(() => import("@/pages/beauty/BeautyProviderOnboarding"));
 const BeautySearch = lazy(() => import("@/pages/beauty/BeautySearch"));
 const BeautyProviderProfile = lazy(() => import("@/pages/beauty/BeautyProviderProfile"));
+const BeautyBookingWizard = lazy(() => import("@/pages/beauty/BeautyBookingWizard"));
+const BeautyBookingDetail = lazy(() => import("@/pages/beauty/BeautyBookingDetail"));
+const BeautyBookingsList = lazy(() => import("@/pages/beauty/BeautyBookingsList"));
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
@@ -338,6 +341,9 @@ const App = () => (
                 <Route path="/beauty/about" element={<BeautyLanding />} />
                 <Route path="/beauty/search" element={<BeautySearch />} />
                 <Route path="/beauty/p/:slug" element={<BeautyProviderProfile />} />
+                <Route path="/beauty/book/:serviceId" element={<RequireAuth><BeautyBookingWizard /></RequireAuth>} />
+                <Route path="/beauty/bookings" element={<RequireAuth><BeautyBookingsList /></RequireAuth>} />
+                <Route path="/beauty/bookings/:id" element={<RequireAuth><BeautyBookingDetail /></RequireAuth>} />
                 <Route path="/beauty/pro/onboarding" element={<RequireAuth><BeautyProviderOnboarding /></RequireAuth>} />
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
