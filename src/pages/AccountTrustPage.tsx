@@ -29,7 +29,7 @@ export default function AccountTrustPage() {
       if (!user) return null;
       const { data } = await supabase.from('account_trust_profiles')
         .select('*').eq('user_id', user.id).maybeSingle();
-      return data || { status: 'ok', trust_score: 100, violations_total: 0 };
+      return (data as any) || { status: 'ok', trust_score: 100, violations_total: 0 } as any;
     },
     enabled: !!user,
   });
