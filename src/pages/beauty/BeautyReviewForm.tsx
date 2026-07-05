@@ -39,6 +39,14 @@ export default function BeautyReviewForm({ bookingId, providerId, currency, onSu
       toast({ title: t("Note requise", "Rating required"), variant: "destructive" });
       return;
     }
+    if (body.trim().length < 10) {
+      toast({
+        title: t("Commentaire requis", "Comment required"),
+        description: t("Écris au moins 10 caractères pour aider les autres.", "Write at least 10 characters to help others."),
+        variant: "destructive",
+      });
+      return;
+    }
     setSubmitting(true);
     try {
       const tipAmount = tipCustom
