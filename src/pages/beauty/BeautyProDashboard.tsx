@@ -93,33 +93,48 @@ export default function BeautyProDashboard() {
   const stats = (provider as any).beauty_provider_stats;
 
   return (
-    <div className="beauty-scope min-h-dvh bg-background pb-24">
-      <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/beauty")}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex-1 min-w-0">
-            <div className="text-xs uppercase tracking-wider text-primary font-semibold">Mon espace</div>
-            <div className="font-bold truncate">{provider.business_name}</div>
+    <div className="beauty-scope min-h-dvh bg-gradient-to-b from-primary/5 via-background to-background pb-24">
+      {/* Gradient hero header */}
+      <header className="relative overflow-hidden beauty-gradient text-white">
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,white,transparent_60%)]" />
+        <div className="relative mx-auto max-w-3xl px-4 pt-5 pb-8">
+          <div className="flex items-center justify-between">
+            <button onClick={() => navigate("/beauty")} className="flex items-center gap-2 text-white/90 hover:text-white text-sm">
+              <ArrowLeft className="h-4 w-4" /> SiteViral Beauty
+            </button>
+            <Badge className={cn(
+              "border-0 backdrop-blur bg-white/20 text-white hover:bg-white/25",
+            )}>
+              {provider.status === "active" ? "✓ Actif" :
+               provider.status === "pending" ? "⏳ KYC en cours" : provider.status}
+            </Badge>
           </div>
-          <Badge
-            className={cn(
-              provider.status === "active" ? "bg-emerald-500" :
-              provider.status === "pending" ? "bg-amber-500" : "bg-muted"
-            )}
-          >
-            {provider.status === "active" ? "Actif" :
-             provider.status === "pending" ? "KYC en cours" : provider.status}
-          </Badge>
+          <div className="mt-5 flex items-center gap-4">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white/15 backdrop-blur ring-1 ring-white/25">
+              {provider.avatar_url ? (
+                <img src={provider.avatar_url} alt="" className="h-full w-full rounded-2xl object-cover" />
+              ) : (
+                <Scissors className="h-6 w-6" />
+              )}
+            </div>
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase tracking-[0.18em] font-bold text-white/70">Mon espace pro</div>
+              <div className="text-2xl font-black truncate">{provider.business_name}</div>
+              {provider.city && (
+                <div className="text-xs text-white/80 mt-0.5 flex items-center gap-1">
+                  <span className="opacity-70">📍</span> {provider.city}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-6">
+      <main className="mx-auto max-w-3xl px-4 -mt-4">
         {provider.status !== "active" && (
-          <Card className="mb-4 p-4 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30">
+          <Card className="mb-4 p-4 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30 shadow-md">
             <div className="flex items-start gap-3">
-              <ShieldCheck className="h-5 w-5 text-amber-600 mt-0.5" />
+              <ShieldCheck className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
               <div className="text-sm">
                 <div className="font-semibold">Ton profil est en attente de validation KYC.</div>
                 <div className="text-muted-foreground mt-1">
@@ -134,9 +149,9 @@ export default function BeautyProDashboard() {
           </Card>
         )}
 
-        <Tabs value={tab} onValueChange={(v) => setSp({ tab: v })}>
-          <TabsList className="grid grid-cols-5 w-full">
-            <TabsTrigger value="overview"><TrendingUp className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Vue d’ensemble</span><span className="sm:hidden">Vue</span></TabsTrigger>
+        <Tabs value={tab} onValueChange={(v) => setSp({ tab: v })} className="mt-2">
+          <TabsList className="grid grid-cols-5 w-full bg-card/80 backdrop-blur border shadow-sm">
+            <TabsTrigger value="overview"><TrendingUp className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Vue d'ensemble</span><span className="sm:hidden">Vue</span></TabsTrigger>
             <TabsTrigger value="services"><Scissors className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Services</span><span className="sm:hidden">Serv.</span></TabsTrigger>
             <TabsTrigger value="portfolio"><ImageIcon className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Portfolio</span><span className="sm:hidden">Photos</span></TabsTrigger>
             <TabsTrigger value="availability"><Clock className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Disponibilités</span><span className="sm:hidden">Dispo.</span></TabsTrigger>
