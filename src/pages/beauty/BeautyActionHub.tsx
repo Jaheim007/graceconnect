@@ -219,6 +219,57 @@ export default function BeautyActionHub() {
             </p>
           </motion.div>
 
+          {/* Next appointment strip */}
+          {nextBooking && (
+            <motion.button
+              variants={item}
+              onClick={() => navigate(`/beauty/bookings/${nextBooking.id}`)}
+              className="group relative w-full overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-3.5 text-left transition-all duration-150 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg active:scale-[0.98] sm:p-4"
+            >
+              <div className="mb-2 flex items-center justify-between">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                  <Clock className="h-2.5 w-2.5" />
+                  {t("Prochain rendez-vous", "Next appointment")}
+                </div>
+                <ArrowRight className="h-4 w-4 text-primary transition-transform group-hover:translate-x-0.5" />
+              </div>
+              <div className="flex items-center gap-3">
+                {(nextBooking as any).beauty_providers?.avatar_url ? (
+                  <img
+                    src={(nextBooking as any).beauty_providers.avatar_url}
+                    alt=""
+                    className="h-11 w-11 shrink-0 rounded-xl object-cover"
+                  />
+                ) : (
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-sm font-bold text-primary">
+                    {((nextBooking as any).beauty_providers?.business_name ?? "?")[0]}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[13px] font-bold text-foreground">
+                    {(nextBooking as any).beauty_services?.title ?? t("Service", "Service")}
+                  </div>
+                  <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                    {(nextBooking as any).beauty_providers?.business_name}
+                    {(nextBooking as any).beauty_providers?.city
+                      ? ` · ${(nextBooking as any).beauty_providers.city}`
+                      : ""}
+                  </div>
+                  <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-primary">
+                    <Calendar className="h-3 w-3" />
+                    {new Date(nextBooking.slot_start).toLocaleString(isFr ? "fr-FR" : "en-US", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                </div>
+              </div>
+            </motion.button>
+          )}
+
           {/* Action cards */}
           <div className="space-y-2.5">
             {actions.map((action) => (
