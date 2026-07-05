@@ -83,11 +83,7 @@ export default function BeautyProviderOnboarding() {
     })();
   }, [user]);
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate(`/auth?returnTo=${encodeURIComponent("/beauty/pro/onboarding")}`);
-    }
-  }, [user, authLoading, navigate]);
+  // No auto-redirect: the GuestGate below invites signup/login in Digital's style.
 
   const step = STEPS[stepIdx];
 
