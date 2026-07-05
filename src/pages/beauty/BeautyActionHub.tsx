@@ -50,7 +50,14 @@ export default function BeautyActionHub() {
 
   useEffect(() => {
     document.title = "SiteViral Beauty — Que veux-tu faire ?";
+    // Remember the active vertical so post-login redirection lands back here.
+    try { localStorage.setItem('sv_last_vertical', 'beauty'); } catch {}
   }, []);
+
+  const goAuth = (returnTo: string) => {
+    try { sessionStorage.setItem('sv_auth_returnTo', returnTo); } catch {}
+    navigate(`/auth?returnTo=${encodeURIComponent(returnTo)}`);
+  };
 
   const actions = [
     {
