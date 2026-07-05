@@ -52,6 +52,7 @@ const PageLoader = () => (
 const ActionHub = lazy(() => import("@/pages/ActionHub"));
 const BeautyLanding = lazy(() => import("@/pages/beauty/BeautyLanding"));
 const BeautyProviderOnboarding = lazy(() => import("@/pages/beauty/BeautyProviderOnboarding"));
+const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
