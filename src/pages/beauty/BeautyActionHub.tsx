@@ -50,7 +50,14 @@ export default function BeautyActionHub() {
 
   useEffect(() => {
     document.title = "SiteViral Beauty — Que veux-tu faire ?";
+    // Remember the active vertical so post-login redirection lands back here.
+    try { localStorage.setItem('sv_last_vertical', 'beauty'); } catch {}
   }, []);
+
+  const goAuth = (returnTo: string) => {
+    try { sessionStorage.setItem('sv_auth_returnTo', returnTo); } catch {}
+    navigate(`/auth?returnTo=${encodeURIComponent(returnTo)}`);
+  };
 
   const actions = [
     {
@@ -106,10 +113,10 @@ export default function BeautyActionHub() {
         ]
       : [
           {
-            id: "become-pro",
+            id: "offer-services",
             icon: Scissors,
-            titleFr: "Devenir pro",
-            titleEn: "Become a pro",
+            titleFr: "Proposer mes services",
+            titleEn: "Offer my services",
             descFr: "Remplis ton agenda, encaisse en Mobile Money",
             descEn: "Fill your calendar, get paid in Mobile Money",
             route: user ? "/beauty/pro/onboarding" : "/auth?returnTo=/beauty/pro/onboarding",
@@ -155,7 +162,7 @@ export default function BeautyActionHub() {
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           {!user && (
-            <Button size="sm" className="h-8 text-xs" onClick={() => navigate("/auth")}>
+            <Button size="sm" className="h-8 text-xs" onClick={() => goAuth("/beauty")}>
               {t("Se connecter", "Sign in")}
             </Button>
           )}
@@ -185,8 +192,8 @@ export default function BeautyActionHub() {
             </h1>
             <p className="mx-auto max-w-[280px] text-xs text-muted-foreground">
               {t(
-                "Réserve, discute, deviens pro — tout en un seul endroit.",
-                "Book, chat, become a pro — all in one place.",
+                "Réserve, discute, propose tes services — tout en un seul endroit.",
+                "Book, chat, offer your services — all in one place.",
               )}
             </p>
           </motion.div>
