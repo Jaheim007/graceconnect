@@ -115,6 +115,7 @@ export default function BeautyBookingDetail() {
   const isClient = user?.id === booking.client_id;
   const service = (booking as any).beauty_services;
   const provider = (booking as any).beauty_providers;
+  const isProvider = !!user?.id && provider?.user_id === user.id;
   const currency = (booking.currency ?? "XOF") as any;
   const amount = booking.price_amount ?? booking.price_xof ?? 0;
 
