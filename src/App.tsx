@@ -332,7 +332,8 @@ const App = () => (
                 <Route path="/digital/about" element={<LandingPage />} />
                 <Route path="/hub" element={<ActionHub />} />
                 {/* SiteViral Beauty */}
-                <Route path="/beauty" element={<BeautyLanding />} />
+                <Route path="/beauty" element={<BeautyActionHub />} />
+                <Route path="/beauty/about" element={<BeautyLanding />} />
                 <Route path="/beauty/pro/onboarding" element={<RequireAuth><BeautyProviderOnboarding /></RequireAuth>} />
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
