@@ -544,7 +544,7 @@ function BookingsTab({ providerId }: { providerId: string }) {
     queryKey: ["beauty-pro-bookings", providerId, filter],
     queryFn: async () => {
       let q = supabase.from("beauty_bookings")
-        .select("id, status, slot_start, slot_end, price_amount, currency, address, location_type, beauty_services(title), profiles!beauty_bookings_client_id_fkey(display_name, avatar_url)")
+        .select("id, status, slot_start, slot_end, price_amount, currency, address, location_type, client_id, beauty_services(title)")
         .eq("provider_id", providerId)
         .order("slot_start", { ascending: filter === "past" ? false : true })
         .limit(50);
