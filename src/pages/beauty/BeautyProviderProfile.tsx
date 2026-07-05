@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, Star, MapPin, ShieldCheck, Clock, Home, Store, Sparkles,
-  MessageCircle, Calendar, ChevronRight,
+  MessageCircle, Calendar, ChevronRight, Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/currency";
 import { useI18n } from "@/i18n/I18nContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { cn } from "@/lib/utils";
 
