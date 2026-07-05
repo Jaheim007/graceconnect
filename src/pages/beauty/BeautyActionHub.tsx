@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Search, Calendar, MessageCircle, Scissors, LayoutDashboard,
-  ArrowRight, Sun, Moon, Sparkles,
+  ArrowRight, Sun, Moon, Sparkles, MapPin, Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -45,6 +45,27 @@ export default function BeautyActionHub() {
         .eq("user_id", user.id)
         .maybeSingle();
       return !!data;
+    },
+  });
+
+  // Next upcoming appointment (confirmed or pending, slot_start in the future)
+  const { data: nextBooking } = useQuery({
+    queryKey: ["beauty-next-booking", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const nowIso = new Date().toISOString();
+      const { data } = await supabase
+        .from("beauty_bookings")
+        .select(
+          "id, status, slot_start, location_type, beauty_services(title), beauty_providers(business_name, avatar_url, city)",
+        )
+        .eq("client_id", user!.id)
+        .in("status", ["pending", "confirmed", "paid"])
+        .gte("slot_start", nowIso)
+        .order("slot_start", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      return data;
     },
   });
 
