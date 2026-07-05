@@ -77,9 +77,9 @@ export function BeautyHeader({ showBack = true, right }: BeautyHeaderProps) {
           </Button>
         )}
         <button
-          onClick={() => navigate("/beauty")}
+          onClick={() => { window.location.href = "https://siteviral.com"; }}
           className="flex items-center"
-          aria-label="SiteViral Beauty"
+          aria-label="SiteViral"
         >
           <SiteLogo size="sm" animate linked={false} />
         </button>

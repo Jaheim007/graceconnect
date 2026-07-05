@@ -23,6 +23,13 @@ export function GuestGate({ icon: Icon, iconBg = 'bg-primary/10', iconColor = 't
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
+  const goAuth = (mode?: 'signup') => {
+    try { sessionStorage.setItem('sv_auth_returnTo', nextUrl); } catch {}
+    const params = new URLSearchParams({ returnTo: nextUrl });
+    if (mode) params.set('mode', mode);
+    navigate(`/auth?${params.toString()}`);
+  };
+
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background">
       <header className="h-14 sticky top-0 z-40 glass border-b border-border flex items-center px-4 gap-3">
@@ -46,7 +53,7 @@ export function GuestGate({ icon: Icon, iconBg = 'bg-primary/10', iconColor = 't
             <Button
               size="lg"
               className="w-full gap-2 text-sm font-bold"
-              onClick={() => navigate(`/auth?mode=signup&next=${encodeURIComponent(nextUrl)}`)}
+              onClick={() => goAuth('signup')}
             >
               <Sparkles className="h-4 w-4" />
               {isFr ? 'Créer mon compte gratuit' : 'Create my free account'}
@@ -56,7 +63,7 @@ export function GuestGate({ icon: Icon, iconBg = 'bg-primary/10', iconColor = 't
               variant="ghost"
               size="sm"
               className="text-xs text-muted-foreground"
-              onClick={() => navigate(`/auth?next=${encodeURIComponent(nextUrl)}`)}
+              onClick={() => goAuth()}
             >
               {isFr ? "J'ai déjà un compte" : 'I already have an account'}
             </Button>
