@@ -43,7 +43,7 @@ export default function BeautyLanding() {
               <Link to="/beauty/search">Explorer</Link>
             </Button>
             <Button asChild size="sm" className="beauty-gradient text-white hover:opacity-90">
-              <Link to="/beauty/pro/onboarding">Devenir pro <ArrowRight className="ml-1 h-4 w-4" /></Link>
+              <Link to="/beauty/pro/onboarding">Proposer mes services <ArrowRight className="ml-1 h-4 w-4" /></Link>
             </Button>
           </div>
         </div>
