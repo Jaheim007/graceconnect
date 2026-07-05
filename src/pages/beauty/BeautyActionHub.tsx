@@ -113,10 +113,10 @@ export default function BeautyActionHub() {
         ]
       : [
           {
-            id: "become-pro",
+            id: "offer-services",
             icon: Scissors,
-            titleFr: "Devenir pro",
-            titleEn: "Become a pro",
+            titleFr: "Proposer mes services",
+            titleEn: "Offer my services",
             descFr: "Remplis ton agenda, encaisse en Mobile Money",
             descEn: "Fill your calendar, get paid in Mobile Money",
             route: user ? "/beauty/pro/onboarding" : "/auth?returnTo=/beauty/pro/onboarding",
