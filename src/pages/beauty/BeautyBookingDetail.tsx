@@ -282,6 +282,19 @@ export default function BeautyBookingDetail() {
           </div>
         </div>
 
+        {/* OTP / dual-code panel */}
+        {(isClient || isProvider) && (
+          <BeautyOtpPanel
+            booking={booking}
+            isClient={isClient}
+            isProvider={isProvider}
+            onChanged={() => {
+              qc.invalidateQueries({ queryKey: ["beauty-booking", id] });
+              refetch();
+            }}
+          />
+        )}
+
         {/* Actions */}
         <div className="flex flex-wrap gap-2">
           <Button
@@ -292,21 +305,12 @@ export default function BeautyBookingDetail() {
             <MessageCircle className="h-4 w-4" />
             {t("Ouvrir le chat", "Open chat")}
           </Button>
-          {canConfirm && (
-            <Button
-              onClick={handleConfirmService}
-              className="gap-1.5 beauty-gradient text-white hover:opacity-90"
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              {t("Confirmer la prestation", "Confirm service")}
-            </Button>
-          )}
           {canCancel && (
             <Button variant="ghost" onClick={handleCancel} className="text-rose-600 hover:text-rose-700">
               {t("Annuler", "Cancel")}
             </Button>
           )}
-          {isClient && booking.status === "completed" && (
+          {(isClient || isProvider) && (booking.status === "completed" || booking.status === "disputed") && (
             <Button
               variant="ghost"
               onClick={async () => {
@@ -335,32 +339,54 @@ export default function BeautyBookingDetail() {
           )}
         </div>
 
-        {/* Review form — for the client after completion OR cancellation, once */}
+        {/* Client → Provider review */}
         {isClient &&
           (booking.status === "completed" || booking.status === "cancelled" || booking.status === "no_show") &&
-          !existingReview && (
+          !clientReview && (
           <BeautyReviewForm
             bookingId={booking.id}
             providerId={booking.provider_id}
             currency={currency}
+            role="client"
             onSubmitted={() => {
-              qc.invalidateQueries({ queryKey: ["beauty-review", id] });
+              qc.invalidateQueries({ queryKey: ["beauty-reviews", id] });
               refetch();
             }}
           />
         )}
 
-        {existingReview && (
-          <div className="rounded-2xl border border-border/60 bg-card p-5">
+        {/* Provider → Client review */}
+        {isProvider &&
+          (booking.status === "completed" || booking.status === "cancelled" || booking.status === "no_show") &&
+          !providerReview && (
+          <BeautyReviewForm
+            bookingId={booking.id}
+            providerId={booking.provider_id}
+            clientId={booking.client_id}
+            currency={currency}
+            role="provider"
+            onSubmitted={() => {
+              qc.invalidateQueries({ queryKey: ["beauty-reviews", id] });
+              refetch();
+            }}
+          />
+        )}
+
+        {[clientReview, providerReview].filter(Boolean).map((r: any) => (
+          <div key={r.id} className="rounded-2xl border border-border/60 bg-card p-5">
             <div className="mb-2 flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-sm font-semibold">{t("Ton avis publié", "Your review")}</span>
-              <span className="ml-auto text-sm font-black">{existingReview.rating}/5 ★</span>
+              <span className="text-sm font-semibold">
+                {r.reviewer_role === "provider"
+                  ? t("Avis du prestataire sur le client", "Provider's review of the client")
+                  : t("Avis du client", "Client review")}
+              </span>
+              <span className="ml-auto text-sm font-black">{r.rating}/5 ★</span>
             </div>
-            {existingReview.title && <div className="text-sm font-bold">{existingReview.title}</div>}
-            {existingReview.body && <p className="mt-1 text-sm text-muted-foreground">{existingReview.body}</p>}
+            {r.title && <div className="text-sm font-bold">{r.title}</div>}
+            {r.body && <p className="mt-1 text-sm text-muted-foreground">{r.body}</p>}
           </div>
-        )}
+        ))}
       </main>
     </div>
   );
