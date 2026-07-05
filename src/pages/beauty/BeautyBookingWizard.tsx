@@ -19,6 +19,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { GuestGate } from "@/components/auth/GuestGate";
 
 type Step = "slot" | "location" | "review";
 
@@ -36,11 +37,6 @@ export default function BeautyBookingWizard() {
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  // Redirect to auth if not logged in
-  useEffect(() => {
-    if (!user) navigate(`/auth?returnTo=/beauty/book/${serviceId}`);
-  }, [user, serviceId, navigate]);
 
   // Service + provider
   const { data: bundle, isLoading } = useQuery({
@@ -123,6 +119,20 @@ export default function BeautyBookingWizard() {
     (step === "location" &&
       !!locationType &&
       (locationType !== "home" || address.trim().length > 5));
+
+  if (!user) {
+    return (
+      <GuestGate
+        icon={CalIcon}
+        title={t("Continue pour prendre rendez-vous", "Continue to book an appointment")}
+        subtitle={t(
+          "Crée un compte ou connecte-toi pour choisir ton créneau et confirmer ta prestation.",
+          "Create an account or sign in to choose your slot and confirm your service.",
+        )}
+        nextUrl={`/beauty/book/${serviceId}`}
+      />
+    );
+  }
 
   async function handlePay() {
     if (!selectedSlot || !bundle) return;
