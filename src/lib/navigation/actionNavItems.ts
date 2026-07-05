@@ -213,21 +213,8 @@ export function getBeautyNavItems(ctx: NavContext): ActionNavItem[] {
     iconColor: 'text-rose-500',
   });
 
-  if (ctx.isAuthenticated) {
-    items.push({
-      id: 'beauty-chat',
-      icon: MessageCircle,
-      emoji: '💬',
-      titleFr: 'Messages',
-      titleEn: 'Messages',
-      descFr: 'Discuter avec ton expert(e)',
-      descEn: 'Chat with your expert',
-      route: '/beauty/messages',
-      borderClass: 'border-violet-500/30 hover:border-violet-500/60',
-      iconBg: 'bg-violet-500/15',
-      iconColor: 'text-violet-500',
-    });
-  }
+  // Messages intentionally NOT in bottom nav — accessed via avatar menu / RDV details.
+
 
   items.push({
     id: 'beauty-pro',
