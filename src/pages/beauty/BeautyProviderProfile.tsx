@@ -313,7 +313,7 @@ export default function BeautyProviderProfile() {
         </Tabs>
       </section>
 
-      {/* Sticky action bar — chat first, book as fallback */}
+      {/* Sticky action bar — chat only (provider sends the offer) */}
       <div className="fixed inset-x-0 bottom-16 z-30 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center gap-2">
           <Button
@@ -321,19 +321,7 @@ export default function BeautyProviderProfile() {
             onClick={() => navigate(`/beauty/messages?provider=${provider.id}`)}
           >
             <MessageCircle className="mr-2 h-4 w-4" />
-            {t("Discuter", "Chat")}
-          </Button>
-          <Button
-            variant="outline"
-            className="h-11 gap-1.5"
-            onClick={() => {
-              if (!services?.length) return;
-              navigate(`/beauty/book/${services[0].id}`);
-            }}
-            disabled={!services?.length}
-          >
-            <Calendar className="h-4 w-4" />
-            <span className="hidden sm:inline">{t("Réserver seul", "Self-book")}</span>
+            {t("Discuter pour réserver", "Chat to book")}
           </Button>
         </div>
       </div>
