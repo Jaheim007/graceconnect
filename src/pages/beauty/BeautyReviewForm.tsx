@@ -13,17 +13,21 @@ import { formatCurrency } from "@/lib/currency";
 interface Props {
   bookingId: string;
   providerId: string;
+  clientId?: string;
   currency: string;
+  /** 'client' = client reviewing the provider (default). 'provider' = provider reviewing the client. */
+  role?: "client" | "provider";
   onSubmitted?: () => void;
 }
 
 const TIP_PRESETS = [0, 5, 10, 15, 20]; // %
 
-export default function BeautyReviewForm({ bookingId, providerId, currency, onSubmitted }: Props) {
+export default function BeautyReviewForm({ bookingId, providerId, clientId, currency, role = "client", onSubmitted }: Props) {
   const { user } = useAuth();
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+  const isProviderReview = role === "provider";
 
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -49,18 +53,19 @@ export default function BeautyReviewForm({ bookingId, providerId, currency, onSu
     }
     setSubmitting(true);
     try {
-      const tipAmount = tipCustom
+      const tipAmount = !isProviderReview && tipCustom
         ? Math.max(0, Math.floor(Number(tipCustom) || 0))
         : 0;
       const { error } = await supabase.from("beauty_reviews").insert({
         booking_id: bookingId,
-        client_id: user.id,
+        client_id: clientId ?? user.id,
         provider_id: providerId,
+        reviewer_role: role,
         rating,
         title: title.trim() || null,
         body: body.trim() || null,
         tip_xof: tipAmount,
-      });
+      } as any);
       if (error) throw error;
       toast({
         title: t("Merci pour ton avis ✨", "Thanks for your review ✨"),
