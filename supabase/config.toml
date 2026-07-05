@@ -260,3 +260,9 @@ verify_jwt = false
 
 [functions.register-mobile-device]
 verify_jwt = false
+
+[functions.trust-process-violation]
+verify_jwt = false
+
+[functions.trust-admin-action]
+verify_jwt = false

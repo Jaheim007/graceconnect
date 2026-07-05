@@ -274,6 +274,8 @@ const SuperadminSettlements = lazy(() => import("@/pages/superadmin/SuperadminSe
 const SuperadminPartners = lazy(() => import("@/pages/superadmin/SuperadminPartners"));
 const SuperadminGlobalTemplates = lazy(() => import("@/pages/superadmin/studio/GlobalTemplatesManager"));
 const SuperadminAiPolicies = lazy(() => import("@/pages/superadmin/studio/AiPoliciesManager"));
+const SuperadminTrust = lazy(() => import("@/pages/superadmin/SuperadminTrust"));
+const AccountTrustPage = lazy(() => import("@/pages/AccountTrustPage"));
 const SuperadminGlobalJobs = lazy(() => import("@/pages/superadmin/studio/GlobalAiJobsMonitor"));
 const SuperadminAiAbuse = lazy(() => import("@/pages/superadmin/studio/AiAbuseMonitor"));
 const SuperadminAIHistory = lazy(() => import("@/pages/superadmin/SuperadminAIHistory"));
@@ -628,8 +630,10 @@ const App = () => (
                   <Route path="ai-history" element={<Suspense fallback={<PageLoader />}><SuperadminAIHistory /></Suspense>} />
                   <Route path="ads" element={<SuperadminAds />} />
                   <Route path="beauty" element={<SuperadminBeauty />} />
+                  <Route path="trust" element={<SuperadminTrust />} />
                 </Route>
 
+                <Route path="/account/trust" element={<AccountTrustPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </Suspense>
