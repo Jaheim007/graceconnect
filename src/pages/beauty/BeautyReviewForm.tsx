@@ -127,7 +127,11 @@ export default function BeautyReviewForm({ bookingId, providerId, clientId, curr
         className="mb-3"
       />
       <Textarea
-        placeholder={t("Raconte ton expérience (obligatoire, min. 10 caractères)…", "Tell us about your experience (required, min 10 chars)…")}
+        placeholder={
+          isProviderReview
+            ? t("Décris ton expérience avec ce client (ponctualité, respect, communication)…", "Describe your experience with this client (punctuality, respect, communication)…")
+            : t("Raconte ton expérience (obligatoire, min. 10 caractères)…", "Tell us about your experience (required, min 10 chars)…")
+        }
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={4}
@@ -136,7 +140,8 @@ export default function BeautyReviewForm({ bookingId, providerId, clientId, curr
         required
       />
 
-      {/* Tip */}
+      {/* Tip — only shown when a client reviews a provider */}
+      {!isProviderReview && (
       <div className="mb-4 rounded-xl bg-primary/5 p-4">
         <div className="mb-2 text-sm font-semibold">
           {t("Ajouter un pourboire ?", "Add a tip?")}
@@ -172,6 +177,7 @@ export default function BeautyReviewForm({ bookingId, providerId, clientId, curr
           </div>
         )}
       </div>
+      )}
 
       <Button
         onClick={submit}
