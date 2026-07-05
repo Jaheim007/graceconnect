@@ -231,9 +231,11 @@ export default function BeautyProviderOnboarding() {
                 <Input id="bn" value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Ex : Chez Aïcha Beauty" />
               </div>
               <div>
-                <Label htmlFor="ph">Téléphone WhatsApp</Label>
+                <Label htmlFor="ph">Téléphone WhatsApp (interne SiteViral)</Label>
                 <Input id="ph" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+225 07 00 00 00 00" />
-                <p className="mt-1 text-xs text-muted-foreground">Masqué au client tant que la réservation n’est pas confirmée.</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Utilisé uniquement par l’équipe SiteViral (support, KYC, litiges, paiements). <strong>Jamais visible par les clients</strong>, ni avant ni après la réservation. Toute la communication client passe par le chat SiteViral.
+                </p>
               </div>
               <div>
                 <Label htmlFor="bio">Bio courte</Label>
