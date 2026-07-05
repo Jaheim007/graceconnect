@@ -8150,6 +8150,10 @@ export type Database = {
         Args: { _provider_id: string }
         Returns: undefined
       }
+      beauty_refresh_provider_stats: {
+        Args: { p_provider_id: string }
+        Returns: undefined
+      }
       can_admin_org: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
