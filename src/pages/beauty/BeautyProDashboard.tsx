@@ -278,7 +278,7 @@ function ServicesTab({ providerId, providerCurrency }: { providerId: string; pro
 
   const currency = payoutCurrency ?? providerCurrency ?? "XOF";
 
-  const openNew = () => { setEditing({ category: CATEGORIES[0], duration_min: 60, price_amount: 10000, currency, at_salon: true, at_home: false, active: true, allow_deposit: true }); setOpen(true); };
+  const openNew = () => { setEditing({ category: CATEGORIES[0], duration_min: 60, price_amount: 10000, currency, at_salon: true, at_home: false, active: true, allow_deposit: false }); setOpen(true); };
   const openEdit = (s: any) => { setEditing({ ...s, currency: s.currency ?? currency, price_amount: s.price_amount ?? s.price_xof }); setOpen(true); };
 
   const save = async () => {
