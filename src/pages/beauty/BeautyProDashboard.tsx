@@ -205,22 +205,24 @@ function OverviewTab({ providerId, provider, stats }: { providerId: string; prov
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard icon={Calendar} label="À venir" value={counts?.upcoming ?? 0} />
-        <StatCard icon={Clock} label="En attente" value={counts?.pending ?? 0} />
-        <StatCard icon={MessageCircle} label="Messages" value={counts?.unread ?? 0} />
-        <StatCard icon={TrendingUp} label="Note" value={stats?.avg_rating?.toFixed(1) ?? "—"} />
+        <StatCard icon={Calendar} label="À venir" value={counts?.upcoming ?? 0} tone="rose" />
+        <StatCard icon={Clock} label="En attente" value={counts?.pending ?? 0} tone="amber" />
+        <StatCard icon={MessageCircle} label="Messages" value={counts?.unread ?? 0} tone="violet" />
+        <StatCard icon={TrendingUp} label="Note" value={stats?.avg_rating?.toFixed(1) ?? "—"} tone="emerald" />
       </div>
 
-      <Card className="p-5">
+      <Card className="p-5 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
         <div className="flex items-center gap-3 mb-3">
-          <Wallet className="h-5 w-5 text-primary" />
+          <span className="grid h-9 w-9 place-items-center rounded-xl beauty-gradient text-white">
+            <Wallet className="h-4 w-4" />
+          </span>
           <div className="font-semibold">Profil public</div>
         </div>
         <div className="text-sm text-muted-foreground mb-3">
-          Ton profil est visible à l’adresse <code className="text-xs bg-muted px-1.5 py-0.5 rounded">/beauty/p/{provider.slug}</code>
+          Ton profil est visible à l'adresse <code className="text-xs bg-muted px-1.5 py-0.5 rounded">/beauty/p/{provider.slug}</code>
         </div>
-        <div className="flex gap-2">
-          <Button asChild variant="outline" size="sm">
+        <div className="flex gap-2 flex-wrap">
+          <Button asChild size="sm" className="beauty-gradient text-white hover:opacity-90">
             <Link to={`/beauty/p/${provider.slug}`}>Voir mon profil</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
@@ -232,12 +234,19 @@ function OverviewTab({ providerId, provider, stats }: { providerId: string; prov
   );
 }
 
-function StatCard({ icon: Icon, label, value }: { icon: any; label: string; value: any }) {
+function StatCard({ icon: Icon, label, value, tone = "primary" }: { icon: any; label: string; value: any; tone?: "primary" | "rose" | "amber" | "violet" | "emerald" }) {
+  const tones: Record<string, string> = {
+    primary: "from-primary/10 to-primary/5 text-primary",
+    rose: "from-rose-500/10 to-rose-500/5 text-rose-500 dark:text-rose-400",
+    amber: "from-amber-500/10 to-amber-500/5 text-amber-600 dark:text-amber-400",
+    violet: "from-violet-500/10 to-violet-500/5 text-violet-500 dark:text-violet-400",
+    emerald: "from-emerald-500/10 to-emerald-500/5 text-emerald-600 dark:text-emerald-400",
+  };
   return (
-    <Card className="p-4">
-      <Icon className="h-4 w-4 text-muted-foreground mb-2" />
-      <div className="text-2xl font-bold">{value}</div>
-      <div className="text-xs text-muted-foreground">{label}</div>
+    <Card className={`p-4 bg-gradient-to-br ${tones[tone]} border-border/60`}>
+      <Icon className="h-4 w-4 mb-2 opacity-80" />
+      <div className="text-2xl font-black text-foreground">{value}</div>
+      <div className="text-xs text-muted-foreground mt-0.5">{label}</div>
     </Card>
   );
 }
