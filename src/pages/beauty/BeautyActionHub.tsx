@@ -20,7 +20,6 @@ import { cn } from "@/lib/utils";
  * pointing to /beauty/about.
  */
 export default function BeautyActionHub() {
-  const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
   const { locale } = useI18n();
   const navigate = useNavigate();
