@@ -341,6 +341,9 @@ const App = () => (
                 <Route path="/beauty/about" element={<BeautyLanding />} />
                 <Route path="/beauty/search" element={<BeautySearch />} />
                 <Route path="/beauty/p/:slug" element={<BeautyProviderProfile />} />
+                <Route path="/beauty/book/:serviceId" element={<RequireAuth><BeautyBookingWizard /></RequireAuth>} />
+                <Route path="/beauty/bookings" element={<RequireAuth><BeautyBookingsList /></RequireAuth>} />
+                <Route path="/beauty/bookings/:id" element={<RequireAuth><BeautyBookingDetail /></RequireAuth>} />
                 <Route path="/beauty/pro/onboarding" element={<RequireAuth><BeautyProviderOnboarding /></RequireAuth>} />
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
