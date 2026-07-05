@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { formatCurrency } from "@/lib/currency";
 import { useI18n } from "@/i18n/I18nContext";
 import { BeautyHeader } from "@/components/beauty/BeautyHeader";
+import { GuestGate } from "@/components/auth/GuestGate";
 import { cn } from "@/lib/utils";
 
 const STATUS_TONE: Record<string, string> = {
