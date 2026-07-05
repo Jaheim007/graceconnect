@@ -1,82 +1,83 @@
-# SiteViral Beauty — MVP Build Plan
 
-## Flow fix (do first)
-Mirror the Digital pattern. Right now `/beauty` opens the long marketing page. Change to:
+# Beauty pivot — Chat-first bookings + Provider portfolios
 
-- `/beauty` → **BeautyActionHub** (Gojek-style "What do you want to do?" screen) with the marketing landing rendered underneath (scroll to learn more).
-- `/beauty/about` → the pure marketing landing (for footer links, ads, SEO).
-- Bottom nav on `/beauty/*` already swaps to Beauty items — keep it.
+## 1. New booking flow (Fiverr-style)
 
-The BeautyActionHub tiles (client-side, adapt if signed-in-as-pro):
-1. **Explorer les pros** → `/beauty/search`
-2. **Mes réservations** → `/beauty/bookings` (auth-gated)
-3. **Messages** → `/beauty/messages` (auth-gated)
-4. **Devenir pro** → `/beauty/pro/onboarding`
-5. **Espace pro** (visible if user has a `beauty_provider` row) → `/beauty/pro`
+Primary path: **provider sends the offer in chat**, client pays it.
 
-## MVP scope — what a first real user can do end-to-end
+```text
+Client → Explore (providers) → Provider page → "Discuter"
+   → Chat opens (no payment yet)
+   → Provider taps "Envoyer une offre" in chat:
+        · pick service · pick date/time · confirm price · optional note
+   → Special message bubble appears in the thread: "Offre — Coupe femme
+     15/07 14:00 · 15 000 XOF" with [Payer & confirmer] button (client side)
+     and [Annuler l'offre] (provider side, before payment)
+   → Client taps Pay → existing beauty-create-booking flow →
+     escrow → confirmed booking (same downstream logic as today)
+```
 
-### Client journey
-1. Land on `/beauty`, tap **Explorer**.
-2. **Search & discover** (`/beauty/search`) — filter by category, city, price range, rating, "à domicile / en salon". List view with provider cards (photo, name, rating, starting price, city).
-3. **Provider profile** (`/beauty/p/:slug`) — gallery, services list with prices/duration, availability calendar, reviews, "Réserver" CTA.
-4. **Booking wizard** (`/beauty/book/:serviceId`) — 3 steps: pick slot → pick mode (full escrow / 20% deposit) → pay (Paystack MoMo / Stripe). Contact info stays masked until confirmation.
-5. **Booking confirmation** (`/beauty/bookings/:id`) — status timeline, chat with pro, cancel/dispute buttons.
-6. **After service** — client taps "Confirmer la prestation", funds release to pro, review form unlocks (rating + optional tip 0–20%).
+Fallback path kept: the **"Réserver"** button on the service card / provider page
+still works exactly as today for clients who want to self-book without chatting.
 
-### Provider journey
-1. `/beauty/pro/onboarding` (already exists, 4 steps).
-2. **Provider dashboard** (`/beauty/pro`) — today's bookings, revenue this week, unread messages, quick "block a slot" action.
-3. **My services** (`/beauty/pro/services`) — CRUD on `beauty_services` (title, price, duration, description, photo).
-4. **My availability** (`/beauty/pro/availability`) — weekly recurring hours + one-off blocks.
-5. **My bookings** (`/beauty/pro/bookings`) — list, accept/decline, mark as done.
-6. **My messages** (`/beauty/pro/messages`) — thread list + realtime chat.
-7. **My payouts** (`/beauty/pro/payouts`) — reuse existing `payout_profiles` + `manual_payouts`.
+## 2. Provider portfolio
 
-### Superadmin
-- `/superadmin/beauty` — providers pending approval, active bookings, disputes queue, top providers by GMV. Reuse existing superadmin shell + `audit_logs`.
+Provider profile (`/beauty/pro/:id`) gets three tabs:
 
-## Data layer — what's already there vs what's missing
+- **Services** — existing services list with prices (already built).
+- **Galerie** — photo grid (before/after, salon interior, work samples).
+- **Vidéos** — short uploads + pasted YouTube / TikTok / Instagram / Vimeo
+  links, rendered with the existing `getVideoEmbedUrl` helper.
 
-**Already migrated (Phase A):** `beauty_providers`, `beauty_services`, `beauty_availability`, `beauty_availability_blocks`, `beauty_bookings`, `beauty_booking_events`, `beauty_conversations`, `beauty_messages`, `beauty_reviews`, `beauty_disputes`.
+Provider space (`/beauty/pro`) gets a **"Mon portfolio"** section to upload
+photos, add/remove videos, and reorder.
 
-**Missing / to add:**
-- `beauty_provider_stats` (materialized-ish table refreshed by trigger: total_bookings, avg_rating, response_time_avg, completion_rate) — needed for ranking.
-- Slot-generator SQL function `beauty_get_available_slots(provider_id, service_id, date_from, date_to)` — combines weekly availability + blocks + existing bookings.
-- Realtime enabled on `beauty_messages`, `beauty_bookings`, `beauty_booking_events`.
-- Trigger to auto-open a `beauty_conversation` when a booking is created.
-- Trigger to lock reviews until `booking.status = 'completed'`.
-- Escrow bookkeeping: booking gets `platform_fee_cents`, `provider_amount_cents`, `held_until` timestamp; auto-release job (edge function cron) after 24h post-completion.
-- Storage bucket `beauty-media` (public read, provider write on own path).
+## 3. Explore page becomes provider-first
 
-## Business rules (MVP defaults — tunable in `platform_settings`)
-- Platform commission: **10%** on the service amount.
-- Deposit mode: **20%** of price non-refundable if client no-shows; 100% refunded if pro no-shows.
-- Auto-release: **24h** after client confirmation (or auto-confirmed at H+24 after scheduled end).
-- Cancellation: free >24h before slot; 50% fee within 24h; 100% within 2h.
-- Cash-on-arrival mode: **disabled by default** for MVP.
-- Contact info (phone, whatsapp, address) masked in chat until booking is `paid` or `deposit_paid`.
-- Reviews only allowed on `completed` bookings; 1 review per booking.
+`/beauty/search` cards now show **providers** (salon/barber shops) with:
+cover photo, business name, city, rating, service count, starting-from price.
+Tap → provider page with the new tabs + a prominent **"Discuter"** button
+(and a secondary **"Voir les services"**).
 
-## Build phases (proposed order)
-1. **B0 — Flow fix + missing schema.** BeautyActionHub, route rewires, `beauty_provider_stats`, slot function, realtime, storage bucket. *~1 pass.*
-2. **B1 — Search & profile.** `/beauty/search` + `/beauty/p/:slug` + availability calendar read. *~1 pass.*
-3. **B2 — Booking flow.** Wizard + escrow-aware Paystack/Stripe checkout (reuse existing routers) + confirmation page. *~1 pass.*
-4. **B3 — Chat + realtime.** Conversation list, thread UI, message compose, contact-masking rule. *~1 pass.*
-5. **B4 — Provider dashboard.** All `/beauty/pro/*` pages. *~1 pass.*
-6. **B5 — Reviews, tips, auto-release cron.** Review form, tip flow, edge function `beauty-autorelease` (scheduled). *~1 pass.*
-7. **B6 — Superadmin console + polish.** *~1 pass.*
+## 4. Technical changes
 
-## Out of scope for MVP (deliberately deferred)
-- In-app video calls, home-service safety flow (SOS button), recurring appointments, provider teams/employees, loyalty points, dynamic pricing, waitlists per slot, multi-language beyond FR/EN, ads/boosts for pros.
+### Database (one migration)
+- `beauty_provider_media` table: `id, provider_id, kind ('photo'|'video'),
+  url, embed_url, position, created_at`. RLS: provider owns write, everyone
+  reads. GRANTs to anon/authenticated/service_role.
+- `beauty_offers` table: `id, conversation_id, provider_id, client_id,
+  service_id, slot_start, slot_end, location_type, address, price_amount,
+  currency, status ('pending'|'accepted'|'declined'|'expired'|'cancelled'),
+  booking_id nullable, expires_at, created_at`. RLS: participants only.
+- Storage: reuse existing `beauty-media` bucket (or create if missing) for
+  photo/video uploads.
 
-## Open questions before B0
-1. Currency for pricing: **XOF only at launch**, or allow each pro to price in their local currency (GHS/KES/…)?
-2. Booking modes at launch: **Full escrow + 20% deposit**, or ship only full escrow first to keep it simple?
-3. Do we require KYC before a provider can accept bookings, or allow "receive bookings now, KYC before first payout"?
+### Edge functions
+- `beauty-send-offer` (new): provider creates a `beauty_offers` row + posts
+  a system message into the conversation with `type='offer'` referencing the
+  offer id. Validates slot availability.
+- `beauty-accept-offer` (new): client-side; reuses `beauty-create-booking`
+  internally to mint a pending booking and returns the checkout URL. On
+  webhook success, offer row flips to `accepted` and links `booking_id`.
 
-## Technical notes (for the record)
-- All new tables: standard GRANTs (`authenticated`, `service_role`), RLS-scoped by `provider.user_id` or `booking.client_id`.
-- Follow the existing `.beauty-scope` design tokens (rose/gold) — no hardcoded colors.
-- Bilingual FR/EN via `useI18n` — no exceptions.
-- Reuse `useDisplayCurrency`, `usePaymentGateway`, `KycGuard`, `payout_profiles`, existing edge functions for Paystack/Stripe checkout. Extend, don't duplicate.
+### Frontend
+- `BeautyConversation.tsx`: add offer message renderer + provider-only
+  "Envoyer une offre" sheet (service picker, date/time, price override).
+- New `BeautyProviderPortfolioEditor.tsx` under `/beauty/pro/portfolio`.
+- `BeautyProviderProfile.tsx`: add Services / Galerie / Vidéos tabs.
+- `BeautySearch.tsx`: switch from service cards to provider cards.
+- Keep `BeautyBookingWizard.tsx` and its "Réserver" entry point unchanged
+  as the fallback self-booking path.
+
+## 5. Out of scope for this round
+
+- No changes to payout timing, escrow rules, KYC, or currency logic.
+- No changes to reviews, disputes, cancellation windows.
+- No provider-scheduled bookings for a specific known client from the
+  dashboard (can add later — it's option 3 from your answer, you picked
+  option 2).
+
+---
+
+Approve and I'll ship it in this order: migration → portfolio UI (upload +
+tabs) → explore switch → chat offers (send + accept + pay).
