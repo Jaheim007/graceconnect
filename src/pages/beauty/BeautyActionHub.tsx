@@ -162,7 +162,7 @@ export default function BeautyActionHub() {
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           {!user && (
-            <Button size="sm" className="h-8 text-xs" onClick={() => navigate("/auth")}>
+            <Button size="sm" className="h-8 text-xs" onClick={() => goAuth("/beauty")}>
               {t("Se connecter", "Sign in")}
             </Button>
           )}
