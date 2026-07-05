@@ -52,14 +52,10 @@ export default function BeautyMessagesList() {
 
   return (
     <div className="min-h-dvh bg-background pb-24">
-      <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur">
-        <div className="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/beauty")}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-lg font-semibold">{t("Messages", "Messages")}</h1>
-        </div>
-      </header>
+      <BeautyHeader showBack />
+      <div className="mx-auto max-w-2xl px-4 pt-4">
+        <h1 className="text-lg font-semibold">{t("Messages", "Messages")}</h1>
+      </div>
 
       <div className="mx-auto max-w-2xl px-4 py-6 space-y-3">
         {isLoading ? (
