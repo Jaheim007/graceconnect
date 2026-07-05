@@ -102,12 +102,13 @@ export default function BeautyMessagesList() {
   if (!user) {
     return (
       <GuestGate
+        icon={MessageCircle}
         title={t("Connecte-toi pour discuter", "Sign in to chat")}
         subtitle={t(
           "Retrouve tes conversations avec les pros de la beauté.",
           "Access your conversations with beauty pros.",
         )}
-        returnTo={`/beauty/messages${providerParam ? `?provider=${providerParam}` : ""}`}
+        nextUrl={`/beauty/messages${providerParam ? `?provider=${providerParam}` : ""}`}
       />
     );
   }
