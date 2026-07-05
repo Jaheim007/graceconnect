@@ -81,6 +81,60 @@ export type Database = {
           },
         ]
       }
+      account_trust_profiles: {
+        Row: {
+          admin_review_required: boolean
+          created_at: string
+          hidden_until: string | null
+          last_violation_at: string | null
+          notes: string | null
+          payout_hold: boolean
+          restricted_until: string | null
+          status: string
+          suspended_until: string | null
+          trust_score: number
+          updated_at: string
+          user_id: string
+          violations_24h: number
+          violations_7d: number
+          violations_total: number
+        }
+        Insert: {
+          admin_review_required?: boolean
+          created_at?: string
+          hidden_until?: string | null
+          last_violation_at?: string | null
+          notes?: string | null
+          payout_hold?: boolean
+          restricted_until?: string | null
+          status?: string
+          suspended_until?: string | null
+          trust_score?: number
+          updated_at?: string
+          user_id: string
+          violations_24h?: number
+          violations_7d?: number
+          violations_total?: number
+        }
+        Update: {
+          admin_review_required?: boolean
+          created_at?: string
+          hidden_until?: string | null
+          last_violation_at?: string | null
+          notes?: string | null
+          payout_hold?: boolean
+          restricted_until?: string | null
+          status?: string
+          suspended_until?: string | null
+          trust_score?: number
+          updated_at?: string
+          user_id?: string
+          violations_24h?: number
+          violations_7d?: number
+          violations_total?: number
+        }
+        Relationships: []
+      }
       affiliate_attributions: {
         Row: {
           affiliate_link_id: string | null
@@ -1383,31 +1437,73 @@ export type Database = {
       }
       beauty_chat_violations: {
         Row: {
+          action_taken: string | null
+          admin_decision: string | null
+          admin_review_required: boolean
+          admin_reviewed_at: string | null
+          admin_reviewed_by: string | null
+          ai_admin_summary: string | null
+          ai_category: string | null
+          ai_confidence: number | null
+          ai_recommended_action: string | null
+          ai_user_message: string | null
           conversation_id: string
           created_at: string
           id: string
           matched: string | null
           original_body: string
+          processed_at: string | null
           reason: string
+          score_after: number | null
+          score_before: number | null
           sender_id: string
+          severity: string | null
         }
         Insert: {
+          action_taken?: string | null
+          admin_decision?: string | null
+          admin_review_required?: boolean
+          admin_reviewed_at?: string | null
+          admin_reviewed_by?: string | null
+          ai_admin_summary?: string | null
+          ai_category?: string | null
+          ai_confidence?: number | null
+          ai_recommended_action?: string | null
+          ai_user_message?: string | null
           conversation_id: string
           created_at?: string
           id?: string
           matched?: string | null
           original_body: string
+          processed_at?: string | null
           reason: string
+          score_after?: number | null
+          score_before?: number | null
           sender_id: string
+          severity?: string | null
         }
         Update: {
+          action_taken?: string | null
+          admin_decision?: string | null
+          admin_review_required?: boolean
+          admin_reviewed_at?: string | null
+          admin_reviewed_by?: string | null
+          ai_admin_summary?: string | null
+          ai_category?: string | null
+          ai_confidence?: number | null
+          ai_recommended_action?: string | null
+          ai_user_message?: string | null
           conversation_id?: string
           created_at?: string
           id?: string
           matched?: string | null
           original_body?: string
+          processed_at?: string | null
           reason?: string
+          score_after?: number | null
+          score_before?: number | null
           sender_id?: string
+          severity?: string | null
         }
         Relationships: [
           {
@@ -7633,6 +7729,56 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      trust_notifications_log: {
+        Row: {
+          channel: string
+          created_at: string
+          delivery_status: string
+          error_detail: string | null
+          id: string
+          message: string | null
+          notification_type: string
+          sent_at: string | null
+          subject: string | null
+          user_id: string
+          violation_id: string | null
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          delivery_status?: string
+          error_detail?: string | null
+          id?: string
+          message?: string | null
+          notification_type: string
+          sent_at?: string | null
+          subject?: string | null
+          user_id: string
+          violation_id?: string | null
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          delivery_status?: string
+          error_detail?: string | null
+          id?: string
+          message?: string | null
+          notification_type?: string
+          sent_at?: string | null
+          subject?: string | null
+          user_id?: string
+          violation_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trust_notifications_log_violation_id_fkey"
+            columns: ["violation_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_chat_violations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_badges: {
         Row: {
