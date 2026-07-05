@@ -1473,12 +1473,79 @@ export type Database = {
           },
         ]
       }
+      beauty_extra_charges: {
+        Row: {
+          amount: number
+          booking_id: string
+          client_id: string
+          created_at: string
+          currency: string
+          description: string
+          expires_at: string
+          gateway: string | null
+          id: string
+          paid_at: string | null
+          payment_intent_id: string | null
+          provider_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          booking_id: string
+          client_id: string
+          created_at?: string
+          currency?: string
+          description: string
+          expires_at?: string
+          gateway?: string | null
+          id?: string
+          paid_at?: string | null
+          payment_intent_id?: string | null
+          provider_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string
+          client_id?: string
+          created_at?: string
+          currency?: string
+          description?: string
+          expires_at?: string
+          gateway?: string | null
+          id?: string
+          paid_at?: string | null
+          payment_intent_id?: string | null
+          provider_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_extra_charges_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beauty_extra_charges_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       beauty_messages: {
         Row: {
           body: string
           contains_contact_attempt: boolean
           conversation_id: string
           created_at: string
+          extra_charge_id: string | null
           id: string
           kind: string
           offer_id: string | null
@@ -1491,6 +1558,7 @@ export type Database = {
           contains_contact_attempt?: boolean
           conversation_id: string
           created_at?: string
+          extra_charge_id?: string | null
           id?: string
           kind?: string
           offer_id?: string | null
@@ -1503,6 +1571,7 @@ export type Database = {
           contains_contact_attempt?: boolean
           conversation_id?: string
           created_at?: string
+          extra_charge_id?: string | null
           id?: string
           kind?: string
           offer_id?: string | null
@@ -1516,6 +1585,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "beauty_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beauty_messages_extra_charge_id_fkey"
+            columns: ["extra_charge_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_extra_charges"
             referencedColumns: ["id"]
           },
           {
