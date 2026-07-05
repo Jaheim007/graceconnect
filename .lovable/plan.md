@@ -1,242 +1,82 @@
 # SiteViral Beauty — MVP Build Plan
 
-A booking marketplace for beauty services in Abidjan, running as a **vertical inside SiteViral** (reusing auth, KYC, payouts, GeniusPay/Paystack/Stripe, disputes, notifications, ambassador system). It introduces its own routes, schema, chat, calendar, and escrow logic.
+## Flow fix (do first)
+Mirror the Digital pattern. Right now `/beauty` opens the long marketing page. Change to:
 
----
+- `/beauty` → **BeautyActionHub** (Gojek-style "What do you want to do?" screen) with the marketing landing rendered underneath (scroll to learn more).
+- `/beauty/about` → the pure marketing landing (for footer links, ads, SEO).
+- Bottom nav on `/beauty/*` already swaps to Beauty items — keep it.
 
-## 1. Product scope (MVP)
+The BeautyActionHub tiles (client-side, adapt if signed-in-as-pro):
+1. **Explorer les pros** → `/beauty/search`
+2. **Mes réservations** → `/beauty/bookings` (auth-gated)
+3. **Messages** → `/beauty/messages` (auth-gated)
+4. **Devenir pro** → `/beauty/pro/onboarding`
+5. **Espace pro** (visible if user has a `beauty_provider` row) → `/beauty/pro`
 
-**Two sides:**
-- **Clients** — browse providers, book with deposit or full escrow, chat, review.
-- **Providers** — publish services, manage calendar, chat, receive payouts after completion.
+## MVP scope — what a first real user can do end-to-end
 
-**Three booking modes** (per service, provider chooses which they accept):
-1. **Full escrow** — client pays 100% online, held until "service completed" confirmation.
-2. **Deposit / Reserve** — client pays 20% on-platform, balance in cash at appointment.
-3. **Cash on arrival** — no money on platform (only offered to providers with high trust score; disabled by default at launch).
+### Client journey
+1. Land on `/beauty`, tap **Explorer**.
+2. **Search & discover** (`/beauty/search`) — filter by category, city, price range, rating, "à domicile / en salon". List view with provider cards (photo, name, rating, starting price, city).
+3. **Provider profile** (`/beauty/p/:slug`) — gallery, services list with prices/duration, availability calendar, reviews, "Réserver" CTA.
+4. **Booking wizard** (`/beauty/book/:serviceId`) — 3 steps: pick slot → pick mode (full escrow / 20% deposit) → pay (Paystack MoMo / Stripe). Contact info stays masked until confirmation.
+5. **Booking confirmation** (`/beauty/bookings/:id`) — status timeline, chat with pro, cancel/dispute buttons.
+6. **After service** — client taps "Confirmer la prestation", funds release to pro, review form unlocks (rating + optional tip 0–20%).
 
-**Core rules (from your strategy):**
-- No contact info / external payment shared before booking is confirmed.
-- Reviews unlocked only after a paid or deposit booking.
-- Provider payout only after client "completed" confirmation OR auto-release J+3 (72h).
-- Refunds/disputes = manual arbitration by superadmin (reuse existing dispute shell).
-- 50/50 no-show split.
-- Optional **tip** at review time (0% commission).
-- Commission: same 10% platform base as SiteViral core (configurable per category).
+### Provider journey
+1. `/beauty/pro/onboarding` (already exists, 4 steps).
+2. **Provider dashboard** (`/beauty/pro`) — today's bookings, revenue this week, unread messages, quick "block a slot" action.
+3. **My services** (`/beauty/pro/services`) — CRUD on `beauty_services` (title, price, duration, description, photo).
+4. **My availability** (`/beauty/pro/availability`) — weekly recurring hours + one-off blocks.
+5. **My bookings** (`/beauty/pro/bookings`) — list, accept/decline, mark as done.
+6. **My messages** (`/beauty/pro/messages`) — thread list + realtime chat.
+7. **My payouts** (`/beauty/pro/payouts`) — reuse existing `payout_profiles` + `manual_payouts`.
 
----
+### Superadmin
+- `/superadmin/beauty` — providers pending approval, active bookings, disputes queue, top providers by GMV. Reuse existing superadmin shell + `audit_logs`.
 
-## 2. Routes & pages
+## Data layer — what's already there vs what's missing
 
-**Public / client side** (`/beauty/*`)
-```
-/beauty                          Landing (hero, categories, top providers, how it works)
-/beauty/search                   Search + filters (category, zone, price, availability, rating)
-/beauty/provider/:slug           Provider profile (services, gallery, reviews, calendar)
-/beauty/service/:id              Service detail + booking CTA
-/beauty/book/:serviceId          Booking flow (slot → mode → payment)
-/beauty/checkout/success         Post-payment confirmation
-/beauty/bookings                 Client's bookings dashboard
-/beauty/bookings/:id             Booking detail + chat + status actions
-/beauty/messages                 Inbox (all conversations)
-```
+**Already migrated (Phase A):** `beauty_providers`, `beauty_services`, `beauty_availability`, `beauty_availability_blocks`, `beauty_bookings`, `beauty_booking_events`, `beauty_conversations`, `beauty_messages`, `beauty_reviews`, `beauty_disputes`.
 
-**Provider side** (`/beauty/pro/*`, gated by `beauty_provider` role)
-```
-/beauty/pro/onboarding           KYC + profile + service setup wizard
-/beauty/pro/dashboard            KPIs (bookings, revenue, response time, rating)
-/beauty/pro/services             CRUD services & pricing modes
-/beauty/pro/calendar             Availability grid + booked slots
-/beauty/pro/bookings             Booking queue (pending, upcoming, completed)
-/beauty/pro/messages             Inbox
-/beauty/pro/reviews              Reviews received + reply
-/beauty/pro/payouts              Reuse existing payout profile flow
-```
+**Missing / to add:**
+- `beauty_provider_stats` (materialized-ish table refreshed by trigger: total_bookings, avg_rating, response_time_avg, completion_rate) — needed for ranking.
+- Slot-generator SQL function `beauty_get_available_slots(provider_id, service_id, date_from, date_to)` — combines weekly availability + blocks + existing bookings.
+- Realtime enabled on `beauty_messages`, `beauty_bookings`, `beauty_booking_events`.
+- Trigger to auto-open a `beauty_conversation` when a booking is created.
+- Trigger to lock reviews until `booking.status = 'completed'`.
+- Escrow bookkeeping: booking gets `platform_fee_cents`, `provider_amount_cents`, `held_until` timestamp; auto-release job (edge function cron) after 24h post-completion.
+- Storage bucket `beauty-media` (public read, provider write on own path).
 
-**Superadmin** (extend `/superadmin`)
-```
-/superadmin/beauty/providers     KYC review, suspend, trust score
-/superadmin/beauty/bookings      Live bookings, disputes queue
-/superadmin/beauty/disputes      Arbitration workspace
-/superadmin/beauty/reviews       Fake-review flags
-```
+## Business rules (MVP defaults — tunable in `platform_settings`)
+- Platform commission: **10%** on the service amount.
+- Deposit mode: **20%** of price non-refundable if client no-shows; 100% refunded if pro no-shows.
+- Auto-release: **24h** after client confirmation (or auto-confirmed at H+24 after scheduled end).
+- Cancellation: free >24h before slot; 50% fee within 24h; 100% within 2h.
+- Cash-on-arrival mode: **disabled by default** for MVP.
+- Contact info (phone, whatsapp, address) masked in chat until booking is `paid` or `deposit_paid`.
+- Reviews only allowed on `completed` bookings; 1 review per booking.
 
----
+## Build phases (proposed order)
+1. **B0 — Flow fix + missing schema.** BeautyActionHub, route rewires, `beauty_provider_stats`, slot function, realtime, storage bucket. *~1 pass.*
+2. **B1 — Search & profile.** `/beauty/search` + `/beauty/p/:slug` + availability calendar read. *~1 pass.*
+3. **B2 — Booking flow.** Wizard + escrow-aware Paystack/Stripe checkout (reuse existing routers) + confirmation page. *~1 pass.*
+4. **B3 — Chat + realtime.** Conversation list, thread UI, message compose, contact-masking rule. *~1 pass.*
+5. **B4 — Provider dashboard.** All `/beauty/pro/*` pages. *~1 pass.*
+6. **B5 — Reviews, tips, auto-release cron.** Review form, tip flow, edge function `beauty-autorelease` (scheduled). *~1 pass.*
+7. **B6 — Superadmin console + polish.** *~1 pass.*
 
-## 3. Data model (new tables, all under `public`, with GRANTs + RLS)
+## Out of scope for MVP (deliberately deferred)
+- In-app video calls, home-service safety flow (SOS button), recurring appointments, provider teams/employees, loyalty points, dynamic pricing, waitlists per slot, multi-language beyond FR/EN, ads/boosts for pros.
 
-```
-beauty_providers          (user_id, business_name, slug, bio, zones[], home_service_ok,
-                           trust_score, response_time_avg_min, avg_rating, total_bookings,
-                           status: pending|active|suspended, kyc_submission_id)
-beauty_services           (provider_id, category, title, description, duration_min,
-                           price_xof, allow_full_escrow, allow_deposit, deposit_pct,
-                           allow_cash, at_salon, at_home, images[], active)
-beauty_availability       (provider_id, weekday, start_time, end_time)  -- weekly template
-beauty_availability_blocks(provider_id, starts_at, ends_at, reason)     -- vacation/exception
-beauty_bookings           (id, service_id, provider_id, client_id, slot_start, slot_end,
-                           location_type: salon|home, address, mode: escrow|deposit|cash,
-                           price_xof, deposit_xof, commission_xof, tip_xof,
-                           status: pending_payment|confirmed|in_progress|completed
-                                  |cancelled|no_show|disputed|refunded,
-                           payment_intent_id, gateway, created_at, confirmed_at,
-                           completed_at, auto_release_at)
-beauty_booking_events     (booking_id, actor_id, event_type, payload, created_at)  -- audit
-beauty_conversations      (id, booking_id NULL, client_id, provider_id, last_message_at)
-beauty_messages           (conversation_id, sender_id, body, redacted_body,
-                           contains_contact_attempt, created_at, read_at)
-beauty_reviews            (booking_id UNIQUE, client_id, provider_id, rating 1-5,
-                           title, body, tip_xof, provider_reply, created_at)
-beauty_disputes           (booking_id, opened_by, reason, evidence[], status,
-                           resolution, resolved_by, resolved_at)
-beauty_provider_stats     (provider_id, day, bookings_count, revenue_xof, no_shows,
-                           avg_response_min)  -- materialized daily
-```
+## Open questions before B0
+1. Currency for pricing: **XOF only at launch**, or allow each pro to price in their local currency (GHS/KES/…)?
+2. Booking modes at launch: **Full escrow + 20% deposit**, or ship only full escrow first to keep it simple?
+3. Do we require KYC before a provider can accept bookings, or allow "receive bookings now, KYC before first payout"?
 
-Reuse existing: `kyc_submissions`, `payout_profiles`, `manual_payouts`, `refund_requests`, `moderation_actions`, `user_notifications`, `audit_logs`.
-
----
-
-## 4. Escrow & payout flow
-
-```
-client pays → payment_events row → booking.status = confirmed
-      ↓
-   appointment happens
-      ↓
-   client marks "completed"  OR  72h auto-release after slot_end
-      ↓
-   funds move from escrow ledger → provider payout balance
-      ↓
-   provider requests payout via existing SiteViral payout system
-```
-
-Cancellation matrix:
-- Client cancels >24h before: full refund minus gateway fee.
-- Client cancels <24h: 50% to provider, 50% refund.
-- Provider cancels: full refund + trust score penalty.
-- No-show (client): 50/50 split, requires provider proof (photo/GPS ping).
-- Dispute: funds frozen until superadmin arbitrates.
-
----
-
-## 5. Chat & anti-leak
-
-- Realtime via Supabase Realtime on `beauty_messages`.
-- Server-side redaction (edge function) before insert:
-  - Phone/email/WhatsApp regex → replaced with `[masked]` in `redacted_body`.
-  - Flag `contains_contact_attempt` for moderation.
-- Client sees `redacted_body` until booking is confirmed & paid; then full `body` is revealed.
-- Rate limiting + spam score to prevent flood.
-
----
-
-## 6. Calendar
-
-- Weekly availability template + exception blocks.
-- Slot generator RPC returns bookable 30-min slots for a given service/day, subtracting existing bookings and blocks.
-- Provider view: week grid; client view: next-14-days flat list per service.
-
----
-
-## 7. Ranking signals (search)
-
-Weighted score:
-- Avg rating (30%)
-- Total completed bookings (20%)
-- Response time (20%)  ← your addition
-- Trust score / KYC level (15%)
-- Recency of activity (10%)
-- Zone match (5%)
-
----
-
-## 8. Reuse map (don't rebuild)
-
-| Beauty need | Reuse from SiteViral |
-|---|---|
-| Auth, roles | `user_platform_roles` + new `beauty_provider` role |
-| KYC | `kyc_submissions` |
-| Payments | Existing Paystack + Stripe routers |
-| Payouts | `payout_profiles`, `manual_payouts` |
-| Refunds | `refund_requests` |
-| Notifications | `user_notifications`, bilingual email engine |
-| Ambassadors | Existing attribution (referral of clients & providers) |
-| Superadmin shell | Extend `/superadmin` with Beauty section |
-| i18n | `useI18n` FR/EN |
-| Design tokens | Existing semantic tokens |
-
----
-
-## 9. Build phases
-
-**Phase A — Foundations (schema + roles + shell)**
-- Migrations for all `beauty_*` tables with GRANTs and RLS.
-- `beauty_provider` role + role check helpers.
-- `/beauty` landing + navigation entry.
-- Provider onboarding wizard (KYC → profile → first service).
-
-**Phase B — Discovery & profiles**
-- Search + filters + provider profile + service detail.
-- Availability template + slot generator RPC.
-- Public provider gallery + reviews display.
-
-**Phase C — Booking & escrow**
-- Booking flow (slot → mode → payment via existing gateways).
-- Escrow ledger + auto-release cron edge function (J+3).
-- Cancellation matrix + refund path.
-- Booking dashboards (client & provider).
-
-**Phase D — Chat**
-- Conversations + messages + realtime.
-- Redaction edge function + reveal-on-confirm.
-- Inbox UI both sides.
-
-**Phase E — Reviews, tips, ranking**
-- Post-booking review flow with optional tip.
-- Ranking score RPC + search integration.
-- Provider reply to reviews.
-
-**Phase F — Superadmin Beauty console**
-- Providers KYC queue, bookings monitor, disputes workspace, reviews moderation.
-- Trust score adjustments + suspension actions.
-
-**Phase G — Polish**
-- Provider stats page (response time, revenue, cohort).
-- Notification templates FR/EN for all lifecycle events.
-- Empty states, loading skeletons, mobile-first pass, dark mode audit.
-
----
-
-## 10. Design direction
-
-- **Distinct sub-brand within SiteViral**: warmer palette (rose/gold accent) layered on existing semantic tokens — a new `beauty` theme scope in `index.css` (`.beauty-scope { --primary: ...; --accent: ... }`) so it doesn't leak into the core app.
-- Mobile-first, native-feel per project standards (40px touch targets, safe-area-insets).
-- Provider cards: rounded image tile + rating pill + response-time chip + "Réserver" CTA.
-- Booking flow as a 3-step stepper (Créneau → Formule → Paiement).
-
----
-
-## 11. Out of scope for MVP (queued for v2)
-
-- Home-service safety (panic button, live GPS share) — schema hooks reserved.
-- Recurring appointments / packages.
-- Provider teams / multi-staff calendars.
-- In-app video consultation.
-- Loyalty points specific to Beauty.
-
----
-
-## 12. Deliverable order for the first coding turn
-
-If you approve, I'll start with **Phase A**:
-1. Migration: all `beauty_*` tables + `beauty_provider` role + RLS + GRANTs.
-2. `/beauty` landing page (hero, categories, how-it-works) with warm sub-theme.
-3. Nav entry + route wiring.
-4. Provider onboarding wizard skeleton (KYC step reuses existing flow).
-
-Then we iterate phase by phase, verifying after each.
-
----
-
-**Confirm to proceed with Phase A, or tell me what to adjust** (scope, order, theme direction, commission %, deposit %, auto-release delay).
+## Technical notes (for the record)
+- All new tables: standard GRANTs (`authenticated`, `service_role`), RLS-scoped by `provider.user_id` or `booking.client_id`.
+- Follow the existing `.beauty-scope` design tokens (rose/gold) — no hardcoded colors.
+- Bilingual FR/EN via `useI18n` — no exceptions.
+- Reuse `useDisplayCurrency`, `usePaymentGateway`, `KycGuard`, `payout_profiles`, existing edge functions for Paystack/Stripe checkout. Extend, don't duplicate.

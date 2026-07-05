@@ -1487,6 +1487,47 @@ export type Database = {
           },
         ]
       }
+      beauty_provider_stats: {
+        Row: {
+          avg_rating: number
+          cancelled_bookings: number
+          completed_bookings: number
+          provider_id: string
+          response_time_minutes: number | null
+          review_count: number
+          total_bookings: number
+          updated_at: string
+        }
+        Insert: {
+          avg_rating?: number
+          cancelled_bookings?: number
+          completed_bookings?: number
+          provider_id: string
+          response_time_minutes?: number | null
+          review_count?: number
+          total_bookings?: number
+          updated_at?: string
+        }
+        Update: {
+          avg_rating?: number
+          cancelled_bookings?: number
+          completed_bookings?: number
+          provider_id?: string
+          response_time_minutes?: number | null
+          review_count?: number
+          total_bookings?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_provider_stats_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "beauty_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       beauty_providers: {
         Row: {
           at_salon_ok: boolean
@@ -8078,6 +8119,22 @@ export type Database = {
         Returns: Json
       }
       auto_detect_themes: { Args: { p_text: string }; Returns: string[] }
+      beauty_get_available_slots: {
+        Args: {
+          _date_from: string
+          _date_to: string
+          _service_id: string
+          _step_min?: number
+        }
+        Returns: {
+          slot_end: string
+          slot_start: string
+        }[]
+      }
+      beauty_recompute_provider_stats: {
+        Args: { _provider_id: string }
+        Returns: undefined
+      }
       can_admin_org: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
