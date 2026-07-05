@@ -29,10 +29,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { SUPPORTED_CURRENCIES, formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
-const CATEGORIES = [
-  "Coiffure", "Ongles", "Maquillage", "Soins visage",
-  "Extensions & cils", "Massage & spa", "Barbier", "Épilation",
-];
+import { BEAUTY_CATEGORIES } from "@/lib/beautyCategories";
+const CATEGORIES = BEAUTY_CATEGORIES;
+
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]; // 1..7 iso; we use 0..6 (Mon=0)
 
 const STATUS_TONE: Record<string, string> = {
