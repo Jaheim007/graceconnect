@@ -43,7 +43,7 @@ export default function BeautyBookingDetail() {
   const returnedFromCheckout = params.get("status") === "success";
   const sessionId = params.get("session_id");
 
-  const { data: booking, isLoading } = useQuery({
+  const { data: booking, isLoading, refetch } = useQuery({
     queryKey: ["beauty-booking", id],
     enabled: !!id,
     refetchInterval: (q) =>
@@ -55,6 +55,19 @@ export default function BeautyBookingDetail() {
           "*, beauty_services(title, category, duration_min), beauty_providers(business_name, avatar_url, city, slug)",
         )
         .eq("id", id!)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const { data: existingReview } = useQuery({
+    queryKey: ["beauty-review", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("beauty_reviews")
+        .select("id, rating, title, body")
+        .eq("booking_id", id!)
         .maybeSingle();
       return data;
     },
