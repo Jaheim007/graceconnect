@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BeautyHeader } from "@/components/beauty/BeautyHeader";
+import { BeautyPendingReviewNag } from "@/components/beauty/BeautyPendingReviewNag";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
