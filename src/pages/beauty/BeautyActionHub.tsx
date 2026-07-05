@@ -153,30 +153,7 @@ export default function BeautyActionHub() {
         canonicalUrl="https://siteviral.com/beauty"
       />
 
-      {/* Header */}
-      <header className="sticky top-0 z-30 h-14 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-full max-w-6xl items-center gap-3 px-4">
-          <button onClick={() => navigate("/")} className="flex items-center gap-2">
-            <SiteLogo size="sm" animate linked={false} />
-            <div className="leading-tight">
-              <div className="text-sm font-black tracking-tight">SiteViral</div>
-              <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
-                Beauty
-              </div>
-            </div>
-          </button>
-          <div className="flex-1" />
-          <GlobalPreferencesSelector />
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
-          {!user && (
-            <Button size="sm" className="h-8 text-xs" onClick={() => goAuth("/beauty")}>
-              {t("Se connecter", "Sign in")}
-            </Button>
-          )}
-        </div>
-      </header>
+      <BeautyHeader showBack={false} />
 
       {/* Main content — mirrors ActionHub */}
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-6 pb-28 sm:pb-8">
