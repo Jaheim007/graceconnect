@@ -211,11 +211,17 @@ export default function BeautyProviderProfile() {
 
         {/* Tabs */}
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="mt-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="services">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="services" className="text-xs">
               {t("Services", "Services")} ({services?.length ?? 0})
             </TabsTrigger>
-            <TabsTrigger value="reviews">
+            <TabsTrigger value="gallery" className="text-xs">
+              {t("Galerie", "Gallery")} ({photos.length})
+            </TabsTrigger>
+            <TabsTrigger value="videos" className="text-xs">
+              {t("Vidéos", "Videos")} ({videos.length})
+            </TabsTrigger>
+            <TabsTrigger value="reviews" className="text-xs">
               {t("Avis", "Reviews")} ({reviews?.length ?? 0})
             </TabsTrigger>
           </TabsList>
@@ -232,6 +238,69 @@ export default function BeautyProviderProfile() {
             )}
           </TabsContent>
 
+          <TabsContent value="gallery" className="mt-4">
+            {!photos.length ? (
+              <p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+                {t("Aucune photo pour l'instant.", "No photos yet.")}
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {photos.map((p: any) => (
+                  <a
+                    key={p.id}
+                    href={p.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group relative aspect-square overflow-hidden rounded-xl bg-muted"
+                  >
+                    <img
+                      src={p.url}
+                      alt={p.caption ?? ""}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition group-hover:scale-105"
+                    />
+                    {p.caption && (
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 text-[10px] text-white">
+                        {p.caption}
+                      </div>
+                    )}
+                  </a>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="videos" className="mt-4 space-y-3">
+            {!videos.length ? (
+              <p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+                {t("Aucune vidéo pour l'instant.", "No videos yet.")}
+              </p>
+            ) : (
+              videos.map((v: any) => (
+                <div key={v.id} className="overflow-hidden rounded-2xl border border-border/60 bg-black">
+                  {v.embed_url ? (
+                    <div className="aspect-video">
+                      <iframe
+                        src={v.embed_url}
+                        title={v.caption ?? "video"}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="h-full w-full"
+                      />
+                    </div>
+                  ) : v.url ? (
+                    <video src={v.url} controls className="w-full" />
+                  ) : null}
+                  {v.caption && (
+                    <div className="bg-card px-3 py-2 text-xs text-muted-foreground">
+                      {v.caption}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </TabsContent>
+
           <TabsContent value="reviews" className="mt-4 space-y-3">
             {!reviews?.length ? (
               <p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
@@ -244,28 +313,27 @@ export default function BeautyProviderProfile() {
         </Tabs>
       </section>
 
-      {/* Sticky book bar */}
+      {/* Sticky action bar — chat first, book as fallback */}
       <div className="fixed inset-x-0 bottom-16 z-30 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center gap-2">
           <Button
-            variant="outline"
-            className="h-11 gap-1.5"
+            className="h-11 flex-1 beauty-gradient text-white hover:opacity-90"
             onClick={() => navigate(`/beauty/messages?provider=${provider.id}`)}
           >
-            <MessageCircle className="h-4 w-4" />
-            <span className="hidden sm:inline">{t("Message", "Message")}</span>
+            <MessageCircle className="mr-2 h-4 w-4" />
+            {t("Discuter", "Chat")}
           </Button>
           <Button
-            className="h-11 flex-1 beauty-gradient text-white hover:opacity-90"
+            variant="outline"
+            className="h-11 gap-1.5"
             onClick={() => {
               if (!services?.length) return;
-              // Open booking on cheapest service by default
               navigate(`/beauty/book/${services[0].id}`);
             }}
             disabled={!services?.length}
           >
-            <Calendar className="mr-2 h-4 w-4" />
-            {t("Réserver", "Book now")}
+            <Calendar className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("Réserver seul", "Self-book")}</span>
           </Button>
         </div>
       </div>
