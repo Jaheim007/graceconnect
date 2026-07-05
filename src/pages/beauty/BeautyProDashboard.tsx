@@ -29,10 +29,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { SUPPORTED_CURRENCIES, formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
-const CATEGORIES = [
-  "Coiffure", "Ongles", "Maquillage", "Soins visage",
-  "Extensions & cils", "Massage & spa", "Barbier", "Épilation",
-];
+import { BEAUTY_CATEGORIES } from "@/lib/beautyCategories";
+const CATEGORIES = BEAUTY_CATEGORIES;
+
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]; // 1..7 iso; we use 0..6 (Mon=0)
 
 const STATUS_TONE: Record<string, string> = {
@@ -93,33 +92,48 @@ export default function BeautyProDashboard() {
   const stats = (provider as any).beauty_provider_stats;
 
   return (
-    <div className="beauty-scope min-h-dvh bg-background pb-24">
-      <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/beauty")}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex-1 min-w-0">
-            <div className="text-xs uppercase tracking-wider text-primary font-semibold">Mon espace</div>
-            <div className="font-bold truncate">{provider.business_name}</div>
+    <div className="beauty-scope min-h-dvh bg-gradient-to-b from-primary/5 via-background to-background pb-24">
+      {/* Gradient hero header */}
+      <header className="relative overflow-hidden beauty-gradient text-white">
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,white,transparent_60%)]" />
+        <div className="relative mx-auto max-w-3xl px-4 pt-5 pb-8">
+          <div className="flex items-center justify-between">
+            <button onClick={() => navigate("/beauty")} className="flex items-center gap-2 text-white/90 hover:text-white text-sm">
+              <ArrowLeft className="h-4 w-4" /> SiteViral Beauty
+            </button>
+            <Badge className={cn(
+              "border-0 backdrop-blur bg-white/20 text-white hover:bg-white/25",
+            )}>
+              {provider.status === "active" ? "✓ Actif" :
+               provider.status === "pending" ? "⏳ KYC en cours" : provider.status}
+            </Badge>
           </div>
-          <Badge
-            className={cn(
-              provider.status === "active" ? "bg-emerald-500" :
-              provider.status === "pending" ? "bg-amber-500" : "bg-muted"
-            )}
-          >
-            {provider.status === "active" ? "Actif" :
-             provider.status === "pending" ? "KYC en cours" : provider.status}
-          </Badge>
+          <div className="mt-5 flex items-center gap-4">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white/15 backdrop-blur ring-1 ring-white/25">
+              {provider.avatar_url ? (
+                <img src={provider.avatar_url} alt="" className="h-full w-full rounded-2xl object-cover" />
+              ) : (
+                <Scissors className="h-6 w-6" />
+              )}
+            </div>
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase tracking-[0.18em] font-bold text-white/70">Mon espace pro</div>
+              <div className="text-2xl font-black truncate">{provider.business_name}</div>
+              {provider.city && (
+                <div className="text-xs text-white/80 mt-0.5 flex items-center gap-1">
+                  <span className="opacity-70">📍</span> {provider.city}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-6">
+      <main className="mx-auto max-w-3xl px-4 -mt-4">
         {provider.status !== "active" && (
-          <Card className="mb-4 p-4 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30">
+          <Card className="mb-4 p-4 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30 shadow-md">
             <div className="flex items-start gap-3">
-              <ShieldCheck className="h-5 w-5 text-amber-600 mt-0.5" />
+              <ShieldCheck className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
               <div className="text-sm">
                 <div className="font-semibold">Ton profil est en attente de validation KYC.</div>
                 <div className="text-muted-foreground mt-1">
@@ -134,9 +148,9 @@ export default function BeautyProDashboard() {
           </Card>
         )}
 
-        <Tabs value={tab} onValueChange={(v) => setSp({ tab: v })}>
-          <TabsList className="grid grid-cols-5 w-full">
-            <TabsTrigger value="overview"><TrendingUp className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Vue d’ensemble</span><span className="sm:hidden">Vue</span></TabsTrigger>
+        <Tabs value={tab} onValueChange={(v) => setSp({ tab: v })} className="mt-2">
+          <TabsList className="grid grid-cols-5 w-full bg-card/80 backdrop-blur border shadow-sm">
+            <TabsTrigger value="overview"><TrendingUp className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Vue d'ensemble</span><span className="sm:hidden">Vue</span></TabsTrigger>
             <TabsTrigger value="services"><Scissors className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Services</span><span className="sm:hidden">Serv.</span></TabsTrigger>
             <TabsTrigger value="portfolio"><ImageIcon className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Portfolio</span><span className="sm:hidden">Photos</span></TabsTrigger>
             <TabsTrigger value="availability"><Clock className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Disponibilités</span><span className="sm:hidden">Dispo.</span></TabsTrigger>
@@ -190,22 +204,24 @@ function OverviewTab({ providerId, provider, stats }: { providerId: string; prov
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard icon={Calendar} label="À venir" value={counts?.upcoming ?? 0} />
-        <StatCard icon={Clock} label="En attente" value={counts?.pending ?? 0} />
-        <StatCard icon={MessageCircle} label="Messages" value={counts?.unread ?? 0} />
-        <StatCard icon={TrendingUp} label="Note" value={stats?.avg_rating?.toFixed(1) ?? "—"} />
+        <StatCard icon={Calendar} label="À venir" value={counts?.upcoming ?? 0} tone="rose" />
+        <StatCard icon={Clock} label="En attente" value={counts?.pending ?? 0} tone="amber" />
+        <StatCard icon={MessageCircle} label="Messages" value={counts?.unread ?? 0} tone="violet" />
+        <StatCard icon={TrendingUp} label="Note" value={stats?.avg_rating?.toFixed(1) ?? "—"} tone="emerald" />
       </div>
 
-      <Card className="p-5">
+      <Card className="p-5 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
         <div className="flex items-center gap-3 mb-3">
-          <Wallet className="h-5 w-5 text-primary" />
+          <span className="grid h-9 w-9 place-items-center rounded-xl beauty-gradient text-white">
+            <Wallet className="h-4 w-4" />
+          </span>
           <div className="font-semibold">Profil public</div>
         </div>
         <div className="text-sm text-muted-foreground mb-3">
-          Ton profil est visible à l’adresse <code className="text-xs bg-muted px-1.5 py-0.5 rounded">/beauty/p/{provider.slug}</code>
+          Ton profil est visible à l'adresse <code className="text-xs bg-muted px-1.5 py-0.5 rounded">/beauty/p/{provider.slug}</code>
         </div>
-        <div className="flex gap-2">
-          <Button asChild variant="outline" size="sm">
+        <div className="flex gap-2 flex-wrap">
+          <Button asChild size="sm" className="beauty-gradient text-white hover:opacity-90">
             <Link to={`/beauty/p/${provider.slug}`}>Voir mon profil</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
@@ -217,12 +233,19 @@ function OverviewTab({ providerId, provider, stats }: { providerId: string; prov
   );
 }
 
-function StatCard({ icon: Icon, label, value }: { icon: any; label: string; value: any }) {
+function StatCard({ icon: Icon, label, value, tone = "primary" }: { icon: any; label: string; value: any; tone?: "primary" | "rose" | "amber" | "violet" | "emerald" }) {
+  const tones: Record<string, string> = {
+    primary: "from-primary/10 to-primary/5 text-primary",
+    rose: "from-rose-500/10 to-rose-500/5 text-rose-500 dark:text-rose-400",
+    amber: "from-amber-500/10 to-amber-500/5 text-amber-600 dark:text-amber-400",
+    violet: "from-violet-500/10 to-violet-500/5 text-violet-500 dark:text-violet-400",
+    emerald: "from-emerald-500/10 to-emerald-500/5 text-emerald-600 dark:text-emerald-400",
+  };
   return (
-    <Card className="p-4">
-      <Icon className="h-4 w-4 text-muted-foreground mb-2" />
-      <div className="text-2xl font-bold">{value}</div>
-      <div className="text-xs text-muted-foreground">{label}</div>
+    <Card className={`p-4 bg-gradient-to-br ${tones[tone]} border-border/60`}>
+      <Icon className="h-4 w-4 mb-2 opacity-80" />
+      <div className="text-2xl font-black text-foreground">{value}</div>
+      <div className="text-xs text-muted-foreground mt-0.5">{label}</div>
     </Card>
   );
 }
@@ -255,7 +278,7 @@ function ServicesTab({ providerId, providerCurrency }: { providerId: string; pro
 
   const currency = payoutCurrency ?? providerCurrency ?? "XOF";
 
-  const openNew = () => { setEditing({ category: CATEGORIES[0], duration_min: 60, price_amount: 10000, currency, at_salon: true, at_home: false, active: true, allow_deposit: true }); setOpen(true); };
+  const openNew = () => { setEditing({ category: CATEGORIES[0], duration_min: 60, price_amount: 10000, currency, at_salon: true, at_home: false, active: true, allow_deposit: false }); setOpen(true); };
   const openEdit = (s: any) => { setEditing({ ...s, currency: s.currency ?? currency, price_amount: s.price_amount ?? s.price_xof }); setOpen(true); };
 
   const save = async () => {
@@ -381,7 +404,6 @@ function ServicesTab({ providerId, providerCurrency }: { providerId: string; pro
               <div className="grid grid-cols-2 gap-2">
                 <label className="flex items-center justify-between rounded border p-2 text-sm">Salon<Switch checked={!!editing.at_salon} onCheckedChange={(v) => setEditing({ ...editing, at_salon: v })} /></label>
                 <label className="flex items-center justify-between rounded border p-2 text-sm">Domicile<Switch checked={!!editing.at_home} onCheckedChange={(v) => setEditing({ ...editing, at_home: v })} /></label>
-                <label className="flex items-center justify-between rounded border p-2 text-sm">Acompte 20%<Switch checked={!!editing.allow_deposit} onCheckedChange={(v) => setEditing({ ...editing, allow_deposit: v })} /></label>
                 <label className="flex items-center justify-between rounded border p-2 text-sm">Actif<Switch checked={!!editing.active} onCheckedChange={(v) => setEditing({ ...editing, active: v })} /></label>
               </div>
             </div>

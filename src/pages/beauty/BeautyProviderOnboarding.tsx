@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Sparkles, ArrowLeft, ArrowRight, ShieldCheck, Check, Loader2,
-  Scissors, MapPin, Wallet,
+  Scissors, MapPin, Wallet, Plus, X, Locate,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -20,11 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { SUPPORTED_CURRENCIES, formatCurrency } from "@/lib/currency";
 import { GuestGate } from "@/components/auth/GuestGate";
-
-const CATEGORIES = [
-  "Coiffure", "Ongles", "Maquillage", "Soins visage",
-  "Extensions & cils", "Massage & spa", "Barbier", "Épilation",
-];
+import { BEAUTY_CATEGORIES } from "@/lib/beautyCategories";
 
 // Currency → payment gateway routing (matches beauty-create-booking)
 const MOMO_CURRENCIES = new Set(["XOF", "GHS", "KES"]);
@@ -32,12 +27,12 @@ function gatewayFor(currency: string) {
   return MOMO_CURRENCIES.has(currency) ? "GeniusPay (Mobile Money)" : "Stripe (carte + intl)";
 }
 
-type StepKey = "identity" | "location" | "service" | "payout";
+type StepKey = "identity" | "location" | "services" | "payout";
 
 const STEPS: { key: StepKey; label: string; icon: any }[] = [
   { key: "identity", label: "Identité", icon: Sparkles },
   { key: "location", label: "Zone & lieu", icon: MapPin },
-  { key: "service", label: "1er service", icon: Scissors },
+  { key: "services", label: "Spécialités & services", icon: Scissors },
   { key: "payout", label: "Encaissement", icon: Wallet },
 ];
 
@@ -45,6 +40,15 @@ function slugify(s: string) {
   return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
 }
+
+type ServiceDraft = {
+  category: string;
+  title: string;
+  duration_min: number;
+  price_amount: number;
+};
+
+const STORAGE_KEY = "sv_beauty_onboarding_draft_v2";
 
 export default function BeautyProviderOnboarding() {
   const { user, loading: authLoading } = useAuth();
@@ -57,21 +61,56 @@ export default function BeautyProviderOnboarding() {
   const [bio, setBio] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Location — free-text pan-African
+  // Location
   const [city, setCity] = useState("");
-  const [zonesText, setZonesText] = useState(""); // comma-separated neighborhoods
+  const [address, setAddress] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [zonesText, setZonesText] = useState("");
   const [atSalon, setAtSalon] = useState(true);
   const [atHome, setAtHome] = useState(false);
+  const [geoLoading, setGeoLoading] = useState(false);
 
-  // Service
-  const [category, setCategory] = useState(CATEGORIES[0]);
-  const [serviceTitle, setServiceTitle] = useState("");
-  const [duration, setDuration] = useState(60);
+  // Specialties + services
+  const [specialties, setSpecialties] = useState<string[]>([]);
+  const [services, setServices] = useState<ServiceDraft[]>([
+    { category: "", title: "", duration_min: 60, price_amount: 15000 },
+  ]);
+
+  // Payout currency (locked once payout profile exists)
   const [currency, setCurrency] = useState<string>("XOF");
-  const [price, setPrice] = useState(15000);
-  const [allowDeposit, setAllowDeposit] = useState(true);
 
-  // Prefill currency from existing payout profile if any
+  // Restore draft on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (d.businessName) setBusinessName(d.businessName);
+      if (d.bio) setBio(d.bio);
+      if (d.phone) setPhone(d.phone);
+      if (d.city) setCity(d.city);
+      if (d.address) setAddress(d.address);
+      if (d.latitude != null) setLatitude(d.latitude);
+      if (d.longitude != null) setLongitude(d.longitude);
+      if (d.zonesText) setZonesText(d.zonesText);
+      if (typeof d.atSalon === "boolean") setAtSalon(d.atSalon);
+      if (typeof d.atHome === "boolean") setAtHome(d.atHome);
+      if (Array.isArray(d.specialties)) setSpecialties(d.specialties);
+      if (Array.isArray(d.services) && d.services.length) setServices(d.services);
+    } catch {}
+  }, []);
+
+  // Persist draft on every change
+  useEffect(() => {
+    const draft = {
+      businessName, bio, phone, city, address, latitude, longitude,
+      zonesText, atSalon, atHome, specialties, services,
+    };
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(draft)); } catch {}
+  }, [businessName, bio, phone, city, address, latitude, longitude, zonesText, atSalon, atHome, specialties, services]);
+
+  // Prefill currency from payout profile if any
   useEffect(() => {
     if (!user) return;
     (async () => {
@@ -84,16 +123,50 @@ export default function BeautyProviderOnboarding() {
     })();
   }, [user]);
 
-  // No auto-redirect: the GuestGate below invites signup/login in Digital's style.
-
   const step = STEPS[stepIdx];
+
+  const toggleSpecialty = (c: string) => {
+    setSpecialties((prev) => prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]);
+    // Auto-assign first service category if empty
+    setServices((prev) => prev.map((s, i) => (i === 0 && !s.category) ? { ...s, category: c } : s));
+  };
+
+  const addService = () => {
+    if (services.length >= 3) return;
+    setServices([...services, { category: specialties[0] ?? "", title: "", duration_min: 60, price_amount: 15000 }]);
+  };
+  const removeService = (i: number) => setServices(services.filter((_, idx) => idx !== i));
+  const updateService = (i: number, patch: Partial<ServiceDraft>) =>
+    setServices(services.map((s, idx) => idx === i ? { ...s, ...patch } : s));
+
+  const useMyPosition = () => {
+    if (!("geolocation" in navigator)) { toast.error("Géolocalisation indisponible sur cet appareil."); return; }
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLatitude(Number(pos.coords.latitude.toFixed(6)));
+        setLongitude(Number(pos.coords.longitude.toFixed(6)));
+        toast.success("Position enregistrée.");
+        setGeoLoading(false);
+      },
+      (err) => {
+        toast.error(err.message || "Impossible d'obtenir la position.");
+        setGeoLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   const canNext = useMemo(() => {
     if (step.key === "identity") return businessName.trim().length >= 2 && phone.trim().length >= 6;
     if (step.key === "location") return city.trim().length >= 2 && (atSalon || atHome);
-    if (step.key === "service") return serviceTitle.trim().length >= 2 && price > 0 && !!currency;
+    if (step.key === "services") {
+      if (specialties.length === 0) return false;
+      const validServices = services.filter((s) => s.title.trim().length >= 2 && s.price_amount > 0 && s.category);
+      return validServices.length >= 1;
+    }
     return true;
-  }, [step, businessName, phone, city, atSalon, atHome, serviceTitle, price, currency]);
+  }, [step, businessName, phone, city, atSalon, atHome, specialties, services]);
 
   async function handleFinish() {
     if (!user) return;
@@ -113,48 +186,55 @@ export default function BeautyProviderOnboarding() {
           bio: bio.trim() || null,
           phone: phone.trim(),
           city: city.trim(),
+          address: address.trim() || null,
+          latitude,
+          longitude,
           zones,
           home_service_ok: atHome,
           at_salon_ok: atSalon,
+          specialties,
           status: "pending",
-        })
+        } as any)
         .select("id")
         .single();
       if (pErr) throw pErr;
 
-      // Upsert payout currency (does not overwrite existing recipient details)
+      // Ensure payout currency
       const { data: existingPayout } = await supabase
         .from("payout_profiles")
         .select("id, payout_currency")
         .eq("user_id", user.id)
         .maybeSingle();
       if (!existingPayout) {
-        await supabase.from("payout_profiles").insert({
-          user_id: user.id,
-          payout_currency: currency,
-        });
+        await supabase.from("payout_profiles").insert({ user_id: user.id, payout_currency: currency });
       } else if (existingPayout.payout_currency !== currency) {
         await supabase.from("payout_profiles").update({ payout_currency: currency }).eq("id", existingPayout.id);
       }
 
-      const { error: sErr } = await supabase.from("beauty_services").insert({
-        provider_id: provider.id,
-        category,
-        title: serviceTitle.trim(),
-        duration_min: duration,
-        currency,
-        price_amount: price,
-        price_xof: currency === "XOF" ? price : 0, // legacy column kept for back-compat
-        allow_full_escrow: true,
-        allow_deposit: allowDeposit,
-        deposit_pct: 20,
-        allow_cash: false,
-        at_salon: atSalon,
-        at_home: atHome,
-      });
-      if (sErr) throw sErr;
+      // Insert valid services
+      const validServices = services.filter((s) => s.title.trim().length >= 2 && s.price_amount > 0 && s.category);
+      if (validServices.length) {
+        const rows = validServices.map((s) => ({
+          provider_id: provider.id,
+          category: s.category,
+          title: s.title.trim(),
+          duration_min: s.duration_min,
+          currency,
+          price_amount: s.price_amount,
+          price_xof: currency === "XOF" ? s.price_amount : 0,
+          allow_full_escrow: true,
+          allow_deposit: false,
+          deposit_pct: 0,
+          allow_cash: false,
+          at_salon: atSalon,
+          at_home: atHome,
+        }));
+        const { error: sErr } = await supabase.from("beauty_services").insert(rows);
+        if (sErr) throw sErr;
+      }
 
-      toast.success("Profil créé ! Vérification KYC en cours.");
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+      toast.success("Profil créé ! Prochaine étape : KYC.");
       navigate("/beauty/pro");
     } catch (e: any) {
       toast.error(e.message ?? "Impossible de créer le profil");
@@ -176,15 +256,15 @@ export default function BeautyProviderOnboarding() {
 
   return (
     <div className="beauty-scope min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4">
-          <Link to="/beauty" className="flex items-center gap-2">
-            <span className="grid h-9 w-9 place-items-center rounded-xl beauty-gradient text-white shadow-lg">
-              <Sparkles className="h-5 w-5" />
+          <Link to="/beauty" className="flex items-center gap-2.5">
+            <span className="grid h-10 w-10 place-items-center rounded-xl beauty-gradient text-white shadow-md">
+              <Scissors className="h-5 w-5" />
             </span>
             <div className="leading-tight">
               <div className="text-sm font-black tracking-tight">SiteViral Beauty</div>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Créer mon profil</div>
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">Créer mon profil</div>
             </div>
           </Link>
           <Badge className="bg-primary/10 text-primary hover:bg-primary/15">
@@ -195,9 +275,7 @@ export default function BeautyProviderOnboarding() {
           {STEPS.map((s, i) => (
             <div
               key={s.key}
-              className={`h-1.5 flex-1 rounded-full transition ${
-                i <= stepIdx ? "beauty-gradient" : "bg-muted"
-              }`}
+              className={`h-1.5 flex-1 rounded-full transition ${i <= stepIdx ? "beauty-gradient" : "bg-muted"}`}
             />
           ))}
         </div>
@@ -212,13 +290,13 @@ export default function BeautyProviderOnboarding() {
           <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
             {step.key === "identity" && "Présente-toi en 30 secondes"}
             {step.key === "location" && "Où travailles-tu ?"}
-            {step.key === "service" && "Ton premier service"}
+            {step.key === "services" && "Tes spécialités & services"}
             {step.key === "payout" && "Encaissement & KYC"}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {step.key === "identity" && "Ces infos apparaissent sur ton profil public."}
-            {step.key === "location" && "Ville et quartiers où tu opères — partout en Afrique."}
-            {step.key === "service" && "Prix affichés dans ta devise d’encaissement. Tu pourras en ajouter d’autres."}
+            {step.key === "location" && "Ville, adresse et zones où tu opères — partout en Afrique."}
+            {step.key === "services" && "Choisis toutes tes spécialités, puis ajoute jusqu'à 3 services à démarrer."}
             {step.key === "payout" && "Ta devise détermine le mode de paiement des clients."}
           </p>
         </div>
@@ -234,12 +312,12 @@ export default function BeautyProviderOnboarding() {
                 <Label htmlFor="ph">Téléphone WhatsApp (interne SiteViral)</Label>
                 <Input id="ph" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+225 07 00 00 00 00" />
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Utilisé uniquement par l’équipe SiteViral (support, KYC, litiges, paiements). <strong>Jamais visible par les clients</strong>, ni avant ni après la réservation. Toute la communication client passe par le chat SiteViral.
+                  Utilisé uniquement par l'équipe SiteViral (support, KYC, litiges, paiements). <strong>Jamais visible par les clients</strong>. Toute la communication client passe par le chat SiteViral.
                 </p>
               </div>
               <div>
                 <Label htmlFor="bio">Bio courte</Label>
-                <Textarea id="bio" rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Spécialiste tresses & lisseur brésilien, 5 ans d’expérience." />
+                <Textarea id="bio" rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Spécialiste tresses & lisseur brésilien, 5 ans d'expérience." />
               </div>
             </div>
           )}
@@ -251,9 +329,30 @@ export default function BeautyProviderOnboarding() {
                 <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ex : Abidjan, Dakar, Accra, Lagos, Kinshasa…" />
               </div>
               <div>
+                <Label htmlFor="addr">Adresse du salon (optionnel)</Label>
+                <Input id="addr" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Rue, immeuble, point de repère…" />
+                <p className="mt-1 text-xs text-muted-foreground">Visible seulement après réservation confirmée si tu travailles en salon.</p>
+              </div>
+              <div className="rounded-xl border border-border/60 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-semibold">Position GPS (optionnel)</div>
+                    <div className="text-xs text-muted-foreground">
+                      {latitude != null && longitude != null
+                        ? <>Enregistrée : <b>{latitude.toFixed(4)}, {longitude.toFixed(4)}</b></>
+                        : "Aide les clients proches à te trouver."}
+                    </div>
+                  </div>
+                  <Button type="button" variant="outline" size="sm" onClick={useMyPosition} disabled={geoLoading}>
+                    {geoLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Locate className="mr-2 h-4 w-4" />}
+                    Utiliser ma position
+                  </Button>
+                </div>
+              </div>
+              <div>
                 <Label htmlFor="zones">Quartiers desservis (optionnel)</Label>
                 <Input id="zones" value={zonesText} onChange={(e) => setZonesText(e.target.value)} placeholder="Cocody, Marcory, Riviera" />
-                <p className="mt-1 text-xs text-muted-foreground">Séparés par des virgules. Aide les clients à te trouver.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Séparés par des virgules.</p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
@@ -275,66 +374,102 @@ export default function BeautyProviderOnboarding() {
             </div>
           )}
 
-          {step.key === "service" && (
-            <div className="space-y-5">
+          {step.key === "services" && (
+            <div className="space-y-7">
               <div>
-                <Label>Catégorie</Label>
+                <Label>Mes spécialités <span className="text-muted-foreground font-normal">(sélectionne-en une ou plusieurs)</span></Label>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {CATEGORIES.map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setCategory(c)}
-                      className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
-                        c === category ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:border-primary/50"
-                      }`}
-                    >
-                      {c}
-                    </button>
+                  {BEAUTY_CATEGORIES.map((c) => {
+                    const active = specialties.includes(c);
+                    return (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => toggleSpecialty(c)}
+                        className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
+                          active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:border-primary/50"
+                        }`}
+                      >
+                        {c}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="border-t border-border/60 pt-5">
+                <div className="mb-3 flex items-center justify-between">
+                  <Label className="text-base">Services à publier</Label>
+                  <span className="text-xs text-muted-foreground">{services.length}/3</span>
+                </div>
+
+                <div className="mb-4 rounded-lg bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground">
+                  Devise d'encaissement : <b>{currency}</b> · Le prix affiché ici est celui que le client paie et que <b>tu reçois dans ta devise</b>. Encaissement via <b>{gatewayFor(currency)}</b>.
+                </div>
+
+                <div className="space-y-4">
+                  {services.map((s, i) => (
+                    <div key={i} className="rounded-xl border border-border/60 p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs font-semibold uppercase tracking-wider text-primary">Service {i + 1}</div>
+                        {services.length > 1 && (
+                          <Button type="button" variant="ghost" size="icon" onClick={() => removeService(i)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                      <div>
+                        <Label>Catégorie</Label>
+                        <Select value={s.category} onValueChange={(v) => updateService(i, { category: v })}>
+                          <SelectTrigger><SelectValue placeholder="Choisis une catégorie" /></SelectTrigger>
+                          <SelectContent>
+                            {(specialties.length ? specialties : BEAUTY_CATEGORIES.slice()).map((c) => (
+                              <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Titre du service</Label>
+                        <Input value={s.title} onChange={(e) => updateService(i, { title: e.target.value })} placeholder="Ex : Tresses collées + soin" />
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div>
+                          <Label>Durée (min)</Label>
+                          <Input type="number" min={15} step={15} value={s.duration_min} onChange={(e) => updateService(i, { duration_min: Number(e.target.value) })} />
+                        </div>
+                        <div>
+                          <Label>Prix ({currency})</Label>
+                          <Input type="number" min={0} step={100} value={s.price_amount} onChange={(e) => updateService(i, { price_amount: Number(e.target.value) })} />
+                          <p className="mt-1 text-[11px] text-muted-foreground">{formatCurrency(s.price_amount, currency)}</p>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
+
+                {services.length < 3 && (
+                  <Button type="button" variant="outline" size="sm" className="mt-3" onClick={addService}>
+                    <Plus className="mr-1 h-4 w-4" /> Ajouter un service
+                  </Button>
+                )}
               </div>
-              <div>
-                <Label htmlFor="st">Titre du service</Label>
-                <Input id="st" value={serviceTitle} onChange={(e) => setServiceTitle(e.target.value)} placeholder="Ex : Tresses collées + soin" />
-              </div>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div>
-                  <Label htmlFor="dur">Durée (min)</Label>
-                  <Input id="dur" type="number" min={15} step={15} value={duration} onChange={(e) => setDuration(Number(e.target.value))} />
-                </div>
-                <div>
-                  <Label>Devise</Label>
-                  <Select value={currency} onValueChange={setCurrency}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {SUPPORTED_CURRENCIES.map((c) => (
-                        <SelectItem key={c.code} value={c.code}>{c.code} — {c.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="pr">Prix</Label>
-                  <Input id="pr" type="number" min={0} step={100} value={price} onChange={(e) => setPrice(Number(e.target.value))} />
-                  <p className="mt-1 text-[11px] text-muted-foreground">{formatCurrency(price, currency)}</p>
-                </div>
-              </div>
-              <div className="rounded-lg bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground">
-                Encaissement client via <b>{gatewayFor(currency)}</b>.
-              </div>
-              <label className="flex items-center gap-3 rounded-xl border border-border/60 p-4">
-                <Checkbox checked={allowDeposit} onCheckedChange={(v) => setAllowDeposit(Boolean(v))} />
-                <div>
-                  <div className="text-sm font-semibold">Autoriser l’acompte 20%</div>
-                  <div className="text-xs text-muted-foreground">Le client bloque le créneau, paie le reste à la prestation.</div>
-                </div>
-              </label>
             </div>
           )}
 
           {step.key === "payout" && (
-            <div className="space-y-4">
+            <div className="space-y-5">
+              <div>
+                <Label>Devise d'encaissement</Label>
+                <Select value={currency} onValueChange={setCurrency}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {SUPPORTED_CURRENCIES.map((c) => (
+                      <SelectItem key={c.code} value={c.code}>{c.code} — {c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="rounded-2xl border border-border/60 beauty-soft p-5">
                 <div className="flex items-center gap-3">
                   <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground">
@@ -342,7 +477,7 @@ export default function BeautyProviderOnboarding() {
                   </span>
                   <div>
                     <div className="font-bold">Encaissement en {currency}</div>
-                    <div className="text-xs text-muted-foreground">Route: {gatewayFor(currency)}. Payout min 10 000 XOF (≈ 15 EUR / 16 USD).</div>
+                    <div className="text-xs text-muted-foreground">Route : {gatewayFor(currency)}. Payout min 10 000 XOF (≈ 15 EUR / 16 USD).</div>
                   </div>
                 </div>
               </div>
@@ -352,7 +487,7 @@ export default function BeautyProviderOnboarding() {
                 <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-primary" /> Fonds débloqués 24–48h après la prestation confirmée.</li>
               </ul>
               <p className="text-xs text-muted-foreground">
-                En validant, tu acceptes les CGU SiteViral Beauty. Ton profil passe en statut « en attente » jusqu’à validation KYC.
+                En validant, tu acceptes les CGU SiteViral Beauty. Ton profil passe en statut « en attente » jusqu'à validation KYC.
               </p>
             </div>
           )}
