@@ -101,9 +101,9 @@ export default function BeautyBookingDetail() {
     return (
       <div className="beauty-scope grid min-h-screen place-items-center p-8 text-center">
         <div>
-          <div className="text-lg font-bold">{t("Réservation introuvable", "Booking not found")}</div>
+          <div className="text-lg font-bold">{t("Rendez-vous introuvable", "Appointment not found")}</div>
           <Button className="mt-4" onClick={() => navigate("/beauty/bookings")}>
-            {t("Mes réservations", "My bookings")}
+            {t("Mes rendez-vous", "My appointments")}
           </Button>
         </div>
       </div>

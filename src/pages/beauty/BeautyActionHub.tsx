@@ -75,8 +75,8 @@ export default function BeautyActionHub() {
     {
       id: "bookings",
       icon: Calendar,
-      titleFr: "Mes réservations",
-      titleEn: "My bookings",
+      titleFr: "Mes rendez-vous",
+      titleEn: "My appointments",
       descFr: "Suivre, annuler, confirmer",
       descEn: "Track, cancel, confirm",
       route: user ? "/beauty/bookings" : "/auth?returnTo=/beauty/bookings",
@@ -89,8 +89,8 @@ export default function BeautyActionHub() {
       icon: MessageCircle,
       titleFr: "Messages",
       titleEn: "Messages",
-      descFr: "Discute avec ta pro",
-      descEn: "Chat with your pro",
+      descFr: "Discute avec ton expert(e)",
+      descEn: "Chat with your expert",
       route: user ? "/beauty/messages" : "/auth?returnTo=/beauty/messages",
       iconBg: "bg-fuchsia-100 dark:bg-fuchsia-500/15",
       iconColor: "text-fuchsia-600 dark:text-fuchsia-400",
@@ -101,8 +101,8 @@ export default function BeautyActionHub() {
           {
             id: "provider-space",
             icon: LayoutDashboard,
-            titleFr: "Mon espace pro",
-            titleEn: "My pro space",
+            titleFr: "Mon espace",
+            titleEn: "My space",
             descFr: "Agenda, revenus, services",
             descEn: "Calendar, revenue, services",
             route: "/beauty/pro",
@@ -117,8 +117,8 @@ export default function BeautyActionHub() {
             icon: Scissors,
             titleFr: "Proposer mes services",
             titleEn: "Offer my services",
-            descFr: "Remplis ton agenda, encaisse en Mobile Money",
-            descEn: "Fill your calendar, get paid in Mobile Money",
+            descFr: "Crée ton compte pour proposer tes services aux autres",
+            descEn: "Create your account to offer your services to others",
             route: user ? "/beauty/pro/onboarding" : "/auth?returnTo=/beauty/pro/onboarding",
             iconBg: "bg-emerald-100 dark:bg-emerald-500/15",
             iconColor: "text-emerald-600 dark:text-emerald-400",
@@ -140,7 +140,7 @@ export default function BeautyActionHub() {
     <div className="beauty-scope flex min-h-screen flex-col bg-background text-foreground">
       <SEOHead
         title="SiteViral Beauty — Que veux-tu faire ?"
-        description="Réserve une pro beauté ou publie tes services. Paiement sécurisé, chat protégé, avis vérifiés."
+        description="Réserve un expert beauté ou propose tes services. Paiement sécurisé, chat protégé, avis vérifiés."
         canonicalUrl="https://siteviral.com/beauty"
       />
 

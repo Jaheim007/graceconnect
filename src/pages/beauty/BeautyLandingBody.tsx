@@ -17,10 +17,10 @@ const CATEGORIES = [
 ];
 
 const STEPS = [
-  { icon: Sparkles, title: "Choisis ton service", body: "Parcours les pros vérifiées près de toi et repère ta favorite en un scroll." },
+  { icon: Sparkles, title: "Choisis ton service", body: "Parcours les experts vérifiés près de toi et repère ton favori en un scroll." },
   { icon: Wallet, title: "Réserve en confiance", body: "Paiement 100% sécurisé ou acompte 20% — les fonds sont bloqués jusqu’à la prestation." },
-  { icon: MessageCircle, title: "Discute avec la pro", body: "Chat intégré, contacts protégés jusqu’à confirmation. Aucun no-show impuni." },
-  { icon: Star, title: "Confirme & note", body: "Tu confirmes après le service, la pro est payée, tu laisses un avis (et un tip si tu veux)." },
+  { icon: MessageCircle, title: "Discute avec ton expert(e)", body: "Chat intégré, contacts protégés jusqu’à confirmation. Aucun no-show impuni." },
+  { icon: Star, title: "Confirme & note", body: "Tu confirmes après le service, l'expert(e) est payé(e), tu laisses un avis (et un pourboire si tu veux)." },
 ];
 
 const TRUST = [
@@ -52,17 +52,17 @@ export function BeautyLandingBody() {
             </span>
           </h2>
           <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
-            Coiffure, ongles, maquillage, spa… Réserve tes prestations chez les meilleures pros de la ville. Paiement sécurisé, chat protégé, avis vérifiés.
+            Coiffure, ongles, maquillage, spa… Réserve tes prestations chez les meilleurs experts de la ville. Paiement sécurisé, chat protégé, avis vérifiés.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg" className="beauty-gradient text-white hover:opacity-90 beauty-shadow">
               <Link to="/beauty/search">
-                Trouver ma pro <ArrowRight className="ml-2 h-4 w-4" />
+                Trouver mon expert(e) <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-primary/30 hover:bg-primary/5">
-              <Link to="/beauty/pro/onboarding">Je suis une pro</Link>
+              <Link to="/beauty/pro/onboarding">Proposer mes services</Link>
             </Button>
           </div>
 
@@ -154,7 +154,7 @@ export function BeautyLandingBody() {
           <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
           <div className="relative grid gap-8 md:grid-cols-2 md:items-center">
             <div>
-              <Badge className="mb-4 bg-white/20 text-white hover:bg-white/25">Pour les pros</Badge>
+              <Badge className="mb-4 bg-white/20 text-white hover:bg-white/25">Pour les experts</Badge>
               <h3 className="text-3xl font-black leading-tight sm:text-4xl">
                 Remplis ton agenda. On s’occupe du reste.
               </h3>
@@ -163,7 +163,7 @@ export function BeautyLandingBody() {
                 Commission plateforme : 10%. Paiement sous 72h.
               </p>
               <Button asChild size="lg" className="mt-6 bg-white text-primary hover:bg-white/90">
-                <Link to="/beauty/pro/onboarding">Créer mon profil pro</Link>
+                <Link to="/beauty/pro/onboarding">Créer mon profil</Link>
               </Button>
             </div>
             <ul className="space-y-3 text-sm">

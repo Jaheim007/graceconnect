@@ -157,7 +157,7 @@ export default function BeautyProviderOnboarding() {
       });
       if (sErr) throw sErr;
 
-      toast.success("Profil pro créé ! Vérification KYC en cours.");
+      toast.success("Profil créé ! Vérification KYC en cours.");
       navigate("/beauty/pro");
     } catch (e: any) {
       toast.error(e.message ?? "Impossible de créer le profil");
@@ -176,7 +176,7 @@ export default function BeautyProviderOnboarding() {
             </span>
             <div className="leading-tight">
               <div className="text-sm font-black tracking-tight">SiteViral Beauty</div>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Onboarding pro</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Créer mon profil</div>
             </div>
           </Link>
           <Badge className="bg-primary/10 text-primary hover:bg-primary/15">
@@ -219,7 +219,7 @@ export default function BeautyProviderOnboarding() {
           {step.key === "identity" && (
             <div className="space-y-5">
               <div>
-                <Label htmlFor="bn">Nom du salon / nom pro</Label>
+                <Label htmlFor="bn">Nom du salon / nom d'artiste</Label>
                 <Input id="bn" value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Ex : Chez Aïcha Beauty" />
               </div>
               <div>
@@ -371,7 +371,7 @@ export default function BeautyProviderOnboarding() {
               className="beauty-gradient text-white hover:opacity-90 beauty-shadow"
             >
               {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
-              Créer mon profil pro
+              Créer mon profil
             </Button>
           )}
         </div>

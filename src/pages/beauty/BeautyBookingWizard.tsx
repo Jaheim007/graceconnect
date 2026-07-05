@@ -325,7 +325,7 @@ export default function BeautyBookingWizard() {
 
             <div className="mt-6 space-y-2">
               <Label htmlFor="notes" className="text-xs font-semibold">
-                {t("Note pour la pro (facultatif)", "Note to the pro (optional)")}
+                {t("Note pour l'expert(e) (facultatif)", "Note to the expert (optional)")}
               </Label>
               <Textarea
                 id="notes"
@@ -389,8 +389,8 @@ export default function BeautyBookingWizard() {
             <div className="mt-4 rounded-xl bg-primary/5 p-4 text-xs text-muted-foreground">
               <ShieldCheck className="mr-1 inline h-3.5 w-3.5 text-primary" />
               {t(
-                "Ton paiement est bloqué en escrow chez SiteViral. La pro n'est payée qu'après ta confirmation du service.",
-                "Your payment is held in escrow by SiteViral. The pro is only paid after you confirm the service.",
+                "Ton paiement est bloqué en escrow chez SiteViral. L'expert(e) n'est payé(e) qu'après ta confirmation du service.",
+                "Your payment is held in escrow by SiteViral. The expert is only paid after you confirm the service.",
               )}
             </div>
           </section>

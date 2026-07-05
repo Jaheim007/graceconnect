@@ -95,8 +95,8 @@ export default function BeautyProviderProfile() {
           <div className="text-xl font-bold">{t("Profil introuvable", "Profile not found")}</div>
           <p className="mt-2 text-sm text-muted-foreground">
             {t(
-              "Cette pro n'existe pas ou n'est pas encore validée.",
-              "This pro doesn't exist or isn't verified yet.",
+              "Ce profil n'existe pas ou n'est pas encore validé.",
+              "This profile doesn't exist or isn't verified yet.",
             )}
           </p>
           <Button className="mt-6" onClick={() => navigate("/beauty/search")}>
@@ -328,7 +328,7 @@ function ReviewRow({ review }: { review: any }) {
       )}
       {review.provider_reply && (
         <div className="mt-3 rounded-xl bg-muted/50 p-3 text-xs">
-          <div className="mb-1 font-semibold">Réponse de la pro</div>
+          <div className="mb-1 font-semibold">Réponse de l'expert(e)</div>
           {review.provider_reply}
         </div>
       )}

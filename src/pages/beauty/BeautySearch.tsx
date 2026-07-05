@@ -140,8 +140,8 @@ export default function BeautySearch() {
       <SEOHead
         title={t("Explorer les pros beauté — SiteViral", "Explore beauty pros — SiteViral")}
         description={t(
-          "Coiffure, ongles, maquillage, spa. Trouve une pro vérifiée près de toi.",
-          "Hair, nails, makeup, spa. Find a verified beauty pro near you.",
+          "Coiffure, ongles, maquillage, spa. Trouve un expert vérifié près de toi.",
+          "Hair, nails, makeup, spa. Find a verified beauty expert near you.",
         )}
       />
 
@@ -156,7 +156,7 @@ export default function BeautySearch() {
             <Input
               value={q}
               onChange={(e) => patch({ q: e.target.value || null })}
-              placeholder={t("Nom d'une pro, salon…", "Pro name, salon…")}
+              placeholder={t("Nom d'un salon, artiste…", "Salon name, artist…")}
               className="h-9 pl-9"
             />
           </div>
@@ -354,7 +354,7 @@ function EmptyState({ isFr }: { isFr: boolean }) {
         <Search className="h-5 w-5" />
       </div>
       <div className="font-bold">
-        {isFr ? "Aucune pro pour ces critères." : "No pros for these filters."}
+        {isFr ? "Aucun expert pour ces critères." : "No experts for these filters."}
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
         {isFr
