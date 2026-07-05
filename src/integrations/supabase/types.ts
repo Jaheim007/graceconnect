@@ -1910,6 +1910,7 @@ export type Database = {
       }
       beauty_providers: {
         Row: {
+          address: string | null
           at_salon_ok: boolean
           avatar_url: string | null
           avg_rating: number
@@ -1921,9 +1922,12 @@ export type Database = {
           home_service_ok: boolean
           id: string
           kyc_submission_id: string | null
+          latitude: number | null
+          longitude: number | null
           phone: string | null
           response_time_avg_min: number
           slug: string
+          specialties: string[]
           status: Database["public"]["Enums"]["beauty_provider_status"]
           total_bookings: number
           total_reviews: number
@@ -1933,6 +1937,7 @@ export type Database = {
           zones: string[]
         }
         Insert: {
+          address?: string | null
           at_salon_ok?: boolean
           avatar_url?: string | null
           avg_rating?: number
@@ -1944,9 +1949,12 @@ export type Database = {
           home_service_ok?: boolean
           id?: string
           kyc_submission_id?: string | null
+          latitude?: number | null
+          longitude?: number | null
           phone?: string | null
           response_time_avg_min?: number
           slug: string
+          specialties?: string[]
           status?: Database["public"]["Enums"]["beauty_provider_status"]
           total_bookings?: number
           total_reviews?: number
@@ -1956,6 +1964,7 @@ export type Database = {
           zones?: string[]
         }
         Update: {
+          address?: string | null
           at_salon_ok?: boolean
           avatar_url?: string | null
           avg_rating?: number
@@ -1967,9 +1976,12 @@ export type Database = {
           home_service_ok?: boolean
           id?: string
           kyc_submission_id?: string | null
+          latitude?: number | null
+          longitude?: number | null
           phone?: string | null
           response_time_avg_min?: number
           slug?: string
+          specialties?: string[]
           status?: Database["public"]["Enums"]["beauty_provider_status"]
           total_bookings?: number
           total_reviews?: number
