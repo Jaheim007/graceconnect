@@ -331,7 +331,6 @@ export default function BeautyProviderProfile() {
 
 function ServiceRow({
   service,
-  providerSlug,
   isFr,
 }: {
   service: any;
@@ -341,9 +340,8 @@ function ServiceRow({
   const currency = (service.currency ?? "XOF") as any;
   const amount = service.price_amount ?? service.price_xof ?? 0;
   return (
-    <Link
-      to={`/beauty/book/${service.id}`}
-      className="group flex items-center gap-3 rounded-2xl border border-border/60 bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-md"
+    <div
+      className="group flex items-center gap-3 rounded-2xl border border-border/60 bg-card p-4"
     >
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
         <Sparkles className="h-5 w-5" />
@@ -367,12 +365,11 @@ function ServiceRow({
       </div>
       <div className="text-right">
         <div className="text-base font-black">{formatCurrency(amount, currency)}</div>
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-          {isFr ? "Réserver" : "Book"}
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {isFr ? "Prix indicatif" : "From"}
         </div>
       </div>
-      <ChevronRight className="ml-1 h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />
-    </Link>
+    </div>
   );
 }
 
