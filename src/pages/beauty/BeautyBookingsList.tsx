@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { formatCurrency } from "@/lib/currency";
 import { useI18n } from "@/i18n/I18nContext";
 import { BeautyHeader } from "@/components/beauty/BeautyHeader";
+import { GuestGate } from "@/components/auth/GuestGate";
 import { cn } from "@/lib/utils";
 
 const STATUS_TONE: Record<string, string> = {
@@ -29,6 +30,20 @@ export default function BeautyBookingsList() {
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+
+  if (!user) {
+    return (
+      <GuestGate
+        icon={Calendar}
+        title={t("Prends ton prochain rendez-vous beauté", "Book your next beauty appointment")}
+        subtitle={t(
+          "Réserve, suis et gère toutes tes prestations. Gratuit pour commencer.",
+          "Book, track and manage all your services. Free to start.",
+        )}
+        nextUrl="/beauty/bookings"
+      />
+    );
+  }
 
   const { data: bookings, isLoading } = useQuery({
     queryKey: ["beauty-my-bookings", user?.id],

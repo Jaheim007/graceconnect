@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { SUPPORTED_CURRENCIES, formatCurrency } from "@/lib/currency";
+import { GuestGate } from "@/components/auth/GuestGate";
 
 const CATEGORIES = [
   "Coiffure", "Ongles", "Maquillage", "Soins visage",
@@ -83,11 +84,7 @@ export default function BeautyProviderOnboarding() {
     })();
   }, [user]);
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate(`/auth?returnTo=${encodeURIComponent("/beauty/pro/onboarding")}`);
-    }
-  }, [user, authLoading, navigate]);
+  // No auto-redirect: the GuestGate below invites signup/login in Digital's style.
 
   const step = STEPS[stepIdx];
 
@@ -164,6 +161,17 @@ export default function BeautyProviderOnboarding() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (!authLoading && !user) {
+    return (
+      <GuestGate
+        icon={Scissors}
+        title="Propose tes services beauté"
+        subtitle="Crée ton compte pour proposer tes prestations et recevoir des réservations. Gratuit pour commencer."
+        nextUrl="/beauty/pro/onboarding"
+      />
+    );
   }
 
   return (

@@ -78,16 +78,10 @@ export function BeautyHeader({ showBack = true, right }: BeautyHeaderProps) {
         )}
         <button
           onClick={() => navigate("/beauty")}
-          className="flex items-center gap-2"
+          className="flex items-center"
           aria-label="SiteViral Beauty"
         >
           <SiteLogo size="sm" animate linked={false} />
-          <div className="hidden leading-tight sm:block">
-            <div className="text-sm font-black tracking-tight">SiteViral</div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
-              Beauty
-            </div>
-          </div>
         </button>
         <div className="flex-1" />
         {right}
@@ -105,10 +99,10 @@ export function BeautyHeader({ showBack = true, right }: BeautyHeaderProps) {
         {!user ? (
           <Button
             size="sm"
-            className="h-8 text-xs"
+            className="h-8 text-xs font-semibold rounded-xl px-4"
             onClick={() => goAuth(window.location.pathname + window.location.search)}
           >
-            {t("Se connecter", "Sign in")}
+            {t("Connexion", "Sign in")}
           </Button>
         ) : (
           <DropdownMenu>
