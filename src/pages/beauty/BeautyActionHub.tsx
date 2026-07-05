@@ -192,8 +192,8 @@ export default function BeautyActionHub() {
             </h1>
             <p className="mx-auto max-w-[280px] text-xs text-muted-foreground">
               {t(
-                "Réserve, discute, deviens pro — tout en un seul endroit.",
-                "Book, chat, become a pro — all in one place.",
+                "Réserve, discute, propose tes services — tout en un seul endroit.",
+                "Book, chat, offer your services — all in one place.",
               )}
             </p>
           </motion.div>
