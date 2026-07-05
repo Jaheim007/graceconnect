@@ -122,39 +122,6 @@ export default function BeautyBookingDetail() {
   const status = STATUS_LABELS[booking.status] ?? STATUS_LABELS.pending_payment;
   const StatusIcon = status.icon;
 
-  async function handleConfirmService() {
-    if (!id) return;
-    // Client confirms the service was rendered → mark completed
-    const { error } = await supabase
-      .from("beauty_bookings")
-      .update({
-        status: "completed" as any,
-        completed_at: new Date().toISOString(),
-      })
-      .eq("id", id);
-    if (error) {
-      toast({
-        title: t("Erreur", "Error"),
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
-    }
-    await supabase.from("beauty_booking_events").insert({
-      booking_id: id,
-      event_type: "client_confirmed",
-      payload: {},
-    });
-    toast({
-      title: t("Prestation confirmée", "Service confirmed"),
-      description: t(
-        "Merci ! Ton avis débloque un cadeau si tu le laisses maintenant.",
-        "Thanks! Leave a review now to unlock a small perk.",
-      ),
-    });
-    qc.invalidateQueries({ queryKey: ["beauty-booking", id] });
-  }
-
   async function handleCancel() {
     if (!id) return;
     if (!confirm(t("Annuler cette réservation ?", "Cancel this booking?"))) return;
@@ -172,9 +139,8 @@ export default function BeautyBookingDetail() {
     qc.invalidateQueries({ queryKey: ["beauty-booking", id] });
   }
 
-  const canConfirm = isClient && booking.status === "confirmed" &&
-    new Date(booking.slot_end) < new Date();
-  const canCancel = booking.status === "confirmed" || booking.status === "pending_payment";
+  const canCancel = booking.status === "pending_payment" ||
+    (booking.status === "confirmed" && !booking.started_at);
 
   return (
     <div className="beauty-scope min-h-screen bg-background pb-32 text-foreground">
