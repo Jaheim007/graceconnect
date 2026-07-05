@@ -5,6 +5,8 @@ import {
   Sparkles, ArrowLeft, Plus, Trash2, Pencil, Loader2, Calendar,
   Scissors, Clock, ShieldCheck, MessageCircle, TrendingUp, Wallet, ChevronRight,
   Check, X, Ban, Image as ImageIcon, Video, Upload,
+  Menu, Bell, Search, Settings as SettingsIcon, LogOut, Home, BarChart3,
+  User, CreditCard, Star, ArrowUpRight, ArrowDownRight, ExternalLink, Copy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -23,6 +25,9 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { AreaChart, Area, ResponsiveContainer, Tooltip as ReTooltip, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -35,15 +40,63 @@ const CATEGORIES = BEAUTY_CATEGORIES;
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]; // 1..7 iso; we use 0..6 (Mon=0)
 
 const STATUS_TONE: Record<string, string> = {
-  pending_payment: "bg-amber-100 text-amber-700",
-  confirmed: "bg-emerald-100 text-emerald-700",
-  in_progress: "bg-blue-100 text-blue-700",
+  pending_payment: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  confirmed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+  in_progress: "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300",
   completed: "bg-primary/10 text-primary",
-  cancelled: "bg-rose-100 text-rose-700",
+  cancelled: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
   refunded: "bg-muted text-muted-foreground",
-  no_show: "bg-rose-100 text-rose-700",
-  disputed: "bg-rose-100 text-rose-700",
+  no_show: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
+  disputed: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
 };
+
+const STATUS_LABEL: Record<string, string> = {
+  pending_payment: "Paiement en attente",
+  confirmed: "Confirmé",
+  in_progress: "En cours",
+  completed: "Terminé",
+  cancelled: "Annulé",
+  refunded: "Remboursé",
+  no_show: "Absence",
+  disputed: "Litige",
+};
+
+const NAV_SECTIONS: {
+  label: string;
+  items: { key: string; label: string; icon: any; badge?: string }[];
+}[] = [
+  {
+    label: "Pilotage",
+    items: [
+      { key: "overview", label: "Vue d'ensemble", icon: Home },
+      { key: "bookings", label: "Rendez-vous", icon: Calendar },
+      { key: "stats", label: "Statistiques", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "Catalogue",
+    items: [
+      { key: "services", label: "Services", icon: Scissors },
+      { key: "portfolio", label: "Portfolio", icon: ImageIcon },
+      { key: "availability", label: "Disponibilités", icon: Clock },
+    ],
+  },
+  {
+    label: "Communication",
+    items: [
+      { key: "messages", label: "Messages", icon: MessageCircle },
+      { key: "reviews", label: "Avis clients", icon: Star },
+    ],
+  },
+  {
+    label: "Compte",
+    items: [
+      { key: "settings", label: "Paramètres", icon: SettingsIcon },
+      { key: "payouts", label: "Paiements & KYC", icon: CreditCard },
+    ],
+  },
+];
+
 
 export default function BeautyProDashboard() {
   const { user, loading: authLoading } = useAuth();
