@@ -52,6 +52,7 @@ const PageLoader = () => (
 const ActionHub = lazy(() => import("@/pages/ActionHub"));
 const BeautyLanding = lazy(() => import("@/pages/beauty/BeautyLanding"));
 const BeautyProviderOnboarding = lazy(() => import("@/pages/beauty/BeautyProviderOnboarding"));
+const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
@@ -325,7 +326,9 @@ const App = () => (
               <Routes>
                 {/* Public routes */}
                 <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
-                <Route path="/" element={<ActionHub />} />
+                <Route path="/" element={<SuperAppHub />} />
+                <Route path="/digital" element={<LandingPage />} />
+                <Route path="/hub" element={<ActionHub />} />
                 {/* SiteViral Beauty */}
                 <Route path="/beauty" element={<BeautyLanding />} />
                 <Route path="/beauty/pro/onboarding" element={<RequireAuth><BeautyProviderOnboarding /></RequireAuth>} />
