@@ -12,12 +12,24 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { SUPPORTED_CURRENCIES, formatCurrency } from "@/lib/currency";
 
-const ZONES = ["Cocody", "Marcory", "Yopougon", "Riviera", "Plateau", "Treichville", "Abobo", "Angré", "Bingerville"];
-const CATEGORIES = ["Coiffure", "Ongles", "Maquillage", "Soins visage", "Extensions & cils", "Massage & spa"];
+const CATEGORIES = [
+  "Coiffure", "Ongles", "Maquillage", "Soins visage",
+  "Extensions & cils", "Massage & spa", "Barbier", "Épilation",
+];
+
+// Currency → payment gateway routing (matches beauty-create-booking)
+const MOMO_CURRENCIES = new Set(["XOF", "GHS", "KES"]);
+function gatewayFor(currency: string) {
+  return MOMO_CURRENCIES.has(currency) ? "GeniusPay (Mobile Money)" : "Stripe (carte + intl)";
+}
 
 type StepKey = "identity" | "location" | "service" | "payout";
 
@@ -25,7 +37,7 @@ const STEPS: { key: StepKey; label: string; icon: any }[] = [
   { key: "identity", label: "Identité", icon: Sparkles },
   { key: "location", label: "Zone & lieu", icon: MapPin },
   { key: "service", label: "1er service", icon: Scissors },
-  { key: "payout", label: "Paiement", icon: Wallet },
+  { key: "payout", label: "Encaissement", icon: Wallet },
 ];
 
 function slugify(s: string) {
@@ -39,17 +51,37 @@ export default function BeautyProviderOnboarding() {
   const [stepIdx, setStepIdx] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
+  // Identity
   const [businessName, setBusinessName] = useState("");
   const [bio, setBio] = useState("");
   const [phone, setPhone] = useState("");
-  const [selectedZones, setSelectedZones] = useState<string[]>([]);
+
+  // Location — free-text pan-African
+  const [city, setCity] = useState("");
+  const [zonesText, setZonesText] = useState(""); // comma-separated neighborhoods
   const [atSalon, setAtSalon] = useState(true);
   const [atHome, setAtHome] = useState(false);
+
+  // Service
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [serviceTitle, setServiceTitle] = useState("");
   const [duration, setDuration] = useState(60);
+  const [currency, setCurrency] = useState<string>("XOF");
   const [price, setPrice] = useState(15000);
   const [allowDeposit, setAllowDeposit] = useState(true);
+
+  // Prefill currency from existing payout profile if any
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from("payout_profiles")
+        .select("payout_currency")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (data?.payout_currency) setCurrency(data.payout_currency);
+    })();
+  }, [user]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -61,13 +93,10 @@ export default function BeautyProviderOnboarding() {
 
   const canNext = useMemo(() => {
     if (step.key === "identity") return businessName.trim().length >= 2 && phone.trim().length >= 6;
-    if (step.key === "location") return selectedZones.length > 0 && (atSalon || atHome);
-    if (step.key === "service") return serviceTitle.trim().length >= 2 && price > 0;
+    if (step.key === "location") return city.trim().length >= 2 && (atSalon || atHome);
+    if (step.key === "service") return serviceTitle.trim().length >= 2 && price > 0 && !!currency;
     return true;
-  }, [step, businessName, phone, selectedZones, atSalon, atHome, serviceTitle, price]);
-
-  const toggleZone = (z: string) =>
-    setSelectedZones((prev) => (prev.includes(z) ? prev.filter((x) => x !== z) : [...prev, z]));
+  }, [step, businessName, phone, city, atSalon, atHome, serviceTitle, price, currency]);
 
   async function handleFinish() {
     if (!user) return;
@@ -75,6 +104,8 @@ export default function BeautyProviderOnboarding() {
     try {
       const baseSlug = slugify(businessName) || `pro-${user.id.slice(0, 6)}`;
       const slug = `${baseSlug}-${user.id.slice(0, 6)}`;
+
+      const zones = zonesText.split(",").map((s) => s.trim()).filter(Boolean);
 
       const { data: provider, error: pErr } = await supabase
         .from("beauty_providers")
@@ -84,7 +115,8 @@ export default function BeautyProviderOnboarding() {
           slug,
           bio: bio.trim() || null,
           phone: phone.trim(),
-          zones: selectedZones,
+          city: city.trim(),
+          zones,
           home_service_ok: atHome,
           at_salon_ok: atSalon,
           status: "pending",
@@ -93,12 +125,29 @@ export default function BeautyProviderOnboarding() {
         .single();
       if (pErr) throw pErr;
 
+      // Upsert payout currency (does not overwrite existing recipient details)
+      const { data: existingPayout } = await supabase
+        .from("payout_profiles")
+        .select("id, payout_currency")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!existingPayout) {
+        await supabase.from("payout_profiles").insert({
+          user_id: user.id,
+          payout_currency: currency,
+        });
+      } else if (existingPayout.payout_currency !== currency) {
+        await supabase.from("payout_profiles").update({ payout_currency: currency }).eq("id", existingPayout.id);
+      }
+
       const { error: sErr } = await supabase.from("beauty_services").insert({
         provider_id: provider.id,
         category,
         title: serviceTitle.trim(),
         duration_min: duration,
-        price_xof: price,
+        currency,
+        price_amount: price,
+        price_xof: currency === "XOF" ? price : 0, // legacy column kept for back-compat
         allow_full_escrow: true,
         allow_deposit: allowDeposit,
         deposit_pct: 20,
@@ -109,7 +158,7 @@ export default function BeautyProviderOnboarding() {
       if (sErr) throw sErr;
 
       toast.success("Profil pro créé ! Vérification KYC en cours.");
-      navigate("/beauty");
+      navigate("/beauty/pro");
     } catch (e: any) {
       toast.error(e.message ?? "Impossible de créer le profil");
     } finally {
@@ -160,9 +209,9 @@ export default function BeautyProviderOnboarding() {
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {step.key === "identity" && "Ces infos apparaissent sur ton profil public."}
-            {step.key === "location" && "Choisis les quartiers d’Abidjan où tu opères et si tu reçois ou te déplaces."}
-            {step.key === "service" && "Tu pourras en ajouter d’autres depuis ton dashboard."}
-            {step.key === "payout" && "On réutilise ton profil de paiement SiteViral (Mobile Money / Stripe)."}
+            {step.key === "location" && "Ville et quartiers où tu opères — partout en Afrique."}
+            {step.key === "service" && "Prix affichés dans ta devise d’encaissement. Tu pourras en ajouter d’autres."}
+            {step.key === "payout" && "Ta devise détermine le mode de paiement des clients."}
           </p>
         </div>
 
@@ -188,25 +237,13 @@ export default function BeautyProviderOnboarding() {
           {step.key === "location" && (
             <div className="space-y-6">
               <div>
-                <Label>Zones desservies</Label>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {ZONES.map((z) => {
-                    const on = selectedZones.includes(z);
-                    return (
-                      <button
-                        key={z}
-                        type="button"
-                        onClick={() => toggleZone(z)}
-                        className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
-                          on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:border-primary/50"
-                        }`}
-                      >
-                        {on && <Check className="mr-1 inline h-3.5 w-3.5" />}
-                        {z}
-                      </button>
-                    );
-                  })}
-                </div>
+                <Label htmlFor="city">Ville *</Label>
+                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ex : Abidjan, Dakar, Accra, Lagos, Kinshasa…" />
+              </div>
+              <div>
+                <Label htmlFor="zones">Quartiers desservis (optionnel)</Label>
+                <Input id="zones" value={zonesText} onChange={(e) => setZonesText(e.target.value)} placeholder="Cocody, Marcory, Riviera" />
+                <p className="mt-1 text-xs text-muted-foreground">Séparés par des virgules. Aide les clients à te trouver.</p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
@@ -251,21 +288,36 @@ export default function BeautyProviderOnboarding() {
                 <Label htmlFor="st">Titre du service</Label>
                 <Input id="st" value={serviceTitle} onChange={(e) => setServiceTitle(e.target.value)} placeholder="Ex : Tresses collées + soin" />
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-3">
                 <div>
                   <Label htmlFor="dur">Durée (min)</Label>
                   <Input id="dur" type="number" min={15} step={15} value={duration} onChange={(e) => setDuration(Number(e.target.value))} />
                 </div>
                 <div>
-                  <Label htmlFor="pr">Prix (XOF)</Label>
-                  <Input id="pr" type="number" min={0} step={500} value={price} onChange={(e) => setPrice(Number(e.target.value))} />
+                  <Label>Devise</Label>
+                  <Select value={currency} onValueChange={setCurrency}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SUPPORTED_CURRENCIES.map((c) => (
+                        <SelectItem key={c.code} value={c.code}>{c.code} — {c.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+                <div>
+                  <Label htmlFor="pr">Prix</Label>
+                  <Input id="pr" type="number" min={0} step={100} value={price} onChange={(e) => setPrice(Number(e.target.value))} />
+                  <p className="mt-1 text-[11px] text-muted-foreground">{formatCurrency(price, currency)}</p>
+                </div>
+              </div>
+              <div className="rounded-lg bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground">
+                Encaissement client via <b>{gatewayFor(currency)}</b>.
               </div>
               <label className="flex items-center gap-3 rounded-xl border border-border/60 p-4">
                 <Checkbox checked={allowDeposit} onCheckedChange={(v) => setAllowDeposit(Boolean(v))} />
                 <div>
                   <div className="text-sm font-semibold">Autoriser l’acompte 20%</div>
-                  <div className="text-xs text-muted-foreground">Le client bloque le créneau, paie le reste en cash à la prestation.</div>
+                  <div className="text-xs text-muted-foreground">Le client bloque le créneau, paie le reste à la prestation.</div>
                 </div>
               </label>
             </div>
@@ -279,15 +331,15 @@ export default function BeautyProviderOnboarding() {
                     <ShieldCheck className="h-5 w-5" />
                   </span>
                   <div>
-                    <div className="font-bold">Encaissement via SiteViral</div>
-                    <div className="text-xs text-muted-foreground">Paystack Mobile Money (XOF) et Stripe (intl). Payout min 10 000 XOF.</div>
+                    <div className="font-bold">Encaissement en {currency}</div>
+                    <div className="text-xs text-muted-foreground">Route: {gatewayFor(currency)}. Payout min 10 000 XOF (≈ 15 EUR / 16 USD).</div>
                   </div>
                 </div>
               </div>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-primary" /> KYC obligatoire avant premier payout — géré depuis ton dashboard SiteViral.</li>
-                <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-primary" /> Commission plateforme : 10% (par défaut).</li>
-                <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-primary" /> Fonds débloqués 72h après la prestation (auto-release).</li>
+                <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-primary" /> Commission plateforme : 10%.</li>
+                <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-primary" /> Fonds débloqués 24–48h après la prestation confirmée.</li>
               </ul>
               <p className="text-xs text-muted-foreground">
                 En validant, tu acceptes les CGU SiteViral Beauty. Ton profil passe en statut « en attente » jusqu’à validation KYC.

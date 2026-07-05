@@ -60,6 +60,7 @@ const BeautyBookingDetail = lazy(() => import("@/pages/beauty/BeautyBookingDetai
 const BeautyBookingsList = lazy(() => import("@/pages/beauty/BeautyBookingsList"));
 const BeautyMessagesList = lazy(() => import("@/pages/beauty/BeautyMessagesList"));
 const BeautyConversation = lazy(() => import("@/pages/beauty/BeautyConversation"));
+const BeautyProDashboard = lazy(() => import("@/pages/beauty/BeautyProDashboard"));
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
@@ -349,6 +350,7 @@ const App = () => (
                 <Route path="/beauty/messages" element={<RequireAuth><BeautyMessagesList /></RequireAuth>} />
                 <Route path="/beauty/messages/:id" element={<RequireAuth><BeautyConversation /></RequireAuth>} />
                 <Route path="/beauty/pro/onboarding" element={<RequireAuth><BeautyProviderOnboarding /></RequireAuth>} />
+                <Route path="/beauty/pro" element={<RequireAuth><BeautyProDashboard /></RequireAuth>} />
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
