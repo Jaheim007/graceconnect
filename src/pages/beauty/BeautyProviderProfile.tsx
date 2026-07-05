@@ -19,16 +19,17 @@ import { cn } from "@/lib/utils";
 export default function BeautyProviderProfile() {
   const { slug } = useParams<{ slug: string }>();
   const { locale } = useI18n();
+  const { user } = useAuth();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
   const navigate = useNavigate();
   const [tab, setTab] = useState<"services" | "gallery" | "videos" | "reviews">("services");
 
   const { data: provider, isLoading } = useQuery({
-    queryKey: ["beauty-provider-profile", slug],
+    queryKey: ["beauty-provider-profile", slug, user?.id],
     enabled: !!slug,
     queryFn: async () => {
-      // Try slug first, then id fallback
+      // 1) Public active profile by slug
       let { data } = await supabase
         .from("beauty_providers")
         .select("*")
@@ -36,6 +37,7 @@ export default function BeautyProviderProfile() {
         .eq("status", "active")
         .maybeSingle();
 
+      // 2) Fallback by id (still active only)
       if (!data) {
         const { data: byId } = await supabase
           .from("beauty_providers")
@@ -45,9 +47,22 @@ export default function BeautyProviderProfile() {
           .maybeSingle();
         data = byId ?? null;
       }
+
+      // 3) Owner preview — RLS allows the owner to read their own pending row.
+      if (!data && user) {
+        const { data: mine } = await supabase
+          .from("beauty_providers")
+          .select("*")
+          .eq("user_id", user.id)
+          .or(`slug.eq.${slug},id.eq.${slug}`)
+          .maybeSingle();
+        data = mine ?? null;
+      }
       return data;
     },
   });
+
+  const isOwnerPreview = !!(provider && user && (provider as any).user_id === user.id && (provider as any).status !== "active");
 
   const { data: services } = useQuery({
     queryKey: ["beauty-provider-services", provider?.id],
