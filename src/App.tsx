@@ -345,7 +345,7 @@ const App = () => (
                 <Route path="/beauty/about" element={<BeautyLanding />} />
                 <Route path="/beauty/search" element={<BeautySearch />} />
                 <Route path="/beauty/p/:slug" element={<BeautyProviderProfile />} />
-                <Route path="/beauty/book/:serviceId" element={<BeautyBookingWizard />} />
+                <Route path="/beauty/book/:serviceId" element={<Navigate to="/beauty/search" replace />} />
                 <Route path="/beauty/bookings" element={<BeautyBookingsList />} />
                 <Route path="/beauty/bookings/:id" element={<RequireAuth><BeautyBookingDetail /></RequireAuth>} />
                 <Route path="/beauty/messages" element={<BeautyMessagesList />} />
