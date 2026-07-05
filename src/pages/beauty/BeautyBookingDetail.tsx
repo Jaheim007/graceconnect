@@ -16,6 +16,7 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import BeautyReviewForm from "./BeautyReviewForm";
 import BeautyOtpPanel from "@/components/beauty/BeautyOtpPanel";
+import BeautyExtraCharges from "@/components/beauty/BeautyExtraCharges";
 
 const STATUS_LABELS: Record<
   string,
@@ -258,6 +259,18 @@ export default function BeautyBookingDetail() {
               qc.invalidateQueries({ queryKey: ["beauty-booking", id] });
               refetch();
             }}
+          />
+        )}
+
+        {/* Extra charges — visible once the service has started */}
+        {(isClient || isProvider) && (
+          <BeautyExtraCharges
+            bookingId={booking.id}
+            currency={currency}
+            isClient={isClient}
+            isProvider={isProvider}
+            bookingStarted={!!booking.started_at}
+            bookingCompleted={!!booking.completed_at}
           />
         )}
 
