@@ -22,6 +22,7 @@ export function GuestGate({ icon: Icon, iconBg = 'bg-primary/10', iconColor = 't
   const { theme, toggleTheme } = useTheme();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+  const isBeautyFlow = nextUrl.startsWith('/beauty');
 
   const goAuth = (mode?: 'signup') => {
     try { sessionStorage.setItem('sv_auth_returnTo', nextUrl); } catch {}
@@ -33,7 +34,18 @@ export function GuestGate({ icon: Icon, iconBg = 'bg-primary/10', iconColor = 't
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background">
       <header className="h-14 sticky top-0 z-40 glass border-b border-border flex items-center px-4 gap-3">
-        <SiteLogo size="sm" animate linked to="/" />
+        {isBeautyFlow ? (
+          <button
+            type="button"
+            onClick={() => { window.location.href = 'https://siteviral.com'; }}
+            className="inline-flex"
+            aria-label="SiteViral"
+          >
+            <SiteLogo size="sm" animate linked={false} />
+          </button>
+        ) : (
+          <SiteLogo size="sm" animate linked to="/" />
+        )}
         <div className="flex-1" />
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
           {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
