@@ -49,6 +49,16 @@ export default function AuthCallbackPage() {
       const now = Date.now();
       const isNewUser = now - createdAt < 60_000;
 
+      // Vertical-aware fallback: if the user last engaged with a non-digital
+      // vertical before auth, honour that instead of dumping them into /dashboard.
+      try {
+        const lastVertical = localStorage.getItem('sv_last_vertical');
+        if (!isNewUser && lastVertical && lastVertical !== 'digital') {
+          navigate(`/${lastVertical}`, { replace: true });
+          return;
+        }
+      } catch {}
+
       navigate(isNewUser ? '/welcome' : '/dashboard', { replace: true });
     };
 
