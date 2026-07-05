@@ -181,42 +181,15 @@ export function getActionNavItems(
  * The bottom nav swaps to this set so the app feels like a dedicated Beauty app.
  */
 export function getBeautyNavItems(ctx: NavContext): ActionNavItem[] {
-  const items: ActionNavItem[] = [
-    {
-      id: 'beauty-home',
-      icon: Sparkles,
-      emoji: '✨',
-      titleFr: 'Beauty',
-      titleEn: 'Beauty',
-      descFr: "Accueil SiteViral Beauty",
-      descEn: 'SiteViral Beauty home',
-      route: '/beauty',
-      borderClass: 'border-pink-500/30 hover:border-pink-500/60',
-      iconBg: 'bg-pink-500/15',
-      iconColor: 'text-pink-500',
-    },
-    {
-      id: 'beauty-search',
-      icon: Search,
-      emoji: '🔎',
-      titleFr: 'Explorer',
-      titleEn: 'Explore',
-      descFr: 'Trouver un expert beauté',
-      descEn: 'Find a beauty expert',
-      route: '/beauty/search',
-      borderClass: 'border-rose-500/30 hover:border-rose-500/60',
-      iconBg: 'bg-rose-500/15',
-      iconColor: 'text-rose-500',
-    },
-  ];
+  const items: ActionNavItem[] = [];
 
   if (ctx.isAuthenticated) {
     items.push({
       id: 'beauty-bookings',
       icon: Calendar,
       emoji: '📅',
-      titleFr: 'Rendez-vous',
-      titleEn: 'Appointments',
+      titleFr: 'Mes rendez-vous',
+      titleEn: 'My appointments',
       descFr: 'Mes rendez-vous beauté',
       descEn: 'My beauty appointments',
       route: '/beauty/bookings',
@@ -224,6 +197,23 @@ export function getBeautyNavItems(ctx: NavContext): ActionNavItem[] {
       iconBg: 'bg-amber-500/15',
       iconColor: 'text-amber-500',
     });
+  }
+
+  items.push({
+    id: 'beauty-search',
+    icon: Search,
+    emoji: '🔎',
+    titleFr: 'Explorer',
+    titleEn: 'Explore',
+    descFr: 'Trouver un expert beauté',
+    descEn: 'Find a beauty expert',
+    route: '/beauty/search',
+    borderClass: 'border-rose-500/30 hover:border-rose-500/60',
+    iconBg: 'bg-rose-500/15',
+    iconColor: 'text-rose-500',
+  });
+
+  if (ctx.isAuthenticated) {
     items.push({
       id: 'beauty-chat',
       icon: MessageCircle,
@@ -243,28 +233,14 @@ export function getBeautyNavItems(ctx: NavContext): ActionNavItem[] {
     id: 'beauty-pro',
     icon: Scissors,
     emoji: '💇🏾',
-    titleFr: 'Proposer',
-    titleEn: 'Offer',
+    titleFr: 'Proposer mes services',
+    titleEn: 'Offer my services',
     descFr: 'Créer mon profil et recevoir des clients',
     descEn: 'Create my profile and get clients',
     route: '/beauty/pro/onboarding',
     borderClass: 'border-fuchsia-500/30 hover:border-fuchsia-500/60',
     iconBg: 'bg-fuchsia-500/15',
     iconColor: 'text-fuchsia-500',
-  });
-
-  items.push({
-    id: 'beauty-switch',
-    icon: Home,
-    emoji: '🏠',
-    titleFr: 'SiteViral',
-    titleEn: 'SiteViral',
-    descFr: "Retour à l'accueil",
-    descEn: 'Back to home hub',
-    route: '/',
-    borderClass: 'border-primary/30 hover:border-primary/60',
-    iconBg: 'bg-primary/15',
-    iconColor: 'text-primary',
   });
 
   return items;
