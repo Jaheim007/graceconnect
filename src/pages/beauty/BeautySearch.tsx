@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Search, MapPin, Star, Filter, ArrowLeft, Scissors, Hand, Brush,
+  Search, MapPin, Star, Filter, Scissors, Hand, Brush,
   Flower2, Sparkles, HeartHandshake, ShieldCheck, Home, Store,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/currency";
 import { useI18n } from "@/i18n/I18nContext";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { BeautyHeader } from "@/components/beauty/BeautyHeader";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
@@ -138,19 +139,18 @@ export default function BeautySearch() {
   return (
     <div className="beauty-scope min-h-screen bg-background text-foreground pb-24">
       <SEOHead
-        title={t("Explorer les pros beauté — SiteViral", "Explore beauty pros — SiteViral")}
+        title={t("Explorer les services beauté — SiteViral", "Explore beauty services — SiteViral")}
         description={t(
-          "Coiffure, ongles, maquillage, spa. Trouve un expert vérifié près de toi.",
-          "Hair, nails, makeup, spa. Find a verified beauty expert near you.",
+          "Coiffure, ongles, maquillage, spa. Trouve un expert près de toi et réserve en quelques secondes.",
+          "Hair, nails, makeup, spa. Find an expert near you and book in seconds.",
         )}
       />
 
-      {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-4">
-          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate("/beauty")}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+      <BeautyHeader showBack />
+
+      {/* Search bar */}
+      <div className="sticky top-14 z-20 border-b border-border/60 bg-background/85 backdrop-blur-xl">
+        <div className="mx-auto flex h-12 max-w-6xl items-center gap-2 px-4">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -191,7 +191,7 @@ export default function BeautySearch() {
             </button>
           ))}
         </div>
-      </header>
+      </div>
 
       {/* Filters row */}
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 py-3">

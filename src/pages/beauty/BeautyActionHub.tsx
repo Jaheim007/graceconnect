@@ -2,19 +2,17 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Search, Calendar, MessageCircle, Scissors, LayoutDashboard,
-  ArrowRight, Sun, Moon, Sparkles, MapPin, Clock,
+  Search, Calendar, Scissors, LayoutDashboard,
+  ArrowRight, Sparkles, Clock,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { SEOHead } from "@/components/seo/SEOHead";
-import { GlobalPreferencesSelector } from "@/components/global/GlobalPreferencesSelector";
-import { SiteLogo } from "@/components/ui/SiteLogo";
+import { BeautyHeader } from "@/components/beauty/BeautyHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+
 
 /**
  * BeautyActionHub — Beauty universe entry, styled identically to the Digital
@@ -22,7 +20,6 @@ import { cn } from "@/lib/utils";
  * pointing to /beauty/about.
  */
 export default function BeautyActionHub() {
-  const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
   const { locale } = useI18n();
   const navigate = useNavigate();
@@ -84,10 +81,10 @@ export default function BeautyActionHub() {
     {
       id: "explore",
       icon: Search,
-      titleFr: "Explorer",
-      titleEn: "Discover",
-      descFr: "Parcours les pros beauté vérifiées",
-      descEn: "Browse verified beauty pros",
+      titleFr: "Explorer les services",
+      titleEn: "Explore services",
+      descFr: "Coiffure, ongles, maquillage, spa près de toi",
+      descEn: "Hair, nails, makeup, spa near you",
       route: "/beauty/search",
       iconBg: "bg-rose-100 dark:bg-rose-500/15",
       iconColor: "text-rose-600 dark:text-rose-400",
@@ -104,18 +101,6 @@ export default function BeautyActionHub() {
       iconBg: "bg-amber-100 dark:bg-amber-500/15",
       iconColor: "text-amber-600 dark:text-amber-400",
       borderClass: "hover:border-amber-300 dark:hover:border-amber-500/40",
-    },
-    {
-      id: "messages",
-      icon: MessageCircle,
-      titleFr: "Messages",
-      titleEn: "Messages",
-      descFr: "Discute avec ton expert(e)",
-      descEn: "Chat with your expert",
-      route: user ? "/beauty/messages" : "/auth?returnTo=/beauty/messages",
-      iconBg: "bg-fuchsia-100 dark:bg-fuchsia-500/15",
-      iconColor: "text-fuchsia-600 dark:text-fuchsia-400",
-      borderClass: "hover:border-fuchsia-300 dark:hover:border-fuchsia-500/40",
     },
     ...(isProvider
       ? [
@@ -165,30 +150,7 @@ export default function BeautyActionHub() {
         canonicalUrl="https://siteviral.com/beauty"
       />
 
-      {/* Header */}
-      <header className="sticky top-0 z-30 h-14 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-full max-w-6xl items-center gap-3 px-4">
-          <button onClick={() => navigate("/")} className="flex items-center gap-2">
-            <SiteLogo size="sm" animate linked={false} />
-            <div className="leading-tight">
-              <div className="text-sm font-black tracking-tight">SiteViral</div>
-              <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
-                Beauty
-              </div>
-            </div>
-          </button>
-          <div className="flex-1" />
-          <GlobalPreferencesSelector />
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
-          {!user && (
-            <Button size="sm" className="h-8 text-xs" onClick={() => goAuth("/beauty")}>
-              {t("Se connecter", "Sign in")}
-            </Button>
-          )}
-        </div>
-      </header>
+      <BeautyHeader showBack={false} />
 
       {/* Main content — mirrors ActionHub */}
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-6 pb-28 sm:pb-8">

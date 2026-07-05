@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, MessageCircle, ChevronRight } from "lucide-react";
+import { MessageCircle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
+import { BeautyHeader } from "@/components/beauty/BeautyHeader";
 
 export default function BeautyMessagesList() {
   const { user } = useAuth();
@@ -51,14 +52,10 @@ export default function BeautyMessagesList() {
 
   return (
     <div className="min-h-dvh bg-background pb-24">
-      <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur">
-        <div className="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/beauty")}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-lg font-semibold">{t("Messages", "Messages")}</h1>
-        </div>
-      </header>
+      <BeautyHeader showBack />
+      <div className="mx-auto max-w-2xl px-4 pt-4">
+        <h1 className="text-lg font-semibold">{t("Messages", "Messages")}</h1>
+      </div>
 
       <div className="mx-auto max-w-2xl px-4 py-6 space-y-3">
         {isLoading ? (
