@@ -326,7 +326,9 @@ const App = () => (
               <Routes>
                 {/* Public routes */}
                 <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
-                <Route path="/" element={<ActionHub />} />
+                <Route path="/" element={<SuperAppHub />} />
+                <Route path="/digital" element={<LandingPage />} />
+                <Route path="/hub" element={<ActionHub />} />
                 {/* SiteViral Beauty */}
                 <Route path="/beauty" element={<BeautyLanding />} />
                 <Route path="/beauty/pro/onboarding" element={<RequireAuth><BeautyProviderOnboarding /></RequireAuth>} />
