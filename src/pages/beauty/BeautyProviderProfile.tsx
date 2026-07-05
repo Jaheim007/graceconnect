@@ -351,18 +351,20 @@ export default function BeautyProviderProfile() {
         </Tabs>
       </section>
 
-      {/* Sticky action bar — chat only (provider sends the offer) */}
-      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center gap-2">
-          <Button
-            className="h-11 flex-1 beauty-gradient text-white hover:opacity-90"
-            onClick={() => navigate(`/beauty/messages?provider=${provider.id}`)}
-          >
-            <MessageCircle className="mr-2 h-4 w-4" />
-            {t("Discuter pour réserver", "Chat to book")}
-          </Button>
+      {/* Sticky action bar — chat only (provider sends the offer). Hidden in owner preview. */}
+      {!isOwnerPreview && (
+        <div className="fixed inset-x-0 bottom-16 z-30 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur">
+          <div className="mx-auto flex max-w-3xl items-center gap-2">
+            <Button
+              className="h-11 flex-1 beauty-gradient text-white hover:opacity-90"
+              onClick={() => navigate(`/beauty/messages?provider=${provider.id}`)}
+            >
+              <MessageCircle className="mr-2 h-4 w-4" />
+              {t("Discuter pour réserver", "Chat to book")}
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
