@@ -18,7 +18,7 @@ const CATEGORIES = [
 ];
 
 const STEPS = [
-  { icon: Sparkles, title: "Choisis ton service", body: "Parcours les pros vérifiées d’Abidjan et repère ta favorite en un scroll." },
+  { icon: Sparkles, title: "Choisis ton service", body: "Parcours les pros vérifiées près de toi et repère ta favorite en un scroll." },
   { icon: Wallet, title: "Réserve en confiance", body: "Paiement 100% sécurisé ou acompte 20% — les fonds sont bloqués jusqu’à la prestation." },
   { icon: MessageCircle, title: "Discute avec la pro", body: "Chat intégré, contacts protégés jusqu’à confirmation. Aucun no-show impuni." },
   { icon: Star, title: "Confirme & note", body: "Tu confirmes après le service, la pro est payée, tu laisses un avis (et un tip si tu veux)." },
