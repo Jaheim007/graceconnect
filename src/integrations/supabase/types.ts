@@ -1462,6 +1462,8 @@ export type Database = {
           conversation_id: string
           created_at: string
           id: string
+          kind: string
+          offer_id: string | null
           read_at: string | null
           redacted_body: string
           sender_id: string
@@ -1472,6 +1474,8 @@ export type Database = {
           conversation_id: string
           created_at?: string
           id?: string
+          kind?: string
+          offer_id?: string | null
           read_at?: string | null
           redacted_body: string
           sender_id: string
@@ -1482,6 +1486,8 @@ export type Database = {
           conversation_id?: string
           created_at?: string
           id?: string
+          kind?: string
+          offer_id?: string | null
           read_at?: string | null
           redacted_body?: string
           sender_id?: string
@@ -1492,6 +1498,143 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "beauty_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beauty_messages_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beauty_offers: {
+        Row: {
+          address: string | null
+          booking_id: string | null
+          client_id: string
+          conversation_id: string
+          created_at: string
+          currency: string
+          expires_at: string | null
+          id: string
+          location_type: string
+          note: string | null
+          price_amount: number
+          provider_id: string
+          service_id: string
+          slot_end: string
+          slot_start: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          booking_id?: string | null
+          client_id: string
+          conversation_id: string
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          id?: string
+          location_type: string
+          note?: string | null
+          price_amount: number
+          provider_id: string
+          service_id: string
+          slot_end: string
+          slot_start: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          booking_id?: string | null
+          client_id?: string
+          conversation_id?: string
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          id?: string
+          location_type?: string
+          note?: string | null
+          price_amount?: number
+          provider_id?: string
+          service_id?: string
+          slot_end?: string
+          slot_start?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_offers_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beauty_offers_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beauty_offers_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beauty_offers_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beauty_provider_media: {
+        Row: {
+          caption: string | null
+          created_at: string
+          embed_url: string | null
+          id: string
+          kind: string
+          position: number
+          provider_id: string
+          url: string | null
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          embed_url?: string | null
+          id?: string
+          kind: string
+          position?: number
+          provider_id: string
+          url?: string | null
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          embed_url?: string | null
+          id?: string
+          kind?: string
+          position?: number
+          provider_id?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beauty_provider_media_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_providers"
             referencedColumns: ["id"]
           },
         ]
