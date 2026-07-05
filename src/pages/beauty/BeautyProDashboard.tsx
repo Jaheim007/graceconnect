@@ -135,9 +135,10 @@ export default function BeautyProDashboard() {
         )}
 
         <Tabs value={tab} onValueChange={(v) => setSp({ tab: v })}>
-          <TabsList className="grid grid-cols-4 w-full">
+          <TabsList className="grid grid-cols-5 w-full">
             <TabsTrigger value="overview"><TrendingUp className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Vue d’ensemble</span><span className="sm:hidden">Vue</span></TabsTrigger>
             <TabsTrigger value="services"><Scissors className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Services</span><span className="sm:hidden">Serv.</span></TabsTrigger>
+            <TabsTrigger value="portfolio"><ImageIcon className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Portfolio</span><span className="sm:hidden">Photos</span></TabsTrigger>
             <TabsTrigger value="availability"><Clock className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Disponibilités</span><span className="sm:hidden">Dispo.</span></TabsTrigger>
             <TabsTrigger value="bookings"><Calendar className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Rendez-vous</span><span className="sm:hidden">RDV</span></TabsTrigger>
           </TabsList>
@@ -147,6 +148,9 @@ export default function BeautyProDashboard() {
           </TabsContent>
           <TabsContent value="services" className="mt-6">
             <ServicesTab providerId={providerId!} providerCurrency={(provider as any).__payout_currency ?? "XOF"} />
+          </TabsContent>
+          <TabsContent value="portfolio" className="mt-6">
+            <PortfolioTab providerId={providerId!} />
           </TabsContent>
           <TabsContent value="availability" className="mt-6">
             <AvailabilityTab providerId={providerId!} />
