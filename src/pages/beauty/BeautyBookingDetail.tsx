@@ -15,6 +15,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import BeautyReviewForm from "./BeautyReviewForm";
+import BeautyOtpPanel from "@/components/beauty/BeautyOtpPanel";
 
 const STATUS_LABELS: Record<
   string,
@@ -52,7 +53,7 @@ export default function BeautyBookingDetail() {
       const { data } = await supabase
         .from("beauty_bookings")
         .select(
-          "*, beauty_services(title, category, duration_min), beauty_providers(business_name, avatar_url, city, slug)",
+          "*, beauty_services(title, category, duration_min), beauty_providers(user_id, business_name, avatar_url, city, slug)",
         )
         .eq("id", id!)
         .maybeSingle();
@@ -60,18 +61,19 @@ export default function BeautyBookingDetail() {
     },
   });
 
-  const { data: existingReview } = useQuery({
-    queryKey: ["beauty-review", id],
+  const { data: reviews } = useQuery({
+    queryKey: ["beauty-reviews", id],
     enabled: !!id,
     queryFn: async () => {
       const { data } = await supabase
         .from("beauty_reviews")
-        .select("id, rating, title, body")
-        .eq("booking_id", id!)
-        .maybeSingle();
-      return data;
+        .select("id, rating, title, body, reviewer_role")
+        .eq("booking_id", id!);
+      return (data ?? []) as any[];
     },
   });
+  const clientReview = reviews?.find((r) => r.reviewer_role === "client");
+  const providerReview = reviews?.find((r) => r.reviewer_role === "provider");
 
   // Verify Stripe payment on landing from success
   useEffect(() => {
@@ -113,44 +115,12 @@ export default function BeautyBookingDetail() {
   const isClient = user?.id === booking.client_id;
   const service = (booking as any).beauty_services;
   const provider = (booking as any).beauty_providers;
+  const isProvider = !!user?.id && provider?.user_id === user.id;
   const currency = (booking.currency ?? "XOF") as any;
   const amount = booking.price_amount ?? booking.price_xof ?? 0;
 
   const status = STATUS_LABELS[booking.status] ?? STATUS_LABELS.pending_payment;
   const StatusIcon = status.icon;
-
-  async function handleConfirmService() {
-    if (!id) return;
-    // Client confirms the service was rendered → mark completed
-    const { error } = await supabase
-      .from("beauty_bookings")
-      .update({
-        status: "completed" as any,
-        completed_at: new Date().toISOString(),
-      })
-      .eq("id", id);
-    if (error) {
-      toast({
-        title: t("Erreur", "Error"),
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
-    }
-    await supabase.from("beauty_booking_events").insert({
-      booking_id: id,
-      event_type: "client_confirmed",
-      payload: {},
-    });
-    toast({
-      title: t("Prestation confirmée", "Service confirmed"),
-      description: t(
-        "Merci ! Ton avis débloque un cadeau si tu le laisses maintenant.",
-        "Thanks! Leave a review now to unlock a small perk.",
-      ),
-    });
-    qc.invalidateQueries({ queryKey: ["beauty-booking", id] });
-  }
 
   async function handleCancel() {
     if (!id) return;
@@ -169,9 +139,8 @@ export default function BeautyBookingDetail() {
     qc.invalidateQueries({ queryKey: ["beauty-booking", id] });
   }
 
-  const canConfirm = isClient && booking.status === "confirmed" &&
-    new Date(booking.slot_end) < new Date();
-  const canCancel = booking.status === "confirmed" || booking.status === "pending_payment";
+  const canCancel = booking.status === "pending_payment" ||
+    (booking.status === "confirmed" && !booking.started_at);
 
   return (
     <div className="beauty-scope min-h-screen bg-background pb-32 text-foreground">
@@ -279,6 +248,19 @@ export default function BeautyBookingDetail() {
           </div>
         </div>
 
+        {/* OTP / dual-code panel */}
+        {(isClient || isProvider) && (
+          <BeautyOtpPanel
+            booking={booking}
+            isClient={isClient}
+            isProvider={isProvider}
+            onChanged={() => {
+              qc.invalidateQueries({ queryKey: ["beauty-booking", id] });
+              refetch();
+            }}
+          />
+        )}
+
         {/* Actions */}
         <div className="flex flex-wrap gap-2">
           <Button
@@ -289,21 +271,12 @@ export default function BeautyBookingDetail() {
             <MessageCircle className="h-4 w-4" />
             {t("Ouvrir le chat", "Open chat")}
           </Button>
-          {canConfirm && (
-            <Button
-              onClick={handleConfirmService}
-              className="gap-1.5 beauty-gradient text-white hover:opacity-90"
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              {t("Confirmer la prestation", "Confirm service")}
-            </Button>
-          )}
           {canCancel && (
             <Button variant="ghost" onClick={handleCancel} className="text-rose-600 hover:text-rose-700">
               {t("Annuler", "Cancel")}
             </Button>
           )}
-          {isClient && booking.status === "completed" && (
+          {(isClient || isProvider) && (booking.status === "completed" || booking.status === "disputed") && (
             <Button
               variant="ghost"
               onClick={async () => {
@@ -332,32 +305,54 @@ export default function BeautyBookingDetail() {
           )}
         </div>
 
-        {/* Review form — for the client after completion OR cancellation, once */}
+        {/* Client → Provider review */}
         {isClient &&
           (booking.status === "completed" || booking.status === "cancelled" || booking.status === "no_show") &&
-          !existingReview && (
+          !clientReview && (
           <BeautyReviewForm
             bookingId={booking.id}
             providerId={booking.provider_id}
             currency={currency}
+            role="client"
             onSubmitted={() => {
-              qc.invalidateQueries({ queryKey: ["beauty-review", id] });
+              qc.invalidateQueries({ queryKey: ["beauty-reviews", id] });
               refetch();
             }}
           />
         )}
 
-        {existingReview && (
-          <div className="rounded-2xl border border-border/60 bg-card p-5">
+        {/* Provider → Client review */}
+        {isProvider &&
+          (booking.status === "completed" || booking.status === "cancelled" || booking.status === "no_show") &&
+          !providerReview && (
+          <BeautyReviewForm
+            bookingId={booking.id}
+            providerId={booking.provider_id}
+            clientId={booking.client_id}
+            currency={currency}
+            role="provider"
+            onSubmitted={() => {
+              qc.invalidateQueries({ queryKey: ["beauty-reviews", id] });
+              refetch();
+            }}
+          />
+        )}
+
+        {[clientReview, providerReview].filter(Boolean).map((r: any) => (
+          <div key={r.id} className="rounded-2xl border border-border/60 bg-card p-5">
             <div className="mb-2 flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-sm font-semibold">{t("Ton avis publié", "Your review")}</span>
-              <span className="ml-auto text-sm font-black">{existingReview.rating}/5 ★</span>
+              <span className="text-sm font-semibold">
+                {r.reviewer_role === "provider"
+                  ? t("Avis du prestataire sur le client", "Provider's review of the client")
+                  : t("Avis du client", "Client review")}
+              </span>
+              <span className="ml-auto text-sm font-black">{r.rating}/5 ★</span>
             </div>
-            {existingReview.title && <div className="text-sm font-bold">{existingReview.title}</div>}
-            {existingReview.body && <p className="mt-1 text-sm text-muted-foreground">{existingReview.body}</p>}
+            {r.title && <div className="text-sm font-bold">{r.title}</div>}
+            {r.body && <p className="mt-1 text-sm text-muted-foreground">{r.body}</p>}
           </div>
-        )}
+        ))}
       </main>
     </div>
   );

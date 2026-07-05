@@ -13,17 +13,21 @@ import { formatCurrency } from "@/lib/currency";
 interface Props {
   bookingId: string;
   providerId: string;
+  clientId?: string;
   currency: string;
+  /** 'client' = client reviewing the provider (default). 'provider' = provider reviewing the client. */
+  role?: "client" | "provider";
   onSubmitted?: () => void;
 }
 
 const TIP_PRESETS = [0, 5, 10, 15, 20]; // %
 
-export default function BeautyReviewForm({ bookingId, providerId, currency, onSubmitted }: Props) {
+export default function BeautyReviewForm({ bookingId, providerId, clientId, currency, role = "client", onSubmitted }: Props) {
   const { user } = useAuth();
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+  const isProviderReview = role === "provider";
 
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -49,18 +53,19 @@ export default function BeautyReviewForm({ bookingId, providerId, currency, onSu
     }
     setSubmitting(true);
     try {
-      const tipAmount = tipCustom
+      const tipAmount = !isProviderReview && tipCustom
         ? Math.max(0, Math.floor(Number(tipCustom) || 0))
         : 0;
       const { error } = await supabase.from("beauty_reviews").insert({
         booking_id: bookingId,
-        client_id: user.id,
+        client_id: clientId ?? user.id,
         provider_id: providerId,
+        reviewer_role: role,
         rating,
         title: title.trim() || null,
         body: body.trim() || null,
         tip_xof: tipAmount,
-      });
+      } as any);
       if (error) throw error;
       toast({
         title: t("Merci pour ton avis ✨", "Thanks for your review ✨"),
@@ -84,7 +89,11 @@ export default function BeautyReviewForm({ bookingId, providerId, currency, onSu
     <div className="beauty-scope rounded-2xl border border-border/60 bg-card p-5">
       <div className="mb-4 flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-black">{t("Laisser un avis", "Leave a review")}</h3>
+        <h3 className="text-lg font-black">
+          {isProviderReview
+            ? t("Évaluer ce client", "Rate this client")
+            : t("Laisser un avis", "Leave a review")}
+        </h3>
       </div>
 
       {/* Stars */}
@@ -118,7 +127,11 @@ export default function BeautyReviewForm({ bookingId, providerId, currency, onSu
         className="mb-3"
       />
       <Textarea
-        placeholder={t("Raconte ton expérience (obligatoire, min. 10 caractères)…", "Tell us about your experience (required, min 10 chars)…")}
+        placeholder={
+          isProviderReview
+            ? t("Décris ton expérience avec ce client (ponctualité, respect, communication)…", "Describe your experience with this client (punctuality, respect, communication)…")
+            : t("Raconte ton expérience (obligatoire, min. 10 caractères)…", "Tell us about your experience (required, min 10 chars)…")
+        }
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={4}
@@ -127,7 +140,8 @@ export default function BeautyReviewForm({ bookingId, providerId, currency, onSu
         required
       />
 
-      {/* Tip */}
+      {/* Tip — only shown when a client reviews a provider */}
+      {!isProviderReview && (
       <div className="mb-4 rounded-xl bg-primary/5 p-4">
         <div className="mb-2 text-sm font-semibold">
           {t("Ajouter un pourboire ?", "Add a tip?")}
@@ -163,6 +177,7 @@ export default function BeautyReviewForm({ bookingId, providerId, currency, onSu
           </div>
         )}
       </div>
+      )}
 
       <Button
         onClick={submit}
