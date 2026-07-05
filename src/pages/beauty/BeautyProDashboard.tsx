@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Sparkles, ArrowLeft, Plus, Trash2, Pencil, Loader2, Calendar,
   Scissors, Clock, ShieldCheck, MessageCircle, TrendingUp, Wallet, ChevronRight,
-  Check, X, Ban,
+  Check, X, Ban, Image as ImageIcon, Video, Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -135,9 +135,10 @@ export default function BeautyProDashboard() {
         )}
 
         <Tabs value={tab} onValueChange={(v) => setSp({ tab: v })}>
-          <TabsList className="grid grid-cols-4 w-full">
+          <TabsList className="grid grid-cols-5 w-full">
             <TabsTrigger value="overview"><TrendingUp className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Vue d’ensemble</span><span className="sm:hidden">Vue</span></TabsTrigger>
             <TabsTrigger value="services"><Scissors className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Services</span><span className="sm:hidden">Serv.</span></TabsTrigger>
+            <TabsTrigger value="portfolio"><ImageIcon className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Portfolio</span><span className="sm:hidden">Photos</span></TabsTrigger>
             <TabsTrigger value="availability"><Clock className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Disponibilités</span><span className="sm:hidden">Dispo.</span></TabsTrigger>
             <TabsTrigger value="bookings"><Calendar className="h-4 w-4 mr-1 sm:hidden" /><span className="hidden sm:inline">Rendez-vous</span><span className="sm:hidden">RDV</span></TabsTrigger>
           </TabsList>
@@ -147,6 +148,9 @@ export default function BeautyProDashboard() {
           </TabsContent>
           <TabsContent value="services" className="mt-6">
             <ServicesTab providerId={providerId!} providerCurrency={(provider as any).__payout_currency ?? "XOF"} />
+          </TabsContent>
+          <TabsContent value="portfolio" className="mt-6">
+            <PortfolioTab providerId={providerId!} />
           </TabsContent>
           <TabsContent value="availability" className="mt-6">
             <AvailabilityTab providerId={providerId!} />
@@ -615,6 +619,187 @@ function BookingsTab({ providerId }: { providerId: string }) {
           </Card>
         ))
       )}
+    </div>
+  );
+}
+
+// ---------------- Portfolio Tab ----------------
+function PortfolioTab({ providerId }: { providerId: string }) {
+  const qc = useQueryClient();
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videoCaption, setVideoCaption] = useState("");
+  const [addingVideo, setAddingVideo] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const { data: media, isLoading } = useQuery({
+    queryKey: ["beauty-pro-media", providerId],
+    enabled: !!providerId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("beauty_provider_media")
+        .select("*")
+        .eq("provider_id", providerId)
+        .order("position", { ascending: true })
+        .order("created_at", { ascending: false });
+      return data ?? [];
+    },
+  });
+
+  const photos = (media ?? []).filter((m: any) => m.kind === "photo");
+  const videos = (media ?? []).filter((m: any) => m.kind === "video");
+
+  const onPickFiles = async (files: FileList | null) => {
+    if (!files?.length) return;
+    setUploading(true);
+    try {
+      for (const file of Array.from(files).slice(0, 10)) {
+        const ext = file.name.split(".").pop() || "jpg";
+        const path = `beauty/portfolio/${providerId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("org-uploads")
+          .upload(path, file, { cacheControl: "31536000", upsert: false });
+        if (upErr) {
+          toast.error(`Upload: ${upErr.message}`);
+          continue;
+        }
+        const { data: pub } = supabase.storage.from("org-uploads").getPublicUrl(path);
+        await supabase.from("beauty_provider_media").insert({
+          provider_id: providerId,
+          kind: "photo",
+          url: pub.publicUrl,
+        } as any);
+      }
+      qc.invalidateQueries({ queryKey: ["beauty-pro-media", providerId] });
+      toast.success("Photos ajoutées");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const addVideo = async () => {
+    if (!videoUrl.trim()) return;
+    setAddingVideo(true);
+    // Reuse embed helper
+    const { getVideoEmbedUrl } = await import("@/lib/editorUpload");
+    const embed = getVideoEmbedUrl(videoUrl.trim());
+    if (!embed) {
+      toast.error("Lien vidéo non reconnu (YouTube / Vimeo / TikTok / Instagram)");
+      setAddingVideo(false);
+      return;
+    }
+    const { error } = await supabase.from("beauty_provider_media").insert({
+      provider_id: providerId,
+      kind: "video",
+      url: videoUrl.trim(),
+      embed_url: embed,
+      caption: videoCaption || null,
+    } as any);
+    setAddingVideo(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setVideoUrl("");
+    setVideoCaption("");
+    qc.invalidateQueries({ queryKey: ["beauty-pro-media", providerId] });
+  };
+
+  const remove = async (id: string) => {
+    await supabase.from("beauty_provider_media").delete().eq("id", id);
+    qc.invalidateQueries({ queryKey: ["beauty-pro-media", providerId] });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Photos */}
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <ImageIcon className="h-4 w-4 text-primary" />
+            <h3 className="font-bold">Photos ({photos.length})</h3>
+          </div>
+          <Button size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Upload className="mr-1 h-4 w-4" />Ajouter</>}
+          </Button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(e) => onPickFiles(e.target.files)}
+          />
+        </div>
+        {isLoading ? (
+          <Skeleton className="h-32 w-full" />
+        ) : !photos.length ? (
+          <p className="text-sm text-muted-foreground py-8 text-center border border-dashed rounded-xl">
+            Ajoute des photos de tes réalisations, ton salon, avant/après.
+          </p>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            {photos.map((p: any) => (
+              <div key={p.id} className="relative aspect-square rounded-xl overflow-hidden bg-muted group">
+                <img src={p.url} alt="" className="h-full w-full object-cover" />
+                <button
+                  onClick={() => remove(p.id)}
+                  className="absolute top-1 right-1 h-7 w-7 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition grid place-items-center"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
+      {/* Videos */}
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Video className="h-4 w-4 text-primary" />
+          <h3 className="font-bold">Vidéos ({videos.length})</h3>
+        </div>
+        <div className="space-y-2 mb-4">
+          <Input
+            placeholder="Colle un lien YouTube, TikTok, Instagram, Vimeo…"
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+          />
+          <Input
+            placeholder="Légende (optionnelle)"
+            value={videoCaption}
+            onChange={(e) => setVideoCaption(e.target.value)}
+          />
+          <Button onClick={addVideo} disabled={!videoUrl.trim() || addingVideo} size="sm">
+            {addingVideo ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Plus className="mr-1 h-4 w-4" />Ajouter la vidéo</>}
+          </Button>
+        </div>
+        {!videos.length ? (
+          <p className="text-sm text-muted-foreground py-8 text-center border border-dashed rounded-xl">
+            Aucune vidéo pour l'instant.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {videos.map((v: any) => (
+              <div key={v.id} className="rounded-xl border overflow-hidden">
+                {v.embed_url && (
+                  <div className="aspect-video bg-black">
+                    <iframe src={v.embed_url} className="h-full w-full" allowFullScreen title={v.caption ?? ""} />
+                  </div>
+                )}
+                <div className="flex items-center justify-between p-2 bg-card">
+                  <span className="text-xs text-muted-foreground truncate">{v.caption ?? v.url}</span>
+                  <Button variant="ghost" size="icon" onClick={() => remove(v.id)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

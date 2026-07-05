@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessageCircle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { BeautyHeader } from "@/components/beauty/BeautyHeader";
+import { GuestGate } from "@/components/auth/GuestGate";
 
 export default function BeautyMessagesList() {
   const { user } = useAuth();
@@ -18,6 +19,54 @@ export default function BeautyMessagesList() {
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+  const [sp, setSp] = useSearchParams();
+  const providerParam = sp.get("provider");
+
+  // Auto-open (or create) a conversation with a given provider id
+  useEffect(() => {
+    if (!user || !providerParam) return;
+    let cancelled = false;
+    (async () => {
+      // Provider param may be a provider id (from BeautyProviderProfile)
+      const { data: prov } = await supabase
+        .from("beauty_providers")
+        .select("id, user_id")
+        .eq("id", providerParam)
+        .maybeSingle();
+      if (!prov || cancelled) {
+        sp.delete("provider");
+        setSp(sp, { replace: true });
+        return;
+      }
+      if (prov.user_id === user.id) {
+        // Can't chat with self
+        sp.delete("provider");
+        setSp(sp, { replace: true });
+        return;
+      }
+      // Find existing conversation
+      const { data: existing } = await supabase
+        .from("beauty_conversations")
+        .select("id")
+        .eq("provider_id", prov.id)
+        .eq("client_id", user.id)
+        .maybeSingle();
+      let convId = existing?.id;
+      if (!convId) {
+        const { data: created, error } = await supabase
+          .from("beauty_conversations")
+          .insert({ provider_id: prov.id, client_id: user.id })
+          .select("id")
+          .single();
+        if (error || !created) return;
+        convId = created.id;
+      }
+      if (!cancelled) navigate(`/beauty/messages/${convId}`, { replace: true });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, providerParam, navigate, sp, setSp]);
 
   const { data: conversations, isLoading } = useQuery({
     queryKey: ["beauty-conversations", user?.id],
@@ -49,6 +98,20 @@ export default function BeautyMessagesList() {
       supabase.removeChannel(channel);
     };
   }, [user, qc]);
+
+  if (!user) {
+    return (
+      <GuestGate
+        icon={MessageCircle}
+        title={t("Connecte-toi pour discuter", "Sign in to chat")}
+        subtitle={t(
+          "Retrouve tes conversations avec les pros de la beauté.",
+          "Access your conversations with beauty pros.",
+        )}
+        nextUrl={`/beauty/messages${providerParam ? `?provider=${providerParam}` : ""}`}
+      />
+    );
+  }
 
   return (
     <div className="min-h-dvh bg-background pb-24">
