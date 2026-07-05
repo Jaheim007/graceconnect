@@ -237,6 +237,25 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ── BEAUTY EXTRA CHARGE ──
+    const extraChargeId = meta.extra_charge_id as string | undefined;
+    if (type === 'beauty_extra_charge' && extraChargeId) {
+      const { data: ec } = await db
+        .from('beauty_extra_charges')
+        .select('id, status')
+        .eq('id', extraChargeId).maybeSingle();
+      if (ec && ec.status !== 'paid') {
+        await db.from('beauty_extra_charges').update({
+          status: 'paid', paid_at: new Date().toISOString(),
+        }).eq('id', extraChargeId);
+      }
+      await db.from('payment_events').update({
+        status: 'processed', processed_at: new Date().toISOString(),
+      }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, kind: 'beauty_extra_charge' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+
 
     // ── CREDIT PURCHASE ──
     const purchaseId = meta.purchase_id as string | undefined;
