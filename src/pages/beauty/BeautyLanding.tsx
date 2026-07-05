@@ -221,7 +221,7 @@ export default function BeautyLanding() {
       </section>
 
       <footer className="border-t border-border/60 py-8 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} SiteViral Beauty — Abidjan, Côte d’Ivoire.
+        © {new Date().getFullYear()} SiteViral Beauty — Une app panafricaine.
         <span className="mx-2">·</span>
         <Link to="/" className="hover:text-foreground">Retour à SiteViral</Link>
       </footer>
