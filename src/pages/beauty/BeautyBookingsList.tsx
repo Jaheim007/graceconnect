@@ -48,14 +48,10 @@ export default function BeautyBookingsList() {
 
   return (
     <div className="beauty-scope min-h-screen bg-background pb-24 text-foreground">
-      <header className="sticky top-0 z-30 h-14 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-full max-w-3xl items-center gap-3 px-4">
-          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate("/beauty")}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div className="text-sm font-bold">{t("Mes rendez-vous", "My appointments")}</div>
-        </div>
-      </header>
+      <BeautyHeader showBack />
+      <div className="mx-auto max-w-3xl px-4 pt-4">
+        <h1 className="text-lg font-bold">{t("Mes rendez-vous", "My appointments")}</h1>
+      </div>
 
       <main className="mx-auto max-w-3xl px-4 py-6">
         {isLoading ? (
