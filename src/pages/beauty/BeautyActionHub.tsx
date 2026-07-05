@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BeautyHeader } from "@/components/beauty/BeautyHeader";
+import { BeautyPendingReviewNag } from "@/components/beauty/BeautyPendingReviewNag";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
@@ -151,6 +152,7 @@ export default function BeautyActionHub() {
       />
 
       <BeautyHeader showBack={false} />
+      <BeautyPendingReviewNag />
 
       {/* Main content — mirrors ActionHub */}
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-6 pb-28 sm:pb-8">

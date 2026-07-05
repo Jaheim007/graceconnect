@@ -55,7 +55,7 @@ const BeautyActionHub = lazy(() => import("@/pages/beauty/BeautyActionHub"));
 const BeautyProviderOnboarding = lazy(() => import("@/pages/beauty/BeautyProviderOnboarding"));
 const BeautySearch = lazy(() => import("@/pages/beauty/BeautySearch"));
 const BeautyProviderProfile = lazy(() => import("@/pages/beauty/BeautyProviderProfile"));
-const BeautyBookingWizard = lazy(() => import("@/pages/beauty/BeautyBookingWizard"));
+
 const BeautyBookingDetail = lazy(() => import("@/pages/beauty/BeautyBookingDetail"));
 const BeautyBookingsList = lazy(() => import("@/pages/beauty/BeautyBookingsList"));
 const BeautyMessagesList = lazy(() => import("@/pages/beauty/BeautyMessagesList"));
@@ -345,7 +345,7 @@ const App = () => (
                 <Route path="/beauty/about" element={<BeautyLanding />} />
                 <Route path="/beauty/search" element={<BeautySearch />} />
                 <Route path="/beauty/p/:slug" element={<BeautyProviderProfile />} />
-                <Route path="/beauty/book/:serviceId" element={<BeautyBookingWizard />} />
+                <Route path="/beauty/book/:serviceId" element={<Navigate to="/beauty/search" replace />} />
                 <Route path="/beauty/bookings" element={<BeautyBookingsList />} />
                 <Route path="/beauty/bookings/:id" element={<RequireAuth><BeautyBookingDetail /></RequireAuth>} />
                 <Route path="/beauty/messages" element={<BeautyMessagesList />} />
