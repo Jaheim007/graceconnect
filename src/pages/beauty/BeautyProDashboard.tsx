@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Sparkles, ArrowLeft, Plus, Trash2, Pencil, Loader2, Calendar,
   Scissors, Clock, ShieldCheck, MessageCircle, TrendingUp, Wallet, ChevronRight,
-  Check, X, Ban,
+  Check, X, Ban, Image as ImageIcon, Video, Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
