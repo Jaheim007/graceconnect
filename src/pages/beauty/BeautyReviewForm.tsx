@@ -89,7 +89,11 @@ export default function BeautyReviewForm({ bookingId, providerId, clientId, curr
     <div className="beauty-scope rounded-2xl border border-border/60 bg-card p-5">
       <div className="mb-4 flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-black">{t("Laisser un avis", "Leave a review")}</h3>
+        <h3 className="text-lg font-black">
+          {isProviderReview
+            ? t("Évaluer ce client", "Rate this client")
+            : t("Laisser un avis", "Leave a review")}
+        </h3>
       </div>
 
       {/* Stars */}
