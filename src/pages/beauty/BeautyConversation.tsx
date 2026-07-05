@@ -108,7 +108,8 @@ export default function BeautyConversation() {
       conversation_id: id,
       sender_id: user.id,
       body,
-    });
+      redacted_body: body,
+    } as any);
     setSending(false);
     if (error) {
       toast.error(t("Envoi impossible", "Failed to send"));
