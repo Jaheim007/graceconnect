@@ -19,6 +19,54 @@ export default function BeautyMessagesList() {
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+  const [sp, setSp] = useSearchParams();
+  const providerParam = sp.get("provider");
+
+  // Auto-open (or create) a conversation with a given provider id
+  useEffect(() => {
+    if (!user || !providerParam) return;
+    let cancelled = false;
+    (async () => {
+      // Provider param may be a provider id (from BeautyProviderProfile)
+      const { data: prov } = await supabase
+        .from("beauty_providers")
+        .select("id, user_id")
+        .eq("id", providerParam)
+        .maybeSingle();
+      if (!prov || cancelled) {
+        sp.delete("provider");
+        setSp(sp, { replace: true });
+        return;
+      }
+      if (prov.user_id === user.id) {
+        // Can't chat with self
+        sp.delete("provider");
+        setSp(sp, { replace: true });
+        return;
+      }
+      // Find existing conversation
+      const { data: existing } = await supabase
+        .from("beauty_conversations")
+        .select("id")
+        .eq("provider_id", prov.id)
+        .eq("client_id", user.id)
+        .maybeSingle();
+      let convId = existing?.id;
+      if (!convId) {
+        const { data: created, error } = await supabase
+          .from("beauty_conversations")
+          .insert({ provider_id: prov.id, client_id: user.id })
+          .select("id")
+          .single();
+        if (error || !created) return;
+        convId = created.id;
+      }
+      if (!cancelled) navigate(`/beauty/messages/${convId}`, { replace: true });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, providerParam, navigate, sp, setSp]);
 
   const { data: conversations, isLoading } = useQuery({
     queryKey: ["beauty-conversations", user?.id],
