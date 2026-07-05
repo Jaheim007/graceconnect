@@ -1,57 +1,58 @@
-## What already exists (reuse, don't rebuild)
+# Beauty Pro — Dashboard rebuild + KYC visibility fix
 
-- `beauty_chat_violations` — logs blocked messages (created last round)
-- `user_notifications` — in-app notification center
-- `send-email` edge function + Resend
-- `_shared/ai-gemini.ts` — direct Gemini call using `GEMINI_API_KEY` (your own key, not `LOVABLE_API_KEY`) ✅
-- `has_role` / superadmin gating
+## 1. Public profile: KYC gating clarified
 
-## What to build now (phase 1 — essentials)
+**Problem**: Clicking "Voir profil public" from dashboard shows "Profil introuvable" because RLS filters `status = 'active'` and public page filters the same. Provider can't preview their own page, and the UX doesn't explain that KYC = required to appear in Explore.
 
-### 1. DB migration — trust core
-- `account_trust_profiles` (user_id PK, trust_score 100 default, status enum: `ok | warned | chat_frozen | limited | hidden | suspended | banned`, `restricted_until`, `hidden_until`, `payout_hold`, counters)
-- Extend `beauty_chat_violations`: `severity`, `ai_category`, `ai_confidence`, `ai_recommended_action`, `ai_admin_summary`, `ai_user_message`, `action_taken`, `admin_review_required`, `admin_reviewed_by`, `admin_decision`, `score_before`, `score_after`
-- `trust_notifications_log` (user_id, violation_id, notification_type, channel `in_app|email`, subject, message, delivery_status, sent_at)
-- Trigger on `beauty_chat_violations` insert → calls edge function `trust-process-violation` via `pg_net` (async)
-- GRANTs + RLS (user sees own; superadmin sees all)
+**Fix**:
+- Public profile page (`BeautyProviderProfile.tsx`): try `.eq('status','active')` first, then fallback to the current logged-in user's own row (RLS already allows owner to read own pending row). Show a top banner "Aperçu privé — visible dans l'Explore après validation KYC" when the viewer is the owner and status ≠ active.
+- Dashboard: keep the existing yellow KYC banner but make the message explicit: *"Tu es invisible dans l'Explore SiteViral Beauty tant que ton KYC n'est pas validé. Ton lien public reste partageable manuellement."* + "Compléter le KYC" CTA.
+- Search page (`BeautySearch.tsx`): already only shows `status='active'` — no change.
 
-### 2. Edge function `trust-process-violation`
-- Loads violation + user history (24h / 7d counts)
-- Calls Gemini (`gemini-2.5-flash`, JSON mode) with the schema you listed → returns category, severity, confidence, recommended_action, user_message, admin_summary, review_required
-- Applies automatic action per severity + history:
-  - 1st soft → warning only
-  - 2nd in 24h → chat frozen (this booking)
-  - 3rd / hard → account limited + provider hidden + payout hold + admin review
-  - severe (fraud) → 24h suspend + admin review (never auto-ban)
-- Updates trust_score & `account_trust_profiles.status`
-- Writes in-app notif (`user_notifications`) with short FR message
-- Calls `send-email` with template key + logs both to `trust_notifications_log`
+## 2. Dashboard shell rebuilt (Aurora-style, mobile-first)
 
-### 3. Email templates (in `send-email` template map)
-9 short bilingual templates: warning, message_blocked, chat_frozen, account_limited, provider_hidden, payout_held, suspended_24h, banned, restored. Each: name + reason + action + "contact support if mistake".
+Reference: https://aurora.themewagon.com/dashboard/ecommerce — clean sidebar, top search bar, grouped nav, colored icon tiles, section cards.
 
-### 4. Admin dashboard page `/superadmin/trust`
-- List violations with Gemini analysis card (severity badge, confidence bar, recommendation)
-- Filters: pending review, severity, user
-- Action buttons: confirm / override / false positive / warn / freeze chat / hide / suspend 24h-7d-30d / ban / restore / hold-release payout
-- Each action calls edge function `trust-admin-action` (audit-logged, sends notif + email)
+**Layout** — replace current shell with a proper shadcn `Sidebar` (using `SidebarProvider`, `collapsible="icon"`), matching the Digital dashboard structure but with the Beauty pink accent (`--primary` already set in beauty scope):
+- Left sidebar (desktop, mini-collapse on tablet, offcanvas Sheet on mobile) with SiteViral S-logo + "Beauty Pro" tag, provider avatar+name+KYC pill, then grouped nav.
+- Top bar: mobile hamburger + page title + search + notifications + avatar menu.
+- Content: rounded-2xl section cards with soft borders and gradient stat tiles (rose/amber/emerald/violet), consistent with Aurora density.
+- All spacing / typography follows existing Digital dashboard tokens — no hardcoded colors.
 
-### 5. User-facing surfacing
-- Toast on blocked message (already done) — add link "Voir mon statut de compte"
-- `/account/trust` page: current status, restrictions in effect, violation history (own), appeal button
+**Nav sections** (unchanged keys, add missing surfaces):
+- Pilotage: Overview, Rendez-vous, Statistiques
+- Catalogue: Services, **Portfolio (photos + vidéos)**, Disponibilités
+- Communication: Messages, Avis
+- Compte: **Profil (éditable)**, Paramètres, Paiements & KYC
 
-## What I'm NOT building now (tell me if you want any)
+## 3. Profile & media editing
 
-- ❌ **Vertical-agnostic reuse layer** — build it Beauty-first, generalize later when a 2nd vertical needs it. Premature abstraction now = wasted work.
-- ❌ **Automatic 7d / 30d / permanent ban** — too risky without human review. Auto caps at 24h suspend; longer = admin only.
-- ❌ **Payout hold auto-release cron** — admin releases manually for now (low volume, safer).
-- ❌ **Appeal ticket workflow** — the "contact support" mailto link is enough for v1; full ticketing later.
-- ❌ **Gemini analysis on non-chat violations** (no-shows, disputes) — only chat bypass for now, since that's the only detector wired.
-- ❌ **Trust badges on public profiles** (already in earlier backlog under reliability score) — separate feature.
+- **Profil éditable** (new fully-working editor inside Settings/Profil tab):
+  - business_name, bio, city, address, phone, at_salon_ok, home_service_ok, specialties (multi-select from BEAUTY_CATEGORIES), avatar upload, cover upload
+  - Uses existing `beauty-media` storage bucket
+- **Portfolio tab**: photo upload (drag/drop), video upload OR paste YouTube/TikTok/Instagram embed URL, reorder, delete. Writes to `beauty_provider_media` (kind: `photo` | `video`, `url`, `embed_url`, `caption`, `position`).
 
-## Tech notes
-- Gemini call uses your `GEMINI_API_KEY` via existing `_shared/ai-gemini.ts` `geminiGenerateText` with `jsonMode: true`. Not `LOVABLE_API_KEY`.
-- All auto-actions capped at 24h suspend, so a Gemini hallucination can't nuke an account.
-- All notification sends double-logged so superadmin can audit "was the user told?"
+## 4. Navigation fix
 
-Confirm and I'll ship phase 1 (migration → edge functions → admin page → user page). Or tell me which pieces to skip / add.
+Audit every link labeled "Mon espace" / "Mon espace pro" — ensure they all route to `/beauty/pro` (new dashboard) and not to a stale `/dashboard` or `/creator` route. Files to check: `BeautyHeader.tsx`, `BeautyActionHub.tsx`, `BeautyLandingBody.tsx`, `GlobalBottomNav`.
+
+## 5. Mobile-first polish
+
+- Sidebar collapses to bottom-anchored trigger on `<md` via Sheet.
+- Stat cards stack single-column, tables become card lists.
+- All touch targets ≥40px per project standard.
+- Header centered logo, safe-area-insets respected.
+
+## Technical notes
+
+- No schema changes required (specialties/address/lat/lng already exist from prior migration; media table exists).
+- Public profile RLS already permits `user_id = auth.uid()` — only the query needs updating.
+- Reuse `PremiumCard`, `DashboardSection`, shadcn `Sidebar`, existing `useIsMobile` hook, `beauty-scope` CSS class.
+- Bilingual FR/EN via `useI18n`.
+
+## Files touched
+- `src/pages/beauty/BeautyProDashboard.tsx` — major rebuild
+- `src/pages/beauty/BeautyProviderProfile.tsx` — owner preview + banner
+- `src/components/beauty/BeautyHeader.tsx` — verify My space link
+- `src/pages/beauty/BeautyActionHub.tsx` — verify routes
+- Possibly new: `src/components/beauty/pro/*` subcomponents to keep file readable

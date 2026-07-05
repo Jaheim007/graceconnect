@@ -6,7 +6,7 @@ import {
   Scissors, Clock, ShieldCheck, MessageCircle, TrendingUp, Wallet, ChevronRight,
   Check, X, Ban, Image as ImageIcon, Video, Upload,
   Menu, Bell, Search, Settings as SettingsIcon, LogOut, Home, BarChart3,
-  User, CreditCard, Star, ArrowUpRight, ArrowDownRight, ExternalLink, Copy,
+  User, CreditCard, Star, ArrowUpRight, ArrowDownRight, ExternalLink, Copy, Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -185,17 +185,27 @@ export default function BeautyProDashboard() {
 
           {provider.status !== "active" && (
             <Card className="mb-6 p-4 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30">
-              <div className="flex items-start gap-3">
+              <div className="flex flex-col sm:flex-row items-start gap-3">
                 <ShieldCheck className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
-                <div className="text-sm flex-1">
-                  <div className="font-semibold">Ton profil est en attente de validation KYC.</div>
+                <div className="text-sm flex-1 min-w-0">
+                  <div className="font-semibold">
+                    Ton profil n'apparaît pas encore dans <span className="text-primary">Explore SiteViral Beauty</span>.
+                  </div>
                   <div className="text-muted-foreground mt-1">
-                    Configure tes services et disponibilités dès maintenant. Ils seront visibles publiquement après validation.
+                    Pour être visible dans la découverte et recevoir des demandes de clients, complète la vérification KYC.
+                    En attendant, ton lien public reste partageable manuellement pour tester ton profil.
                   </div>
                 </div>
-                <Button size="sm" variant="default" asChild>
-                  <Link to="/settings/kyc">Compléter le KYC</Link>
-                </Button>
+                <div className="flex flex-wrap gap-2 shrink-0">
+                  <Button size="sm" variant="outline" asChild>
+                    <Link to={`/beauty/p/${provider.slug}`} target="_blank">
+                      <Eye className="h-3.5 w-3.5 mr-1.5" /> Aperçu privé
+                    </Link>
+                  </Button>
+                  <Button size="sm" asChild className="beauty-gradient text-white">
+                    <Link to="/settings/kyc">Compléter le KYC</Link>
+                  </Button>
+                </div>
               </div>
             </Card>
           )}
@@ -610,32 +620,36 @@ function StatsTab({ providerId }: { providerId: string }) {
 
 function SettingsTab({ provider }: { provider: any }) {
   const [copied, setCopied] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const publicUrl = `/beauty/p/${provider.slug}`;
   const fullUrl = typeof window !== "undefined" ? `${window.location.origin}${publicUrl}` : publicUrl;
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <Card className="p-5 lg:col-span-2">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">
-            <User className="h-4 w-4" />
-          </span>
-          <div>
-            <div className="font-bold">Profil professionnel</div>
-            <div className="text-xs text-muted-foreground">Nom, bio, ville, photo</div>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
+              <User className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <div className="font-bold truncate">Profil professionnel</div>
+              <div className="text-xs text-muted-foreground">Nom, bio, ville, adresse, photo, spécialités</div>
+            </div>
           </div>
+          <Button size="sm" onClick={() => setEditOpen(true)} className="beauty-gradient text-white shrink-0">
+            <Pencil className="h-3.5 w-3.5 mr-1.5" /> Modifier
+          </Button>
         </div>
         <div className="space-y-2 text-sm">
           <Row label="Nom" value={provider.business_name} />
           <Row label="Ville" value={provider.city ?? "—"} />
           <Row label="Adresse" value={provider.address ?? "—"} />
+          <Row label="Téléphone" value={provider.phone ?? "—"} />
           <Row label="Spécialités" value={(provider.specialties ?? []).join(", ") || "—"} />
           <Row label="En salon" value={provider.at_salon_ok ? "Oui" : "Non"} />
           <Row label="À domicile" value={provider.home_service_ok ? "Oui" : "Non"} />
         </div>
-        <div className="mt-4 flex gap-2 flex-wrap">
-          <Button size="sm" variant="outline" disabled>Modifier <Pencil className="h-3.5 w-3.5 ml-1.5" /></Button>
-          <span className="text-[11px] text-muted-foreground self-center">Édition détaillée bientôt disponible.</span>
-        </div>
+        <ProfileEditorDialog open={editOpen} onOpenChange={setEditOpen} provider={provider} />
       </Card>
 
       <Card className="p-5">
@@ -697,6 +711,189 @@ function SettingsTab({ provider }: { provider: any }) {
         <Link to="/account/trust" className="text-xs text-primary underline">Voir mon score de confiance →</Link>
       </Card>
     </div>
+  );
+}
+
+function ProfileEditorDialog({ open, onOpenChange, provider }: { open: boolean; onOpenChange: (o: boolean) => void; provider: any }) {
+  const qc = useQueryClient();
+  const [saving, setSaving] = useState(false);
+  const [businessName, setBusinessName] = useState(provider.business_name ?? "");
+  const [bio, setBio] = useState(provider.bio ?? "");
+  const [city, setCity] = useState(provider.city ?? "");
+  const [address, setAddress] = useState(provider.address ?? "");
+  const [phone, setPhone] = useState(provider.phone ?? "");
+  const [atSalon, setAtSalon] = useState<boolean>(!!provider.at_salon_ok);
+  const [atHome, setAtHome] = useState<boolean>(!!provider.home_service_ok);
+  const [specialties, setSpecialties] = useState<string[]>(provider.specialties ?? []);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(provider.avatar_url ?? null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(provider.cover_url ?? null);
+  const avatarRef = useRef<HTMLInputElement>(null);
+  const coverRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState<"avatar" | "cover" | null>(null);
+
+  const toggleSpecialty = (s: string) => {
+    setSpecialties((prev) => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
+  };
+
+  const uploadImg = async (file: File, kind: "avatar" | "cover") => {
+    setUploading(kind);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `beauty/profile/${provider.id}/${kind}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("org-uploads")
+        .upload(path, file, { cacheControl: "31536000", upsert: true });
+      if (upErr) { toast.error(upErr.message); return; }
+      const { data: pub } = supabase.storage.from("org-uploads").getPublicUrl(path);
+      if (kind === "avatar") setAvatarUrl(pub.publicUrl);
+      else setCoverUrl(pub.publicUrl);
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  const save = async () => {
+    if (!businessName.trim()) { toast.error("Le nom est obligatoire"); return; }
+    setSaving(true);
+    const { error } = await supabase.from("beauty_providers").update({
+      business_name: businessName.trim(),
+      bio: bio.trim() || null,
+      city: city.trim() || null,
+      address: address.trim() || null,
+      phone: phone.trim() || null,
+      at_salon_ok: atSalon,
+      home_service_ok: atHome,
+      specialties,
+      avatar_url: avatarUrl,
+      cover_url: coverUrl,
+    } as any).eq("id", provider.id);
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Profil mis à jour");
+    qc.invalidateQueries({ queryKey: ["beauty-my-provider"] });
+    qc.invalidateQueries({ queryKey: ["beauty-provider-profile"] });
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90dvh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Modifier mon profil</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-5">
+          {/* Cover */}
+          <div>
+            <Label className="text-xs">Photo de couverture</Label>
+            <div className="mt-2 relative h-32 rounded-xl overflow-hidden bg-muted beauty-gradient">
+              {coverUrl && <img src={coverUrl} alt="" className="h-full w-full object-cover" />}
+              <button
+                type="button"
+                onClick={() => coverRef.current?.click()}
+                className="absolute bottom-2 right-2 rounded-lg bg-black/70 text-white px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5"
+              >
+                {uploading === "cover" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+                Changer
+              </button>
+              <input ref={coverRef} type="file" accept="image/*" className="hidden"
+                onChange={(e) => e.target.files?.[0] && uploadImg(e.target.files[0], "cover")} />
+            </div>
+          </div>
+
+          {/* Avatar + name */}
+          <div className="flex items-end gap-4">
+            <div>
+              <Label className="text-xs">Photo</Label>
+              <div className="mt-2 relative">
+                <div className="h-20 w-20 rounded-2xl overflow-hidden bg-muted grid place-items-center text-2xl font-black text-muted-foreground">
+                  {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : (businessName[0] ?? "?")}
+                </div>
+                <button type="button" onClick={() => avatarRef.current?.click()}
+                  className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-primary text-white grid place-items-center shadow">
+                  {uploading === "avatar" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+                </button>
+                <input ref={avatarRef} type="file" accept="image/*" className="hidden"
+                  onChange={(e) => e.target.files?.[0] && uploadImg(e.target.files[0], "avatar")} />
+              </div>
+            </div>
+            <div className="flex-1">
+              <Label className="text-xs">Nom professionnel *</Label>
+              <Input className="mt-1.5" value={businessName} onChange={(e) => setBusinessName(e.target.value)} />
+            </div>
+          </div>
+
+          <div>
+            <Label className="text-xs">Bio</Label>
+            <Textarea className="mt-1.5" rows={3} value={bio} onChange={(e) => setBio(e.target.value)}
+              placeholder="Présente-toi en quelques mots — ton style, ton expérience…" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs">Ville</Label>
+              <Input className="mt-1.5" value={city} onChange={(e) => setCity(e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-xs">Téléphone (interne, non affiché)</Label>
+              <Input className="mt-1.5" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </div>
+          </div>
+
+          <div>
+            <Label className="text-xs">Adresse (optionnelle)</Label>
+            <Input className="mt-1.5" value={address} onChange={(e) => setAddress(e.target.value)}
+              placeholder="Ex. Rue des Jardins, Cocody…" />
+          </div>
+
+          <div>
+            <Label className="text-xs">Spécialités ({specialties.length})</Label>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {CATEGORIES.map((c) => {
+                const active = specialties.includes(c);
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => toggleSpecialty(c)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-xs font-semibold border transition",
+                      active
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background text-foreground border-border hover:border-primary/50"
+                    )}
+                  >
+                    {c}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="flex items-center justify-between rounded-xl border p-3">
+              <div>
+                <div className="text-sm font-semibold">En salon</div>
+                <div className="text-[11px] text-muted-foreground">Accueil des clients sur place</div>
+              </div>
+              <Switch checked={atSalon} onCheckedChange={setAtSalon} />
+            </div>
+            <div className="flex items-center justify-between rounded-xl border p-3">
+              <div>
+                <div className="text-sm font-semibold">À domicile</div>
+                <div className="text-[11px] text-muted-foreground">Déplacement chez le client</div>
+              </div>
+              <Switch checked={atHome} onCheckedChange={setAtHome} />
+            </div>
+          </div>
+        </div>
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>Annuler</Button>
+          <Button onClick={save} disabled={saving} className="beauty-gradient text-white">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Enregistrer
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

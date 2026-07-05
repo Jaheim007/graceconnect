@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, Star, MapPin, ShieldCheck, Clock, Home, Store, Sparkles,
-  MessageCircle, Calendar, ChevronRight,
+  MessageCircle, Calendar, ChevronRight, Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,22 +12,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/currency";
 import { useI18n } from "@/i18n/I18nContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { cn } from "@/lib/utils";
 
 export default function BeautyProviderProfile() {
   const { slug } = useParams<{ slug: string }>();
   const { locale } = useI18n();
+  const { user } = useAuth();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
   const navigate = useNavigate();
   const [tab, setTab] = useState<"services" | "gallery" | "videos" | "reviews">("services");
 
   const { data: provider, isLoading } = useQuery({
-    queryKey: ["beauty-provider-profile", slug],
+    queryKey: ["beauty-provider-profile", slug, user?.id],
     enabled: !!slug,
     queryFn: async () => {
-      // Try slug first, then id fallback
+      // 1) Public active profile by slug
       let { data } = await supabase
         .from("beauty_providers")
         .select("*")
@@ -35,6 +37,7 @@ export default function BeautyProviderProfile() {
         .eq("status", "active")
         .maybeSingle();
 
+      // 2) Fallback by id (still active only)
       if (!data) {
         const { data: byId } = await supabase
           .from("beauty_providers")
@@ -44,9 +47,22 @@ export default function BeautyProviderProfile() {
           .maybeSingle();
         data = byId ?? null;
       }
+
+      // 3) Owner preview — RLS allows the owner to read their own pending row.
+      if (!data && user) {
+        const { data: mine } = await supabase
+          .from("beauty_providers")
+          .select("*")
+          .eq("user_id", user.id)
+          .or(`slug.eq.${slug},id.eq.${slug}`)
+          .maybeSingle();
+        data = mine ?? null;
+      }
       return data;
     },
   });
+
+  const isOwnerPreview = !!(provider && user && (provider as any).user_id === user.id && (provider as any).status !== "active");
 
   const { data: services } = useQuery({
     queryKey: ["beauty-provider-services", provider?.id],
@@ -130,6 +146,28 @@ export default function BeautyProviderProfile() {
         title={`${provider.business_name} — SiteViral Beauty`}
         description={provider.bio ?? `${provider.business_name} · ${provider.city ?? ""}`}
       />
+
+      {isOwnerPreview && (
+        <div className="border-b border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
+          <div className="mx-auto flex max-w-3xl items-start gap-2">
+            <Eye className="mt-0.5 h-4 w-4 shrink-0" />
+            <div className="flex-1">
+              <div className="font-semibold">
+                {t("Aperçu privé — ton profil n'est pas encore visible dans l'Explore SiteViral Beauty.",
+                  "Private preview — your profile isn't visible in SiteViral Beauty Explore yet.")}
+              </div>
+              <div className="mt-0.5 text-xs opacity-90">
+                {t("Complète ta vérification KYC pour apparaître dans les résultats. Ton lien reste partageable manuellement.",
+                  "Complete your KYC verification to appear in results. Your link stays shareable manually.")}
+              </div>
+            </div>
+            <Button asChild size="sm" variant="outline" className="border-amber-400 bg-white text-amber-900 hover:bg-amber-100 dark:bg-transparent dark:text-amber-100">
+              <Link to="/settings/kyc">{t("Compléter le KYC", "Complete KYC")}</Link>
+            </Button>
+          </div>
+        </div>
+      )}
+
 
       {/* Cover + back */}
       <div className="relative">
@@ -313,18 +351,20 @@ export default function BeautyProviderProfile() {
         </Tabs>
       </section>
 
-      {/* Sticky action bar — chat only (provider sends the offer) */}
-      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center gap-2">
-          <Button
-            className="h-11 flex-1 beauty-gradient text-white hover:opacity-90"
-            onClick={() => navigate(`/beauty/messages?provider=${provider.id}`)}
-          >
-            <MessageCircle className="mr-2 h-4 w-4" />
-            {t("Discuter pour réserver", "Chat to book")}
-          </Button>
+      {/* Sticky action bar — chat only (provider sends the offer). Hidden in owner preview. */}
+      {!isOwnerPreview && (
+        <div className="fixed inset-x-0 bottom-16 z-30 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur">
+          <div className="mx-auto flex max-w-3xl items-center gap-2">
+            <Button
+              className="h-11 flex-1 beauty-gradient text-white hover:opacity-90"
+              onClick={() => navigate(`/beauty/messages?provider=${provider.id}`)}
+            >
+              <MessageCircle className="mr-2 h-4 w-4" />
+              {t("Discuter pour réserver", "Chat to book")}
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
