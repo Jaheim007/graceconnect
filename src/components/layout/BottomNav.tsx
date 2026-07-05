@@ -29,13 +29,23 @@ export function BottomNav() {
     }
   };
 
-  const navItems = getActionNavItems({
-    isAuthenticated: !!user,
-    hasPurchases,
-    hasManageableOrg,
-    hasOrgs,
-    isSuperadmin,
-  }, resolveRoute);
+  // Vertical-aware nav: /beauty/* shows Beauty items, everything else shows Digital items.
+  const isBeauty = location.pathname.startsWith('/beauty');
+  const navItems = isBeauty
+    ? getBeautyNavItems({
+        isAuthenticated: !!user,
+        hasPurchases,
+        hasManageableOrg,
+        hasOrgs,
+        isSuperadmin,
+      })
+    : getActionNavItems({
+        isAuthenticated: !!user,
+        hasPurchases,
+        hasManageableOrg,
+        hasOrgs,
+        isSuperadmin,
+      }, resolveRoute);
 
   const isActive = (route: string) => {
     if (route === '/') return location.pathname === '/';
