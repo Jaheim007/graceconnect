@@ -3,18 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Search, Calendar, MessageCircle, Scissors, LayoutDashboard,
-  ArrowRight, Sun, Moon, Sparkles, MapPin, Clock,
+  ArrowRight, Sparkles, Clock,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { SEOHead } from "@/components/seo/SEOHead";
-import { GlobalPreferencesSelector } from "@/components/global/GlobalPreferencesSelector";
-import { SiteLogo } from "@/components/ui/SiteLogo";
+import { BeautyHeader } from "@/components/beauty/BeautyHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+
 
 /**
  * BeautyActionHub — Beauty universe entry, styled identically to the Digital
