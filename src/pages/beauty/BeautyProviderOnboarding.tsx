@@ -164,7 +164,6 @@ export default function BeautyProviderOnboarding() {
   }
 
   if (!authLoading && !user) {
-    const GuestGate = require("@/components/auth/GuestGate").GuestGate;
     return (
       <GuestGate
         icon={Scissors}
