@@ -6,7 +6,7 @@ import {
   Scissors, Clock, ShieldCheck, MessageCircle, TrendingUp, Wallet, ChevronRight,
   Check, X, Ban, Image as ImageIcon, Video, Upload,
   Menu, Bell, Search, Settings as SettingsIcon, LogOut, Home, BarChart3,
-  User, CreditCard, Star, ArrowUpRight, ArrowDownRight, ExternalLink, Copy,
+  User, CreditCard, Star, ArrowUpRight, ArrowDownRight, ExternalLink, Copy, Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
