@@ -17,8 +17,8 @@ export default function ChurchGiveSuccessPage() {
     enabled: !!reference,
     queryKey: ['church-donation', reference],
     queryFn: async () => {
-      const { data } = await supabase.from('church_donations').select('status, amount, currency, giving_type, church_id').eq('reference', reference!).maybeSingle();
-      return data;
+      const { data } = await supabase.functions.invoke('church-giving-status', { body: { reference } });
+      return (data as any) || null;
     },
     refetchInterval: (q) => (q.state.data?.status === 'pending' ? 3000 : false),
   });
