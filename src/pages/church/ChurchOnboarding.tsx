@@ -42,7 +42,19 @@ export default function ChurchOnboarding() {
   }, [user]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
-  if (!user) return <Navigate to="/auth?returnTo=/church/pro/onboarding" replace />;
+  if (!loading && !user) {
+    return (
+      <GuestGate
+        icon={Church}
+        title={fr ? 'Crée ton église' : 'Create your church'}
+        subtitle={fr
+          ? 'Crée ton compte pour publier tes prédications, recevoir dîmes & offrandes et gérer ta communauté. Gratuit pour commencer.'
+          : 'Create your account to publish your sermons, receive tithes & offerings and grow your community. Free to start.'}
+        nextUrl="/church/pro/onboarding"
+      />
+    );
+  }
+
   if (existing) return <Navigate to="/church/pro" replace />;
 
   const submit = async (e: React.FormEvent) => {
