@@ -83,7 +83,28 @@ export default function ChurchPublicProfile() {
   });
 
   useEffect(() => {
-    if (church) document.title = `${church.name} — SiteViral Church`;
+    if (!church) return;
+    document.title = `${church.name} — SiteViral Church`;
+    // JSON-LD Church schema for SEO
+    const socials = (church.socials as any) || {};
+    const sameAs = [socials.facebook, socials.instagram, socials.youtube, socials.tiktok, church.website].filter(Boolean);
+    const jsonld = {
+      '@context': 'https://schema.org',
+      '@type': 'Church',
+      name: church.name,
+      description: church.bio || undefined,
+      url: `${window.location.origin}/church/${church.slug}`,
+      logo: church.logo_url || undefined,
+      image: church.cover_url || undefined,
+      telephone: church.phone || undefined,
+      email: church.email || undefined,
+      address: (church.city || church.country) ? { '@type': 'PostalAddress', streetAddress: church.address || undefined, addressLocality: church.city || undefined, addressCountry: church.country || undefined } : undefined,
+      sameAs: sameAs.length ? sameAs : undefined,
+    };
+    let tag = document.getElementById('church-jsonld') as HTMLScriptElement | null;
+    if (!tag) { tag = document.createElement('script'); tag.id = 'church-jsonld'; tag.type = 'application/ld+json'; document.head.appendChild(tag); }
+    tag.textContent = JSON.stringify(jsonld);
+    return () => { tag?.remove(); };
   }, [church]);
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
