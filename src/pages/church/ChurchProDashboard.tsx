@@ -95,18 +95,18 @@ export default function ChurchProDashboard() {
           </Button>
         </div>
 
-        {/* KYC banner */}
-        {!isVerified ? (
+        {/* Payout verification banner */}
+        {!payoutVerified ? (
           <div className="rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4 flex items-start gap-3">
             <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="font-semibold text-amber-900 dark:text-amber-100 text-sm">
-                {fr ? 'Vérification KYC requise' : 'KYC verification required'}
+                {fr ? 'Vérification de paiement à compléter' : 'Complete payout verification'}
               </p>
               <p className="text-xs text-amber-800/80 dark:text-amber-200/80 mt-0.5">
                 {fr
-                  ? 'Votre église n\'apparaît pas encore dans la découverte et ne peut pas recevoir de dons.'
-                  : 'Your church isn\'t discoverable yet and can\'t receive donations.'}
+                  ? 'Votre église est publique et peut déjà recevoir des dons. Complétez la vérification pour retirer les fonds.'
+                  : 'Your church is public and can already receive gifts. Complete verification before you can withdraw funds.'}
               </p>
             </div>
             <Button asChild size="sm">
@@ -117,7 +117,7 @@ export default function ChurchProDashboard() {
           <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4 flex items-center gap-3">
             <ShieldCheck className="h-5 w-5 text-emerald-600" />
             <p className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
-              {fr ? 'Église vérifiée · visible dans la découverte' : 'Verified church · visible in discovery'}
+              {fr ? 'Paiement vérifié · retraits activés' : 'Payout verified · withdrawals enabled'}
             </p>
           </div>
         )}
