@@ -64,6 +64,7 @@ const linkGroups = [
     items: [
       { to: '/superadmin/beauty', label: 'Beauty', icon: Sparkles },
       { to: '/superadmin/church', label: 'Church', icon: Church },
+      { to: '/superadmin/home', label: 'Home', icon: Home },
     ],
   },
   {
