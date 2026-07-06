@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nContext";
 import { cn } from "@/lib/utils";
-import EducationOfferComposer from "@/components/learn/EducationOfferComposer";
-import EducationOfferCard from "@/components/learn/EducationOfferCard";
-import EducationExtraChargeCard from "@/components/learn/EducationExtraChargeCard";
+import EducationOfferComposer from "@/components/education/EducationOfferComposer";
+import EducationOfferCard from "@/components/education/EducationOfferCard";
+import EducationExtraChargeCard from "@/components/education/EducationExtraChargeCard";
 
 interface Msg { id: string; sender_id: string; body: string; created_at: string; }
 

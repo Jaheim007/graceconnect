@@ -9,9 +9,9 @@ import { useI18n } from "@/i18n/I18nContext";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { educationCategoryLabel } from "@/lib/educationCategories";
-import EducationOtpPanel from "@/components/learn/EducationOtpPanel";
-import EducationExtraCharges from "@/components/learn/EducationExtraCharges";
-import EducationReviewForm from "@/components/learn/EducationReviewForm";
+import EducationOtpPanel from "@/components/education/EducationOtpPanel";
+import EducationExtraCharges from "@/components/education/EducationExtraCharges";
+import EducationReviewForm from "@/components/education/EducationReviewForm";
 
 const STATUS: Record<string, { fr: string; en: string; color: string; icon: any }> = {
   awaiting_payment: { fr: "Paiement en attente", en: "Payment pending", color: "amber", icon: Loader2 },
