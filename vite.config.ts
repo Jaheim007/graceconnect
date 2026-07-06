@@ -153,8 +153,23 @@ export default defineConfig(({ mode }) => ({
         },
       },
       workbox: {
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}"],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+        // Precache only the app shell. Lazy JS/CSS chunks, blog images and
+        // large assets are cached at runtime (StaleWhileRevalidate / CacheFirst)
+        // so the very first visit does not stall the browser tab loader while
+        // hundreds of chunks are prefetched in the background.
+        globPatterns: [
+          "index.html",
+          "manifest.webmanifest",
+          "favicon.ico",
+          "favicon.png",
+          "offline.html",
+          "logo-s.png",
+          "pwa-192x192.png",
+          "pwa-512x512.png",
+          "assets/index-*.{js,css}",
+        ],
+        globIgnores: ["**/images/**", "assets/*.{jpg,jpeg,png,webp,svg}"],
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/~oauth/, /^\/auth\/callback/, /^\/canva\/callback/, /^\/share-target/],
         cleanupOutdatedCaches: true,
@@ -162,6 +177,15 @@ export default defineConfig(({ mode }) => ({
         clientsClaim: true,
         offlineGoogleAnalytics: false,
         runtimeCaching: [
+          {
+            // Lazy-loaded JS/CSS chunks — fetched on demand, cached after use.
+            urlPattern: /\/assets\/.+\.(?:js|css)$/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "app-chunks",
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
           {
             // Supabase REST responses contain user-specific data; never cache them.
             urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
