@@ -203,7 +203,7 @@ export default function BeautyProDashboard() {
                     </Link>
                   </Button>
                   <Button size="sm" asChild className="beauty-gradient text-white">
-                    <Link to="/settings/kyc">Compléter le KYC</Link>
+                    <Link to="/beauty/pro/kyc">Compléter le KYC</Link>
                   </Button>
                 </div>
               </div>
@@ -914,7 +914,7 @@ function PayoutsTab() {
           Le KYC est indispensable pour recevoir tes paiements. Prévoit une pièce d'identité et un justificatif de domicile.
         </p>
         <Button asChild className="w-full beauty-gradient text-white">
-          <Link to="/settings/kyc">Compléter le KYC</Link>
+          <Link to="/beauty/pro/kyc">Compléter le KYC</Link>
         </Button>
       </Card>
       <Card className="p-6">
