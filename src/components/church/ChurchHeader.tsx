@@ -53,7 +53,7 @@ export function ChurchHeader({ showBack = true, right }: ChurchHeaderProps) {
         .select("id, slug")
         .eq("owner_user_id", user!.id)
         .maybeSingle();
-      return data as { id: string; slug: string } | null;
+      return (data as unknown as { id: string; slug: string } | null);
     },
   });
 
