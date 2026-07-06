@@ -79,8 +79,12 @@ export default function ChurchPublicProfile() {
     <div className="min-h-screen bg-background pb-24">
       {isOwnerPreview && (
         <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 px-4 py-2 text-center text-xs text-amber-900 dark:text-amber-100">
-          {fr ? 'Aperçu privé — visible seulement par vous jusqu\'à la validation du KYC.' : 'Private preview — only visible to you until KYC is approved.'}{' '}
-          <Link to="/church/pro/kyc" className="underline font-medium">{fr ? 'Compléter le KYC' : 'Complete KYC'}</Link>
+          {fr
+            ? 'Votre église est publique et peut recevoir des dons. Complétez la vérification de paiement pour retirer les fonds.'
+            : 'Your church is public and can receive gifts. Complete payout verification to withdraw funds.'}{' '}
+          <Link to="/church/pro/kyc" className="underline font-medium">
+            {fr ? 'Vérification de paiement' : 'Payout verification'}
+          </Link>
         </div>
       )}
 
