@@ -31,7 +31,7 @@ export default function EducationTutorSubjects() {
     enabled: !!user,
     queryFn: async () => {
       const { data } = await supabase.from("education_tutors").select("id, hourly_rate_xof").eq("user_id", user!.id).maybeSingle();
-      if (!data) navigate("/education/pro/onboarding", { replace: true });
+      if (!data) navigate("/learn/pro/onboarding", { replace: true });
       return data;
     },
   });
@@ -87,7 +87,7 @@ export default function EducationTutorSubjects() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/education/pro" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/learn/pro" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h1 className="text-sm font-bold">{t("Mes matières", "My subjects")}</h1>
         </div>
       </header>

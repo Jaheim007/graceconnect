@@ -26,35 +26,35 @@ export default function EducationActionHub() {
   });
 
   useEffect(() => {
-    document.title = "SiteViral Education — Que veux-tu faire ?";
-    try { localStorage.setItem("sv_last_vertical", "education"); } catch {}
+    document.title = "SiteViral Learn — Que veux-tu faire ?";
+    try { localStorage.setItem("sv_last_vertical", "learn"); } catch {}
   }, []);
 
   const actions = [
     { id: "explore", icon: Search, titleFr: "Trouver un prof", titleEn: "Find a tutor",
       descFr: "Maths, langues, code, musique…", descEn: "Math, languages, code, music…",
-      route: "/education/discover", iconBg: "bg-teal-100 dark:bg-teal-500/15", iconColor: "text-teal-600 dark:text-teal-400",
+      route: "/learn/discover", iconBg: "bg-teal-100 dark:bg-teal-500/15", iconColor: "text-teal-600 dark:text-teal-400",
       borderClass: "hover:border-teal-300 dark:hover:border-teal-500/40" },
     { id: "bookings", icon: Calendar, titleFr: "Mes séances", titleEn: "My sessions",
       descFr: "Suis tes cours et paiements", descEn: "Track lessons and payments",
-      route: "/education/bookings", iconBg: "bg-amber-100 dark:bg-amber-500/15", iconColor: "text-amber-600 dark:text-amber-400",
+      route: "/learn/bookings", iconBg: "bg-amber-100 dark:bg-amber-500/15", iconColor: "text-amber-600 dark:text-amber-400",
       borderClass: "hover:border-amber-300 dark:hover:border-amber-500/40" },
     ...(isTutor
       ? [{ id: "pro", icon: LayoutDashboard, titleFr: "Mon espace prof", titleEn: "My tutor space",
           descFr: "Agenda, revenus, matières", descEn: "Calendar, revenue, subjects",
-          route: "/education/pro", iconBg: "bg-cyan-100 dark:bg-cyan-500/15", iconColor: "text-cyan-600 dark:text-cyan-400",
+          route: "/learn/pro", iconBg: "bg-cyan-100 dark:bg-cyan-500/15", iconColor: "text-cyan-600 dark:text-cyan-400",
           borderClass: "hover:border-cyan-300 dark:hover:border-cyan-500/40" }]
       : [{ id: "offer", icon: GraduationCap, titleFr: "Devenir prof", titleEn: "Become a tutor",
           descFr: "Enseigne et gagne en escrow", descEn: "Teach and earn with escrow",
-          route: "/education/pro/onboarding", iconBg: "bg-cyan-100 dark:bg-cyan-500/15", iconColor: "text-cyan-600 dark:text-cyan-400",
+          route: "/learn/pro/onboarding", iconBg: "bg-cyan-100 dark:bg-cyan-500/15", iconColor: "text-cyan-600 dark:text-cyan-400",
           borderClass: "hover:border-cyan-300 dark:hover:border-cyan-500/40" }]),
   ];
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <SEOHead title="SiteViral Education — Trouve ton prof particulier"
+      <SEOHead title="SiteViral Learn — Trouve ton prof particulier"
         description="Cours particuliers vérifiés. Maths, langues, code, musique. Paiement sécurisé, avis vérifiés, chat protégé."
-        canonicalUrl="https://siteviral.com/education" />
+        canonicalUrl="https://siteviral.com/learn" />
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500 text-white shadow">
@@ -62,7 +62,7 @@ export default function EducationActionHub() {
           </span>
           <div className="leading-tight">
             <div className="text-sm font-black">SiteViral</div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">Education</div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">Learn</div>
           </div>
         </div>
       </header>
@@ -92,9 +92,9 @@ export default function EducationActionHub() {
             ))}
           </div>
           <div className="pt-1 text-center">
-            <button onClick={() => navigate("/education/about")}
+            <button onClick={() => navigate("/learn/about")}
               className="text-[10px] text-muted-foreground underline underline-offset-2 hover:text-foreground">
-              {t("En savoir plus sur SiteViral Education", "Learn more about SiteViral Education")}
+              {t("En savoir plus sur SiteViral Learn", "Learn more about SiteViral Learn")}
             </button>
           </div>
         </div>

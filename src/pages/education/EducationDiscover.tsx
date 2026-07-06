@@ -41,11 +41,11 @@ export default function EducationDiscover() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <SEOHead title={isFr ? "Trouver un prof — SiteViral Education" : "Find a tutor — SiteViral Education"}
+      <SEOHead title={isFr ? "Trouver un prof — SiteViral Learn" : "Find a tutor — SiteViral Learn"}
         description={isFr ? "Profs particuliers vérifiés près de toi." : "Verified private tutors near you."} />
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/education" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/learn" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h1 className="text-sm font-bold">{isFr ? "Trouver un prof" : "Find a tutor"}</h1>
         </div>
       </header>
@@ -87,7 +87,7 @@ export default function EducationDiscover() {
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
             {filtered.map((p: any) => (
-              <Link key={p.id} to={`/education/pro/${p.slug}`}
+              <Link key={p.id} to={`/learn/pro/${p.slug}`}
                 className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
                 {p.avatar_url ? (
                   <img src={p.avatar_url} alt="" className="h-14 w-14 rounded-xl object-cover" />

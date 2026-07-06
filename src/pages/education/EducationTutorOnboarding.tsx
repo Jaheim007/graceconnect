@@ -33,10 +33,10 @@ export default function EducationTutorOnboarding() {
   const [modes, setModes] = useState<string[]>(["online"]);
 
   useEffect(() => {
-    if (!user) { navigate("/auth?returnTo=/education/pro/onboarding"); return; }
+    if (!user) { navigate("/auth?returnTo=/learn/pro/onboarding"); return; }
     (async () => {
       const { data } = await supabase.from("education_tutors").select("id").eq("user_id", user.id).maybeSingle();
-      if (data) navigate("/education/pro", { replace: true });
+      if (data) navigate("/learn/pro", { replace: true });
       else setChecking(false);
     })();
   }, [user, navigate]);
@@ -72,7 +72,7 @@ export default function EducationTutorOnboarding() {
     }
     setSaving(false);
     toast({ title: t("Compte prof créé", "Tutor account created") });
-    navigate("/education/pro", { replace: true });
+    navigate("/learn/pro", { replace: true });
   };
 
   if (checking) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
@@ -81,7 +81,7 @@ export default function EducationTutorOnboarding() {
     <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-lg px-4 py-8 space-y-5 pb-32">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-600">SiteViral Education</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-600">SiteViral Learn</div>
           <h1 className="mt-1 text-2xl font-black">{t("Deviens prof particulier", "Become a private tutor")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {t("Crée ton profil en 1 minute. Tu pourras finaliser plus tard.", "Create your profile in 1 minute. You can finish later.")}

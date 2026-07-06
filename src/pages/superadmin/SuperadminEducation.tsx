@@ -11,10 +11,10 @@ export default function SuperadminEducation() {
     <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-6">
       <header>
         <h1 className="flex items-center gap-2 text-2xl font-black tracking-tight">
-          <GraduationCap className="h-6 w-6 text-teal-500" /> Education console
+          <GraduationCap className="h-6 w-6 text-teal-500" /> Learn console
         </h1>
         <p className="text-sm text-muted-foreground">
-          Verify, moderate, and monitor SiteViral Education tutors, bookings, and disputes.
+          Verify, moderate, and monitor SiteViral Learn tutors, bookings, and disputes.
         </p>
       </header>
       <StatsRow />

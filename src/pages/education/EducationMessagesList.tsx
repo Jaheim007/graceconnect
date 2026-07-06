@@ -34,7 +34,7 @@ export default function EducationMessagesList() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/education" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/learn" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h1 className="text-sm font-bold">{isFr ? "Messages" : "Messages"}</h1>
         </div>
       </header>
@@ -46,7 +46,7 @@ export default function EducationMessagesList() {
           </div>
         )}
         {(convs ?? []).map((c: any) => (
-          <Link key={c.id} to={`/education/messages/${c.id}`}
+          <Link key={c.id} to={`/learn/messages/${c.id}`}
             className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 hover:-translate-y-0.5 hover:shadow-lg transition">
             {c.education_tutors?.avatar_url ? (
               <img src={c.education_tutors.avatar_url} alt="" className="h-11 w-11 rounded-xl object-cover" />

@@ -46,7 +46,7 @@ export default function EducationTutorRevenue() {
     <div className="min-h-screen bg-background text-foreground pb-28">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/education/pro" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/learn/pro" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h1 className="text-sm font-bold">{t("Revenus & paiements", "Revenue & payouts")}</h1>
         </div>
       </header>
@@ -95,7 +95,7 @@ export default function EducationTutorRevenue() {
                "Mobile Money payouts unlock after KYC validation.")}
           </p>
           <Button asChild variant="outline" size="sm" className="mt-3">
-            <Link to="/education/pro/kyc">{t("Voir le KYC", "View KYC")}</Link>
+            <Link to="/learn/pro/kyc">{t("Voir le KYC", "View KYC")}</Link>
           </Button>
         </div>
       </div>

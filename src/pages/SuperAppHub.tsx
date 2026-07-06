@@ -369,12 +369,12 @@ export default function SuperAppHub() {
                 </div>
               </Link>
 
-              {/* Education tile — new vertical */}
+              {/* Learn tile — new vertical */}
               <Link
-                to="/education"
-                onClick={() => { try { localStorage.setItem('sv_last_vertical', 'education'); } catch {} }}
+                to="/learn"
+                onClick={() => { try { localStorage.setItem('sv_last_vertical', 'learn'); } catch {} }}
                 className="group relative overflow-hidden rounded-3xl border border-border/60 bg-card p-6 transition hover:-translate-y-1 hover:shadow-2xl sm:p-8"
-                aria-label={t('Ouvrir SiteViral Education', 'Open SiteViral Education')}
+                aria-label={t('Ouvrir SiteViral Learn', 'Open SiteViral Learn')}
               >
                 <div
                   className="absolute inset-0 opacity-80 transition group-hover:opacity-100"
@@ -409,7 +409,7 @@ export default function SuperAppHub() {
                       color: 'transparent',
                     }}
                   >
-                    Education
+                    Learn
                   </div>
                   <p className="mt-3 text-sm text-muted-foreground sm:text-base">
                     {t(
@@ -434,7 +434,7 @@ export default function SuperAppHub() {
               {[
                 { icon: Wallet, label: t('Mobile Money', 'Mobile Money'), sub: t('Wave, Orange, MTN, Moov', 'Wave, Orange, MTN, Moov') },
                 { icon: ShieldCheck, label: t('Paiement sécurisé', 'Secure payment'), sub: t('Fonds bloqués', 'Funds held safe') },
-                { icon: Sparkles, label: t('Un seul compte', 'One account'), sub: t('Digital + Beauty + Church', 'Digital + Beauty + Church') },
+                { icon: Sparkles, label: t('Un seul compte', 'One account'), sub: t('Digital + Beauty + Learn + Church', 'Digital + Beauty + Learn + Church') },
               ].map(({ icon: Icon, label, sub }) => (
                 <div
                   key={label}

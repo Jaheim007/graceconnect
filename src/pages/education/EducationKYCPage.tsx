@@ -10,7 +10,7 @@ export default function EducationKYCPage() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/education/pro" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/learn/pro" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h1 className="text-sm font-bold">{isFr ? "Vérification d'identité" : "Identity verification"}</h1>
         </div>
       </header>
@@ -21,11 +21,11 @@ export default function EducationKYCPage() {
         <h2 className="mt-4 text-lg font-black">{isFr ? "KYC bientôt disponible" : "KYC coming soon"}</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           {isFr
-            ? "La vérification d'identité pour SiteViral Education arrive dans la prochaine phase. En attendant, tu peux finaliser ton profil et tes matières."
-            : "Identity verification for SiteViral Education ships in the next phase. Meanwhile, you can finish your profile and subjects."}
+            ? "La vérification d'identité pour SiteViral Learn arrive dans la prochaine phase. En attendant, tu peux finaliser ton profil et tes matières."
+            : "Identity verification for SiteViral Learn ships in the next phase. Meanwhile, you can finish your profile and subjects."}
         </p>
         <Button asChild className="mt-6 bg-gradient-to-br from-teal-500 to-cyan-500 text-white">
-          <Link to="/education/pro">{isFr ? "Retour au tableau de bord" : "Back to dashboard"}</Link>
+          <Link to="/learn/pro">{isFr ? "Retour au tableau de bord" : "Back to dashboard"}</Link>
         </Button>
       </div>
     </div>

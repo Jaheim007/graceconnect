@@ -474,7 +474,21 @@ const App = () => (
                 <Route path="/events/booking/:id" element={<RequireAuth><EventsBookingDetail /></RequireAuth>} />
                 <Route path="/events/pro/:slug" element={<EventsProviderPublic />} />
 
-                {/* Education vertical */}
+                {/* SiteViral Learn (formerly Education) */}
+                <Route path="/learn" element={<EducationActionHub />} />
+                <Route path="/learn/about" element={<EducationLanding />} />
+                <Route path="/learn/discover" element={<EducationDiscover />} />
+                <Route path="/learn/pro/onboarding" element={<EducationTutorOnboarding />} />
+                <Route path="/learn/pro" element={<RequireAuth><EducationTutorDashboard /></RequireAuth>} />
+                <Route path="/learn/pro/kyc" element={<RequireAuth><EducationKYCPage /></RequireAuth>} />
+                <Route path="/learn/pro/subjects" element={<RequireAuth><EducationTutorSubjects /></RequireAuth>} />
+                <Route path="/learn/pro/revenue" element={<RequireAuth><EducationTutorRevenue /></RequireAuth>} />
+                <Route path="/learn/messages" element={<RequireAuth><EducationMessagesList /></RequireAuth>} />
+                <Route path="/learn/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
+                <Route path="/learn/bookings" element={<RequireAuth><EducationBookingsList /></RequireAuth>} />
+                <Route path="/learn/booking/:id" element={<RequireAuth><EducationBookingDetail /></RequireAuth>} />
+                <Route path="/learn/pro/:slug" element={<EducationTutorPublic />} />
+                {/* Legacy /education aliases */}
                 <Route path="/education" element={<EducationActionHub />} />
                 <Route path="/education/about" element={<EducationLanding />} />
                 <Route path="/education/discover" element={<EducationDiscover />} />
