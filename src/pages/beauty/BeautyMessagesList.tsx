@@ -72,12 +72,24 @@ export default function BeautyMessagesList() {
     queryKey: ["beauty-conversations", user?.id],
     enabled: !!user,
     queryFn: async () => {
+      // Look up the user's provider row (if any) so we can also fetch conversations
+      // where they are the pro — `beauty_conversations.provider_id` references
+      // `beauty_providers.id`, NOT `auth.users.id`.
+      const { data: myProvider } = await supabase
+        .from("beauty_providers")
+        .select("id")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      const myProviderId = myProvider?.id;
+      const orFilter = myProviderId
+        ? `client_id.eq.${user!.id},provider_id.eq.${myProviderId}`
+        : `client_id.eq.${user!.id}`;
       const { data } = await supabase
         .from("beauty_conversations")
         .select(
           "id, last_message_at, provider_id, client_id, beauty_providers(business_name, avatar_url, slug)",
         )
-        .or(`client_id.eq.${user!.id},provider_id.eq.${user!.id}`)
+        .or(orFilter)
         .order("last_message_at", { ascending: false, nullsFirst: false })
         .limit(50);
       return data ?? [];
@@ -141,8 +153,9 @@ export default function BeautyMessagesList() {
         ) : (
           conversations.map((c: any) => {
             const provider = c.beauty_providers;
-            const isProvider = c.provider_id === user?.id;
-            const label = isProvider ? t("Client", "Client") : provider?.business_name;
+            // I'm the pro on this conversation when I am NOT the client.
+            const iAmProvider = c.client_id !== user?.id;
+            const label = iAmProvider ? t("Client", "Client") : provider?.business_name;
             return (
               <button
                 key={c.id}
