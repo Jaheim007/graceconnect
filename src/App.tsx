@@ -383,7 +383,7 @@ const App = () => (
                 <Route path="/church" element={<ChurchActionHub />} />
                 <Route path="/church/about" element={<ChurchLanding />} />
                 <Route path="/church/discover" element={<ChurchDiscover />} />
-                <Route path="/church/pro/onboarding" element={<RequireAuth><ChurchOnboarding /></RequireAuth>} />
+                <Route path="/church/pro/onboarding" element={<ChurchOnboarding />} />
                 <Route path="/church/pro" element={<RequireAuth><ChurchProDashboard /></RequireAuth>} />
                 <Route path="/church/pro/kyc" element={<RequireAuth><ChurchKYCPage /></RequireAuth>} />
                 <Route path="/church/pro/sermons" element={<RequireAuth><ChurchProSermons /></RequireAuth>} />
