@@ -25,7 +25,7 @@ export default function ChurchProDashboard() {
     queryFn: async () => {
       const { data: church, error } = await supabase
         .from('church_providers')
-        .select('id, slug, name, status, verified, logo_url, cover_url, kyc_submission_id')
+        .select('id, slug, name, status, verified, payout_verified, is_official, logo_url, cover_url, kyc_submission_id')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
