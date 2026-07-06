@@ -1,58 +1,56 @@
-# Beauty Pro — Dashboard rebuild + KYC visibility fix
 
-## 1. Public profile: KYC gating clarified
+# Beauty KYC — reuse the Digital wizard
 
-**Problem**: Clicking "Voir profil public" from dashboard shows "Profil introuvable" because RLS filters `status = 'active'` and public page filters the same. Provider can't preview their own page, and the UX doesn't explain that KYC = required to appear in Explore.
+## Problem
 
-**Fix**:
-- Public profile page (`BeautyProviderProfile.tsx`): try `.eq('status','active')` first, then fallback to the current logged-in user's own row (RLS already allows owner to read own pending row). Show a top banner "Aperçu privé — visible dans l'Explore après validation KYC" when the viewer is the owner and status ≠ active.
-- Dashboard: keep the existing yellow KYC banner but make the message explicit: *"Tu es invisible dans l'Explore SiteViral Beauty tant que ton KYC n'est pas validé. Ton lien public reste partageable manuellement."* + "Compléter le KYC" CTA.
-- Search page (`BeautySearch.tsx`): already only shows `status='active'` — no change.
+`/settings/kyc` (linked from the Beauty dashboard and public profile owner banner) 404s. Beauty providers have no way to verify identity, so they stay invisible in Explore. The Digital side already has a full KYC pipeline (`IdentityVerificationWizard`, `kyc_submissions`, AI analysis, superadmin review). We reuse it end-to-end instead of building a parallel system.
 
-## 2. Dashboard shell rebuilt (Aurora-style, mobile-first)
+## Constraints observed in the codebase
 
-Reference: https://aurora.themewagon.com/dashboard/ecommerce — clean sidebar, top search bar, grouped nav, colored icon tiles, section cards.
+- `kyc_submissions.organization_id` is `NOT NULL` with a UNIQUE FK to `organizations` — no beauty_provider_id column today.
+- `beauty_providers` is user-scoped (`user_id`), has `kyc_submission_id` and a `status` enum (pending / active…). No `organization_id`.
+- `IdentityVerificationWizard` supports `mode: 'org' | 'partner'`. Partner mode calls `submit_partner_kyc` and writes into `partners`, not `kyc_submissions` — not reusable as-is.
 
-**Layout** — replace current shell with a proper shadcn `Sidebar` (using `SidebarProvider`, `collapsible="icon"`), matching the Digital dashboard structure but with the Beauty pink accent (`--primary` already set in beauty scope):
-- Left sidebar (desktop, mini-collapse on tablet, offcanvas Sheet on mobile) with SiteViral S-logo + "Beauty Pro" tag, provider avatar+name+KYC pill, then grouped nav.
-- Top bar: mobile hamburger + page title + search + notifications + avatar menu.
-- Content: rounded-2xl section cards with soft borders and gradient stat tiles (rose/amber/emerald/violet), consistent with Aurora density.
-- All spacing / typography follows existing Digital dashboard tokens — no hardcoded colors.
+## Approach — extend, don't fork
 
-**Nav sections** (unchanged keys, add missing surfaces):
-- Pilotage: Overview, Rendez-vous, Statistiques
-- Catalogue: Services, **Portfolio (photos + vidéos)**, Disponibilités
-- Communication: Messages, Avis
-- Compte: **Profil (éditable)**, Paramètres, Paiements & KYC
+1. **DB migration** (single migration):
+   - Add nullable `beauty_provider_id uuid` (unique, FK → `beauty_providers.id` on delete cascade) to `kyc_submissions`.
+   - Relax the `organization_id NOT NULL` to nullable and add a CHECK: exactly one of `organization_id` / `beauty_provider_id` is set.
+   - New RPC `submit_beauty_kyc(_provider_id, _id_document_url, _id_document_type, _id_document_back_url, _selfie_url, _selfie_with_doc_url, _bank_account_name, _bank_account_number, _bank_name, _payout_method, _payout_phone, _payout_provider)` — mirrors `submit_org_kyc` but scoped to a beauty provider owned by `auth.uid()`. Inserts into `kyc_submissions` with `beauty_provider_id`, `submitted_by = auth.uid()`, `status = 'pending'`, `verification_type = 'individual'`, `kyc_level = 1`; updates `beauty_providers.kyc_submission_id` and does NOT flip `status` to active (superadmin approval does that).
+   - RLS: allow provider owner to `SELECT` their own submission (via `beauty_providers.user_id = auth.uid()`); keep existing superadmin policies untouched.
+   - Trigger on `kyc_submissions` UPDATE: when a beauty submission is approved, set the linked `beauty_providers.status = 'active'`; when rejected, keep it pending and expose `rejection_reason`.
 
-## 3. Profile & media editing
+2. **Frontend — new mode in the wizard**:
+   - Add `'beauty'` to `VerificationMode`. Steps: `doc_type → document → selfie → selfie_doc → payout → review` (individual only, no org docs, no "choose type" screen).
+   - In `handleSubmit`, branch to `db.rpc('submit_beauty_kyc', …)` when `mode === 'beauty'`.
+   - Storage folder: `beauty-kyc/{providerId}` (private bucket, same `kyc-documents` bucket the org flow uses).
 
-- **Profil éditable** (new fully-working editor inside Settings/Profil tab):
-  - business_name, bio, city, address, phone, at_salon_ok, home_service_ok, specialties (multi-select from BEAUTY_CATEGORIES), avatar upload, cover upload
-  - Uses existing `beauty-media` storage bucket
-- **Portfolio tab**: photo upload (drag/drop), video upload OR paste YouTube/TikTok/Instagram embed URL, reorder, delete. Writes to `beauty_provider_media` (kind: `photo` | `video`, `url`, `embed_url`, `caption`, `position`).
+3. **New page** `src/pages/beauty/BeautyKYCPage.tsx`:
+   - Route `/beauty/pro/kyc` (guarded by `RequireAuth`).
+   - Loads `beauty_providers` row for `auth.uid()`. If none → redirect to `/beauty/pro/onboarding`.
+   - Loads linked `kyc_submissions` row (status, rejection_reason).
+   - Renders `<IdentityVerificationWizard mode="beauty" entityId={provider.id} status={submission?.status ?? 'none'} rejectionReason={submission?.rejection_reason} />`.
+   - Reuses the Beauty header/back button pattern from `BeautyProDashboard`.
 
-## 4. Navigation fix
+4. **Route wiring & link fixes**:
+   - Register `/beauty/pro/kyc` in the router.
+   - Replace every `/settings/kyc` link in `BeautyProDashboard.tsx` (x2) and `BeautyProviderProfile.tsx` (x1) with `/beauty/pro/kyc`.
+   - Keep the existing yellow "KYC required for Explore" banner copy — it already reads correctly, only the destination changes.
 
-Audit every link labeled "Mon espace" / "Mon espace pro" — ensure they all route to `/beauty/pro` (new dashboard) and not to a stale `/dashboard` or `/creator` route. Files to check: `BeautyHeader.tsx`, `BeautyActionHub.tsx`, `BeautyLandingBody.tsx`, `GlobalBottomNav`.
+5. **Superadmin review**:
+   - `SuperadminPages.tsx` already lists `kyc_submissions` with `organizations!left(name, category, slug)`. Extend the left-join to also pull `beauty_providers!left(business_name, slug)` and display whichever is present. Approval / rejection actions already write to `kyc_submissions.status`, so the new trigger will propagate to `beauty_providers.status` automatically.
 
-## 5. Mobile-first polish
+## Out of scope
 
-- Sidebar collapses to bottom-anchored trigger on `<md` via Sheet.
-- Stat cards stack single-column, tables become card lists.
-- All touch targets ≥40px per project standard.
-- Header centered logo, safe-area-insets respected.
-
-## Technical notes
-
-- No schema changes required (specialties/address/lat/lng already exist from prior migration; media table exists).
-- Public profile RLS already permits `user_id = auth.uid()` — only the query needs updating.
-- Reuse `PremiumCard`, `DashboardSection`, shadcn `Sidebar`, existing `useIsMobile` hook, `beauty-scope` CSS class.
-- Bilingual FR/EN via `useI18n`.
+- No changes to Digital KYC behaviour, org flow, or partner flow.
+- No new storage bucket — reuses `kyc-documents`.
+- Payout account for beauty providers is captured in the same step as Digital; wiring it to actual GeniusPay/Stripe payout profiles is a follow-up (data is stored on the submission, superadmin sees it).
 
 ## Files touched
-- `src/pages/beauty/BeautyProDashboard.tsx` — major rebuild
-- `src/pages/beauty/BeautyProviderProfile.tsx` — owner preview + banner
-- `src/components/beauty/BeautyHeader.tsx` — verify My space link
-- `src/pages/beauty/BeautyActionHub.tsx` — verify routes
-- Possibly new: `src/components/beauty/pro/*` subcomponents to keep file readable
+
+- `supabase/migrations/<new>.sql` — schema + RPC + trigger + RLS.
+- `src/components/verification/IdentityVerificationWizard.tsx` — add `'beauty'` mode branch.
+- `src/pages/beauty/BeautyKYCPage.tsx` — new.
+- `src/App.tsx` (or wherever beauty routes live) — register route.
+- `src/pages/beauty/BeautyProDashboard.tsx`, `src/pages/beauty/BeautyProviderProfile.tsx` — fix `/settings/kyc` links.
+- `src/pages/superadmin/SuperadminPages.tsx` — display beauty provider name for beauty submissions.
