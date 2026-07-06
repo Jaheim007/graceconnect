@@ -266,3 +266,9 @@ verify_jwt = false
 
 [functions.trust-admin-action]
 verify_jwt = false
+
+[functions.church-transcribe-sermon]
+verify_jwt = false
+
+[functions.church-generate-variant]
+verify_jwt = false
