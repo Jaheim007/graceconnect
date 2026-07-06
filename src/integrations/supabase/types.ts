@@ -4095,6 +4095,777 @@ export type Database = {
         }
         Relationships: []
       }
+      education_availability: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          start_time: string
+          tutor_id: string
+          weekday: number
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          start_time: string
+          tutor_id: string
+          weekday: number
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          start_time?: string
+          tutor_id?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_availability_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "education_tutors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_availability_blocks: {
+        Row: {
+          created_at: string
+          ends_at: string
+          id: string
+          reason: string | null
+          starts_at: string
+          tutor_id: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at: string
+          id?: string
+          reason?: string | null
+          starts_at: string
+          tutor_id: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string
+          id?: string
+          reason?: string | null
+          starts_at?: string
+          tutor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_availability_blocks_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "education_tutors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_booking_events: {
+        Row: {
+          actor_id: string | null
+          booking_id: string
+          created_at: string
+          event_type: string
+          id: string
+          meta: Json | null
+        }
+        Insert: {
+          actor_id?: string | null
+          booking_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          meta?: Json | null
+        }
+        Update: {
+          actor_id?: string | null
+          booking_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          meta?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_booking_events_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "education_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_bookings: {
+        Row: {
+          cancel_reason: string | null
+          conversation_id: string | null
+          created_at: string
+          duration_min: number
+          end_otp: string | null
+          ended_at: string | null
+          id: string
+          location_address: string | null
+          meeting_url: string | null
+          mode: string
+          offer_id: string | null
+          payment_ref: string | null
+          payment_status: string
+          platform_fee_xof: number
+          scheduled_at: string
+          session_count: number
+          sessions_done: number
+          start_otp: string | null
+          started_at: string | null
+          status: string
+          student_id: string
+          subject: string
+          total_xof: number
+          tutor_earnings_xof: number
+          tutor_id: string
+          updated_at: string
+        }
+        Insert: {
+          cancel_reason?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          duration_min?: number
+          end_otp?: string | null
+          ended_at?: string | null
+          id?: string
+          location_address?: string | null
+          meeting_url?: string | null
+          mode?: string
+          offer_id?: string | null
+          payment_ref?: string | null
+          payment_status?: string
+          platform_fee_xof?: number
+          scheduled_at: string
+          session_count?: number
+          sessions_done?: number
+          start_otp?: string | null
+          started_at?: string | null
+          status?: string
+          student_id: string
+          subject: string
+          total_xof: number
+          tutor_earnings_xof?: number
+          tutor_id: string
+          updated_at?: string
+        }
+        Update: {
+          cancel_reason?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          duration_min?: number
+          end_otp?: string | null
+          ended_at?: string | null
+          id?: string
+          location_address?: string | null
+          meeting_url?: string | null
+          mode?: string
+          offer_id?: string | null
+          payment_ref?: string | null
+          payment_status?: string
+          platform_fee_xof?: number
+          scheduled_at?: string
+          session_count?: number
+          sessions_done?: number
+          start_otp?: string | null
+          started_at?: string | null
+          status?: string
+          student_id?: string
+          subject?: string
+          total_xof?: number
+          tutor_earnings_xof?: number
+          tutor_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_bookings_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "education_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "education_bookings_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "education_offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "education_bookings_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "education_tutors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_chat_violations: {
+        Row: {
+          categories: string[] | null
+          conversation_id: string | null
+          created_at: string
+          id: string
+          message_id: string | null
+          raw_body: string | null
+          reviewed: boolean | null
+          sender_id: string
+          severity: string | null
+        }
+        Insert: {
+          categories?: string[] | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          message_id?: string | null
+          raw_body?: string | null
+          reviewed?: boolean | null
+          sender_id: string
+          severity?: string | null
+        }
+        Update: {
+          categories?: string[] | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          message_id?: string | null
+          raw_body?: string | null
+          reviewed?: boolean | null
+          sender_id?: string
+          severity?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_chat_violations_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "education_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string | null
+          student_id: string
+          tutor_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          student_id: string
+          tutor_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          student_id?: string
+          tutor_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_conversations_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "education_tutors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_disputes: {
+        Row: {
+          booking_id: string
+          created_at: string
+          description: string | null
+          id: string
+          opened_by: string
+          reason: string
+          resolution: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          opened_by: string
+          reason: string
+          resolution?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          opened_by?: string
+          reason?: string
+          resolution?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_disputes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "education_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_extra_charges: {
+        Row: {
+          amount_xof: number
+          approved_at: string | null
+          booking_id: string
+          created_at: string
+          id: string
+          label: string
+          paid_at: string | null
+          payment_ref: string | null
+          reason: string | null
+          rejected_at: string | null
+          status: string
+          student_id: string
+          tutor_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount_xof: number
+          approved_at?: string | null
+          booking_id: string
+          created_at?: string
+          id?: string
+          label: string
+          paid_at?: string | null
+          payment_ref?: string | null
+          reason?: string | null
+          rejected_at?: string | null
+          status?: string
+          student_id: string
+          tutor_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount_xof?: number
+          approved_at?: string | null
+          booking_id?: string
+          created_at?: string
+          id?: string
+          label?: string
+          paid_at?: string | null
+          payment_ref?: string | null
+          reason?: string | null
+          rejected_at?: string | null
+          status?: string
+          student_id?: string
+          tutor_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_extra_charges_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "education_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "education_extra_charges_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "education_tutors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_messages: {
+        Row: {
+          attachment_url: string | null
+          body: string
+          conversation_id: string
+          created_at: string
+          filtered_body: string | null
+          id: string
+          is_flagged: boolean | null
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          body: string
+          conversation_id: string
+          created_at?: string
+          filtered_body?: string | null
+          id?: string
+          is_flagged?: boolean | null
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          attachment_url?: string | null
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          filtered_body?: string | null
+          id?: string
+          is_flagged?: boolean | null
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "education_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_offers: {
+        Row: {
+          accepted_at: string | null
+          conversation_id: string
+          created_at: string
+          description: string | null
+          duration_min: number
+          expires_at: string | null
+          id: string
+          mode: string
+          rate_xof: number
+          session_count: number
+          status: string
+          student_id: string
+          subject: string
+          total_xof: number
+          tutor_id: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          conversation_id: string
+          created_at?: string
+          description?: string | null
+          duration_min?: number
+          expires_at?: string | null
+          id?: string
+          mode?: string
+          rate_xof: number
+          session_count?: number
+          status?: string
+          student_id: string
+          subject: string
+          total_xof: number
+          tutor_id: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          conversation_id?: string
+          created_at?: string
+          description?: string | null
+          duration_min?: number
+          expires_at?: string | null
+          id?: string
+          mode?: string
+          rate_xof?: number
+          session_count?: number
+          status?: string
+          student_id?: string
+          subject?: string
+          total_xof?: number
+          tutor_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_offers_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "education_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "education_offers_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "education_tutors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_provider_media: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          kind: string | null
+          tutor_id: string
+          url: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          kind?: string | null
+          tutor_id: string
+          url: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          kind?: string | null
+          tutor_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_provider_media_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "education_tutors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_reviews: {
+        Row: {
+          booking_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          reply: string | null
+          student_id: string
+          tutor_id: string
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          reply?: string | null
+          student_id: string
+          tutor_id: string
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          reply?: string | null
+          student_id?: string
+          tutor_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "education_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "education_reviews_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "education_tutors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_subjects: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_min: number | null
+          id: string
+          is_active: boolean | null
+          level: string | null
+          rate_xof: number
+          subject: string
+          tutor_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_min?: number | null
+          id?: string
+          is_active?: boolean | null
+          level?: string | null
+          rate_xof?: number
+          subject: string
+          tutor_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_min?: number | null
+          id?: string
+          is_active?: boolean | null
+          level?: string | null
+          rate_xof?: number
+          subject?: string
+          tutor_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_subjects_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "education_tutors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_tutor_stats: {
+        Row: {
+          pending_earnings_xof: number | null
+          sessions_cancelled: number | null
+          sessions_completed: number | null
+          total_earnings_xof: number | null
+          tutor_id: string
+          updated_at: string
+        }
+        Insert: {
+          pending_earnings_xof?: number | null
+          sessions_cancelled?: number | null
+          sessions_completed?: number | null
+          total_earnings_xof?: number | null
+          tutor_id: string
+          updated_at?: string
+        }
+        Update: {
+          pending_earnings_xof?: number | null
+          sessions_cancelled?: number | null
+          sessions_completed?: number | null
+          total_earnings_xof?: number | null
+          tutor_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_tutor_stats_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: true
+            referencedRelation: "education_tutors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_tutors: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          country: string | null
+          cover_url: string | null
+          created_at: string
+          diplomas: string[] | null
+          display_name: string
+          headline: string | null
+          hourly_rate_xof: number | null
+          id: string
+          is_active: boolean | null
+          is_verified: boolean | null
+          kyc_status: string | null
+          languages: string[] | null
+          levels: string[] | null
+          rating_avg: number | null
+          rating_count: number | null
+          response_minutes: number | null
+          sessions_completed: number | null
+          slug: string
+          teaching_modes: string[] | null
+          updated_at: string
+          user_id: string
+          years_experience: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string
+          diplomas?: string[] | null
+          display_name: string
+          headline?: string | null
+          hourly_rate_xof?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          kyc_status?: string | null
+          languages?: string[] | null
+          levels?: string[] | null
+          rating_avg?: number | null
+          rating_count?: number | null
+          response_minutes?: number | null
+          sessions_completed?: number | null
+          slug: string
+          teaching_modes?: string[] | null
+          updated_at?: string
+          user_id: string
+          years_experience?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string
+          diplomas?: string[] | null
+          display_name?: string
+          headline?: string | null
+          hourly_rate_xof?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          kyc_status?: string | null
+          languages?: string[] | null
+          levels?: string[] | null
+          rating_avg?: number | null
+          rating_count?: number | null
+          response_minutes?: number | null
+          sessions_completed?: number | null
+          slug?: string
+          teaching_modes?: string[] | null
+          updated_at?: string
+          user_id?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
       email_campaigns: {
         Row: {
           body: string
