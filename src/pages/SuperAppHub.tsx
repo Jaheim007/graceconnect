@@ -369,12 +369,12 @@ export default function SuperAppHub() {
                 </div>
               </Link>
 
-              {/* Education tile — new vertical */}
+              {/* Learn tile — new vertical */}
               <Link
-                to="/education"
-                onClick={() => { try { localStorage.setItem('sv_last_vertical', 'education'); } catch {} }}
+                to="/learn"
+                onClick={() => { try { localStorage.setItem('sv_last_vertical', 'learn'); } catch {} }}
                 className="group relative overflow-hidden rounded-3xl border border-border/60 bg-card p-6 transition hover:-translate-y-1 hover:shadow-2xl sm:p-8"
-                aria-label={t('Ouvrir SiteViral Education', 'Open SiteViral Education')}
+                aria-label={t('Ouvrir SiteViral Learn', 'Open SiteViral Learn')}
               >
                 <div
                   className="absolute inset-0 opacity-80 transition group-hover:opacity-100"
