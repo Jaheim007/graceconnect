@@ -1,11 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Settings, Bell } from 'lucide-react';
+import { LogOut, Settings, Bell, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { getActionNavItems, getBeautyNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useRef } from 'react';
 
 export function BottomNav() {
