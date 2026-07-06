@@ -770,6 +770,7 @@ const App = () => (
                   <Route path="church" element={<SuperadminChurch />} />
                   <Route path="home" element={<SuperadminHome />} />
                   <Route path="events" element={<SuperadminEvents />} />
+                  <Route path="education" element={<SuperadminEducation />} />
                   <Route path="trust" element={<SuperadminTrust />} />
                 </Route>
 
