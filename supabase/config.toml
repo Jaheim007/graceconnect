@@ -272,3 +272,9 @@ verify_jwt = false
 
 [functions.church-generate-variant]
 verify_jwt = false
+
+[functions.church-init-giving]
+verify_jwt = false
+
+[functions.church-giving-status]
+verify_jwt = false

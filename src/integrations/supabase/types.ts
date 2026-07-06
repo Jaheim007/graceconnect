@@ -2358,6 +2358,87 @@ export type Database = {
           },
         ]
       }
+      church_donations: {
+        Row: {
+          amount: number
+          campaign_id: string | null
+          church_id: string
+          completed_at: string | null
+          created_at: string
+          currency: string
+          donor_email: string | null
+          donor_name: string | null
+          donor_phone: string | null
+          donor_user_id: string | null
+          gateway: string
+          giving_type: string
+          id: string
+          is_anonymous: boolean
+          message: string | null
+          metadata: Json
+          reference: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          campaign_id?: string | null
+          church_id: string
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          donor_email?: string | null
+          donor_name?: string | null
+          donor_phone?: string | null
+          donor_user_id?: string | null
+          gateway: string
+          giving_type?: string
+          id?: string
+          is_anonymous?: boolean
+          message?: string | null
+          metadata?: Json
+          reference: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          campaign_id?: string | null
+          church_id?: string
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          donor_email?: string | null
+          donor_name?: string | null
+          donor_phone?: string | null
+          donor_user_id?: string | null
+          gateway?: string
+          giving_type?: string
+          id?: string
+          is_anonymous?: boolean
+          message?: string | null
+          metadata?: Json
+          reference?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_donations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "church_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "church_donations_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       church_events: {
         Row: {
           church_id: string

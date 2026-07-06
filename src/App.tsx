@@ -72,6 +72,10 @@ const ChurchPublicProfile = lazy(() => import("@/pages/church/ChurchPublicProfil
 const ChurchProSectionStub = lazy(() => import("@/pages/church/ChurchProSectionStub"));
 const ChurchProSermons = lazy(() => import("@/pages/church/ChurchProSermons"));
 const ChurchProSermonDetail = lazy(() => import("@/pages/church/ChurchProSermonDetail"));
+const ChurchProGiving = lazy(() => import("@/pages/church/ChurchProGiving"));
+const ChurchProCampaigns = lazy(() => import("@/pages/church/ChurchProCampaigns"));
+const ChurchGivePage = lazy(() => import("@/pages/church/ChurchGivePage"));
+const ChurchGiveSuccessPage = lazy(() => import("@/pages/church/ChurchGiveSuccessPage"));
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
@@ -374,11 +378,14 @@ const App = () => (
                 <Route path="/church/pro/kyc" element={<RequireAuth><ChurchKYCPage /></RequireAuth>} />
                 <Route path="/church/pro/sermons" element={<RequireAuth><ChurchProSermons /></RequireAuth>} />
                 <Route path="/church/pro/sermons/:id" element={<RequireAuth><ChurchProSermonDetail /></RequireAuth>} />
-                <Route path="/church/pro/giving" element={<RequireAuth><ChurchProSectionStub titleFr="Dîmes & offrandes" titleEn="Tithes & offerings" phase="Phase 3" /></RequireAuth>} />
+                <Route path="/church/pro/giving" element={<RequireAuth><ChurchProGiving /></RequireAuth>} />
+                <Route path="/church/pro/campaigns" element={<RequireAuth><ChurchProCampaigns /></RequireAuth>} />
                 <Route path="/church/pro/events" element={<RequireAuth><ChurchProSectionStub titleFr="Événements" titleEn="Events" phase="Phase 4" /></RequireAuth>} />
                 <Route path="/church/pro/prayer" element={<RequireAuth><ChurchProSectionStub titleFr="Boîte de prière" titleEn="Prayer inbox" phase="Phase 4" /></RequireAuth>} />
                 <Route path="/church/pro/members" element={<RequireAuth><ChurchProSectionStub titleFr="Membres & diaspora" titleEn="Members & diaspora" phase="Phase 4" /></RequireAuth>} />
                 <Route path="/church/pro/settings" element={<RequireAuth><ChurchProSectionStub titleFr="Paramètres" titleEn="Settings" phase="Phase 5" /></RequireAuth>} />
+                <Route path="/church/:slug/give" element={<ChurchGivePage />} />
+                <Route path="/church/:slug/give/success" element={<ChurchGiveSuccessPage />} />
                 <Route path="/church/:slug" element={<ChurchPublicProfile />} />
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
