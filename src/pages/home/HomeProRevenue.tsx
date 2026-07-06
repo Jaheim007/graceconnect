@@ -65,7 +65,7 @@ export default function HomeProRevenue() {
           </div>
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-              <Wallet className="h-3 w-3" />{t("Solde disponible", "Available balance")}
+              <Wallet className="h-3 w-3" />{t("Revenu total", "Total revenue")}
             </div>
             <div className="mt-1 text-2xl font-black">
               {Number(stats?.revenue_all_time ?? 0).toLocaleString()} <span className="text-xs text-muted-foreground">{currency}</span>
