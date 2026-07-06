@@ -62,6 +62,14 @@ const BeautyMessagesList = lazy(() => import("@/pages/beauty/BeautyMessagesList"
 const BeautyConversation = lazy(() => import("@/pages/beauty/BeautyConversation"));
 const BeautyProDashboard = lazy(() => import("@/pages/beauty/BeautyProDashboard"));
 const BeautyKYCPage = lazy(() => import("@/pages/beauty/BeautyKYCPage"));
+// SiteViral Church
+const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
+const ChurchDiscover = lazy(() => import("@/pages/church/ChurchDiscover"));
+const ChurchOnboarding = lazy(() => import("@/pages/church/ChurchOnboarding"));
+const ChurchProDashboard = lazy(() => import("@/pages/church/ChurchProDashboard"));
+const ChurchKYCPage = lazy(() => import("@/pages/church/ChurchKYCPage"));
+const ChurchPublicProfile = lazy(() => import("@/pages/church/ChurchPublicProfile"));
+const ChurchProSectionStub = lazy(() => import("@/pages/church/ChurchProSectionStub"));
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
