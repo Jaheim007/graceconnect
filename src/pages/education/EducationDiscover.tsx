@@ -41,7 +41,7 @@ export default function EducationDiscover() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <SEOHead title={isFr ? "Trouver un prof — SiteViral Education" : "Find a tutor — SiteViral Education"}
+      <SEOHead title={isFr ? "Trouver un prof — SiteViral Learn" : "Find a tutor — SiteViral Learn"}
         description={isFr ? "Profs particuliers vérifiés près de toi." : "Verified private tutors near you."} />
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
