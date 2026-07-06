@@ -88,7 +88,22 @@ export function FloatingProofToast() {
 
   const isSuperadmin = location.pathname.startsWith('/superadmin');
   const isLandingPage = location.pathname === '/';
-  const MAX_PER_SESSION = 8;
+  // Hide inside any workspace / dashboard / messaging / checkout flow — too distracting.
+  const path = location.pathname;
+  const isWorkspace =
+    /\/pro(\/|$)/.test(path) ||
+    path.startsWith('/dashboard') ||
+    path.startsWith('/admin') ||
+    path.startsWith('/beauty/messages') ||
+    path.startsWith('/beauty/bookings') ||
+    path.startsWith('/beauty/pro') ||
+    path.startsWith('/church/pro') ||
+    path.startsWith('/checkout') ||
+    path.startsWith('/auth') ||
+    path.includes('/onboarding') ||
+    path.includes('/settings');
+  const suppressed = isSuperadmin || isLandingPage || isWorkspace || dismissed;
+  const MAX_PER_SESSION = 3;
 
   const handleDismiss = useCallback(() => {
     setVisible(false);
@@ -97,26 +112,26 @@ export function FloatingProofToast() {
   }, []);
 
   const showNext = useCallback(() => {
-    if (isSuperadmin || isLandingPage || dismissed || sessionCount >= MAX_PER_SESSION) return;
+    if (suppressed || sessionCount >= MAX_PER_SESSION) return;
     const notif = generateNotification(isFr);
     setNotification(notif);
     setVisible(true);
     setSessionCount(c => c + 1);
-    setTimeout(() => setVisible(false), 5000);
-  }, [isSuperadmin, isLandingPage, isFr, dismissed, sessionCount]);
+    setTimeout(() => setVisible(false), 4000);
+  }, [suppressed, isFr, sessionCount]);
 
   useEffect(() => {
-    if (isSuperadmin || isLandingPage || dismissed) return;
-    // Random initial delay 5-12s, then every 25-45s
-    const initialDelay = setTimeout(() => showNext(), 5000 + Math.random() * 7000);
-    const interval = setInterval(() => showNext(), 25000 + Math.random() * 20000);
+    if (suppressed) return;
+    // Calmer cadence — initial 20-30s, then every 90-150s.
+    const initialDelay = setTimeout(() => showNext(), 20000 + Math.random() * 10000);
+    const interval = setInterval(() => showNext(), 90000 + Math.random() * 60000);
     return () => {
       clearTimeout(initialDelay);
       clearInterval(interval);
     };
-  }, [showNext, isSuperadmin, isLandingPage, dismissed]);
+  }, [showNext, suppressed]);
 
-  if (isSuperadmin || isLandingPage || dismissed) return null;
+  if (suppressed) return null;
 
   return (
     <div className="fixed bottom-20 lg:bottom-4 left-4 z-50 max-w-xs sm:max-w-sm pointer-events-none">
