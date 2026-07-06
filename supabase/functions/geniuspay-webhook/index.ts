@@ -322,6 +322,7 @@ Deno.serve(async (req) => {
     // ── CHURCH GIVING (tithes / offerings / donations / campaigns) ──
     const churchId = meta.church_id as string | undefined;
     if (type === 'church_giving' && churchId) {
+      const ourRef = (meta.reference as string | undefined) || reference;
       const donationRow = await db
         .from('church_donations')
         .update({
@@ -329,7 +330,7 @@ Deno.serve(async (req) => {
           completed_at: new Date().toISOString(),
           metadata: { ...(meta || {}), gp_reference: reference },
         })
-        .eq('reference', reference)
+        .eq('reference', ourRef)
         .eq('status', 'pending')
         .select('id, campaign_id, amount, currency, donor_email, donor_name, giving_type')
         .maybeSingle();
