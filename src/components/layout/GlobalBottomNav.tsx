@@ -13,9 +13,12 @@ const HIDE_NAV_EXACT = ['/'];
  */
 export function GlobalBottomNav() {
   const location = useLocation();
+  // Hide inside a beauty conversation thread — the chat composer owns the bottom edge.
+  const isBeautyThread = /^\/beauty\/messages\/[^/]+/.test(location.pathname);
   const hidden =
     HIDE_NAV_EXACT.includes(location.pathname) ||
-    HIDE_NAV_ROUTES.some(r => location.pathname.startsWith(r));
+    HIDE_NAV_ROUTES.some(r => location.pathname.startsWith(r)) ||
+    isBeautyThread;
 
   if (hidden) return null;
 
