@@ -70,7 +70,7 @@ export default function HomeActionHub() {
         <div className="w-full max-w-md space-y-5">
           <div className="text-center space-y-1.5">
             <h1 className="text-xl font-black leading-tight sm:text-2xl">
-              {t("Un pro chez toi, en 1 clic.", "A pro at home, in 1 tap.")}
+              {t("Un artisan chez toi, en 1 clic.", "An artisan at home, in 1 tap.")}
             </h1>
             <p className="text-xs text-muted-foreground">
               {t("Discute, réserve, paie en sécurité.", "Chat, book, pay securely.")}
