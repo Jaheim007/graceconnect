@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 // ── Types ──
-type VerificationMode = 'org' | 'partner' | 'beauty';
+type VerificationMode = 'org' | 'partner' | 'beauty' | 'church';
 type VerificationType = 'individual' | 'organization';
 
 interface Props {
@@ -87,8 +87,8 @@ const CATEGORY_ORG_DOC_HINTS: Record<string, string> = {
 function getSteps(mode: VerificationMode, verificationType: VerificationType | null) {
   const steps: { id: string; label: string; icon: typeof FileText }[] = [];
 
-  // Beauty mode: individual-only, skip the "choose type" screen
-  if (mode === 'beauty') {
+  // Beauty & Church modes: individual-only, skip the "choose type" screen
+  if (mode === 'beauty' || mode === 'church') {
     steps.push(
       { id: 'doc_type', label: 'Type de document', icon: FileText },
       { id: 'document', label: "Document d'identité", icon: CreditCard },
@@ -128,7 +128,7 @@ function getSteps(mode: VerificationMode, verificationType: VerificationType | n
 }
 
 export default function IdentityVerificationWizard({ mode, entityId, status, rejectionReason, orgCategory }: Props) {
-  const [verificationType, setVerificationType] = useState<VerificationType | null>(mode === 'beauty' ? 'individual' : null);
+  const [verificationType, setVerificationType] = useState<VerificationType | null>(mode === 'beauty' || mode === 'church' ? 'individual' : null);
   const [step, setStep] = useState(0);
   const [docType, setDocType] = useState('national_id');
   const [docFrontUrl, setDocFrontUrl] = useState('');
@@ -156,7 +156,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
   const [submitted, setSubmitted] = useState(false);
 
   const selectedDoc = DOC_TYPES.find(d => d.value === docType)!;
-  const folder = mode === 'org' ? `kyc/${entityId}` : mode === 'beauty' ? `beauty-kyc/${entityId}` : `partner-kyc/${entityId}`;
+  const folder = mode === 'org' ? `kyc/${entityId}` : mode === 'beauty' ? `beauty-kyc/${entityId}` : mode === 'church' ? `church-kyc/${entityId}` : `partner-kyc/${entityId}`;
   const activeSteps = getSteps(mode, verificationType);
   const currentStep = activeSteps[step];
   const totalSteps = activeSteps.length;
@@ -243,6 +243,23 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
         submissionId = (data as any)?.submission_id || null;
       } else if (mode === 'beauty') {
         const { data, error } = await db.rpc('submit_beauty_kyc', {
+          _provider_id: entityId,
+          _id_document_url: docFrontUrl,
+          _id_document_type: docType,
+          _id_document_back_url: docBackUrl || null,
+          _selfie_url: selfieUrl,
+          _selfie_with_doc_url: selfieWithDocUrl,
+          _bank_account_name: accountName || null,
+          _bank_account_number: accountNumber || null,
+          _bank_name: payoutMethod === 'bank' ? bankName : payoutProvider,
+          _payout_method: payoutMethod,
+          _payout_phone: payoutMethod === 'mobile_money' ? accountNumber : null,
+          _payout_provider: payoutProvider || null,
+        });
+        if (error) throw error;
+        submissionId = (data as any)?.submission_id || null;
+      } else if (mode === 'church') {
+        const { data, error } = await db.rpc('submit_church_kyc' as any, {
           _provider_id: entityId,
           _id_document_url: docFrontUrl,
           _id_document_type: docType,
