@@ -153,8 +153,9 @@ export default function BeautyMessagesList() {
         ) : (
           conversations.map((c: any) => {
             const provider = c.beauty_providers;
-            const isProvider = c.provider_id === user?.id;
-            const label = isProvider ? t("Client", "Client") : provider?.business_name;
+            // I'm the pro on this conversation when I am NOT the client.
+            const iAmProvider = c.client_id !== user?.id;
+            const label = iAmProvider ? t("Client", "Client") : provider?.business_name;
             return (
               <button
                 key={c.id}
