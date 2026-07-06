@@ -35,7 +35,7 @@ export default function HomeBookingsList() {
             <Calendar className="mx-auto h-6 w-6 text-muted-foreground" />
             <p className="mt-3 text-sm">{isFr ? "Aucune intervention pour le moment." : "No jobs yet."}</p>
             <Link to="/home/discover" className="mt-3 inline-block text-xs font-semibold text-sky-600 underline">
-              {isFr ? "Trouver un pro" : "Find a pro"}
+              {isFr ? "Trouver un artisan" : "Find an artisan"}
             </Link>
           </div>
         )}

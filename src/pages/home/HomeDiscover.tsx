@@ -42,12 +42,12 @@ export default function HomeDiscover() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <SEOHead title={isFr ? "Trouver un pro — SiteViral Home" : "Find a pro — SiteViral Home"}
+      <SEOHead title={isFr ? "Trouver un artisan — SiteViral Home" : "Find an artisan — SiteViral Home"}
         description={isFr ? "Plombiers, électriciens, ménage, déménagement près de toi." : "Plumbers, electricians, cleaning, movers near you."} />
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
           <Link to="/home" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
-          <h1 className="text-sm font-bold">{isFr ? "Trouver un pro" : "Find a pro"}</h1>
+          <h1 className="text-sm font-bold">{isFr ? "Trouver un artisan" : "Find an artisan"}</h1>
         </div>
       </header>
 
@@ -78,11 +78,11 @@ export default function HomeDiscover() {
           <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
             <HomeIcon className="mx-auto h-8 w-8 text-muted-foreground" />
             <p className="mt-3 text-sm font-semibold">
-              {isFr ? "Aucun pro vérifié pour le moment" : "No verified pros yet"}
+              {isFr ? "Aucun artisan vérifié pour le moment" : "No verified artisans yet"}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {isFr ? "Reviens bientôt — nous accueillons de nouveaux pros chaque jour."
-                    : "Come back soon — we onboard new pros daily."}
+              {isFr ? "Reviens bientôt — nous accueillons de nouveaux artisans chaque jour."
+                    : "Come back soon — we onboard new artisans daily."}
             </p>
           </div>
         ) : (

@@ -31,7 +31,7 @@ export default function HomeActionHub() {
   }, []);
 
   const actions = [
-    { id: "explore", icon: Search, titleFr: "Trouver un pro", titleEn: "Find a pro",
+    { id: "explore", icon: Search, titleFr: "Trouver un artisan", titleEn: "Find an artisan",
       descFr: "Plombier, électricien, ménage, déménagement", descEn: "Plumber, electrician, cleaning, movers",
       route: "/home/discover", iconBg: "bg-sky-100 dark:bg-sky-500/15", iconColor: "text-sky-600 dark:text-sky-400",
       borderClass: "hover:border-sky-300 dark:hover:border-sky-500/40" },
@@ -70,7 +70,7 @@ export default function HomeActionHub() {
         <div className="w-full max-w-md space-y-5">
           <div className="text-center space-y-1.5">
             <h1 className="text-xl font-black leading-tight sm:text-2xl">
-              {t("Un pro chez toi, en 1 clic.", "A pro at home, in 1 tap.")}
+              {t("Un artisan chez toi, en 1 clic.", "An artisan at home, in 1 tap.")}
             </h1>
             <p className="text-xs text-muted-foreground">
               {t("Discute, réserve, paie en sécurité.", "Chat, book, pay securely.")}
