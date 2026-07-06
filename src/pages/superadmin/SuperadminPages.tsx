@@ -135,7 +135,7 @@ export function SuperadminKYC() {
   const { data: submissions = [], isLoading, refetch } = useQuery({
     queryKey: ['sa-kyc', filter],
     queryFn: async () => {
-      let q = db.from('kyc_submissions').select('*, organizations!left(name, category, slug)').order('submitted_at', { ascending: false });
+      let q = db.from('kyc_submissions').select('*, organizations!left(name, category, slug), beauty_providers!left(business_name, slug)').order('submitted_at', { ascending: false });
       if (filter !== 'all') q = q.eq('status', filter);
       const { data } = await q.limit(100);
       return data || [];
