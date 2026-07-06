@@ -62,6 +62,17 @@ const BeautyMessagesList = lazy(() => import("@/pages/beauty/BeautyMessagesList"
 const BeautyConversation = lazy(() => import("@/pages/beauty/BeautyConversation"));
 const BeautyProDashboard = lazy(() => import("@/pages/beauty/BeautyProDashboard"));
 const BeautyKYCPage = lazy(() => import("@/pages/beauty/BeautyKYCPage"));
+// SiteViral Home
+const HomeActionHub = lazy(() => import("@/pages/home/HomeActionHub"));
+const HomeLanding = lazy(() => import("@/pages/home/HomeLanding"));
+const HomeDiscover = lazy(() => import("@/pages/home/HomeDiscover"));
+const HomeProviderPublic = lazy(() => import("@/pages/home/HomeProviderPublic"));
+const HomeProviderOnboarding = lazy(() => import("@/pages/home/HomeProviderOnboarding"));
+const HomeProDashboard = lazy(() => import("@/pages/home/HomeProDashboard"));
+const HomeMessagesList = lazy(() => import("@/pages/home/HomeMessagesList"));
+const HomeConversation = lazy(() => import("@/pages/home/HomeConversation"));
+const HomeBookingsList = lazy(() => import("@/pages/home/HomeBookingsList"));
+const HomeKYCPage = lazy(() => import("@/pages/home/HomeKYCPage"));
 // SiteViral Church
 const ChurchActionHub = lazy(() => import("@/pages/church/ChurchActionHub"));
 const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
@@ -401,6 +412,17 @@ const App = () => (
                 <Route path="/church/:slug/pdf/:pdfId" element={<ChurchSermonPdfBuyPage />} />
                 <Route path="/church/:slug/pdf/:pdfId/success" element={<ChurchSermonPdfSuccessPage />} />
                 <Route path="/church/:slug" element={<ChurchPublicProfile />} />
+                {/* SiteViral Home */}
+                <Route path="/home" element={<HomeActionHub />} />
+                <Route path="/home/about" element={<HomeLanding />} />
+                <Route path="/home/discover" element={<HomeDiscover />} />
+                <Route path="/home/pro/onboarding" element={<HomeProviderOnboarding />} />
+                <Route path="/home/pro" element={<RequireAuth><HomeProDashboard /></RequireAuth>} />
+                <Route path="/home/pro/kyc" element={<RequireAuth><HomeKYCPage /></RequireAuth>} />
+                <Route path="/home/messages" element={<RequireAuth><HomeMessagesList /></RequireAuth>} />
+                <Route path="/home/messages/:id" element={<RequireAuth><HomeConversation /></RequireAuth>} />
+                <Route path="/home/bookings" element={<RequireAuth><HomeBookingsList /></RequireAuth>} />
+                <Route path="/home/pro/:slug" element={<HomeProviderPublic />} />
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />

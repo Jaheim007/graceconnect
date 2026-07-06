@@ -4497,6 +4497,720 @@ export type Database = {
           },
         ]
       }
+      home_availability: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          provider_id: string
+          start_time: string
+          weekday: number
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          provider_id: string
+          start_time: string
+          weekday: number
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          provider_id?: string
+          start_time?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_availability_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "home_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_availability_blocks: {
+        Row: {
+          created_at: string
+          ends_at: string
+          id: string
+          provider_id: string
+          reason: string | null
+          starts_at: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at: string
+          id?: string
+          provider_id: string
+          reason?: string | null
+          starts_at: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string
+          id?: string
+          provider_id?: string
+          reason?: string | null
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_availability_blocks_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "home_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_booking_events: {
+        Row: {
+          booking_id: string
+          created_at: string
+          id: string
+          kind: string
+          meta: Json
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          meta?: Json
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          meta?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_booking_events_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "home_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_bookings: {
+        Row: {
+          address: string | null
+          client_id: string
+          created_at: string
+          currency: string
+          end_otp: string | null
+          end_otp_verified_at: string | null
+          escrow_status: string
+          id: string
+          offer_id: string | null
+          price: number
+          provider_id: string
+          scheduled_for: string | null
+          service_id: string | null
+          start_otp: string | null
+          start_otp_verified_at: string | null
+          status: Database["public"]["Enums"]["home_booking_status"]
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          client_id: string
+          created_at?: string
+          currency?: string
+          end_otp?: string | null
+          end_otp_verified_at?: string | null
+          escrow_status?: string
+          id?: string
+          offer_id?: string | null
+          price?: number
+          provider_id: string
+          scheduled_for?: string | null
+          service_id?: string | null
+          start_otp?: string | null
+          start_otp_verified_at?: string | null
+          status?: Database["public"]["Enums"]["home_booking_status"]
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          client_id?: string
+          created_at?: string
+          currency?: string
+          end_otp?: string | null
+          end_otp_verified_at?: string | null
+          escrow_status?: string
+          id?: string
+          offer_id?: string | null
+          price?: number
+          provider_id?: string
+          scheduled_for?: string | null
+          service_id?: string | null
+          start_otp?: string | null
+          start_otp_verified_at?: string | null
+          status?: Database["public"]["Enums"]["home_booking_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_bookings_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "home_offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_bookings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "home_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_bookings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "home_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_chat_violations: {
+        Row: {
+          ai_analysis: Json | null
+          category: string
+          conversation_id: string
+          created_at: string
+          id: string
+          message_id: string | null
+          original_text: string | null
+          redacted_text: string | null
+          sender_id: string
+          severity: string
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          category: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          message_id?: string | null
+          original_text?: string | null
+          redacted_text?: string | null
+          sender_id: string
+          severity?: string
+        }
+        Update: {
+          ai_analysis?: Json | null
+          category?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          message_id?: string | null
+          original_text?: string | null
+          redacted_text?: string | null
+          sender_id?: string
+          severity?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_chat_violations_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "home_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_chat_violations_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "home_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_conversations: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          last_message_at: string
+          provider_id: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          provider_id: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          provider_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_conversations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "home_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_disputes: {
+        Row: {
+          booking_id: string
+          created_at: string
+          id: string
+          opened_by: string
+          reason: string
+          resolution: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          id?: string
+          opened_by: string
+          reason: string
+          resolution?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          id?: string
+          opened_by?: string
+          reason?: string
+          resolution?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_disputes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "home_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_extra_charges: {
+        Row: {
+          amount: number
+          booking_id: string
+          created_at: string
+          currency: string
+          id: string
+          label: string
+          status: Database["public"]["Enums"]["home_extra_charge_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          booking_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          label: string
+          status?: Database["public"]["Enums"]["home_extra_charge_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          label?: string
+          status?: Database["public"]["Enums"]["home_extra_charge_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_extra_charges_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "home_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_messages: {
+        Row: {
+          attachments: Json
+          body: string | null
+          conversation_id: string
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["home_message_kind"]
+          sender_id: string
+        }
+        Insert: {
+          attachments?: Json
+          body?: string | null
+          conversation_id: string
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["home_message_kind"]
+          sender_id: string
+        }
+        Update: {
+          attachments?: Json
+          body?: string | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["home_message_kind"]
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "home_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_offers: {
+        Row: {
+          address: string | null
+          client_id: string
+          conversation_id: string
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          price: number
+          provider_id: string
+          scheduled_for: string | null
+          status: Database["public"]["Enums"]["home_offer_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          client_id: string
+          conversation_id: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          price: number
+          provider_id: string
+          scheduled_for?: string | null
+          status?: Database["public"]["Enums"]["home_offer_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          client_id?: string
+          conversation_id?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          price?: number
+          provider_id?: string
+          scheduled_for?: string | null
+          status?: Database["public"]["Enums"]["home_offer_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_offers_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "home_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_offers_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "home_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_provider_media: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          provider_id: string
+          sort: number
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          provider_id: string
+          sort?: number
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          provider_id?: string
+          sort?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_provider_media_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "home_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_provider_stats: {
+        Row: {
+          jobs_cancelled: number
+          jobs_completed: number
+          provider_id: string
+          response_rate: number
+          revenue_30d: number
+          revenue_all_time: number
+          updated_at: string
+        }
+        Insert: {
+          jobs_cancelled?: number
+          jobs_completed?: number
+          provider_id: string
+          response_rate?: number
+          revenue_30d?: number
+          revenue_all_time?: number
+          updated_at?: string
+        }
+        Update: {
+          jobs_cancelled?: number
+          jobs_completed?: number
+          provider_id?: string
+          response_rate?: number
+          revenue_30d?: number
+          revenue_all_time?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_provider_stats_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "home_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_providers: {
+        Row: {
+          avatar_url: string | null
+          base_call_out_fee: number
+          bio: string | null
+          business_name: string
+          categories: string[]
+          city: string | null
+          country: string | null
+          cover_url: string | null
+          created_at: string
+          currency: string
+          id: string
+          is_new: boolean
+          is_official: boolean
+          kyc_status: string
+          kyc_verified_at: string | null
+          languages: string[]
+          rating_avg: number
+          rating_count: number
+          service_radius_km: number
+          slug: string
+          status: Database["public"]["Enums"]["home_provider_status"]
+          updated_at: string
+          user_id: string
+          years_experience: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          base_call_out_fee?: number
+          bio?: string | null
+          business_name: string
+          categories?: string[]
+          city?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          is_new?: boolean
+          is_official?: boolean
+          kyc_status?: string
+          kyc_verified_at?: string | null
+          languages?: string[]
+          rating_avg?: number
+          rating_count?: number
+          service_radius_km?: number
+          slug: string
+          status?: Database["public"]["Enums"]["home_provider_status"]
+          updated_at?: string
+          user_id: string
+          years_experience?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          base_call_out_fee?: number
+          bio?: string | null
+          business_name?: string
+          categories?: string[]
+          city?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          is_new?: boolean
+          is_official?: boolean
+          kyc_status?: string
+          kyc_verified_at?: string | null
+          languages?: string[]
+          rating_avg?: number
+          rating_count?: number
+          service_radius_km?: number
+          slug?: string
+          status?: Database["public"]["Enums"]["home_provider_status"]
+          updated_at?: string
+          user_id?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
+      home_reviews: {
+        Row: {
+          booking_id: string
+          client_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          provider_id: string
+          provider_reply: string | null
+          rating: number
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          client_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          provider_id: string
+          provider_reply?: string | null
+          rating: number
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          client_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          provider_id?: string
+          provider_reply?: string | null
+          rating?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "home_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "home_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      home_services: {
+        Row: {
+          active: boolean
+          category: string | null
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          price_from: number
+          price_unit: Database["public"]["Enums"]["home_price_unit"]
+          provider_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          price_from?: number
+          price_unit?: Database["public"]["Enums"]["home_price_unit"]
+          provider_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          price_from?: number
+          price_unit?: Database["public"]["Enums"]["home_price_unit"]
+          provider_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_services_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "home_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kids_book_projects: {
         Row: {
           age_range: string
@@ -10136,6 +10850,19 @@ export type Database = {
         | "expiration"
         | "refund"
         | "cashback"
+      home_booking_status:
+        | "pending"
+        | "confirmed"
+        | "en_route"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
+        | "disputed"
+      home_extra_charge_status: "proposed" | "accepted" | "declined" | "paid"
+      home_message_kind: "text" | "offer" | "system"
+      home_offer_status: "draft" | "sent" | "accepted" | "declined" | "expired"
+      home_price_unit: "fixed" | "hourly" | "per_m2" | "quote"
+      home_provider_status: "pending" | "active" | "suspended"
       kyc_status: "none" | "pending" | "level1" | "level2" | "rejected"
       marketplace_template_kind:
         | "formation"
@@ -10383,6 +11110,20 @@ export const Constants = {
         "refund",
         "cashback",
       ],
+      home_booking_status: [
+        "pending",
+        "confirmed",
+        "en_route",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "disputed",
+      ],
+      home_extra_charge_status: ["proposed", "accepted", "declined", "paid"],
+      home_message_kind: ["text", "offer", "system"],
+      home_offer_status: ["draft", "sent", "accepted", "declined", "expired"],
+      home_price_unit: ["fixed", "hourly", "per_m2", "quote"],
+      home_provider_status: ["pending", "active", "suspended"],
       kyc_status: ["none", "pending", "level1", "level2", "rejected"],
       marketplace_template_kind: [
         "formation",
