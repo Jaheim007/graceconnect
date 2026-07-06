@@ -42,12 +42,12 @@ export default function HomeDiscover() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <SEOHead title={isFr ? "Trouver un pro — SiteViral Home" : "Find a pro — SiteViral Home"}
+      <SEOHead title={isFr ? "Trouver un artisan — SiteViral Home" : "Find an artisan — SiteViral Home"}
         description={isFr ? "Plombiers, électriciens, ménage, déménagement près de toi." : "Plumbers, electricians, cleaning, movers near you."} />
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
           <Link to="/home" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
-          <h1 className="text-sm font-bold">{isFr ? "Trouver un pro" : "Find a pro"}</h1>
+          <h1 className="text-sm font-bold">{isFr ? "Trouver un artisan" : "Find an artisan"}</h1>
         </div>
       </header>
 
