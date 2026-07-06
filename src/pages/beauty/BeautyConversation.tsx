@@ -154,15 +154,42 @@ export default function BeautyConversation() {
     const body = text.trim();
     if (!body || !id || !user || sending) return;
     setSending(true);
-    const { error } = await supabase.from("beauty_messages").insert({
+    // Optimistic append so the sender sees their message instantly,
+    // even before realtime echoes it back.
+    const tempId = `temp-${Date.now()}`;
+    const optimistic: Message = {
+      id: tempId,
       conversation_id: id,
       sender_id: user.id,
       body,
       redacted_body: body,
+      contains_contact_attempt: false,
+      created_at: new Date().toISOString(),
+      read_at: null,
       kind: "text",
-    } as any);
+      offer_id: null,
+    };
+    qc.setQueryData<Message[]>(["beauty-messages", id], (prev) => [...(prev ?? []), optimistic]);
+    setText("");
+
+    const { data: inserted, error } = await supabase
+      .from("beauty_messages")
+      .insert({
+        conversation_id: id,
+        sender_id: user.id,
+        body,
+        redacted_body: body,
+        kind: "text",
+      } as any)
+      .select("*")
+      .single();
     setSending(false);
     if (error) {
+      // Roll back optimistic message
+      qc.setQueryData<Message[]>(["beauty-messages", id], (prev) =>
+        (prev ?? []).filter((m) => m.id !== tempId),
+      );
+      setText(body);
       const msg = (error as any)?.message ?? "";
       if (msg.includes("beauty_chat_blocked")) {
         const reason = msg.split("beauty_chat_blocked:")[1]?.trim() ?? "contact";
@@ -184,7 +211,14 @@ export default function BeautyConversation() {
       toast.error(t("Envoi impossible", "Failed to send"));
       return;
     }
-    setText("");
+    // Replace optimistic with real row
+    qc.setQueryData<Message[]>(["beauty-messages", id], (prev) => {
+      const withoutTemp = (prev ?? []).filter((m) => m.id !== tempId);
+      if (inserted && !withoutTemp.some((m) => m.id === (inserted as any).id)) {
+        return [...withoutTemp, inserted as Message];
+      }
+      return withoutTemp;
+    });
     qc.invalidateQueries({ queryKey: ["beauty-messages", id] });
   };
 
