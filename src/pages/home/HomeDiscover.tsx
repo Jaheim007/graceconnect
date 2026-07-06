@@ -78,11 +78,11 @@ export default function HomeDiscover() {
           <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
             <HomeIcon className="mx-auto h-8 w-8 text-muted-foreground" />
             <p className="mt-3 text-sm font-semibold">
-              {isFr ? "Aucun pro vérifié pour le moment" : "No verified pros yet"}
+              {isFr ? "Aucun artisan vérifié pour le moment" : "No verified artisans yet"}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {isFr ? "Reviens bientôt — nous accueillons de nouveaux pros chaque jour."
-                    : "Come back soon — we onboard new pros daily."}
+              {isFr ? "Reviens bientôt — nous accueillons de nouveaux artisans chaque jour."
+                    : "Come back soon — we onboard new artisans daily."}
             </p>
           </div>
         ) : (
