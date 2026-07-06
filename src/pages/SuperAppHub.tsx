@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles, Sun, Moon, BookOpen, Wallet, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Sparkles, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Button } from '@/components/ui/button';
