@@ -78,6 +78,7 @@ const ChurchProPrayer = lazy(() => import("@/pages/church/ChurchProPrayer"));
 const ChurchProAnnouncements = lazy(() => import("@/pages/church/ChurchProAnnouncements"));
 const ChurchProEvents = lazy(() => import("@/pages/church/ChurchProEvents"));
 const ChurchProTeam = lazy(() => import("@/pages/church/ChurchProTeam"));
+const ChurchProSettings = lazy(() => import("@/pages/church/ChurchProSettings"));
 const ChurchGivePage = lazy(() => import("@/pages/church/ChurchGivePage"));
 const ChurchGiveSuccessPage = lazy(() => import("@/pages/church/ChurchGiveSuccessPage"));
 const ChurchSermonPdfBuyPage = lazy(() => import("@/pages/church/ChurchSermonPdfBuyPage"));
@@ -302,6 +303,7 @@ const SuperadminAiAbuse = lazy(() => import("@/pages/superadmin/studio/AiAbuseMo
 const SuperadminAIHistory = lazy(() => import("@/pages/superadmin/SuperadminAIHistory"));
 const SuperadminAds = lazy(() => import("@/pages/superadmin/SuperadminAds"));
 const SuperadminBeauty = lazy(() => import("@/pages/superadmin/SuperadminBeauty"));
+const SuperadminChurch = lazy(() => import("@/pages/superadmin/SuperadminChurch"));
 // Wrap lazy components that export named exports
 const LazyAdminAnnouncements = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminAnnouncements })));
 const LazyAdminEvents = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminEvents })));
@@ -391,7 +393,7 @@ const App = () => (
                 <Route path="/church/pro/announcements" element={<RequireAuth><ChurchProAnnouncements /></RequireAuth>} />
                 <Route path="/church/pro/team" element={<RequireAuth><ChurchProTeam /></RequireAuth>} />
                 <Route path="/church/pro/members" element={<RequireAuth><ChurchProSectionStub titleFr="Membres & diaspora" titleEn="Members & diaspora" phase="Phase 5" /></RequireAuth>} />
-                <Route path="/church/pro/settings" element={<RequireAuth><ChurchProSectionStub titleFr="Paramètres" titleEn="Settings" phase="Phase 5" /></RequireAuth>} />
+                <Route path="/church/pro/settings" element={<RequireAuth><ChurchProSettings /></RequireAuth>} />
                 <Route path="/church/:slug/give" element={<ChurchGivePage />} />
                 <Route path="/church/:slug/give/success" element={<ChurchGiveSuccessPage />} />
                 <Route path="/church/:slug/pdf/:pdfId" element={<ChurchSermonPdfBuyPage />} />
@@ -673,6 +675,7 @@ const App = () => (
                   <Route path="ai-history" element={<Suspense fallback={<PageLoader />}><SuperadminAIHistory /></Suspense>} />
                   <Route path="ads" element={<SuperadminAds />} />
                   <Route path="beauty" element={<SuperadminBeauty />} />
+                  <Route path="church" element={<SuperadminChurch />} />
                   <Route path="trust" element={<SuperadminTrust />} />
                 </Route>
 

@@ -83,7 +83,28 @@ export default function ChurchPublicProfile() {
   });
 
   useEffect(() => {
-    if (church) document.title = `${church.name} — SiteViral Church`;
+    if (!church) return;
+    document.title = `${church.name} — SiteViral Church`;
+    // JSON-LD Church schema for SEO
+    const socials = (church.socials as any) || {};
+    const sameAs = [socials.facebook, socials.instagram, socials.youtube, socials.tiktok, church.website].filter(Boolean);
+    const jsonld = {
+      '@context': 'https://schema.org',
+      '@type': 'Church',
+      name: church.name,
+      description: church.bio || undefined,
+      url: `${window.location.origin}/church/${church.slug}`,
+      logo: church.logo_url || undefined,
+      image: church.cover_url || undefined,
+      telephone: church.phone || undefined,
+      email: church.email || undefined,
+      address: (church.city || church.country) ? { '@type': 'PostalAddress', streetAddress: church.address || undefined, addressLocality: church.city || undefined, addressCountry: church.country || undefined } : undefined,
+      sameAs: sameAs.length ? sameAs : undefined,
+    };
+    let tag = document.getElementById('church-jsonld') as HTMLScriptElement | null;
+    if (!tag) { tag = document.createElement('script'); tag.id = 'church-jsonld'; tag.type = 'application/ld+json'; document.head.appendChild(tag); }
+    tag.textContent = JSON.stringify(jsonld);
+    return () => { tag?.remove(); };
   }, [church]);
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
@@ -242,6 +263,11 @@ export default function ChurchPublicProfile() {
           </div>
         </section>
       )}
+
+      {/* Report */}
+      <section className="mx-auto max-w-4xl px-4 mt-12 text-center">
+        <ReportButton churchId={church.id} />
+      </section>
     </div>
   );
 }
@@ -302,5 +328,56 @@ function PrayerRequestForm({ churchId, disabled }: { churchId: string; disabled?
         {submitting ? '...' : (fr ? 'Envoyer ma demande' : 'Send my request')}
       </Button>
     </form>
+  );
+}
+
+function ReportButton({ churchId }: { churchId: string }) {
+  const { locale } = useI18n();
+  const fr = locale === 'fr';
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState('inappropriate');
+  const [message, setMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const submit = async () => {
+    setSubmitting(true);
+    const { error } = await supabase.from('church_content_reports').insert({
+      church_id: churchId, reason, message: message.trim() || null, status: 'new',
+    });
+    setSubmitting(false);
+    if (error) return toast.error(error.message);
+    toast.success(fr ? 'Merci, signalement reçu.' : 'Thanks, your report was received.');
+    setOpen(false); setMessage('');
+  };
+
+  if (!open) {
+    return (
+      <button onClick={() => setOpen(true)} className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4">
+        {fr ? 'Signaler cette page' : 'Report this page'}
+      </button>
+    );
+  }
+  return (
+    <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-4 text-left space-y-3">
+      <p className="font-semibold text-sm">{fr ? 'Signaler cette page' : 'Report this page'}</p>
+      <div className="space-y-1.5">
+        <Label className="text-xs">{fr ? 'Motif' : 'Reason'}</Label>
+        <select value={reason} onChange={(e) => setReason(e.target.value)} className="w-full h-10 border border-border bg-transparent rounded-md px-2 text-sm">
+          <option value="inappropriate">{fr ? 'Contenu inapproprié' : 'Inappropriate content'}</option>
+          <option value="doctrine">{fr ? 'Fausse doctrine' : 'False doctrine'}</option>
+          <option value="scam">{fr ? 'Arnaque / escroquerie' : 'Scam'}</option>
+          <option value="impersonation">{fr ? 'Usurpation d\'identité' : 'Impersonation'}</option>
+          <option value="other">{fr ? 'Autre' : 'Other'}</option>
+        </select>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">{fr ? 'Détails (optionnel)' : 'Details (optional)'}</Label>
+        <Textarea rows={3} value={message} onChange={(e) => setMessage(e.target.value)} />
+      </div>
+      <div className="flex gap-2 justify-end">
+        <Button variant="ghost" size="sm" onClick={() => setOpen(false)} disabled={submitting}>{fr ? 'Annuler' : 'Cancel'}</Button>
+        <Button size="sm" onClick={submit} disabled={submitting}>{submitting ? '...' : (fr ? 'Envoyer' : 'Send')}</Button>
+      </div>
+    </div>
   );
 }
