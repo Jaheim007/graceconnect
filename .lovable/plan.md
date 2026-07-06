@@ -1,141 +1,163 @@
-# SiteViral Church — Plan
+# SiteViral Church — MVP Plan (aligned with your ChatGPT spec)
 
-A dedicated vertical (like Beauty) built specifically for churches. Not a template on top of orgs — its own onboarding, dashboard, discovery, and public church page. Africa-first with a strong diaspora bridge (MoMo for locals, card/Stripe for members abroad).
+Your spec is strong. It matches what we already scaffolded, with **one critical correction** vs the previous plan:
 
-## 1. Product pillars (v1)
+> **KYC blocks payout only — not page creation, sermons, AI, discovery, prayer, or collecting money.**
 
-1. **Sermon audio library** — weekly audio uploads, streamable, sellable or free, auto transcription.
-2. **AI audio → content** — one sermon audio becomes: ebook chapter, blog article, WhatsApp devotional, reel script, sermon notes PDF.
-3. **Tithes & offerings** — recurring + one-time giving, campaigns with goals, receipts, diaspora card payments.
-4. **Community & events** — members list, prayer requests inbox, Sunday service schedule, live embed (YouTube/FB).
+That single rule reshapes the flow. We'll rewrite the gates accordingly and treat KYC as a *payout verification* step, not a *visibility* step.
 
-Everything else (small groups, attendance, courses, etc.) → v2 backlog.
+---
 
-## 2. Public surfaces
+## 1. Correction to what's already built
 
-```text
-/church                        Vertical landing (mission + CTA)
-/church/discover               Browse verified churches (map + list)
-/church/:slug                  Public church page (sermons, giving, events, prayer)
-/church/:slug/sermon/:id       Sermon player + AI-generated content tabs
-/church/:slug/give             Dedicated giving page (tithe, offering, campaigns)
-/church/:slug/campaign/:id     Campaign with goal bar + share
-/church/onboarding             Church owner setup wizard
-/church/pro                    Church admin dashboard
-/church/pro/sermons            Sermon manager (upload, AI transform, publish)
-/church/pro/giving             Giving dashboard (donors, recurring, payouts)
-/church/pro/events             Events + live stream
-/church/pro/prayer             Prayer inbox
-/church/pro/members            Members + diaspora segment
-/church/pro/kyc                KYC (reuse IdentityVerificationWizard, `church` mode)
-/church/pro/settings           Branding, currency, payout, custom domain
-```
+Current code gates discovery + public page + giving on `status = 'active'` (KYC-approved). Rework:
 
-Public church page layout (mobile-first): hero (logo/cover/service times) → Give CTA → Latest sermon (audio player) → Sermons grid → Upcoming events → Prayer request form → Location.
+- `church_providers.status`: keep `pending | active | suspended` but interpret differently
+  - `pending` (default on create) → **visible in discovery + public page + can receive giving**
+  - `active` → same, plus **payout enabled**
+  - `suspended` → hidden everywhere
+- Add badges on `church_providers`:
+  - `is_new` (auto: created <30d)
+  - `payout_verified` (bool, mirrors KYC approved)
+  - `is_official` (bool, superadmin manual)
+- Public page + `/church/discover`: show all non-suspended churches, render badge chips.
+- Dashboard banner: "You can receive payments now. Complete payout verification before withdrawing funds." with CTA to `/church/pro/kyc` when `payout_verified = false`.
+- `/church/pro/kyc` renamed **Payout Verification** in UI (keep route).
 
-## 3. Data model (new tables)
+## 2. Data model (add / adjust)
+
+Already have: `church_providers`, `church_sermons`, `church_sermon_variants`, `church_campaigns`, `church_events`, `church_prayer_requests`, `church_members`.
+
+Add:
 
 ```text
-church_providers        similar to beauty_providers: user_id, slug, name, bio,
-                        cover_url, logo_url, address, lat/lng, service_times,
-                        denomination, languages[], currency, status,
-                        kyc_submission_id, verified
-church_sermons          church_id, title, description, audio_url, duration_s,
-                        transcript, series, preacher, scripture_refs[],
-                        is_free, price, currency, published_at
-church_sermon_variants  sermon_id, type (ebook|blog|whatsapp|reel|notes_pdf),
-                        content (jsonb), status, generated_by_model, cost_credits
-church_campaigns        church_id, title, description, goal_amount, currency,
-                        raised_amount, cover_url, ends_at, status
-church_events           church_id, title, starts_at, ends_at, location,
-                        stream_url, is_recurring, recurrence_rule
-church_prayer_requests  church_id, requester_name?, requester_contact?,
-                        message, is_private, status (new|reading|prayed|closed)
-church_members          church_id, user_id, role (member|leader|pastor),
-                        joined_at, country (for diaspora segment)
+church_announcements     church_id, title, body, cover_url,
+                         published_at, status (draft|published), pinned
+church_team_members      church_id, user_id, role (owner|admin),
+                         invited_by, invited_at, accepted_at
+church_content_reports   church_id, reporter_user_id?, reason,
+                         message, status (new|reviewing|actioned|dismissed)
+church_receipts          transaction_id, church_id, donor_email,
+                         donor_name?, amount, currency, giving_type,
+                         reference, sent_at, pdf_url
 ```
 
-**Reuse existing tables**: `offerings` + `offering_transactions` for tithes/offerings; `donation_campaigns`/`donations` for campaigns; `kyc_submissions` extended with `church_provider_id` (same pattern as beauty).
+Adjust `church_providers`: add `payout_verified bool default false`, `is_official bool default false`, `social_links jsonb`, `default_language text`.
 
-RLS: owner + org leaders can write; public read on published sermons/events/campaigns; prayer requests private by default (only church staff read).
+Adjust `church_sermons`: add `series text`, `tags text[]`, `transcription_status` (`pending|transcribing|ready|failed`), `transcript_language text`, `unclear_sections jsonb` (array of `{start_s, end_s, note}`).
 
-Storage: `church-media` (public — sermon audio, covers), `church-kyc` (private, reuses `kyc-documents` folder pattern).
+Adjust `church_sermon_variants`: add `approval_status` (`draft|approved|published`), `edited_by`, `edited_at`. Types: `transcript|summary|notes|whatsapp|ebook|reel`.
 
-## 4. AI audio → content pipeline
+Reuse: `offering_transactions` for giving (add `giving_type` enum: `tithe|offering|donation|campaign` + `church_id` FK), `donation_campaigns` linked to `church_id`.
 
-Edge function `church-transform-sermon`:
+All new tables: `CREATE TABLE` → `GRANT` (authenticated + service_role; anon read on published announcements/events/sermons) → `ENABLE RLS` → `POLICY` in the same migration.
 
-1. Client uploads sermon audio to `church-media`.
-2. Function calls Lovable AI STT (`openai/gpt-4o-mini-transcribe`) with streaming → stores `transcript` on the sermon.
-3. On owner request per variant type, calls `google/gemini-3-flash-preview` with a tone-locked prompt (Christian teaching, no character invention, cite scripture refs literally) to produce:
-   - Ebook chapter (structured markdown)
-   - Blog article (SEO title + meta + body)
-   - WhatsApp devotional (≤600 chars, 1 verse)
-   - Reel script (30s hook + 3 beats + CTA)
-   - Sermon notes PDF (outline + key verses + application questions)
-4. Each variant costs credits (respects `ai-content-and-credits-governance`). Church owner reviews and publishes.
+## 3. AI pipeline — safety-first prompts
 
-## 5. Payments & diaspora bridge
+Edge functions:
 
-- Local giving: **GeniusPay** MoMo (Orange, MTN, Wave) in XOF/XAF/GHS/KES.
-- Diaspora giving: **Stripe** card + Apple/Google Pay, converts to church's home currency for display but settles in giver's currency (per `currency-and-zero-decimal-logic` — no auto-conversion at checkout).
-- Recurring tithes: Stripe subscriptions for card, GeniusPay standing order where supported.
-- Payout: standard SiteViral payout rules (10,000 XOF min, MoR, 3–15 days, KYC required).
-- Every gift → automatic bilingual receipt email; recurring donor gets year-end statement.
+1. `church-transcribe-sermon` — STT via `openai/gpt-4o-mini-transcribe`, streams tokens, writes transcript + `unclear_sections` (model flags low-confidence spans, never guesses).
+2. `church-generate-variant` — one-per-type, on-demand only (cheaper). Uses `google/gemini-3-flash-preview` with a locked system prompt:
+   - Preserve the preacher's exact message and doctrine
+   - Never invent scripture, testimonies, prophecies, names
+   - Quote scripture references literally (verify against a passed list of refs)
+   - Output structured JSON per variant type
+   - Always mark `approval_status = 'draft'`
 
-## 6. Discovery & verification
+Nothing publishes until the church admin approves.
 
-- `/church/discover`: filter by country, city, denomination, language, service time.
-- Only **KYC-verified** churches appear in discovery (same rule as Beauty).
-- Unverified churches: public URL works but `noindex`, dashboard shows yellow banner with CTA to `/church/pro/kyc`.
+## 4. Routes
 
-## 7. Dashboard (mobile-first, Aurora-inspired)
+```text
+/church                          Landing
+/church/discover                 Public discovery (no KYC gate)
+/church/:slug                    Public page (no KYC gate)
+/church/:slug/sermon/:id         Sermon player + AI content tabs
+/church/:slug/give               Giving (tithe/offering/donation)
+/church/:slug/campaign/:id       Campaign detail
+/church/:slug/events             Events list
+/church/onboarding               Create church (no KYC)
+/church/pro                      Dashboard
+/church/pro/sermons              Sermon manager + AI outputs
+/church/pro/products             Publish PDFs/audio as digital products
+/church/pro/giving               Giving inbox + payout balance
+/church/pro/campaigns            Campaign manager
+/church/pro/events               Events + announcements
+/church/pro/prayer               Prayer inbox
+/church/pro/announcements        Announcements
+/church/pro/team                 Invite admins (owner/admin only)
+/church/pro/kyc                  Payout Verification
+/church/pro/settings             Profile, giving, payout, language
+/superadmin/church               Moderation (suspend, verify, reports)
+```
 
-`/church/pro` — same visual language as new Beauty dashboard: sidebar on desktop, bottom nav on mobile, KPI cards (weekly gifts, active donors, this Sunday's sermon plays, prayer inbox count), quick actions (Upload sermon, Launch campaign, Post announcement).
+## 5. Dashboard cards (mobile-first, Aurora)
 
-Sections match `/church/pro/*` routes above. All strings via `useI18n` FR/EN.
+Profile completion · Latest sermon plays · Prayer requests count · Total giving (this month) · Payout balance + payout verification status · Recent transactions · Recent prayer requests. Quick actions: Upload sermon, Generate content, Edit page, Create campaign, View giving, View prayer requests, Complete payout verification.
 
-## 8. Phased delivery
+## 6. Giving flow (no KYC to receive)
 
-**Phase 1 — Foundation (this build)**
-- DB migration (church_* tables, RLS, grants, kyc extension, storage buckets).
-- Onboarding wizard + provider profile create.
-- Church admin dashboard shell + KYC page (reuse wizard with `church` mode).
-- Public church page (hero, sermons list, give CTA, events, prayer form).
-- `/church` landing + `/church/discover`.
+- Public `/church/:slug/give` → pick type (Tithe / Offering / Donation / Campaign) → amount + currency → email (for receipt) + optional name → GeniusPay (MoMo, XOF/XAF/GHS/KES) or Stripe (card, diaspora).
+- Webhook creates `offering_transactions` row with `giving_type` + `church_id`, generates `church_receipts` PDF, emails donor.
+- Balance accrues to church regardless of KYC. Withdraw button on `/church/pro/giving` is disabled when `payout_verified = false` with the exact copy: "Complete payout verification to withdraw your funds."
+
+## 7. Content moderation
+
+- Every public church page + sermon has a "Report" button → `church_content_reports`.
+- Superadmin `/superadmin/church`: list churches, filter by status/reports, actions: verify official, suspend, un-suspend, resolve report.
+- Upload confirmation checkbox on sermon upload: "I confirm I have permission to upload and publish this church content."
+
+## 8. Notifications
+
+Reuse `user_notifications` + email. Events: transcription done, AI variant ready, new prayer request, new giving received, receipt sent, payout verification needed / approved / rejected, campaign donation received. Channels: in-app + email.
+
+## 9. Team access (MVP)
+
+`church_team_members` with `owner | admin`. Owner invites via email, admin gets same dashboard access minus billing/payout settings. Deeper roles (finance, media, prayer, editor, pastor approval) → v2.
+
+## 10. Phased delivery
+
+**Phase 1 (this next build) — Fix the gates + core surfaces**
+- Migration: rework status semantics, add `payout_verified` / `is_official` / `is_new`, drop KYC checks from discovery + public page + giving, add announcements + team + reports + receipts tables.
+- Update `ChurchDiscover`, `ChurchPublicProfile`, `ChurchProDashboard` to remove KYC-blocking + show badges + payout banner.
+- `/church/pro/kyc` copy → "Payout Verification".
 
 **Phase 2 — Sermons + AI**
-- Sermon upload + audio player + transcript.
-- `church-transform-sermon` edge function + variants UI.
-- Sermon monetization (free / paid, reuses digital_products flow).
+- Sermon upload with rights-confirmation checkbox.
+- `church-transcribe-sermon` edge fn + transcript editor with unclear-section highlights.
+- `church-generate-variant` edge fn + variants UI (summary, notes PDF, WhatsApp, ebook draft).
+- Sermon library public + admin.
 
-**Phase 3 — Giving**
-- Offerings + campaigns bound to church_provider (adapt existing donation flows).
-- Recurring tithe (Stripe subscription + GeniusPay).
-- Donor dashboard + receipts + year-end statement job.
+**Phase 3 — Giving + Campaigns + Digital Products**
+- `/church/:slug/give` + GeniusPay/Stripe webhooks + `church_receipts` PDF + email.
+- Campaigns with goal bar + share.
+- Publish sermon audio / PDFs as digital products (reuse `digital_products`).
 
 **Phase 4 — Community**
-- Prayer request inbox with private/public toggle.
-- Events + live embed.
-- Members segmentation (local vs diaspora) for targeted campaigns.
+- Prayer inbox + statuses.
+- Announcements + Events (with optional live stream URL).
+- Team invites.
 
-**Phase 5 — Polish**
-- SEO (JSON-LD Church schema, sitemap per church, canonical).
-- Native app tab (Capacitor already in place).
-- Custom subdomain (reuses wildcard proxy infra).
+**Phase 5 — Trust & polish**
+- Superadmin moderation console + reports queue.
+- Notifications wiring.
+- SEO (JSON-LD Church schema, sitemap per church).
+- Verified Payout / Official badges rendering everywhere.
 
-## 9. Open decisions (before Phase 2)
+## 11. Open decisions (quick answers needed before Phase 2)
 
-- Denomination taxonomy: pick a fixed list (Pentecostal, Catholic, Protestant, Evangelical, Orthodox, Other) or free text? Fixed list improves discovery filters.
-- Sermon paywall: pastor-level default (all free vs paid), or per-sermon toggle only?
-- Prayer requests: allow anonymous submissions, or require email/phone for follow-up?
-- AI variants: auto-generate all 5 on upload (costs ~X credits per sermon) or on-demand per variant (cheaper, more clicks)?
+1. **Denomination**: fixed list (Pentecostal, Catholic, Protestant, Evangelical, Orthodox, Other) or free text? *Recommend fixed list for filters.*
+2. **AI variants**: on-demand per type (cheaper, matches spec) or auto-generate all on upload? *Recommend on-demand.*
+3. **Prayer requests**: allow fully anonymous (no email) or require contact? *Spec says optional — recommend optional.*
+4. **Sermon paywall**: per-sermon free/paid toggle only, or church-wide default? *Recommend per-sermon toggle.*
 
-## Technical notes (for me, the builder)
+## Technical notes
 
-- Follow `beauty_providers` architecture 1:1 to keep the codebase symmetrical (`IdentityVerificationWizard` gets a `church` mode alongside `beauty`).
-- Reuse `beautyCategories.ts` pattern → `churchDenominations.ts`.
-- Extend `kyc_submissions` with `church_provider_id` (nullable) + XOR CHECK with existing `organization_id` / `beauty_provider_id`; new RPCs `submit_church_kyc`, `review_church_kyc`; trigger flips `church_providers.status = 'active'` on approval.
-- All new public tables: `CREATE TABLE` → `GRANT` → `ENABLE RLS` → `CREATE POLICY` in the same migration.
-- Bilingual copy files: `src/i18n/church.ts` (FR/EN) — never hardcode strings.
-- Naming per `standard-naming-conventions`: "Église"/"Church", "Prédication"/"Sermon", "Dîme"/"Tithe", "Offrande"/"Offering", "Campagne"/"Campaign".
+- All strings via `useI18n` (FR/EN) in `src/i18n/church.ts`.
+- Follow `beauty_providers` architecture 1:1 minus the KYC-gate-on-visibility.
+- Every new public-schema table: `CREATE TABLE → GRANT → ENABLE RLS → CREATE POLICY` in one migration.
+- Reuse `IdentityVerificationWizard` `church` mode; only change is dashboard copy ("Payout Verification") + banner.
+- Currency: keep `currency-and-zero-decimal-logic` (XOF/XAF no ×100).
+- Payments: GeniusPay for MoMo, Stripe for diaspora — no Paystack.
+
+Approve this and I'll ship Phase 1 (gate rework + new tables + updated UI) in the next turn.
