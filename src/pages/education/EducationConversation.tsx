@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nContext";
 import { cn } from "@/lib/utils";
-import EducationOfferComposer from "@/components/education/EducationOfferComposer";
-import EducationOfferCard from "@/components/education/EducationOfferCard";
-import EducationExtraChargeCard from "@/components/education/EducationExtraChargeCard";
+import EducationOfferComposer from "@/components/learn/EducationOfferComposer";
+import EducationOfferCard from "@/components/learn/EducationOfferCard";
+import EducationExtraChargeCard from "@/components/learn/EducationExtraChargeCard";
 
 interface Msg { id: string; sender_id: string; body: string; created_at: string; }
 
@@ -72,7 +72,7 @@ export default function EducationConversation() {
     <div className="flex min-h-[100dvh] flex-col bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/education/messages" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/learn/messages" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h1 className="text-sm font-bold truncate flex-1">{tutorName || (isFr ? "Conversation" : "Conversation")}</h1>
           {isTutor && conv && (
             <EducationOfferComposer conversationId={conv.id} tutorId={conv.tutor_id} studentId={conv.student_id} />

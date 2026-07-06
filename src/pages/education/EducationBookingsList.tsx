@@ -25,7 +25,7 @@ export default function EducationBookingsList() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/education" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/learn" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h1 className="text-sm font-bold">{isFr ? "Mes séances" : "My sessions"}</h1>
         </div>
       </header>
@@ -34,13 +34,13 @@ export default function EducationBookingsList() {
           <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
             <Calendar className="mx-auto h-6 w-6 text-muted-foreground" />
             <p className="mt-3 text-sm">{isFr ? "Aucune séance pour le moment." : "No sessions yet."}</p>
-            <Link to="/education/discover" className="mt-3 inline-block text-xs font-semibold text-teal-600 underline">
+            <Link to="/learn/discover" className="mt-3 inline-block text-xs font-semibold text-teal-600 underline">
               {isFr ? "Trouver un prof" : "Find a tutor"}
             </Link>
           </div>
         )}
         {(bookings ?? []).map((b: any) => (
-          <Link key={b.id} to={`/education/booking/${b.id}`} className="block rounded-2xl border border-border bg-card p-4">
+          <Link key={b.id} to={`/learn/booking/${b.id}`} className="block rounded-2xl border border-border bg-card p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="text-sm font-bold">{b.education_tutors?.display_name} — {b.subject}</div>

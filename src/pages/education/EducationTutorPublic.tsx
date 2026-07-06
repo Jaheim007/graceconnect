@@ -45,15 +45,15 @@ export default function EducationTutorPublic() {
   });
 
   const startChat = async () => {
-    if (!user) { navigate(`/auth?returnTo=/education/pro/${slug}`); return; }
+    if (!user) { navigate(`/auth?returnTo=/learn/pro/${slug}`); return; }
     if (!tutor) return;
     const { data: existing } = await supabase.from("education_conversations")
       .select("id").eq("student_id", user.id).eq("tutor_id", tutor.id).maybeSingle();
-    if (existing) { navigate(`/education/messages/${existing.id}`); return; }
+    if (existing) { navigate(`/learn/messages/${existing.id}`); return; }
     const { data: inserted, error } = await supabase.from("education_conversations")
       .insert({ student_id: user.id, tutor_id: tutor.id }).select("id").single();
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    navigate(`/education/messages/${inserted.id}`);
+    navigate(`/learn/messages/${inserted.id}`);
   };
 
   if (isLoading) return <div className="p-10 text-center text-sm text-muted-foreground">…</div>;
@@ -63,7 +63,7 @@ export default function EducationTutorPublic() {
     <div className="min-h-screen bg-background text-foreground pb-32">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/education/discover" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/learn/discover" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h1 className="text-sm font-bold truncate">{tutor.display_name}</h1>
         </div>
       </header>

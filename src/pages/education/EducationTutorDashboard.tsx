@@ -14,7 +14,7 @@ export default function EducationTutorDashboard() {
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
 
-  useEffect(() => { if (!user) navigate("/auth?returnTo=/education/pro"); }, [user, navigate]);
+  useEffect(() => { if (!user) navigate("/auth?returnTo=/learn/pro"); }, [user, navigate]);
 
   const { data: tutor } = useQuery({
     queryKey: ["education-tutor-me", user?.id],
@@ -53,7 +53,7 @@ export default function EducationTutorDashboard() {
 
       <div className="mx-auto max-w-3xl px-4 py-5 space-y-4">
         {!kycDone && (
-          <Link to="/education/pro/kyc" className="block rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4">
+          <Link to="/learn/pro/kyc" className="block rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4">
             <div className="flex items-center gap-3">
               <ShieldCheck className="h-5 w-5 text-amber-600" />
               <div className="flex-1 text-sm">
@@ -81,10 +81,10 @@ export default function EducationTutorDashboard() {
 
         <div className="grid gap-2.5">
           {[
-            { icon: MessageSquare, label: t("Messages", "Messages"), to: "/education/messages" },
-            { icon: Calendar, label: t("Mes séances", "My sessions"), to: "/education/bookings" },
-            { icon: BookOpen, label: t("Mes matières", "My subjects"), to: "/education/pro/subjects" },
-            { icon: TrendingUp, label: t("Revenus & paiements", "Revenue & payouts"), to: "/education/pro/revenue" },
+            { icon: MessageSquare, label: t("Messages", "Messages"), to: "/learn/messages" },
+            { icon: Calendar, label: t("Mes séances", "My sessions"), to: "/learn/bookings" },
+            { icon: BookOpen, label: t("Mes matières", "My subjects"), to: "/learn/pro/subjects" },
+            { icon: TrendingUp, label: t("Revenus & paiements", "Revenue & payouts"), to: "/learn/pro/revenue" },
           ].map((a) => (
             <Button key={a.to} asChild variant="outline" className="h-14 justify-start">
               <Link to={a.to}><a.icon className="mr-3 h-4 w-4" />{a.label}</Link>

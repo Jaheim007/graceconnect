@@ -16,7 +16,7 @@ export default function EducationLanding() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <Link to="/education" className="flex items-center gap-2">
+          <Link to="/learn" className="flex items-center gap-2">
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 text-white shadow-lg">
               <GraduationCap className="h-5 w-5" />
             </span>
@@ -26,9 +26,9 @@ export default function EducationLanding() {
             </div>
           </Link>
           <div className="hidden gap-2 sm:flex">
-            <Button asChild variant="ghost" size="sm"><Link to="/education/discover">{t("Explorer", "Explore")}</Link></Button>
+            <Button asChild variant="ghost" size="sm"><Link to="/learn/discover">{t("Explorer", "Explore")}</Link></Button>
             <Button asChild size="sm" className="bg-gradient-to-br from-teal-500 to-cyan-500 text-white hover:opacity-90">
-              <Link to="/education/pro/onboarding">{t("Devenir prof", "Become a tutor")} <ArrowRight className="ml-1 h-4 w-4" /></Link>
+              <Link to="/learn/pro/onboarding">{t("Devenir prof", "Become a tutor")} <ArrowRight className="ml-1 h-4 w-4" /></Link>
             </Button>
           </div>
         </div>
@@ -50,17 +50,17 @@ export default function EducationLanding() {
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild size="lg" className="bg-gradient-to-br from-teal-500 to-cyan-500 text-white">
-              <Link to="/education/discover">{t("Trouver un prof", "Find a tutor")} <ArrowRight className="ml-1 h-4 w-4" /></Link>
+              <Link to="/learn/discover">{t("Trouver un prof", "Find a tutor")} <ArrowRight className="ml-1 h-4 w-4" /></Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link to="/education/pro/onboarding">{t("Je suis prof", "I'm a tutor")}</Link>
+              <Link to="/learn/pro/onboarding">{t("Je suis prof", "I'm a tutor")}</Link>
             </Button>
           </div>
         </div>
 
         <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-6">
           {EDUCATION_CATEGORIES.slice(0, 12).map((c) => (
-            <Link key={c.id} to={`/education/discover?cat=${c.id}`}
+            <Link key={c.id} to={`/learn/discover?cat=${c.id}`}
               className="group flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-teal-100 text-teal-600 dark:bg-teal-500/15 dark:text-teal-400">
                 <c.icon className="h-5 w-5" />

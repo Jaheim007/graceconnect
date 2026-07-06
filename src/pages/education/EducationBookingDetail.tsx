@@ -9,9 +9,9 @@ import { useI18n } from "@/i18n/I18nContext";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { educationCategoryLabel } from "@/lib/educationCategories";
-import EducationOtpPanel from "@/components/education/EducationOtpPanel";
-import EducationExtraCharges from "@/components/education/EducationExtraCharges";
-import EducationReviewForm from "@/components/education/EducationReviewForm";
+import EducationOtpPanel from "@/components/learn/EducationOtpPanel";
+import EducationExtraCharges from "@/components/learn/EducationExtraCharges";
+import EducationReviewForm from "@/components/learn/EducationReviewForm";
 
 const STATUS: Record<string, { fr: string; en: string; color: string; icon: any }> = {
   awaiting_payment: { fr: "Paiement en attente", en: "Payment pending", color: "amber", icon: Loader2 },
@@ -80,7 +80,7 @@ export default function EducationBookingDetail() {
     <div className="grid min-h-screen place-items-center p-8 text-center">
       <div>
         <div className="text-lg font-bold">{t("Séance introuvable", "Session not found")}</div>
-        <Button className="mt-4" onClick={() => navigate("/education/bookings")}>{t("Mes séances", "My sessions")}</Button>
+        <Button className="mt-4" onClick={() => navigate("/learn/bookings")}>{t("Mes séances", "My sessions")}</Button>
       </div>
     </div>
   );
@@ -106,7 +106,7 @@ export default function EducationBookingDetail() {
     <div className="min-h-screen bg-background text-foreground pb-28">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/education/bookings")}><ArrowLeft className="h-4 w-4" /></Button>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/learn/bookings")}><ArrowLeft className="h-4 w-4" /></Button>
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-bold">{tutor?.display_name}</div>
             <div className="truncate text-[11px] text-muted-foreground">
@@ -200,7 +200,7 @@ export default function EducationBookingDetail() {
           <Button variant="outline" onClick={async () => {
             const { data: conv } = await supabase.from("education_conversations").select("id")
               .eq("student_id", booking.student_id).eq("tutor_id", booking.tutor_id).maybeSingle();
-            if (conv?.id) navigate(`/education/messages/${conv.id}`);
+            if (conv?.id) navigate(`/learn/messages/${conv.id}`);
           }}>
             <MessageCircle className="h-4 w-4 mr-1.5" />{t("Ouvrir le chat", "Open chat")}
           </Button>

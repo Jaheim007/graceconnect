@@ -53,7 +53,7 @@ export default function EducationOfferCard({ offerId }: Props) {
 
   const goToBooking = async () => {
     const { data } = await supabase.from("education_bookings").select("id").eq("offer_id", offerId).maybeSingle();
-    if (data?.id) navigate(`/education/booking/${data.id}`);
+    if (data?.id) navigate(`/learn/booking/${data.id}`);
   };
 
   return (

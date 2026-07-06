@@ -33,10 +33,10 @@ export default function EducationTutorOnboarding() {
   const [modes, setModes] = useState<string[]>(["online"]);
 
   useEffect(() => {
-    if (!user) { navigate("/auth?returnTo=/education/pro/onboarding"); return; }
+    if (!user) { navigate("/auth?returnTo=/learn/pro/onboarding"); return; }
     (async () => {
       const { data } = await supabase.from("education_tutors").select("id").eq("user_id", user.id).maybeSingle();
-      if (data) navigate("/education/pro", { replace: true });
+      if (data) navigate("/learn/pro", { replace: true });
       else setChecking(false);
     })();
   }, [user, navigate]);
@@ -72,7 +72,7 @@ export default function EducationTutorOnboarding() {
     }
     setSaving(false);
     toast({ title: t("Compte prof créé", "Tutor account created") });
-    navigate("/education/pro", { replace: true });
+    navigate("/learn/pro", { replace: true });
   };
 
   if (checking) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
