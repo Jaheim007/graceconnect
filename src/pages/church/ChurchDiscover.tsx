@@ -23,8 +23,8 @@ export default function ChurchDiscover() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('church_providers')
-        .select('id, slug, name, bio, denomination, city, country, logo_url, cover_url, verified')
-        .eq('status', 'active')
+        .select('id, slug, name, bio, denomination, city, country, logo_url, cover_url, verified, payout_verified, is_official, created_at')
+        .in('status', ['pending', 'active'])
         .order('created_at', { ascending: false })
         .limit(60);
       if (error) throw error;
