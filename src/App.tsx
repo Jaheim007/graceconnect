@@ -355,6 +355,7 @@ const App = () => (
                 <Route path="/beauty/messages/:id" element={<RequireAuth><BeautyConversation /></RequireAuth>} />
                 <Route path="/beauty/pro/onboarding" element={<BeautyProviderOnboarding />} />
                 <Route path="/beauty/pro" element={<RequireAuth><BeautyProDashboard /></RequireAuth>} />
+                <Route path="/beauty/pro/kyc" element={<RequireAuth><BeautyKYCPage /></RequireAuth>} />
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
