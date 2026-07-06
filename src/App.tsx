@@ -73,6 +73,8 @@ const HomeMessagesList = lazy(() => import("@/pages/home/HomeMessagesList"));
 const HomeConversation = lazy(() => import("@/pages/home/HomeConversation"));
 const HomeBookingsList = lazy(() => import("@/pages/home/HomeBookingsList"));
 const HomeKYCPage = lazy(() => import("@/pages/home/HomeKYCPage"));
+const HomeProServices = lazy(() => import("@/pages/home/HomeProServices"));
+const HomeProRevenue = lazy(() => import("@/pages/home/HomeProRevenue"));
 // SiteViral Church
 const ChurchActionHub = lazy(() => import("@/pages/church/ChurchActionHub"));
 const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
