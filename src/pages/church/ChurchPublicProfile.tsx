@@ -66,6 +66,22 @@ export default function ChurchPublicProfile() {
     },
   });
 
+  const { data: announcements = [] } = useQuery({
+    enabled: !!church?.id,
+    queryKey: ['church-public-announcements', church?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('church_announcements')
+        .select('id, title, body, pinned, published_at, created_at')
+        .eq('church_id', church!.id)
+        .eq('status', 'published')
+        .order('pinned', { ascending: false })
+        .order('published_at', { ascending: false })
+        .limit(5);
+      return data ?? [];
+    },
+  });
+
   useEffect(() => {
     if (church) document.title = `${church.name} — SiteViral Church`;
   }, [church]);
