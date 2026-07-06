@@ -371,7 +371,30 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── PRODUCT / DONATION via shared core ──
+    // ── CHURCH SERMON PDF PURCHASE ──
+    if (type === 'church_sermon_pdf') {
+      const ourRef = (meta.reference as string | undefined) || reference;
+      const pdfId = meta.pdf_id as string | undefined;
+      const { data: purchase } = await db.from('church_sermon_pdf_purchases')
+        .update({
+          status: 'succeeded',
+          completed_at: new Date().toISOString(),
+          metadata: { ...(meta || {}), gp_reference: reference },
+        })
+        .eq('reference', ourRef)
+        .eq('status', 'pending')
+        .select('id, pdf_id')
+        .maybeSingle();
+      if (purchase?.pdf_id) {
+        const { data: pdf } = await db.from('church_sermon_pdfs').select('sales_count').eq('id', purchase.pdf_id).maybeSingle();
+        if (pdf) await db.from('church_sermon_pdfs').update({ sales_count: (pdf.sales_count || 0) + 1 }).eq('id', purchase.pdf_id);
+      }
+      await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, kind: 'church_sermon_pdf' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     if (!organizationId) {
       await db.from('payment_events').update({
         status: 'skipped', processed_at: new Date().toISOString(),

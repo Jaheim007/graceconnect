@@ -76,6 +76,8 @@ const ChurchProGiving = lazy(() => import("@/pages/church/ChurchProGiving"));
 const ChurchProCampaigns = lazy(() => import("@/pages/church/ChurchProCampaigns"));
 const ChurchGivePage = lazy(() => import("@/pages/church/ChurchGivePage"));
 const ChurchGiveSuccessPage = lazy(() => import("@/pages/church/ChurchGiveSuccessPage"));
+const ChurchSermonPdfBuyPage = lazy(() => import("@/pages/church/ChurchSermonPdfBuyPage"));
+const ChurchSermonPdfSuccessPage = lazy(() => import("@/pages/church/ChurchSermonPdfSuccessPage"));
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
@@ -386,6 +388,8 @@ const App = () => (
                 <Route path="/church/pro/settings" element={<RequireAuth><ChurchProSectionStub titleFr="Paramètres" titleEn="Settings" phase="Phase 5" /></RequireAuth>} />
                 <Route path="/church/:slug/give" element={<ChurchGivePage />} />
                 <Route path="/church/:slug/give/success" element={<ChurchGiveSuccessPage />} />
+                <Route path="/church/:slug/pdf/:pdfId" element={<ChurchSermonPdfBuyPage />} />
+                <Route path="/church/:slug/pdf/:pdfId/success" element={<ChurchSermonPdfSuccessPage />} />
                 <Route path="/church/:slug" element={<ChurchPublicProfile />} />
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />

@@ -278,3 +278,16 @@ verify_jwt = false
 
 [functions.church-giving-status]
 verify_jwt = false
+
+[functions.church-init-giving-stripe]
+verify_jwt = false
+
+[functions.church-generate-sermon-pdf]
+verify_jwt = false
+
+[functions.church-buy-sermon-pdf]
+verify_jwt = false
+
+[functions.church-sermon-pdf-download]
+verify_jwt = false
+

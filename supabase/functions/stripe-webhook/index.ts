@@ -387,8 +387,61 @@ Deno.serve(async (req) => {
     }
 
     const reference = meta.sv_reference;
-    const type = meta.type as 'donation' | 'product' | 'template_clone';
+    const type = meta.type as 'donation' | 'product' | 'template_clone' | 'church_giving' | 'church_sermon_pdf';
     const organizationId = meta.organization_id;
+
+    // ── CHURCH GIVING branch ──
+    if (type === 'church_giving') {
+      if (!reference) {
+        await db.from('payment_events').update({ status: 'error', processed_at: new Date().toISOString() }).eq('event_id', String(stripeEventId));
+        return new Response(JSON.stringify({ error: 'Missing sv_reference' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      const { data: donation } = await db.from('church_donations').select('id, campaign_id, church_id, amount, currency, status').eq('reference', reference).maybeSingle();
+      if (donation && donation.status !== 'completed') {
+        await db.from('church_donations').update({
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          metadata: { stripe_session_id: session.id, stripe_pi: session.payment_intent },
+        }).eq('id', donation.id);
+        if (donation.campaign_id) {
+          const { data: c } = await db.from('church_campaigns').select('id, raised_amount').eq('id', donation.campaign_id).maybeSingle();
+          if (c) {
+            await db.from('church_campaigns').update({
+              raised_amount: Number(c.raised_amount || 0) + Number(donation.amount || 0),
+            }).eq('id', donation.campaign_id);
+          }
+        }
+        try {
+          await db.from('church_receipts').insert({
+            church_id: donation.church_id, donation_id: donation.id,
+            amount: donation.amount, currency: donation.currency,
+            gateway: 'stripe', reference, issued_at: new Date().toISOString(),
+          });
+        } catch { /* ignore */ }
+      }
+      await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(stripeEventId));
+      return new Response(JSON.stringify({ ok: true, church_giving: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    // ── CHURCH SERMON PDF PURCHASE branch ──
+    if (type === 'church_sermon_pdf') {
+      if (!reference) {
+        await db.from('payment_events').update({ status: 'error', processed_at: new Date().toISOString() }).eq('event_id', String(stripeEventId));
+        return new Response(JSON.stringify({ error: 'Missing sv_reference' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      const { data: purchase } = await db.from('church_sermon_pdf_purchases').select('id, pdf_id, status').eq('reference', reference).maybeSingle();
+      if (purchase && purchase.status !== 'succeeded') {
+        await db.from('church_sermon_pdf_purchases').update({
+          status: 'succeeded',
+          completed_at: new Date().toISOString(),
+          metadata: { stripe_session_id: session.id, stripe_pi: session.payment_intent },
+        }).eq('id', purchase.id);
+        const { data: pdf } = await db.from('church_sermon_pdfs').select('sales_count').eq('id', purchase.pdf_id).maybeSingle();
+        if (pdf) await db.from('church_sermon_pdfs').update({ sales_count: (pdf.sales_count || 0) + 1 }).eq('id', purchase.pdf_id);
+      }
+      await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(stripeEventId));
+      return new Response(JSON.stringify({ ok: true, church_sermon_pdf: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
 
     // ── TEMPLATE CLONE branch ──
     if (type === 'template_clone') {
