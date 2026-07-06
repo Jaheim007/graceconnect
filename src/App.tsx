@@ -421,6 +421,8 @@ const App = () => (
                 <Route path="/home/pro/onboarding" element={<HomeProviderOnboarding />} />
                 <Route path="/home/pro" element={<RequireAuth><HomeProDashboard /></RequireAuth>} />
                 <Route path="/home/pro/kyc" element={<RequireAuth><HomeKYCPage /></RequireAuth>} />
+                <Route path="/home/pro/services" element={<RequireAuth><HomeProServices /></RequireAuth>} />
+                <Route path="/home/pro/revenue" element={<RequireAuth><HomeProRevenue /></RequireAuth>} />
                 <Route path="/home/messages" element={<RequireAuth><HomeMessagesList /></RequireAuth>} />
                 <Route path="/home/messages/:id" element={<RequireAuth><HomeConversation /></RequireAuth>} />
                 <Route path="/home/bookings" element={<RequireAuth><HomeBookingsList /></RequireAuth>} />
