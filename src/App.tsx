@@ -76,6 +76,20 @@ const HomeKYCPage = lazy(() => import("@/pages/home/HomeKYCPage"));
 const HomeProServices = lazy(() => import("@/pages/home/HomeProServices"));
 const HomeProRevenue = lazy(() => import("@/pages/home/HomeProRevenue"));
 const HomeBookingDetail = lazy(() => import("@/pages/home/HomeBookingDetail"));
+const EventsActionHub = lazy(() => import("@/pages/events/EventsActionHub"));
+const EventsLanding = lazy(() => import("@/pages/events/EventsLanding"));
+const EventsDiscover = lazy(() => import("@/pages/events/EventsDiscover"));
+const EventsProviderPublic = lazy(() => import("@/pages/events/EventsProviderPublic"));
+const EventsProviderOnboarding = lazy(() => import("@/pages/events/EventsProviderOnboarding"));
+const EventsProDashboard = lazy(() => import("@/pages/events/EventsProDashboard"));
+const EventsMessagesList = lazy(() => import("@/pages/events/EventsMessagesList"));
+const EventsConversation = lazy(() => import("@/pages/events/EventsConversation"));
+const EventsBookingsList = lazy(() => import("@/pages/events/EventsBookingsList"));
+const EventsKYCPage = lazy(() => import("@/pages/events/EventsKYCPage"));
+const EventsProPackages = lazy(() => import("@/pages/events/EventsProPackages"));
+const EventsProRevenue = lazy(() => import("@/pages/events/EventsProRevenue"));
+const EventsBookingDetail = lazy(() => import("@/pages/events/EventsBookingDetail"));
+const SuperadminEvents = lazy(() => import("@/pages/superadmin/SuperadminEvents"));
 // SiteViral Church
 const ChurchActionHub = lazy(() => import("@/pages/church/ChurchActionHub"));
 const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
@@ -431,6 +445,21 @@ const App = () => (
                 <Route path="/home/booking/:id" element={<RequireAuth><HomeBookingDetail /></RequireAuth>} />
                 <Route path="/home/pro/:slug" element={<HomeProviderPublic />} />
 
+                {/* SiteViral Events */}
+                <Route path="/events" element={<EventsActionHub />} />
+                <Route path="/events/about" element={<EventsLanding />} />
+                <Route path="/events/discover" element={<EventsDiscover />} />
+                <Route path="/events/pro/onboarding" element={<EventsProviderOnboarding />} />
+                <Route path="/events/pro" element={<RequireAuth><EventsProDashboard /></RequireAuth>} />
+                <Route path="/events/pro/kyc" element={<RequireAuth><EventsKYCPage /></RequireAuth>} />
+                <Route path="/events/pro/packages" element={<RequireAuth><EventsProPackages /></RequireAuth>} />
+                <Route path="/events/pro/revenue" element={<RequireAuth><EventsProRevenue /></RequireAuth>} />
+                <Route path="/events/messages" element={<RequireAuth><EventsMessagesList /></RequireAuth>} />
+                <Route path="/events/messages/:id" element={<RequireAuth><EventsConversation /></RequireAuth>} />
+                <Route path="/events/bookings" element={<RequireAuth><EventsBookingsList /></RequireAuth>} />
+                <Route path="/events/booking/:id" element={<RequireAuth><EventsBookingDetail /></RequireAuth>} />
+                <Route path="/events/pro/:slug" element={<EventsProviderPublic />} />
+
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
@@ -709,6 +738,7 @@ const App = () => (
                   <Route path="beauty" element={<SuperadminBeauty />} />
                   <Route path="church" element={<SuperadminChurch />} />
                   <Route path="home" element={<SuperadminHome />} />
+                  <Route path="events" element={<SuperadminEvents />} />
                   <Route path="trust" element={<SuperadminTrust />} />
                 </Route>
 
