@@ -263,6 +263,11 @@ export default function ChurchPublicProfile() {
           </div>
         </section>
       )}
+
+      {/* Report */}
+      <section className="mx-auto max-w-4xl px-4 mt-12 text-center">
+        <ReportButton churchId={church.id} />
+      </section>
     </div>
   );
 }
