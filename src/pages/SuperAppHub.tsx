@@ -27,9 +27,10 @@ export default function SuperAppHub() {
   const isFr = locale === 'fr';
 
   useEffect(() => {
-    // Preload the two vertical entries so the tile tap feels instant
+    // Preload the vertical entries so the tile tap feels instant
     import('@/pages/LandingPage');
     import('@/pages/beauty/BeautyLanding');
+    import('@/pages/church/ChurchLanding');
   }, []);
 
   const t = (fr: string, en: string) => (isFr ? fr : en);
