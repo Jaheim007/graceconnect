@@ -3,7 +3,7 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield, Users, FileCheck, BarChart3, Megaphone, Sparkles, LayoutDashboard, Activity, Settings, Download,
-  UserCircle, Target, ShieldAlert, Mail, ChevronLeft, ChevronRight, ArrowLeft, Bell, HelpCircle, Wallet, Handshake, ShieldCheck, Brain, Menu, Sun, Moon
+  UserCircle, Target, ShieldAlert, Mail, ChevronLeft, ChevronRight, ArrowLeft, Bell, HelpCircle, Wallet, Handshake, ShieldCheck, Brain, Menu, Sun, Moon, Church
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
