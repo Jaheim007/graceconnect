@@ -319,6 +319,57 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ── CHURCH GIVING (tithes / offerings / donations / campaigns) ──
+    const churchId = meta.church_id as string | undefined;
+    if (type === 'church_giving' && churchId) {
+      const donationRow = await db
+        .from('church_donations')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          metadata: { ...(meta || {}), gp_reference: reference },
+        })
+        .eq('reference', reference)
+        .eq('status', 'pending')
+        .select('id, campaign_id, amount, currency, donor_email, donor_name, giving_type')
+        .maybeSingle();
+
+      const don: any = donationRow.data;
+      if (don?.campaign_id) {
+        await db.rpc('increment_church_campaign_raised', {
+          _campaign_id: don.campaign_id,
+          _amount: Number(don.amount),
+        }).then(() => null).catch(async () => {
+          // Fallback if RPC does not exist yet: read-modify-write
+          const { data: c } = await db.from('church_campaigns').select('raised_amount').eq('id', don.campaign_id).maybeSingle();
+          await db.from('church_campaigns').update({
+            raised_amount: Number(c?.raised_amount || 0) + Number(don.amount),
+          }).eq('id', don.campaign_id);
+        });
+      }
+
+      // Best-effort receipt row
+      if (don) {
+        await db.from('church_receipts').insert({
+          transaction_id: don.id,
+          church_id: churchId,
+          donor_email: don.donor_email,
+          donor_name: don.donor_name,
+          amount: don.amount,
+          currency: don.currency,
+          giving_type: don.giving_type,
+          reference,
+        }).then(() => null).catch(() => null);
+      }
+
+      await db.from('payment_events').update({
+        status: 'processed', processed_at: new Date().toISOString(),
+      }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, kind: 'church_giving' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // ── PRODUCT / DONATION via shared core ──
     if (!organizationId) {
       await db.from('payment_events').update({
@@ -328,6 +379,7 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
 
     const amountPaid = Number(txData.amount);
     const currency = (txData.currency as string) || 'XOF';
