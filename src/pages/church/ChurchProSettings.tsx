@@ -84,7 +84,7 @@ export default function ChurchProSettings() {
             <Field label={fr ? 'Dénomination' : 'Denomination'}>
               <select value={form.denomination || ''} onChange={(e) => set('denomination', e.target.value)} className="w-full h-10 border border-border bg-transparent rounded-md px-2 text-sm">
                 <option value="">—</option>
-                {CHURCH_DENOMINATIONS.map((d) => <option key={d.value} value={d.value}>{fr ? d.labelFr : d.labelEn}</option>)}
+                {CHURCH_DENOMINATIONS.map((d) => <option key={d.value} value={d.value}>{fr ? d.fr : d.en}</option>)}
               </select>
             </Field>
             <Field label={fr ? 'Langue par défaut' : 'Default language'}>
