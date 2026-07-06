@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 // ── Types ──
-type VerificationMode = 'org' | 'partner';
+type VerificationMode = 'org' | 'partner' | 'beauty';
 type VerificationType = 'individual' | 'organization';
 
 interface Props {
