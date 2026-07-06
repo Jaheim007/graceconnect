@@ -156,7 +156,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
   const [submitted, setSubmitted] = useState(false);
 
   const selectedDoc = DOC_TYPES.find(d => d.value === docType)!;
-  const folder = mode === 'org' ? `kyc/${entityId}` : `partner-kyc/${entityId}`;
+  const folder = mode === 'org' ? `kyc/${entityId}` : mode === 'beauty' ? `beauty-kyc/${entityId}` : `partner-kyc/${entityId}`;
   const activeSteps = getSteps(mode, verificationType);
   const currentStep = activeSteps[step];
   const totalSteps = activeSteps.length;
