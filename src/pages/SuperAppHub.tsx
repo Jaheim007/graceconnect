@@ -434,7 +434,7 @@ export default function SuperAppHub() {
               {[
                 { icon: Wallet, label: t('Mobile Money', 'Mobile Money'), sub: t('Wave, Orange, MTN, Moov', 'Wave, Orange, MTN, Moov') },
                 { icon: ShieldCheck, label: t('Paiement sécurisé', 'Secure payment'), sub: t('Fonds bloqués', 'Funds held safe') },
-                { icon: Sparkles, label: t('Un seul compte', 'One account'), sub: t('Digital + Beauty + Church', 'Digital + Beauty + Church') },
+                { icon: Sparkles, label: t('Un seul compte', 'One account'), sub: t('Digital + Beauty + Learn + Church', 'Digital + Beauty + Learn + Church') },
               ].map(({ icon: Icon, label, sub }) => (
                 <div
                   key={label}
