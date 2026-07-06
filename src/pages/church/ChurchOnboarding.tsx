@@ -9,7 +9,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { CHURCH_DENOMINATIONS } from '@/lib/churchDenominations';
+import { GuestGate } from '@/components/auth/GuestGate';
 import { toast } from 'sonner';
+
 
 const slugify = (s: string) =>
   s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
