@@ -365,6 +365,55 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ── EDUCATION BOOKING ──
+    if (type === 'education_booking' && bookingId) {
+      const { data: bk } = await db
+        .from('education_bookings')
+        .select('id, status, offer_id')
+        .eq('id', bookingId).maybeSingle();
+      if (bk && bk.status === 'awaiting_payment') {
+        await db.from('education_bookings').update({
+          status: 'confirmed', payment_status: 'paid',
+        }).eq('id', bookingId);
+        if (bk.offer_id) {
+          await db.from('education_offers').update({
+            status: 'accepted', accepted_at: new Date().toISOString(),
+          }).eq('id', bk.offer_id);
+        }
+        await db.from('education_booking_events').insert({
+          booking_id: bookingId, event_type: 'payment_confirmed',
+          meta: { gateway: 'geniuspay', reference },
+        });
+      }
+      await db.from('payment_events').update({
+        status: 'processed', processed_at: new Date().toISOString(),
+      }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, kind: 'education_booking' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // ── EDUCATION EXTRA CHARGE ──
+    const educationExtraChargeId = meta.extra_charge_id as string | undefined;
+    if (type === 'education_extra_charge' && educationExtraChargeId) {
+      const { data: ec } = await db
+        .from('education_extra_charges').select('id, status')
+        .eq('id', educationExtraChargeId).maybeSingle();
+      if (ec && ec.status !== 'paid') {
+        await db.from('education_extra_charges').update({
+          status: 'paid', paid_at: new Date().toISOString(),
+        }).eq('id', educationExtraChargeId);
+      }
+      await db.from('payment_events').update({
+        status: 'processed', processed_at: new Date().toISOString(),
+      }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, kind: 'education_extra_charge' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+
+
 
 
 

@@ -90,6 +90,20 @@ const EventsProPackages = lazy(() => import("@/pages/events/EventsProPackages"))
 const EventsProRevenue = lazy(() => import("@/pages/events/EventsProRevenue"));
 const EventsBookingDetail = lazy(() => import("@/pages/events/EventsBookingDetail"));
 const SuperadminEvents = lazy(() => import("@/pages/superadmin/SuperadminEvents"));
+const EducationActionHub = lazy(() => import("@/pages/education/EducationActionHub"));
+const EducationLanding = lazy(() => import("@/pages/education/EducationLanding"));
+const EducationDiscover = lazy(() => import("@/pages/education/EducationDiscover"));
+const EducationTutorPublic = lazy(() => import("@/pages/education/EducationTutorPublic"));
+const EducationTutorOnboarding = lazy(() => import("@/pages/education/EducationTutorOnboarding"));
+const EducationTutorDashboard = lazy(() => import("@/pages/education/EducationTutorDashboard"));
+const EducationTutorSubjects = lazy(() => import("@/pages/education/EducationTutorSubjects"));
+const EducationTutorRevenue = lazy(() => import("@/pages/education/EducationTutorRevenue"));
+const EducationKYCPage = lazy(() => import("@/pages/education/EducationKYCPage"));
+const EducationMessagesList = lazy(() => import("@/pages/education/EducationMessagesList"));
+const EducationConversation = lazy(() => import("@/pages/education/EducationConversation"));
+const EducationBookingsList = lazy(() => import("@/pages/education/EducationBookingsList"));
+const EducationBookingDetail = lazy(() => import("@/pages/education/EducationBookingDetail"));
+const SuperadminEducation = lazy(() => import("@/pages/superadmin/SuperadminEducation"));
 // SiteViral Church
 const ChurchActionHub = lazy(() => import("@/pages/church/ChurchActionHub"));
 const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
@@ -460,6 +474,23 @@ const App = () => (
                 <Route path="/events/booking/:id" element={<RequireAuth><EventsBookingDetail /></RequireAuth>} />
                 <Route path="/events/pro/:slug" element={<EventsProviderPublic />} />
 
+                {/* Education vertical */}
+                <Route path="/education" element={<EducationActionHub />} />
+                <Route path="/education/about" element={<EducationLanding />} />
+                <Route path="/education/discover" element={<EducationDiscover />} />
+                <Route path="/education/pro/onboarding" element={<EducationTutorOnboarding />} />
+                <Route path="/education/pro" element={<RequireAuth><EducationTutorDashboard /></RequireAuth>} />
+                <Route path="/education/pro/kyc" element={<RequireAuth><EducationKYCPage /></RequireAuth>} />
+                <Route path="/education/pro/subjects" element={<RequireAuth><EducationTutorSubjects /></RequireAuth>} />
+                <Route path="/education/pro/revenue" element={<RequireAuth><EducationTutorRevenue /></RequireAuth>} />
+                <Route path="/education/messages" element={<RequireAuth><EducationMessagesList /></RequireAuth>} />
+                <Route path="/education/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
+                <Route path="/education/bookings" element={<RequireAuth><EducationBookingsList /></RequireAuth>} />
+                <Route path="/education/booking/:id" element={<RequireAuth><EducationBookingDetail /></RequireAuth>} />
+                <Route path="/education/pro/:slug" element={<EducationTutorPublic />} />
+
+
+
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
@@ -739,6 +770,7 @@ const App = () => (
                   <Route path="church" element={<SuperadminChurch />} />
                   <Route path="home" element={<SuperadminHome />} />
                   <Route path="events" element={<SuperadminEvents />} />
+                  <Route path="education" element={<SuperadminEducation />} />
                   <Route path="trust" element={<SuperadminTrust />} />
                 </Route>
 
