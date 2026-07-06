@@ -33,7 +33,7 @@ export default function ChurchPublicProfile() {
   });
 
   const isOwner = !!(user && church && church.user_id === user.id);
-  const isOwnerPreview = isOwner && church?.status !== 'active';
+  const isOwnerPreview = isOwner && !church?.payout_verified;
 
   const { data: sermons = [] } = useQuery({
     enabled: !!church?.id,
@@ -72,15 +72,19 @@ export default function ChurchPublicProfile() {
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   if (!church) return <Navigate to="/church/discover" replace />;
-  // If church is not active and viewer is not the owner, hide
-  if (church.status !== 'active' && !isOwner) return <Navigate to="/church/discover" replace />;
+  // Only suspended churches are hidden from non-owners; pending/active are public.
+  if (church.status === 'suspended' && !isOwner) return <Navigate to="/church/discover" replace />;
 
   return (
     <div className="min-h-screen bg-background pb-24">
       {isOwnerPreview && (
         <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 px-4 py-2 text-center text-xs text-amber-900 dark:text-amber-100">
-          {fr ? 'Aperçu privé — visible seulement par vous jusqu\'à la validation du KYC.' : 'Private preview — only visible to you until KYC is approved.'}{' '}
-          <Link to="/church/pro/kyc" className="underline font-medium">{fr ? 'Compléter le KYC' : 'Complete KYC'}</Link>
+          {fr
+            ? 'Votre église est publique et peut recevoir des dons. Complétez la vérification de paiement pour retirer les fonds.'
+            : 'Your church is public and can receive gifts. Complete payout verification to withdraw funds.'}{' '}
+          <Link to="/church/pro/kyc" className="underline font-medium">
+            {fr ? 'Vérification de paiement' : 'Payout verification'}
+          </Link>
         </div>
       )}
 
@@ -131,14 +135,13 @@ export default function ChurchPublicProfile() {
               <p className="text-xs text-muted-foreground">{fr ? 'Dîmes, offrandes, campagnes · Mobile Money & Carte' : 'Tithes, offerings, campaigns · Mobile Money & Card'}</p>
             </div>
           </div>
-          <Button size="lg" disabled={isOwnerPreview}>
-            <HandHeart className="mr-2 h-4 w-4" />
-            {fr ? 'Faire un don' : 'Give'}
+          <Button size="lg" asChild>
+            <Link to={`/church/${church.slug}/give`}>
+              <HandHeart className="mr-2 h-4 w-4" />
+              {fr ? 'Faire un don' : 'Give'}
+            </Link>
           </Button>
         </div>
-        {isOwnerPreview && (
-          <p className="text-xs text-muted-foreground mt-2 text-center">{fr ? 'Le module de don sera actif après validation du KYC.' : 'The giving module activates after KYC approval.'}</p>
-        )}
       </section>
 
       {/* Sermons */}
@@ -189,7 +192,7 @@ export default function ChurchPublicProfile() {
       {/* Prayer request */}
       <section className="mx-auto max-w-4xl px-4 mt-10">
         <h2 className="text-lg font-semibold flex items-center gap-2 mb-4"><Heart className="h-4 w-4 text-primary" /> {fr ? 'Demande de prière' : 'Prayer request'}</h2>
-        <PrayerRequestForm churchId={church.id} disabled={isOwnerPreview} />
+        <PrayerRequestForm churchId={church.id} />
       </section>
 
       {/* Contact */}
