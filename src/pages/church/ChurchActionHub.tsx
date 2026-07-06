@@ -2,9 +2,10 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  HandHeart, Church as ChurchIcon, LayoutDashboard,
-  ArrowRight, Sparkles, Info, Link2,
+  Church as ChurchIcon, LayoutDashboard,
+  ArrowRight, Sparkles, Info,
 } from "lucide-react";
+
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
