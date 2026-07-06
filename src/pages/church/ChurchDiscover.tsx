@@ -89,7 +89,7 @@ export default function ChurchDiscover() {
           <div className="text-center py-16 rounded-2xl border border-dashed border-border">
             <Church className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
             <p className="text-sm text-muted-foreground">
-              {fr ? 'Aucune église vérifiée pour ce filtre.' : 'No verified churches match this filter.'}
+              {fr ? 'Aucune église pour ce filtre.' : 'No churches match this filter.'}
             </p>
             <Button asChild variant="outline" size="sm" className="mt-4">
               <Link to="/church/pro/onboarding">{fr ? 'Créer une église' : 'Create a church'}</Link>
@@ -97,7 +97,9 @@ export default function ChurchDiscover() {
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {filtered.map((c) => (
+            {filtered.map((c) => {
+              const isNew = c.created_at && (Date.now() - new Date(c.created_at).getTime()) < 30 * 24 * 3600 * 1000;
+              return (
               <Link
                 key={c.id}
                 to={`/church/${c.slug}`}
@@ -105,11 +107,23 @@ export default function ChurchDiscover() {
               >
                 <div className="h-28 bg-gradient-to-br from-primary/20 to-primary/5 relative">
                   {c.cover_url && <img src={c.cover_url} alt="" className="w-full h-full object-cover" />}
-                  {c.verified && (
-                    <span className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-full bg-background/90 backdrop-blur px-2 py-0.5 text-[10px] font-medium text-primary">
-                      <ShieldCheck className="h-3 w-3" /> {fr ? 'Vérifiée' : 'Verified'}
-                    </span>
-                  )}
+                  <div className="absolute top-2 right-2 flex flex-wrap gap-1 justify-end">
+                    {c.is_official && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-2 py-0.5 text-[10px] font-medium">
+                        <ShieldCheck className="h-3 w-3" /> {fr ? 'Officielle' : 'Official'}
+                      </span>
+                    )}
+                    {c.payout_verified && !c.is_official && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-background/90 backdrop-blur px-2 py-0.5 text-[10px] font-medium text-primary">
+                        <ShieldCheck className="h-3 w-3" /> {fr ? 'Paiement vérifié' : 'Verified payout'}
+                      </span>
+                    )}
+                    {isNew && !c.payout_verified && !c.is_official && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-background/90 backdrop-blur px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                        {fr ? 'Nouvelle' : 'New'}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="p-4">
                   <div className="flex items-center gap-3 -mt-8 mb-2">
@@ -135,7 +149,8 @@ export default function ChurchDiscover() {
                   )}
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
