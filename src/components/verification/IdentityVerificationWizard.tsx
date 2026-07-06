@@ -128,7 +128,7 @@ function getSteps(mode: VerificationMode, verificationType: VerificationType | n
 }
 
 export default function IdentityVerificationWizard({ mode, entityId, status, rejectionReason, orgCategory }: Props) {
-  const [verificationType, setVerificationType] = useState<VerificationType | null>(null);
+  const [verificationType, setVerificationType] = useState<VerificationType | null>(mode === 'beauty' ? 'individual' : null);
   const [step, setStep] = useState(0);
   const [docType, setDocType] = useState('national_id');
   const [docFrontUrl, setDocFrontUrl] = useState('');
