@@ -3693,6 +3693,7 @@ export type Database = {
           bank_account_name: string | null
           bank_account_number: string | null
           bank_name: string | null
+          beauty_provider_id: string | null
           document_expires_at: string | null
           documents_purged_at: string | null
           id: string
@@ -3702,7 +3703,7 @@ export type Database = {
           kyc_level: number | null
           org_document_type: string | null
           org_document_url: string | null
-          organization_id: string
+          organization_id: string | null
           payout_method: string | null
           payout_phone: string | null
           payout_provider: string | null
@@ -3730,6 +3731,7 @@ export type Database = {
           bank_account_name?: string | null
           bank_account_number?: string | null
           bank_name?: string | null
+          beauty_provider_id?: string | null
           document_expires_at?: string | null
           documents_purged_at?: string | null
           id?: string
@@ -3739,7 +3741,7 @@ export type Database = {
           kyc_level?: number | null
           org_document_type?: string | null
           org_document_url?: string | null
-          organization_id: string
+          organization_id?: string | null
           payout_method?: string | null
           payout_phone?: string | null
           payout_provider?: string | null
@@ -3767,6 +3769,7 @@ export type Database = {
           bank_account_name?: string | null
           bank_account_number?: string | null
           bank_name?: string | null
+          beauty_provider_id?: string | null
           document_expires_at?: string | null
           documents_purged_at?: string | null
           id?: string
@@ -3776,7 +3779,7 @@ export type Database = {
           kyc_level?: number | null
           org_document_type?: string | null
           org_document_url?: string | null
-          organization_id?: string
+          organization_id?: string | null
           payout_method?: string | null
           payout_phone?: string | null
           payout_provider?: string | null
@@ -3793,6 +3796,13 @@ export type Database = {
           verification_type?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "kyc_submissions_beauty_provider_id_fkey"
+            columns: ["beauty_provider_id"]
+            isOneToOne: false
+            referencedRelation: "beauty_providers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "kyc_submissions_organization_id_fkey"
             columns: ["organization_id"]
@@ -8985,6 +8995,10 @@ export type Database = {
       release_matured_affiliate_sales: { Args: never; Returns: number }
       release_matured_partner_commissions: { Args: never; Returns: number }
       resolve_affiliate_link: { Args: { _code: string }; Returns: Json }
+      review_beauty_kyc: {
+        Args: { _action: string; _reason?: string; _submission_id: string }
+        Returns: undefined
+      }
       review_org_kyc: {
         Args: { _action: string; _org_id: string; _reason?: string }
         Returns: Json
@@ -9019,6 +9033,23 @@ export type Database = {
           subtitle: string
           title: string
         }[]
+      }
+      submit_beauty_kyc: {
+        Args: {
+          _bank_account_name: string
+          _bank_account_number: string
+          _bank_name: string
+          _id_document_back_url: string
+          _id_document_type: string
+          _id_document_url: string
+          _payout_method: string
+          _payout_phone: string
+          _payout_provider: string
+          _provider_id: string
+          _selfie_url: string
+          _selfie_with_doc_url: string
+        }
+        Returns: Json
       }
       submit_org_kyc:
         | {

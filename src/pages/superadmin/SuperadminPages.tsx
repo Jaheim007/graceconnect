@@ -135,7 +135,7 @@ export function SuperadminKYC() {
   const { data: submissions = [], isLoading, refetch } = useQuery({
     queryKey: ['sa-kyc', filter],
     queryFn: async () => {
-      let q = db.from('kyc_submissions').select('*, organizations!left(name, category, slug)').order('submitted_at', { ascending: false });
+      let q = db.from('kyc_submissions').select('*, organizations!left(name, category, slug), beauty_providers!left(business_name, slug)').order('submitted_at', { ascending: false });
       if (filter !== 'all') q = q.eq('status', filter);
       const { data } = await q.limit(100);
       return data || [];
@@ -167,23 +167,34 @@ export function SuperadminKYC() {
   };
 
   const approve = async (id: string, orgId: string) => {
-    const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'approve' });
-    if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
-    // Get org name for notification
     const sub = submissions.find((s: any) => s.id === id);
-    const orgName = sub?.organizations?.name || 'Organisation';
-    import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, orgName, 'approved'));
+    const isBeauty = !!sub?.beauty_provider_id;
+    if (isBeauty) {
+      const { error } = await db.rpc('review_beauty_kyc', { _submission_id: id, _action: 'approve' });
+      if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+    } else {
+      const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'approve' });
+      if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+      const orgName = sub?.organizations?.name || 'Organisation';
+      import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, orgName, 'approved'));
+    }
     toast({ title: 'Vérification approuvée ✅' }); refetch();
   };
 
   const reject = async (id: string, orgId: string) => {
     const reason = prompt('Motif du refus :');
     if (!reason) return;
-    const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'reject', _reason: reason });
-    if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
     const sub = submissions.find((s: any) => s.id === id);
-    const orgName = sub?.organizations?.name || 'Organisation';
-    import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, orgName, 'rejected', reason));
+    const isBeauty = !!sub?.beauty_provider_id;
+    if (isBeauty) {
+      const { error } = await db.rpc('review_beauty_kyc', { _submission_id: id, _action: 'reject', _reason: reason });
+      if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+    } else {
+      const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'reject', _reason: reason });
+      if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+      const orgName = sub?.organizations?.name || 'Organisation';
+      import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, orgName, 'rejected', reason));
+    }
     toast({ title: 'Vérification refusée' }); refetch();
   };
 
@@ -255,18 +266,24 @@ export function SuperadminKYC() {
         <div className="space-y-4">
           {submissions.map((s: any) => {
             const org = s.organizations;
+            const beauty = s.beauty_providers;
+            const displayName = org?.name || beauty?.business_name || s.organization_id?.slice(0, 8) || s.beauty_provider_id?.slice(0, 8);
+            const displaySlug = org?.slug ? `/${org.slug}` : beauty?.slug ? `/beauty/p/${beauty.slug}` : '';
             return (
               <div key={s.id} className="p-4 rounded-2xl border border-border bg-card space-y-3">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div>
                     <p className="font-medium text-sm">
-                      {org?.name || s.organization_id?.slice(0, 8)}
+                      {displayName}
                       {org?.category && (
                         <Badge variant="secondary" className="ml-2 text-[10px]">{org.category}</Badge>
                       )}
+                      {beauty && (
+                        <Badge variant="secondary" className="ml-2 text-[10px]">Beauty</Badge>
+                      )}
                     </p>
                     <p className="text-[10px] text-muted-foreground">
-                       {org?.slug ? `/${org.slug}` : ''} · Soumis le {new Date(s.submitted_at).toLocaleDateString()}
+                       {displaySlug} · Soumis le {new Date(s.submitted_at).toLocaleDateString()}
                        {s.document_expires_at && (
                          <span> · Expire le {new Date(s.document_expires_at).toLocaleDateString()}</span>
                        )}

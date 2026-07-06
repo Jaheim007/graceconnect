@@ -162,7 +162,7 @@ export default function BeautyProviderProfile() {
               </div>
             </div>
             <Button asChild size="sm" variant="outline" className="border-amber-400 bg-white text-amber-900 hover:bg-amber-100 dark:bg-transparent dark:text-amber-100">
-              <Link to="/settings/kyc">{t("Compléter le KYC", "Complete KYC")}</Link>
+              <Link to="/beauty/pro/kyc">{t("Compléter le KYC", "Complete KYC")}</Link>
             </Button>
           </div>
         </div>

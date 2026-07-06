@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 // ── Types ──
-type VerificationMode = 'org' | 'partner';
+type VerificationMode = 'org' | 'partner' | 'beauty';
 type VerificationType = 'individual' | 'organization';
 
 interface Props {
@@ -85,9 +85,22 @@ const CATEGORY_ORG_DOC_HINTS: Record<string, string> = {
 
 // ── Build steps dynamically based on mode and verification type ──
 function getSteps(mode: VerificationMode, verificationType: VerificationType | null) {
-  const steps: { id: string; label: string; icon: typeof FileText }[] = [
-    { id: 'choose_type', label: 'Type de vérification', icon: Shield },
-  ];
+  const steps: { id: string; label: string; icon: typeof FileText }[] = [];
+
+  // Beauty mode: individual-only, skip the "choose type" screen
+  if (mode === 'beauty') {
+    steps.push(
+      { id: 'doc_type', label: 'Type de document', icon: FileText },
+      { id: 'document', label: "Document d'identité", icon: CreditCard },
+      { id: 'selfie', label: 'Selfie', icon: User },
+      { id: 'selfie_doc', label: 'Selfie + Document', icon: Camera },
+      { id: 'payout', label: 'Méthode de paiement', icon: Smartphone },
+      { id: 'review', label: 'Vérification', icon: CheckCircle },
+    );
+    return steps;
+  }
+
+  steps.push({ id: 'choose_type', label: 'Type de vérification', icon: Shield });
 
   // Only add remaining steps once type is chosen
   if (verificationType) {
@@ -115,7 +128,7 @@ function getSteps(mode: VerificationMode, verificationType: VerificationType | n
 }
 
 export default function IdentityVerificationWizard({ mode, entityId, status, rejectionReason, orgCategory }: Props) {
-  const [verificationType, setVerificationType] = useState<VerificationType | null>(null);
+  const [verificationType, setVerificationType] = useState<VerificationType | null>(mode === 'beauty' ? 'individual' : null);
   const [step, setStep] = useState(0);
   const [docType, setDocType] = useState('national_id');
   const [docFrontUrl, setDocFrontUrl] = useState('');
@@ -143,7 +156,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
   const [submitted, setSubmitted] = useState(false);
 
   const selectedDoc = DOC_TYPES.find(d => d.value === docType)!;
-  const folder = mode === 'org' ? `kyc/${entityId}` : `partner-kyc/${entityId}`;
+  const folder = mode === 'org' ? `kyc/${entityId}` : mode === 'beauty' ? `beauty-kyc/${entityId}` : `partner-kyc/${entityId}`;
   const activeSteps = getSteps(mode, verificationType);
   const currentStep = activeSteps[step];
   const totalSteps = activeSteps.length;
@@ -219,6 +232,23 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
           _org_document_url: verificationType === 'organization' ? (orgDocUrl || null) : null,
           _org_document_type: verificationType === 'organization' ? (orgDocType || null) : null,
           _verification_type: verificationType,
+          _bank_account_name: accountName || null,
+          _bank_account_number: accountNumber || null,
+          _bank_name: payoutMethod === 'bank' ? bankName : payoutProvider,
+          _payout_method: payoutMethod,
+          _payout_phone: payoutMethod === 'mobile_money' ? accountNumber : null,
+          _payout_provider: payoutProvider || null,
+        });
+        if (error) throw error;
+        submissionId = (data as any)?.submission_id || null;
+      } else if (mode === 'beauty') {
+        const { data, error } = await db.rpc('submit_beauty_kyc', {
+          _provider_id: entityId,
+          _id_document_url: docFrontUrl,
+          _id_document_type: docType,
+          _id_document_back_url: docBackUrl || null,
+          _selfie_url: selfieUrl,
+          _selfie_with_doc_url: selfieWithDocUrl,
           _bank_account_name: accountName || null,
           _bank_account_number: accountNumber || null,
           _bank_name: payoutMethod === 'bank' ? bankName : payoutProvider,
