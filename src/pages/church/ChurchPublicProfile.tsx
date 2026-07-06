@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Church, HandHeart, MapPin, Mic, Calendar, Heart, ShieldCheck, Loader2, Globe, Phone, Mail } from 'lucide-react';
+import { Church, HandHeart, MapPin, Mic, Calendar, Heart, ShieldCheck, Loader2, Globe, Phone, Mail, Megaphone, Pin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
