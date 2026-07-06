@@ -66,6 +66,7 @@ const linkGroups = [
       { to: '/superadmin/church', label: 'Church', icon: Church },
       { to: '/superadmin/home', label: 'Home', icon: Home },
       { to: '/superadmin/events', label: 'Events', icon: PartyPopper },
+      { to: '/superadmin/education', label: 'Education', icon: GraduationCap },
     ],
   },
   {
