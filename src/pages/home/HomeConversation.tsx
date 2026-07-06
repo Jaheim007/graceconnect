@@ -32,7 +32,7 @@ export default function HomeConversation() {
     let mounted = true;
     (async () => {
       const { data: c } = await supabase.from("home_conversations")
-        .select("id, client_id, provider_id, home_providers(business_name, user_id, currency)")
+        .select("id, client_id, provider_id, home_providers(business_name, user_id)")
         .eq("id", id).maybeSingle();
       if (mounted) setConv(c);
       const { data } = await supabase.from("home_messages")
@@ -66,7 +66,7 @@ export default function HomeConversation() {
 
   const providerName = conv?.home_providers?.business_name;
   const isProvider = user?.id === conv?.home_providers?.user_id;
-  const currency = conv?.home_providers?.currency ?? "XOF";
+  const currency = "XOF";
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background text-foreground">
