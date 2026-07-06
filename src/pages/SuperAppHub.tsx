@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church } from 'lucide-react';
+import { ArrowRight, Sparkles, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church, Home as HomeIcon } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Button } from '@/components/ui/button';
@@ -27,10 +27,10 @@ export default function SuperAppHub() {
   const isFr = locale === 'fr';
 
   useEffect(() => {
-    // Preload the vertical entries so the tile tap feels instant
     import('@/pages/LandingPage');
     import('@/pages/beauty/BeautyLanding');
     import('@/pages/church/ChurchLanding');
+    import('@/pages/home/HomeLanding');
   }, []);
 
   const t = (fr: string, en: string) => (isFr ? fr : en);
@@ -94,7 +94,7 @@ export default function SuperAppHub() {
             </div>
 
             {/* The two tiles */}
-            <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
               {/* Digital tile — primary vertical */}
               <Link
                 to="/digital"
