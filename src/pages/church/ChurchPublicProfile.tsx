@@ -192,7 +192,7 @@ export default function ChurchPublicProfile() {
       {/* Prayer request */}
       <section className="mx-auto max-w-4xl px-4 mt-10">
         <h2 className="text-lg font-semibold flex items-center gap-2 mb-4"><Heart className="h-4 w-4 text-primary" /> {fr ? 'Demande de prière' : 'Prayer request'}</h2>
-        <PrayerRequestForm churchId={church.id} disabled={isOwnerPreview} />
+        <PrayerRequestForm churchId={church.id} />
       </section>
 
       {/* Contact */}
