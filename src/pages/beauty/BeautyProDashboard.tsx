@@ -35,6 +35,7 @@ import { SUPPORTED_CURRENCIES, formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 import { BEAUTY_CATEGORIES } from "@/lib/beautyCategories";
+import { SiteLogo } from "@/components/ui/SiteLogo";
 const CATEGORIES = BEAUTY_CATEGORIES;
 
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]; // 1..7 iso; we use 0..6 (Mon=0)
@@ -164,7 +165,7 @@ export default function BeautyProDashboard() {
           </TopBar>
         </Sheet>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full mx-auto min-w-0">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-[calc(env(safe-area-inset-bottom)+7rem)] lg:pb-8 max-w-[1400px] w-full mx-auto min-w-0">
           {/* Page title */}
           <div className="mb-6 flex flex-col sm:flex-row sm:flex-wrap sm:items-end sm:justify-between gap-3">
             <div className="min-w-0">
@@ -238,9 +239,7 @@ function ProSidebar({ provider, tab, onNavigate, className }: {
     )}>
       {/* Brand */}
       <div className="h-16 flex items-center gap-2.5 px-5 border-b">
-        <span className="grid h-9 w-9 place-items-center rounded-xl beauty-gradient text-white shadow-sm">
-          <Scissors className="h-4 w-4" />
-        </span>
+        <SiteLogo size="sm" animate linked={false} />
         <div className="leading-tight">
           <div className="text-sm font-black tracking-tight">SiteViral</div>
           <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Beauty Pro</div>
@@ -321,9 +320,7 @@ function TopBar({ provider, navigate, children }: { provider: any; navigate: any
     <header className="h-16 border-b bg-card/80 backdrop-blur sticky top-0 z-30 flex items-center gap-3 px-4 sm:px-6 lg:hidden">
       {children}
       <div className="flex items-center gap-2 flex-1 min-w-0">
-        <span className="grid h-8 w-8 place-items-center rounded-lg beauty-gradient text-white shrink-0">
-          <Scissors className="h-4 w-4" />
-        </span>
+        <SiteLogo size="sm" animate linked={false} />
         <div className="min-w-0">
           <div className="text-sm font-black truncate">{provider.business_name}</div>
           <div className="text-[10px] font-bold uppercase tracking-wider text-primary">Beauty Pro</div>
