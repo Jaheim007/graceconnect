@@ -309,6 +309,63 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ── EVENTS BOOKING ──
+    if (type === 'events_booking' && bookingId) {
+      const { data: bk } = await db
+        .from('events_bookings')
+        .select('id, status, event_date, offer_id, price, balance_due')
+        .eq('id', bookingId)
+        .maybeSingle();
+      if (bk && bk.status === 'pending_payment') {
+        const isDeposit = Number(bk.balance_due) > 0;
+        const baseline = bk.event_date ? new Date(bk.event_date) : new Date();
+        const autoRelease = new Date(baseline.getTime() + 48 * 60 * 60 * 1000).toISOString();
+        const paidNow = Number(meta.deposit_amount ?? bk.price ?? 0);
+        await db.from('events_bookings').update({
+          status: isDeposit ? 'deposit_paid' : 'confirmed',
+          confirmed_at: new Date().toISOString(),
+          auto_release_at: autoRelease,
+          escrow_status: 'held',
+          deposit_paid: paidNow || (Number(bk.price) - Number(bk.balance_due)),
+        }).eq('id', bookingId);
+        if (bk.offer_id) {
+          await db.from('events_offers').update({ status: 'accepted' }).eq('id', bk.offer_id);
+        }
+        await db.from('events_booking_events').insert({
+          booking_id: bookingId,
+          kind: 'payment_confirmed',
+          meta: { gateway: 'geniuspay', reference, is_deposit: isDeposit },
+        });
+      }
+      await db.from('payment_events').update({
+        status: 'processed', processed_at: new Date().toISOString(),
+      }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, kind: 'events_booking' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // ── EVENTS EXTRA CHARGE ──
+    const eventsExtraChargeId = meta.extra_charge_id as string | undefined;
+    if (type === 'events_extra_charge' && eventsExtraChargeId) {
+      const { data: ec } = await db
+        .from('events_extra_charges')
+        .select('id, status')
+        .eq('id', eventsExtraChargeId).maybeSingle();
+      if (ec && ec.status !== 'paid') {
+        await db.from('events_extra_charges').update({
+          status: 'paid', paid_at: new Date().toISOString(),
+        }).eq('id', eventsExtraChargeId);
+      }
+      await db.from('payment_events').update({
+        status: 'processed', processed_at: new Date().toISOString(),
+      }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, kind: 'events_extra_charge' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+
 
 
 
