@@ -320,9 +320,7 @@ function TopBar({ provider, navigate, children }: { provider: any; navigate: any
     <header className="h-16 border-b bg-card/80 backdrop-blur sticky top-0 z-30 flex items-center gap-3 px-4 sm:px-6 lg:hidden">
       {children}
       <div className="flex items-center gap-2 flex-1 min-w-0">
-        <span className="grid h-8 w-8 place-items-center rounded-lg beauty-gradient text-white shrink-0">
-          <Scissors className="h-4 w-4" />
-        </span>
+        <SiteLogo size="sm" animate linked={false} />
         <div className="min-w-0">
           <div className="text-sm font-black truncate">{provider.business_name}</div>
           <div className="text-[10px] font-bold uppercase tracking-wider text-primary">Beauty Pro</div>
