@@ -53,30 +53,6 @@ export default function ChurchActionHub() {
   }, [isFr]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const actions = [
-    {
-      id: "discover",
-      icon: Compass,
-      titleFr: "Découvrir les églises",
-      titleEn: "Discover churches",
-      descFr: "Sermons, événements, communautés près de chez toi",
-      descEn: "Sermons, events, communities near you",
-      route: "/church/discover",
-      iconBg: "bg-violet-100 dark:bg-violet-500/15",
-      iconColor: "text-violet-600 dark:text-violet-400",
-      borderClass: "hover:border-violet-300 dark:hover:border-violet-500/40",
-    },
-    {
-      id: "give",
-      icon: HandHeart,
-      titleFr: "Faire un don / dîme",
-      titleEn: "Give / tithe",
-      descFr: "Soutiens une église avec Mobile Money ou carte",
-      descEn: "Support a church with Mobile Money or card",
-      route: "/church/discover?intent=give",
-      iconBg: "bg-amber-100 dark:bg-amber-500/15",
-      iconColor: "text-amber-600 dark:text-amber-400",
-      borderClass: "hover:border-amber-300 dark:hover:border-amber-500/40",
-    },
     ...(myChurch
       ? [
           {
@@ -98,14 +74,27 @@ export default function ChurchActionHub() {
             icon: ChurchIcon,
             titleFr: "Créer mon église",
             titleEn: "Create my church",
-            descFr: "Reçois dîmes & offrandes, publie tes prédications",
-            descEn: "Receive tithes & offerings, publish your sermons",
+            descFr: "Reçois dîmes & offrandes, publie tes prédications, gère ta communauté",
+            descEn: "Receive tithes & offerings, publish your sermons, run your community",
             route: "/church/pro/onboarding",
             iconBg: "bg-emerald-100 dark:bg-emerald-500/15",
             iconColor: "text-emerald-600 dark:text-emerald-400",
             borderClass: "hover:border-emerald-300 dark:hover:border-emerald-500/40",
           },
         ]),
+    {
+      id: "invite",
+      icon: Link2,
+      titleFr: "J'ai un lien d'église",
+      titleEn: "I have a church link",
+      descFr: "Ouvre le lien partagé par ton pasteur pour donner ou rejoindre",
+      descEn: "Open the link your pastor shared to give or join",
+      route: "/church/about#invite",
+      iconBg: "bg-amber-100 dark:bg-amber-500/15",
+      iconColor: "text-amber-600 dark:text-amber-400",
+      borderClass: "hover:border-amber-300 dark:hover:border-amber-500/40",
+    },
+
     {
       id: "about",
       icon: Info,
