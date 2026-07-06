@@ -46,7 +46,7 @@ export default function EducationTutorDashboard() {
           </span>
           <div className="leading-tight flex-1 min-w-0">
             <div className="text-sm font-black truncate">{tutor.display_name}</div>
-            <div className="text-[10px] text-muted-foreground">{t("Espace prof Education", "Tutor space")}</div>
+            <div className="text-[10px] text-muted-foreground">{t("Espace prof Learn", "Tutor space")}</div>
           </div>
         </div>
       </header>

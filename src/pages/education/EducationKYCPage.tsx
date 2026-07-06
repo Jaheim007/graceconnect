@@ -21,8 +21,8 @@ export default function EducationKYCPage() {
         <h2 className="mt-4 text-lg font-black">{isFr ? "KYC bientôt disponible" : "KYC coming soon"}</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           {isFr
-            ? "La vérification d'identité pour SiteViral Education arrive dans la prochaine phase. En attendant, tu peux finaliser ton profil et tes matières."
-            : "Identity verification for SiteViral Education ships in the next phase. Meanwhile, you can finish your profile and subjects."}
+            ? "La vérification d'identité pour SiteViral Learn arrive dans la prochaine phase. En attendant, tu peux finaliser ton profil et tes matières."
+            : "Identity verification for SiteViral Learn ships in the next phase. Meanwhile, you can finish your profile and subjects."}
         </p>
         <Button asChild className="mt-6 bg-gradient-to-br from-teal-500 to-cyan-500 text-white">
           <Link to="/learn/pro">{isFr ? "Retour au tableau de bord" : "Back to dashboard"}</Link>

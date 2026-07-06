@@ -10,7 +10,7 @@ export default function EducationLanding() {
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
 
-  useEffect(() => { document.title = "SiteViral Education — Trouve ton prof"; }, []);
+  useEffect(() => { document.title = "SiteViral Learn — Trouve ton prof"; }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -22,7 +22,7 @@ export default function EducationLanding() {
             </span>
             <div className="leading-tight">
               <div className="text-sm font-black">SiteViral</div>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">Education</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">Learn</div>
             </div>
           </Link>
           <div className="hidden gap-2 sm:flex">

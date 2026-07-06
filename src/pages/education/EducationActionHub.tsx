@@ -26,8 +26,8 @@ export default function EducationActionHub() {
   });
 
   useEffect(() => {
-    document.title = "SiteViral Education — Que veux-tu faire ?";
-    try { localStorage.setItem("sv_last_vertical", "education"); } catch {}
+    document.title = "SiteViral Learn — Que veux-tu faire ?";
+    try { localStorage.setItem("sv_last_vertical", "learn"); } catch {}
   }, []);
 
   const actions = [
@@ -52,7 +52,7 @@ export default function EducationActionHub() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <SEOHead title="SiteViral Education — Trouve ton prof particulier"
+      <SEOHead title="SiteViral Learn — Trouve ton prof particulier"
         description="Cours particuliers vérifiés. Maths, langues, code, musique. Paiement sécurisé, avis vérifiés, chat protégé."
         canonicalUrl="https://siteviral.com/learn" />
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
@@ -62,7 +62,7 @@ export default function EducationActionHub() {
           </span>
           <div className="leading-tight">
             <div className="text-sm font-black">SiteViral</div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">Education</div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">Learn</div>
           </div>
         </div>
       </header>
@@ -94,7 +94,7 @@ export default function EducationActionHub() {
           <div className="pt-1 text-center">
             <button onClick={() => navigate("/learn/about")}
               className="text-[10px] text-muted-foreground underline underline-offset-2 hover:text-foreground">
-              {t("En savoir plus sur SiteViral Education", "Learn more about SiteViral Education")}
+              {t("En savoir plus sur SiteViral Learn", "Learn more about SiteViral Learn")}
             </button>
           </div>
         </div>
