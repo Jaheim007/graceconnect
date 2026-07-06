@@ -77,11 +77,18 @@ export default function ChurchGivePage() {
   const finalAmount = customAmount ? Number(customAmount) : amount;
   const canSubmit = finalAmount > 0 && (email.trim() || phone.trim()) && !submitting;
 
+  const useStripe = currency === 'EUR' || currency === 'USD';
+
   const submit = async () => {
     if (!canSubmit) return;
+    if (useStripe && !email.trim()) {
+      toast.error(fr ? 'Email requis pour paiement carte' : 'Email required for card payments');
+      return;
+    }
     setSubmitting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('church-init-giving', {
+      const fnName = useStripe ? 'church-init-giving-stripe' : 'church-init-giving';
+      const { data, error } = await supabase.functions.invoke(fnName, {
         body: {
           church_slug: church.slug,
           giving_type: campaign ? 'campaign' : type,
@@ -105,6 +112,7 @@ export default function ChurchGivePage() {
       setSubmitting(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -208,7 +216,9 @@ export default function ChurchGivePage() {
             {fr ? `Donner ${finalAmount.toLocaleString()} ${currency}` : `Give ${finalAmount.toLocaleString()} ${currency}`}
           </Button>
           <p className="text-center text-[10px] text-muted-foreground">
-            {fr ? 'Paiement sécurisé · Mobile Money & Carte via GeniusPay' : 'Secure payment · Mobile Money & Card via GeniusPay'}
+            {useStripe
+              ? (fr ? 'Paiement carte international sécurisé via Stripe' : 'Secure international card payment via Stripe')
+              : (fr ? 'Mobile Money & Carte via GeniusPay' : 'Mobile Money & Card via GeniusPay')}
           </p>
         </div>
       </div>

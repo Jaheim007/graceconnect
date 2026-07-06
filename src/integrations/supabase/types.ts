@@ -2736,6 +2736,160 @@ export type Database = {
           },
         ]
       }
+      church_sermon_pdf_purchases: {
+        Row: {
+          amount: number
+          buyer_email: string
+          buyer_name: string | null
+          buyer_user_id: string | null
+          church_id: string
+          completed_at: string | null
+          created_at: string
+          currency: string
+          download_count: number
+          gateway: string
+          id: string
+          metadata: Json
+          pdf_id: string
+          reference: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          buyer_email: string
+          buyer_name?: string | null
+          buyer_user_id?: string | null
+          church_id: string
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          download_count?: number
+          gateway: string
+          id?: string
+          metadata?: Json
+          pdf_id: string
+          reference: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          buyer_email?: string
+          buyer_name?: string | null
+          buyer_user_id?: string | null
+          church_id?: string
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          download_count?: number
+          gateway?: string
+          id?: string
+          metadata?: Json
+          pdf_id?: string
+          reference?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_sermon_pdf_purchases_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "church_sermon_pdf_purchases_pdf_id_fkey"
+            columns: ["pdf_id"]
+            isOneToOne: false
+            referencedRelation: "church_sermon_pdfs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      church_sermon_pdfs: {
+        Row: {
+          church_id: string
+          created_at: string
+          currency: string
+          description: string | null
+          file_size_bytes: number | null
+          id: string
+          is_free: boolean
+          is_published: boolean
+          kind: string
+          page_count: number | null
+          price: number
+          sales_count: number
+          sermon_id: string
+          storage_path: string
+          title: string
+          updated_at: string
+          variant_id: string | null
+        }
+        Insert: {
+          church_id: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          file_size_bytes?: number | null
+          id?: string
+          is_free?: boolean
+          is_published?: boolean
+          kind?: string
+          page_count?: number | null
+          price?: number
+          sales_count?: number
+          sermon_id: string
+          storage_path: string
+          title: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Update: {
+          church_id?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          file_size_bytes?: number | null
+          id?: string
+          is_free?: boolean
+          is_published?: boolean
+          kind?: string
+          page_count?: number | null
+          price?: number
+          sales_count?: number
+          sermon_id?: string
+          storage_path?: string
+          title?: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_sermon_pdfs_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "church_sermon_pdfs_sermon_id_fkey"
+            columns: ["sermon_id"]
+            isOneToOne: false
+            referencedRelation: "church_sermons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "church_sermon_pdfs_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "church_sermon_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       church_sermon_variants: {
         Row: {
           approval_status: string
