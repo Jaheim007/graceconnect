@@ -63,6 +63,7 @@ const BeautyConversation = lazy(() => import("@/pages/beauty/BeautyConversation"
 const BeautyProDashboard = lazy(() => import("@/pages/beauty/BeautyProDashboard"));
 const BeautyKYCPage = lazy(() => import("@/pages/beauty/BeautyKYCPage"));
 // SiteViral Church
+const ChurchActionHub = lazy(() => import("@/pages/church/ChurchActionHub"));
 const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
 const ChurchDiscover = lazy(() => import("@/pages/church/ChurchDiscover"));
 const ChurchOnboarding = lazy(() => import("@/pages/church/ChurchOnboarding"));
