@@ -27,7 +27,7 @@ export default function BeautyLanding() {
   return (
     <div className="beauty-scope min-h-screen bg-background text-foreground">
       {/* Top bar */}
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <Link to="/beauty" className="flex items-center gap-2">
             <span className="grid h-9 w-9 place-items-center rounded-xl beauty-gradient text-white shadow-lg">
