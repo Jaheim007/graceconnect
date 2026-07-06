@@ -62,6 +62,14 @@ const BeautyMessagesList = lazy(() => import("@/pages/beauty/BeautyMessagesList"
 const BeautyConversation = lazy(() => import("@/pages/beauty/BeautyConversation"));
 const BeautyProDashboard = lazy(() => import("@/pages/beauty/BeautyProDashboard"));
 const BeautyKYCPage = lazy(() => import("@/pages/beauty/BeautyKYCPage"));
+// SiteViral Church
+const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
+const ChurchDiscover = lazy(() => import("@/pages/church/ChurchDiscover"));
+const ChurchOnboarding = lazy(() => import("@/pages/church/ChurchOnboarding"));
+const ChurchProDashboard = lazy(() => import("@/pages/church/ChurchProDashboard"));
+const ChurchKYCPage = lazy(() => import("@/pages/church/ChurchKYCPage"));
+const ChurchPublicProfile = lazy(() => import("@/pages/church/ChurchPublicProfile"));
+const ChurchProSectionStub = lazy(() => import("@/pages/church/ChurchProSectionStub"));
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
@@ -356,6 +364,19 @@ const App = () => (
                 <Route path="/beauty/pro/onboarding" element={<BeautyProviderOnboarding />} />
                 <Route path="/beauty/pro" element={<RequireAuth><BeautyProDashboard /></RequireAuth>} />
                 <Route path="/beauty/pro/kyc" element={<RequireAuth><BeautyKYCPage /></RequireAuth>} />
+                {/* SiteViral Church */}
+                <Route path="/church" element={<ChurchLanding />} />
+                <Route path="/church/discover" element={<ChurchDiscover />} />
+                <Route path="/church/pro/onboarding" element={<RequireAuth><ChurchOnboarding /></RequireAuth>} />
+                <Route path="/church/pro" element={<RequireAuth><ChurchProDashboard /></RequireAuth>} />
+                <Route path="/church/pro/kyc" element={<RequireAuth><ChurchKYCPage /></RequireAuth>} />
+                <Route path="/church/pro/sermons" element={<RequireAuth><ChurchProSectionStub titleFr="Prédications & IA" titleEn="Sermons & AI" phase="Phase 2" /></RequireAuth>} />
+                <Route path="/church/pro/giving" element={<RequireAuth><ChurchProSectionStub titleFr="Dîmes & offrandes" titleEn="Tithes & offerings" phase="Phase 3" /></RequireAuth>} />
+                <Route path="/church/pro/events" element={<RequireAuth><ChurchProSectionStub titleFr="Événements" titleEn="Events" phase="Phase 4" /></RequireAuth>} />
+                <Route path="/church/pro/prayer" element={<RequireAuth><ChurchProSectionStub titleFr="Boîte de prière" titleEn="Prayer inbox" phase="Phase 4" /></RequireAuth>} />
+                <Route path="/church/pro/members" element={<RequireAuth><ChurchProSectionStub titleFr="Membres & diaspora" titleEn="Members & diaspora" phase="Phase 4" /></RequireAuth>} />
+                <Route path="/church/pro/settings" element={<RequireAuth><ChurchProSectionStub titleFr="Paramètres" titleEn="Settings" phase="Phase 5" /></RequireAuth>} />
+                <Route path="/church/:slug" element={<ChurchPublicProfile />} />
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />

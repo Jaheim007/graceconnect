@@ -2198,6 +2198,405 @@ export type Database = {
         }
         Relationships: []
       }
+      church_campaigns: {
+        Row: {
+          church_id: string
+          cover_url: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          ends_at: string | null
+          goal_amount: number | null
+          id: string
+          raised_amount: number
+          starts_at: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          church_id: string
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          ends_at?: string | null
+          goal_amount?: number | null
+          id?: string
+          raised_amount?: number
+          starts_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          church_id?: string
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          ends_at?: string | null
+          goal_amount?: number | null
+          id?: string
+          raised_amount?: number
+          starts_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_campaigns_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      church_events: {
+        Row: {
+          church_id: string
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          is_recurring: boolean
+          location: string | null
+          recurrence_rule: string | null
+          starts_at: string
+          status: string
+          stream_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          church_id: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_recurring?: boolean
+          location?: string | null
+          recurrence_rule?: string | null
+          starts_at: string
+          status?: string
+          stream_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          church_id?: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_recurring?: boolean
+          location?: string | null
+          recurrence_rule?: string | null
+          starts_at?: string
+          status?: string
+          stream_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_events_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      church_members: {
+        Row: {
+          church_id: string
+          country: string | null
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          church_id: string
+          country?: string | null
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          church_id?: string
+          country?: string | null
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_members_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      church_prayer_requests: {
+        Row: {
+          church_id: string
+          created_at: string
+          id: string
+          is_private: boolean
+          message: string
+          requester_contact: string | null
+          requester_name: string | null
+          requester_user_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          church_id: string
+          created_at?: string
+          id?: string
+          is_private?: boolean
+          message: string
+          requester_contact?: string | null
+          requester_name?: string | null
+          requester_user_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          church_id?: string
+          created_at?: string
+          id?: string
+          is_private?: boolean
+          message?: string
+          requester_contact?: string | null
+          requester_name?: string | null
+          requester_user_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_prayer_requests_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      church_providers: {
+        Row: {
+          address: string | null
+          bio: string | null
+          city: string | null
+          country: string | null
+          cover_url: string | null
+          created_at: string
+          currency: string
+          denomination: string | null
+          email: string | null
+          id: string
+          kyc_submission_id: string | null
+          languages: string[]
+          lat: number | null
+          lng: number | null
+          logo_url: string | null
+          name: string
+          phone: string | null
+          service_times: Json
+          slug: string
+          socials: Json
+          status: string
+          updated_at: string
+          user_id: string
+          verified: boolean
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          bio?: string | null
+          city?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          denomination?: string | null
+          email?: string | null
+          id?: string
+          kyc_submission_id?: string | null
+          languages?: string[]
+          lat?: number | null
+          lng?: number | null
+          logo_url?: string | null
+          name: string
+          phone?: string | null
+          service_times?: Json
+          slug: string
+          socials?: Json
+          status?: string
+          updated_at?: string
+          user_id: string
+          verified?: boolean
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          bio?: string | null
+          city?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          denomination?: string | null
+          email?: string | null
+          id?: string
+          kyc_submission_id?: string | null
+          languages?: string[]
+          lat?: number | null
+          lng?: number | null
+          logo_url?: string | null
+          name?: string
+          phone?: string | null
+          service_times?: Json
+          slug?: string
+          socials?: Json
+          status?: string
+          updated_at?: string
+          user_id?: string
+          verified?: boolean
+          website?: string | null
+        }
+        Relationships: []
+      }
+      church_sermon_variants: {
+        Row: {
+          content: Json
+          cost_credits: number
+          created_at: string
+          generated_by_model: string | null
+          id: string
+          sermon_id: string
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          content?: Json
+          cost_credits?: number
+          created_at?: string
+          generated_by_model?: string | null
+          id?: string
+          sermon_id: string
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          cost_credits?: number
+          created_at?: string
+          generated_by_model?: string | null
+          id?: string
+          sermon_id?: string
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_sermon_variants_sermon_id_fkey"
+            columns: ["sermon_id"]
+            isOneToOne: false
+            referencedRelation: "church_sermons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      church_sermons: {
+        Row: {
+          audio_url: string | null
+          church_id: string
+          cover_url: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          duration_s: number | null
+          id: string
+          is_free: boolean
+          preacher: string | null
+          price: number | null
+          published_at: string | null
+          scripture_refs: string[]
+          series: string | null
+          status: string
+          title: string
+          transcript: string | null
+          transcript_status: string
+          updated_at: string
+        }
+        Insert: {
+          audio_url?: string | null
+          church_id: string
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          duration_s?: number | null
+          id?: string
+          is_free?: boolean
+          preacher?: string | null
+          price?: number | null
+          published_at?: string | null
+          scripture_refs?: string[]
+          series?: string | null
+          status?: string
+          title: string
+          transcript?: string | null
+          transcript_status?: string
+          updated_at?: string
+        }
+        Update: {
+          audio_url?: string | null
+          church_id?: string
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          duration_s?: number | null
+          id?: string
+          is_free?: boolean
+          preacher?: string | null
+          price?: number | null
+          published_at?: string | null
+          scripture_refs?: string[]
+          series?: string | null
+          status?: string
+          title?: string
+          transcript?: string | null
+          transcript_status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_sermons_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_events: {
         Row: {
           created_at: string
@@ -3694,6 +4093,7 @@ export type Database = {
           bank_account_number: string | null
           bank_name: string | null
           beauty_provider_id: string | null
+          church_provider_id: string | null
           document_expires_at: string | null
           documents_purged_at: string | null
           id: string
@@ -3732,6 +4132,7 @@ export type Database = {
           bank_account_number?: string | null
           bank_name?: string | null
           beauty_provider_id?: string | null
+          church_provider_id?: string | null
           document_expires_at?: string | null
           documents_purged_at?: string | null
           id?: string
@@ -3770,6 +4171,7 @@ export type Database = {
           bank_account_number?: string | null
           bank_name?: string | null
           beauty_provider_id?: string | null
+          church_provider_id?: string | null
           document_expires_at?: string | null
           documents_purged_at?: string | null
           id?: string
@@ -3801,6 +4203,13 @@ export type Database = {
             columns: ["beauty_provider_id"]
             isOneToOne: false
             referencedRelation: "beauty_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kyc_submissions_church_provider_id_fkey"
+            columns: ["church_provider_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
             referencedColumns: ["id"]
           },
           {
@@ -9035,6 +9444,23 @@ export type Database = {
         }[]
       }
       submit_beauty_kyc: {
+        Args: {
+          _bank_account_name: string
+          _bank_account_number: string
+          _bank_name: string
+          _id_document_back_url: string
+          _id_document_type: string
+          _id_document_url: string
+          _payout_method: string
+          _payout_phone: string
+          _payout_provider: string
+          _provider_id: string
+          _selfie_url: string
+          _selfie_with_doc_url: string
+        }
+        Returns: Json
+      }
+      submit_church_kyc: {
         Args: {
           _bank_account_name: string
           _bank_account_number: string
