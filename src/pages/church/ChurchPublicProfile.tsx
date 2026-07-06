@@ -330,3 +330,54 @@ function PrayerRequestForm({ churchId, disabled }: { churchId: string; disabled?
     </form>
   );
 }
+
+function ReportButton({ churchId }: { churchId: string }) {
+  const { locale } = useI18n();
+  const fr = locale === 'fr';
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState('inappropriate');
+  const [message, setMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const submit = async () => {
+    setSubmitting(true);
+    const { error } = await supabase.from('church_content_reports').insert({
+      church_id: churchId, reason, message: message.trim() || null, status: 'new',
+    });
+    setSubmitting(false);
+    if (error) return toast.error(error.message);
+    toast.success(fr ? 'Merci, signalement reçu.' : 'Thanks, your report was received.');
+    setOpen(false); setMessage('');
+  };
+
+  if (!open) {
+    return (
+      <button onClick={() => setOpen(true)} className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4">
+        {fr ? 'Signaler cette page' : 'Report this page'}
+      </button>
+    );
+  }
+  return (
+    <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-4 text-left space-y-3">
+      <p className="font-semibold text-sm">{fr ? 'Signaler cette page' : 'Report this page'}</p>
+      <div className="space-y-1.5">
+        <Label className="text-xs">{fr ? 'Motif' : 'Reason'}</Label>
+        <select value={reason} onChange={(e) => setReason(e.target.value)} className="w-full h-10 border border-border bg-transparent rounded-md px-2 text-sm">
+          <option value="inappropriate">{fr ? 'Contenu inapproprié' : 'Inappropriate content'}</option>
+          <option value="doctrine">{fr ? 'Fausse doctrine' : 'False doctrine'}</option>
+          <option value="scam">{fr ? 'Arnaque / escroquerie' : 'Scam'}</option>
+          <option value="impersonation">{fr ? 'Usurpation d\'identité' : 'Impersonation'}</option>
+          <option value="other">{fr ? 'Autre' : 'Other'}</option>
+        </select>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">{fr ? 'Détails (optionnel)' : 'Details (optional)'}</Label>
+        <Textarea rows={3} value={message} onChange={(e) => setMessage(e.target.value)} />
+      </div>
+      <div className="flex gap-2 justify-end">
+        <Button variant="ghost" size="sm" onClick={() => setOpen(false)} disabled={submitting}>{fr ? 'Annuler' : 'Cancel'}</Button>
+        <Button size="sm" onClick={submit} disabled={submitting}>{submitting ? '...' : (fr ? 'Envoyer' : 'Send')}</Button>
+      </div>
+    </div>
+  );
+}
