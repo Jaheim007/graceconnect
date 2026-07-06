@@ -8995,6 +8995,10 @@ export type Database = {
       release_matured_affiliate_sales: { Args: never; Returns: number }
       release_matured_partner_commissions: { Args: never; Returns: number }
       resolve_affiliate_link: { Args: { _code: string }; Returns: Json }
+      review_beauty_kyc: {
+        Args: { _action: string; _reason?: string; _submission_id: string }
+        Returns: undefined
+      }
       review_org_kyc: {
         Args: { _action: string; _org_id: string; _reason?: string }
         Returns: Json
