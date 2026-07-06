@@ -409,7 +409,7 @@ export default function SuperAppHub() {
                       color: 'transparent',
                     }}
                   >
-                    Education
+                    Learn
                   </div>
                   <p className="mt-3 text-sm text-muted-foreground sm:text-base">
                     {t(
