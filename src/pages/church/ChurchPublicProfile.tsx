@@ -160,6 +160,25 @@ export default function ChurchPublicProfile() {
         </div>
       </section>
 
+      {/* Announcements */}
+      {announcements.length > 0 && (
+        <section className="mx-auto max-w-4xl px-4 mt-10">
+          <h2 className="text-lg font-semibold flex items-center gap-2 mb-4"><Megaphone className="h-4 w-4 text-primary" /> {fr ? 'Annonces' : 'Announcements'}</h2>
+          <div className="space-y-3">
+            {announcements.map((a) => (
+              <div key={a.id} className="rounded-2xl border border-border bg-card p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  {a.pinned && <Pin className="h-3.5 w-3.5 text-primary" />}
+                  <p className="font-semibold text-sm">{a.title}</p>
+                </div>
+                <p className="text-[11px] text-muted-foreground mb-2">{new Date(a.published_at || a.created_at).toLocaleDateString(fr ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                {a.body && <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">{a.body}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Sermons */}
       <section className="mx-auto max-w-4xl px-4 mt-10">
         <div className="flex items-center justify-between mb-4">
