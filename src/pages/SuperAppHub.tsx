@@ -87,8 +87,8 @@ export default function SuperAppHub() {
               </h1>
               <p className="mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
                 {t(
-                  'Un seul compte. Un seul paiement Mobile Money. Deux univers pour faire tourner ton business et ta beauté.',
-                  'One account. One Mobile Money payment. Two universes to power your business and your beauty.',
+                  'Un seul compte. Un seul paiement Mobile Money. Trois univers pour faire tourner ton business, ta beauté et ta foi.',
+                  'One account. One Mobile Money payment. Three universes to power your business, your beauty and your faith.',
                 )}
               </p>
             </div>
