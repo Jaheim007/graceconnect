@@ -145,31 +145,30 @@ export default function BeautyProDashboard() {
   const stats = (provider as any).beauty_provider_stats;
 
   return (
-    <div className="beauty-scope min-h-dvh bg-muted/40 dark:bg-background flex">
+    <div className="beauty-scope min-h-dvh bg-muted/40 dark:bg-background lg:flex">
       {/* Desktop sidebar */}
       <ProSidebar provider={provider} tab={tab} onNavigate={(k) => setSp({ tab: k })} className="hidden lg:flex" />
 
-      {/* Mobile sidebar */}
-      <Sheet>
-        <SheetContent side="left" className="p-0 w-72">
-          <ProSidebar provider={provider} tab={tab} onNavigate={(k) => setSp({ tab: k })} className="flex w-full border-none" />
-        </SheetContent>
-        {/* Trigger lives inside TopBar */}
-        <TopBar provider={provider} navigate={navigate}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="lg:hidden">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-        </TopBar>
-      </Sheet>
-
       <div className="flex-1 min-w-0 flex flex-col">
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full mx-auto">
+        {/* Mobile sidebar + top bar */}
+        <Sheet>
+          <SheetContent side="left" className="p-0 w-72">
+            <ProSidebar provider={provider} tab={tab} onNavigate={(k) => setSp({ tab: k })} className="flex w-full border-none" />
+          </SheetContent>
+          <TopBar provider={provider} navigate={navigate}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="lg:hidden">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+          </TopBar>
+        </Sheet>
+
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full mx-auto min-w-0">
           {/* Page title */}
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
+          <div className="mb-6 flex flex-col sm:flex-row sm:flex-wrap sm:items-end sm:justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight break-words">
                 {NAV_SECTIONS.flatMap(s => s.items).find(i => i.key === tab)?.label ?? "Vue d'ensemble"}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
@@ -177,7 +176,7 @@ export default function BeautyProDashboard() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
                 <Link to={`/beauty/p/${provider.slug}`} target="_blank"><ExternalLink className="h-4 w-4 mr-1.5" />Voir profil public</Link>
               </Button>
             </div>
