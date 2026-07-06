@@ -35,6 +35,7 @@ import { SUPPORTED_CURRENCIES, formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 import { BEAUTY_CATEGORIES } from "@/lib/beautyCategories";
+import { SiteLogo } from "@/components/ui/SiteLogo";
 const CATEGORIES = BEAUTY_CATEGORIES;
 
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]; // 1..7 iso; we use 0..6 (Mon=0)
