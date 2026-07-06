@@ -67,7 +67,8 @@ export default function ChurchProDashboard() {
 
   const quickLinks = [
     { to: '/church/pro/sermons', icon: Mic, title: fr ? 'Prédications & IA' : 'Sermons & AI', desc: fr ? 'Uploader, transcrire, transformer en ebook/blog' : 'Upload, transcribe, transform to ebook/blog', badge: <Sparkles className="h-3 w-3" /> },
-    { to: '/church/pro/giving', icon: HandHeart, title: fr ? 'Dîmes & offrandes' : 'Tithes & offerings', desc: fr ? 'Dons, récurrents, campagnes, reçus' : 'Donations, recurring, campaigns, receipts' },
+    { to: '/church/pro/giving', icon: HandHeart, title: fr ? 'Dîmes & offrandes' : 'Tithes & offerings', desc: fr ? 'Dons, campagnes, reçus' : 'Gifts, campaigns, receipts' },
+    { to: '/church/pro/campaigns', icon: HandHeart, title: fr ? 'Campagnes' : 'Campaigns', desc: fr ? 'Collectes ciblées avec objectif' : 'Targeted fundraisers with a goal' },
     { to: '/church/pro/events', icon: Calendar, title: fr ? 'Événements & culte' : 'Events & services', desc: fr ? 'Programme, live streaming' : 'Schedule, live streaming' },
     { to: '/church/pro/prayer', icon: Heart, title: fr ? 'Boîte de prière' : 'Prayer inbox', desc: fr ? 'Requêtes privées de la communauté' : 'Private community requests' },
     { to: '/church/pro/members', icon: Users, title: fr ? 'Membres & diaspora' : 'Members & diaspora', desc: fr ? 'Segmentez vos fidèles' : 'Segment your members' },
