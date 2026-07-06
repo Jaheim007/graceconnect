@@ -75,6 +75,7 @@ const HomeBookingsList = lazy(() => import("@/pages/home/HomeBookingsList"));
 const HomeKYCPage = lazy(() => import("@/pages/home/HomeKYCPage"));
 const HomeProServices = lazy(() => import("@/pages/home/HomeProServices"));
 const HomeProRevenue = lazy(() => import("@/pages/home/HomeProRevenue"));
+const HomeBookingDetail = lazy(() => import("@/pages/home/HomeBookingDetail"));
 // SiteViral Church
 const ChurchActionHub = lazy(() => import("@/pages/church/ChurchActionHub"));
 const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
@@ -318,6 +319,7 @@ const SuperadminAIHistory = lazy(() => import("@/pages/superadmin/SuperadminAIHi
 const SuperadminAds = lazy(() => import("@/pages/superadmin/SuperadminAds"));
 const SuperadminBeauty = lazy(() => import("@/pages/superadmin/SuperadminBeauty"));
 const SuperadminChurch = lazy(() => import("@/pages/superadmin/SuperadminChurch"));
+const SuperadminHome = lazy(() => import("@/pages/superadmin/SuperadminHome"));
 // Wrap lazy components that export named exports
 const LazyAdminAnnouncements = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminAnnouncements })));
 const LazyAdminEvents = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminEvents })));
@@ -426,7 +428,9 @@ const App = () => (
                 <Route path="/home/messages" element={<RequireAuth><HomeMessagesList /></RequireAuth>} />
                 <Route path="/home/messages/:id" element={<RequireAuth><HomeConversation /></RequireAuth>} />
                 <Route path="/home/bookings" element={<RequireAuth><HomeBookingsList /></RequireAuth>} />
+                <Route path="/home/booking/:id" element={<RequireAuth><HomeBookingDetail /></RequireAuth>} />
                 <Route path="/home/pro/:slug" element={<HomeProviderPublic />} />
+
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
@@ -704,8 +708,10 @@ const App = () => (
                   <Route path="ads" element={<SuperadminAds />} />
                   <Route path="beauty" element={<SuperadminBeauty />} />
                   <Route path="church" element={<SuperadminChurch />} />
+                  <Route path="home" element={<SuperadminHome />} />
                   <Route path="trust" element={<SuperadminTrust />} />
                 </Route>
+
 
                 <Route path="/account/trust" element={<AccountTrustPage />} />
                 <Route path="*" element={<NotFound />} />

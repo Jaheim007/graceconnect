@@ -256,6 +256,59 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+    // ── HOME BOOKING ──
+    if (type === 'home_booking' && bookingId) {
+      const { data: bk } = await db
+        .from('home_bookings')
+        .select('id, status, scheduled_for, offer_id')
+        .eq('id', bookingId)
+        .maybeSingle();
+      if (bk && bk.status === 'pending_payment') {
+        const baseline = bk.scheduled_for ? new Date(bk.scheduled_for) : new Date();
+        const autoRelease = new Date(baseline.getTime() + 48 * 60 * 60 * 1000).toISOString();
+        await db.from('home_bookings').update({
+          status: 'confirmed',
+          confirmed_at: new Date().toISOString(),
+          auto_release_at: autoRelease,
+          escrow_status: 'held',
+        }).eq('id', bookingId);
+        if (bk.offer_id) {
+          await db.from('home_offers').update({ status: 'accepted' }).eq('id', bk.offer_id);
+        }
+        await db.from('home_booking_events').insert({
+          booking_id: bookingId,
+          kind: 'payment_confirmed',
+          meta: { gateway: 'geniuspay', reference },
+        });
+      }
+      await db.from('payment_events').update({
+        status: 'processed', processed_at: new Date().toISOString(),
+      }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, kind: 'home_booking' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // ── HOME EXTRA CHARGE ──
+    const homeExtraChargeId = meta.extra_charge_id as string | undefined;
+    if (type === 'home_extra_charge' && homeExtraChargeId) {
+      const { data: ec } = await db
+        .from('home_extra_charges')
+        .select('id, status')
+        .eq('id', homeExtraChargeId).maybeSingle();
+      if (ec && ec.status !== 'paid') {
+        await db.from('home_extra_charges').update({
+          status: 'paid', paid_at: new Date().toISOString(),
+        }).eq('id', homeExtraChargeId);
+      }
+      await db.from('payment_events').update({
+        status: 'processed', processed_at: new Date().toISOString(),
+      }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, kind: 'home_extra_charge' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
 
 
 
