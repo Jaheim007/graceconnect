@@ -71,7 +71,8 @@ export default function ChurchProDashboard() {
     { to: '/church/pro/campaigns', icon: HandHeart, title: fr ? 'Campagnes' : 'Campaigns', desc: fr ? 'Collectes ciblées avec objectif' : 'Targeted fundraisers with a goal' },
     { to: '/church/pro/events', icon: Calendar, title: fr ? 'Événements & culte' : 'Events & services', desc: fr ? 'Programme, live streaming' : 'Schedule, live streaming' },
     { to: '/church/pro/prayer', icon: Heart, title: fr ? 'Boîte de prière' : 'Prayer inbox', desc: fr ? 'Requêtes privées de la communauté' : 'Private community requests' },
-    { to: '/church/pro/members', icon: Users, title: fr ? 'Membres & diaspora' : 'Members & diaspora', desc: fr ? 'Segmentez vos fidèles' : 'Segment your members' },
+    { to: '/church/pro/announcements', icon: Users, title: fr ? 'Annonces' : 'Announcements', desc: fr ? 'Nouvelles pour la communauté' : 'News for the community' },
+    { to: '/church/pro/team', icon: Users, title: fr ? 'Équipe' : 'Team', desc: fr ? 'Inviter co-administrateurs' : 'Invite co-admins' },
     { to: '/church/pro/settings', icon: Settings, title: fr ? 'Paramètres' : 'Settings', desc: fr ? 'Marque, paiement, domaine' : 'Branding, payout, domain' },
   ];
 
