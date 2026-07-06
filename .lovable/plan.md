@@ -1,163 +1,143 @@
-# SiteViral Church — MVP Plan (aligned with your ChatGPT spec)
+# SiteViral Home — Phase 1 MVP Plan
 
-Your spec is strong. It matches what we already scaffolded, with **one critical correction** vs the previous plan:
-
-> **KYC blocks payout only — not page creation, sermons, AI, discovery, prayer, or collecting money.**
-
-That single rule reshapes the flow. We'll rewrite the gates accordingly and treat KYC as a *payout verification* step, not a *visibility* step.
+New vertical for on-demand home services (plumbers, electricians, cleaners, movers, painters, AC repair, handymen, gardeners, pest control, appliance repair). Architecture mirrors Beauty 1:1 so we reuse proven patterns (chat-first custom offers, escrow, Dual OTP, extra charges, KYC-gated discovery, anti-bypass trust).
 
 ---
 
-## 1. Correction to what's already built
+## 1. Scope of Phase 1
 
-Current code gates discovery + public page + giving on `status = 'active'` (KYC-approved). Rework:
+Ship the same surface area we have for Beauty, adapted to home services:
 
-- `church_providers.status`: keep `pending | active | suspended` but interpret differently
-  - `pending` (default on create) → **visible in discovery + public page + can receive giving**
-  - `active` → same, plus **payout enabled**
-  - `suspended` → hidden everywhere
-- Add badges on `church_providers`:
-  - `is_new` (auto: created <30d)
-  - `payout_verified` (bool, mirrors KYC approved)
-  - `is_official` (bool, superadmin manual)
-- Public page + `/church/discover`: show all non-suspended churches, render badge chips.
-- Dashboard banner: "You can receive payments now. Complete payout verification before withdrawing funds." with CTA to `/church/pro/kyc` when `payout_verified = false`.
-- `/church/pro/kyc` renamed **Payout Verification** in UI (keep route).
+- Landing `/home` (bilingual FR/EN, mobile-first, Aurora style)
+- Discovery `/home/discover` (KYC-gated, category + city filters)
+- Provider public page `/home/pro/:slug`
+- Client action hub `/home/action` (My requests, Messages, Bookings)
+- Provider onboarding `/home/pro/onboarding`
+- Provider dashboard `/home/pro` (jobs, revenue, calendar, services)
+- Messaging `/home/messages` + `/home/messages/:conversationId` (realtime, anti-bypass)
+- Bookings `/home/bookings` + Dual OTP flow (Start/End)
+- KYC `/home/pro/kyc` (reuse `IdentityVerificationWizard` with `home` mode)
+- Super-App Hub tile + BottomNav vertical-aware routing
 
-## 2. Data model (add / adjust)
+Out of scope for Phase 1 (later phases): subscriptions/maintenance plans, team dispatch, parts/materials invoicing beyond extra charges, insurance verification badges.
 
-Already have: `church_providers`, `church_sermons`, `church_sermon_variants`, `church_campaigns`, `church_events`, `church_prayer_requests`, `church_members`.
+## 2. Data model (mirror `beauty_*` → `home_*`)
 
-Add:
-
-```text
-church_announcements     church_id, title, body, cover_url,
-                         published_at, status (draft|published), pinned
-church_team_members      church_id, user_id, role (owner|admin),
-                         invited_by, invited_at, accepted_at
-church_content_reports   church_id, reporter_user_id?, reason,
-                         message, status (new|reviewing|actioned|dismissed)
-church_receipts          transaction_id, church_id, donor_email,
-                         donor_name?, amount, currency, giving_type,
-                         reference, sent_at, pdf_url
-```
-
-Adjust `church_providers`: add `payout_verified bool default false`, `is_official bool default false`, `social_links jsonb`, `default_language text`.
-
-Adjust `church_sermons`: add `series text`, `tags text[]`, `transcription_status` (`pending|transcribing|ready|failed`), `transcript_language text`, `unclear_sections jsonb` (array of `{start_s, end_s, note}`).
-
-Adjust `church_sermon_variants`: add `approval_status` (`draft|approved|published`), `edited_by`, `edited_at`. Types: `transcript|summary|notes|whatsapp|ebook|reel`.
-
-Reuse: `offering_transactions` for giving (add `giving_type` enum: `tithe|offering|donation|campaign` + `church_id` FK), `donation_campaigns` linked to `church_id`.
-
-All new tables: `CREATE TABLE` → `GRANT` (authenticated + service_role; anon read on published announcements/events/sermons) → `ENABLE RLS` → `POLICY` in the same migration.
-
-## 3. AI pipeline — safety-first prompts
-
-Edge functions:
-
-1. `church-transcribe-sermon` — STT via `openai/gpt-4o-mini-transcribe`, streams tokens, writes transcript + `unclear_sections` (model flags low-confidence spans, never guesses).
-2. `church-generate-variant` — one-per-type, on-demand only (cheaper). Uses `google/gemini-3-flash-preview` with a locked system prompt:
-   - Preserve the preacher's exact message and doctrine
-   - Never invent scripture, testimonies, prophecies, names
-   - Quote scripture references literally (verify against a passed list of refs)
-   - Output structured JSON per variant type
-   - Always mark `approval_status = 'draft'`
-
-Nothing publishes until the church admin approves.
-
-## 4. Routes
+New tables (each: CREATE TABLE → GRANT → ENABLE RLS → POLICY in one migration):
 
 ```text
-/church                          Landing
-/church/discover                 Public discovery (no KYC gate)
-/church/:slug                    Public page (no KYC gate)
-/church/:slug/sermon/:id         Sermon player + AI content tabs
-/church/:slug/give               Giving (tithe/offering/donation)
-/church/:slug/campaign/:id       Campaign detail
-/church/:slug/events             Events list
-/church/onboarding               Create church (no KYC)
-/church/pro                      Dashboard
-/church/pro/sermons              Sermon manager + AI outputs
-/church/pro/products             Publish PDFs/audio as digital products
-/church/pro/giving               Giving inbox + payout balance
-/church/pro/campaigns            Campaign manager
-/church/pro/events               Events + announcements
-/church/pro/prayer               Prayer inbox
-/church/pro/announcements        Announcements
-/church/pro/team                 Invite admins (owner/admin only)
-/church/pro/kyc                  Payout Verification
-/church/pro/settings             Profile, giving, payout, language
-/superadmin/church               Moderation (suspend, verify, reports)
+home_providers            user_id, slug, business_name, categories text[],
+                          city, country, service_radius_km, bio, cover_url,
+                          avatar_url, years_experience, languages text[],
+                          status (pending|active|suspended),
+                          kyc_status, kyc_verified_at,
+                          is_new bool, is_official bool,
+                          rating_avg, rating_count,
+                          currency, base_call_out_fee, created_at
+home_services             provider_id, title, description, category,
+                          price_from, price_unit (fixed|hourly|per_m2|quote),
+                          duration_minutes, cover_url, active
+home_provider_media       provider_id, url, kind (photo|video), sort
+home_availability         provider_id, weekday, start_time, end_time
+home_availability_blocks  provider_id, starts_at, ends_at, reason
+home_conversations        client_id, provider_id, last_message_at
+home_messages             conversation_id, sender_id, body, kind
+                          (text|offer|system), attachments jsonb
+home_chat_violations      (mirror beauty_chat_violations)
+home_offers               conversation_id, provider_id, client_id,
+                          title, description, price, currency,
+                          scheduled_for, address, status
+                          (draft|sent|accepted|declined|expired)
+home_bookings             offer_id, provider_id, client_id, service_id,
+                          address, scheduled_for, price, currency,
+                          status (pending|confirmed|en_route|in_progress|
+                          completed|cancelled|disputed),
+                          start_otp, end_otp, start_otp_verified_at,
+                          end_otp_verified_at, escrow_status
+home_extra_charges        booking_id, label, amount, currency,
+                          status (proposed|accepted|declined|paid)
+home_booking_events       booking_id, kind, meta jsonb
+home_reviews              booking_id, client_id, provider_id, rating,
+                          comment, provider_reply
+home_disputes             booking_id, opened_by, reason, status,
+                          resolution
+home_provider_stats       (denormalized: jobs_completed, revenue_30d, etc.)
 ```
 
-## 5. Dashboard cards (mobile-first, Aurora)
+All follow existing Beauty policies (owner-only writes, public read for active+KYC-verified providers, participants-only for conversations/bookings, service_role for edge functions).
 
-Profile completion · Latest sermon plays · Prayer requests count · Total giving (this month) · Payout balance + payout verification status · Recent transactions · Recent prayer requests. Quick actions: Upload sermon, Generate content, Edit page, Create campaign, View giving, View prayer requests, Complete payout verification.
+Add `home` to any shared enums used by KYC / chat-violation edge functions.
 
-## 6. Giving flow (no KYC to receive)
+## 3. Routes
 
-- Public `/church/:slug/give` → pick type (Tithe / Offering / Donation / Campaign) → amount + currency → email (for receipt) + optional name → GeniusPay (MoMo, XOF/XAF/GHS/KES) or Stripe (card, diaspora).
-- Webhook creates `offering_transactions` row with `giving_type` + `church_id`, generates `church_receipts` PDF, emails donor.
-- Balance accrues to church regardless of KYC. Withdraw button on `/church/pro/giving` is disabled when `payout_verified = false` with the exact copy: "Complete payout verification to withdraw your funds."
+```text
+/home                           Landing
+/home/discover                  Discovery (KYC-gated list)
+/home/pro/:slug                 Public provider page
+/home/action                    Client action hub
+/home/messages                  Conversations list
+/home/messages/:id              Conversation (realtime)
+/home/bookings                  Bookings list
+/home/booking/:id               Booking detail + Dual OTP
+/home/pro/onboarding            Provider onboarding wizard
+/home/pro                       Provider dashboard
+/home/pro/services              Manage services + pricing
+/home/pro/calendar              Availability + blocks
+/home/pro/jobs                  Jobs pipeline
+/home/pro/revenue               Earnings + payout
+/home/pro/kyc                   Identity verification
+/home/pro/settings              Profile, radius, currency
+/superadmin/home                Moderation (suspend, verify, reports)
+```
 
-## 7. Content moderation
+## 4. UI components (mobile-first, Aurora)
 
-- Every public church page + sermon has a "Report" button → `church_content_reports`.
-- Superadmin `/superadmin/church`: list churches, filter by status/reports, actions: verify official, suspend, un-suspend, resolve report.
-- Upload confirmation checkbox on sermon upload: "I confirm I have permission to upload and publish this church content."
+- `HomeLanding`, `HomeLandingBody` (hero, categories grid, trust, CTA)
+- `HomeDiscover` (category chips, city filter, distance sort, cards)
+- `HomeProviderPublic` (gallery, services, reviews, chat CTA)
+- `HomeConversation` (reuse `BeautyConversation` structure — realtime `home_messages`, offer cards, anti-bypass toast)
+- `HomeBookingCard` + `HomeDualOtp` (Start/End OTP UI)
+- `HomeProDashboard` (KPIs, next job, quick actions) — same layout as `BeautyProDashboard`
+- `HomeProviderOnboarding` (categories, service area, first service, KYC prompt)
+- Super-App Hub: add "Home Services" tile alongside Digital / Beauty / Church
+- `BottomNav`: extend vertical detection to include `/home` and surface `getHomeNavItems(...)` from `actionNavItems.ts`; add "existing provider" query short-circuit like Beauty
 
-## 8. Notifications
+## 5. i18n
 
-Reuse `user_notifications` + email. Events: transcription done, AI variant ready, new prayer request, new giving received, receipt sent, payout verification needed / approved / rejected, campaign donation received. Channels: in-app + email.
+Add `src/i18n/home.ts` with FR/EN strings for all screens. Wire into `I18nContext`.
 
-## 9. Team access (MVP)
+Categories list in `src/lib/homeCategories.ts` (plumber, electrician, cleaner, mover, painter, ac_repair, handyman, gardener, pest_control, appliance_repair) with icon + FR/EN label.
 
-`church_team_members` with `owner | admin`. Owner invites via email, admin gets same dashboard access minus billing/payout settings. Deeper roles (finance, media, prayer, editor, pastor approval) → v2.
+## 6. Payments / escrow
 
-## 10. Phased delivery
+Reuse existing GeniusPay + Stripe flow. Escrow entry created on booking confirmation; released on End-OTP verification. Extra charges use the same accepted → paid flow as Beauty. 10% platform commission unchanged. XOF/XAF zero-decimal handling reused.
 
-**Phase 1 (this next build) — Fix the gates + core surfaces**
-- Migration: rework status semantics, add `payout_verified` / `is_official` / `is_new`, drop KYC checks from discovery + public page + giving, add announcements + team + reports + receipts tables.
-- Update `ChurchDiscover`, `ChurchPublicProfile`, `ChurchProDashboard` to remove KYC-blocking + show badges + payout banner.
-- `/church/pro/kyc` copy → "Payout Verification".
+## 7. Trust & safety
 
-**Phase 2 — Sermons + AI**
-- Sermon upload with rights-confirmation checkbox.
-- `church-transcribe-sermon` edge fn + transcript editor with unclear-section highlights.
-- `church-generate-variant` edge fn + variants UI (summary, notes PDF, WhatsApp, ebook draft).
-- Sermon library public + admin.
+Reuse the Beauty anti-bypass + Gemini violation edge function; only change is table target (`home_chat_violations`) and vertical tag in the prompt. 24h auto-suspension logic reused verbatim.
 
-**Phase 3 — Giving + Campaigns + Digital Products**
-- `/church/:slug/give` + GeniusPay/Stripe webhooks + `church_receipts` PDF + email.
-- Campaigns with goal bar + share.
-- Publish sermon audio / PDFs as digital products (reuse `digital_products`).
+## 8. Governance / memory
 
-**Phase 4 — Community**
-- Prayer inbox + statuses.
-- Announcements + Events (with optional live stream URL).
-- Team invites.
+After ship, add a new memory `mem://features/home/vertical-architecture` and update `mem://index.md` Core to mention Home in the verticals line.
 
-**Phase 5 — Trust & polish**
-- Superadmin moderation console + reports queue.
-- Notifications wiring.
-- SEO (JSON-LD Church schema, sitemap per church).
-- Verified Payout / Official badges rendering everywhere.
+## 9. Delivery order (this build)
 
-## 11. Open decisions (quick answers needed before Phase 2)
+1. Migration: all `home_*` tables + grants + RLS + policies + realtime publication for `home_messages`, `home_bookings`.
+2. i18n file + categories lib.
+3. Landing + Discover + Public provider page (read-only surfaces first).
+4. Provider onboarding + dashboard shell + KYC route.
+5. Conversation + Offers + Bookings + Dual OTP (realtime).
+6. Super-App Hub tile + BottomNav vertical wiring.
+7. Superadmin `/superadmin/home` moderation stub.
 
-1. **Denomination**: fixed list (Pentecostal, Catholic, Protestant, Evangelical, Orthodox, Other) or free text? *Recommend fixed list for filters.*
-2. **AI variants**: on-demand per type (cheaper, matches spec) or auto-generate all on upload? *Recommend on-demand.*
-3. **Prayer requests**: allow fully anonymous (no email) or require contact? *Spec says optional — recommend optional.*
-4. **Sermon paywall**: per-sermon free/paid toggle only, or church-wide default? *Recommend per-sermon toggle.*
+Ship this as one build, then iterate on polish next turn.
 
 ## Technical notes
 
-- All strings via `useI18n` (FR/EN) in `src/i18n/church.ts`.
-- Follow `beauty_providers` architecture 1:1 minus the KYC-gate-on-visibility.
-- Every new public-schema table: `CREATE TABLE → GRANT → ENABLE RLS → CREATE POLICY` in one migration.
-- Reuse `IdentityVerificationWizard` `church` mode; only change is dashboard copy ("Payout Verification") + banner.
-- Currency: keep `currency-and-zero-decimal-logic` (XOF/XAF no ×100).
-- Payments: GeniusPay for MoMo, Stripe for diaspora — no Paystack.
+- All new public tables MUST include `GRANT` block in the same migration (authenticated + service_role; anon read on active KYC-verified providers only).
+- No CHECK constraints for time-based rules — use validation triggers.
+- Realtime subscriptions inside `useEffect` with cleanup.
+- No hardcoded colors — use existing Aurora tokens.
+- Reuse `IdentityVerificationWizard` with a new `home` mode (copy only difference).
 
-Approve this and I'll ship Phase 1 (gate rework + new tables + updated UI) in the next turn.
+Approve and I ship Phase 1 in the next turn.
