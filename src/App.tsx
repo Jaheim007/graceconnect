@@ -90,6 +90,20 @@ const EventsProPackages = lazy(() => import("@/pages/events/EventsProPackages"))
 const EventsProRevenue = lazy(() => import("@/pages/events/EventsProRevenue"));
 const EventsBookingDetail = lazy(() => import("@/pages/events/EventsBookingDetail"));
 const SuperadminEvents = lazy(() => import("@/pages/superadmin/SuperadminEvents"));
+const EducationActionHub = lazy(() => import("@/pages/education/EducationActionHub"));
+const EducationLanding = lazy(() => import("@/pages/education/EducationLanding"));
+const EducationDiscover = lazy(() => import("@/pages/education/EducationDiscover"));
+const EducationTutorPublic = lazy(() => import("@/pages/education/EducationTutorPublic"));
+const EducationTutorOnboarding = lazy(() => import("@/pages/education/EducationTutorOnboarding"));
+const EducationTutorDashboard = lazy(() => import("@/pages/education/EducationTutorDashboard"));
+const EducationTutorSubjects = lazy(() => import("@/pages/education/EducationTutorSubjects"));
+const EducationTutorRevenue = lazy(() => import("@/pages/education/EducationTutorRevenue"));
+const EducationKYCPage = lazy(() => import("@/pages/education/EducationKYCPage"));
+const EducationMessagesList = lazy(() => import("@/pages/education/EducationMessagesList"));
+const EducationConversation = lazy(() => import("@/pages/education/EducationConversation"));
+const EducationBookingsList = lazy(() => import("@/pages/education/EducationBookingsList"));
+const EducationBookingDetail = lazy(() => import("@/pages/education/EducationBookingDetail"));
+const SuperadminEducation = lazy(() => import("@/pages/superadmin/SuperadminEducation"));
 // SiteViral Church
 const ChurchActionHub = lazy(() => import("@/pages/church/ChurchActionHub"));
 const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
