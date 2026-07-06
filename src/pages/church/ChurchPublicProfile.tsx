@@ -33,7 +33,7 @@ export default function ChurchPublicProfile() {
   });
 
   const isOwner = !!(user && church && church.user_id === user.id);
-  const isOwnerPreview = isOwner && church?.status !== 'active';
+  const isOwnerPreview = isOwner && !church?.payout_verified;
 
   const { data: sermons = [] } = useQuery({
     enabled: !!church?.id,
