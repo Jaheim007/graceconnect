@@ -85,9 +85,22 @@ const CATEGORY_ORG_DOC_HINTS: Record<string, string> = {
 
 // ── Build steps dynamically based on mode and verification type ──
 function getSteps(mode: VerificationMode, verificationType: VerificationType | null) {
-  const steps: { id: string; label: string; icon: typeof FileText }[] = [
-    { id: 'choose_type', label: 'Type de vérification', icon: Shield },
-  ];
+  const steps: { id: string; label: string; icon: typeof FileText }[] = [];
+
+  // Beauty mode: individual-only, skip the "choose type" screen
+  if (mode === 'beauty') {
+    steps.push(
+      { id: 'doc_type', label: 'Type de document', icon: FileText },
+      { id: 'document', label: "Document d'identité", icon: CreditCard },
+      { id: 'selfie', label: 'Selfie', icon: User },
+      { id: 'selfie_doc', label: 'Selfie + Document', icon: Camera },
+      { id: 'payout', label: 'Méthode de paiement', icon: Smartphone },
+      { id: 'review', label: 'Vérification', icon: CheckCircle },
+    );
+    return steps;
+  }
+
+  steps.push({ id: 'choose_type', label: 'Type de vérification', icon: Shield });
 
   // Only add remaining steps once type is chosen
   if (verificationType) {
