@@ -178,6 +178,14 @@ export default defineConfig(({ mode }) => ({
         offlineGoogleAnalytics: false,
         runtimeCaching: [
           {
+            // Lazy-loaded JS/CSS chunks — fetched on demand, cached after use.
+            urlPattern: /\/assets\/.+\.(?:js|css)$/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "app-chunks",
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
             // Supabase REST responses contain user-specific data; never cache them.
             urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
             handler: "NetworkOnly",
