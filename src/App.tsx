@@ -63,6 +63,7 @@ const BeautyConversation = lazy(() => import("@/pages/beauty/BeautyConversation"
 const BeautyProDashboard = lazy(() => import("@/pages/beauty/BeautyProDashboard"));
 const BeautyKYCPage = lazy(() => import("@/pages/beauty/BeautyKYCPage"));
 // SiteViral Church
+const ChurchActionHub = lazy(() => import("@/pages/church/ChurchActionHub"));
 const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
 const ChurchDiscover = lazy(() => import("@/pages/church/ChurchDiscover"));
 const ChurchOnboarding = lazy(() => import("@/pages/church/ChurchOnboarding"));
@@ -379,7 +380,8 @@ const App = () => (
                 <Route path="/beauty/pro" element={<RequireAuth><BeautyProDashboard /></RequireAuth>} />
                 <Route path="/beauty/pro/kyc" element={<RequireAuth><BeautyKYCPage /></RequireAuth>} />
                 {/* SiteViral Church */}
-                <Route path="/church" element={<ChurchLanding />} />
+                <Route path="/church" element={<ChurchActionHub />} />
+                <Route path="/church/about" element={<ChurchLanding />} />
                 <Route path="/church/discover" element={<ChurchDiscover />} />
                 <Route path="/church/pro/onboarding" element={<RequireAuth><ChurchOnboarding /></RequireAuth>} />
                 <Route path="/church/pro" element={<RequireAuth><ChurchProDashboard /></RequireAuth>} />
