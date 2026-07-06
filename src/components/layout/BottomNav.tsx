@@ -1,11 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Settings, Bell } from 'lucide-react';
+import { LogOut, Settings, Bell, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { getActionNavItems, getBeautyNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useRef } from 'react';
 
 export function BottomNav() {
@@ -31,7 +33,23 @@ export function BottomNav() {
 
   // Vertical-aware nav: /beauty/* shows Beauty items, everything else shows Digital items.
   const isBeauty = location.pathname.startsWith('/beauty');
-  const navItems = isBeauty
+
+  const { data: isBeautyProvider } = useQuery({
+    queryKey: ['beauty-is-provider-nav', user?.id],
+    enabled: !!user && isBeauty,
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      if (!user) return false;
+      const { data } = await supabase
+        .from('beauty_providers')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      return !!data;
+    },
+  });
+
+  let navItems = isBeauty
     ? getBeautyNavItems({
         isAuthenticated: !!user,
         hasPurchases,
@@ -46,6 +64,25 @@ export function BottomNav() {
         hasOrgs,
         isSuperadmin,
       }, resolveRoute);
+
+  // Existing beauty pros should land on their dashboard, not the onboarding
+  // wizard (which just spins and redirects — feels like a broken refresh).
+  if (isBeauty && isBeautyProvider) {
+    navItems = navItems.map((it) =>
+      it.id === 'beauty-pro'
+        ? {
+            ...it,
+            icon: LayoutDashboard,
+            titleFr: 'Mon espace',
+            titleEn: 'My space',
+            descFr: 'Agenda, revenus, services',
+            descEn: 'Calendar, revenue, services',
+            route: '/beauty/pro',
+          }
+        : it
+    );
+  }
+
 
   const isActive = (route: string) => {
     if (route === '/') return location.pathname === '/';
