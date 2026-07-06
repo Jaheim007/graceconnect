@@ -165,7 +165,7 @@ export default function BeautyProDashboard() {
           </TopBar>
         </Sheet>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full mx-auto min-w-0">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-[calc(env(safe-area-inset-bottom)+7rem)] lg:pb-8 max-w-[1400px] w-full mx-auto min-w-0">
           {/* Page title */}
           <div className="mb-6 flex flex-col sm:flex-row sm:flex-wrap sm:items-end sm:justify-between gap-3">
             <div className="min-w-0">
