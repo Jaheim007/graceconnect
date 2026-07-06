@@ -186,6 +186,7 @@ export default defineConfig(({ mode }) => ({
               expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
+          {
             // Supabase REST responses contain user-specific data; never cache them.
             urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
             handler: "NetworkOnly",
