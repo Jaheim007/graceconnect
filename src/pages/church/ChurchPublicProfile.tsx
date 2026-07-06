@@ -72,8 +72,8 @@ export default function ChurchPublicProfile() {
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   if (!church) return <Navigate to="/church/discover" replace />;
-  // If church is not active and viewer is not the owner, hide
-  if (church.status !== 'active' && !isOwner) return <Navigate to="/church/discover" replace />;
+  // Only suspended churches are hidden from non-owners; pending/active are public.
+  if (church.status === 'suspended' && !isOwner) return <Navigate to="/church/discover" replace />;
 
   return (
     <div className="min-h-screen bg-background pb-24">
