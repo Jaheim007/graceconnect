@@ -239,9 +239,7 @@ function ProSidebar({ provider, tab, onNavigate, className }: {
     )}>
       {/* Brand */}
       <div className="h-16 flex items-center gap-2.5 px-5 border-b">
-        <span className="grid h-9 w-9 place-items-center rounded-xl beauty-gradient text-white shadow-sm">
-          <Scissors className="h-4 w-4" />
-        </span>
+        <SiteLogo size="sm" animate linked={false} />
         <div className="leading-tight">
           <div className="text-sm font-black tracking-tight">SiteViral</div>
           <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Beauty Pro</div>
