@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church, Home as HomeIcon } from 'lucide-react';
+import { ArrowRight, Sparkles, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church, Home as HomeIcon, PartyPopper } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ export default function SuperAppHub() {
     import('@/pages/beauty/BeautyLanding');
     import('@/pages/church/ChurchLanding');
     import('@/pages/home/HomeLanding');
+    import('@/pages/events/EventsLanding');
   }, []);
 
   const t = (fr: string, en: string) => (isFr ? fr : en);
@@ -304,6 +305,63 @@ export default function SuperAppHub() {
                   <div
                     className="mt-6 inline-flex items-center gap-1.5 text-sm font-bold"
                     style={{ color: 'hsl(200 88% 45%)' }}
+                  >
+                    {t('Entrer', 'Enter')} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                  </div>
+                </div>
+              </Link>
+
+              {/* Events tile — new vertical */}
+              <Link
+                to="/events"
+                onClick={() => { try { localStorage.setItem('sv_last_vertical', 'events'); } catch {} }}
+                className="group relative overflow-hidden rounded-3xl border border-border/60 bg-card p-6 transition hover:-translate-y-1 hover:shadow-2xl sm:p-8"
+                aria-label={t('Ouvrir SiteViral Events', 'Open SiteViral Events')}
+              >
+                <div
+                  className="absolute inset-0 opacity-80 transition group-hover:opacity-100"
+                  style={{ background: 'linear-gradient(135deg, hsl(300 80% 55% / 0.22), hsl(270 75% 55% / 0.10) 60%, transparent)' }}
+                />
+                <div
+                  className="absolute -right-16 -top-16 h-56 w-56 rounded-full blur-3xl transition"
+                  style={{ background: 'hsl(300 80% 55% / 0.3)' }}
+                />
+                <div className="relative">
+                  <div className="mb-6 flex items-center justify-between">
+                    <span
+                      className="grid h-12 w-12 place-items-center rounded-2xl text-white shadow-lg"
+                      style={{ background: 'linear-gradient(135deg, hsl(300 80% 55%), hsl(270 75% 55%))' }}
+                    >
+                      <PartyPopper className="h-6 w-6" />
+                    </span>
+                    <span
+                      className="rounded-full bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
+                      style={{ color: 'hsl(300 80% 40%)' }}
+                    >
+                      {t('Nouveau', 'New')}
+                    </span>
+                  </div>
+                  <div className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">SiteViral</div>
+                  <div
+                    className="mt-1 text-3xl font-black tracking-tight sm:text-4xl"
+                    style={{
+                      backgroundImage: 'linear-gradient(135deg, hsl(300 80% 50%), hsl(270 75% 50%))',
+                      WebkitBackgroundClip: 'text',
+                      backgroundClip: 'text',
+                      color: 'transparent',
+                    }}
+                  >
+                    Events
+                  </div>
+                  <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+                    {t(
+                      'Photographe, DJ, traiteur, décoration, salle. Les meilleurs prestataires pour ton mariage ou soirée, acompte bloqué en sécurité.',
+                      'Photographer, DJ, caterer, decorator, venue. The best vendors for your wedding or party, deposit held safe.',
+                    )}
+                  </p>
+                  <div
+                    className="mt-6 inline-flex items-center gap-1.5 text-sm font-bold"
+                    style={{ color: 'hsl(300 80% 45%)' }}
                   >
                     {t('Entrer', 'Enter')} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
                   </div>
