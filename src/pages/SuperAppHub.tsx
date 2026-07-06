@@ -94,7 +94,7 @@ export default function SuperAppHub() {
             </div>
 
             {/* The two tiles */}
-            <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2">
+            <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:grid-cols-3">
               {/* Digital tile — primary vertical */}
               <Link
                 to="/digital"
