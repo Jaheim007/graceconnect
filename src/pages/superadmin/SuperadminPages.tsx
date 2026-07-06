@@ -167,23 +167,34 @@ export function SuperadminKYC() {
   };
 
   const approve = async (id: string, orgId: string) => {
-    const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'approve' });
-    if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
-    // Get org name for notification
     const sub = submissions.find((s: any) => s.id === id);
-    const orgName = sub?.organizations?.name || 'Organisation';
-    import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, orgName, 'approved'));
+    const isBeauty = !!sub?.beauty_provider_id;
+    if (isBeauty) {
+      const { error } = await db.rpc('review_beauty_kyc', { _submission_id: id, _action: 'approve' });
+      if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+    } else {
+      const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'approve' });
+      if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+      const orgName = sub?.organizations?.name || 'Organisation';
+      import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, orgName, 'approved'));
+    }
     toast({ title: 'Vérification approuvée ✅' }); refetch();
   };
 
   const reject = async (id: string, orgId: string) => {
     const reason = prompt('Motif du refus :');
     if (!reason) return;
-    const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'reject', _reason: reason });
-    if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
     const sub = submissions.find((s: any) => s.id === id);
-    const orgName = sub?.organizations?.name || 'Organisation';
-    import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, orgName, 'rejected', reason));
+    const isBeauty = !!sub?.beauty_provider_id;
+    if (isBeauty) {
+      const { error } = await db.rpc('review_beauty_kyc', { _submission_id: id, _action: 'reject', _reason: reason });
+      if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+    } else {
+      const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'reject', _reason: reason });
+      if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+      const orgName = sub?.organizations?.name || 'Organisation';
+      import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, orgName, 'rejected', reason));
+    }
     toast({ title: 'Vérification refusée' }); refetch();
   };
 
