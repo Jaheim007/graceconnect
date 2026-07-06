@@ -56,7 +56,7 @@ export default function ChurchProDashboard() {
   if (!data?.church) return <Navigate to="/church/pro/onboarding" replace />;
 
   const { church, counts } = data;
-  const isVerified = church.status === 'active' && church.verified;
+  const payoutVerified = !!church.payout_verified;
 
   const stats = [
     { label: fr ? 'Prédications' : 'Sermons', value: counts.sermons, icon: Mic },
