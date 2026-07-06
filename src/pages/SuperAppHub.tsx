@@ -44,7 +44,7 @@ export default function SuperAppHub() {
       />
 
       {/* Top bar */}
-      <header className="sticky top-0 z-40 h-14 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 h-14 border-b border-border/60 bg-background/80">
         <div className="mx-auto flex h-full max-w-6xl items-center gap-3 px-4">
           <SiteLogo size="sm" animate />
           <span className="text-sm font-black tracking-tight">SiteViral</span>
@@ -75,7 +75,7 @@ export default function SuperAppHub() {
 
           <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground backdrop-blur">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 <Sparkles className="h-3 w-3 text-primary" />
                 {t('Une app. Toute l\'Afrique.', 'One app. All of Africa.')}
               </div>
@@ -109,7 +109,7 @@ export default function SuperAppHub() {
                     <span className="grid h-12 w-12 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
                       <BookOpen className="h-6 w-6" />
                     </span>
-                    <span className="rounded-full bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary backdrop-blur">
+                    <span className="rounded-full bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
                       {t('Créateurs', 'Creators')}
                     </span>
                   </div>
@@ -156,7 +156,7 @@ export default function SuperAppHub() {
                       <Sparkles className="h-6 w-6" />
                     </span>
                     <span
-                      className="rounded-full bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur"
+                      className="rounded-full bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
                       style={{ color: 'hsl(340 82% 45%)' }}
                     >
                       {t('Nouveau', 'New')}
@@ -218,7 +218,7 @@ export default function SuperAppHub() {
                       <Church className="h-6 w-6" />
                     </span>
                     <span
-                      className="rounded-full bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur"
+                      className="rounded-full bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
                       style={{ color: 'hsl(258 60% 45%)' }}
                     >
                       {t('Églises', 'Churches')}
@@ -263,7 +263,7 @@ export default function SuperAppHub() {
               ].map(({ icon: Icon, label, sub }) => (
                 <div
                   key={label}
-                  className="rounded-2xl border border-border/60 bg-background/50 p-3 backdrop-blur sm:p-4"
+                  className="rounded-2xl border border-border/60 bg-background/50 p-3 sm:p-4"
                 >
                   <Icon className="mx-auto h-4 w-4 text-primary sm:h-5 sm:w-5" />
                   <div className="mt-1.5 text-xs font-bold sm:text-sm">{label}</div>

@@ -72,7 +72,7 @@ export function BeautyLandingBody() {
               ["100%", "Paiement sécurisé"],
               ["24/7", "Support SiteViral"],
             ].map(([k, v]) => (
-              <div key={k} className="rounded-2xl border border-border/60 bg-background/60 p-4 backdrop-blur">
+              <div key={k} className="rounded-2xl border border-border/60 bg-background/60 p-4">
                 <div className="text-2xl font-black tabular-nums">{k}</div>
                 <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{v}</div>
               </div>
@@ -101,7 +101,7 @@ export function BeautyLandingBody() {
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${tint} opacity-60 transition group-hover:opacity-100`} />
               <div className="relative">
-                <div className="mb-3 grid h-11 w-11 place-items-center rounded-xl bg-background/80 text-primary backdrop-blur">
+                <div className="mb-3 grid h-11 w-11 place-items-center rounded-xl bg-background/80 text-primary">
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="text-sm font-bold">{label}</div>
@@ -173,7 +173,7 @@ export function BeautyLandingBody() {
                 "Acompte 20% pour bloquer un créneau",
                 "Notes et tips à la fin de chaque prestation",
               ].map((line) => (
-                <li key={line} className="flex items-start gap-3 rounded-xl bg-white/10 p-3 backdrop-blur">
+                <li key={line} className="flex items-start gap-3 rounded-xl bg-white/10 p-3">
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
                   <span>{line}</span>
                 </li>
