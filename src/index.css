@@ -490,6 +490,14 @@ body > div[style*="position: fixed"][style*="opacity"] {
   padding-bottom: var(--safe-area-bottom);
 }
 
+/* Reserve space so fixed bottom nav never covers page content on mobile.
+   Applied on all viewports where GlobalBottomNav is visible (< lg). */
+@media (max-width: 1023.98px) {
+  body:has(.native-bottom-nav-shell) {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
+  }
+}
+
 .capacitor-app .native-bottom-nav {
   margin: 0 0.5rem 0.5rem;
   border-radius: 1.35rem;
