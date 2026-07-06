@@ -272,6 +272,17 @@ export default function BeautyProviderOnboarding() {
     );
   }
 
+  // While we're checking whether the user already has a provider profile,
+  // don't flash the onboarding form (it would let existing pros re-create).
+  if (user && !providerCheckDone) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-background text-muted-foreground">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
+
+
   return (
     <div className="beauty-scope min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur-xl">
