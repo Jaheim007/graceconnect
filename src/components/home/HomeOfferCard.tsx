@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, ArrowRight, Calendar, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,10 +20,10 @@ export default function HomeOfferCard({ offerId }: Props) {
   const [loading, setLoading] = useState(false);
   const [offer, setOffer] = useState<any>(null);
 
-  // Fetch on mount
-  useState(() => {
-    supabase.from("home_offers").select("*").eq("id", offerId).maybeSingle().then(({ data }) => setOffer(data));
-  });
+  useEffect(() => {
+    supabase.from("home_offers").select("*").eq("id", offerId).maybeSingle()
+      .then(({ data }) => setOffer(data));
+  }, [offerId]);
 
   if (!offer) return null;
   const isClient = user?.id === offer.client_id;
