@@ -4602,58 +4602,85 @@ export type Database = {
       home_bookings: {
         Row: {
           address: string | null
+          auto_release_at: string | null
+          cancelled_at: string | null
           client_id: string
+          commission: number
+          completed_at: string | null
+          confirmed_at: string | null
           created_at: string
           currency: string
           end_otp: string | null
           end_otp_verified_at: string | null
           escrow_status: string
+          gateway: string | null
           id: string
+          notes: string | null
           offer_id: string | null
+          payment_intent_id: string | null
           price: number
           provider_id: string
           scheduled_for: string | null
           service_id: string | null
           start_otp: string | null
           start_otp_verified_at: string | null
+          started_at: string | null
           status: Database["public"]["Enums"]["home_booking_status"]
           updated_at: string
         }
         Insert: {
           address?: string | null
+          auto_release_at?: string | null
+          cancelled_at?: string | null
           client_id: string
+          commission?: number
+          completed_at?: string | null
+          confirmed_at?: string | null
           created_at?: string
           currency?: string
           end_otp?: string | null
           end_otp_verified_at?: string | null
           escrow_status?: string
+          gateway?: string | null
           id?: string
+          notes?: string | null
           offer_id?: string | null
+          payment_intent_id?: string | null
           price?: number
           provider_id: string
           scheduled_for?: string | null
           service_id?: string | null
           start_otp?: string | null
           start_otp_verified_at?: string | null
+          started_at?: string | null
           status?: Database["public"]["Enums"]["home_booking_status"]
           updated_at?: string
         }
         Update: {
           address?: string | null
+          auto_release_at?: string | null
+          cancelled_at?: string | null
           client_id?: string
+          commission?: number
+          completed_at?: string | null
+          confirmed_at?: string | null
           created_at?: string
           currency?: string
           end_otp?: string | null
           end_otp_verified_at?: string | null
           escrow_status?: string
+          gateway?: string | null
           id?: string
+          notes?: string | null
           offer_id?: string | null
+          payment_intent_id?: string | null
           price?: number
           provider_id?: string
           scheduled_for?: string | null
           service_id?: string | null
           start_otp?: string | null
           start_otp_verified_at?: string | null
+          started_at?: string | null
           status?: Database["public"]["Enums"]["home_booking_status"]
           updated_at?: string
         }
@@ -4815,30 +4842,51 @@ export type Database = {
         Row: {
           amount: number
           booking_id: string
+          client_id: string | null
           created_at: string
           currency: string
+          description: string | null
+          expires_at: string
+          gateway: string | null
           id: string
           label: string
+          paid_at: string | null
+          payment_intent_id: string | null
+          provider_id: string | null
           status: Database["public"]["Enums"]["home_extra_charge_status"]
           updated_at: string
         }
         Insert: {
           amount: number
           booking_id: string
+          client_id?: string | null
           created_at?: string
           currency?: string
+          description?: string | null
+          expires_at?: string
+          gateway?: string | null
           id?: string
           label: string
+          paid_at?: string | null
+          payment_intent_id?: string | null
+          provider_id?: string | null
           status?: Database["public"]["Enums"]["home_extra_charge_status"]
           updated_at?: string
         }
         Update: {
           amount?: number
           booking_id?: string
+          client_id?: string | null
           created_at?: string
           currency?: string
+          description?: string | null
+          expires_at?: string
+          gateway?: string | null
           id?: string
           label?: string
+          paid_at?: string | null
+          payment_intent_id?: string | null
+          provider_id?: string | null
           status?: Database["public"]["Enums"]["home_extra_charge_status"]
           updated_at?: string
         }
@@ -4850,42 +4898,79 @@ export type Database = {
             referencedRelation: "home_bookings"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "home_extra_charges_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "home_providers"
+            referencedColumns: ["id"]
+          },
         ]
       }
       home_messages: {
         Row: {
           attachments: Json
           body: string | null
+          booking_id: string | null
           conversation_id: string
           created_at: string
+          extra_charge_id: string | null
           id: string
           kind: Database["public"]["Enums"]["home_message_kind"]
+          offer_id: string | null
           sender_id: string
         }
         Insert: {
           attachments?: Json
           body?: string | null
+          booking_id?: string | null
           conversation_id: string
           created_at?: string
+          extra_charge_id?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["home_message_kind"]
+          offer_id?: string | null
           sender_id: string
         }
         Update: {
           attachments?: Json
           body?: string | null
+          booking_id?: string | null
           conversation_id?: string
           created_at?: string
+          extra_charge_id?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["home_message_kind"]
+          offer_id?: string | null
           sender_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "home_messages_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "home_bookings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "home_messages_conversation_id_fkey"
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "home_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_messages_extra_charge_id_fkey"
+            columns: ["extra_charge_id"]
+            isOneToOne: false
+            referencedRelation: "home_extra_charges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_messages_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "home_offers"
             referencedColumns: ["id"]
           },
         ]
@@ -10851,6 +10936,7 @@ export type Database = {
         | "refund"
         | "cashback"
       home_booking_status:
+        | "pending_payment"
         | "pending"
         | "confirmed"
         | "en_route"
@@ -10858,8 +10944,14 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "disputed"
+        | "refunded"
       home_extra_charge_status: "proposed" | "accepted" | "declined" | "paid"
-      home_message_kind: "text" | "offer" | "system"
+      home_message_kind:
+        | "text"
+        | "offer"
+        | "system"
+        | "extra_charge"
+        | "booking"
       home_offer_status: "draft" | "sent" | "accepted" | "declined" | "expired"
       home_price_unit: "fixed" | "hourly" | "per_m2" | "quote"
       home_provider_status: "pending" | "active" | "suspended"
@@ -11111,6 +11203,7 @@ export const Constants = {
         "cashback",
       ],
       home_booking_status: [
+        "pending_payment",
         "pending",
         "confirmed",
         "en_route",
@@ -11118,9 +11211,10 @@ export const Constants = {
         "completed",
         "cancelled",
         "disputed",
+        "refunded",
       ],
       home_extra_charge_status: ["proposed", "accepted", "declined", "paid"],
-      home_message_kind: ["text", "offer", "system"],
+      home_message_kind: ["text", "offer", "system", "extra_charge", "booking"],
       home_offer_status: ["draft", "sent", "accepted", "declined", "expired"],
       home_price_unit: ["fixed", "hourly", "per_m2", "quote"],
       home_provider_status: ["pending", "active", "suspended"],
