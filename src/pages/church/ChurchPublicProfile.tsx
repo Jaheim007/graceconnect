@@ -135,14 +135,13 @@ export default function ChurchPublicProfile() {
               <p className="text-xs text-muted-foreground">{fr ? 'Dîmes, offrandes, campagnes · Mobile Money & Carte' : 'Tithes, offerings, campaigns · Mobile Money & Card'}</p>
             </div>
           </div>
-          <Button size="lg" disabled={isOwnerPreview}>
-            <HandHeart className="mr-2 h-4 w-4" />
-            {fr ? 'Faire un don' : 'Give'}
+          <Button size="lg" asChild>
+            <Link to={`/church/${church.slug}/give`}>
+              <HandHeart className="mr-2 h-4 w-4" />
+              {fr ? 'Faire un don' : 'Give'}
+            </Link>
           </Button>
         </div>
-        {isOwnerPreview && (
-          <p className="text-xs text-muted-foreground mt-2 text-center">{fr ? 'Le module de don sera actif après validation du KYC.' : 'The giving module activates after KYC approval.'}</p>
-        )}
       </section>
 
       {/* Sermons */}
