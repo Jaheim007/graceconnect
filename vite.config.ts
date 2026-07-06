@@ -153,8 +153,23 @@ export default defineConfig(({ mode }) => ({
         },
       },
       workbox: {
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}"],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+        // Precache only the app shell. Lazy JS/CSS chunks, blog images and
+        // large assets are cached at runtime (StaleWhileRevalidate / CacheFirst)
+        // so the very first visit does not stall the browser tab loader while
+        // hundreds of chunks are prefetched in the background.
+        globPatterns: [
+          "index.html",
+          "manifest.webmanifest",
+          "favicon.ico",
+          "favicon.png",
+          "offline.html",
+          "logo-s.png",
+          "pwa-192x192.png",
+          "pwa-512x512.png",
+          "assets/index-*.{js,css}",
+        ],
+        globIgnores: ["**/images/**", "assets/*.{jpg,jpeg,png,webp,svg}"],
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/~oauth/, /^\/auth\/callback/, /^\/canva\/callback/, /^\/share-target/],
         cleanupOutdatedCaches: true,
