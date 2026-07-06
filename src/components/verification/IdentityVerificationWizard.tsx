@@ -241,6 +241,23 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
         });
         if (error) throw error;
         submissionId = (data as any)?.submission_id || null;
+      } else if (mode === 'beauty') {
+        const { data, error } = await db.rpc('submit_beauty_kyc', {
+          _provider_id: entityId,
+          _id_document_url: docFrontUrl,
+          _id_document_type: docType,
+          _id_document_back_url: docBackUrl || null,
+          _selfie_url: selfieUrl,
+          _selfie_with_doc_url: selfieWithDocUrl,
+          _bank_account_name: accountName || null,
+          _bank_account_number: accountNumber || null,
+          _bank_name: payoutMethod === 'bank' ? bankName : payoutProvider,
+          _payout_method: payoutMethod,
+          _payout_phone: payoutMethod === 'mobile_money' ? accountNumber : null,
+          _payout_provider: payoutProvider || null,
+        });
+        if (error) throw error;
+        submissionId = (data as any)?.submission_id || null;
       } else {
         const { error } = await db.rpc('submit_partner_kyc', {
           _partner_id: entityId,
