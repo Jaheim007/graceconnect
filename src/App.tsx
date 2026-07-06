@@ -675,6 +675,7 @@ const App = () => (
                   <Route path="ai-history" element={<Suspense fallback={<PageLoader />}><SuperadminAIHistory /></Suspense>} />
                   <Route path="ads" element={<SuperadminAds />} />
                   <Route path="beauty" element={<SuperadminBeauty />} />
+                  <Route path="church" element={<SuperadminChurch />} />
                   <Route path="trust" element={<SuperadminTrust />} />
                 </Route>
 
