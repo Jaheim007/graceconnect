@@ -32,6 +32,7 @@ export default function SuperAppHub() {
     import('@/pages/church/ChurchLanding');
     import('@/pages/home/HomeLanding');
     import('@/pages/events/EventsLanding');
+    import('@/pages/education/EducationLanding');
   }, []);
 
   const t = (fr: string, en: string) => (isFr ? fr : en);
