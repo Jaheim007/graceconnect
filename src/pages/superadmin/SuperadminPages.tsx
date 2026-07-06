@@ -255,18 +255,24 @@ export function SuperadminKYC() {
         <div className="space-y-4">
           {submissions.map((s: any) => {
             const org = s.organizations;
+            const beauty = s.beauty_providers;
+            const displayName = org?.name || beauty?.business_name || s.organization_id?.slice(0, 8) || s.beauty_provider_id?.slice(0, 8);
+            const displaySlug = org?.slug ? `/${org.slug}` : beauty?.slug ? `/beauty/p/${beauty.slug}` : '';
             return (
               <div key={s.id} className="p-4 rounded-2xl border border-border bg-card space-y-3">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div>
                     <p className="font-medium text-sm">
-                      {org?.name || s.organization_id?.slice(0, 8)}
+                      {displayName}
                       {org?.category && (
                         <Badge variant="secondary" className="ml-2 text-[10px]">{org.category}</Badge>
                       )}
+                      {beauty && (
+                        <Badge variant="secondary" className="ml-2 text-[10px]">Beauty</Badge>
+                      )}
                     </p>
                     <p className="text-[10px] text-muted-foreground">
-                       {org?.slug ? `/${org.slug}` : ''} · Soumis le {new Date(s.submitted_at).toLocaleDateString()}
+                       {displaySlug} · Soumis le {new Date(s.submitted_at).toLocaleDateString()}
                        {s.document_expires_at && (
                          <span> · Expire le {new Date(s.document_expires_at).toLocaleDateString()}</span>
                        )}
