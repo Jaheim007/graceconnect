@@ -78,6 +78,7 @@ const ChurchProPrayer = lazy(() => import("@/pages/church/ChurchProPrayer"));
 const ChurchProAnnouncements = lazy(() => import("@/pages/church/ChurchProAnnouncements"));
 const ChurchProEvents = lazy(() => import("@/pages/church/ChurchProEvents"));
 const ChurchProTeam = lazy(() => import("@/pages/church/ChurchProTeam"));
+const ChurchProSettings = lazy(() => import("@/pages/church/ChurchProSettings"));
 const ChurchGivePage = lazy(() => import("@/pages/church/ChurchGivePage"));
 const ChurchGiveSuccessPage = lazy(() => import("@/pages/church/ChurchGiveSuccessPage"));
 const ChurchSermonPdfBuyPage = lazy(() => import("@/pages/church/ChurchSermonPdfBuyPage"));
