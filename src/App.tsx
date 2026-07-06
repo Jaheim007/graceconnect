@@ -474,6 +474,23 @@ const App = () => (
                 <Route path="/events/booking/:id" element={<RequireAuth><EventsBookingDetail /></RequireAuth>} />
                 <Route path="/events/pro/:slug" element={<EventsProviderPublic />} />
 
+                {/* Education vertical */}
+                <Route path="/education" element={<EducationActionHub />} />
+                <Route path="/education/about" element={<EducationLanding />} />
+                <Route path="/education/discover" element={<EducationDiscover />} />
+                <Route path="/education/pro/onboarding" element={<EducationTutorOnboarding />} />
+                <Route path="/education/pro" element={<RequireAuth><EducationTutorDashboard /></RequireAuth>} />
+                <Route path="/education/pro/kyc" element={<RequireAuth><EducationKYCPage /></RequireAuth>} />
+                <Route path="/education/pro/subjects" element={<RequireAuth><EducationTutorSubjects /></RequireAuth>} />
+                <Route path="/education/pro/revenue" element={<RequireAuth><EducationTutorRevenue /></RequireAuth>} />
+                <Route path="/education/messages" element={<RequireAuth><EducationMessagesList /></RequireAuth>} />
+                <Route path="/education/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
+                <Route path="/education/bookings" element={<RequireAuth><EducationBookingsList /></RequireAuth>} />
+                <Route path="/education/booking/:id" element={<RequireAuth><EducationBookingDetail /></RequireAuth>} />
+                <Route path="/education/pro/:slug" element={<EducationTutorPublic />} />
+
+
+
                 <Route path="/a-propos" element={<LandingPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
