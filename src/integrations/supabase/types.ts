@@ -4293,6 +4293,794 @@ export type Database = {
           },
         ]
       }
+      events_availability_blocks: {
+        Row: {
+          created_at: string
+          ends_at: string
+          id: string
+          provider_id: string
+          reason: string | null
+          starts_at: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at: string
+          id?: string
+          provider_id: string
+          reason?: string | null
+          starts_at: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string
+          id?: string
+          provider_id?: string
+          reason?: string | null
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_availability_blocks_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "events_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_booking_events: {
+        Row: {
+          booking_id: string
+          created_at: string
+          id: string
+          kind: string
+          meta: Json
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          meta?: Json
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          meta?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_booking_events_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "events_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_bookings: {
+        Row: {
+          auto_release_at: string | null
+          balance_due: number
+          cancelled_at: string | null
+          client_id: string
+          commission: number
+          completed_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          currency: string
+          deposit_paid: number
+          end_otp: string | null
+          end_otp_verified_at: string | null
+          escrow_status: string
+          event_date: string | null
+          gateway: string | null
+          guest_count: number | null
+          id: string
+          notes: string | null
+          offer_id: string | null
+          package_id: string | null
+          payment_intent_id: string | null
+          price: number
+          provider_id: string
+          start_otp: string | null
+          start_otp_verified_at: string | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["events_booking_status"]
+          updated_at: string
+          venue_address: string | null
+        }
+        Insert: {
+          auto_release_at?: string | null
+          balance_due?: number
+          cancelled_at?: string | null
+          client_id: string
+          commission?: number
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          currency?: string
+          deposit_paid?: number
+          end_otp?: string | null
+          end_otp_verified_at?: string | null
+          escrow_status?: string
+          event_date?: string | null
+          gateway?: string | null
+          guest_count?: number | null
+          id?: string
+          notes?: string | null
+          offer_id?: string | null
+          package_id?: string | null
+          payment_intent_id?: string | null
+          price?: number
+          provider_id: string
+          start_otp?: string | null
+          start_otp_verified_at?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["events_booking_status"]
+          updated_at?: string
+          venue_address?: string | null
+        }
+        Update: {
+          auto_release_at?: string | null
+          balance_due?: number
+          cancelled_at?: string | null
+          client_id?: string
+          commission?: number
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          currency?: string
+          deposit_paid?: number
+          end_otp?: string | null
+          end_otp_verified_at?: string | null
+          escrow_status?: string
+          event_date?: string | null
+          gateway?: string | null
+          guest_count?: number | null
+          id?: string
+          notes?: string | null
+          offer_id?: string | null
+          package_id?: string | null
+          payment_intent_id?: string | null
+          price?: number
+          provider_id?: string
+          start_otp?: string | null
+          start_otp_verified_at?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["events_booking_status"]
+          updated_at?: string
+          venue_address?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_bookings_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "events_offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_bookings_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "events_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_bookings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "events_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_chat_violations: {
+        Row: {
+          ai_analysis: Json | null
+          category: string
+          conversation_id: string
+          created_at: string
+          id: string
+          message_id: string | null
+          original_text: string | null
+          redacted_text: string | null
+          sender_id: string
+          severity: string
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          category: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          message_id?: string | null
+          original_text?: string | null
+          redacted_text?: string | null
+          sender_id: string
+          severity?: string
+        }
+        Update: {
+          ai_analysis?: Json | null
+          category?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          message_id?: string | null
+          original_text?: string | null
+          redacted_text?: string | null
+          sender_id?: string
+          severity?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_chat_violations_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "events_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_chat_violations_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "events_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_conversations: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          last_message_at: string
+          provider_id: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          provider_id: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          provider_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_conversations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "events_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_disputes: {
+        Row: {
+          booking_id: string
+          created_at: string
+          id: string
+          opened_by: string
+          reason: string
+          resolution: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          id?: string
+          opened_by: string
+          reason: string
+          resolution?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          id?: string
+          opened_by?: string
+          reason?: string
+          resolution?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_disputes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "events_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_extra_charges: {
+        Row: {
+          amount: number
+          booking_id: string
+          client_id: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          expires_at: string
+          gateway: string | null
+          id: string
+          label: string
+          paid_at: string | null
+          payment_intent_id: string | null
+          provider_id: string | null
+          status: Database["public"]["Enums"]["events_extra_charge_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          booking_id: string
+          client_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          expires_at?: string
+          gateway?: string | null
+          id?: string
+          label: string
+          paid_at?: string | null
+          payment_intent_id?: string | null
+          provider_id?: string | null
+          status?: Database["public"]["Enums"]["events_extra_charge_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string
+          client_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          expires_at?: string
+          gateway?: string | null
+          id?: string
+          label?: string
+          paid_at?: string | null
+          payment_intent_id?: string | null
+          provider_id?: string | null
+          status?: Database["public"]["Enums"]["events_extra_charge_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_extra_charges_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "events_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_extra_charges_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "events_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_messages: {
+        Row: {
+          attachments: Json
+          body: string | null
+          booking_id: string | null
+          conversation_id: string
+          created_at: string
+          extra_charge_id: string | null
+          id: string
+          kind: Database["public"]["Enums"]["events_message_kind"]
+          offer_id: string | null
+          sender_id: string
+        }
+        Insert: {
+          attachments?: Json
+          body?: string | null
+          booking_id?: string | null
+          conversation_id: string
+          created_at?: string
+          extra_charge_id?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["events_message_kind"]
+          offer_id?: string | null
+          sender_id: string
+        }
+        Update: {
+          attachments?: Json
+          body?: string | null
+          booking_id?: string | null
+          conversation_id?: string
+          created_at?: string
+          extra_charge_id?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["events_message_kind"]
+          offer_id?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_messages_booking_fk"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "events_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "events_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_messages_extra_fk"
+            columns: ["extra_charge_id"]
+            isOneToOne: false
+            referencedRelation: "events_extra_charges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_messages_offer_fk"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "events_offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_offers: {
+        Row: {
+          client_id: string
+          conversation_id: string
+          created_at: string
+          currency: string
+          deposit_amount: number | null
+          description: string | null
+          event_date: string | null
+          guest_count: number | null
+          id: string
+          price: number
+          provider_id: string
+          status: Database["public"]["Enums"]["events_offer_status"]
+          title: string
+          updated_at: string
+          venue_address: string | null
+        }
+        Insert: {
+          client_id: string
+          conversation_id: string
+          created_at?: string
+          currency?: string
+          deposit_amount?: number | null
+          description?: string | null
+          event_date?: string | null
+          guest_count?: number | null
+          id?: string
+          price: number
+          provider_id: string
+          status?: Database["public"]["Enums"]["events_offer_status"]
+          title: string
+          updated_at?: string
+          venue_address?: string | null
+        }
+        Update: {
+          client_id?: string
+          conversation_id?: string
+          created_at?: string
+          currency?: string
+          deposit_amount?: number | null
+          description?: string | null
+          event_date?: string | null
+          guest_count?: number | null
+          id?: string
+          price?: number
+          provider_id?: string
+          status?: Database["public"]["Enums"]["events_offer_status"]
+          title?: string
+          updated_at?: string
+          venue_address?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_offers_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "events_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_offers_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "events_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_packages: {
+        Row: {
+          active: boolean
+          category: string | null
+          cover_url: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          duration_hours: number | null
+          guest_capacity: number | null
+          id: string
+          included: Json
+          price: number
+          provider_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          duration_hours?: number | null
+          guest_capacity?: number | null
+          id?: string
+          included?: Json
+          price?: number
+          provider_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          duration_hours?: number | null
+          guest_capacity?: number | null
+          id?: string
+          included?: Json
+          price?: number
+          provider_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_packages_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "events_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_provider_media: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          provider_id: string
+          sort: number
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          provider_id: string
+          sort?: number
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          provider_id?: string
+          sort?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_provider_media_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "events_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_provider_stats: {
+        Row: {
+          events_cancelled: number
+          events_completed: number
+          provider_id: string
+          response_rate: number
+          revenue_30d: number
+          revenue_all_time: number
+          upcoming_count: number
+          updated_at: string
+        }
+        Insert: {
+          events_cancelled?: number
+          events_completed?: number
+          provider_id: string
+          response_rate?: number
+          revenue_30d?: number
+          revenue_all_time?: number
+          upcoming_count?: number
+          updated_at?: string
+        }
+        Update: {
+          events_cancelled?: number
+          events_completed?: number
+          provider_id?: string
+          response_rate?: number
+          revenue_30d?: number
+          revenue_all_time?: number
+          upcoming_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_provider_stats_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "events_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_providers: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          business_name: string
+          categories: string[]
+          city: string | null
+          country: string | null
+          cover_url: string | null
+          created_at: string
+          currency: string
+          id: string
+          is_new: boolean
+          is_official: boolean
+          kyc_status: string
+          kyc_verified_at: string | null
+          languages: string[]
+          min_deposit_pct: number
+          rating_avg: number
+          rating_count: number
+          service_radius_km: number
+          slug: string
+          status: Database["public"]["Enums"]["events_provider_status"]
+          updated_at: string
+          user_id: string
+          years_experience: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          business_name: string
+          categories?: string[]
+          city?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          is_new?: boolean
+          is_official?: boolean
+          kyc_status?: string
+          kyc_verified_at?: string | null
+          languages?: string[]
+          min_deposit_pct?: number
+          rating_avg?: number
+          rating_count?: number
+          service_radius_km?: number
+          slug: string
+          status?: Database["public"]["Enums"]["events_provider_status"]
+          updated_at?: string
+          user_id: string
+          years_experience?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          business_name?: string
+          categories?: string[]
+          city?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          is_new?: boolean
+          is_official?: boolean
+          kyc_status?: string
+          kyc_verified_at?: string | null
+          languages?: string[]
+          min_deposit_pct?: number
+          rating_avg?: number
+          rating_count?: number
+          service_radius_km?: number
+          slug?: string
+          status?: Database["public"]["Enums"]["events_provider_status"]
+          updated_at?: string
+          user_id?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
+      events_reviews: {
+        Row: {
+          booking_id: string
+          client_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          provider_id: string
+          provider_reply: string | null
+          rating: number
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          client_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          provider_id: string
+          provider_reply?: string | null
+          rating: number
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          client_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          provider_id?: string
+          provider_reply?: string | null
+          rating?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "events_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "events_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exchange_rates: {
         Row: {
           base_currency: string
@@ -10935,6 +11723,30 @@ export type Database = {
         | "expiration"
         | "refund"
         | "cashback"
+      events_booking_status:
+        | "pending_payment"
+        | "pending"
+        | "confirmed"
+        | "deposit_paid"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
+        | "disputed"
+        | "refunded"
+      events_extra_charge_status: "proposed" | "accepted" | "declined" | "paid"
+      events_message_kind:
+        | "text"
+        | "offer"
+        | "system"
+        | "booking"
+        | "extra_charge"
+      events_offer_status:
+        | "draft"
+        | "sent"
+        | "accepted"
+        | "declined"
+        | "expired"
+      events_provider_status: "pending" | "active" | "suspended"
       home_booking_status:
         | "pending_payment"
         | "pending"
@@ -11202,6 +12014,27 @@ export const Constants = {
         "refund",
         "cashback",
       ],
+      events_booking_status: [
+        "pending_payment",
+        "pending",
+        "confirmed",
+        "deposit_paid",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "disputed",
+        "refunded",
+      ],
+      events_extra_charge_status: ["proposed", "accepted", "declined", "paid"],
+      events_message_kind: [
+        "text",
+        "offer",
+        "system",
+        "booking",
+        "extra_charge",
+      ],
+      events_offer_status: ["draft", "sent", "accepted", "declined", "expired"],
+      events_provider_status: ["pending", "active", "suspended"],
       home_booking_status: [
         "pending_payment",
         "pending",
