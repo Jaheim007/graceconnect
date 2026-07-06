@@ -52,7 +52,7 @@ export default function HomeLanding() {
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild size="lg" className="bg-gradient-to-br from-sky-500 to-emerald-500 text-white">
-              <Link to="/home/discover">{t("Trouver un pro", "Find a pro")} <ArrowRight className="ml-1 h-4 w-4" /></Link>
+              <Link to="/home/discover">{t("Trouver un artisan", "Find an artisan")} <ArrowRight className="ml-1 h-4 w-4" /></Link>
             </Button>
             <Button asChild size="lg" variant="outline">
               <Link to="/home/pro/onboarding">{t("Je suis un pro", "I'm a pro")}</Link>
