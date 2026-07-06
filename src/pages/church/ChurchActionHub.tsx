@@ -82,18 +82,8 @@ export default function ChurchActionHub() {
             borderClass: "hover:border-emerald-300 dark:hover:border-emerald-500/40",
           },
         ]),
-    {
-      id: "invite",
-      icon: Link2,
-      titleFr: "J'ai un lien d'église",
-      titleEn: "I have a church link",
-      descFr: "Ouvre le lien partagé par ton pasteur pour donner ou rejoindre",
-      descEn: "Open the link your pastor shared to give or join",
-      route: "/church/about#invite",
-      iconBg: "bg-amber-100 dark:bg-amber-500/15",
-      iconColor: "text-amber-600 dark:text-amber-400",
-      borderClass: "hover:border-amber-300 dark:hover:border-amber-500/40",
-    },
+
+
 
     {
       id: "about",
