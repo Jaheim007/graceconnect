@@ -110,18 +110,36 @@ export default function BeautyProviderOnboarding() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(draft)); } catch {}
   }, [businessName, bio, phone, city, address, latitude, longitude, zonesText, atSalon, atHome, specialties, services]);
 
-  // Prefill currency from payout profile if any
+  // If the user already has a provider profile, skip onboarding and send them
+  // straight to their dashboard. This avoids the "recreate service" trap for
+  // returning pros who sign back in and click "Propose my services".
+  const [providerCheckDone, setProviderCheckDone] = useState(false);
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
     (async () => {
+      const { data: existingProvider } = await supabase
+        .from("beauty_providers")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (existingProvider) {
+        try { localStorage.removeItem(STORAGE_KEY); } catch {}
+        navigate("/beauty/pro", { replace: true });
+        return;
+      }
       const { data } = await supabase
         .from("payout_profiles")
         .select("payout_currency")
         .eq("user_id", user.id)
         .maybeSingle();
       if (data?.payout_currency) setCurrency(data.payout_currency);
+      setProviderCheckDone(true);
     })();
-  }, [user]);
+    return () => { cancelled = true; };
+  }, [user, navigate]);
+
 
   const step = STEPS[stepIdx];
 
