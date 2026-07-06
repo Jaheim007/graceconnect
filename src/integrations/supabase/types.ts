@@ -2198,6 +2198,53 @@ export type Database = {
         }
         Relationships: []
       }
+      church_announcements: {
+        Row: {
+          body: string
+          church_id: string
+          cover_url: string | null
+          created_at: string
+          id: string
+          pinned: boolean
+          published_at: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          church_id: string
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          pinned?: boolean
+          published_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          church_id?: string
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          pinned?: boolean
+          published_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_announcements_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       church_campaigns: {
         Row: {
           church_id: string
@@ -2250,6 +2297,63 @@ export type Database = {
             columns: ["church_id"]
             isOneToOne: false
             referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      church_content_reports: {
+        Row: {
+          church_id: string
+          created_at: string
+          id: string
+          message: string | null
+          reason: string
+          reporter_email: string | null
+          reporter_user_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sermon_id: string | null
+          status: string
+        }
+        Insert: {
+          church_id: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          reason: string
+          reporter_email?: string | null
+          reporter_user_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sermon_id?: string | null
+          status?: string
+        }
+        Update: {
+          church_id?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          reason?: string
+          reporter_email?: string | null
+          reporter_user_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sermon_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_content_reports_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "church_content_reports_sermon_id_fkey"
+            columns: ["sermon_id"]
+            isOneToOne: false
+            referencedRelation: "church_sermons"
             referencedColumns: ["id"]
           },
         ]
@@ -2404,15 +2508,18 @@ export type Database = {
           cover_url: string | null
           created_at: string
           currency: string
+          default_language: string | null
           denomination: string | null
           email: string | null
           id: string
+          is_official: boolean
           kyc_submission_id: string | null
           languages: string[]
           lat: number | null
           lng: number | null
           logo_url: string | null
           name: string
+          payout_verified: boolean
           phone: string | null
           service_times: Json
           slug: string
@@ -2431,15 +2538,18 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           currency?: string
+          default_language?: string | null
           denomination?: string | null
           email?: string | null
           id?: string
+          is_official?: boolean
           kyc_submission_id?: string | null
           languages?: string[]
           lat?: number | null
           lng?: number | null
           logo_url?: string | null
           name: string
+          payout_verified?: boolean
           phone?: string | null
           service_times?: Json
           slug: string
@@ -2458,15 +2568,18 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           currency?: string
+          default_language?: string | null
           denomination?: string | null
           email?: string | null
           id?: string
+          is_official?: boolean
           kyc_submission_id?: string | null
           languages?: string[]
           lat?: number | null
           lng?: number | null
           logo_url?: string | null
           name?: string
+          payout_verified?: boolean
           phone?: string | null
           service_times?: Json
           slug?: string
@@ -2479,11 +2592,77 @@ export type Database = {
         }
         Relationships: []
       }
+      church_receipts: {
+        Row: {
+          amount: number
+          church_id: string
+          created_at: string
+          currency: string
+          donor_email: string
+          donor_name: string | null
+          donor_user_id: string | null
+          giving_type: string
+          id: string
+          pdf_url: string | null
+          reference: string | null
+          sent_at: string | null
+          transaction_id: string | null
+        }
+        Insert: {
+          amount: number
+          church_id: string
+          created_at?: string
+          currency: string
+          donor_email: string
+          donor_name?: string | null
+          donor_user_id?: string | null
+          giving_type: string
+          id?: string
+          pdf_url?: string | null
+          reference?: string | null
+          sent_at?: string | null
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: number
+          church_id?: string
+          created_at?: string
+          currency?: string
+          donor_email?: string
+          donor_name?: string | null
+          donor_user_id?: string | null
+          giving_type?: string
+          id?: string
+          pdf_url?: string | null
+          reference?: string | null
+          sent_at?: string | null
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_receipts_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "church_receipts_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "offering_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       church_sermon_variants: {
         Row: {
+          approval_status: string
           content: Json
           cost_credits: number
           created_at: string
+          edited_at: string | null
+          edited_by: string | null
           generated_by_model: string | null
           id: string
           sermon_id: string
@@ -2492,9 +2671,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          approval_status?: string
           content?: Json
           cost_credits?: number
           created_at?: string
+          edited_at?: string | null
+          edited_by?: string | null
           generated_by_model?: string | null
           id?: string
           sermon_id: string
@@ -2503,9 +2685,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          approval_status?: string
           content?: Json
           cost_credits?: number
           created_at?: string
+          edited_at?: string | null
+          edited_by?: string | null
           generated_by_model?: string | null
           id?: string
           sermon_id?: string
@@ -2537,12 +2722,16 @@ export type Database = {
           preacher: string | null
           price: number | null
           published_at: string | null
+          rights_confirmed_at: string | null
           scripture_refs: string[]
           series: string | null
           status: string
+          tags: string[]
           title: string
           transcript: string | null
+          transcript_language: string | null
           transcript_status: string
+          unclear_sections: Json
           updated_at: string
         }
         Insert: {
@@ -2558,12 +2747,16 @@ export type Database = {
           preacher?: string | null
           price?: number | null
           published_at?: string | null
+          rights_confirmed_at?: string | null
           scripture_refs?: string[]
           series?: string | null
           status?: string
+          tags?: string[]
           title: string
           transcript?: string | null
+          transcript_language?: string | null
           transcript_status?: string
+          unclear_sections?: Json
           updated_at?: string
         }
         Update: {
@@ -2579,17 +2772,65 @@ export type Database = {
           preacher?: string | null
           price?: number | null
           published_at?: string | null
+          rights_confirmed_at?: string | null
           scripture_refs?: string[]
           series?: string | null
           status?: string
+          tags?: string[]
           title?: string
           transcript?: string | null
+          transcript_language?: string | null
           transcript_status?: string
+          unclear_sections?: Json
           updated_at?: string
         }
         Relationships: [
           {
             foreignKeyName: "church_sermons_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      church_team_members: {
+        Row: {
+          accepted_at: string | null
+          church_id: string
+          created_at: string
+          id: string
+          invited_at: string
+          invited_by: string | null
+          invited_email: string | null
+          role: string
+          user_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          church_id: string
+          created_at?: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          invited_email?: string | null
+          role?: string
+          user_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          church_id?: string
+          created_at?: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          invited_email?: string | null
+          role?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_team_members_church_id_fkey"
             columns: ["church_id"]
             isOneToOne: false
             referencedRelation: "church_providers"
@@ -5058,11 +5299,13 @@ export type Database = {
           affiliate_commission: number | null
           affiliate_link_id: string | null
           amount: number
+          church_id: string | null
           completed_at: string | null
           created_at: string
           currency: string
           donor_email: string | null
           donor_name: string | null
+          giving_type: string | null
           id: string
           is_recurring: boolean
           offering_id: string
@@ -5081,11 +5324,13 @@ export type Database = {
           affiliate_commission?: number | null
           affiliate_link_id?: string | null
           amount: number
+          church_id?: string | null
           completed_at?: string | null
           created_at?: string
           currency?: string
           donor_email?: string | null
           donor_name?: string | null
+          giving_type?: string | null
           id?: string
           is_recurring?: boolean
           offering_id: string
@@ -5104,11 +5349,13 @@ export type Database = {
           affiliate_commission?: number | null
           affiliate_link_id?: string | null
           amount?: number
+          church_id?: string | null
           completed_at?: string | null
           created_at?: string
           currency?: string
           donor_email?: string | null
           donor_name?: string | null
+          giving_type?: string | null
           id?: string
           is_recurring?: boolean
           offering_id?: string
@@ -5129,6 +5376,13 @@ export type Database = {
             columns: ["affiliate_link_id"]
             isOneToOne: false
             referencedRelation: "affiliate_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offering_transactions_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
             referencedColumns: ["id"]
           },
           {
@@ -9315,6 +9569,10 @@ export type Database = {
         Returns: undefined
       }
       increment_view_count: { Args: { media_id: string }; Returns: undefined }
+      is_church_team_member: {
+        Args: { _church_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_org_member: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
