@@ -101,6 +101,7 @@ export function getActionNavItems(
     borderClass: 'border-amber-500/30 hover:border-amber-500/60',
     iconBg: 'bg-amber-500/15',
     iconColor: 'text-amber-500',
+    featureKey: 'digital_products',
   });
 
   items.push({
