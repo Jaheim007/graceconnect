@@ -123,7 +123,7 @@ export default function OnboardingTypePage() {
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button variant="ghost" onClick={() => navigate('/admin')} disabled={saving}>
+        <Button variant="ghost" onClick={handleLater} disabled={saving}>
           {isFr ? 'Plus tard' : 'Later'}
         </Button>
         <Button onClick={handleConfirm} disabled={saving} className="gap-2">
