@@ -86,6 +86,24 @@ export default function BlogArticlePage() {
         ogType="article"
         canonicalUrl={`https://siteviral.com/blog/${article.slug}`}
         article={{ publishedTime: article.publishedAt, section: localizedCategory, tags: article.personas }}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: localizedTitle,
+          description: localizedDesc,
+          image: ogImage,
+          datePublished: article.publishedAt,
+          dateModified: article.publishedAt,
+          articleSection: localizedCategory,
+          keywords: article.personas?.join(', '),
+          mainEntityOfPage: { '@type': 'WebPage', '@id': `https://siteviral.com/blog/${article.slug}` },
+          author: { '@type': 'Organization', name: 'Siteviral' },
+          publisher: {
+            '@type': 'Organization',
+            name: 'Siteviral',
+            logo: { '@type': 'ImageObject', url: 'https://siteviral.com/logo-s.png' },
+          },
+        }}
       />
       <LandingNav />
 

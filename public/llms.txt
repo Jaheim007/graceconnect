@@ -1,0 +1,60 @@
+# Siteviral
+
+> Africa-first digital platform to sell digital products, collect donations via Mobile Money & cards, book service providers, and earn by sharing as an ambassador.
+
+Siteviral is a multi-vertical marketplace and creator platform for Africa and the diaspora. Creators, churches, tutors, beauty pros, home artisans, and event vendors publish public pages, accept payments in FCFA/EUR/USD (Orange Money, MTN, Wave, cards), and grow through a built-in ambassador program.
+
+## Pages
+
+- [Home](/): Overview of the Siteviral platform.
+- [Discover](/discover): Browse public organizations, campaigns, products, and events.
+- [Pricing](/pricing): Plans and pricing.
+- [Features](/features): Full feature list of the platform.
+- [About](/about): About Siteviral.
+- [Contact](/contact): Contact the Siteviral team.
+- [FAQ](/faq): Frequently asked questions.
+- [Blog](/blog): Articles on digital commerce, monetization, and Africa.
+- [Changelog](/changelog): Latest product updates.
+- [Status](/status): Platform uptime and status.
+
+## Verticals
+
+- [Learn (tutors)](/education): Tutor marketplace for private lessons and courses.
+- [Beauty](/beauty): Book beauty and grooming professionals.
+- [Home services](/home): Book home service artisans.
+- [Events](/events): Book event vendors and packages.
+- [Church](/church): Tools for churches — sermons, giving, announcements.
+
+## Guides
+
+- [Sell an ebook in Africa](/guide/vendre-ebook-afrique): Step-by-step ebook selling guide.
+- [Free digital storefront](/guide/boutique-digitale-gratuite): How to launch a digital store for free.
+- [Donation platform for Africa](/guide/plateforme-dons-afrique): Alternative to GoFundMe for Africa.
+- [GoFundMe alternative](/guide/alternative-gofundme): Why Siteviral works where GoFundMe doesn't.
+- [Sell courses online](/guide/vendre-cours-en-ligne): Guide for tutors and trainers.
+- [Monetize religious content](/guide/monetiser-contenu-religieux): For pastors, imams and religious leaders.
+- [Earn without content](/guide/gagner-sans-contenu): Ambassador program explained.
+- [Mobile Money e-commerce](/guide/mobile-money-ecommerce): How Mobile Money payments work.
+- [Affiliate without investment](/guide/affiliation-sans-investissement): Start affiliate marketing with zero budget.
+
+## Programs
+
+- [Ambassador program](/ambassador-program): Earn commissions by sharing.
+- [Partner program](/devenir-partenaire): Become a Siteviral partner.
+- [Marketplace templates](/marketplace/templates): Browse ready-made org templates.
+
+## Legal
+
+- [Payout policy](/payout-policy): How payouts work.
+- [Refund policy](/refunds): Refund rules.
+- [Acceptable use](/acceptable-use): Platform usage rules.
+- [Compliance](/compliance): Compliance and AML.
+- [Security](/security): Security practices.
+- [Subprocessors](/subprocessors): Data subprocessors.
+
+## Optional
+
+- [Testimonials](/temoignages): Customer testimonials.
+- [Press](/presse): Press resources.
+- [Case studies](/etudes-de-cas): Customer case studies.
+- [Partners](/partenaires): Our partners.
