@@ -25,6 +25,7 @@ import { DashboardSection } from '@/components/ui/DashboardSection';
 
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
 import { SmartNextAction } from '@/components/admin/SmartNextAction';
+import { AdaptiveDashboard } from '@/components/siteviral/AdaptiveDashboard';
 import { VideoImportButton } from '@/components/admin/VideoImportButton';
 import { AIAnalyticsInsights } from '@/components/admin/AIAnalyticsInsights';
 
@@ -212,6 +213,9 @@ export default function AdminDashboard() {
           </Button>
         </div>
       </div>
+
+      {/* ═══ ADAPTIVE DASHBOARD — SiteViral type + enabled features ═══ */}
+      <AdaptiveDashboard />
 
       {/* ═══ VERIFICATION BANNER — urgent ═══ */}
       {currentOrg?.kyc_status !== 'level1' && currentOrg?.kyc_status !== 'level2' && (
