@@ -1,117 +1,77 @@
-# SiteViral Events — Phase 1 MVP Plan
 
-Fourth vertical on SiteViral. Same architecture as Beauty and Home: chat-first custom offers, 100% escrow, Dual OTP, extra charges, KYC-gated discovery, anti-bypass trust. Adapted for event-day services where bookings are scheduled weeks/months in advance with deposits.
+# SiteViral Modular Foundation — Build Plan
 
----
+Goal: build the **PRD foundation** — one platform, one org row driven by `siteviral_type` + `enabled_features[]`. No new verticals. Existing Beauty / Church / Home / Digital / Learn / Events code stays; we wrap it behind feature flags so dashboards and public pages become adaptive. Naming and cosmetic renames come **after** the foundation works.
 
-## 1. Scope of Phase 1
-
-Ship the same surface area as Home, adapted for events:
-
-- Landing `/events`
-- Discovery `/events/discover` (category + city + event date filters)
-- Public provider page `/events/pro/:slug` (portfolio-heavy)
-- Client action hub `/events/action`
-- Provider onboarding `/events/pro/onboarding`
-- Provider dashboard `/events/pro` (upcoming events, revenue, packages)
-- Messaging `/events/messages` (realtime + anti-bypass)
-- Bookings `/events/bookings` + `/events/booking/:id` with **Dual OTP on event day** (Start = arrival, End = wrap)
-- KYC `/events/pro/kyc` (reuse `IdentityVerificationWizard` in `events` mode)
-- Superadmin `/superadmin/events`
-- Super-App Hub tile + vertical-aware routing
-
-**Events-specific tweaks vs Home**:
-- Categories: Photographer, Videographer, DJ, MC/Animator, Caterer, Decorator, Venue, Sound & Light, Security, Traiteur, Planner, Rental (chairs/tables/tents)
-- Packages instead of hourly services (`events_packages` with duration + guest capacity)
-- Portfolio gallery is central (media grid on public page)
-- Deposit-first escrow: partial upfront + balance on event day
-- Event date + venue address are first-class booking fields
-
-Out of scope: multi-vendor bundling, ticketing, guest RSVP, insurance/permits.
-
-## 2. Data model (mirror `home_*` → `events_*`)
-
-New tables, each following CREATE → GRANT → RLS → POLICY:
+## What "foundation" means here
+Four building blocks. Everything else in the PRD (onboarding wording, Add-More UI, migration modal, etc.) plugs into these.
 
 ```text
-events_providers          user_id, slug, business_name, categories text[],
-                          city, country, service_radius_km, bio, cover_url,
-                          avatar_url, years_experience, languages text[],
-                          status, kyc_status, kyc_verified_at,
-                          is_new, is_official, rating_avg, rating_count,
-                          currency, min_deposit_pct
-events_packages           provider_id, title, description, category,
-                          price, duration_hours, guest_capacity,
-                          included jsonb, cover_url, active
-events_provider_media     provider_id, url, kind (photo|video), sort
-events_availability_blocks provider_id, starts_at, ends_at, reason
-events_conversations      client_id, provider_id, last_message_at
-events_messages           conversation_id, sender_id, body, kind
-                          (text|offer|system), attachments jsonb
-events_chat_violations    (mirror home_chat_violations)
-events_offers             conversation_id, provider_id, client_id,
-                          title, description, price, currency,
-                          deposit_amount, event_date, venue_address,
-                          guest_count, status
-events_bookings           offer_id, provider_id, client_id, package_id,
-                          event_date, venue_address, guest_count,
-                          price, deposit_paid, balance_due, currency,
-                          status (pending|confirmed|deposit_paid|
-                          in_progress|completed|cancelled|disputed),
-                          start_otp, end_otp, start_otp_verified_at,
-                          end_otp_verified_at, escrow_status
-events_extra_charges      booking_id, label, amount, currency, status
-events_booking_events     booking_id, kind, meta jsonb
-events_reviews            booking_id, client_id, provider_id, rating,
-                          comment, provider_reply
-events_disputes           booking_id, opened_by, reason, status
-events_provider_stats     events_completed, revenue_30d, upcoming_count
+1. Data model      → organizations gains siteviral_type + enabled_features[]
+2. Config layer    → single source of truth for the 9 types × 13 features
+3. Runtime gate    → useEnabledFeatures + <FeatureGate> everywhere
+4. Migration       → non-destructive backfill for 250+ existing orgs
 ```
 
-All follow proven Beauty/Home RLS patterns.
+## Phase 1 — Data model (migration)
 
-## 3. Routes
+Add to `organizations`:
+- `siteviral_type text` (nullable until user picks; enum enforced in app)
+- `enabled_features text[] not null default '{}'`
+- `features_confirmed_at timestamptz` (null = existing user hasn't confirmed migration yet)
+- `type_confirmed_at timestamptz`
 
-```text
-/events                       Landing
-/events/discover              Discovery
-/events/pro/:slug             Public provider page (portfolio)
-/events/action                Client hub
-/events/messages              Conversations
-/events/messages/:id          Conversation
-/events/bookings              Bookings list
-/events/booking/:id           Booking detail + deposit + Dual OTP
-/events/pro/onboarding        Provider onboarding
-/events/pro                   Dashboard
-/events/pro/packages          Manage packages
-/events/pro/revenue           Earnings
-/events/pro/kyc               KYC
-/superadmin/events            Moderation
-```
+New audit table `feature_activations(org_id, feature_key, activated_by, activated_at, source)` with GRANT + RLS (org managers read/insert, service_role all).
 
-## 4. Edge functions
+Backfill in the same migration:
+- Every existing org → `siteviral_type = 'digital_products'`, `features_confirmed_at = null` (so the migration modal shows on next login).
+- `enabled_features` seeded from what the org actually uses today, detected via existence in `digital_products`, `donations`, `beauty_providers`, `church_providers`, `home_providers`, `education_tutors`, `events`, `affiliate_links`, `kyc_submissions`, `product_reviews`, `content_comments`. This guarantees no user loses a feature.
 
-- `events-create-booking` — creates booking + deposit checkout (GeniusPay/Stripe)
-- `events-otp` — generate Start/End OTPs
-- `events-verify-booking` — verify OTP + release funds
-- `events-extra-charge` — propose/accept extra charges
-- Extend `geniuspay-webhook` to route `events_*` orders
+## Phase 2 — Config layer
 
-## 5. Cross-cutting
+`src/lib/siteviral/types.ts` — the 9 types + labels (FR/EN) + default features from PRD §19.
+`src/lib/siteviral/features.ts` — the 13 feature keys, FR/EN labels, descriptions (for Add-More page), icon, and the route/component they gate.
+`src/lib/siteviral/matrix.ts` — the ✅/— matrix from PRD §6 so we can render "Recommended for your type" chips.
 
-- Bilingual FR/EN keys in `useI18n` for all Events copy — use **"Prestataire"** in FR, **"Vendor"** in EN (per user preference: no "pro" wording repeated)
-- 10% platform commission (existing rule)
-- XOF zero-decimal handling (existing engine)
-- Payout profile reused across verticals
-- Add `events` to Super-App Hub + BottomNav vertical detection
+Zero UI change in this phase — pure data.
 
-## 6. Delivery order
+## Phase 3 — Runtime gate
 
-1. Migration (all `events_*` tables + realtime publication + RLS)
-2. Edge functions + `geniuspay-webhook` extension
-3. Provider side: onboarding → dashboard → packages → KYC → revenue
-4. Client side: landing → discover → public page → chat → offer → booking → deposit → Dual OTP → review
-5. Superadmin `/superadmin/events` panel
-6. Hub tile + route wiring in `App.tsx`
+- `useOrgFeatures(orgId)` hook → returns `{ type, features: Set<FeatureKey>, has(key), isLoading }`.
+- `<FeatureGate feature="events">…</FeatureGate>` wrapper component.
+- Sidebar nav items in `Sidebar.tsx` filtered by `has(key)`.
+- Public org page sections wrapped in `FeatureGate`.
+- `Add More Functionalities` page at `/admin/features` listing every feature not currently on, one-click activate → writes to `organizations.enabled_features` + `feature_activations` audit row. Uses default-recommendation from the matrix to sort.
 
-Proceed?
+## Phase 4 — Onboarding + migration flow
+
+- New user: after signup + `create-org`, redirect to `/onboarding/type` (pick one of 9) → `/onboarding/goals` (checkbox list pre-checked with type defaults) → writes `siteviral_type`, `enabled_features`, `type_confirmed_at`, `features_confirmed_at`.
+- Existing user: `AppLayout` checks `currentOrg.features_confirmed_at == null` → mount `<UpgradeMigrationModal>` (blocking, dismissible only via completion). FR/EN copy from PRD §9. Default = `digital_products` but user can pick any of the 9. On confirm: merge existing detected features with the type's defaults, set both `_confirmed_at` timestamps.
+
+## Phase 5 — Naming pass (last, cosmetic)
+
+Only after Phases 1–4 work end-to-end:
+- Rename user-facing labels ("SiteViral Church", "SiteViral Beauty", etc.).
+- Retire Events as a standalone vertical entry point (it becomes a `feature`, not a type). Existing `/events` routes stay live; they just no longer appear in the type picker.
+- Hide unimplemented types (Sport, Instrumentists, Influencers, Services) from the picker with "Bientôt disponible" until we build their pages.
+
+## Delivery order (what I'll ship, in this order)
+
+1. **Migration + backfill** (Phase 1) — one `supabase--migration` call.
+2. **Config files + hook + FeatureGate + Add More page** (Phases 2–3) — one code batch.
+3. **Onboarding + Migration modal** (Phase 4) — one code batch.
+4. **Sidebar + public page wiring** — one code batch.
+5. **Naming + hide unbuilt types** (Phase 5) — one small batch.
+
+I stop after each step for you to preview before continuing.
+
+## Technical section (skip if not interested)
+
+- No new tables besides `feature_activations`. Feature membership lives on the org row for read speed — `enabled_features text[]` gives us O(1) client checks and cheap GIN index for admin queries.
+- `siteviral_type` stays `text` not enum, so adding types later doesn't require a migration.
+- Detection SQL for backfill uses `EXISTS` sub-queries per feature, wrapped in a single `UPDATE organizations` with a computed `array_remove(array[...], null)`.
+- `FeatureGate` renders `null` by default when the feature is off — no flicker.
+- Migration modal is a portal inside `AppLayout`, gated on `!isLoadingOrgs && currentOrg && !currentOrg.features_confirmed_at`.
+- No edge function changes needed for Phase 1–3. Phase 4 might add one small `siteviral-confirm-type` function only if we want server-side audit of the migration event.
+
+Ready to start with Phase 1 (the migration). Confirm and I'll open it.
