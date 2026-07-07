@@ -39,7 +39,7 @@ const PageLoader = () => (
   <div className="min-h-[60dvh] flex flex-col items-center justify-center gap-4">
     <div className="relative">
       <div className="h-14 w-14 rounded-full border-2 border-primary/30 flex items-center justify-center bg-background shadow-lg shadow-primary/10">
-        <img src="/logo-s.png" alt="Siteviral" className="h-9 w-9 object-contain animate-pulse" />
+        <img src="/logo-s.png" alt="Siteviral logo loading" className="h-9 w-9 object-contain animate-pulse" />
       </div>
       <div className="absolute inset-0 h-14 w-14 rounded-full border-2 border-transparent border-t-primary animate-spin" />
     </div>

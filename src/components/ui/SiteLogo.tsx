@@ -34,7 +34,7 @@ export function SiteLogo({
     <span className={cn('inline-flex items-center', className)}>
       <img
         src={logoS}
-        alt="Siteviral"
+        alt="Siteviral logo"
         className={cn(
           sizeMap[size],
           'object-contain rounded-md',

@@ -58,7 +58,7 @@ export function LandingNav() {
         <div className="flex items-center gap-1 sm:gap-2">
           {user && <PlanBadge compact />}
           <GlobalPreferencesSelector />
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme} aria-label={theme === 'dark' ? (isFr ? 'Activer le thème clair' : 'Switch to light theme') : (isFr ? 'Activer le thème sombre' : 'Switch to dark theme')}>
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
 
@@ -138,7 +138,7 @@ export function LandingNav() {
             </>
           )}
 
-          <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? (isFr ? 'Fermer le menu' : 'Close menu') : (isFr ? 'Ouvrir le menu' : 'Open menu')} aria-expanded={menuOpen}>
             {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </Button>
         </div>
