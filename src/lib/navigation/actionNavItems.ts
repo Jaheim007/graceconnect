@@ -71,6 +71,7 @@ export function getActionNavItems(
     borderClass: 'border-primary/30 hover:border-primary/60',
     iconBg: 'bg-primary/15',
     iconColor: 'text-primary',
+    featureKey: 'ai_book_creation',
   });
 
   items.push({
