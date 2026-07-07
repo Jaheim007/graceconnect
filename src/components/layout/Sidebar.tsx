@@ -34,13 +34,25 @@ export function Sidebar() {
     }
   };
 
-  const navItems = getActionNavItems({
+  const { has, org: featureOrg } = useOrgFeatures();
+  const typeConfirmed = !!featureOrg?.type_confirmed_at;
+
+  const rawNavItems = getActionNavItems({
     isAuthenticated: !!user,
     hasPurchases,
     hasManageableOrg,
     hasOrgs,
     isSuperadmin,
   }, resolveRoute);
+
+  // Safe filter: only hide when (a) org has a confirmed SiteViral type AND
+  // (b) the item is feature-gated AND (c) that feature is NOT enabled.
+  // Unconfirmed orgs, or orgs with the feature enabled, keep every item.
+  const navItems = rawNavItems.filter((item) => {
+    if (!item.featureKey) return true;
+    if (!typeConfirmed) return true;
+    return has(item.featureKey);
+  });
 
   const isActive = (route: string) => {
     if (route === '/') return location.pathname === '/';
