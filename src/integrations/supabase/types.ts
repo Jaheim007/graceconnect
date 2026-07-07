@@ -5972,6 +5972,51 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_activations: {
+        Row: {
+          action: string
+          activated_by: string | null
+          created_at: string
+          feature_key: string
+          id: string
+          org_id: string
+          source: string
+        }
+        Insert: {
+          action?: string
+          activated_by?: string | null
+          created_at?: string
+          feature_key: string
+          id?: string
+          org_id: string
+          source?: string
+        }
+        Update: {
+          action?: string
+          activated_by?: string | null
+          created_at?: string
+          feature_key?: string
+          id?: string
+          org_id?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_activations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feature_activations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+        ]
+      }
       founders_lifetime: {
         Row: {
           amount_paid_xof: number
@@ -8555,6 +8600,8 @@ export type Database = {
           created_at: string | null
           currency: string | null
           description: string | null
+          enabled_features: string[]
+          features_confirmed_at: string | null
           fts_vector: unknown
           id: string
           is_active: boolean | null
@@ -8584,11 +8631,13 @@ export type Database = {
           seo_image: string | null
           seo_title: string | null
           settlement_released: boolean | null
+          siteviral_type: string | null
           slug: string
           stripe_account_id: string | null
           stripe_onboarding_complete: boolean
           suspended_until: string | null
           suspension_reason: string | null
+          type_confirmed_at: string | null
           updated_at: string | null
           webhook_events: string[] | null
           webhook_url: string | null
@@ -8605,6 +8654,8 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          enabled_features?: string[]
+          features_confirmed_at?: string | null
           fts_vector?: unknown
           id?: string
           is_active?: boolean | null
@@ -8634,11 +8685,13 @@ export type Database = {
           seo_image?: string | null
           seo_title?: string | null
           settlement_released?: boolean | null
+          siteviral_type?: string | null
           slug: string
           stripe_account_id?: string | null
           stripe_onboarding_complete?: boolean
           suspended_until?: string | null
           suspension_reason?: string | null
+          type_confirmed_at?: string | null
           updated_at?: string | null
           webhook_events?: string[] | null
           webhook_url?: string | null
@@ -8655,6 +8708,8 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          enabled_features?: string[]
+          features_confirmed_at?: string | null
           fts_vector?: unknown
           id?: string
           is_active?: boolean | null
@@ -8684,11 +8739,13 @@ export type Database = {
           seo_image?: string | null
           seo_title?: string | null
           settlement_released?: boolean | null
+          siteviral_type?: string | null
           slug?: string
           stripe_account_id?: string | null
           stripe_onboarding_complete?: boolean
           suspended_until?: string | null
           suspension_reason?: string | null
+          type_confirmed_at?: string | null
           updated_at?: string | null
           webhook_events?: string[] | null
           webhook_url?: string | null
