@@ -5,8 +5,10 @@
 - SF Pro Display headings, Inter body. Never serif.
 - Supabase with RLS. Deployed on Vercel.
 - Dashboard removed — confusing. Do not re-add.
+- Product direction = modular SiteViral (one platform, siteviral_type + enabled_features per org). Never build new verticals; hide ones that don't fit the active PRD until later.
 
 ## Memories
+- [SiteViral Modular PRD](mem://product/siteviral-modular-prd) — Canonical direction: 9 types, 13 feature flags, non-destructive migration of 250+ users.
 - [Hub & Navigation](mem://architecture/multi-vertical/hub-and-navigation-governance) — Root hub, Action Hub pattern, and 6 verticals (Digital, Beauty, Church, Home, Events, Learn).
 - [Beauty Trust](mem://features/beauty/trust-and-safety-governance) — Anti-bypass, Gemini analysis, Trust Score.
 - [Church MVP](mem://features/church/vertical-architecture) — Audio sermons, AI content pipeline, Giving (payout-only KYC gate).
