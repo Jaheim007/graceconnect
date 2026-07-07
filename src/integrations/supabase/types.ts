@@ -1924,6 +1924,7 @@ export type Database = {
           kyc_submission_id: string | null
           latitude: number | null
           longitude: number | null
+          organization_id: string | null
           phone: string | null
           response_time_avg_min: number
           slug: string
@@ -1951,6 +1952,7 @@ export type Database = {
           kyc_submission_id?: string | null
           latitude?: number | null
           longitude?: number | null
+          organization_id?: string | null
           phone?: string | null
           response_time_avg_min?: number
           slug: string
@@ -1978,6 +1980,7 @@ export type Database = {
           kyc_submission_id?: string | null
           latitude?: number | null
           longitude?: number | null
+          organization_id?: string | null
           phone?: string | null
           response_time_avg_min?: number
           slug?: string
@@ -1990,7 +1993,22 @@ export type Database = {
           user_id?: string
           zones?: string[]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "beauty_providers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beauty_providers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+        ]
       }
       beauty_reviews: {
         Row: {
@@ -2600,6 +2618,7 @@ export type Database = {
           lng: number | null
           logo_url: string | null
           name: string
+          organization_id: string | null
           payout_verified: boolean
           phone: string | null
           service_times: Json
@@ -2630,6 +2649,7 @@ export type Database = {
           lng?: number | null
           logo_url?: string | null
           name: string
+          organization_id?: string | null
           payout_verified?: boolean
           phone?: string | null
           service_times?: Json
@@ -2660,6 +2680,7 @@ export type Database = {
           lng?: number | null
           logo_url?: string | null
           name?: string
+          organization_id?: string | null
           payout_verified?: boolean
           phone?: string | null
           service_times?: Json
@@ -2671,7 +2692,22 @@ export type Database = {
           verified?: boolean
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "church_providers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "church_providers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+        ]
       }
       church_receipts: {
         Row: {
@@ -4800,6 +4836,7 @@ export type Database = {
           kyc_status: string | null
           languages: string[] | null
           levels: string[] | null
+          organization_id: string | null
           rating_avg: number | null
           rating_count: number | null
           response_minutes: number | null
@@ -4827,6 +4864,7 @@ export type Database = {
           kyc_status?: string | null
           languages?: string[] | null
           levels?: string[] | null
+          organization_id?: string | null
           rating_avg?: number | null
           rating_count?: number | null
           response_minutes?: number | null
@@ -4854,6 +4892,7 @@ export type Database = {
           kyc_status?: string | null
           languages?: string[] | null
           levels?: string[] | null
+          organization_id?: string | null
           rating_avg?: number | null
           rating_count?: number | null
           response_minutes?: number | null
@@ -4864,7 +4903,22 @@ export type Database = {
           user_id?: string
           years_experience?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "education_tutors_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "education_tutors_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+        ]
       }
       email_campaigns: {
         Row: {
@@ -5738,6 +5792,7 @@ export type Database = {
           kyc_verified_at: string | null
           languages: string[]
           min_deposit_pct: number
+          organization_id: string | null
           rating_avg: number
           rating_count: number
           service_radius_km: number
@@ -5764,6 +5819,7 @@ export type Database = {
           kyc_verified_at?: string | null
           languages?: string[]
           min_deposit_pct?: number
+          organization_id?: string | null
           rating_avg?: number
           rating_count?: number
           service_radius_km?: number
@@ -5790,6 +5846,7 @@ export type Database = {
           kyc_verified_at?: string | null
           languages?: string[]
           min_deposit_pct?: number
+          organization_id?: string | null
           rating_avg?: number
           rating_count?: number
           service_radius_km?: number
@@ -5799,7 +5856,22 @@ export type Database = {
           user_id?: string
           years_experience?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "events_providers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_providers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+        ]
       }
       events_reviews: {
         Row: {
@@ -6733,6 +6805,7 @@ export type Database = {
           kyc_status: string
           kyc_verified_at: string | null
           languages: string[]
+          organization_id: string | null
           rating_avg: number
           rating_count: number
           service_radius_km: number
@@ -6759,6 +6832,7 @@ export type Database = {
           kyc_status?: string
           kyc_verified_at?: string | null
           languages?: string[]
+          organization_id?: string | null
           rating_avg?: number
           rating_count?: number
           service_radius_km?: number
@@ -6785,6 +6859,7 @@ export type Database = {
           kyc_status?: string
           kyc_verified_at?: string | null
           languages?: string[]
+          organization_id?: string | null
           rating_avg?: number
           rating_count?: number
           service_radius_km?: number
@@ -6794,7 +6869,22 @@ export type Database = {
           user_id?: string
           years_experience?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "home_providers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_providers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+        ]
       }
       home_reviews: {
         Row: {
