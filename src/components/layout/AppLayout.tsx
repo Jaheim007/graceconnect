@@ -87,6 +87,7 @@ export function AppLayout() {
       <CookieConsent />
       <FloatingHelpWidget />
       <KeyboardShortcutsModal />
+      <UpgradeMigrationModal />
     </div>
     </CompareProvider>
   );
