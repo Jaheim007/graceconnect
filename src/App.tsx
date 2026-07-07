@@ -720,6 +720,7 @@ const App = () => (
                   
                   <Route path="kyc" element={<LazyAdminKYC />} />
                   <Route path="settings" element={<LazyAdminSettings />} />
+                  <Route path="features" element={<LazyAdminFeatures />} />
                   <Route path="sales" element={<AdminSales />} />
                   <Route path="payouts" element={<AdminPayouts />} />
                   <Route path="subscriptions" element={<AdminSubscriptions />} />
