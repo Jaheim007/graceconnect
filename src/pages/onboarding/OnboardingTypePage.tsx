@@ -122,14 +122,21 @@ export default function OnboardingTypePage() {
           : `Selected: ${meta.emoji} ${meta.labelEn}. You can change this type and features anytime in settings.`}
       </div>
 
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" onClick={handleLater} disabled={saving}>
-          {isFr ? 'Plus tard' : 'Later'}
-        </Button>
-        <Button onClick={handleConfirm} disabled={saving} className="gap-2">
-          {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-          {isFr ? 'Créer mon SiteViral' : 'Create my SiteViral'}
-        </Button>
+      <div className="flex flex-col items-end gap-1">
+        <div className="flex gap-2">
+          <Button variant="ghost" onClick={handleLater} disabled={saving}>
+            {isFr ? 'Plus tard' : 'Later'}
+          </Button>
+          <Button onClick={handleConfirm} disabled={saving} className="gap-2">
+            {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isFr ? 'Créer mon SiteViral' : 'Create my SiteViral'}
+          </Button>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          {isFr
+            ? 'Vous pourrez changer votre type SiteViral et activer plus de fonctionnalités à tout moment.'
+            : 'You can change your SiteViral type and activate more features at any time.'}
+        </p>
       </div>
     </div>
   );
