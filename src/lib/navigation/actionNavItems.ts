@@ -116,6 +116,7 @@ export function getActionNavItems(
     borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
     iconBg: 'bg-emerald-500/15',
     iconColor: 'text-emerald-500',
+    featureKey: 'affiliation',
   });
 
   items.push({
