@@ -5095,6 +5095,133 @@ export const blogArticles: BlogArticle[] = [
 <p><strong>« Le meilleur moment pour planter un arbre était il y a 20 ans. Le deuxième meilleur moment, c'est maintenant. »</strong> — Proverbe africain</p>
 `,
   },
+  {
+    slug: 'guide-affiliate-marketing-debutants',
+    title: 'Affiliate marketing pour débutants : le guide complet pour se lancer en Afrique',
+    description: 'Comment démarrer l\'affiliate marketing en Afrique sans budget, sans site web et sans audience. Guide étape par étape avec Mobile Money.',
+    personas: ['Ambassadeur', 'Débutant'],
+    universe: 'ambassador',
+    category: 'Guide pratique',
+    readTime: '12 min',
+    publishedAt: '2026-07-07',
+    content: `
+<h2>Affiliate marketing : c'est quoi exactement ?</h2>
+<p>L'<strong>affiliate marketing</strong> (ou marketing d'affiliation) consiste à recommander les produits d'une autre personne ou entreprise et à toucher une commission sur chaque vente générée grâce à vous. Vous partagez un lien unique. Quelqu'un clique. Il achète. Vous gagnez.</p>
+<p>C'est le moyen le plus rapide de commencer à gagner de l'argent en ligne quand on n'a <strong>pas encore de produit</strong>, pas de site web, pas d'audience et pas de budget publicitaire.</p>
+
+<h2>Pourquoi l'Afrique est le meilleur marché pour débuter en 2026</h2>
+<ul>
+<li><strong>+300 millions d'utilisateurs Mobile Money</strong> — la friction de paiement qui bloquait le e-commerce africain a disparu.</li>
+<li><strong>Un pouvoir d'achat digital qui explose</strong> — ebooks, formations, cours de langue, coaching, musique, produits religieux.</li>
+<li><strong>Une diaspora active</strong> qui achète en EUR/USD et soutient les créateurs restés au pays.</li>
+<li><strong>WhatsApp comme canal roi</strong> — vos communautés existent déjà, il suffit d'y partager les bons liens.</li>
+</ul>
+<p>Résultat : un ambassadeur africain sérieux peut viser <strong>150 000 à 500 000 FCFA/mois</strong> en commissions dès les 3 premiers mois, sans jamais créer un seul produit.</p>
+
+<h2>Comment ça marche concrètement : les 4 acteurs</h2>
+<ol>
+<li><strong>Le créateur</strong> : la personne ou l'entreprise qui vend le produit (formation, ebook, service).</li>
+<li><strong>La plateforme</strong> (Siteviral) : gère les paiements, le suivi des liens et le versement des commissions.</li>
+<li><strong>Vous, l'ambassadeur</strong> : vous partagez un lien unique qui vous identifie.</li>
+<li><strong>L'acheteur</strong> : il clique, paie par Mobile Money ou carte, reçoit le produit.</li>
+</ol>
+<p>Dès qu'une vente est confirmée, votre commission (10 à 30% du montant) est bloquée puis versée sur votre Mobile Money après un délai anti-fraude de 15 jours.</p>
+
+<h2>Étape 1 — Choisir votre niche</h2>
+<p>La pire erreur du débutant : vouloir tout promouvoir. Choisissez <strong>une seule niche</strong> parmi ces catégories qui cartonnent en Afrique :</p>
+<ul>
+<li><strong>Éducation</strong> — annales, fiches de révision, prépa concours, cours de langue.</li>
+<li><strong>Business & entrepreneuriat</strong> — formations e-commerce, dropshipping, freelance.</li>
+<li><strong>Développement personnel</strong> — coaching, productivité, méthodes de réussite.</li>
+<li><strong>Religion & spiritualité</strong> — enseignements, prédications, guides de prière.</li>
+<li><strong>Beauté & lifestyle</strong> — routines, produits capillaires naturels, mode.</li>
+</ul>
+<p>Règle : choisissez la niche où vous avez déjà <strong>une audience</strong>, même petite (un groupe WhatsApp de 50 personnes suffit pour commencer).</p>
+
+<h2>Étape 2 — Créer votre compte ambassadeur sur Siteviral</h2>
+<ol>
+<li>Inscrivez-vous gratuitement sur <a href="/auth?mode=signup">Siteviral</a>.</li>
+<li>Complétez votre profil (nom, photo, bio courte).</li>
+<li>Ajoutez votre numéro Mobile Money — c'est là que seront versées vos commissions.</li>
+<li>Parcourez la section <a href="/discover">Discover</a> et sélectionnez 3 à 5 organisations dans votre niche.</li>
+<li>Générez votre lien ambassadeur unique pour chaque produit que vous voulez promouvoir.</li>
+</ol>
+
+<h2>Étape 3 — Les 5 canaux qui convertissent en Afrique</h2>
+<h3>1. WhatsApp — le canal #1</h3>
+<p>Partagez dans vos statuts, dans les groupes que vous administrez, et en messages directs personnalisés. Un message perso convertit 10× mieux qu'un lien froid.</p>
+<h3>2. TikTok</h3>
+<p>Vidéos courtes de 30 à 60 secondes qui montrent le produit en action. Placez le lien dans votre bio.</p>
+<h3>3. Instagram</h3>
+<p>Reels + stories avec sticker "Lien". Le carrousel éducatif fonctionne très bien pour vendre des formations.</p>
+<h3>4. Facebook</h3>
+<p>Groupes de niche, marketplace et posts natifs. Ne spammez jamais — apportez de la valeur d'abord.</p>
+<h3>5. Telegram</h3>
+<p>Idéal pour créer votre propre canal de recommandations. Les taux d'ouverture dépassent 80%.</p>
+
+<h2>Étape 4 — La méthode du "post de valeur" qui convertit</h2>
+<p>Ne postez jamais un lien seul. Utilisez cette structure éprouvée :</p>
+<ol>
+<li><strong>Le problème</strong> (1 phrase) : « Beaucoup d'étudiants ratent le BAC parce qu'ils révisent sans méthode. »</li>
+<li><strong>L'histoire</strong> (2-3 phrases) : « J'ai testé cette méthode d'annales corrigées. Résultat : mes notes ont grimpé de 4 points. »</li>
+<li><strong>La solution</strong> (1 phrase) : « Voici le pack que j'ai utilisé, à 3 500 FCFA. »</li>
+<li><strong>L'appel à l'action</strong> : « 👉 [Votre lien] »</li>
+</ol>
+<p>Ce format génère 3 à 5× plus de clics qu'un simple lien.</p>
+
+<h2>Étape 5 — Suivre vos performances</h2>
+<p>Depuis votre dashboard Siteviral, vous voyez en temps réel :</p>
+<ul>
+<li>Nombre de clics par lien</li>
+<li>Taux de conversion (clics → ventes)</li>
+<li>Commissions en attente, validées et versées</li>
+<li>Meilleurs produits et meilleurs canaux</li>
+</ul>
+<p>Doublez ce qui marche, coupez ce qui ne marche pas. C'est aussi simple que ça.</p>
+
+<h2>Les erreurs à éviter absolument</h2>
+<ul>
+<li><strong>Promouvoir ce que vous n'avez pas testé</strong> — vous perdez toute crédibilité au premier retour négatif.</li>
+<li><strong>Spammer les groupes</strong> — vous vous faites bannir et brûler votre réputation.</li>
+<li><strong>Changer de niche chaque semaine</strong> — la constance dans une seule niche crée l'autorité.</li>
+<li><strong>Ignorer les analytics</strong> — sans mesure, vous travaillez à l'aveugle.</li>
+<li><strong>Attendre le paiement immédiat</strong> — le hold de 15 jours est une protection, pas un problème.</li>
+</ul>
+
+<h2>Combien pouvez-vous vraiment gagner ?</h2>
+<p>Sur la base des ambassadeurs actifs Siteviral :</p>
+<ul>
+<li><strong>Mois 1</strong> : 15 000 à 50 000 FCFA — vous apprenez ce qui convertit.</li>
+<li><strong>Mois 2-3</strong> : 80 000 à 200 000 FCFA — vous doublez vos meilleurs canaux.</li>
+<li><strong>Mois 6+</strong> : 300 000 à 800 000 FCFA — vous êtes devenu une référence dans votre niche.</li>
+</ul>
+<p>Ce n'est pas un revenu passif immédiat. C'est un revenu qui devient de plus en plus passif à mesure que vous construisez votre autorité.</p>
+
+<h2>Affiliate marketing ≠ MLM</h2>
+<p>Important : l'affiliate marketing sur Siteviral n'est <strong>pas du MLM</strong>. Il n'y a :</p>
+<ul>
+<li>Aucun investissement initial à payer</li>
+<li>Aucun recrutement pyramidal</li>
+<li>Aucun quota mensuel obligatoire</li>
+<li>Aucun stock à acheter</li>
+</ul>
+<p>Vous partagez un lien, une vente est faite, vous touchez une commission directe. Point.</p>
+
+<h2>Le plan d'action des 7 prochains jours</h2>
+<ol>
+<li><strong>Jour 1</strong> : créez votre compte, choisissez votre niche, sélectionnez 5 produits.</li>
+<li><strong>Jour 2</strong> : rédigez 5 posts de valeur (un par produit) en utilisant la méthode ci-dessus.</li>
+<li><strong>Jour 3</strong> : publiez sur WhatsApp Status et dans 1 groupe pertinent.</li>
+<li><strong>Jour 4</strong> : publiez sur TikTok / Instagram Reels.</li>
+<li><strong>Jour 5</strong> : envoyez 10 messages directs personnalisés à des personnes qui seraient intéressées.</li>
+<li><strong>Jour 6</strong> : analysez ce qui a le plus cliqué et créé des ventes.</li>
+<li><strong>Jour 7</strong> : doublez le canal et le format qui ont le mieux marché.</li>
+</ol>
+
+<h2>Prêt à commencer ?</h2>
+<p>L'affiliate marketing n'est plus un mythe réservé aux Américains. En Afrique, en 2026, avec Mobile Money et une plateforme comme Siteviral, c'est une vraie opportunité — <strong>sans budget, sans produit, sans site web</strong>. Il ne manque plus qu'une chose : que vous commenciez.</p>
+`,
+  },
 ];
 
 export function getArticleBySlug(slug: string): BlogArticle | undefined {
