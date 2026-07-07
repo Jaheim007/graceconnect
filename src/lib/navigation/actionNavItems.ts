@@ -86,6 +86,7 @@ export function getActionNavItems(
     borderClass: 'border-sky-500/30 hover:border-sky-500/60',
     iconBg: 'bg-sky-500/15',
     iconColor: 'text-sky-500',
+    featureKey: 'ai_formation_creation',
   });
 
   items.push({
