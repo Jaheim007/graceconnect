@@ -4,6 +4,7 @@ import {
   Scissors, Search
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import type { SiteviralFeatureKey } from '@/types/database';
 
 export interface ActionNavItem {
   id: string;
@@ -17,6 +18,9 @@ export interface ActionNavItem {
   borderClass: string;
   iconBg: string;
   iconColor: string;
+  /** Optional SiteViral feature gate. Only hidden when the org has a confirmed
+   *  type AND the key is not in enabled_features. Never hidden otherwise. */
+  featureKey?: SiteviralFeatureKey;
 }
 
 interface NavContext {
@@ -67,6 +71,7 @@ export function getActionNavItems(
     borderClass: 'border-primary/30 hover:border-primary/60',
     iconBg: 'bg-primary/15',
     iconColor: 'text-primary',
+    featureKey: 'ai_book_creation',
   });
 
   items.push({
@@ -81,6 +86,7 @@ export function getActionNavItems(
     borderClass: 'border-sky-500/30 hover:border-sky-500/60',
     iconBg: 'bg-sky-500/15',
     iconColor: 'text-sky-500',
+    featureKey: 'ai_formation_creation',
   });
 
   items.push({
@@ -95,6 +101,7 @@ export function getActionNavItems(
     borderClass: 'border-amber-500/30 hover:border-amber-500/60',
     iconBg: 'bg-amber-500/15',
     iconColor: 'text-amber-500',
+    featureKey: 'digital_products',
   });
 
   items.push({
@@ -109,6 +116,7 @@ export function getActionNavItems(
     borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
     iconBg: 'bg-emerald-500/15',
     iconColor: 'text-emerald-500',
+    featureKey: 'affiliation',
   });
 
   items.push({

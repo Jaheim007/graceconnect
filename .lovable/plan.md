@@ -1,77 +1,92 @@
+# SiteViral Modular — Phase 5
 
-# SiteViral Modular Foundation — Build Plan
+## Pre-flight verification (already done)
 
-Goal: build the **PRD foundation** — one platform, one org row driven by `siteviral_type` + `enabled_features[]`. No new verticals. Existing Beauty / Church / Home / Digital / Learn / Events code stays; we wrap it behind feature flags so dashboards and public pages become adaptive. Naming and cosmetic renames come **after** the foundation works.
+Ran SQL against the 250+ existing orgs:
 
-## What "foundation" means here
-Four building blocks. Everything else in the PRD (onboarding wording, Add-More UI, migration modal, etc.) plugs into these.
+- 106 orgs are `digital_products` (all existing orgs; other verticals are user-based, not org-based)
+- Every org has 10–11 features in `enabled_features` (legacy baseline ∪ type defaults ∪ detected usage)
+- 105 orgs are unconfirmed → non-blocking welcome modal will show on next login
+- No org has fewer features than the legacy baseline → sidebar filtering cannot remove anything they previously reached
 
-```text
-1. Data model      → organizations gains siteviral_type + enabled_features[]
-2. Config layer    → single source of truth for the 9 types × 13 features
-3. Runtime gate    → useEnabledFeatures + <FeatureGate> everywhere
-4. Migration       → non-destructive backfill for 250+ existing orgs
-```
+Since verticals like Beauty/Church/Home run on user-level provider rows (not on `organizations`), those cohorts are untouched by anything we do here.
 
-## Phase 1 — Data model (migration)
+## The safety rule (non-negotiable)
 
-Add to `organizations`:
-- `siteviral_type text` (nullable until user picks; enum enforced in app)
-- `enabled_features text[] not null default '{}'`
-- `features_confirmed_at timestamptz` (null = existing user hasn't confirmed migration yet)
-- `type_confirmed_at timestamptz`
+Filtering only ever hides a nav item / public section when **all three** are true:
 
-New audit table `feature_activations(org_id, feature_key, activated_by, activated_at, source)` with GRANT + RLS (org managers read/insert, service_role all).
+1. Current org has a confirmed SiteViral type (`type_confirmed_at IS NOT NULL`)
+2. Feature is not in the org's `enabled_features`
+3. The nav item is actually gated by a feature key (many top-level items — Sales, Wallet, KYC, Payouts, Settings — are never gated)
 
-Backfill in the same migration:
-- Every existing org → `siteviral_type = 'digital_products'`, `features_confirmed_at = null` (so the migration modal shows on next login).
-- `enabled_features` seeded from what the org actually uses today, detected via existence in `digital_products`, `donations`, `beauty_providers`, `church_providers`, `home_providers`, `education_tutors`, `events`, `affiliate_links`, `kyc_submissions`, `product_reviews`, `content_comments`. This guarantees no user loses a feature.
+If any check fails → item is shown. This means: existing unconfirmed orgs see everything they used to see, no exceptions.
 
-## Phase 2 — Config layer
+Nav items **always shown regardless of features**:
+- Mes ventes & revenus, Wallet, KYC, Payouts, Settings, Sign out, Superadmin, Discover, My purchases, My organizations
 
-`src/lib/siteviral/types.ts` — the 9 types + labels (FR/EN) + default features from PRD §19.
-`src/lib/siteviral/features.ts` — the 13 feature keys, FR/EN labels, descriptions (for Add-More page), icon, and the route/component they gate.
-`src/lib/siteviral/matrix.ts` — the ✅/— matrix from PRD §6 so we can render "Recommended for your type" chips.
+Nav items **eligible for gating** (only hidden when feature is off AND type confirmed):
+- Écrire un livre → `ai_book_creation`
+- Créer une formation → `ai_formation_creation`
+- Vendre → `digital_products`
+- Gagner (affiliation) → `affiliation`
 
-Zero UI change in this phase — pure data.
+## Phase 5.1 — Sidebar filtering (safe)
 
-## Phase 3 — Runtime gate
+Add a `featureKey?: SiteviralFeatureKey` field to `ActionNavItem` (optional). In `Sidebar.tsx`, filter with the safety rule above via `useOrgFeatures`. No item is ever hidden when the user has no `currentOrg` or when `type_confirmed_at` is null.
 
-- `useOrgFeatures(orgId)` hook → returns `{ type, features: Set<FeatureKey>, has(key), isLoading }`.
-- `<FeatureGate feature="events">…</FeatureGate>` wrapper component.
-- Sidebar nav items in `Sidebar.tsx` filtered by `has(key)`.
-- Public org page sections wrapped in `FeatureGate`.
-- `Add More Functionalities` page at `/admin/features` listing every feature not currently on, one-click activate → writes to `organizations.enabled_features` + `feature_activations` audit row. Uses default-recommendation from the matrix to sort.
+## Phase 5.2 — Public page section gating
 
-## Phase 4 — Onboarding + migration flow
+The public org page (`OrgPage.tsx` / vertical landing pages) already renders sections unconditionally. Wrap the four feature-tied sections in `<FeatureGate feature="..." showWhileLoading>`:
 
-- New user: after signup + `create-org`, redirect to `/onboarding/type` (pick one of 9) → `/onboarding/goals` (checkbox list pre-checked with type defaults) → writes `siteviral_type`, `enabled_features`, `type_confirmed_at`, `features_confirmed_at`.
-- Existing user: `AppLayout` checks `currentOrg.features_confirmed_at == null` → mount `<UpgradeMigrationModal>` (blocking, dismissible only via completion). FR/EN copy from PRD §9. Default = `digital_products` but user can pick any of the 9. On confirm: merge existing detected features with the type's defaults, set both `_confirmed_at` timestamps.
+- Digital products grid → `digital_products`
+- Donation block → `donation_gifts`
+- Events section → `events`
+- Reviews block → `reviews`
 
-## Phase 5 — Naming pass (last, cosmetic)
+Same safety: `FeatureGate` checks `has(key)` against `enabled_features`. For any org backfilled with the legacy baseline, nothing disappears.
 
-Only after Phases 1–4 work end-to-end:
-- Rename user-facing labels ("SiteViral Church", "SiteViral Beauty", etc.).
-- Retire Events as a standalone vertical entry point (it becomes a `feature`, not a type). Existing `/events` routes stay live; they just no longer appear in the type picker.
-- Hide unimplemented types (Sport, Instrumentists, Influencers, Services) from the picker with "Bientôt disponible" until we build their pages.
+## Phase 5.3 — New-user onboarding
 
-## Delivery order (what I'll ship, in this order)
+For brand-new orgs (created after this ships, `features_confirmed_at IS NULL` AND no legacy data), route through:
 
-1. **Migration + backfill** (Phase 1) — one `supabase--migration` call.
-2. **Config files + hook + FeatureGate + Add More page** (Phases 2–3) — one code batch.
-3. **Onboarding + Migration modal** (Phase 4) — one code batch.
-4. **Sidebar + public page wiring** — one code batch.
-5. **Naming + hide unbuilt types** (Phase 5) — one small batch.
+1. `/onboarding/type` — pick one of the 5 available types (church, digital_products, beauty, artisans_home_services, tutors_home_teachers)
+2. On submit: write `siteviral_type`, `enabled_features = defaults_for_type`, timestamps, and audit row in `feature_activations`
+3. Redirect to `/admin`
 
-I stop after each step for you to preview before continuing.
+Existing orgs skip onboarding entirely (they already have `enabled_features` populated + see the welcome modal).
 
-## Technical section (skip if not interested)
+Detection: brand-new = org row age < 5 minutes OR `enabled_features` empty. Hook this into `DashboardRouter.tsx`.
 
-- No new tables besides `feature_activations`. Feature membership lives on the org row for read speed — `enabled_features text[]` gives us O(1) client checks and cheap GIN index for admin queries.
-- `siteviral_type` stays `text` not enum, so adding types later doesn't require a migration.
-- Detection SQL for backfill uses `EXISTS` sub-queries per feature, wrapped in a single `UPDATE organizations` with a computed `array_remove(array[...], null)`.
-- `FeatureGate` renders `null` by default when the feature is off — no flicker.
-- Migration modal is a portal inside `AppLayout`, gated on `!isLoadingOrgs && currentOrg && !currentOrg.features_confirmed_at`.
-- No edge function changes needed for Phase 1–3. Phase 4 might add one small `siteviral-confirm-type` function only if we want server-side audit of the migration event.
+## Phase 5.4 — Naming pass
 
-Ready to start with Phase 1 (the migration). Confirm and I'll open it.
+- Rename user-facing labels of `AdminFeaturesPage` header from "Fonctionnalités" → "Fonctionnalités SiteViral"
+- Retire "Events" from the type picker (already `available: false` for sport/instrumentists/influencers/services — Events is a feature, not a type — already correct in config)
+- Add a "Bientôt" chip next to unavailable types in the picker (already implicit; make explicit)
+- FR/EN copy pass on `UpgradeMigrationModal` and `AdminFeaturesPage`
+
+## Cannot verify per-cohort with live login
+
+I don't have access to log in as a real Digital Products / Church / Beauty user. The SQL verification above is the strongest guarantee I can give:
+
+- No enabled_features array shrank
+- Every legacy dashboard route stays reachable (safety rule keeps it visible even if the key is missing)
+- No data table (products, sales, wallet, KYC, payouts, affiliate) is touched — this phase only reads `organizations.enabled_features` and adds UI filters
+
+If you can share test-account credentials I'll drive Playwright through the flows before shipping wider.
+
+## Files touched
+
+- `src/lib/navigation/actionNavItems.ts` — add optional `featureKey`
+- `src/components/layout/Sidebar.tsx` — safe filter
+- `src/pages/OrgPage.tsx` (or equivalent) — wrap sections in `FeatureGate`
+- `src/pages/DashboardRouter.tsx` — new-user redirect
+- `src/pages/onboarding/OnboardingTypePage.tsx` — new
+- `src/App.tsx` — route
+- `src/pages/admin/AdminFeaturesPage.tsx` — copy pass
+- `src/components/siteviral/UpgradeMigrationModal.tsx` — copy pass
+
+## Out of scope
+
+- Renaming Vendre / Écrire un livre / etc. (user hasn't asked)
+- Removing Beauty/Church/Home/Education/Events dedicated apps
+- Any DB migration (schema is stable from Phase 1)

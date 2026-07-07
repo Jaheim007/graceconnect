@@ -142,7 +142,7 @@ export default function CreateOrgPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <SEOHead title="Créer ma plateforme — Siteviral" description="Crée ta plateforme en 30 secondes. Vends, collecte des dons, et active tes ambassadeurs." noindex />
-      <OrgOnboardingWizard open={showOnboarding} onClose={() => { setShowOnboarding(false); navigate('/admin/products/new'); }} />
+      <OrgOnboardingWizard open={showOnboarding} onClose={() => { setShowOnboarding(false); navigate('/onboarding/type'); }} />
 
       <div className="w-full max-w-md">
         {/* Header */}
