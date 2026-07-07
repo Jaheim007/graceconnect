@@ -10,6 +10,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { getActionNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
+import { useOrgFeatures } from '@/hooks/useOrgFeatures';
 
 export function Sidebar() {
   const location = useLocation();
