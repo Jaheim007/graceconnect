@@ -45,8 +45,23 @@ export default function OnboardingTypePage() {
     try {
       await confirmSiteviralType(orgId, selected, [], 'onboarding');
       await qc.invalidateQueries({ queryKey: ['user-orgs'] });
-      toast.success(isFr ? 'Votre SiteViral est prêt' : 'Your SiteViral is ready');
-      navigate('/admin');
+      navigate(`/onboarding/goals?type=${selected}`);
+    } catch (e: any) {
+      toast.error(e?.message ?? 'Error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleLater() {
+    // "Plus tard" must not create confusion: default to digital_products
+    // (safe legacy behavior), then send them to Add More Functionalities.
+    if (!orgId) { navigate('/admin'); return; }
+    setSaving(true);
+    try {
+      await confirmSiteviralType(orgId, 'digital_products', [], 'onboarding');
+      await qc.invalidateQueries({ queryKey: ['user-orgs'] });
+      navigate('/admin/features');
     } catch (e: any) {
       toast.error(e?.message ?? 'Error');
     } finally {
@@ -108,7 +123,7 @@ export default function OnboardingTypePage() {
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button variant="ghost" onClick={() => navigate('/admin')} disabled={saving}>
+        <Button variant="ghost" onClick={handleLater} disabled={saving}>
           {isFr ? 'Plus tard' : 'Later'}
         </Button>
         <Button onClick={handleConfirm} disabled={saving} className="gap-2">
