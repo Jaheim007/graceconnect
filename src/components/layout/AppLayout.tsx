@@ -17,6 +17,7 @@ import { SkipToContent } from '@/components/a11y/SkipToContent';
 import { KeyboardShortcutsModal } from '@/components/a11y/KeyboardShortcutsModal';
 import { OfflineIndicator } from '@/components/network/OfflineIndicator';
 import { BackToTopProgress } from '@/components/ui/BackToTopProgress';
+import { UpgradeMigrationModal } from '@/components/siteviral/UpgradeMigrationModal';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
