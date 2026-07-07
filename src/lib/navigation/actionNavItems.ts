@@ -4,6 +4,7 @@ import {
   Scissors, Search
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import type { SiteviralFeatureKey } from '@/types/database';
 
 export interface ActionNavItem {
   id: string;
@@ -17,6 +18,9 @@ export interface ActionNavItem {
   borderClass: string;
   iconBg: string;
   iconColor: string;
+  /** Optional SiteViral feature gate. Only hidden when the org has a confirmed
+   *  type AND the key is not in enabled_features. Never hidden otherwise. */
+  featureKey?: SiteviralFeatureKey;
 }
 
 interface NavContext {
