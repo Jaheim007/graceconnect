@@ -674,6 +674,7 @@ const App = () => (
                   <Route path="/quick-start" element={<QuickStartPage />} />
                   <Route path="/quick-publish" element={<QuickPublishPage />} />
                   <Route path="/create-org" element={<CreateOrgPage />} />
+                  <Route path="/onboarding/type" element={<LazyOnboardingType />} />
                   
                   <Route path="/support" element={<SupportPage />} />
                   <Route path="/affiliation" element={<Navigate to="/gagner" replace />} />
