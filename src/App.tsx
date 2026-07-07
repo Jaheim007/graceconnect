@@ -357,6 +357,7 @@ const LazyAdminMembers = lazy(() => import("@/pages/admin/AdminPages").then(m =>
 const LazyAdminAffiliation = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminAffiliation })));
 const LazyAdminKYC = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminKYC })));
 const LazyAdminSettings = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminSettings })));
+const LazyAdminFeatures = lazy(() => import("@/pages/admin/AdminFeaturesPage"));
 
 const LazySuperadminOrgs = lazy(() => import("@/pages/superadmin/SuperadminPages").then(m => ({ default: m.SuperadminOrgs })));
 const LazySuperadminKYC = lazy(() => import("@/pages/superadmin/SuperadminPages").then(m => ({ default: m.SuperadminKYC })));
@@ -719,6 +720,7 @@ const App = () => (
                   
                   <Route path="kyc" element={<LazyAdminKYC />} />
                   <Route path="settings" element={<LazyAdminSettings />} />
+                  <Route path="features" element={<LazyAdminFeatures />} />
                   <Route path="sales" element={<AdminSales />} />
                   <Route path="payouts" element={<AdminPayouts />} />
                   <Route path="subscriptions" element={<AdminSubscriptions />} />

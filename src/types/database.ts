@@ -12,6 +12,32 @@ export type PurchaseStatus = 'pending' | 'completed' | 'failed';
 export type ReportStatus = 'pending' | 'reviewed' | 'resolved' | 'dismissed';
 export type AffiliateSaleStatus = 'pending' | 'payable' | 'paid' | 'cancelled';
 
+export type SiteviralType =
+  | 'church'
+  | 'digital_products'
+  | 'sport'
+  | 'artisans_home_services'
+  | 'beauty'
+  | 'tutors_home_teachers'
+  | 'instrumentists'
+  | 'influencers'
+  | 'services';
+
+export type SiteviralFeatureKey =
+  | 'appointment'
+  | 'digital_products'
+  | 'order_generator'
+  | 'donation_gifts'
+  | 'payment'
+  | 'ai_book_creation'
+  | 'ai_formation_creation'
+  | 'product_comments'
+  | 'location'
+  | 'events'
+  | 'reviews'
+  | 'kyc'
+  | 'affiliation';
+
 export interface Organization {
   id: string;
   name: string;
@@ -34,6 +60,10 @@ export interface Organization {
   affiliation_commission_percent: number;
   platform_fee_percent: number;
   paystack_subaccount_code?: string;
+  siteviral_type?: SiteviralType | null;
+  enabled_features?: SiteviralFeatureKey[];
+  type_confirmed_at?: string | null;
+  features_confirmed_at?: string | null;
   created_at: string;
   updated_at: string;
 }
