@@ -51,7 +51,6 @@ export default function AuthPage() {
       const savedIntent = sessionStorage.getItem('sv_auth_intent');
       if (savedIntent === 'ambassador' || savedIntent === 'creator') {
         sessionStorage.removeItem('sv_auth_intent');
-        // Import dynamically to avoid circular deps - just set localStorage directly
         const modeKey = 'sv_app_mode';
         try { localStorage.setItem(modeKey, savedIntent); } catch {}
         navigate(returnTo || '/dashboard', { replace: true });
@@ -62,7 +61,15 @@ export default function AuthPage() {
           navigate(returnTo || storedIntent.returnTo || (storedIntent.kind === 'client' ? '/services' : '/start'), { replace: true });
           return;
         }
-        navigate(returnTo || '/dashboard', { replace: true });
+        if (returnTo) {
+          navigate(returnTo, { replace: true });
+          return;
+        }
+        // Brand-new user (created within the last minute) with no intent → let them
+        // pick between seeking and offering. Existing users go to their dashboard.
+        const createdAt = user.created_at ? new Date(user.created_at).getTime() : 0;
+        const isNewUser = createdAt > 0 && Date.now() - createdAt < 60_000;
+        navigate(isNewUser ? '/welcome-intent' : '/dashboard', { replace: true });
       }
     }
   }, [user, navigate, returnTo]);
