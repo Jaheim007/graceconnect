@@ -33,7 +33,9 @@ Current codebase already has: church, digital, beauty, home (=artisans), events 
 - Affiliation available for every type.
 - Migration is non-destructive: keep account, products, sales, wallet, payout history, KYC, public page, affiliate data.
 - Existing users default to `digital_products` but can change.
-- Dashboard + public page render only from `enabled_features[]` — no hard-coded module lists.
+- There is ONE shared dashboard route/shell, but its home screen must be the user's chosen SiteViral family workspace. Example: `digital_products` users see a complete digital product dashboard, not generic module cards.
+- Do not show “activate KYC/payment/affiliation” as optional modules. KYC, payments/orders, and affiliation are platform essentials, surfaced as functionality inside the family dashboard/settings.
+- Dashboard + public page render family-appropriate functionality from `siteviral_type` + `enabled_features[]` — no generic “active modules / available modules” dashboard as the main experience.
 - "Comments on digital products" ≠ "Reviews on person/establishment" — distinct systems.
 
 ## Onboarding flow (new users)
