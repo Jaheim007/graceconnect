@@ -684,7 +684,7 @@ const App = () => (
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/resources" element={<ResourcesPage />} />
                   <Route path="/my-donations" element={<MyDonationsPage />} />
-                  <Route path="/dashboard" element={<DashboardRouter />} />
+                  {/* /dashboard/* now lives outside AppLayout — see UnifiedDashboardLayout block below */}
                   <Route path="/quick-start" element={<QuickStartPage />} />
                   <Route path="/quick-publish" element={<QuickPublishPage />} />
                   <Route path="/create-org" element={<CreateOrgPage />} />
