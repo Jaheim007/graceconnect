@@ -10050,12 +10050,14 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_mode: string
           avatar_url: string | null
           bio: string | null
           country: string | null
           created_at: string | null
           display_name: string | null
           email_marketing_opted_out: boolean
+          enabled_modules: string[]
           first_action_at: string | null
           id: string
           onboarding_intent: string | null
@@ -10075,12 +10077,14 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          account_mode?: string
           avatar_url?: string | null
           bio?: string | null
           country?: string | null
           created_at?: string | null
           display_name?: string | null
           email_marketing_opted_out?: boolean
+          enabled_modules?: string[]
           first_action_at?: string | null
           id: string
           onboarding_intent?: string | null
@@ -10100,12 +10104,14 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          account_mode?: string
           avatar_url?: string | null
           bio?: string | null
           country?: string | null
           created_at?: string | null
           display_name?: string | null
           email_marketing_opted_out?: boolean
+          enabled_modules?: string[]
           first_action_at?: string | null
           id?: string
           onboarding_intent?: string | null
