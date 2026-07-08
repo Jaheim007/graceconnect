@@ -12,9 +12,10 @@ import { brandUrl } from '@/lib/storageUrl';
 import { cn } from '@/lib/utils';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { isOrgVerifiedOrKyc } from '@/lib/verifiedLabel';
+import { SITEVIRAL_TYPES } from '@/lib/siteviral/config';
 import {
   Building2, ChevronDown, Check, Plus, Crown, ShieldCheck, Pencil, Users2,
-  Link2, ArrowRight,
+  Link2, ArrowRight, Settings2,
 } from 'lucide-react';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
