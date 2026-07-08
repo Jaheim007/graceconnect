@@ -17,9 +17,9 @@ describe('inferSiteviralConfig', () => {
       .forEach((f) => expect(set.has(f as any)).toBe(true));
   });
 
-  it('events alone stays digital_products', () => {
+  it('events alone → generic services (unclear/mixed)', () => {
     const { siteviral_type, enabled_features } = inferSiteviralConfig(['create_events']);
-    expect(siteviral_type).toBe('digital_products');
+    expect(siteviral_type).toBe('services');
     expect(enabled_features).toContain('events');
     expect(enabled_features).not.toContain('payment');
   });
