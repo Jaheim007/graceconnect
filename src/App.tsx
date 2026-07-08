@@ -452,6 +452,8 @@ const App = () => (
                 <Route path="/church/pro/team" element={<RequireAuth><ChurchProTeam /></RequireAuth>} />
                 <Route path="/church/pro/members" element={<RequireAuth><ChurchProSectionStub titleFr="Membres & diaspora" titleEn="Members & diaspora" phase="Phase 5" /></RequireAuth>} />
                 <Route path="/church/pro/settings" element={<RequireAuth><ChurchProSettings /></RequireAuth>} />
+                <Route path="/church/pro/appointments" element={<RequireAuth><ChurchProAppointments /></RequireAuth>} />
+                <Route path="/church/:slug/events/:eventId" element={<ChurchEventRegisterPage />} />
                 <Route path="/church/:slug/give" element={<ChurchGivePage />} />
                 <Route path="/church/:slug/give/success" element={<ChurchGiveSuccessPage />} />
                 <Route path="/church/:slug/pdf/:pdfId" element={<ChurchSermonPdfBuyPage />} />
