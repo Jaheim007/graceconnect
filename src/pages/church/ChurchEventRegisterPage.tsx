@@ -65,30 +65,30 @@ export default function ChurchEventRegisterPage() {
     if (!name.trim()) return toast.error(fr ? 'Nom requis' : 'Name required');
     if (paid && !email.trim()) return toast.error(fr ? 'Email requis pour paiement' : 'Email required for payment');
     setSubmitting(true);
-    const { data: created, error } = await supabase
-      .from('church_event_tickets')
-      .insert({
-        event_id: event.id,
-        church_id: church.id,
-        buyer_user_id: user?.id ?? null,
-        buyer_name: name.trim(),
-        buyer_email: email.trim() || null,
-        buyer_phone: phone.trim() || null,
-        qty,
-        amount_cents: priceCents * qty,
-        currency: event.currency || 'XAF',
-        status: paid ? 'pending' : 'confirmed',
-        payment_provider: paid ? 'pending_at_door' : null,
-      })
-      .select()
-      .single();
-    setSubmitting(false);
-    if (error) return toast.error(error.message);
-    // Increment tickets_sold for confirmed (free) tickets
-    if (!paid) {
-      await supabase.from('church_events').update({ tickets_sold: (event.tickets_sold ?? 0) + qty }).eq('id', event.id);
+    try {
+      const { data: res, error } = await supabase.functions.invoke('church-buy-event-ticket', {
+        body: {
+          event_id: event.id,
+          buyer_name: name.trim(),
+          buyer_email: email.trim() || undefined,
+          buyer_phone: phone.trim() || undefined,
+          buyer_user_id: user?.id ?? null,
+          qty,
+          return_origin: window.location.origin,
+        },
+      });
+      if (error) throw error;
+      if ((res as any)?.error) throw new Error((res as any).error);
+      if (paid && (res as any)?.checkout_url) {
+        window.location.href = (res as any).checkout_url;
+        return;
+      }
+      setTicket((res as any).ticket);
+    } catch (err: any) {
+      toast.error(err?.message || (fr ? 'Erreur' : 'Error'));
+    } finally {
+      setSubmitting(false);
     }
-    setTicket(created);
   };
 
   if (ticket) {
