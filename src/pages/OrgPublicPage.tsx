@@ -125,7 +125,14 @@ export default function OrgPublicPage() {
   const isOwner = org ? org.owner_id === user?.id : false;
   const orgAny = org as any;
   const sectionOrder = pageSettings?.section_order || ['products', 'offerings', 'campaigns', 'content', 'programs', 'photos', 'events'];
-  const hiddenSections = new Set(pageSettings?.hidden_sections || []);
+  const rawHiddenSections = new Set(pageSettings?.hidden_sections || []);
+  // Apply feature-gating on top of admin-configured hidden sections.
+  // Admins/owners still see everything so they can configure their page.
+  const hiddenSections = isAdmin ? rawHiddenSections : computeHiddenSections(org as any, rawHiddenSections);
+  const showStoreTab = isFeatureEnabledForPublic(org as any, 'digital_products');
+  const showDonateTab = isFeatureEnabledForPublic(org as any, 'donation_gifts');
+  const showProgramsTab = isFeatureEnabledForPublic(org as any, 'ai_formation_creation');
+  const showEventsTab = isFeatureEnabledForPublic(org as any, 'events');
 
   // Ensure currentOrg is set to viewed org before navigating to admin
   const adminNavigate = useCallback((path: string) => {
