@@ -1,88 +1,97 @@
+
+# Unified Flow Plan — SiteViral (Fiverr-style)
+
 ## Goal
-
-1. Make the `/` landing page look more professional (Upwork + Fiverr level polish).
-2. Fix the post-signup / post-login flow so a **buyer** (looking for a pro) and a **seller** (wants to offer a service) never get mixed up — with a dedicated "Become a seller" page like `fiverr.com/start_selling`.
+Kill the per-vertical "Action Hub" splash pages (Beauty "Que veux-tu faire?", Events "Ton événement sans stress", etc.). Everyone lands on the same SiteViral landing page. Sign-in goes straight to one unified dashboard. Role (client vs. provider) is chosen during onboarding, not on a splash screen.
 
 ---
 
-## Part 1 — Landing page polish (`/`)
+## 1. Public site (guest, not signed in)
 
-Keep the same sections (hero, intent split, categories, how-it-works, trust, CTA, footer) but level up the craft:
+**Landing (`/`)** — single entry point for everyone.
+- Hero: "Find any service" + search
+- Categories grid (Beauty, Events, Home, Education, Church, Digital) → each links to a Fiverr-style **category browse page** (`/category/:slug`), NOT to an Action Hub
+- How it works, testimonials, FAQ
+- Pricing moves to the **bottom** of landing (or `/pricing` linked from footer), not in the top nav
 
-- **Hero**: real editorial layout — large display headline, one supporting sentence, big search bar with category dropdown + "Search" button, popular tags as pill chips, trust badges row (rating · secure payments · verified pros · Mobile Money). Soft brand-tinted gradient background instead of flat.
-- **Category rail**: replace generic tiles with image-backed cards (one hero image per vertical: beauty, tutors, artisans, events, church, digital, music, influencers). Rounded 2xl, subtle shadow, hover lift. Show a "starting from" price hint per category.
-- **Intent split**: two premium cards ("I need a pro" / "I want to offer a service") with icon, 2-line value prop, primary CTA button. Cards use design tokens, not raw colors.
-- **How it works**: 4 numbered steps with icons, connected by a thin divider line on desktop.
-- **Social proof strip**: "Trusted by X pros across Africa" + logos/avatars row.
-- **Final CTA**: dark section with dual buttons ("Find a pro" · "Start offering").
-- **Footer**: 4-column footer (Categories / For clients / For pros / Company) matching the Fiverr-style reference — using existing routes.
-- All spacing/typography tightened; consistent section rhythm; only semantic tokens (no hardcoded colors).
+**Nav (guest):**
+- Explore (browse all)
+- Offer a service
+- Sign in / Join
 
-Files touched:
+**Category pages (`/category/:slug`)** — Fiverr-style:
+- Sub-categories, featured providers, listings
+- Anyone can browse freely; clicking "Book" / "Contact" prompts sign-in
 
-- `src/components/landing/MarketplaceHero.tsx`
-- `src/components/landing/MarketplaceCategories.tsx` (add images + price hints)
-- `src/components/landing/MarketplaceHowItWorks.tsx`
-- `src/components/landing/LandingFinalCTA.tsx`
-- `src/components/landing/LandingFooterCompact.tsx` (expand to 4-col)
-
----
-
-## Part 2 — Proposed flow (buyer vs seller separation)
-
-The rule: **the landing `/` is shared, but the entry action tells us who they are — and we never ask them again after signup.**
-
-```text
-                    siteviral.com  (shared landing)
-                    ┌─────────────┴──────────────┐
-        [Search / "I need a pro"]        [Top nav "Offer Services"]
-                    │                              │
-                    ▼                              ▼
-              /looking-for                    /start-selling  ← new dedicated page
-        (buyer onboarding: what,          (seller pitch: earnings, trust,
-         where, budget, category)          categories, testimonials, CTA)
-                    │                              │
-             setIntent('client')            setIntent('provider')
-                    │                              │
-              /auth (signup/login) ─── returnTo ───┘
-                    │
-                    ▼
-        DashboardRouter reads intent + existing account state:
-        ─────────────────────────────────────────────────────
-        • intent=client   → /discover (or last search)
-                            never sees the "become a seller" onboarding
-        • intent=provider → /start (goal picker) → vertical onboarding
-        • existing user with a provider profile → /admin (skip everything)
-        • existing user, buyer-only, returning  → /discover
-```
-
-Key rules that prevent confusion:
-
-1. **Intent is captured before auth** (already implemented via `setIntent`). We just make sure both the hero search and every "Become a seller" CTA set it correctly.
-2. `**/start-selling` is a real marketing page** (not the goal picker). It sells the seller value prop first, then the CTA takes them into `/start` (goal picker) once signed in. Mirrors `fiverr.com/start_selling`.
-3. **Buyers never see seller onboarding**. `DashboardRouter` routes by `intent` + whether they already have a provider profile; if `intent=client` and no provider profile, we skip `/onboarding/type` and `/onboarding/goals` entirely.
-4. **Sellers never see the buyer intent chooser**. If `intent=provider` we go straight into `/start` → vertical setup.
-5. **Top nav shows the right CTA**:
-  - Signed out: "Sign in" + "Become a seller" (dark button).
-  - Signed in as buyer only: "Switch to selling" opens `/start-selling`.
-  - Signed in as seller: "Go to dashboard".
-6. **Existing users are protected**: if a user already has an org with a SiteViral type, we never re-prompt for intent, regardless of which button they clicked.
-
-New/edited files:
-
-- `src/pages/StartSellingPage.tsx` (new — Fiverr-style seller pitch page at `/start-selling`)
-- `src/components/landing/LandingNav.tsx` (dark "Become a seller" button + smart signed-in CTA)
-- `src/pages/DashboardRouter.tsx` (respect stored intent; buyer path skips onboarding)
-- `src/App.tsx` (add `/start-selling` route)
-- `src/components/landing/MarketplaceIntentSplit.tsx` ("I want to offer" now routes to `/start-selling`, not `/start`)
+**Removed / redirected:**
+- `/beauty`, `/events`, `/home`, `/education`, `/church`, `/digital` Action Hub landings → redirect to `/category/<slug>`
+- The 3-choice splash ("Explorer / Prendre RDV / Proposer mes services") is deleted everywhere
 
 ---
 
-## Confirm before I build
+## 2. Auth
 
-Does this flow match what you want? Specifically:
+- **Sign in** → straight to `/dashboard` (no splash, no role picker for existing users)
+- **Join** → email/password → onboarding step 1 (role choice)
 
-- `**/start-selling` as a dedicated marketing page** (separate from the `/start` goal picker) — yes/no?
-- **Buyers skip the SiteViral-type / goals onboarding entirely** — yes/no?
+---
 
-If yes, I'll ship Part 1 + Part 2 together.
+## 3. Onboarding (new account only)
+
+Step 1 — **"Are you here to hire, or to offer services?"**
+- **I'm a client** → minimal profile (name) → `/dashboard` (client mode)
+- **I want to offer services** → provider onboarding:
+  1. Name, email confirm
+  2. Pick service categories they'll offer (multi-select across all verticals)
+  3. Short bio + location
+  4. → `/dashboard` (provider mode)
+
+"Offer a service" button in nav routes guests to Join, then jumps them into step 1 pre-selected on "provider".
+
+---
+
+## 4. Unified dashboard (`/dashboard`)
+
+One route, two modes stored on `profiles.account_mode` ('client' | 'provider'). Toggle in header lets a user switch (a provider can also be a client).
+
+**Client mode:**
+- Search services, saved providers, active bookings, messages, past orders
+
+**Provider mode:**
+- Orders queue, calendar, messages, listings/gigs, earnings, profile completion
+
+Both modes share: messages, notifications, settings, account switcher.
+
+---
+
+## 5. What gets deleted
+
+- `src/pages/BeautyPage.tsx`, `EventsPage.tsx`, `HomePage.tsx`, `EducationPage.tsx`, `ChurchPage.tsx`, `DigitalPage.tsx` Action Hub variants (the 3-tile splash)
+- `StartSellingPage.tsx` splash → replaced by direct route into onboarding step 1 with role=provider
+- `LookingForPage.tsx` (already partly gone)
+- Per-vertical duplicate dashboards → merged into `/dashboard`
+
+Category browse pages are kept/created under `/category/:slug`.
+
+---
+
+## 6. Technical notes
+
+- Add `account_mode` column to `profiles` ('client' default, 'provider' after onboarding); providers can hold both — use a `provider_profiles` row to gate provider features
+- Route guard: `/dashboard` requires auth; unauth → `/auth`
+- Redirects added in `App.tsx` for old vertical hub URLs → `/category/<slug>` (preserves SEO / old links)
+- Nav simplified to: Explore · Offer a service · Sign in / Join
+- Footer holds: Pricing, About, Categories, Legal
+
+---
+
+## Rollout order
+
+1. Add `/category/:slug` browse page + redirects from old hub routes
+2. Rewrite nav + landing (pricing moved down)
+3. Build onboarding role picker + provider onboarding wizard
+4. Merge dashboards into unified `/dashboard` with mode toggle
+5. Delete obsolete Action Hub pages
+6. Migration: add `account_mode` to `profiles`, backfill existing users to 'provider' if they have a provider_profile row, else 'client'
+
+Reply **"go"** to start, or tell me what to change (e.g. "skip the migration for now", "keep /beauty as a marketing page", "start with step 3 first").

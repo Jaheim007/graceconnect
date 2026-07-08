@@ -7,20 +7,20 @@ import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
 
 const POPULAR = [
-  { fr: 'Service de coiffure',      en: 'Hairstyling service',   route: '/beauty' },
-  { fr: 'Service de cours maths',   en: 'Math tutoring service', route: '/education' },
-  { fr: 'Service de plomberie',     en: 'Plumbing service',      route: '/home' },
-  { fr: 'Service traiteur mariage', en: 'Wedding catering',      route: '/events' },
+  { fr: 'Service de coiffure',      en: 'Hairstyling service',   route: '/beauty/search' },
+  { fr: 'Service de cours maths',   en: 'Math tutoring service', route: '/learn/discover' },
+  { fr: 'Service de plomberie',     en: 'Plumbing service',      route: '/home/discover' },
+  { fr: 'Service traiteur mariage', en: 'Wedding catering',      route: '/events/discover' },
   { fr: 'Service ebook',            en: 'Ebook service',         route: '/discover?type=digital' },
   { fr: 'Service beatmaking',       en: 'Beatmaking service',    route: '/discover?type=music' },
 ];
 
 const CATEGORIES_FOR_SEARCH = [
   { value: '', fr: 'Toutes catégories', en: 'All categories' },
-  { value: '/beauty',    fr: 'Beauté',       en: 'Beauty' },
-  { value: '/education', fr: 'Cours',        en: 'Tutoring' },
-  { value: '/home',      fr: 'Artisans',     en: 'Home services' },
-  { value: '/events',    fr: 'Événements',   en: 'Events' },
+  { value: '/beauty/search',    fr: 'Beauté',       en: 'Beauty' },
+  { value: '/learn/discover', fr: 'Cours',        en: 'Tutoring' },
+  { value: '/home/discover',      fr: 'Artisans',     en: 'Home services' },
+  { value: '/events/discover',    fr: 'Événements',   en: 'Events' },
   { value: '/discover?type=digital', fr: 'Digital', en: 'Digital' },
   { value: '/discover?type=music',   fr: 'Musique', en: 'Music' },
 ];

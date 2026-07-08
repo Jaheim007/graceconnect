@@ -418,11 +418,11 @@ const App = () => (
                 <Route path="/start-selling" element={<LazyStartSellingPage />} />
                 <Route path="/welcome-intent" element={<LazyIntentChooserPage />} />
                 <Route path="/looking-for" element={<LazyLookingForPage />} />
-                <Route path="/digital" element={<ActionHub />} />
+                <Route path="/digital" element={<Navigate to="/discover?type=digital" replace />} />
                 <Route path="/digital/about" element={<LandingPage />} />
-                <Route path="/hub" element={<ActionHub />} />
+                <Route path="/hub" element={<Navigate to="/discover" replace />} />
                 {/* SiteViral Beauty */}
-                <Route path="/beauty" element={<BeautyActionHub />} />
+                <Route path="/beauty" element={<Navigate to="/beauty/search" replace />} />
                 <Route path="/beauty/about" element={<BeautyLanding />} />
                 <Route path="/beauty/search" element={<BeautySearch />} />
                 <Route path="/beauty/p/:slug" element={<BeautyProviderProfile />} />
@@ -435,7 +435,7 @@ const App = () => (
                 <Route path="/beauty/pro" element={<RequireAuth><BeautyProDashboard /></RequireAuth>} />
                 <Route path="/beauty/pro/kyc" element={<RequireAuth><BeautyKYCPage /></RequireAuth>} />
                 {/* SiteViral Church */}
-                <Route path="/church" element={<ChurchActionHub />} />
+                <Route path="/church" element={<Navigate to="/church/discover" replace />} />
                 <Route path="/church/about" element={<ChurchLanding />} />
                 <Route path="/church/discover" element={<ChurchDiscover />} />
                 <Route path="/church/pro/onboarding" element={<ChurchOnboarding />} />
@@ -457,7 +457,7 @@ const App = () => (
                 <Route path="/church/:slug/pdf/:pdfId/success" element={<ChurchSermonPdfSuccessPage />} />
                 <Route path="/church/:slug" element={<ChurchPublicProfile />} />
                 {/* SiteViral Home */}
-                <Route path="/home" element={<HomeActionHub />} />
+                <Route path="/home" element={<Navigate to="/home/discover" replace />} />
                 <Route path="/home/about" element={<HomeLanding />} />
                 <Route path="/home/discover" element={<HomeDiscover />} />
                 <Route path="/home/pro/onboarding" element={<HomeProviderOnboarding />} />
@@ -472,7 +472,7 @@ const App = () => (
                 <Route path="/home/pro/:slug" element={<HomeProviderPublic />} />
 
                 {/* SiteViral Events */}
-                <Route path="/events" element={<EventsActionHub />} />
+                <Route path="/events" element={<Navigate to="/events/discover" replace />} />
                 <Route path="/events/about" element={<EventsLanding />} />
                 <Route path="/events/discover" element={<EventsDiscover />} />
                 <Route path="/events/pro/onboarding" element={<EventsProviderOnboarding />} />
@@ -487,7 +487,7 @@ const App = () => (
                 <Route path="/events/pro/:slug" element={<EventsProviderPublic />} />
 
                 {/* SiteViral Learn (formerly Education) */}
-                <Route path="/learn" element={<EducationActionHub />} />
+                <Route path="/learn" element={<Navigate to="/learn/discover" replace />} />
                 <Route path="/learn/about" element={<EducationLanding />} />
                 <Route path="/learn/discover" element={<EducationDiscover />} />
                 <Route path="/learn/pro/onboarding" element={<EducationTutorOnboarding />} />
@@ -501,7 +501,7 @@ const App = () => (
                 <Route path="/learn/booking/:id" element={<RequireAuth><EducationBookingDetail /></RequireAuth>} />
                 <Route path="/learn/pro/:slug" element={<EducationTutorPublic />} />
                 {/* Legacy /education aliases */}
-                <Route path="/education" element={<EducationActionHub />} />
+                <Route path="/education" element={<Navigate to="/learn/discover" replace />} />
                 <Route path="/education/about" element={<EducationLanding />} />
                 <Route path="/education/discover" element={<EducationDiscover />} />
                 <Route path="/education/pro/onboarding" element={<EducationTutorOnboarding />} />

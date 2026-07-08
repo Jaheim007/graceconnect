@@ -30,21 +30,20 @@ export function LandingNav() {
   const initials = displayName ? displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) : 'U';
 
   const verticals = [
-    { to: '/beauty',   label: isFr ? 'Beauté'            : 'Beauty' },
-    { to: '/education',label: isFr ? 'Cours & tuteurs'   : 'Tutoring' },
-    { to: '/home',     label: isFr ? 'Artisans'          : 'Artisans' },
-    { to: '/events',   label: isFr ? 'Événements'        : 'Events' },
-    { to: '/church',   label: isFr ? 'Églises'           : 'Churches' },
-    { to: '/discover?type=digital', label: isFr ? 'Produits digitaux' : 'Digital products' },
-    { to: '/discover?type=music',   label: isFr ? 'Musique'      : 'Music' },
+    { to: '/beauty/search',    label: isFr ? 'Beauté'            : 'Beauty' },
+    { to: '/learn/discover',   label: isFr ? 'Cours & tuteurs'   : 'Tutoring' },
+    { to: '/home/discover',    label: isFr ? 'Artisans'          : 'Artisans' },
+    { to: '/events/discover',  label: isFr ? 'Événements'        : 'Events' },
+    { to: '/church/discover',  label: isFr ? 'Églises'           : 'Churches' },
+    { to: '/discover?type=digital',    label: isFr ? 'Produits digitaux' : 'Digital products' },
+    { to: '/discover?type=music',      label: isFr ? 'Musique'      : 'Music' },
     { to: '/discover?type=influencer', label: isFr ? 'Influenceurs' : 'Influencers' },
-    { to: '/discover', label: isFr ? 'Tous les services' : 'All services' },
+    { to: '/discover',         label: isFr ? 'Tous les services' : 'All services' },
   ];
 
   const navItems = [
-    { to: '/discover',     label: isFr ? 'Explorer'   : 'Explore' },
-    { to: '/start-selling',label: isFr ? 'Proposer un service' : 'Offer a service' },
-    { to: '/pricing',      label: t('landing_nav.pricing') },
+    { to: '/discover',      label: isFr ? 'Explorer'   : 'Explore' },
+    { to: '/start-selling', label: isFr ? 'Proposer un service' : 'Offer a service' },
   ];
 
   return (
