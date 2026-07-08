@@ -29,11 +29,23 @@ export function LandingNav() {
   const displayName = profile?.display_name || user?.user_metadata?.display_name || user?.email?.split('@')[0] || '';
   const initials = displayName ? displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) : 'U';
 
+  const verticals = [
+    { to: '/beauty',   label: isFr ? 'Beauté'            : 'Beauty' },
+    { to: '/education',label: isFr ? 'Cours & tuteurs'   : 'Tutoring' },
+    { to: '/home',     label: isFr ? 'Artisans'          : 'Artisans' },
+    { to: '/events',   label: isFr ? 'Événements'        : 'Events' },
+    { to: '/church',   label: isFr ? 'Églises'           : 'Churches' },
+    { to: '/discover?type=digital', label: isFr ? 'Produits digitaux' : 'Digital products' },
+    { to: '/discover?type=music',   label: isFr ? 'Musique'      : 'Music' },
+    { to: '/discover?type=influencer', label: isFr ? 'Influenceurs' : 'Influencers' },
+    { to: '/discover', label: isFr ? 'Tous les services' : 'All services' },
+  ];
+
   const navItems = [
-    { to: '/ecrire', label: t('landing_nav.write') },
-    { to: '/gagner', label: t('landing_nav.earn') },
-    { to: '/discover', label: t('landing_nav.explore') },
-    { to: '/pricing', label: t('landing_nav.pricing') },
+    { to: '/looking-for', label: isFr ? 'Je cherche' : 'I need a pro' },
+    { to: '/start',       label: isFr ? 'Je propose' : 'Offer a service' },
+    { to: '/discover',    label: isFr ? 'Explorer'   : 'Explore' },
+    { to: '/pricing',     label: t('landing_nav.pricing') },
   ];
 
   return (
@@ -46,13 +58,30 @@ export function LandingNav() {
           <SiteLogo size="md" animate />
           {nativeApp && <span className="text-sm font-semibold tracking-tight text-foreground">SiteViral</span>}
         </div>
-        
+
         <div className="hidden md:flex items-center gap-1">
           {navItems.map((item) => (
             <Button key={item.label} variant="ghost" size="sm" asChild className="text-xs">
               <Link to={item.to}>{item.label}</Link>
             </Button>
           ))}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-xs">
+                {isFr ? 'Catégories' : 'Categories'}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                {isFr ? 'Univers SiteViral' : 'SiteViral universes'}
+              </DropdownMenuLabel>
+              {verticals.map((v) => (
+                <DropdownMenuItem key={v.to} onClick={() => navigate(v.to)} className="text-xs">
+                  {v.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2">
@@ -158,6 +187,16 @@ export function LandingNav() {
                   {item.label}
                 </Link>
               ))}
+              <div className="pt-2 mt-2 border-t border-border/40">
+                <div className="px-3 pt-1 pb-2 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  {isFr ? 'Catégories' : 'Categories'}
+                </div>
+                {verticals.map((v) => (
+                  <Link key={v.to} to={v.to} onClick={() => setMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors">
+                    {v.label}
+                  </Link>
+                ))}
+              </div>
               {user ? (
                 <div className="pt-2 border-t border-border/40 mt-2 space-y-1">
                   {[
