@@ -195,6 +195,28 @@ export default function OrgPublicPage() {
 
   return (
     <div className="min-h-screen bg-background" style={themeStyle}>
+      {previewAsVisitor && (
+        <div className="sticky top-0 z-50 bg-primary/95 text-primary-foreground text-xs font-medium py-2 px-4 flex items-center justify-center gap-3 backdrop-blur-sm">
+          <EyeOff className="h-3.5 w-3.5" />
+          <span>{locale === 'fr' ? 'Aperçu visiteur — vous voyez la page publique' : 'Visitor preview — you are seeing the public page'}</span>
+          <button
+            onClick={() => { const p = new URLSearchParams(searchParams); p.delete('as'); navigate(`${pathname}${p.toString() ? '?' + p.toString() : ''}`, { replace: true }); }}
+            className="ml-2 underline underline-offset-2 hover:opacity-80"
+          >
+            {locale === 'fr' ? 'Quitter l\'aperçu' : 'Exit preview'}
+          </button>
+        </div>
+      )}
+      {rawIsAdmin && !previewAsVisitor && (
+        <button
+          onClick={() => { const p = new URLSearchParams(searchParams); p.set('as', 'visitor'); navigate(`${pathname}?${p.toString()}`, { replace: true }); }}
+          className="fixed bottom-4 right-4 z-40 flex items-center gap-1.5 rounded-full bg-foreground text-background px-3 py-2 text-xs font-semibold shadow-lg hover:opacity-90 transition-opacity"
+          title={locale === 'fr' ? 'Aperçu visiteur' : 'Preview as visitor'}
+        >
+          <Eye className="h-3.5 w-3.5" />
+          {locale === 'fr' ? 'Aperçu visiteur' : 'Preview as visitor'}
+        </button>
+      )}
       <PixelInjector facebookPixelId={fbPixel} tiktokPixelId={ttPixel} googleTagId={gTagId} />
       {isOnOrgDomain && <DynamicFavicon logoUrl={org.logo_url} orgName={org.name} orgDescription={org.description || undefined} />}
       <SEOHead
