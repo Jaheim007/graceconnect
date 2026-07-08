@@ -90,12 +90,20 @@ export default function WorkspaceDashboard() {
   const { locale } = useI18n();
   const fr = locale === 'fr';
 
-  const activeFeatures = useMemo(() => {
+  const { primaryFeatures, additionalFeatures } = useMemo(() => {
     const fallback = type ? SITEVIRAL_TYPES[type]?.defaultFeatures ?? [] : [];
     const list = featureList.length ? featureList : fallback;
-    const unique = Array.from(new Set(list)) as SiteviralFeatureKey[];
-    return FEATURE_ORDER.filter((key) => unique.includes(key));
+    const unique = new Set<SiteviralFeatureKey>(list as SiteviralFeatureKey[]);
+    // Never mix platform essentials into either section — they render above.
+    PLATFORM_ESSENTIALS.forEach((k) => unique.delete(k));
+
+    const primaryOrder = getPrimaryFeaturesForType(type);
+    const primary = primaryOrder.filter((k) => unique.has(k));
+    const primarySet = new Set(primary);
+    const additional = FEATURE_ORDER.filter((k) => unique.has(k) && !primarySet.has(k));
+    return { primaryFeatures: primary, additionalFeatures: additional };
   }, [featureList, type]);
+
 
   if (!currentOrg) return null;
 
