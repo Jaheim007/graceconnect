@@ -189,6 +189,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
+      <PlatformEvolvedBanner />
       {/* ═══ HEADER — compact, one line ═══ */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
