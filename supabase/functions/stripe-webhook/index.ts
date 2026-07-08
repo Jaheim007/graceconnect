@@ -387,7 +387,7 @@ Deno.serve(async (req) => {
     }
 
     const reference = meta.sv_reference;
-    const type = meta.type as 'donation' | 'product' | 'template_clone' | 'church_giving' | 'church_sermon_pdf';
+    const type = meta.type as 'donation' | 'product' | 'template_clone' | 'church_giving' | 'church_sermon_pdf' | 'church_event_ticket';
     const organizationId = meta.organization_id;
 
     // ── CHURCH GIVING branch ──
