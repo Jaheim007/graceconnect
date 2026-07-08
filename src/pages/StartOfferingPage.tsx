@@ -120,7 +120,7 @@ export default function StartOfferingPage() {
       }
       await qc.invalidateQueries({ queryKey: ['user-orgs'] });
       toast.success(fr ? 'Fonctionnalités ajoutées à votre espace' : 'Features added to your workspace');
-      navigate('/admin');
+      navigate('/dashboard');
     } catch (e: any) {
       toast.error(e?.message ?? 'Error');
     } finally {

@@ -29,7 +29,7 @@ export function Sidebar() {
     switch (id) {
       case 'course': return hasManageableOrg ? '/admin/programs' : user ? '/create-org' : '/creer-formation';
       case 'sell': return hasManageableOrg ? '/admin/products' : user ? '/create-org' : '/vendre';
-      case 'orgs': return hasManageableOrg ? '/admin' : '/create-org';
+      case 'orgs': return hasManageableOrg ? '/dashboard' : '/create-org';
       default: return '';
     }
   };

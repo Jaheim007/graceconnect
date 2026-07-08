@@ -11,7 +11,7 @@ import { Organization } from '@/types/database';
 import { brandUrl } from '@/lib/storageUrl';
 import { cn } from '@/lib/utils';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
-import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
+import { isOrgVerifiedOrKyc } from '@/lib/verifiedLabel';
 import {
   Building2, ChevronDown, Check, Plus, Crown, ShieldCheck, Pencil, Users2,
   Link2, ArrowRight,
@@ -39,14 +39,14 @@ interface OrgSwitcherProps {
 export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitcherProps) {
   const { currentOrg, userOrgs, setCurrentOrg, getRoleFor } = useOrg();
   const navigate = useNavigate();
-  const { t, locale } = useI18n();
+  const { locale } = useI18n();
   const isFr = locale === 'fr';
   const roleConfig = roleConfigFn(isFr);
   const [open, setOpen] = useState(false);
 
   if (!currentOrg || userOrgs.length === 0) return null;
 
-  // OrgSwitcher only shows platforms the user manages (owner/admin)
+  // OrgSwitcher only shows workspaces/pages the user manages (owner/admin)
   const managedOrgs = userOrgs.filter((o) => {
     const role = getRoleFor(o.id);
     return role === 'owner' || role === 'admin';
@@ -58,7 +58,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
     setCurrentOrg(org);
     setOpen(false);
     if (isManager) {
-      navigate('/admin');
+      navigate('/dashboard');
     } else {
       navigate(`/org/${org.slug}`);
     }
@@ -184,7 +184,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
               <Plus className="h-4 w-4 text-primary" />
             </div>
             {!collapsed && (
-              <p className="text-xs font-semibold text-primary">{t('sidebar.create_new_platform') || 'Create a platform'}</p>
+              <p className="text-xs font-semibold text-primary">{isFr ? 'Créer un espace/page' : 'Create a workspace/page'}</p>
             )}
           </div>
         </button>
@@ -206,10 +206,10 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
           <DialogHeader className="relative">
             <DialogTitle className="text-base font-bold flex items-center gap-2">
               <Building2 className="h-4 w-4 text-primary" />
-              {t('sidebar.switch_platform')}
+              {isFr ? 'Changer d’espace/page' : 'Switch workspace/page'}
             </DialogTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              {managedOrgs.length} {managedOrgs.length > 1 ? 'platforms' : 'platform'}
+              {managedOrgs.length} {isFr ? 'espace(s)' : 'workspace(s)'}
             </p>
           </DialogHeader>
         </div>
@@ -218,7 +218,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
         <div className="px-3 py-3 max-h-[400px] overflow-y-auto space-y-1">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 py-2">
-              {t('sidebar.my_platforms') || 'My platforms'}
+              {isFr ? 'Mes espaces / pages' : 'My workspaces / pages'}
             </p>
             <AnimatePresence>
               {managedOrgs.map((org, i) => (
@@ -239,7 +239,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
             onClick={() => { setOpen(false); navigate('/create-org'); }}
           >
             <Plus className="h-3.5 w-3.5" />
-            {t('sidebar.create_new_platform') || 'Create a new platform'}
+            {isFr ? 'Créer un nouvel espace/page' : 'Create a new workspace/page'}
           </Button>
         </div>
       </DialogContent>

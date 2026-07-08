@@ -5,16 +5,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import UserDashboard from '@/pages/UserDashboard';
 import DigitalProductDashboard from '@/pages/dashboard/DigitalProductDashboard';
-
-const ChurchProDashboard = lazy(() => import('@/pages/church/ChurchProDashboard'));
-const HomeProDashboard = lazy(() => import('@/pages/home/HomeProDashboard'));
-const BeautyProDashboard = lazy(() => import('@/pages/beauty/BeautyProDashboard'));
-const EventsProDashboard = lazy(() => import('@/pages/events/EventsProDashboard'));
-const EducationTutorDashboard = lazy(() => import('@/pages/education/EducationTutorDashboard'));
+const WorkspaceDashboard = lazy(() => import('@/pages/dashboard/WorkspaceDashboard'));
 
 /**
- * Unified Dashboard — no more mode-based routing.
- * Skips WelcomeIntent if user already has orgs (returning user).
+ * One account → many workspaces. The selected workspace drives the dashboard.
  */
 export default function DashboardRouter() {
   const { user } = useAuth();
@@ -45,23 +39,19 @@ export default function DashboardRouter() {
 
   const dashboard = (() => {
     switch (type) {
+      case 'digital_products':
+        return <DigitalProductDashboard />;
       case 'church':
-        return <ChurchProDashboard />;
       case 'artisans_home_services':
-        return <HomeProDashboard />;
       case 'beauty':
-        return <BeautyProDashboard />;
       case 'sport':
       case 'instrumentists':
-        return <EventsProDashboard />;
       case 'tutors_home_teachers':
-        return <EducationTutorDashboard />;
-      case 'digital_products':
       case 'influencers':
       case 'services':
-        return <DigitalProductDashboard />;
+        return <WorkspaceDashboard />;
       default:
-        return userOrgs.length > 0 ? <DigitalProductDashboard /> : <UserDashboard />;
+        return userOrgs.length > 0 ? <WorkspaceDashboard /> : <UserDashboard />;
     }
   })();
 

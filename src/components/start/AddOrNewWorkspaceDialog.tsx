@@ -20,11 +20,11 @@ export function AddOrNewWorkspaceDialog({ open, onOpenChange, currentOrgName, on
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{fr ? 'Où ajouter cette activité ?' : 'Where should we add this activity?'}</DialogTitle>
+          <DialogTitle>{fr ? 'Ajouter à cet espace ou créer une nouvelle page ?' : 'Add to this workspace or create a new page?'}</DialogTitle>
           <DialogDescription>
             {fr
-              ? 'Vous pouvez enrichir votre espace actuel ou créer un nouvel espace dédié.'
-              : 'You can extend your current workspace or create a dedicated new one.'}
+              ? 'Vous n’avez pas besoin d’un autre compte. Choisissez si cette activité appartient à l’espace actuel ou mérite sa propre page.'
+              : 'You do not need another account. Choose whether this activity belongs to the current workspace or needs its own page.'}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-2">
@@ -40,8 +40,8 @@ export function AddOrNewWorkspaceDialog({ open, onOpenChange, currentOrgName, on
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {fr
-                ? 'Nous activons uniquement les nouvelles fonctionnalités. Votre type et vos données restent inchangés.'
-                : 'We only enable the new features. Your type and data stay the same.'}
+                ? 'Nous fusionnons seulement les fonctionnalités choisies. Le type principal et les données de cet espace ne changent pas.'
+                : 'We only merge the selected features. This workspace’s main type and data do not change.'}
             </p>
           </button>
           <button
@@ -51,12 +51,12 @@ export function AddOrNewWorkspaceDialog({ open, onOpenChange, currentOrgName, on
           >
             <div className="flex items-center gap-2 font-semibold text-sm">
               <Plus className="h-4 w-4 text-primary" />
-              {fr ? 'Créer un nouvel espace' : 'Create a new workspace'}
+              {fr ? 'Créer un nouvel espace/page' : 'Create a new workspace/page'}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {fr
-                ? 'Une page publique dédiée pour cette nouvelle activité.'
-                : 'A dedicated public page for this new activity.'}
+                ? 'Une page séparée dans le même compte, avec son propre type et ses propres fonctionnalités.'
+                : 'A separate page inside the same account, with its own type and features.'}
             </p>
           </button>
         </div>

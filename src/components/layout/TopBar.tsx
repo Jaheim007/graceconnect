@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Bell, Sun, Moon, LogOut, User, Shield, Plus, Search, ArrowLeftRight, Building2, Check, CreditCard } from 'lucide-react';
+import { Bell, Sun, Moon, LogOut, User, Shield, Plus, Search, Building2, Check, CreditCard } from 'lucide-react';
 import { PlanBadge } from '@/components/billing/PlanBadge';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
+import { OrgSwitcher } from '@/components/org/OrgSwitcher';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -48,7 +49,7 @@ export function TopBar() {
     setCurrentOrg(org);
     setSwitchDialogOpen(false);
     if (role === 'owner' || role === 'admin') {
-      navigate('/admin');
+      navigate('/dashboard');
     } else {
       navigate(`/org/${org.slug}`);
     }
@@ -84,6 +85,7 @@ export function TopBar() {
           <Search className="h-4 w-4" />
         </Button>
 
+        <OrgSwitcher variant="topbar" />
         <CreditBalance />
         <GlobalPreferencesSelector />
 
@@ -129,12 +131,12 @@ export function TopBar() {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/create-org')}>
                 <Plus className="h-3.5 w-3.5 mr-2" />
-                {isFr ? 'Créer une plateforme' : 'Create a platform'}
+                {isFr ? 'Créer un espace/page' : 'Create a workspace/page'}
               </DropdownMenuItem>
               {managedOrgs.length >= 1 && (
                 <DropdownMenuItem onClick={() => setSwitchDialogOpen(true)}>
                   <Building2 className="h-3.5 w-3.5 mr-2" />
-                  {isFr ? 'Changer de plateforme' : 'Switch Platform'}
+                  {isFr ? 'Changer d’espace/page' : 'Switch workspace/page'}
                 </DropdownMenuItem>
               )}
               {isSuperadmin && (
@@ -149,16 +151,16 @@ export function TopBar() {
         )}
       </header>
 
-      {/* Switch Platform Dialog */}
+      {/* Switch workspace/page dialog */}
       <Dialog open={switchDialogOpen} onOpenChange={setSwitchDialogOpen}>
         <DialogContent className="sm:max-w-[380px] p-0 gap-0 overflow-hidden rounded-2xl">
           <DialogHeader className="px-5 pt-5 pb-3">
             <DialogTitle className="text-base font-bold flex items-center gap-2">
               <Building2 className="h-4 w-4 text-primary" />
-              {isFr ? 'Changer de plateforme' : 'Switch Platform'}
+              {isFr ? 'Changer d’espace/page' : 'Switch workspace/page'}
             </DialogTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              {managedOrgs.length} {managedOrgs.length > 1 ? 'platforms' : 'platform'}
+              {managedOrgs.length} {isFr ? 'espace(s)' : 'workspace(s)'}
             </p>
           </DialogHeader>
 
@@ -210,7 +212,7 @@ export function TopBar() {
               onClick={() => { setSwitchDialogOpen(false); navigate('/create-org'); }}
             >
               <Plus className="h-3.5 w-3.5" />
-              {isFr ? 'Créer une plateforme' : 'Create a platform'}
+              {isFr ? 'Créer un nouvel espace/page' : 'Create a new workspace/page'}
             </Button>
           </div>
         </DialogContent>

@@ -134,8 +134,8 @@ export default function OnboardingTypePage() {
         </div>
         <p className="text-[11px] text-muted-foreground">
           {isFr
-            ? 'Vous pourrez changer votre type SiteViral et activer plus de fonctionnalités à tout moment.'
-            : 'You can change your SiteViral type and activate more features at any time.'}
+            ? 'Vous pourrez ajouter plus de fonctionnalités à cet espace plus tard.'
+            : 'You can add more features to this workspace later.'}
         </p>
       </div>
     </div>
