@@ -215,9 +215,9 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
           {TriggerButton}
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[400px] p-0 gap-0 overflow-hidden rounded-2xl border-primary/10">
+      <DialogContent className="sm:max-w-[400px] p-0 gap-0 overflow-hidden rounded-2xl border-primary/10 max-h-[85vh] flex flex-col">
         {/* Header */}
-        <div className="relative bg-gradient-to-br from-primary/15 via-primary/8 to-transparent px-5 pt-5 pb-4">
+        <div className="relative bg-gradient-to-br from-primary/15 via-primary/8 to-transparent px-5 pt-5 pb-4 shrink-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.12),transparent_60%)]" />
           <DialogHeader className="relative">
             <DialogTitle className="text-base font-bold flex items-center gap-2">
@@ -225,13 +225,13 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
               {isFr ? 'Changer d’espace/page' : 'Switch workspace/page'}
             </DialogTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              {managedOrgs.length} {isFr ? 'espace(s)' : 'workspace(s)'}
+              {managedOrgs.length} {isFr ? 'espace(s) — chacun a son propre type SiteViral' : 'workspace(s) — each has its own SiteViral type'}
             </p>
           </DialogHeader>
         </div>
 
         {/* Platform list — only managed orgs */}
-        <div className="px-3 py-3 max-h-[400px] overflow-y-auto space-y-1">
+        <div className="px-3 py-3 flex-1 min-h-0 overflow-y-auto space-y-1">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 py-2">
               {isFr ? 'Mes espaces / pages' : 'My workspaces / pages'}
