@@ -102,8 +102,7 @@ export default function SuperAppHub() {
                 type="button"
                 onClick={() => {
                   setIntent('client');
-                  const el = document.getElementById('sv-verticals');
-                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  navigate('/looking-for');
                 }}
                 className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xl"
               >
