@@ -358,6 +358,8 @@ const LazyAdminAffiliation = lazy(() => import("@/pages/admin/AdminPages").then(
 const LazyAdminKYC = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminKYC })));
 const LazyAdminSettings = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminSettings })));
 const LazyAdminFeatures = lazy(() => import("@/pages/admin/AdminFeaturesPage"));
+const LazyStartOfferingPage = lazy(() => import("@/pages/StartOfferingPage"));
+const LazyIntentChooserPage = lazy(() => import("@/pages/IntentChooserPage"));
 const LazyOnboardingType = lazy(() => import("@/pages/onboarding/OnboardingTypePage"));
 const LazyOnboardingGoals = lazy(() => import("@/pages/onboarding/OnboardingGoalsPage"));
 
