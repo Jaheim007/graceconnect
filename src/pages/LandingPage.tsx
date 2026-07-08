@@ -13,7 +13,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead
-        title="SiteViral — Trouvez un pro ou vendez vos services"
+        title="SiteViral — Trouvez un service ou proposez le vôtre"
         description="La marketplace panafricaine des services et produits digitaux. Beauté, tuteurs, artisans, événements, ebooks. Paiement sécurisé, Mobile Money inclus."
         canonicalUrl="https://siteviral.com"
         keywords="marketplace Afrique, freelance, services à domicile, tuteurs, coiffure, ebooks, Mobile Money, SiteViral"

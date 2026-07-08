@@ -23,7 +23,7 @@ export function LandingFooterCompact() {
     {
       title: isFr ? 'Pour les clients' : 'For clients',
       links: [
-        { to: '/looking-for', label: isFr ? 'Trouver un pro'     : 'Find a pro' },
+        { to: '/looking-for', label: isFr ? 'Trouver un service' : 'Find a service' },
         { to: '/discover',    label: isFr ? 'Explorer'           : 'Explore' },
         { to: '/how-it-works',label: isFr ? 'Comment ça marche'  : 'How it works' },
         { to: '/temoignages', label: isFr ? 'Témoignages'        : 'Testimonials' },

@@ -71,12 +71,12 @@ export function MarketplaceHero() {
           <h1 className="text-[2.5rem] sm:text-6xl lg:text-7xl font-black leading-[1.02] tracking-tight">
             {fr ? (
               <>
-                Trouvez le bon <span className="text-accent">pro</span>,<br className="hidden sm:block" />
+                Trouvez le bon <span className="text-accent">service</span>,<br className="hidden sm:block" />
                 <span className="text-sidebar-foreground/90">au bon prix.</span>
               </>
             ) : (
               <>
-                Find the right <span className="text-accent">pro</span>,<br className="hidden sm:block" />
+                Find the right <span className="text-accent">service</span>,<br className="hidden sm:block" />
                 <span className="text-sidebar-foreground/90">at the right price.</span>
               </>
             )}
@@ -181,10 +181,10 @@ export function MarketplaceIntentSplit() {
           className="group text-left rounded-3xl border bg-card p-7 sm:p-9 hover:border-primary/50 hover:shadow-xl hover:-translate-y-0.5 transition-all"
         >
           <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
-            {fr ? 'Je cherche' : 'I need a pro'}
+            {fr ? 'Je cherche un service' : 'I need a service'}
           </div>
           <h3 className="mt-3 text-2xl sm:text-3xl font-black leading-tight">
-            {fr ? 'Trouvez le bon pro et réservez.' : 'Find the right pro and book.'}
+            {fr ? 'Trouvez le service qu’il vous faut et réservez.' : 'Find the service you need and book it.'}
           </h3>
           <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
             {fr ? 'Comparez les profils vérifiés, discutez, réservez et payez en toute sécurité.' : 'Compare verified profiles, chat, book and pay securely.'}
