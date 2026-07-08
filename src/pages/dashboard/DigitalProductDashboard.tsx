@@ -132,7 +132,7 @@ export default function DigitalProductDashboard() {
         .order('created_at', { ascending: false })
         .limit(6);
       if (error) throw error;
-      return (data || []) as ProductRow[];
+      return (data || []) as unknown as ProductRow[];
     },
   });
 
@@ -148,7 +148,7 @@ export default function DigitalProductDashboard() {
         .order('created_at', { ascending: false })
         .limit(8);
       if (error) throw error;
-      return (data || []) as SaleRow[];
+      return (data || []) as unknown as SaleRow[];
     },
   });
 
