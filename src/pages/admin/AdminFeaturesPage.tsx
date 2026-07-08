@@ -84,8 +84,8 @@ export default function AdminFeaturesPage() {
         </h1>
         <p className="text-sm text-muted-foreground">
           {isFr
-            ? 'Activez, configurez et étendez ce que votre espace SiteViral peut faire. Vous pouvez toujours changer votre type SiteViral et activer d\'autres fonctionnalités plus tard.'
-            : 'Activate, set up and extend what your SiteViral workspace can do. You can always change your SiteViral type and activate more features later.'}
+            ? 'Activez et configurez les outils de cet espace. Cela ajoute des fonctionnalités sans changer son activité principale.'
+            : 'Activate and configure tools for this workspace. This adds features without changing its main activity.'}
         </p>
         {typeMeta && (
           <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -113,8 +113,8 @@ export default function AdminFeaturesPage() {
           const isRecommended = recommended.has(key);
           const isPending = pending.has(key);
           const Icon = (Icons as any)[meta.icon] ?? Icons.Sparkles;
-          // KYC + affiliation are platform-mandatory: cannot be turned off.
-          const locked = key === 'kyc' || key === 'affiliation';
+          // KYC, payment, and affiliation are platform essentials: not optional add-ons.
+          const locked = key === 'kyc' || key === 'payment' || key === 'affiliation';
 
           return (
             <div
@@ -199,8 +199,8 @@ export default function AdminFeaturesPage() {
 
       <p className="pt-2 text-center text-[11px] text-muted-foreground">
         {isFr
-          ? 'Astuce : vous pouvez changer votre type SiteViral à tout moment depuis les paramètres.'
-          : 'Tip: you can change your SiteViral type any time from settings.'}
+          ? 'Chaque espace garde son activité principale. Pour une activité séparée, créez un nouvel espace/page dans le même compte.'
+          : 'Each workspace keeps its main activity. For a separate activity, create a new workspace/page in the same account.'}
       </p>
     </div>
   );

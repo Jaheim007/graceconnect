@@ -271,7 +271,6 @@ const CreditsPage = lazy(() => import("@/pages/CreditsPage"));
 
 // Admin
 const AdminShell = lazy(() => import("@/pages/admin/AdminShell"));
-const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 const AdminMedia = lazy(() => import("@/pages/admin/AdminMedia"));
 const AdminMediaForm = lazy(() => import("@/pages/admin/AdminMediaForm").then(m => ({ default: m.MediaForm })));
 const AdminAnalyticsPage = lazy(() => import("@/pages/admin/AdminAnalyticsPage"));
@@ -713,7 +712,7 @@ const App = () => (
 
                   {/* Admin — inside AppLayout for seamless navigation */}
                   <Route path="/admin" element={<RequireOrgManage><AdminShell /></RequireOrgManage>}>
-                  <Route index element={<AdminDashboard />} />
+                  <Route index element={<DashboardRouter />} />
                   <Route path="create" element={<AdminCreateHub />} />
                   <Route path="content" element={<AdminContentHub />} />
                   <Route path="people" element={<AdminPeople />} />

@@ -134,7 +134,7 @@ export default function CreateOrgPage() {
 
       toast({ title: isFr ? '🎉 Votre espace est prêt !' : '🎉 Your workspace is ready!', description: data.name });
       if (hadStartConfig) {
-        navigate('/admin');
+        navigate('/dashboard');
         return;
       }
       setShowOnboarding(true);
