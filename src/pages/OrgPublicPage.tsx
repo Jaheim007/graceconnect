@@ -279,14 +279,14 @@ export default function OrgPublicPage() {
                 <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-6 pb-1 sticky top-12 z-10 bg-background/95 backdrop-blur-sm py-3 -mx-4 px-4">
                   {[
                     { value: 'home', label: t('org_public.home'), icon: Home, count: null },
-                    ...(products.length > 0 || isAdmin ? [{ value: 'store', label: t('org_public.store'), icon: ShoppingBag, count: products.length }] : []),
-                    ...(campaigns.length > 0 || isAdmin ? [{ value: 'donate', label: t('org_public.donations'), icon: Heart, count: campaigns.length }] : []),
-                    ...((offerings.length > 0 || (isAdmin && orgAny.offerings_enabled)) ? [{ value: 'offerings', label: locale === 'fr' ? 'Dons' : 'Donations', icon: HandHeart, count: offerings.length }] : []),
+                    ...((showStoreTab || isAdmin) && (products.length > 0 || isAdmin) ? [{ value: 'store', label: t('org_public.store'), icon: ShoppingBag, count: products.length }] : []),
+                    ...((showDonateTab || isAdmin) && (campaigns.length > 0 || isAdmin) ? [{ value: 'donate', label: t('org_public.donations'), icon: Heart, count: campaigns.length }] : []),
+                    ...((showDonateTab || isAdmin) && (offerings.length > 0 || (isAdmin && orgAny.offerings_enabled)) ? [{ value: 'offerings', label: locale === 'fr' ? 'Dons' : 'Donations', icon: HandHeart, count: offerings.length }] : []),
 
                     ...(media.length > 0 || isAdmin ? [{ value: 'content', label: t('org_public.content'), icon: Play, count: media.length }] : []),
-                    ...(publishedPrograms.length > 0 || isAdmin ? [{ value: 'programs', label: locale === 'fr' ? 'Formations' : 'Programs', icon: GraduationCap, count: publishedPrograms.length }] : []),
+                    ...((showProgramsTab || isAdmin) && (publishedPrograms.length > 0 || isAdmin) ? [{ value: 'programs', label: locale === 'fr' ? 'Formations' : 'Programs', icon: GraduationCap, count: publishedPrograms.length }] : []),
                     ...(photos.length > 0 || isAdmin ? [{ value: 'photos', label: t('org_public.photos'), icon: Camera, count: photos.length }] : []),
-                    ...(events.length > 0 || isAdmin ? [{ value: 'events', label: t('org_public.events'), icon: CalendarDays, count: events.length }] : []),
+                    ...((showEventsTab || isAdmin) && (events.length > 0 || isAdmin) ? [{ value: 'events', label: t('org_public.events'), icon: CalendarDays, count: events.length }] : []),
                   ].map((tab) => {
                     const Icon = tab.icon;
                     return (
