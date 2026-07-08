@@ -136,18 +136,45 @@ export const MODULES: Record<ModuleId, DashboardModule> = {
 export const ALL_MODULE_IDS = Object.keys(MODULES) as ModuleId[];
 
 /**
- * Persona → default enabled modules (from the product matrix).
- * ✅ = enabled by default. ◐ optional modules are NOT enabled by default;
- * the user can flip them on in Settings → Modules later.
+ * MANDATORY modules — always on for every account. Not toggleable.
+ * These are the "essentials" that come standard with the platform:
+ * - digital_products: default dashboard everyone gets (sell ebooks, courses, downloads)
+ * - orders: needed to track sales/quotes
+ * - payments: needed to receive money
+ * - kyc: legally required to be paid
+ * - affiliation: everyone can earn by referring others
+ */
+export const MANDATORY_MODULES: ModuleId[] = [
+  'digital_products',
+  'orders',
+  'payments',
+  'kyc',
+  'affiliation',
+];
+
+/**
+ * OPTIONAL modules — family-specific features. Off by default; user turns them
+ * on in Settings → My modules to bring in features from another family
+ * (booking, giving, AI content, events, etc.).
+ */
+export const OPTIONAL_MODULE_IDS: ModuleId[] = ALL_MODULE_IDS.filter(
+  (id) => !MANDATORY_MODULES.includes(id),
+);
+
+export const isMandatoryModule = (id: ModuleId) => MANDATORY_MODULES.includes(id);
+
+/**
+ * Persona → default OPTIONAL modules pre-enabled at signup (from product matrix).
+ * Mandatory modules are always active and NOT listed here.
  */
 export const DEFAULT_MODULES_BY_PERSONA: Record<Persona, ModuleId[]> = {
-  church:      ['booking','giving','payments','ai_book','ai_content','comments','location','reviews','kyc','affiliation'],
-  digital:     ['digital_products','orders','giving','payments','ai_book','ai_content','comments','kyc','affiliation'],
-  coach:       ['booking','orders','payments','location','events_tickets','reviews','kyc','affiliation'],
-  home:        ['booking','orders','payments','location','reviews','kyc','affiliation'],
-  beauty:      ['booking','orders','payments','location','reviews','kyc','affiliation'],
-  tutor:       ['booking','orders','payments','ai_content','location','reviews','kyc','affiliation'],
-  musician:    ['booking','orders','payments','ai_content','location','events_tickets','reviews','kyc','affiliation'],
-  influencer:  ['booking','orders','payments','ai_content','events_tickets','reviews','kyc','affiliation'],
-  general:     ['booking','orders','payments','location','reviews','kyc','affiliation'],
+  church:      ['booking','giving','ai_book','ai_content','comments','location','reviews'],
+  digital:     ['giving','ai_book','ai_content','comments'],
+  coach:       ['booking','location','events_tickets','reviews'],
+  home:        ['booking','location','reviews'],
+  beauty:      ['booking','location','reviews'],
+  tutor:       ['booking','ai_content','location','reviews'],
+  musician:    ['booking','ai_content','location','events_tickets','reviews'],
+  influencer:  ['booking','ai_content','events_tickets','reviews'],
+  general:     ['booking','location','reviews'],
 };
