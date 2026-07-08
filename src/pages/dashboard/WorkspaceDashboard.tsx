@@ -171,9 +171,7 @@ export default function WorkspaceDashboard() {
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className="text-lg font-black tracking-tight">
-                  {typeMeta
-                    ? (fr ? `Outils principaux — ${typeMeta.labelFr}` : `Principal tools — ${typeMeta.labelEn}`)
-                    : (fr ? 'Outils principaux' : 'Principal tools')}
+                  {fr ? 'Outils principaux' : 'Principal tools'}
                 </h2>
                 <p className="text-xs text-muted-foreground">
                   {fr
