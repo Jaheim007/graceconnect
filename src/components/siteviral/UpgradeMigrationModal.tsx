@@ -69,6 +69,7 @@ export function UpgradeMigrationModal() {
       await confirmSiteviralType(currentOrg.id, selected, [], 'migration');
       await qc.invalidateQueries({ queryKey: ['user-orgs'] });
       toast.success(isFr ? 'Type SiteViral mis à jour' : 'SiteViral type updated');
+      setDismissed(true);
     } catch (e: any) {
       toast.error(e?.message ?? 'Error');
     } finally {
