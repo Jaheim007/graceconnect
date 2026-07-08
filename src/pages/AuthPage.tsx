@@ -14,6 +14,7 @@ import { SiteLogo } from '@/components/ui/SiteLogo';
 import authBg from '@/assets/auth-bg.jpg';
 import { cn } from '@/lib/utils';
 import { isNativePlatform } from '@/lib/capacitor';
+import { clearIntent, getIntent } from '@/lib/intent';
 
 export default function AuthPage() {
   const [searchParams] = useSearchParams();
@@ -55,6 +56,12 @@ export default function AuthPage() {
         try { localStorage.setItem(modeKey, savedIntent); } catch {}
         navigate(returnTo || '/dashboard', { replace: true });
       } else {
+        const storedIntent = getIntent();
+        if (storedIntent) {
+          clearIntent();
+          navigate(returnTo || storedIntent.returnTo || (storedIntent.kind === 'client' ? '/services' : '/start'), { replace: true });
+          return;
+        }
         navigate(returnTo || '/dashboard', { replace: true });
       }
     }

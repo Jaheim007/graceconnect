@@ -37,7 +37,7 @@ export function LandingFinalCTA() {
               <Button
                 size="lg"
                 className="px-8 h-12 gap-2 group w-full sm:w-auto shadow-lg shadow-primary/40 bg-primary hover:bg-primary/90"
-                onClick={() => { setIntent('client', '/looking-for'); navigate('/looking-for'); }}
+                onClick={() => { setIntent('client', '/services'); navigate('/services'); }}
               >
                 <Search className="h-4 w-4" /> {isFr ? 'Trouver un service' : 'Find a service'}
                 <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />

@@ -59,8 +59,8 @@ export default function AuthCallbackPage() {
           navigate(isNewUser ? '/start' : (intent.returnTo || '/dashboard'), { replace: true });
           return;
         }
-        // Client intent: never route to /start.
-        navigate(intent.returnTo || '/', { replace: true });
+        // Client intent: never route to /start or seller dashboard.
+        navigate(intent.returnTo || '/services', { replace: true });
         return;
       }
 

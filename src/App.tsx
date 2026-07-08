@@ -135,6 +135,7 @@ const AuthPage = lazy(() => import("@/pages/AuthPage"));
 const AuthCallbackPage = lazy(() => import("@/pages/AuthCallbackPage"));
 const OAuthConsent = lazy(() => import("@/pages/OAuthConsent"));
 const DiscoverPage = lazy(() => import("@/pages/DiscoverPage"));
+const ServicesPage = lazy(() => import("@/pages/ServicesPage"));
 // SpotlightPage consolidated into Discover
 const PromoCataloguePage = lazy(() => import("@/pages/promo/PromoCataloguePage"));
 const PromoGratuitsPage = lazy(() => import("@/pages/promo/PromoGratuitsPage"));
@@ -419,6 +420,7 @@ const App = () => (
                 <Route path="/start-selling" element={<LazyStartSellingPage />} />
                 <Route path="/welcome-intent" element={<LazyIntentChooserPage />} />
                 <Route path="/looking-for" element={<LazyLookingForPage />} />
+                <Route path="/services" element={<ServicesPage />} />
                 <Route path="/digital" element={<Navigate to="/discover?type=digital" replace />} />
                 <Route path="/digital/about" element={<LandingPage />} />
                 <Route path="/hub" element={<Navigate to="/discover" replace />} />
