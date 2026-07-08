@@ -411,6 +411,8 @@ const App = () => (
                 {/* Public routes */}
                 <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 <Route path="/" element={<SuperAppHub />} />
+                <Route path="/start" element={<LazyStartOfferingPage />} />
+                <Route path="/welcome-intent" element={<LazyIntentChooserPage />} />
                 <Route path="/digital" element={<ActionHub />} />
                 <Route path="/digital/about" element={<LandingPage />} />
                 <Route path="/hub" element={<ActionHub />} />
