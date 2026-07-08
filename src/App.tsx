@@ -669,6 +669,30 @@ const App = () => (
                 {/* /welcome now redirects to home — unified ActionHub */}
                 <Route path="/welcome" element={<Navigate to="/" replace />} />
 
+                {/* ─── Unified Dashboard (own shell with sidebar) ─── */}
+                <Route path="/dashboard" element={<UnifiedDashboardLayout />}>
+                  <Route index element={<DashboardHome />} />
+                  <Route path="settings/modules" element={<ModulesSettings />} />
+                  {/* Module routes — wrap existing per-vertical dashboards */}
+                  <Route path="booking" element={<ModuleGate moduleId="booking" component={BeautyProDashboard} />} />
+                  <Route path="digital" element={<ModuleGate moduleId="digital_products" component={LazyAdminProducts} />} />
+                  <Route path="giving" element={<ModuleGate moduleId="giving" component={ChurchProGiving} />} />
+                  <Route path="ai-content" element={<ModuleGate moduleId="ai_content" component={StudioProjectsList} />} />
+                  <Route path="events" element={<ModuleGate moduleId="events_tickets" component={EventsProDashboard} />} />
+                  <Route path="orders" element={<ModuleGate moduleId="orders" component={MyInvoicesPage} />} />
+                  <Route path="kyc" element={<ModuleGate moduleId="kyc" component={BeautyKYCPage} />} />
+                  <Route path="affiliation" element={<ModuleGate moduleId="affiliation" component={PartnerPortalPage} />} />
+                  {/* Placeholder redirects until wired */}
+                  <Route path="messages" element={<Navigate to="/beauty/messages" replace />} />
+                  <Route path="notifications" element={<Navigate to="/notifications" replace />} />
+                  <Route path="settings" element={<Navigate to="/billing" replace />} />
+                  <Route path="payments" element={<Navigate to="/billing" replace />} />
+                  <Route path="ai-book" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="comments" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="location" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="reviews" element={<Navigate to="/my-reviews" replace />} />
+                </Route>
+
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
                   <Route path="/marketplace" element={<Navigate to="/discover" replace />} />
