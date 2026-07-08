@@ -275,9 +275,54 @@ export default function ServicesPage() {
           </nav>
 
           {user ? (
-            <button onClick={() => navigate('/my-programs')} className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-              {initials}
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary" aria-label={isFr ? 'Menu profil' : 'Profile menu'}>
+                  {initials}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel className="flex flex-col">
+                  <span className="text-sm font-bold">{displayName || (isFr ? 'Mon compte' : 'My account')}</span>
+                  {user.email && <span className="truncate text-xs font-normal text-muted-foreground">{user.email}</span>}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/profile')}>
+                  <User className="mr-2 h-4 w-4" /> {isFr ? 'Profil' : 'Profile'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/my-programs')}>
+                  <BookOpen className="mr-2 h-4 w-4" /> {isFr ? 'Mes achats' : 'My purchases'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/bookmarks')}>
+                  <Heart className="mr-2 h-4 w-4" /> {isFr ? 'Favoris' : 'Favorites'}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => go('/start-selling')}>
+                  <Store className="mr-2 h-4 w-4" /> {isFr ? 'Proposer un service' : 'Become a seller'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                  <Package className="mr-2 h-4 w-4" /> {isFr ? 'Tableau de bord vendeur' : 'Seller dashboard'}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/settings')}>
+                  <Settings className="mr-2 h-4 w-4" /> {isFr ? 'Paramètres du compte' : 'Account settings'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/billing')}>
+                  <ShieldCheck className="mr-2 h-4 w-4" /> {isFr ? 'Facturation & paiements' : 'Billing & payments'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => { e.preventDefault(); setLocale(isFr ? 'en' : 'fr'); }}>
+                  <Globe className="mr-2 h-4 w-4" /> {isFr ? 'Langue : Français' : 'Language: English'}
+                  <span className="ml-auto text-xs text-muted-foreground">{isFr ? 'EN' : 'FR'}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/help')}>
+                  <LifeBuoy className="mr-2 h-4 w-4" /> {isFr ? 'Support' : 'Support'}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={async () => { await signOut(); navigate('/'); }}>
+                  <LogOut className="mr-2 h-4 w-4" /> {isFr ? 'Se déconnecter' : 'Sign out'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Button size="sm" className="h-8 text-xs" onClick={() => navigate('/auth?returnTo=/services')}>
               {isFr ? 'Connexion' : 'Sign in'}
