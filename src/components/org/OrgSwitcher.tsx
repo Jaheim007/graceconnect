@@ -12,9 +12,10 @@ import { brandUrl } from '@/lib/storageUrl';
 import { cn } from '@/lib/utils';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { isOrgVerifiedOrKyc } from '@/lib/verifiedLabel';
+import { SITEVIRAL_TYPES } from '@/lib/siteviral/config';
 import {
   Building2, ChevronDown, Check, Plus, Crown, ShieldCheck, Pencil, Users2,
-  Link2, ArrowRight,
+  Link2, ArrowRight, Settings2,
 } from 'lucide-react';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
@@ -94,46 +95,61 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
     const RoleIcon = config.icon;
     const isActive = org.id === currentOrg?.id;
     const verified = isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status);
+    const typeMeta = org.siteviral_type ? SITEVIRAL_TYPES[org.siteviral_type as keyof typeof SITEVIRAL_TYPES] : null;
+    const typeLabel = typeMeta ? (isFr ? typeMeta.labelFr : typeMeta.labelEn).replace(/^SiteViral\s+/i, '') : (isFr ? 'Type non défini' : 'No type set');
 
     return (
-      <motion.button
+      <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        onClick={() => handleSelect(org)}
         className={cn(
-          'w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group text-left',
+          'w-full flex items-center gap-2 px-2 py-2 rounded-xl transition-all duration-200 group text-left',
           isActive
             ? 'bg-primary/10 border border-primary/25'
             : 'hover:bg-muted/60 border border-transparent'
         )}
       >
-        <div className="relative">
-          <OrgAvatar org={org} size="md" />
-          {isActive && (
-            <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-primary flex items-center justify-center shadow-md">
-              <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />
+        <button onClick={() => handleSelect(org)} className="flex items-center gap-3 flex-1 min-w-0 text-left">
+          <div className="relative">
+            <OrgAvatar org={org} size="md" />
+            {isActive && (
+              <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-primary flex items-center justify-center shadow-md">
+                <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />
+              </div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className={cn(
+                'text-sm font-semibold truncate',
+                isActive ? 'text-primary' : 'text-foreground'
+              )}>
+                {org.name}
+              </span>
+              {verified && <VerifiedBadge size="xs" showTooltip={false} />}
             </div>
+            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary">
+                {typeMeta?.emoji ?? '🧩'} <span className="truncate max-w-[110px]">{typeLabel}</span>
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <RoleIcon className={cn('h-3 w-3', config.color)} />
+                <span className={cn('text-[10px]', config.color)}>{config.label}</span>
+              </span>
+            </div>
+          </div>
+          {!isActive && (
+            <ArrowRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
           )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <span className={cn(
-              'text-sm font-semibold truncate',
-              isActive ? 'text-primary' : 'text-foreground'
-            )}>
-              {org.name}
-            </span>
-            {verified && <VerifiedBadge size="xs" showTooltip={false} />}
-          </div>
-          <div className="flex items-center gap-1 mt-0.5">
-            <RoleIcon className={cn('h-3 w-3', config.color)} />
-            <span className={cn('text-[11px]', config.color)}>{config.label}</span>
-          </div>
-        </div>
-        {!isActive && (
-          <ArrowRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-        )}
-      </motion.button>
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); setCurrentOrg(org); setOpen(false); navigate('/admin/features'); }}
+          title={isFr ? 'Changer le type SiteViral' : 'Change SiteViral type'}
+          className="shrink-0 h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+        >
+          <Settings2 className="h-3.5 w-3.5" />
+        </button>
+      </motion.div>
     );
   };
 
@@ -199,9 +215,9 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
           {TriggerButton}
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[400px] p-0 gap-0 overflow-hidden rounded-2xl border-primary/10">
+      <DialogContent className="sm:max-w-[400px] p-0 gap-0 overflow-hidden rounded-2xl border-primary/10 max-h-[85vh] flex flex-col">
         {/* Header */}
-        <div className="relative bg-gradient-to-br from-primary/15 via-primary/8 to-transparent px-5 pt-5 pb-4">
+        <div className="relative bg-gradient-to-br from-primary/15 via-primary/8 to-transparent px-5 pt-5 pb-4 shrink-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.12),transparent_60%)]" />
           <DialogHeader className="relative">
             <DialogTitle className="text-base font-bold flex items-center gap-2">
@@ -209,13 +225,13 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
               {isFr ? 'Changer d’espace/page' : 'Switch workspace/page'}
             </DialogTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              {managedOrgs.length} {isFr ? 'espace(s)' : 'workspace(s)'}
+              {managedOrgs.length} {isFr ? 'espace(s) — chacun a son propre type SiteViral' : 'workspace(s) — each has its own SiteViral type'}
             </p>
           </DialogHeader>
         </div>
 
         {/* Platform list — only managed orgs */}
-        <div className="px-3 py-3 max-h-[400px] overflow-y-auto space-y-1">
+        <div className="px-3 py-3 flex-1 min-h-0 overflow-y-auto space-y-1">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 py-2">
               {isFr ? 'Mes espaces / pages' : 'My workspaces / pages'}
@@ -231,7 +247,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
         </div>
 
         {/* Footer action */}
-        <div className="border-t border-border/60 px-4 py-3 bg-muted/30">
+        <div className="border-t border-border/60 px-4 py-3 bg-muted/30 shrink-0">
           <Button
             variant="outline"
             size="sm"
