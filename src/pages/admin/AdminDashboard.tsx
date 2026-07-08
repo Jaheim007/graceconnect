@@ -27,6 +27,7 @@ import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist
 import { SmartNextAction } from '@/components/admin/SmartNextAction';
 import { AdaptiveDashboard } from '@/components/siteviral/AdaptiveDashboard';
 import { SetupChecklist } from '@/components/siteviral/SetupChecklist';
+import { PlatformEvolvedBanner } from '@/components/dashboard/PlatformEvolvedBanner';
 import { VideoImportButton } from '@/components/admin/VideoImportButton';
 import { AIAnalyticsInsights } from '@/components/admin/AIAnalyticsInsights';
 
