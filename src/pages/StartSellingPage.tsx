@@ -51,7 +51,7 @@ export default function StartSellingPage() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead
-        title={fr ? 'Devenir vendeur sur SiteViral — Vendez vos services' : 'Become a seller on SiteViral — Sell your services'}
+        title={fr ? 'Proposer mes services sur SiteViral' : 'Offer my services on SiteViral'}
         description={fr
           ? 'Lancez votre activité en 5 minutes. Outils pros, paiements Mobile Money, clients qualifiés en Afrique et au-delà.'
           : 'Launch your business in 5 minutes. Pro tools, Mobile Money payouts, qualified clients across Africa and beyond.'}

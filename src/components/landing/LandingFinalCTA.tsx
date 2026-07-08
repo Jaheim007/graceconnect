@@ -48,7 +48,7 @@ export function LandingFinalCTA() {
                 className="bg-white/5 text-white border-white/25 hover:bg-white/10 hover:text-white px-8 h-12 gap-2 w-full sm:w-auto"
                 onClick={() => { setIntent('provider'); navigate('/start-selling'); }}
               >
-                <Rocket className="h-4 w-4" /> {isFr ? 'Devenir vendeur' : 'Become a seller'}
+                <Rocket className="h-4 w-4" /> {isFr ? 'Proposer mes services' : 'Offer my services'}
               </Button>
             </div>
           </div>

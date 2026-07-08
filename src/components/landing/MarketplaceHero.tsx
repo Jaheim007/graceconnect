@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Star, ShieldCheck, Zap, ArrowRight, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
 
@@ -102,17 +103,26 @@ export function MarketplaceHero() {
                 className="flex-1 bg-transparent outline-none text-sm sm:text-base placeholder:text-muted-foreground h-12"
               />
             </div>
-            <div className="hidden md:flex items-center px-2 border-l border-border">
-              <select
-                value={cat}
-                onChange={(e) => setCat(e.target.value)}
-                className="bg-transparent outline-none text-sm font-medium h-12 pr-2 cursor-pointer"
-                aria-label={fr ? 'Catégorie' : 'Category'}
-              >
-                {CATEGORIES_FOR_SEARCH.map((c) => (
-                  <option key={c.value} value={c.value}>{fr ? c.fr : c.en}</option>
-                ))}
-              </select>
+            <div className="hidden md:flex items-center border-l border-border pl-1">
+              <Select value={cat || 'all'} onValueChange={(v) => setCat(v === 'all' ? '' : v)}>
+                <SelectTrigger
+                  className="h-12 min-w-[170px] border-0 bg-transparent text-sm font-semibold text-foreground shadow-none focus:ring-0 focus:ring-offset-0 rounded-full hover:bg-muted/60 transition"
+                  aria-label={fr ? 'Catégorie' : 'Category'}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-border/80 shadow-xl">
+                  {CATEGORIES_FOR_SEARCH.map((c) => (
+                    <SelectItem
+                      key={c.value || 'all'}
+                      value={c.value || 'all'}
+                      className="text-sm font-medium cursor-pointer"
+                    >
+                      {fr ? c.fr : c.en}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <Button
               type="submit"
@@ -210,7 +220,7 @@ export function MarketplaceIntentSplit() {
               {fr ? 'Créez votre boutique en 5 minutes. Outils pros, paiements Mobile Money, clients qualifiés.' : 'Set up in 5 minutes. Pro tools, Mobile Money payouts, qualified clients.'}
             </p>
             <div className="mt-6 inline-flex items-center gap-1.5 text-sm font-bold">
-              {fr ? 'Devenir vendeur' : 'Become a seller'} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition" />
+              {fr ? 'Proposer mes services' : 'Offer my services'} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition" />
             </div>
           </div>
         </button>
