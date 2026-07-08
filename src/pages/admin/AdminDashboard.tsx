@@ -218,6 +218,9 @@ export default function AdminDashboard() {
       {/* ═══ ADAPTIVE DASHBOARD — SiteViral type + enabled features ═══ */}
       <AdaptiveDashboard />
 
+      {/* ═══ SETUP CHECKLIST — feature activated → configured → public ═══ */}
+      <SetupChecklist />
+
       {/* ═══ VERIFICATION BANNER — urgent ═══ */}
       {currentOrg?.kyc_status !== 'level1' && currentOrg?.kyc_status !== 'level2' && (
         <PremiumCard variant="default" className="!p-4 border-destructive/30 bg-destructive/5">
