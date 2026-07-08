@@ -45,6 +45,9 @@ import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { cn } from '@/lib/utils';
 import { computeHiddenSections, isFeatureEnabledForPublic } from '@/lib/siteviral/publicSections';
 import { useOrgReadiness } from '@/hooks/useOrgReadiness';
+import { getTypePresentation } from '@/lib/siteviral/typePresentation';
+import { AdaptiveHeroCTAs } from '@/components/org/AdaptiveHeroCTAs';
+import { OwnerSetupPrompts } from '@/components/org/OwnerSetupPrompts';
 import { Eye, EyeOff } from 'lucide-react';
 import {
   Home, ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart, Plus, ChevronDown, ChevronUp, Settings, GraduationCap, ExternalLink, MapPin
@@ -130,7 +133,9 @@ export default function OrgPublicPage() {
   const isOwner = org ? org.owner_id === user?.id : false;
   const orgAny = org as any;
   const { readiness } = useOrgReadiness(org as any);
-  const sectionOrder = pageSettings?.section_order || ['products', 'offerings', 'campaigns', 'content', 'programs', 'photos', 'events'];
+  // Type-adaptive presentation: hero CTAs, default section order, owner setup prompts.
+  const presentation = getTypePresentation((org as any)?.siteviral_type ?? null);
+  const sectionOrder = pageSettings?.section_order || presentation.sectionOrder;
   const rawHiddenSections = new Set(pageSettings?.hidden_sections || []);
   // Apply feature-gating on top of admin-configured hidden sections.
   // Admins see feature-enabled sections even when empty (setup prompts).
