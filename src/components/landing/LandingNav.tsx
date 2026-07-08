@@ -187,6 +187,16 @@ export function LandingNav() {
                   {item.label}
                 </Link>
               ))}
+              <div className="pt-2 mt-2 border-t border-border/40">
+                <div className="px-3 pt-1 pb-2 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  {isFr ? 'Catégories' : 'Categories'}
+                </div>
+                {verticals.map((v) => (
+                  <Link key={v.to} to={v.to} onClick={() => setMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors">
+                    {v.label}
+                  </Link>
+                ))}
+              </div>
               {user ? (
                 <div className="pt-2 border-t border-border/40 mt-2 space-y-1">
                   {[
