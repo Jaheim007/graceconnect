@@ -42,10 +42,10 @@ export function LandingNav() {
   ];
 
   const navItems = [
-    { to: '/looking-for', label: isFr ? 'Je cherche' : 'I need a pro' },
-    { to: '/start',       label: isFr ? 'Je propose' : 'Offer a service' },
-    { to: '/discover',    label: isFr ? 'Explorer'   : 'Explore' },
-    { to: '/pricing',     label: t('landing_nav.pricing') },
+    { to: '/looking-for',  label: isFr ? 'Je cherche' : 'I need a pro' },
+    { to: '/start-selling',label: isFr ? 'Je propose' : 'Offer a service' },
+    { to: '/discover',     label: isFr ? 'Explorer'   : 'Explore' },
+    { to: '/pricing',      label: t('landing_nav.pricing') },
   ];
 
   return (
@@ -156,13 +156,16 @@ export function LandingNav() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            /* ── Not logged in: show sign-in / get started ── */
+            /* ── Not logged in ── */
             <>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/start-selling')} className="hidden md:inline-flex text-xs px-3 font-semibold">
+                {isFr ? 'Devenir vendeur' : 'Become a seller'}
+              </Button>
               <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=signin')} className="hidden sm:inline-flex text-xs px-3">
                 {t('landing_nav.sign_in')}
               </Button>
-              <Button size="sm" className="text-xs px-4 gap-1.5" onClick={() => navigate('/auth?mode=signup')}>
-                {t('landing_nav.get_started')} <ArrowRight className="h-3 w-3 hidden sm:block" />
+              <Button size="sm" className="text-xs px-4 gap-1.5 bg-foreground text-background hover:bg-foreground/90" onClick={() => navigate('/auth?mode=signup')}>
+                {isFr ? 'Rejoindre' : 'Join'} <ArrowRight className="h-3 w-3 hidden sm:block" />
               </Button>
             </>
           )}
