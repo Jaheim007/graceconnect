@@ -23,11 +23,11 @@ export function useUserKind(): { kind: UserKind; isLoading: boolean } {
     staleTime: 5 * 60_000,
     queryFn: async () => {
       if (!user) return false;
-      const { count } = await db
+      const res = await (db as any)
         .from('product_purchases')
         .select('id', { head: true, count: 'exact' })
         .eq('buyer_id', user.id);
-      return (count ?? 0) > 0;
+      return ((res?.count as number | null) ?? 0) > 0;
     },
   });
 
