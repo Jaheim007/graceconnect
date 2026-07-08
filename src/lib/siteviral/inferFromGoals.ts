@@ -10,6 +10,10 @@ export type StartGoalId =
   | 'offer_beauty'
   | 'offer_home'
   | 'offer_tutoring'
+  | 'offer_music'
+  | 'offer_influencer'
+  | 'offer_sport'
+  | 'offer_general_service'
   | 'receive_donations'
   | 'custom_orders'
   | 'accept_payments'
@@ -28,15 +32,21 @@ export interface InferredConfig {
 /**
  * Type inference — priority order, first match wins.
  * Events is NEVER a type trigger on its own.
- * Digital products is the safe default.
  */
 function inferType(goals: Set<StartGoalId>): SiteviralType {
   if (goals.has('offer_beauty')) return 'beauty';
   if (goals.has('offer_home')) return 'artisans_home_services';
   if (goals.has('offer_tutoring')) return 'tutors_home_teachers';
-  const hasService = goals.has('offer_beauty') || goals.has('offer_home') || goals.has('offer_tutoring');
-  if (goals.has('receive_donations') && !hasService) return 'church';
-  return 'digital_products';
+  if (goals.has('offer_music')) return 'instrumentists';
+  if (goals.has('offer_influencer')) return 'influencers';
+  if (goals.has('offer_sport')) return 'sport';
+  const hasKnownService =
+    goals.has('offer_beauty') || goals.has('offer_home') || goals.has('offer_tutoring') ||
+    goals.has('offer_music') || goals.has('offer_influencer') || goals.has('offer_sport');
+  if (goals.has('receive_donations') && !hasKnownService) return 'church';
+  if (goals.has('offer_general_service')) return 'services';
+  if (goals.has('sell_digital')) return 'digital_products';
+  return goals.size === 0 ? 'digital_products' : 'services';
 }
 
 /**
@@ -48,7 +58,9 @@ export function inferSiteviralConfig(goalIds: StartGoalId[]): InferredConfig {
   const features = new Set<SiteviralFeatureKey>();
 
   const isService =
-    goals.has('offer_beauty') || goals.has('offer_home') || goals.has('offer_tutoring');
+    goals.has('offer_beauty') || goals.has('offer_home') || goals.has('offer_tutoring') ||
+    goals.has('offer_music') || goals.has('offer_influencer') || goals.has('offer_sport') ||
+    goals.has('offer_general_service');
 
   // A. Sell digital products
   if (goals.has('sell_digital')) {

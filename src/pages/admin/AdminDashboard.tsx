@@ -209,6 +209,9 @@ export default function AdminDashboard() {
           <Button size="sm" variant="outline" onClick={() => navigate('/admin/create')} className="gap-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3 shrink-0">
             <Rocket className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> <span className="hidden xs:inline">{t('admin.quickstart')}</span><span className="xs:hidden">Start</span>
           </Button>
+          <Button size="sm" variant="outline" onClick={() => navigate('/start?context=add-feature')} className="gap-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3 shrink-0">
+            <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> <span className="hidden sm:inline">+ Nouvelle activité</span><span className="sm:hidden">+ Activité</span>
+          </Button>
           <Button size="sm" asChild variant="outline" className="gap-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3 shrink-0">
             <a href={`https://siteviral.com/org/${currentOrg?.slug}`} target="_blank" rel="noreferrer">
               <ExternalLink className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> <span className="hidden sm:inline">{t('admin.public_page')}</span><span className="sm:hidden">Page</span>
