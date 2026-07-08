@@ -56,7 +56,7 @@ export default function ChurchPublicProfile() {
     queryFn: async () => {
       const { data } = await supabase
         .from('church_events')
-        .select('id, title, starts_at, location, stream_url')
+        .select('id, title, starts_at, location, stream_url, price_cents, currency, require_ticket, capacity, tickets_sold')
         .eq('church_id', church!.id)
         .eq('status', 'published')
         .gte('starts_at', new Date().toISOString())
