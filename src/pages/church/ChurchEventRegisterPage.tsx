@@ -151,9 +151,9 @@ export default function ChurchEventRegisterPage() {
               <Input type="number" min={1} max={10} value={qty} onChange={(e) => setQty(Math.max(1, Math.min(10, parseInt(e.target.value) || 1)))} />
             </div>
             {paid && (
-              <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-3 text-xs text-amber-900 dark:text-amber-100">
-                <p className="font-medium">{fr ? 'Paiement à l\'entrée' : 'Payment at entry'}</p>
-                <p className="mt-0.5">{fr ? `Total : ${total.toFixed(0)} ${event.currency}. Le paiement en ligne sera bientôt disponible ; pour l'instant réglez à l'accueil le jour de l'événement.` : `Total: ${total.toFixed(0)} ${event.currency}. Online payment coming soon; pay at the door on the day.`}</p>
+              <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs">
+                <p className="font-medium">{fr ? 'Paiement sécurisé' : 'Secure payment'}</p>
+                <p className="mt-0.5 text-muted-foreground">{fr ? `Total : ${total.toFixed(0)} ${event.currency}. Vous serez redirigé vers la page de paiement.` : `Total: ${total.toFixed(0)} ${event.currency}. You'll be redirected to the payment page.`}</p>
               </div>
             )}
             <Button type="submit" disabled={submitting} className="w-full" size="lg">
