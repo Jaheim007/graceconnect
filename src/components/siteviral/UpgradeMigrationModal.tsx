@@ -53,6 +53,7 @@ export function UpgradeMigrationModal() {
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ['user-orgs'] });
       toast.success(isFr ? 'Configuration conservée' : 'Configuration kept');
+      setDismissed(true);
     } catch (e: any) {
       toast.error(e?.message ?? 'Error');
     } finally {
