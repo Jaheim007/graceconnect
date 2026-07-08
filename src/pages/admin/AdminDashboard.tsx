@@ -26,6 +26,7 @@ import { DashboardSection } from '@/components/ui/DashboardSection';
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
 import { SmartNextAction } from '@/components/admin/SmartNextAction';
 import { AdaptiveDashboard } from '@/components/siteviral/AdaptiveDashboard';
+import { SetupChecklist } from '@/components/siteviral/SetupChecklist';
 import { VideoImportButton } from '@/components/admin/VideoImportButton';
 import { AIAnalyticsInsights } from '@/components/admin/AIAnalyticsInsights';
 
