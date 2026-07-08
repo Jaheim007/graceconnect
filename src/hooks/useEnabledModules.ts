@@ -57,7 +57,8 @@ export function useEnabledModules() {
   };
 
   return {
-    modules: query.data?.modules ?? [],
+    modules: query.data?.modules ?? MANDATORY_MODULES,
+    optionalModules: query.data?.optionalModules ?? [],
     accountMode: query.data?.accountMode ?? 'client',
     isLoading: query.isLoading,
     toggle,
