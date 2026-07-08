@@ -247,7 +247,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
         </div>
 
         {/* Footer action */}
-        <div className="border-t border-border/60 px-4 py-3 bg-muted/30">
+        <div className="border-t border-border/60 px-4 py-3 bg-muted/30 shrink-0">
           <Button
             variant="outline"
             size="sm"
