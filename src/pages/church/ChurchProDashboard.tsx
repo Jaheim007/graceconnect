@@ -3,7 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   Church, Mic, HandHeart, Calendar, Heart, Users, Settings, ShieldCheck, ShieldAlert,
-  ExternalLink, Loader2, Sparkles, ArrowUpRight,
+  ExternalLink, Loader2, Sparkles, ArrowUpRight, CalendarClock, Ticket,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
