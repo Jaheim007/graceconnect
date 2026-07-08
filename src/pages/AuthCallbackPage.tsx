@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
+import { getIntent, clearIntent } from '@/lib/intent';
 
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
