@@ -65,13 +65,15 @@ export default function ChurchProDashboard() {
     { label: fr ? 'Campagnes' : 'Campaigns', value: counts.campaigns, icon: HandHeart },
     { label: fr ? 'Événements' : 'Events', value: counts.events, icon: Calendar },
     { label: fr ? 'Prières nouvelles' : 'New prayers', value: counts.prayers, icon: Heart },
+    { label: fr ? 'RDV en attente' : 'Pending appts', value: counts.appointments, icon: CalendarClock },
   ];
 
   const quickLinks = [
-    { to: '/church/pro/sermons', icon: Mic, title: fr ? 'Prédications & IA' : 'Sermons & AI', desc: fr ? 'Uploader, transcrire, transformer en ebook/blog' : 'Upload, transcribe, transform to ebook/blog', badge: <Sparkles className="h-3 w-3" /> },
+    { to: '/church/pro/sermons', icon: Mic, title: fr ? 'Prédications → Livre' : 'Sermons → Book', desc: fr ? 'Uploader audio, transcrire, transformer en livre/PDF' : 'Upload audio, transcribe, transform to book/PDF', badge: <Sparkles className="h-3 w-3" /> },
     { to: '/church/pro/giving', icon: HandHeart, title: fr ? 'Dîmes & offrandes' : 'Tithes & offerings', desc: fr ? 'Dons, campagnes, reçus' : 'Gifts, campaigns, receipts' },
     { to: '/church/pro/campaigns', icon: HandHeart, title: fr ? 'Campagnes' : 'Campaigns', desc: fr ? 'Collectes ciblées avec objectif' : 'Targeted fundraisers with a goal' },
-    { to: '/church/pro/events', icon: Calendar, title: fr ? 'Événements & culte' : 'Events & services', desc: fr ? 'Programme, live streaming' : 'Schedule, live streaming' },
+    { to: '/church/pro/events', icon: Ticket, title: fr ? 'Événements & billets' : 'Events & tickets', desc: fr ? 'Cultes, conférences, billetterie' : 'Services, conferences, ticketing' },
+    { to: '/church/pro/appointments', icon: CalendarClock, title: fr ? 'Rendez-vous pastoraux' : 'Pastoral appointments', desc: fr ? 'Gérer les demandes de rendez-vous' : 'Manage appointment requests' },
     { to: '/church/pro/prayer', icon: Heart, title: fr ? 'Boîte de prière' : 'Prayer inbox', desc: fr ? 'Requêtes privées de la communauté' : 'Private community requests' },
     { to: '/church/pro/announcements', icon: Users, title: fr ? 'Annonces' : 'Announcements', desc: fr ? 'Nouvelles pour la communauté' : 'News for the community' },
     { to: '/church/pro/team', icon: Users, title: fr ? 'Équipe' : 'Team', desc: fr ? 'Inviter co-administrateurs' : 'Invite co-admins' },
