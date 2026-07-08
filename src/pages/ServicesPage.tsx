@@ -158,8 +158,8 @@ const FEATURED_SERVICES = [
 export default function ServicesPage() {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
-  const { user, profile } = useAuth();
-  const { locale } = useI18n();
+  const { user, profile, signOut } = useAuth();
+  const { locale, setLocale } = useI18n();
   const isFr = locale === 'fr';
   const initialQuery = params.get('q') || '';
   const [query, setQuery] = useState(initialQuery);
@@ -168,6 +168,30 @@ export default function ServicesPage() {
   const displayName = profile?.display_name || user?.user_metadata?.display_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
   const firstName = displayName.split(' ')[0];
   const initials = displayName ? displayName.split(' ').map((part: string) => part[0]).join('').slice(0, 2).toUpperCase() : 'SV';
+
+  const { data: digitalProducts = [] } = useQuery({
+    queryKey: ['services-digital-products'],
+    queryFn: async () => {
+      const { data, error } = await db.from('digital_products')
+        .select('*, organizations(name, slug, logo_url, currency, is_verified, kyc_status, category)')
+        .eq('is_published', true)
+        .eq('is_express_demo', false)
+        .order('created_at', { ascending: false })
+        .limit(12);
+      if (error) throw error;
+      return (data || []).map((p: any) => ({
+        ...p,
+        organization_name: p.organizations?.name,
+        organization_slug: p.organizations?.slug,
+        organization_logo: p.organizations?.logo_url,
+        is_org_verified: p.organizations?.is_verified,
+        org_kyc_status: p.organizations?.kyc_status,
+        org_category: p.organizations?.category,
+      }));
+    },
+    staleTime: 60_000,
+  });
+
 
   const filteredCategories = useMemo(() => {
     const q = query.trim().toLowerCase();
