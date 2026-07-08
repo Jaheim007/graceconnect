@@ -31,11 +31,12 @@ export default function ChurchProDashboard() {
       if (error) throw error;
       if (!church) return { church: null, counts: { sermons: 0, campaigns: 0, events: 0, prayers: 0 } };
 
-      const [sermons, campaigns, events, prayers] = await Promise.all([
+      const [sermons, campaigns, events, prayers, appointments] = await Promise.all([
         supabase.from('church_sermons').select('id', { count: 'exact', head: true }).eq('church_id', church.id),
         supabase.from('church_campaigns').select('id', { count: 'exact', head: true }).eq('church_id', church.id),
         supabase.from('church_events').select('id', { count: 'exact', head: true }).eq('church_id', church.id),
         supabase.from('church_prayer_requests').select('id', { count: 'exact', head: true }).eq('church_id', church.id).eq('status', 'new'),
+        supabase.from('church_appointments').select('id', { count: 'exact', head: true }).eq('church_id', church.id).eq('status', 'new'),
       ]);
       return {
         church,
@@ -44,6 +45,7 @@ export default function ChurchProDashboard() {
           campaigns: campaigns.count ?? 0,
           events: events.count ?? 0,
           prayers: prayers.count ?? 0,
+          appointments: appointments.count ?? 0,
         },
       };
     },
