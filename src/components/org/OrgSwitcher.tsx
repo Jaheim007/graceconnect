@@ -143,7 +143,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
           )}
         </button>
         <button
-          onClick={(e) => { e.stopPropagation(); setCurrentOrg(org); setOpen(false); navigate('/dashboard/settings/features'); }}
+          onClick={(e) => { e.stopPropagation(); setCurrentOrg(org); setOpen(false); navigate('/admin/features'); }}
           title={isFr ? 'Changer le type SiteViral' : 'Change SiteViral type'}
           className="shrink-0 h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
         >
