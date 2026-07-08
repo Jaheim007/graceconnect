@@ -1,8 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Sun, Moon, Menu, X, ArrowRight, User, LogOut, CreditCard, Sparkles, Gift, BarChart3, Package, Settings, ShieldCheck, MessageSquare } from 'lucide-react';
+import { Menu, X, ArrowRight, User, LogOut, CreditCard, Sparkles, Gift, BarChart3, Package, Settings, ShieldCheck, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/contexts/ThemeContext';
+
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
