@@ -2263,6 +2263,65 @@ export type Database = {
           },
         ]
       }
+      church_appointments: {
+        Row: {
+          church_id: string
+          created_at: string
+          duration_min: number
+          id: string
+          message: string | null
+          requested_at: string
+          requester_email: string | null
+          requester_name: string
+          requester_phone: string | null
+          requester_user_id: string | null
+          staff_note: string | null
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          church_id: string
+          created_at?: string
+          duration_min?: number
+          id?: string
+          message?: string | null
+          requested_at: string
+          requester_email?: string | null
+          requester_name: string
+          requester_phone?: string | null
+          requester_user_id?: string | null
+          staff_note?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          church_id?: string
+          created_at?: string
+          duration_min?: number
+          id?: string
+          message?: string | null
+          requested_at?: string
+          requester_email?: string | null
+          requester_name?: string
+          requester_phone?: string | null
+          requester_user_id?: string | null
+          staff_note?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_appointments_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       church_campaigns: {
         Row: {
           church_id: string
@@ -2457,52 +2516,142 @@ export type Database = {
           },
         ]
       }
+      church_event_tickets: {
+        Row: {
+          amount_cents: number
+          buyer_email: string | null
+          buyer_name: string
+          buyer_phone: string | null
+          buyer_user_id: string | null
+          checked_in_at: string | null
+          church_id: string
+          created_at: string
+          currency: string
+          event_id: string
+          id: string
+          payment_provider: string | null
+          payment_ref: string | null
+          qty: number
+          status: string
+          ticket_code: string
+          updated_at: string
+        }
+        Insert: {
+          amount_cents?: number
+          buyer_email?: string | null
+          buyer_name: string
+          buyer_phone?: string | null
+          buyer_user_id?: string | null
+          checked_in_at?: string | null
+          church_id: string
+          created_at?: string
+          currency?: string
+          event_id: string
+          id?: string
+          payment_provider?: string | null
+          payment_ref?: string | null
+          qty?: number
+          status?: string
+          ticket_code?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          buyer_email?: string | null
+          buyer_name?: string
+          buyer_phone?: string | null
+          buyer_user_id?: string | null
+          checked_in_at?: string | null
+          church_id?: string
+          created_at?: string
+          currency?: string
+          event_id?: string
+          id?: string
+          payment_provider?: string | null
+          payment_ref?: string | null
+          qty?: number
+          status?: string
+          ticket_code?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_event_tickets_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "church_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "church_event_tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "church_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       church_events: {
         Row: {
+          capacity: number | null
           church_id: string
           cover_url: string | null
           created_at: string
+          currency: string
           description: string | null
           ends_at: string | null
           id: string
           is_recurring: boolean
           location: string | null
+          price_cents: number
           recurrence_rule: string | null
+          require_ticket: boolean
           starts_at: string
           status: string
           stream_url: string | null
+          tickets_sold: number
           title: string
           updated_at: string
         }
         Insert: {
+          capacity?: number | null
           church_id: string
           cover_url?: string | null
           created_at?: string
+          currency?: string
           description?: string | null
           ends_at?: string | null
           id?: string
           is_recurring?: boolean
           location?: string | null
+          price_cents?: number
           recurrence_rule?: string | null
+          require_ticket?: boolean
           starts_at: string
           status?: string
           stream_url?: string | null
+          tickets_sold?: number
           title: string
           updated_at?: string
         }
         Update: {
+          capacity?: number | null
           church_id?: string
           cover_url?: string | null
           created_at?: string
+          currency?: string
           description?: string | null
           ends_at?: string | null
           id?: string
           is_recurring?: boolean
           location?: string | null
+          price_cents?: number
           recurrence_rule?: string | null
+          require_ticket?: boolean
           starts_at?: string
           status?: string
           stream_url?: string | null
+          tickets_sold?: number
           title?: string
           updated_at?: string
         }
