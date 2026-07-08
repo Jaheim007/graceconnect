@@ -15,12 +15,13 @@ import { Badge } from '@/components/ui/badge';
 import { useOrg } from '@/contexts/OrgContext';
 import { useOrgFeatures } from '@/hooks/useOrgFeatures';
 import { useI18n } from '@/i18n/I18nContext';
-import { FEATURE_META, SITEVIRAL_TYPES } from '@/lib/siteviral/config';
+import { FEATURE_META, SITEVIRAL_TYPES, getPrimaryFeaturesForType } from '@/lib/siteviral/config';
 import { FEATURE_ROUTES } from '@/lib/siteviral/featureRoutes';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 
 const PLATFORM_ESSENTIALS: SiteviralFeatureKey[] = ['kyc', 'payment', 'affiliation'];
 
+// Fallback global ordering for "additional" tools when the type has no opinion.
 const FEATURE_ORDER: SiteviralFeatureKey[] = [
   'appointment',
   'order_generator',
@@ -33,6 +34,7 @@ const FEATURE_ORDER: SiteviralFeatureKey[] = [
   'location',
   'reviews',
 ];
+
 
 function workspaceFocus(type: SiteviralType | null, fr: boolean) {
   switch (type) {
@@ -88,12 +90,20 @@ export default function WorkspaceDashboard() {
   const { locale } = useI18n();
   const fr = locale === 'fr';
 
-  const activeFeatures = useMemo(() => {
+  const { primaryFeatures, additionalFeatures } = useMemo(() => {
     const fallback = type ? SITEVIRAL_TYPES[type]?.defaultFeatures ?? [] : [];
     const list = featureList.length ? featureList : fallback;
-    const unique = Array.from(new Set(list)) as SiteviralFeatureKey[];
-    return FEATURE_ORDER.filter((key) => unique.includes(key));
+    const unique = new Set<SiteviralFeatureKey>(list as SiteviralFeatureKey[]);
+    // Never mix platform essentials into either section — they render above.
+    PLATFORM_ESSENTIALS.forEach((k) => unique.delete(k));
+
+    const primaryOrder = getPrimaryFeaturesForType(type);
+    const primary = primaryOrder.filter((k) => unique.has(k));
+    const primarySet = new Set(primary);
+    const additional = FEATURE_ORDER.filter((k) => unique.has(k) && !primarySet.has(k));
+    return { primaryFeatures: primary, additionalFeatures: additional };
   }, [featureList, type]);
+
 
   if (!currentOrg) return null;
 
@@ -163,51 +173,104 @@ export default function WorkspaceDashboard() {
           })}
         </section>
 
-        <section className="space-y-3">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-black tracking-tight">
-                {fr ? 'Outils de cet espace' : 'Tools for this workspace'}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {fr
-                  ? 'Ces outils appartiennent seulement à cette page. Changez d’espace pour voir un autre tableau de bord.'
-                  : 'These tools belong only to this page. Switch workspace to see another dashboard.'}
-              </p>
+        {primaryFeatures.length > 0 && (
+          <section className="space-y-3">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-black tracking-tight">
+                  {typeMeta
+                    ? (fr ? `Outils principaux — ${typeMeta.labelFr}` : `Principal tools — ${typeMeta.labelEn}`)
+                    : (fr ? 'Outils principaux' : 'Principal tools')}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {fr
+                    ? 'Les outils essentiels de cette activité, activés par défaut.'
+                    : 'The essential tools for this activity, enabled by default.'}
+                </p>
+              </div>
+              <Badge variant="secondary" className="rounded-md">
+                {primaryFeatures.length} {fr ? 'outil(s)' : 'tool(s)'}
+              </Badge>
             </div>
-            <Badge variant="secondary" className="rounded-md">
-              {activeFeatures.length} {fr ? 'outil(s)' : 'tool(s)'}
-            </Badge>
-          </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {activeFeatures.map((key) => {
-              const meta = FEATURE_META[key];
-              const route = FEATURE_ROUTES[key];
-              const Icon = (Icons as any)[meta.icon] ?? Sparkles;
-              return (
-                <button
-                  key={key}
-                  onClick={() => navigate(route.setupRoute)}
-                  className="group rounded-xl border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-muted text-foreground">
-                      <Icon className="h-4 w-4" />
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {primaryFeatures.map((key) => {
+                const meta = FEATURE_META[key];
+                const route = FEATURE_ROUTES[key];
+                const Icon = (Icons as any)[meta.icon] ?? Sparkles;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => navigate(route.setupRoute)}
+                    className="group rounded-2xl border-2 border-primary/25 bg-gradient-to-br from-primary/5 to-transparent p-4 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-bold">{featureTitle(key, fr)}</div>
+                        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                          {fr ? meta.descFr : meta.descEn}
+                        </p>
+                      </div>
+                      <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-bold">{featureTitle(key, fr)}</div>
-                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                        {fr ? meta.descFr : meta.descEn}
-                      </p>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {additionalFeatures.length > 0 && (
+          <section className="space-y-3">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-black tracking-tight">
+                  {fr ? 'Outils supplémentaires' : 'Additional tools'}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {fr
+                    ? 'Modules activés en plus. Vous pouvez en ajouter d’autres depuis les paramètres.'
+                    : 'Extra modules you activated. You can add more from settings.'}
+                </p>
+              </div>
+              <Badge variant="secondary" className="rounded-md">
+                {additionalFeatures.length} {fr ? 'outil(s)' : 'tool(s)'}
+              </Badge>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {additionalFeatures.map((key) => {
+                const meta = FEATURE_META[key];
+                const route = FEATURE_ROUTES[key];
+                const Icon = (Icons as any)[meta.icon] ?? Sparkles;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => navigate(route.setupRoute)}
+                    className="group rounded-xl border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-muted text-foreground">
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-bold">{featureTitle(key, fr)}</div>
+                        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                          {fr ? meta.descFr : meta.descEn}
+                        </p>
+                      </div>
+                      <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
                     </div>
-                    <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </section>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
       </div>
     </div>
   );

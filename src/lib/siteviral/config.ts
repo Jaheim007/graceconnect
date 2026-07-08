@@ -201,3 +201,28 @@ export function mergeFeatures(a: SiteviralFeatureKey[], b: SiteviralFeatureKey[]
   }
   return out;
 }
+
+/**
+ * PRINCIPAL features for each SiteViral type — the "hero" tools that define
+ * that activity and must be the first things the user sees on the dashboard.
+ * Everything else in `defaultFeatures` (minus platform essentials KYC / payment /
+ * affiliation) is treated as an "Additional tool" the user can also use, and
+ * anything they later activate from Settings just appends to that second group.
+ */
+export const PRIMARY_FEATURES_BY_TYPE: Record<SiteviralType, SiteviralFeatureKey[]> = {
+  church:                 ['donation_gifts', 'events', 'appointment', 'ai_book_creation', 'ai_formation_creation', 'location'],
+  digital_products:       ['digital_products', 'ai_book_creation', 'ai_formation_creation', 'order_generator', 'product_comments'],
+  beauty:                 ['appointment', 'reviews', 'location', 'order_generator'],
+  artisans_home_services: ['appointment', 'order_generator', 'location', 'reviews'],
+  tutors_home_teachers:   ['appointment', 'digital_products', 'reviews', 'location'],
+  sport:                  ['appointment', 'events', 'location', 'reviews'],
+  instrumentists:         ['appointment', 'events', 'location', 'reviews'],
+  influencers:            ['donation_gifts', 'events', 'appointment', 'reviews'],
+  services:               ['appointment', 'order_generator', 'digital_products', 'reviews'],
+};
+
+export function getPrimaryFeaturesForType(type: SiteviralType | null | undefined): SiteviralFeatureKey[] {
+  if (!type || !PRIMARY_FEATURES_BY_TYPE[type]) return [];
+  return [...PRIMARY_FEATURES_BY_TYPE[type]];
+}
+
