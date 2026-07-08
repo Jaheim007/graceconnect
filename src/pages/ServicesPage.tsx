@@ -1,22 +1,28 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
   Bell,
   BookOpen,
   CalendarDays,
   ChevronRight,
   Church,
+  Globe,
   GraduationCap,
   Heart,
+  LifeBuoy,
+  LogOut,
   Mail,
   Megaphone,
   Music,
   Package,
   Search,
   Scissors,
+  Settings,
   ShieldCheck,
   ShoppingBag,
   Star,
+  Store,
   User,
   Wrench,
 } from 'lucide-react';
@@ -24,10 +30,21 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ProductCard } from '@/components/products/ProductCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
+import { db } from '@/lib/db';
 import { cn } from '@/lib/utils';
+
 
 type ServiceCategory = {
   key: string;
