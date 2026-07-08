@@ -49,11 +49,13 @@ export function Sidebar() {
   // Safe filter: only hide when (a) org has a confirmed SiteViral type AND
   // (b) the item is feature-gated AND (c) that feature is NOT enabled.
   // Unconfirmed orgs, or orgs with the feature enabled, keep every item.
-  const navItems = rawNavItems.filter((item) => {
-    if (!item.featureKey) return true;
-    if (!typeConfirmed) return true;
-    return has(item.featureKey);
-  });
+  const navItems = rawNavItems
+    .filter((item) => {
+      if (!item.featureKey) return true;
+      if (!typeConfirmed) return true;
+      return has(item.featureKey);
+    })
+    .map((item) => applyNavOverride(item, siteviralType));
 
   const isActive = (route: string) => {
     if (route === '/') return location.pathname === '/';
