@@ -50,8 +50,21 @@ export default function AuthCallbackPage() {
       const now = Date.now();
       const isNewUser = now - createdAt < 60_000;
 
-      // Vertical-aware fallback: if the user last engaged with a non-digital
-      // vertical before auth, honour that instead of dumping them into /dashboard.
+      // Intent-first routing (§AuthCallback)
+      const intent = getIntent();
+      if (intent) {
+        clearIntent();
+        if (intent.kind === 'provider') {
+          // Provider intent: brand-new → /start; existing users get their dashboard.
+          navigate(isNewUser ? '/start' : (intent.returnTo || '/dashboard'), { replace: true });
+          return;
+        }
+        // Client intent: never route to /start.
+        navigate(intent.returnTo || '/', { replace: true });
+        return;
+      }
+
+      // Vertical-aware fallback: last engaged vertical before auth.
       try {
         const lastVertical = localStorage.getItem('sv_last_vertical');
         if (!isNewUser && lastVertical && lastVertical !== 'digital') {
@@ -60,7 +73,8 @@ export default function AuthCallbackPage() {
         }
       } catch {}
 
-      navigate(isNewUser ? '/welcome' : '/dashboard', { replace: true });
+      // Brand-new user with no intent → intent chooser. Existing → dashboard.
+      navigate(isNewUser ? '/welcome-intent' : '/dashboard', { replace: true });
     };
 
     const recoverSessionOnce = async () => {
