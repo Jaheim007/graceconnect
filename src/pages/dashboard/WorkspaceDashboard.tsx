@@ -15,12 +15,13 @@ import { Badge } from '@/components/ui/badge';
 import { useOrg } from '@/contexts/OrgContext';
 import { useOrgFeatures } from '@/hooks/useOrgFeatures';
 import { useI18n } from '@/i18n/I18nContext';
-import { FEATURE_META, SITEVIRAL_TYPES } from '@/lib/siteviral/config';
+import { FEATURE_META, SITEVIRAL_TYPES, getPrimaryFeaturesForType } from '@/lib/siteviral/config';
 import { FEATURE_ROUTES } from '@/lib/siteviral/featureRoutes';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 
 const PLATFORM_ESSENTIALS: SiteviralFeatureKey[] = ['kyc', 'payment', 'affiliation'];
 
+// Fallback global ordering for "additional" tools when the type has no opinion.
 const FEATURE_ORDER: SiteviralFeatureKey[] = [
   'appointment',
   'order_generator',
@@ -33,6 +34,7 @@ const FEATURE_ORDER: SiteviralFeatureKey[] = [
   'location',
   'reviews',
 ];
+
 
 function workspaceFocus(type: SiteviralType | null, fr: boolean) {
   switch (type) {
