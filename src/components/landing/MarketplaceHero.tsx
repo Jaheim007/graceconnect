@@ -6,12 +6,12 @@ import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
 
 const POPULAR = [
-  { fr: 'Coiffure à domicile', en: 'Home hairstyling', route: '/beauty' },
-  { fr: 'Prof de maths',       en: 'Math tutor',       route: '/education' },
-  { fr: 'Plombier',            en: 'Plumber',          route: '/home' },
-  { fr: 'Traiteur mariage',    en: 'Wedding caterer',  route: '/events' },
-  { fr: 'Ebooks',              en: 'Ebooks',           route: '/discover?type=digital' },
-  { fr: 'Beatmaker',           en: 'Beatmaker',        route: '/discover?type=music' },
+  { fr: 'Service de coiffure',      en: 'Hairstyling service',   route: '/beauty' },
+  { fr: 'Service de cours maths',   en: 'Math tutoring service', route: '/education' },
+  { fr: 'Service de plomberie',     en: 'Plumbing service',      route: '/home' },
+  { fr: 'Service traiteur mariage', en: 'Wedding catering',      route: '/events' },
+  { fr: 'Service ebook',            en: 'Ebook service',         route: '/discover?type=digital' },
+  { fr: 'Service beatmaking',       en: 'Beatmaking service',    route: '/discover?type=music' },
 ];
 
 const CATEGORIES_FOR_SEARCH = [
