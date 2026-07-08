@@ -113,17 +113,10 @@ export default function WorkspaceDashboard() {
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 space-y-7">
         <section className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary" className="rounded-md gap-1">
-                <Building2 className="h-3 w-3" />
-                {fr ? 'Espace sélectionné' : 'Selected workspace'}
-              </Badge>
-              {typeMeta && (
-                <Badge variant="outline" className="rounded-md">
-                  {typeMeta.emoji} {fr ? typeMeta.labelFr : typeMeta.labelEn}
-                </Badge>
-              )}
-            </div>
+            <Badge variant="secondary" className="rounded-md gap-1">
+              <Building2 className="h-3 w-3" />
+              {fr ? 'Bienvenue dans votre espace' : 'Welcome to your space'}
+            </Badge>
             <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
               {currentOrg.name}
             </h1>
@@ -178,9 +171,7 @@ export default function WorkspaceDashboard() {
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className="text-lg font-black tracking-tight">
-                  {typeMeta
-                    ? (fr ? `Outils principaux — ${typeMeta.labelFr}` : `Principal tools — ${typeMeta.labelEn}`)
-                    : (fr ? 'Outils principaux' : 'Principal tools')}
+                  {fr ? 'Outils principaux' : 'Principal tools'}
                 </h2>
                 <p className="text-xs text-muted-foreground">
                   {fr

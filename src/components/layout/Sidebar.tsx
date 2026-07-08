@@ -10,6 +10,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { getActionNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
+import { applyNavOverride } from '@/lib/navigation/actionNavItemOverrides';
 import { useOrgFeatures } from '@/hooks/useOrgFeatures';
 
 export function Sidebar() {
@@ -34,7 +35,7 @@ export function Sidebar() {
     }
   };
 
-  const { has, org: featureOrg } = useOrgFeatures();
+  const { has, org: featureOrg, type: siteviralType } = useOrgFeatures();
   const typeConfirmed = !!featureOrg?.type_confirmed_at;
 
   const rawNavItems = getActionNavItems({
@@ -48,11 +49,13 @@ export function Sidebar() {
   // Safe filter: only hide when (a) org has a confirmed SiteViral type AND
   // (b) the item is feature-gated AND (c) that feature is NOT enabled.
   // Unconfirmed orgs, or orgs with the feature enabled, keep every item.
-  const navItems = rawNavItems.filter((item) => {
-    if (!item.featureKey) return true;
-    if (!typeConfirmed) return true;
-    return has(item.featureKey);
-  });
+  const navItems = rawNavItems
+    .filter((item) => {
+      if (!item.featureKey) return true;
+      if (!typeConfirmed) return true;
+      return has(item.featureKey);
+    })
+    .map((item) => applyNavOverride(item, siteviralType));
 
   const isActive = (route: string) => {
     if (route === '/') return location.pathname === '/';
