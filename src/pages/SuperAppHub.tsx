@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church, Home as HomeIcon, PartyPopper, GraduationCap } from 'lucide-react';
+import { ArrowRight, Sparkles, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church, Home as HomeIcon, PartyPopper, GraduationCap, Search, Rocket } from 'lucide-react';
+import { setIntent } from '@/lib/intent';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Button } from '@/components/ui/button';
@@ -95,8 +96,52 @@ export default function SuperAppHub() {
               </p>
             </div>
 
+            {/* Intent-first — two paths */}
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIntent('client');
+                  const el = document.getElementById('sv-verticals');
+                  el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xl"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                    <Search className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="text-sm font-black">{t('Je cherche quelque chose', "I'm looking for something")}</div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {t('Beauté, tuteur, artisan, église, produits, événements…', 'Beauty, tutor, artisan, church, products, events…')}
+                    </div>
+                  </div>
+                  <ArrowRight className="ml-auto h-4 w-4 text-primary transition group-hover:translate-x-1" />
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => { setIntent('provider'); navigate('/start'); }}
+                className="group relative overflow-hidden rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xl"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground">
+                    <Rocket className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="text-sm font-black">{t('Je veux proposer ou vendre', 'I want to offer or sell')}</div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {t('Services, RDV, produits, dons, événements, IA…', 'Services, appointments, products, donations, events, AI…')}
+                    </div>
+                  </div>
+                  <ArrowRight className="ml-auto h-4 w-4 text-primary transition group-hover:translate-x-1" />
+                </div>
+              </button>
+            </div>
+
             {/* The two tiles */}
-            <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+            <div id="sv-verticals" className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
               {/* Digital tile — primary vertical */}
               <Link
                 to="/digital"

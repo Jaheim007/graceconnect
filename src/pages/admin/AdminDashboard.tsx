@@ -27,6 +27,7 @@ import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist
 import { SmartNextAction } from '@/components/admin/SmartNextAction';
 import { AdaptiveDashboard } from '@/components/siteviral/AdaptiveDashboard';
 import { SetupChecklist } from '@/components/siteviral/SetupChecklist';
+import { PlatformEvolvedBanner } from '@/components/dashboard/PlatformEvolvedBanner';
 import { VideoImportButton } from '@/components/admin/VideoImportButton';
 import { AIAnalyticsInsights } from '@/components/admin/AIAnalyticsInsights';
 
@@ -188,6 +189,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
+      <PlatformEvolvedBanner />
       {/* ═══ HEADER — compact, one line ═══ */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>

@@ -358,6 +358,8 @@ const LazyAdminAffiliation = lazy(() => import("@/pages/admin/AdminPages").then(
 const LazyAdminKYC = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminKYC })));
 const LazyAdminSettings = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminSettings })));
 const LazyAdminFeatures = lazy(() => import("@/pages/admin/AdminFeaturesPage"));
+const LazyStartOfferingPage = lazy(() => import("@/pages/StartOfferingPage"));
+const LazyIntentChooserPage = lazy(() => import("@/pages/IntentChooserPage"));
 const LazyOnboardingType = lazy(() => import("@/pages/onboarding/OnboardingTypePage"));
 const LazyOnboardingGoals = lazy(() => import("@/pages/onboarding/OnboardingGoalsPage"));
 
@@ -409,6 +411,8 @@ const App = () => (
                 {/* Public routes */}
                 <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 <Route path="/" element={<SuperAppHub />} />
+                <Route path="/start" element={<LazyStartOfferingPage />} />
+                <Route path="/welcome-intent" element={<LazyIntentChooserPage />} />
                 <Route path="/digital" element={<ActionHub />} />
                 <Route path="/digital/about" element={<LandingPage />} />
                 <Route path="/hub" element={<ActionHub />} />

@@ -117,7 +117,26 @@ export default function CreateOrgPage() {
         sendEmailNotification('org_created', user.email, { org_name: data.name }, orgId);
       }
 
-      toast({ title: isFr ? '🎉 Plateforme créée !' : '🎉 Platform created!', description: data.name });
+      // Apply intent-first goal config, if the user came from /start
+      let hadStartConfig = false;
+      try {
+        const raw = sessionStorage.getItem('sv_start_config');
+        if (raw) {
+          const cfg = JSON.parse(raw) as { siteviral_type?: string; enabled_features?: string[] };
+          if (cfg?.siteviral_type) {
+            const { confirmSiteviralType } = await import('@/lib/siteviral/activation');
+            await confirmSiteviralType(orgId as string, cfg.siteviral_type as any, (cfg.enabled_features ?? []) as any, 'onboarding');
+            hadStartConfig = true;
+          }
+          sessionStorage.removeItem('sv_start_config');
+        }
+      } catch {}
+
+      toast({ title: isFr ? '🎉 Votre espace est prêt !' : '🎉 Your workspace is ready!', description: data.name });
+      if (hadStartConfig) {
+        navigate('/admin');
+        return;
+      }
       setShowOnboarding(true);
     } catch (err: any) {
       const msg = err?.message || String(err);
