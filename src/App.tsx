@@ -360,6 +360,7 @@ const LazyAdminSettings = lazy(() => import("@/pages/admin/AdminPages").then(m =
 const LazyAdminFeatures = lazy(() => import("@/pages/admin/AdminFeaturesPage"));
 const LazyStartOfferingPage = lazy(() => import("@/pages/StartOfferingPage"));
 const LazyIntentChooserPage = lazy(() => import("@/pages/IntentChooserPage"));
+const LazyLookingForPage = lazy(() => import("@/pages/LookingForPage"));
 const LazyOnboardingType = lazy(() => import("@/pages/onboarding/OnboardingTypePage"));
 const LazyOnboardingGoals = lazy(() => import("@/pages/onboarding/OnboardingGoalsPage"));
 
@@ -413,6 +414,7 @@ const App = () => (
                 <Route path="/" element={<SuperAppHub />} />
                 <Route path="/start" element={<LazyStartOfferingPage />} />
                 <Route path="/welcome-intent" element={<LazyIntentChooserPage />} />
+                <Route path="/looking-for" element={<LazyLookingForPage />} />
                 <Route path="/digital" element={<ActionHub />} />
                 <Route path="/digital/about" element={<LandingPage />} />
                 <Route path="/hub" element={<ActionHub />} />
