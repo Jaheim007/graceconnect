@@ -273,7 +273,27 @@ export default function OrgPublicPage() {
         hasAffiliateRef={hasAffiliateRef}
       />
 
+      {/* Type-adaptive hero CTAs — visible to visitors when features are ready, and to owners with a setup hint. */}
+      <AdaptiveHeroCTAs
+        presentation={presentation}
+        org={org as any}
+        readiness={readiness}
+        isAdmin={isAdmin}
+        onNavigateTab={navigateTab}
+      />
+
+      {/* Owner-only: setup prompts for enabled but not-yet-ready features. Hidden in preview-as-visitor. */}
+      {isAdmin && (
+        <OwnerSetupPrompts
+          presentation={presentation}
+          org={org as any}
+          readiness={readiness}
+          onNavigate={adminNavigate}
+        />
+      )}
+
       <div className={cn('container', isAdmin ? 'max-w-7xl' : 'max-w-5xl')}>
+
         <div className={cn(isAdmin ? 'flex flex-col lg:flex-row gap-6' : '')}>
           {/* Main content */}
           <div className="flex-1 min-w-0">
