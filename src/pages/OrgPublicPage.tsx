@@ -43,6 +43,7 @@ import { useWaitlists } from '@/hooks/useWaitlists';
 import { isMainPlatformDomain } from '@/hooks/useDomainResolver';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { cn } from '@/lib/utils';
+import { computeHiddenSections, isFeatureEnabledForPublic } from '@/lib/siteviral/publicSections';
 import {
   Home, ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart, Plus, ChevronDown, ChevronUp, Settings, GraduationCap, ExternalLink, MapPin
 } from 'lucide-react';
