@@ -229,7 +229,7 @@ export default function ChurchPublicProfile() {
         <section className="mx-auto max-w-4xl px-4 mt-10">
           <h2 className="text-lg font-semibold flex items-center gap-2 mb-4"><Calendar className="h-4 w-4 text-primary" /> {fr ? 'À venir' : 'Upcoming'}</h2>
           <div className="space-y-3">
-            {events.map((e) => (
+            {events.map((e: any) => (
               <div key={e.id} className="rounded-2xl border border-border bg-card p-4 flex items-center gap-4">
                 <div className="text-center shrink-0 min-w-[3.5rem]">
                   <div className="text-xs text-muted-foreground uppercase">{new Date(e.starts_at).toLocaleDateString(fr ? 'fr-FR' : 'en-US', { month: 'short' })}</div>
@@ -238,12 +238,28 @@ export default function ChurchPublicProfile() {
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm">{e.title}</p>
                   {e.location && <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5"><MapPin className="h-3 w-3" /> {e.location}</p>}
+                  {e.require_ticket && (
+                    <p className="text-[11px] text-primary flex items-center gap-1 mt-0.5">
+                      <Ticket className="h-3 w-3" /> {(e.price_cents ?? 0) > 0 ? `${(e.price_cents/100).toFixed(0)} ${e.currency}` : (fr ? 'Inscription gratuite' : 'Free registration')}
+                    </p>
+                  )}
                 </div>
+                {e.require_ticket && (
+                  <Button size="sm" asChild>
+                    <Link to={`/church/${church.slug}/events/${e.id}`}><Ticket className="mr-1.5 h-3.5 w-3.5" />{fr ? 'Réserver' : 'Register'}</Link>
+                  </Button>
+                )}
               </div>
             ))}
           </div>
         </section>
       )}
+
+      {/* Appointments */}
+      <section className="mx-auto max-w-4xl px-4 mt-10">
+        <h2 className="text-lg font-semibold flex items-center gap-2 mb-4"><CalendarClock className="h-4 w-4 text-primary" /> {fr ? 'Prendre rendez-vous' : 'Book an appointment'}</h2>
+        <AppointmentForm churchId={church.id} />
+      </section>
 
       {/* Prayer request */}
       <section className="mx-auto max-w-4xl px-4 mt-10">
