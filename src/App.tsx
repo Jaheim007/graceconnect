@@ -126,6 +126,8 @@ const ChurchGivePage = lazy(() => import("@/pages/church/ChurchGivePage"));
 const ChurchGiveSuccessPage = lazy(() => import("@/pages/church/ChurchGiveSuccessPage"));
 const ChurchSermonPdfBuyPage = lazy(() => import("@/pages/church/ChurchSermonPdfBuyPage"));
 const ChurchSermonPdfSuccessPage = lazy(() => import("@/pages/church/ChurchSermonPdfSuccessPage"));
+const ChurchProAppointments = lazy(() => import("@/pages/church/ChurchProAppointments"));
+const ChurchEventRegisterPage = lazy(() => import("@/pages/church/ChurchEventRegisterPage"));
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
