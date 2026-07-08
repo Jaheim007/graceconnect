@@ -359,6 +359,7 @@ const LazyAdminKYC = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ 
 const LazyAdminSettings = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminSettings })));
 const LazyAdminFeatures = lazy(() => import("@/pages/admin/AdminFeaturesPage"));
 const LazyStartOfferingPage = lazy(() => import("@/pages/StartOfferingPage"));
+const LazyStartSellingPage = lazy(() => import("@/pages/StartSellingPage"));
 const LazyIntentChooserPage = lazy(() => import("@/pages/IntentChooserPage"));
 const LazyLookingForPage = lazy(() => import("@/pages/LookingForPage"));
 const LazyOnboardingType = lazy(() => import("@/pages/onboarding/OnboardingTypePage"));
@@ -414,6 +415,7 @@ const App = () => (
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/superapp" element={<SuperAppHub />} />
                 <Route path="/start" element={<LazyStartOfferingPage />} />
+                <Route path="/start-selling" element={<LazyStartSellingPage />} />
                 <Route path="/welcome-intent" element={<LazyIntentChooserPage />} />
                 <Route path="/looking-for" element={<LazyLookingForPage />} />
                 <Route path="/digital" element={<ActionHub />} />
