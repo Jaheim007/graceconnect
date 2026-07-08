@@ -418,9 +418,9 @@ const App = () => (
                 <Route path="/start-selling" element={<LazyStartSellingPage />} />
                 <Route path="/welcome-intent" element={<LazyIntentChooserPage />} />
                 <Route path="/looking-for" element={<LazyLookingForPage />} />
-                <Route path="/digital" element={<ActionHub />} />
+                <Route path="/digital" element={<Navigate to="/discover?type=digital" replace />} />
                 <Route path="/digital/about" element={<LandingPage />} />
-                <Route path="/hub" element={<ActionHub />} />
+                <Route path="/hub" element={<Navigate to="/discover" replace />} />
                 {/* SiteViral Beauty */}
                 <Route path="/beauty" element={<BeautyActionHub />} />
                 <Route path="/beauty/about" element={<BeautyLanding />} />
