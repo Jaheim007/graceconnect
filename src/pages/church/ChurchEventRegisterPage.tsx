@@ -65,30 +65,30 @@ export default function ChurchEventRegisterPage() {
     if (!name.trim()) return toast.error(fr ? 'Nom requis' : 'Name required');
     if (paid && !email.trim()) return toast.error(fr ? 'Email requis pour paiement' : 'Email required for payment');
     setSubmitting(true);
-    const { data: created, error } = await supabase
-      .from('church_event_tickets')
-      .insert({
-        event_id: event.id,
-        church_id: church.id,
-        buyer_user_id: user?.id ?? null,
-        buyer_name: name.trim(),
-        buyer_email: email.trim() || null,
-        buyer_phone: phone.trim() || null,
-        qty,
-        amount_cents: priceCents * qty,
-        currency: event.currency || 'XAF',
-        status: paid ? 'pending' : 'confirmed',
-        payment_provider: paid ? 'pending_at_door' : null,
-      })
-      .select()
-      .single();
-    setSubmitting(false);
-    if (error) return toast.error(error.message);
-    // Increment tickets_sold for confirmed (free) tickets
-    if (!paid) {
-      await supabase.from('church_events').update({ tickets_sold: (event.tickets_sold ?? 0) + qty }).eq('id', event.id);
+    try {
+      const { data: res, error } = await supabase.functions.invoke('church-buy-event-ticket', {
+        body: {
+          event_id: event.id,
+          buyer_name: name.trim(),
+          buyer_email: email.trim() || undefined,
+          buyer_phone: phone.trim() || undefined,
+          buyer_user_id: user?.id ?? null,
+          qty,
+          return_origin: window.location.origin,
+        },
+      });
+      if (error) throw error;
+      if ((res as any)?.error) throw new Error((res as any).error);
+      if (paid && (res as any)?.checkout_url) {
+        window.location.href = (res as any).checkout_url;
+        return;
+      }
+      setTicket((res as any).ticket);
+    } catch (err: any) {
+      toast.error(err?.message || (fr ? 'Erreur' : 'Error'));
+    } finally {
+      setSubmitting(false);
     }
-    setTicket(created);
   };
 
   if (ticket) {
@@ -151,9 +151,9 @@ export default function ChurchEventRegisterPage() {
               <Input type="number" min={1} max={10} value={qty} onChange={(e) => setQty(Math.max(1, Math.min(10, parseInt(e.target.value) || 1)))} />
             </div>
             {paid && (
-              <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-3 text-xs text-amber-900 dark:text-amber-100">
-                <p className="font-medium">{fr ? 'Paiement à l\'entrée' : 'Payment at entry'}</p>
-                <p className="mt-0.5">{fr ? `Total : ${total.toFixed(0)} ${event.currency}. Le paiement en ligne sera bientôt disponible ; pour l'instant réglez à l'accueil le jour de l'événement.` : `Total: ${total.toFixed(0)} ${event.currency}. Online payment coming soon; pay at the door on the day.`}</p>
+              <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs">
+                <p className="font-medium">{fr ? 'Paiement sécurisé' : 'Secure payment'}</p>
+                <p className="mt-0.5 text-muted-foreground">{fr ? `Total : ${total.toFixed(0)} ${event.currency}. Vous serez redirigé vers la page de paiement.` : `Total: ${total.toFixed(0)} ${event.currency}. You'll be redirected to the payment page.`}</p>
               </div>
             )}
             <Button type="submit" disabled={submitting} className="w-full" size="lg">

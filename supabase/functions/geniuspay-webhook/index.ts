@@ -554,6 +554,31 @@ Deno.serve(async (req) => {
       });
     }
 
+    if (type === 'church_event_ticket') {
+      const ticketId = meta.ticket_id as string | undefined;
+      if (ticketId) {
+        const { data: ticket } = await db
+          .from('church_event_tickets')
+          .update({
+            status: 'confirmed',
+            payment_provider: 'geniuspay',
+            payment_ref: reference,
+          })
+          .eq('id', ticketId)
+          .eq('status', 'pending')
+          .select('id, event_id, qty')
+          .maybeSingle();
+        if (ticket?.event_id) {
+          const { data: ev } = await db.from('church_events').select('tickets_sold').eq('id', ticket.event_id).maybeSingle();
+          if (ev) await db.from('church_events').update({ tickets_sold: Number(ev.tickets_sold || 0) + Number(ticket.qty || 1) }).eq('id', ticket.event_id);
+        }
+      }
+      await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, kind: 'church_event_ticket' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     if (!organizationId) {
       await db.from('payment_events').update({
         status: 'skipped', processed_at: new Date().toISOString(),

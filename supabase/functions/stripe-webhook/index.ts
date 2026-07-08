@@ -387,7 +387,7 @@ Deno.serve(async (req) => {
     }
 
     const reference = meta.sv_reference;
-    const type = meta.type as 'donation' | 'product' | 'template_clone' | 'church_giving' | 'church_sermon_pdf';
+    const type = meta.type as 'donation' | 'product' | 'template_clone' | 'church_giving' | 'church_sermon_pdf' | 'church_event_ticket';
     const organizationId = meta.organization_id;
 
     // ── CHURCH GIVING branch ──
@@ -441,6 +441,27 @@ Deno.serve(async (req) => {
       }
       await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(stripeEventId));
       return new Response(JSON.stringify({ ok: true, church_sermon_pdf: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    // ── CHURCH EVENT TICKET branch ──
+    if (type === 'church_event_ticket') {
+      const ticketId = meta.ticket_id as string | undefined;
+      if (!ticketId) {
+        await db.from('payment_events').update({ status: 'error', processed_at: new Date().toISOString() }).eq('event_id', String(stripeEventId));
+        return new Response(JSON.stringify({ error: 'Missing ticket_id' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      const { data: ticket } = await db.from('church_event_tickets').select('id, event_id, qty, status').eq('id', ticketId).maybeSingle();
+      if (ticket && ticket.status !== 'confirmed') {
+        await db.from('church_event_tickets').update({
+          status: 'confirmed',
+          payment_provider: 'stripe',
+          payment_ref: session.id,
+        }).eq('id', ticket.id);
+        const { data: ev } = await db.from('church_events').select('tickets_sold').eq('id', ticket.event_id).maybeSingle();
+        if (ev) await db.from('church_events').update({ tickets_sold: Number(ev.tickets_sold || 0) + Number(ticket.qty || 1) }).eq('id', ticket.event_id);
+      }
+      await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(stripeEventId));
+      return new Response(JSON.stringify({ ok: true, church_event_ticket: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     // ── TEMPLATE CLONE branch ──
