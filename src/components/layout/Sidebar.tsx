@@ -35,7 +35,7 @@ export function Sidebar() {
     }
   };
 
-  const { has, org: featureOrg } = useOrgFeatures();
+  const { has, org: featureOrg, type: siteviralType } = useOrgFeatures();
   const typeConfirmed = !!featureOrg?.type_confirmed_at;
 
   const rawNavItems = getActionNavItems({
