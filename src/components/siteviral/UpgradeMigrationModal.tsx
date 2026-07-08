@@ -53,6 +53,7 @@ export function UpgradeMigrationModal() {
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ['user-orgs'] });
       toast.success(isFr ? 'Configuration conservée' : 'Configuration kept');
+      setDismissed(true);
     } catch (e: any) {
       toast.error(e?.message ?? 'Error');
     } finally {
@@ -68,6 +69,7 @@ export function UpgradeMigrationModal() {
       await confirmSiteviralType(currentOrg.id, selected, [], 'migration');
       await qc.invalidateQueries({ queryKey: ['user-orgs'] });
       toast.success(isFr ? 'Type SiteViral mis à jour' : 'SiteViral type updated');
+      setDismissed(true);
     } catch (e: any) {
       toast.error(e?.message ?? 'Error');
     } finally {
