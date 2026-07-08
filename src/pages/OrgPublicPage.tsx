@@ -44,6 +44,8 @@ import { isMainPlatformDomain } from '@/hooks/useDomainResolver';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { cn } from '@/lib/utils';
 import { computeHiddenSections, isFeatureEnabledForPublic } from '@/lib/siteviral/publicSections';
+import { useOrgReadiness } from '@/hooks/useOrgReadiness';
+import { Eye, EyeOff } from 'lucide-react';
 import {
   Home, ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart, Plus, ChevronDown, ChevronUp, Settings, GraduationCap, ExternalLink, MapPin
 } from 'lucide-react';
@@ -121,18 +123,25 @@ export default function OrgPublicPage() {
   const gTagId = (pageSettings as any)?.google_tag_id;
 
   const dateFmt = locale === 'fr' ? 'fr-FR' : 'en-US';
-  const isAdmin = org ? canManage(org.id) : false;
+  const rawIsAdmin = org ? canManage(org.id) : false;
+  // Preview-as-visitor: owners can force the public visitor view via ?as=visitor.
+  const previewAsVisitor = searchParams.get('as') === 'visitor' && rawIsAdmin;
+  const isAdmin = rawIsAdmin && !previewAsVisitor;
   const isOwner = org ? org.owner_id === user?.id : false;
   const orgAny = org as any;
+  const { readiness } = useOrgReadiness(org as any);
   const sectionOrder = pageSettings?.section_order || ['products', 'offerings', 'campaigns', 'content', 'programs', 'photos', 'events'];
   const rawHiddenSections = new Set(pageSettings?.hidden_sections || []);
   // Apply feature-gating on top of admin-configured hidden sections.
-  // Admins/owners still see everything so they can configure their page.
-  const hiddenSections = isAdmin ? rawHiddenSections : computeHiddenSections(org as any, rawHiddenSections);
-  const showStoreTab = isFeatureEnabledForPublic(org as any, 'digital_products');
-  const showDonateTab = isFeatureEnabledForPublic(org as any, 'donation_gifts');
-  const showProgramsTab = isFeatureEnabledForPublic(org as any, 'ai_formation_creation');
-  const showEventsTab = isFeatureEnabledForPublic(org as any, 'events');
+  // Admins see feature-enabled sections even when empty (setup prompts).
+  // Visitors also require the section to be "ready" (have content).
+  const hiddenSections = isAdmin
+    ? computeHiddenSections(org as any, rawHiddenSections)
+    : computeHiddenSections(org as any, rawHiddenSections, readiness);
+  const showStoreTab = isFeatureEnabledForPublic(org as any, 'digital_products') && (isAdmin || readiness.digital_products !== false);
+  const showDonateTab = isFeatureEnabledForPublic(org as any, 'donation_gifts') && (isAdmin || readiness.donation_gifts !== false);
+  const showProgramsTab = isFeatureEnabledForPublic(org as any, 'ai_formation_creation') && (isAdmin || readiness.ai_formation_creation !== false);
+  const showEventsTab = isFeatureEnabledForPublic(org as any, 'events') && (isAdmin || readiness.events !== false);
 
   // Ensure currentOrg is set to viewed org before navigating to admin
   const adminNavigate = useCallback((path: string) => {
@@ -186,6 +195,28 @@ export default function OrgPublicPage() {
 
   return (
     <div className="min-h-screen bg-background" style={themeStyle}>
+      {previewAsVisitor && (
+        <div className="sticky top-0 z-50 bg-primary/95 text-primary-foreground text-xs font-medium py-2 px-4 flex items-center justify-center gap-3 backdrop-blur-sm">
+          <EyeOff className="h-3.5 w-3.5" />
+          <span>{locale === 'fr' ? 'Aperçu visiteur — vous voyez la page publique' : 'Visitor preview — you are seeing the public page'}</span>
+          <button
+            onClick={() => { const p = new URLSearchParams(searchParams); p.delete('as'); navigate(`${pathname}${p.toString() ? '?' + p.toString() : ''}`, { replace: true }); }}
+            className="ml-2 underline underline-offset-2 hover:opacity-80"
+          >
+            {locale === 'fr' ? 'Quitter l\'aperçu' : 'Exit preview'}
+          </button>
+        </div>
+      )}
+      {rawIsAdmin && !previewAsVisitor && (
+        <button
+          onClick={() => { const p = new URLSearchParams(searchParams); p.set('as', 'visitor'); navigate(`${pathname}?${p.toString()}`, { replace: true }); }}
+          className="fixed bottom-4 right-4 z-40 flex items-center gap-1.5 rounded-full bg-foreground text-background px-3 py-2 text-xs font-semibold shadow-lg hover:opacity-90 transition-opacity"
+          title={locale === 'fr' ? 'Aperçu visiteur' : 'Preview as visitor'}
+        >
+          <Eye className="h-3.5 w-3.5" />
+          {locale === 'fr' ? 'Aperçu visiteur' : 'Preview as visitor'}
+        </button>
+      )}
       <PixelInjector facebookPixelId={fbPixel} tiktokPixelId={ttPixel} googleTagId={gTagId} />
       {isOnOrgDomain && <DynamicFavicon logoUrl={org.logo_url} orgName={org.name} orgDescription={org.description || undefined} />}
       <SEOHead
