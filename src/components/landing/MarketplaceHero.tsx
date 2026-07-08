@@ -210,7 +210,7 @@ export function MarketplaceIntentSplit() {
               {fr ? 'Créez votre boutique en 5 minutes. Outils pros, paiements Mobile Money, clients qualifiés.' : 'Set up in 5 minutes. Pro tools, Mobile Money payouts, qualified clients.'}
             </p>
             <div className="mt-6 inline-flex items-center gap-1.5 text-sm font-bold">
-              {fr ? 'Devenir vendeur' : 'Become a seller'} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition" />
+              {fr ? 'Proposer mes services' : 'Offer my services'} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition" />
             </div>
           </div>
         </button>

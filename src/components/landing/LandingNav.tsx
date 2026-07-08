@@ -159,7 +159,7 @@ export function LandingNav() {
             /* ── Not logged in ── */
             <>
               <Button variant="ghost" size="sm" onClick={() => navigate('/start-selling')} className="hidden md:inline-flex text-xs px-3 font-semibold">
-                {isFr ? 'Devenir vendeur' : 'Become a seller'}
+                {isFr ? 'Proposer mes services' : 'Offer my services'}
               </Button>
               <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=signin')} className="hidden sm:inline-flex text-xs px-3">
                 {t('landing_nav.sign_in')}

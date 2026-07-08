@@ -34,7 +34,7 @@ export function LandingFooterCompact() {
     {
       title: isFr ? 'Pour les pros' : 'For pros',
       links: [
-        { to: '/start-selling',      label: isFr ? 'Devenir vendeur'      : 'Become a seller' },
+        { to: '/start-selling',      label: isFr ? 'Proposer mes services' : 'Offer my services' },
         { to: '/start',              label: isFr ? 'Créer mon espace'     : 'Create my space' },
         { to: '/pricing',            label: isFr ? 'Tarifs'               : 'Pricing' },
         { to: '/ambassador-program', label: isFr ? 'Programme ambassadeur': 'Ambassador program' },
