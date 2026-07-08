@@ -42,8 +42,8 @@ export function LandingNav() {
   ];
 
   const navItems = [
-    { to: '/looking-for',  label: isFr ? 'Je cherche' : 'I need a pro' },
-    { to: '/start-selling',label: isFr ? 'Je propose' : 'Offer a service' },
+    { to: '/looking-for',  label: isFr ? 'Je cherche un service' : 'I need a service' },
+    { to: '/start-selling',label: isFr ? 'Proposer un service' : 'Offer a service' },
     { to: '/discover',     label: isFr ? 'Explorer'   : 'Explore' },
     { to: '/pricing',      label: t('landing_nav.pricing') },
   ];

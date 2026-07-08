@@ -6,12 +6,12 @@ import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
 
 const POPULAR = [
-  { fr: 'Coiffure à domicile', en: 'Home hairstyling', route: '/beauty' },
-  { fr: 'Prof de maths',       en: 'Math tutor',       route: '/education' },
-  { fr: 'Plombier',            en: 'Plumber',          route: '/home' },
-  { fr: 'Traiteur mariage',    en: 'Wedding caterer',  route: '/events' },
-  { fr: 'Ebooks',              en: 'Ebooks',           route: '/discover?type=digital' },
-  { fr: 'Beatmaker',           en: 'Beatmaker',        route: '/discover?type=music' },
+  { fr: 'Service de coiffure',      en: 'Hairstyling service',   route: '/beauty' },
+  { fr: 'Service de cours maths',   en: 'Math tutoring service', route: '/education' },
+  { fr: 'Service de plomberie',     en: 'Plumbing service',      route: '/home' },
+  { fr: 'Service traiteur mariage', en: 'Wedding catering',      route: '/events' },
+  { fr: 'Service ebook',            en: 'Ebook service',         route: '/discover?type=digital' },
+  { fr: 'Service beatmaking',       en: 'Beatmaking service',    route: '/discover?type=music' },
 ];
 
 const CATEGORIES_FOR_SEARCH = [
@@ -65,18 +65,18 @@ export function MarketplaceHero() {
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider mb-6 backdrop-blur">
             <ShieldCheck className="h-3.5 w-3.5 text-accent" />
-            {fr ? 'Marketplace panafricaine · Pros vérifiés' : 'Pan-African marketplace · Verified pros'}
+            {fr ? 'Marketplace panafricaine · Services vérifiés' : 'Pan-African marketplace · Verified services'}
           </div>
 
           <h1 className="text-[2.5rem] sm:text-6xl lg:text-7xl font-black leading-[1.02] tracking-tight">
             {fr ? (
               <>
-                Trouvez le bon <span className="text-accent">pro</span>,<br className="hidden sm:block" />
+                Trouvez le bon <span className="text-accent">service</span>,<br className="hidden sm:block" />
                 <span className="text-sidebar-foreground/90">au bon prix.</span>
               </>
             ) : (
               <>
-                Find the right <span className="text-accent">pro</span>,<br className="hidden sm:block" />
+                Find the right <span className="text-accent">service</span>,<br className="hidden sm:block" />
                 <span className="text-sidebar-foreground/90">at the right price.</span>
               </>
             )}
@@ -98,7 +98,7 @@ export function MarketplaceHero() {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder={fr ? 'Que cherchez-vous aujourd’hui ?' : 'What are you looking for today?'}
+                placeholder={fr ? 'Quel service cherchez-vous aujourd’hui ?' : 'What service are you looking for today?'}
                 className="flex-1 bg-transparent outline-none text-sm sm:text-base placeholder:text-muted-foreground h-12"
               />
             </div>
@@ -149,7 +149,7 @@ export function MarketplaceHero() {
                 ))}
               </div>
               <span className="font-semibold">
-                {fr ? '+12 000 pros vérifiés' : '+12,000 verified pros'}
+                {fr ? '+12 000 services vérifiés' : '+12,000 verified services'}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -181,10 +181,10 @@ export function MarketplaceIntentSplit() {
           className="group text-left rounded-3xl border bg-card p-7 sm:p-9 hover:border-primary/50 hover:shadow-xl hover:-translate-y-0.5 transition-all"
         >
           <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
-            {fr ? 'Je cherche' : 'I need a pro'}
+            {fr ? 'Je cherche un service' : 'I need a service'}
           </div>
           <h3 className="mt-3 text-2xl sm:text-3xl font-black leading-tight">
-            {fr ? 'Trouvez le bon pro et réservez.' : 'Find the right pro and book.'}
+            {fr ? 'Trouvez le service qu’il vous faut et réservez.' : 'Find the service you need and book it.'}
           </h3>
           <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
             {fr ? 'Comparez les profils vérifiés, discutez, réservez et payez en toute sécurité.' : 'Compare verified profiles, chat, book and pay securely.'}

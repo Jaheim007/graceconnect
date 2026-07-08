@@ -13,7 +13,7 @@ interface Choice {
 }
 
 const CHOICES: Choice[] = [
-  { key: 'beauty',    icon: Scissors,      fr: 'Trouver un pro beauté',              en: 'Find a beauty pro',            route: '/beauty' },
+  { key: 'beauty',    icon: Scissors,      fr: 'Trouver un service beauté',              en: 'Find a beauty service',            route: '/beauty' },
   { key: 'tutor',     icon: GraduationCap, fr: 'Trouver un tuteur / prof à domicile', en: 'Find a tutor / home teacher', route: '/education' },
   { key: 'artisan',   icon: Wrench,        fr: 'Trouver un artisan / service à domicile', en: 'Find an artisan / home service', route: '/home' },
   { key: 'church',    icon: Church,        fr: 'Trouver une église / ministère',      en: 'Find a church / ministry',    route: '/church' },
@@ -40,7 +40,7 @@ export default function LookingForPage() {
     <div className="mx-auto max-w-3xl px-4 py-8 space-y-6">
       <SEOHead
         title={fr ? 'Que cherchez-vous ? — SiteViral' : 'What are you looking for? — SiteViral'}
-        description={fr ? 'Trouvez un service, un pro, un produit ou un événement.' : 'Find a service, a pro, a product or an event.'}
+        description={fr ? 'Trouvez le service qu’il vous faut : beauté, cours, événement, digital…' : 'Find the service you need: beauty, tutoring, events, digital…'}
       />
 
       <header className="space-y-2">
