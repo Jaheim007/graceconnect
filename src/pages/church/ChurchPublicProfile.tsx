@@ -347,6 +347,106 @@ function PrayerRequestForm({ churchId, disabled }: { churchId: string; disabled?
   );
 }
 
+function AppointmentForm({ churchId }: { churchId: string }) {
+  const { locale } = useI18n();
+  const fr = locale === 'fr';
+  const { user } = useAuth();
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState(user?.email ?? '');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [when, setWhen] = useState('');
+  const [duration, setDuration] = useState(30);
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !subject.trim() || !when) return;
+    setSubmitting(true);
+    const { error } = await supabase.from('church_appointments').insert({
+      church_id: churchId,
+      requester_user_id: user?.id ?? null,
+      requester_name: name.trim(),
+      requester_phone: phone.trim() || null,
+      requester_email: email.trim() || null,
+      subject: subject.trim(),
+      message: message.trim() || null,
+      requested_at: new Date(when).toISOString(),
+      duration_min: duration,
+      status: 'new',
+    });
+    setSubmitting(false);
+    if (error) return toast.error(error.message);
+    setDone(true);
+    toast.success(fr ? 'Demande envoyée' : 'Request sent');
+  };
+
+  if (done) {
+    return (
+      <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-5 text-center">
+        <CalendarClock className="mx-auto h-6 w-6 text-emerald-600 mb-2" />
+        <p className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
+          {fr ? 'Votre demande a été transmise. Vous serez recontacté pour confirmation.' : 'Your request was sent. You will be contacted for confirmation.'}
+        </p>
+        <Button variant="ghost" size="sm" onClick={() => { setDone(false); setSubject(''); setMessage(''); setWhen(''); }} className="mt-2">
+          {fr ? 'Nouvelle demande' : 'New request'}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={submit} className="rounded-2xl border border-border bg-card p-4 space-y-3">
+      <p className="text-xs text-muted-foreground">
+        {fr ? 'Remplissez ce formulaire pour demander un rendez-vous avec le pasteur.' : 'Fill in this form to request an appointment with the pastor.'}
+      </p>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label className="text-xs">{fr ? 'Votre nom' : 'Your name'} *</Label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} required />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">{fr ? 'Téléphone' : 'Phone'}</Label>
+          <Input value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" />
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">Email</Label>
+        <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">{fr ? 'Sujet' : 'Subject'} *</Label>
+        <Input value={subject} onChange={(e) => setSubject(e.target.value)} required placeholder={fr ? 'Ex: Conseil, prière, mariage…' : 'e.g. Counseling, prayer, marriage…'} />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label className="text-xs">{fr ? 'Date & heure souhaitées' : 'Preferred date & time'} *</Label>
+          <Input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} required min={new Date().toISOString().slice(0, 16)} />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">{fr ? 'Durée' : 'Duration'}</Label>
+          <select value={duration} onChange={(e) => setDuration(parseInt(e.target.value))} className="w-full h-10 border border-input bg-background rounded-md px-2 text-sm">
+            <option value={15}>15 min</option>
+            <option value={30}>30 min</option>
+            <option value={45}>45 min</option>
+            <option value={60}>1 h</option>
+          </select>
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">{fr ? 'Message (optionnel)' : 'Message (optional)'}</Label>
+        <Textarea rows={3} value={message} onChange={(e) => setMessage(e.target.value)} />
+      </div>
+      <Button type="submit" disabled={submitting} className="w-full">
+        <CalendarClock className="mr-2 h-4 w-4" />
+        {submitting ? '...' : (fr ? 'Demander un rendez-vous' : 'Request appointment')}
+      </Button>
+    </form>
+  );
+}
+
 function ReportButton({ churchId }: { churchId: string }) {
   const { locale } = useI18n();
   const fr = locale === 'fr';
