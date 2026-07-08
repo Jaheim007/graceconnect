@@ -123,18 +123,25 @@ export default function OrgPublicPage() {
   const gTagId = (pageSettings as any)?.google_tag_id;
 
   const dateFmt = locale === 'fr' ? 'fr-FR' : 'en-US';
-  const isAdmin = org ? canManage(org.id) : false;
+  const rawIsAdmin = org ? canManage(org.id) : false;
+  // Preview-as-visitor: owners can force the public visitor view via ?as=visitor.
+  const previewAsVisitor = searchParams.get('as') === 'visitor' && rawIsAdmin;
+  const isAdmin = rawIsAdmin && !previewAsVisitor;
   const isOwner = org ? org.owner_id === user?.id : false;
   const orgAny = org as any;
+  const { readiness } = useOrgReadiness(org as any);
   const sectionOrder = pageSettings?.section_order || ['products', 'offerings', 'campaigns', 'content', 'programs', 'photos', 'events'];
   const rawHiddenSections = new Set(pageSettings?.hidden_sections || []);
   // Apply feature-gating on top of admin-configured hidden sections.
-  // Admins/owners still see everything so they can configure their page.
-  const hiddenSections = isAdmin ? rawHiddenSections : computeHiddenSections(org as any, rawHiddenSections);
-  const showStoreTab = isFeatureEnabledForPublic(org as any, 'digital_products');
-  const showDonateTab = isFeatureEnabledForPublic(org as any, 'donation_gifts');
-  const showProgramsTab = isFeatureEnabledForPublic(org as any, 'ai_formation_creation');
-  const showEventsTab = isFeatureEnabledForPublic(org as any, 'events');
+  // Admins see feature-enabled sections even when empty (setup prompts).
+  // Visitors also require the section to be "ready" (have content).
+  const hiddenSections = isAdmin
+    ? computeHiddenSections(org as any, rawHiddenSections)
+    : computeHiddenSections(org as any, rawHiddenSections, readiness);
+  const showStoreTab = isFeatureEnabledForPublic(org as any, 'digital_products') && (isAdmin || readiness.digital_products !== false);
+  const showDonateTab = isFeatureEnabledForPublic(org as any, 'donation_gifts') && (isAdmin || readiness.donation_gifts !== false);
+  const showProgramsTab = isFeatureEnabledForPublic(org as any, 'ai_formation_creation') && (isAdmin || readiness.ai_formation_creation !== false);
+  const showEventsTab = isFeatureEnabledForPublic(org as any, 'events') && (isAdmin || readiness.events !== false);
 
   // Ensure currentOrg is set to viewed org before navigating to admin
   const adminNavigate = useCallback((path: string) => {
