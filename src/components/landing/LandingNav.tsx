@@ -17,7 +17,7 @@ import {
 
 export function LandingNav() {
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useTheme();
+  const [menuOpen_placeholder, _] = [false, null];
   const [menuOpen, setMenuOpen] = useState(false);
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
