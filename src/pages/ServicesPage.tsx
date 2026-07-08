@@ -1,22 +1,28 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
   Bell,
   BookOpen,
   CalendarDays,
   ChevronRight,
   Church,
+  Globe,
   GraduationCap,
   Heart,
+  LifeBuoy,
+  LogOut,
   Mail,
   Megaphone,
   Music,
   Package,
   Search,
   Scissors,
+  Settings,
   ShieldCheck,
   ShoppingBag,
   Star,
+  Store,
   User,
   Wrench,
 } from 'lucide-react';
@@ -24,10 +30,21 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ProductCard } from '@/components/products/ProductCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
+import { db } from '@/lib/db';
 import { cn } from '@/lib/utils';
+
 
 type ServiceCategory = {
   key: string;
@@ -141,8 +158,8 @@ const FEATURED_SERVICES = [
 export default function ServicesPage() {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
-  const { user, profile } = useAuth();
-  const { locale } = useI18n();
+  const { user, profile, signOut } = useAuth();
+  const { locale, setLocale } = useI18n();
   const isFr = locale === 'fr';
   const initialQuery = params.get('q') || '';
   const [query, setQuery] = useState(initialQuery);
@@ -151,6 +168,30 @@ export default function ServicesPage() {
   const displayName = profile?.display_name || user?.user_metadata?.display_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
   const firstName = displayName.split(' ')[0];
   const initials = displayName ? displayName.split(' ').map((part: string) => part[0]).join('').slice(0, 2).toUpperCase() : 'SV';
+
+  const { data: digitalProducts = [] } = useQuery({
+    queryKey: ['services-digital-products'],
+    queryFn: async () => {
+      const { data, error } = await db.from('digital_products')
+        .select('*, organizations(name, slug, logo_url, currency, is_verified, kyc_status, category)')
+        .eq('is_published', true)
+        .eq('is_express_demo', false)
+        .order('created_at', { ascending: false })
+        .limit(12);
+      if (error) throw error;
+      return (data || []).map((p: any) => ({
+        ...p,
+        organization_name: p.organizations?.name,
+        organization_slug: p.organizations?.slug,
+        organization_logo: p.organizations?.logo_url,
+        is_org_verified: p.organizations?.is_verified,
+        org_kyc_status: p.organizations?.kyc_status,
+        org_category: p.organizations?.category,
+      }));
+    },
+    staleTime: 60_000,
+  });
+
 
   const filteredCategories = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -234,9 +275,54 @@ export default function ServicesPage() {
           </nav>
 
           {user ? (
-            <button onClick={() => navigate('/my-programs')} className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-              {initials}
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary" aria-label={isFr ? 'Menu profil' : 'Profile menu'}>
+                  {initials}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel className="flex flex-col">
+                  <span className="text-sm font-bold">{displayName || (isFr ? 'Mon compte' : 'My account')}</span>
+                  {user.email && <span className="truncate text-xs font-normal text-muted-foreground">{user.email}</span>}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/profile')}>
+                  <User className="mr-2 h-4 w-4" /> {isFr ? 'Profil' : 'Profile'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/my-programs')}>
+                  <BookOpen className="mr-2 h-4 w-4" /> {isFr ? 'Mes achats' : 'My purchases'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/bookmarks')}>
+                  <Heart className="mr-2 h-4 w-4" /> {isFr ? 'Favoris' : 'Favorites'}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => go('/start-selling')}>
+                  <Store className="mr-2 h-4 w-4" /> {isFr ? 'Proposer un service' : 'Become a seller'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                  <Package className="mr-2 h-4 w-4" /> {isFr ? 'Tableau de bord vendeur' : 'Seller dashboard'}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/settings')}>
+                  <Settings className="mr-2 h-4 w-4" /> {isFr ? 'Paramètres du compte' : 'Account settings'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/billing')}>
+                  <ShieldCheck className="mr-2 h-4 w-4" /> {isFr ? 'Facturation & paiements' : 'Billing & payments'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => { e.preventDefault(); setLocale(isFr ? 'en' : 'fr'); }}>
+                  <Globe className="mr-2 h-4 w-4" /> {isFr ? 'Langue : Français' : 'Language: English'}
+                  <span className="ml-auto text-xs text-muted-foreground">{isFr ? 'EN' : 'FR'}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/help')}>
+                  <LifeBuoy className="mr-2 h-4 w-4" /> {isFr ? 'Support' : 'Support'}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={async () => { await signOut(); navigate('/'); }}>
+                  <LogOut className="mr-2 h-4 w-4" /> {isFr ? 'Se déconnecter' : 'Sign out'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Button size="sm" className="h-8 text-xs" onClick={() => navigate('/auth?returnTo=/services')}>
               {isFr ? 'Connexion' : 'Sign in'}
@@ -414,9 +500,38 @@ export default function ServicesPage() {
                 </div>
               )}
             </section>
+
+            <section>
+              <div className="mb-4 flex items-end justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-black sm:text-2xl">{isFr ? 'Produits digitaux à explorer' : 'Digital products to explore'}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {isFr ? 'Livres, guides, formations et ressources publiés par la communauté.' : 'Books, guides, courses and resources published by the community.'}
+                  </p>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => go('/discover')} className="hidden text-xs sm:inline-flex">
+                  {isFr ? 'Voir tout' : 'See all'}
+                </Button>
+              </div>
+
+              {digitalProducts.length ? (
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {digitalProducts.map((product: any) => (
+                    <ProductCard key={product.id} product={product} hideCommission hideShare />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed border-border p-8 text-center">
+                  <ShoppingBag className="mx-auto h-8 w-8 text-muted-foreground" />
+                  <p className="mt-3 text-sm font-semibold">{isFr ? 'Bientôt disponible.' : 'Coming soon.'}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{isFr ? 'Les premiers produits digitaux publiés apparaîtront ici.' : 'The first published digital products will show up here.'}</p>
+                </div>
+              )}
+            </section>
           </div>
         </section>
       </main>
+
     </div>
   );
 }
