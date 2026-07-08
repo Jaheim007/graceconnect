@@ -10,11 +10,11 @@ export function LandingFooterCompact() {
     {
       title: isFr ? 'Catégories' : 'Categories',
       links: [
-        { to: '/beauty',                   label: isFr ? 'Beauté'            : 'Beauty' },
-        { to: '/education',                label: isFr ? 'Cours & tuteurs'   : 'Tutoring' },
-        { to: '/home',                     label: isFr ? 'Artisans'          : 'Home & artisans' },
-        { to: '/events',                   label: isFr ? 'Événements'        : 'Events' },
-        { to: '/church',                   label: isFr ? 'Églises'           : 'Churches' },
+        { to: '/beauty/search',                   label: isFr ? 'Beauté'            : 'Beauty' },
+        { to: '/learn/discover',                label: isFr ? 'Cours & tuteurs'   : 'Tutoring' },
+        { to: '/home/discover',                     label: isFr ? 'Artisans'          : 'Home & artisans' },
+        { to: '/events/discover',                   label: isFr ? 'Événements'        : 'Events' },
+        { to: '/church/discover',                   label: isFr ? 'Églises'           : 'Churches' },
         { to: '/discover?type=digital',    label: isFr ? 'Produits digitaux' : 'Digital products' },
         { to: '/discover?type=music',      label: isFr ? 'Musique'           : 'Music' },
         { to: '/discover?type=influencer', label: isFr ? 'Influenceurs'      : 'Influencers' },
