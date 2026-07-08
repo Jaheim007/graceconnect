@@ -500,9 +500,38 @@ export default function ServicesPage() {
                 </div>
               )}
             </section>
+
+            <section>
+              <div className="mb-4 flex items-end justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-black sm:text-2xl">{isFr ? 'Produits digitaux à explorer' : 'Digital products to explore'}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {isFr ? 'Livres, guides, formations et ressources publiés par la communauté.' : 'Books, guides, courses and resources published by the community.'}
+                  </p>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => go('/discover')} className="hidden text-xs sm:inline-flex">
+                  {isFr ? 'Voir tout' : 'See all'}
+                </Button>
+              </div>
+
+              {digitalProducts.length ? (
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {digitalProducts.map((product: any) => (
+                    <ProductCard key={product.id} product={product} hideCommission hideShare />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed border-border p-8 text-center">
+                  <ShoppingBag className="mx-auto h-8 w-8 text-muted-foreground" />
+                  <p className="mt-3 text-sm font-semibold">{isFr ? 'Bientôt disponible.' : 'Coming soon.'}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{isFr ? 'Les premiers produits digitaux publiés apparaîtront ici.' : 'The first published digital products will show up here.'}</p>
+                </div>
+              )}
+            </section>
           </div>
         </section>
       </main>
+
     </div>
   );
 }
