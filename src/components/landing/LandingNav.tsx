@@ -1,8 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Sun, Moon, Menu, X, ArrowRight, User, LogOut, CreditCard, Sparkles, Gift, BarChart3, Package, Settings, ShieldCheck, MessageSquare } from 'lucide-react';
+import { Menu, X, ArrowRight, User, LogOut, CreditCard, Sparkles, Gift, BarChart3, Package, Settings, ShieldCheck, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/contexts/ThemeContext';
+
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
@@ -17,7 +17,7 @@ import {
 
 export function LandingNav() {
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useTheme();
+  
   const [menuOpen, setMenuOpen] = useState(false);
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
@@ -86,9 +86,6 @@ export function LandingNav() {
         <div className="flex items-center gap-1 sm:gap-2">
           {user && <PlanBadge compact />}
           <GlobalPreferencesSelector />
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme} aria-label={theme === 'dark' ? (isFr ? 'Activer le thème clair' : 'Switch to light theme') : (isFr ? 'Activer le thème sombre' : 'Switch to dark theme')}>
-            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
 
           {user ? (
             /* ── Logged-in: show avatar dropdown ── */
