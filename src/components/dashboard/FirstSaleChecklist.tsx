@@ -119,7 +119,7 @@ export function FirstSaleChecklist() {
           </div>
           <div className="min-w-0">
             <h3 className="font-bold text-sm sm:text-base truncate">
-              {isFr ? 'Ta première vente en 24h' : 'Your first sale in 24h'}
+              {goalTitle(type, isFr)}
             </h3>
             <p className="text-xs text-muted-foreground">
               {completedCount}/{total} {isFr ? 'étapes' : 'steps'} · {percent}%
