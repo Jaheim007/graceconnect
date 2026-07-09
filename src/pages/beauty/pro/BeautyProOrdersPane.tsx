@@ -7,11 +7,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { cn } from "@/lib/utils";
 
-type Status = "all" | "pending" | "confirmed" | "in_progress" | "completed" | "cancelled";
+type Status = "all" | "pending_payment" | "confirmed" | "in_progress" | "completed" | "cancelled";
 const STATUS_TABS: { id: Status; fr: string; en: string }[] = [
   { id: "all", fr: "Tout", en: "All" },
-  { id: "pending", fr: "Nouveaux", en: "New" },
+  { id: "pending_payment", fr: "En attente", en: "Pending" },
   { id: "confirmed", fr: "Confirmés", en: "Confirmed" },
+  { id: "in_progress", fr: "En cours", en: "In progress" },
   { id: "completed", fr: "Terminés", en: "Completed" },
   { id: "cancelled", fr: "Annulés", en: "Cancelled" },
 ];
@@ -27,8 +28,8 @@ export default function BeautyProOrdersPane() {
     queryKey: ["beauty-provider-me", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("beauty_providers").select("id, currency").eq("user_id", user!.id).maybeSingle();
-      return data;
+      const { data } = await supabase.from("beauty_providers").select("id").eq("user_id", user!.id).maybeSingle();
+      return data as { id: string } | null;
     },
   });
 
@@ -40,7 +41,7 @@ export default function BeautyProOrdersPane() {
         .select("id, status, slot_start, price_amount, price_xof, currency, client_id, created_at, beauty_services(title)")
         .eq("provider_id", provider!.id)
         .order("created_at", { ascending: false }).limit(100);
-      if (status !== "all") q = q.eq("status", status);
+      if (status !== "all") q = q.eq("status", status as any);
       const { data } = await q;
       return data ?? [];
     },
@@ -117,11 +118,14 @@ export default function BeautyProOrdersPane() {
 
 function StatusBadge({ status, isFr }: { status: string; isFr: boolean }) {
   const map: Record<string, { fr: string; en: string; cls: string }> = {
-    pending: { fr: "Nouveau", en: "New", cls: "bg-amber-500/15 text-amber-700 dark:text-amber-300" },
+    pending_payment: { fr: "En attente", en: "Pending", cls: "bg-amber-500/15 text-amber-700 dark:text-amber-300" },
     confirmed: { fr: "Confirmé", en: "Confirmed", cls: "bg-sky-500/15 text-sky-700 dark:text-sky-300" },
     in_progress: { fr: "En cours", en: "In progress", cls: "bg-violet-500/15 text-violet-700 dark:text-violet-300" },
     completed: { fr: "Terminé", en: "Completed", cls: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" },
     cancelled: { fr: "Annulé", en: "Cancelled", cls: "bg-muted text-muted-foreground" },
+    no_show: { fr: "Absent", en: "No show", cls: "bg-muted text-muted-foreground" },
+    disputed: { fr: "Litige", en: "Disputed", cls: "bg-red-500/15 text-red-700" },
+    refunded: { fr: "Remboursé", en: "Refunded", cls: "bg-muted text-muted-foreground" },
   };
   const s = map[status] ?? { fr: status, en: status, cls: "bg-muted text-muted-foreground" };
   return <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold", s.cls)}>{isFr ? s.fr : s.en}</span>;

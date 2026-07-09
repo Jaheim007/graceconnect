@@ -16,8 +16,8 @@ export default function BeautyProRevenuePane() {
     queryKey: ["beauty-provider-me", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("beauty_providers").select("id, currency, kyc_verified_at").eq("user_id", user!.id).maybeSingle();
-      return data;
+      const { data } = await supabase.from("beauty_providers").select("id, status").eq("user_id", user!.id).maybeSingle();
+      return data as { id: string; status: string } | null;
     },
   });
 
@@ -42,8 +42,9 @@ export default function BeautyProRevenuePane() {
     },
   });
 
-  const currency = (provider as any)?.currency ?? "XOF";
-  const kycDone = !!(provider as any)?.kyc_verified_at;
+  const currency = "XOF";
+  const kycDone = provider?.status === "active";
+
 
   return (
     <div className="pb-24 lg:pb-8">

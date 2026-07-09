@@ -18,14 +18,14 @@ export default function BeautyProSettingsPane() {
     enabled: !!user,
     queryFn: async () => {
       const { data } = await supabase.from("beauty_providers")
-        .select("id, business_name, slug, avatar_url, kyc_verified_at, currency")
+        .select("id, business_name, slug, avatar_url, status")
         .eq("user_id", user!.id).maybeSingle();
-      return data;
+      return data as { id: string; business_name: string; slug: string | null; avatar_url: string | null; status: string } | null;
     },
   });
 
-  const publicUrl = (provider as any)?.slug ? `${window.location.origin}/beauty/p/${(provider as any).slug}` : null;
-  const kycDone = !!(provider as any)?.kyc_verified_at;
+  const publicUrl = provider?.slug ? `${window.location.origin}/beauty/p/${provider.slug}` : null;
+  const kycDone = provider?.status === "active";
 
   const copy = async () => {
     if (!publicUrl) return;

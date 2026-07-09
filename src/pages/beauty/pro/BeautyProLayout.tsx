@@ -24,10 +24,10 @@ export default function BeautyProLayout() {
     queryFn: async () => {
       const { data } = await supabase
         .from("beauty_providers")
-        .select("id, business_name, slug, avatar_url, kyc_verified_at, currency")
+        .select("id, business_name, slug, avatar_url, status")
         .eq("user_id", user!.id)
         .maybeSingle();
-      return data;
+      return data as { id: string; business_name: string; slug: string | null; avatar_url: string | null; status: string } | null;
     },
   });
 

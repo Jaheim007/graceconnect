@@ -53,7 +53,7 @@ export default function BeautyProConversationPane() {
     setSending(true);
     const body = text.trim();
     setText("");
-    const { error } = await supabase.from("beauty_messages").insert({ conversation_id: id, sender_id: user.id, body, kind: "text" });
+    const { error } = await supabase.from("beauty_messages").insert({ conversation_id: id, sender_id: user.id, body, redacted_body: body, kind: "text" });
     if (!error) await supabase.from("beauty_conversations").update({ last_message_at: new Date().toISOString() }).eq("id", id);
     setSending(false);
   };
