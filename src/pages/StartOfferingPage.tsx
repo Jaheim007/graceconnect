@@ -21,25 +21,19 @@ interface GoalOption {
   en: string;
 }
 
+// One entry per landing-page vertical. Capabilities (booking, payments, AI,
+// donations, events, reviews, affiliation, KYC…) are NOT top-level activities —
+// they're modules enabled inside a vertical (see src/lib/marketplaceCats.ts).
 const GOALS: GoalOption[] = [
-  { id: 'sell_digital',        emoji: '🛒', fr: 'Vendre des produits digitaux',        en: 'Sell digital products' },
-  { id: 'receive_appointments',emoji: '📅', fr: 'Recevoir des rendez-vous',            en: 'Receive appointments' },
-  { id: 'offer_beauty',        emoji: '💅', fr: 'Proposer des services beauté',        en: 'Offer beauty services' },
-  { id: 'offer_home',          emoji: '🛠️', fr: 'Proposer des services à domicile',   en: 'Offer home / artisan services' },
-  { id: 'offer_tutoring',      emoji: '🎓', fr: 'Proposer des cours / tutorat',        en: 'Offer tutoring / teaching' },
-  { id: 'offer_music',         emoji: '🎼', fr: 'Proposer des services musicien / instrumentiste', en: 'Offer music / instrumentist services' },
-  { id: 'offer_influencer',    emoji: '📣', fr: 'Proposer des collaborations influenceur', en: 'Offer influencer collaborations' },
-  { id: 'offer_sport',         emoji: '🏋️', fr: 'Proposer coaching / sport',           en: 'Offer sport / coaching' },
-  { id: 'offer_general_service', emoji: '💼', fr: 'Proposer un service général',       en: 'Offer a general service' },
-  { id: 'receive_donations',   emoji: '💝', fr: 'Recevoir des dons / offrandes',       en: 'Receive donations / gifts' },
-  { id: 'custom_orders',       emoji: '📝', fr: 'Créer des commandes sur mesure',      en: 'Create custom orders' },
-  { id: 'accept_payments',     emoji: '💳', fr: 'Accepter des paiements',              en: 'Accept payments' },
-  { id: 'create_events',       emoji: '🎉', fr: 'Créer des événements',                en: 'Create events' },
-  { id: 'ai_books',            emoji: '📚', fr: 'Créer des livres avec l\'IA',         en: 'Create books with AI' },
-  { id: 'ai_formations',       emoji: '🎬', fr: 'Créer des formations avec l\'IA',     en: 'Create formations with AI' },
-  { id: 'show_location',       emoji: '📍', fr: 'Afficher ma localisation',            en: 'Show my location' },
-  { id: 'receive_reviews',     emoji: '⭐', fr: 'Recevoir des avis',                   en: 'Receive reviews' },
-  { id: 'use_affiliation',     emoji: '🔗', fr: 'Utiliser l\'affiliation',             en: 'Use affiliation' },
+  { id: 'sell_digital',          emoji: '🛒',  fr: 'Vendre des produits digitaux',          en: 'Sell digital products' },
+  { id: 'offer_home',            emoji: '🛠️', fr: 'Proposer des services d\'artisan / à domicile', en: 'Offer artisan / home services' },
+  { id: 'offer_beauty',          emoji: '💅',  fr: 'Proposer des services beauté',          en: 'Offer beauty services' },
+  { id: 'offer_church',          emoji: '⛪',  fr: 'Gérer une église',                      en: 'Run a church' },
+  { id: 'offer_influencer',      emoji: '📣',  fr: 'Proposer des collaborations influenceur', en: 'Offer influencer collaborations' },
+  { id: 'offer_sport',           emoji: '🏋️', fr: 'Proposer coaching / sport',             en: 'Offer sport / coaching' },
+  { id: 'offer_tutoring',        emoji: '🎓',  fr: 'Proposer des cours / tutorat',          en: 'Offer tutoring / teaching' },
+  { id: 'offer_music',           emoji: '🎼',  fr: 'Proposer services musicien / instrumentiste', en: 'Offer music / instrumentist services' },
+  { id: 'offer_general_service', emoji: '💼',  fr: 'Proposer un autre service',             en: 'Offer another service' },
 ];
 
 const CONFIG_KEY = 'sv_start_config';
