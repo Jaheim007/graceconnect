@@ -79,7 +79,21 @@ export default function CreateOrgPage() {
 
   const onSubmit = async () => {
     const valid = await form.trigger();
-    if (!valid || !user) return;
+    if (!valid) return;
+
+    // Not authenticated yet — stash and send to auth, then auto-resume
+    if (!user) {
+      try {
+        sessionStorage.setItem('sv_create_org_pending', JSON.stringify({
+          values: form.getValues(),
+          currency: selectedCurrency,
+          goal: selectedGoal,
+        }));
+      } catch {}
+      navigate('/auth?mode=signup&returnTo=/create-org');
+      return;
+    }
+
 
     setLoading(true);
     const data = form.getValues();
