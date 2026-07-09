@@ -462,10 +462,11 @@ const App = () => (
                 <Route path="/beauty/search" element={<BeautySearch />} />
                 <Route path="/beauty/p/:slug" element={<BeautyProviderProfile />} />
                 <Route path="/beauty/book/:serviceId" element={<Navigate to="/beauty/search" replace />} />
-                <Route path="/beauty/bookings" element={<BeautyBookingsList />} />
+                <Route path="/beauty/bookings" element={<Navigate to="/beauty/pro/orders" replace />} />
                 <Route path="/beauty/bookings/:id" element={<RequireAuth><BeautyBookingDetail /></RequireAuth>} />
-                <Route path="/beauty/messages" element={<BeautyMessagesList />} />
+                <Route path="/beauty/messages" element={<Navigate to="/beauty/pro/messages" replace />} />
                 <Route path="/beauty/messages/:id" element={<RequireAuth><BeautyConversation /></RequireAuth>} />
+
                 <Route path="/beauty/pro/onboarding" element={<BeautyProviderOnboarding />} />
                 {/* Fixated pro dashboard shell for Beauty */}
                 <Route path="/beauty/pro" element={<RequireAuth><BeautyProLayout /></RequireAuth>}>
