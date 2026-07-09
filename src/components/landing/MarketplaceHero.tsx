@@ -62,7 +62,7 @@ export function MarketplaceHero() {
         }}
       />
 
-      <div className="relative container max-w-6xl px-4 py-20 sm:py-28">
+      <div className="relative container max-w-6xl px-4 py-12 sm:py-16">
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider mb-6 backdrop-blur">
             <ShieldCheck className="h-3.5 w-3.5 text-accent" />
@@ -150,24 +150,33 @@ export function MarketplaceHero() {
             ))}
           </div>
 
-          {/* Trust row */}
-          <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-xs text-sidebar-foreground/75">
-            <div className="flex items-center gap-2">
-              <div className="flex -space-x-2">
-                {['from-amber-400 to-orange-500', 'from-emerald-400 to-teal-500', 'from-sky-400 to-indigo-500', 'from-pink-400 to-rose-500'].map((g) => (
-                  <div key={g} className={`h-6 w-6 rounded-full border-2 border-sidebar bg-gradient-to-br ${g}`} />
-                ))}
+          {/* Propose CTA — inline, single screen */}
+          <div className="mt-8 rounded-2xl border border-white/15 bg-white/5 backdrop-blur p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+            <div className="flex-1">
+              <div className="text-xs font-bold uppercase tracking-[0.18em] text-accent mb-1">
+                {fr ? 'Vous êtes un pro ?' : 'Are you a pro?'}
               </div>
-              <span className="font-semibold">
-                {fr ? '+12 000 services vérifiés' : '+12,000 verified services'}
-              </span>
+              <h2 className="text-lg sm:text-xl font-black leading-snug">
+                {fr ? 'Proposez vos services à des millions de personnes.' : 'Offer your services to millions of people.'}
+              </h2>
             </div>
+            <Button
+              size="lg"
+              onClick={() => { setIntent('provider', '/start'); navigate('/start'); }}
+              className="h-12 px-6 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-bold shadow-lg whitespace-nowrap"
+            >
+              {fr ? 'Proposer mes services' : 'Offer my services'}
+              <ArrowRight className="h-4 w-4 ml-1.5" />
+            </Button>
+          </div>
+
+          {/* Trust row */}
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-sidebar-foreground/75">
             <div className="flex items-center gap-1.5">
               <div className="flex text-accent">
                 {[0,1,2,3,4].map(i => <Star key={i} className="h-3.5 w-3.5 fill-current" />)}
               </div>
               <span className="font-semibold">4.9/5</span>
-              <span className="text-sidebar-foreground/50">({fr ? '38k avis' : '38k reviews'})</span>
             </div>
             <div className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-accent" /> {fr ? 'Paiement protégé' : 'Protected payment'}</div>
             <div className="flex items-center gap-1.5"><Zap className="h-4 w-4 text-accent" /> {fr ? 'Réponse < 1h' : 'Reply < 1h'}</div>
