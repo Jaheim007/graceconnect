@@ -69,11 +69,12 @@ export const FEATURE_META: Record<SiteviralFeatureKey, FeatureMeta> = {
     descEn: 'Create formations and courses with AI.',
   },
   product_comments: {
-    key: 'product_comments', icon: 'MessageSquare',
-    labelFr: 'Commentaires produits', labelEn: 'Product comments',
-    descFr: 'Autorisez les commentaires sur vos produits digitaux.',
-    descEn: 'Allow buyers to comment on digital products.',
+    key: 'product_comments', icon: 'Users',
+    labelFr: 'CRM communautaire', labelEn: 'Community CRM',
+    descFr: 'Contacts, donateurs, acheteurs et campagnes en un seul endroit.',
+    descEn: 'Contacts, donors, buyers and campaigns in one place.',
   },
+
   location: {
     key: 'location', icon: 'MapPin',
     labelFr: 'Localisation', labelEn: 'Location',
