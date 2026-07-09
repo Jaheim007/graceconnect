@@ -34,7 +34,7 @@ export default function EventsProOverview() {
     queryKey: ["events-packages-count", (provider as any)?.id],
     enabled: !!(provider as any)?.id,
     queryFn: async () => {
-      const { count } = await supabase.from("events_provider_packages").select("id", { count: "exact", head: true }).eq("provider_id", (provider as any).id);
+      const { count } = await supabase.from("events_packages").select("id", { count: "exact", head: true }).eq("provider_id", (provider as any).id);
       return count ?? 0;
     },
   });
