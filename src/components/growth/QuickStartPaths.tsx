@@ -179,7 +179,7 @@ export function QuickStartPaths() {
   const keys = useDefaults ? DEFAULT_KEYS : DISPLAY_ORDER.filter((k) => enabled.includes(k));
 
   const paths: Tile[] = keys
-    .map((k) => tileFor(k, hasManageableOrg))
+    .map((k) => tileFor(k, hasManageableOrg, (currentOrg?.siteviral_type as SiteviralType) ?? null))
     .filter((t): t is Tile => !!t)
     .slice(0, 6);
 
