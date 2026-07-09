@@ -487,19 +487,23 @@ const App = () => (
                 <Route path="/church/about" element={<ChurchLanding />} />
                 <Route path="/church/discover" element={<ChurchDiscover />} />
                 <Route path="/church/pro/onboarding" element={<ChurchOnboarding />} />
-                <Route path="/church/pro" element={<RequireAuth><ChurchProDashboard /></RequireAuth>} />
-                <Route path="/church/pro/kyc" element={<RequireAuth><ChurchKYCPage /></RequireAuth>} />
-                <Route path="/church/pro/sermons" element={<RequireAuth><ChurchProSermons /></RequireAuth>} />
-                <Route path="/church/pro/sermons/:id" element={<RequireAuth><ChurchProSermonDetail /></RequireAuth>} />
-                <Route path="/church/pro/giving" element={<RequireAuth><ChurchProGiving /></RequireAuth>} />
-                <Route path="/church/pro/campaigns" element={<RequireAuth><ChurchProCampaigns /></RequireAuth>} />
-                <Route path="/church/pro/events" element={<RequireAuth><ChurchProEvents /></RequireAuth>} />
-                <Route path="/church/pro/prayer" element={<RequireAuth><ChurchProPrayer /></RequireAuth>} />
-                <Route path="/church/pro/announcements" element={<RequireAuth><ChurchProAnnouncements /></RequireAuth>} />
-                <Route path="/church/pro/team" element={<RequireAuth><ChurchProTeam /></RequireAuth>} />
-                <Route path="/church/pro/members" element={<RequireAuth><ChurchProSectionStub titleFr="Membres & diaspora" titleEn="Members & diaspora" phase="Phase 5" /></RequireAuth>} />
-                <Route path="/church/pro/settings" element={<RequireAuth><ChurchProSettings /></RequireAuth>} />
-                <Route path="/church/pro/appointments" element={<RequireAuth><ChurchProAppointments /></RequireAuth>} />
+                {/* Fixated pro dashboard shell for Church — same shape as the other verticals */}
+                <Route path="/church/pro" element={<RequireAuth><ChurchProLayout /></RequireAuth>}>
+                  <Route index element={<ChurchProDashboard />} />
+                  <Route path="kyc" element={<ChurchKYCPage />} />
+                  <Route path="sermons" element={<ChurchProSermons />} />
+                  <Route path="sermons/:id" element={<ChurchProSermonDetail />} />
+                  <Route path="giving" element={<ChurchProGiving />} />
+                  <Route path="campaigns" element={<ChurchProCampaigns />} />
+                  <Route path="events" element={<ChurchProEvents />} />
+                  <Route path="prayer" element={<ChurchProPrayer />} />
+                  <Route path="announcements" element={<ChurchProAnnouncements />} />
+                  <Route path="team" element={<ChurchProTeam />} />
+                  <Route path="members" element={<ChurchProSectionStub titleFr="Membres & diaspora" titleEn="Members & diaspora" phase="Phase 5" />} />
+                  <Route path="settings" element={<ChurchProSettings />} />
+                  <Route path="appointments" element={<ChurchProAppointments />} />
+                </Route>
+
                 <Route path="/church/:slug/events/:eventId" element={<ChurchEventRegisterPage />} />
                 <Route path="/church/:slug/give" element={<ChurchGivePage />} />
                 <Route path="/church/:slug/give/success" element={<ChurchGiveSuccessPage />} />
