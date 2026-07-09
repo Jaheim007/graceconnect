@@ -68,7 +68,7 @@ export default function StartDetailsPage() {
 
     if (!user) {
       setIntent('provider', '/start/finish');
-      navigate('/auth?mode=signup&returnTo=/start/finish');
+      setReadyOpen(true);
       return;
     }
     navigate('/start/finish');
