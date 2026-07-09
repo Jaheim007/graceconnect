@@ -64,16 +64,9 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      // Vertical-aware fallback: last engaged vertical before auth.
-      try {
-        const lastVertical = localStorage.getItem('sv_last_vertical');
-        if (!isNewUser && lastVertical && lastVertical !== 'digital') {
-          navigate(`/${lastVertical}`, { replace: true });
-          return;
-        }
-      } catch {}
-
-      // Brand-new user with no intent → intent chooser. Existing → dashboard.
+      // Existing users → their dashboard. New users with no intent → chooser.
+      // (We intentionally ignore sv_last_vertical here: existing users have a
+      // workspace to land in, not a marketing discovery page.)
       navigate(isNewUser ? '/welcome-intent' : '/dashboard', { replace: true });
     };
 
