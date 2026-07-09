@@ -12,7 +12,7 @@ import { resolveActivity } from '@/lib/siteviral/moduleToFeatures';
 import { CHURCH_DENOMINATIONS } from '@/lib/churchDenominations';
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
 import { setIntent } from '@/lib/intent';
-import { SpaceReadyDialog } from '@/components/start/SpaceReadyDialog';
+
 import { toast } from 'sonner';
 
 const CONFIG_KEY = 'sv_start_config';
@@ -41,7 +41,7 @@ export default function StartDetailsPage() {
   const [city, setCity] = useState<string>(config.stored?.city ?? '');
   const [denomination, setDenomination] = useState<string>(config.stored?.denomination ?? 'pentecostal');
   const isChurch = resolved.activityKey === 'church';
-  const [readyOpen, setReadyOpen] = useState(false);
+  
 
   useEffect(() => {
     if (!config.activity) { navigate('/start', { replace: true }); return; }
@@ -68,7 +68,7 @@ export default function StartDetailsPage() {
 
     if (!user) {
       setIntent('provider', '/start/finish');
-      setReadyOpen(true);
+      navigate('/auth?mode=signup&returnTo=' + encodeURIComponent('/start/finish'));
       return;
     }
     navigate('/start/finish');
@@ -162,13 +162,6 @@ export default function StartDetailsPage() {
         </p>
       </div>
 
-      <SpaceReadyDialog
-        open={readyOpen}
-        onOpenChange={setReadyOpen}
-        activityLabel={label}
-        spaceName={name.trim() || undefined}
-        returnTo="/start/finish"
-      />
     </StartShell>
   );
 }
