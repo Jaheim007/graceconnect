@@ -68,14 +68,20 @@ const HomeLanding = lazy(() => import("@/pages/home/HomeLanding"));
 const HomeDiscover = lazy(() => import("@/pages/home/HomeDiscover"));
 const HomeProviderPublic = lazy(() => import("@/pages/home/HomeProviderPublic"));
 const HomeProviderOnboarding = lazy(() => import("@/pages/home/HomeProviderOnboarding"));
-const HomeProDashboard = lazy(() => import("@/pages/home/HomeProDashboard"));
 const HomeMessagesList = lazy(() => import("@/pages/home/HomeMessagesList"));
 const HomeConversation = lazy(() => import("@/pages/home/HomeConversation"));
 const HomeBookingsList = lazy(() => import("@/pages/home/HomeBookingsList"));
 const HomeKYCPage = lazy(() => import("@/pages/home/HomeKYCPage"));
 const HomeProServices = lazy(() => import("@/pages/home/HomeProServices"));
-const HomeProRevenue = lazy(() => import("@/pages/home/HomeProRevenue"));
 const HomeBookingDetail = lazy(() => import("@/pages/home/HomeBookingDetail"));
+// Pro shell (fixated dashboard) — desktop keeps sidebar visible, right pane routes.
+const HomeProLayout = lazy(() => import("@/pages/home/pro/HomeProLayout"));
+const HomeProOverview = lazy(() => import("@/pages/home/pro/HomeProOverview"));
+const HomeProMessagesPane = lazy(() => import("@/pages/home/pro/HomeProMessagesPane"));
+const HomeProConversationPane = lazy(() => import("@/pages/home/pro/HomeProConversationPane"));
+const HomeProOrdersPane = lazy(() => import("@/pages/home/pro/HomeProOrdersPane"));
+const HomeProRevenuePane = lazy(() => import("@/pages/home/pro/HomeProRevenuePane"));
+const HomeProSettingsPane = lazy(() => import("@/pages/home/pro/HomeProSettingsPane"));
 const EventsActionHub = lazy(() => import("@/pages/events/EventsActionHub"));
 const EventsLanding = lazy(() => import("@/pages/events/EventsLanding"));
 const EventsDiscover = lazy(() => import("@/pages/events/EventsDiscover"));
@@ -471,10 +477,22 @@ const App = () => (
                 <Route path="/home/about" element={<HomeLanding />} />
                 <Route path="/home/discover" element={<HomeDiscover />} />
                 <Route path="/home/pro/onboarding" element={<HomeProviderOnboarding />} />
-                <Route path="/home/pro" element={<RequireAuth><HomeProDashboard /></RequireAuth>} />
-                <Route path="/home/pro/kyc" element={<RequireAuth><HomeKYCPage /></RequireAuth>} />
-                <Route path="/home/pro/services" element={<RequireAuth><HomeProServices /></RequireAuth>} />
-                <Route path="/home/pro/revenue" element={<RequireAuth><HomeProRevenue /></RequireAuth>} />
+
+                {/* Fixated pro dashboard shell. Children render inside the sidebar layout
+                    on desktop; each child page also keeps its own mobile header. */}
+                <Route path="/home/pro" element={<RequireAuth><HomeProLayout /></RequireAuth>}>
+                  <Route index element={<HomeProOverview />} />
+                  <Route path="messages" element={<HomeProMessagesPane />}>
+                    <Route path=":id" element={<HomeProConversationPane />} />
+                  </Route>
+                  <Route path="orders" element={<HomeProOrdersPane />} />
+                  <Route path="revenue" element={<HomeProRevenuePane />} />
+                  <Route path="settings" element={<HomeProSettingsPane />} />
+                  <Route path="services" element={<HomeProServices />} />
+                  <Route path="kyc" element={<HomeKYCPage />} />
+                </Route>
+
+                {/* Legacy full-page routes still work for direct links & mobile deep links */}
                 <Route path="/home/messages" element={<RequireAuth><HomeMessagesList /></RequireAuth>} />
                 <Route path="/home/messages/:id" element={<RequireAuth><HomeConversation /></RequireAuth>} />
                 <Route path="/home/bookings" element={<RequireAuth><HomeBookingsList /></RequireAuth>} />
