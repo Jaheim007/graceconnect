@@ -24,7 +24,7 @@ export default function HomeProSettingsPane() {
     queryFn: async () => {
       const { data } = await supabase
         .from("home_providers")
-        .select("id, business_name, slug, avatar_url, kyc_verified_at, currency, whatsapp")
+        .select("id, business_name, slug, avatar_url, kyc_verified_at, currency")
         .eq("user_id", user!.id)
         .maybeSingle();
       return data;
