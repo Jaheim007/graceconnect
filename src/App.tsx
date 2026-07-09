@@ -559,10 +559,19 @@ const App = () => (
                 <Route path="/learn/about" element={<EducationLanding />} />
                 <Route path="/learn/discover" element={<EducationDiscover />} />
                 <Route path="/learn/pro/onboarding" element={<EducationTutorOnboarding />} />
-                <Route path="/learn/pro" element={<RequireAuth><EducationTutorDashboard /></RequireAuth>} />
-                <Route path="/learn/pro/kyc" element={<RequireAuth><EducationKYCPage /></RequireAuth>} />
-                <Route path="/learn/pro/subjects" element={<RequireAuth><EducationTutorSubjects /></RequireAuth>} />
-                <Route path="/learn/pro/revenue" element={<RequireAuth><EducationTutorRevenue /></RequireAuth>} />
+                {/* Fixated pro dashboard shell for Learn (Education) */}
+                <Route path="/learn/pro" element={<RequireAuth><EducationProLayout /></RequireAuth>}>
+                  <Route index element={<EducationProOverview />} />
+                  <Route path="messages" element={<EducationProMessagesPane />}>
+                    <Route path=":id" element={<EducationProConversationPane />} />
+                  </Route>
+                  <Route path="orders" element={<EducationProOrdersPane />} />
+                  <Route path="revenue" element={<EducationProRevenuePane />} />
+                  <Route path="settings" element={<EducationProSettingsPane />} />
+                  <Route path="kyc" element={<EducationKYCPage />} />
+                  <Route path="subjects" element={<EducationTutorSubjects />} />
+                  <Route path="dashboard" element={<EducationTutorDashboard />} />
+                </Route>
                 <Route path="/learn/messages" element={<RequireAuth><EducationMessagesList /></RequireAuth>} />
                 <Route path="/learn/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
                 <Route path="/learn/bookings" element={<RequireAuth><EducationBookingsList /></RequireAuth>} />
