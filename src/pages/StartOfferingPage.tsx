@@ -1,39 +1,31 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Loader2, Check, Sparkles, ArrowRight } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { StartShell } from '@/components/start/StartShell';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
-import { useAuth } from '@/contexts/AuthContext';
-import { useOrg } from '@/contexts/OrgContext';
-import { useUserKind } from '@/hooks/useUserKind';
-import { inferSiteviralConfig, type StartGoalId } from '@/lib/siteviral/inferFromGoals';
-import { activateFeature } from '@/lib/siteviral/activation';
-import { setIntent } from '@/lib/intent';
-import { AddOrNewWorkspaceDialog } from '@/components/start/AddOrNewWorkspaceDialog';
+import { resolveActivity } from '@/lib/siteviral/moduleToFeatures';
+import { MARKET_CATS } from '@/lib/marketplaceCats';
 
-interface GoalOption {
-  id: StartGoalId;
+interface Option {
+  key: string;                 // marketplace cat key
   emoji: string;
-  fr: string;
-  en: string;
+  activityParam: string;       // ?activity=<param>
 }
 
-// One entry per landing-page vertical. Capabilities (booking, payments, AI,
-// donations, events, reviews, affiliation, KYC…) are NOT top-level activities —
-// they're modules enabled inside a vertical (see src/lib/marketplaceCats.ts).
-const GOALS: GoalOption[] = [
-  { id: 'sell_digital',          emoji: '🛒',  fr: 'Vendre des produits digitaux',          en: 'Sell digital products' },
-  { id: 'offer_home',            emoji: '🛠️', fr: 'Proposer des services d\'artisan / à domicile', en: 'Offer artisan / home services' },
-  { id: 'offer_beauty',          emoji: '💅',  fr: 'Proposer des services beauté',          en: 'Offer beauty services' },
-  { id: 'offer_church',          emoji: '⛪',  fr: 'Gérer une église',                      en: 'Run a church' },
-  { id: 'offer_influencer',      emoji: '📣',  fr: 'Proposer des collaborations influenceur', en: 'Offer influencer collaborations' },
-  { id: 'offer_sport',           emoji: '🏋️', fr: 'Proposer coaching / sport',             en: 'Offer sport / coaching' },
-  { id: 'offer_tutoring',        emoji: '🎓',  fr: 'Proposer des cours / tutorat',          en: 'Offer tutoring / teaching' },
-  { id: 'offer_music',           emoji: '🎼',  fr: 'Proposer services musicien / instrumentiste', en: 'Offer music / instrumentist services' },
-  { id: 'offer_general_service', emoji: '💼',  fr: 'Proposer un autre service',             en: 'Offer another service' },
+// Keep landing-page verticals aligned with marketplaceCats keys.
+const OPTIONS: Option[] = [
+  { key: 'digital',     emoji: '🛒', activityParam: 'digital' },
+  { key: 'artisans',    emoji: '🛠️', activityParam: 'home' },
+  { key: 'beauty',      emoji: '💅', activityParam: 'beauty' },
+  { key: 'church',      emoji: '⛪', activityParam: 'church' },
+  { key: 'influencers', emoji: '📣', activityParam: 'influencer' },
+  { key: 'sport',       emoji: '🏋️', activityParam: 'sport' },
+  { key: 'tutors',      emoji: '🎓', activityParam: 'learn' },
+  { key: 'music',       emoji: '🎼', activityParam: 'music' },
+  { key: 'general',     emoji: '💼', activityParam: 'general' },
 ];
 
 const CONFIG_KEY = 'sv_start_config';
@@ -41,156 +33,98 @@ const CONFIG_KEY = 'sv_start_config';
 export default function StartOfferingPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const context = (params.get('context') ?? 'create') as 'create' | 'add-feature' | 'new-workspace';
-  const { user } = useAuth();
-  const { currentOrg } = useOrg();
-  const { kind } = useUserKind();
-  const qc = useQueryClient();
   const { locale } = useI18n();
   const fr = locale === 'fr';
 
-  const [selected, setSelected] = useState<Set<StartGoalId>>(new Set());
-  const [saving, setSaving] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const preselect = params.get('activity');
+  const [picked, setPicked] = useState<string | null>(() => {
+    if (preselect) {
+      const r = resolveActivity(preselect);
+      return r.activityKey;
+    }
+    return null;
+  });
 
-  const toggle = (id: StartGoalId) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
+  useEffect(() => {
+    if (preselect) {
+      const r = resolveActivity(preselect);
+      setPicked(r.activityKey);
+    }
+  }, [preselect]);
 
-  const inferred = useMemo(() => inferSiteviralConfig(Array.from(selected)), [selected]);
+  const options = useMemo(
+    () => OPTIONS.map((o) => {
+      const cat = MARKET_CATS.find((c) => c.key === o.key)!;
+      return { ...o, label: fr ? cat.fr : cat.en, gradient: cat.gradient };
+    }),
+    [fr],
+  );
 
-  const persistAndGoCreate = () => {
+  const submit = () => {
+    if (!picked) {
+      toast.error(fr ? 'Choisissez une activité' : 'Pick one activity');
+      return;
+    }
+    const activityParam = OPTIONS.find((o) => o.key === picked)?.activityParam || picked;
+    // Store minimal so /details can read it
     try {
-      sessionStorage.setItem(CONFIG_KEY, JSON.stringify({
-        goals: Array.from(selected),
-        ...inferred,
-      }));
+      const existing = JSON.parse(sessionStorage.getItem(CONFIG_KEY) || '{}');
+      sessionStorage.setItem(CONFIG_KEY, JSON.stringify({ ...existing, activity: activityParam }));
     } catch {}
-    navigate('/create-org');
-  };
-
-  const handleSubmit = async () => {
-    if (selected.size === 0) {
-      toast.error(fr ? 'Choisissez au moins une activité' : 'Pick at least one activity');
-      return;
-    }
-
-    // Not authenticated → save intent + config, send to auth
-    if (!user) {
-      setIntent('provider', '/start' + (context !== 'create' ? `?context=${context}` : ''));
-      try {
-        sessionStorage.setItem(CONFIG_KEY, JSON.stringify({
-          goals: Array.from(selected), ...inferred,
-        }));
-      } catch {}
-      navigate('/auth?mode=signup');
-      return;
-    }
-
-    // Add-feature path for existing providers → show chooser
-    if (context === 'add-feature' && kind === 'provider' && currentOrg) {
-      setDialogOpen(true);
-      return;
-    }
-
-    // New workspace path or brand-new user → org creation flow prefilled
-    persistAndGoCreate();
-  };
-
-  const applyToCurrent = async () => {
-    if (!currentOrg) return;
-    setSaving(true);
-    try {
-      const existing = new Set(currentOrg.enabled_features ?? []);
-      // Merge features only. Never change siteviral_type.
-      for (const f of inferred.enabled_features) {
-        if (!existing.has(f)) {
-          await activateFeature(currentOrg.id, f, 'user');
-        }
-      }
-      await qc.invalidateQueries({ queryKey: ['user-orgs'] });
-      toast.success(fr ? 'Fonctionnalités ajoutées à votre espace' : 'Features added to your workspace');
-      navigate('/dashboard');
-    } catch (e: any) {
-      toast.error(e?.message ?? 'Error');
-    } finally {
-      setSaving(false);
-      setDialogOpen(false);
-    }
+    navigate(`/start/details?activity=${activityParam}`);
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
+    <StartShell step={1} onBack={() => navigate('/')}>
       <SEOHead
-        title={fr ? 'Que voulez-vous proposer ? — SiteViral' : 'What do you want to offer? — SiteViral'}
-        description={fr ? 'Choisissez vos activités, nous préparons les bons outils.' : 'Pick your activities, we set up the right tools.'}
+        title={fr ? 'Que proposez-vous ? — Siteviral' : 'What do you offer? — Siteviral'}
+        description={fr ? 'Choisissez votre activité en un clic.' : 'Pick your activity in one tap.'}
         noindex
       />
 
-      <header className="space-y-2">
-        <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-          <Sparkles className="h-3.5 w-3.5" />
-          {fr ? 'Créer votre espace' : 'Create your workspace'}
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
+            {fr ? 'Que proposez-vous ?' : 'What do you offer?'}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {fr
+              ? 'Une seule activité pour commencer. Vous pourrez en ajouter plus tard.'
+              : 'One activity to start. You can add more later.'}
+          </p>
         </div>
-        <h1 className="text-2xl font-bold">
-          {fr ? 'Que voulez-vous proposer ou vendre ?' : 'What do you want to offer or sell?'}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {fr
-            ? 'Choisissez une ou plusieurs activités. Nous préparerons les bons outils pour vous — sans jargon.'
-            : 'Pick one or more activities. We\'ll prepare the right tools for you — no jargon.'}
-        </p>
-      </header>
 
-      <div className="grid gap-2 sm:grid-cols-2">
-        {GOALS.map((g) => {
-          const isSel = selected.has(g.id);
-          return (
-            <button
-              key={g.id}
-              type="button"
-              onClick={() => toggle(g.id)}
-              className={`flex items-start gap-3 rounded-2xl border p-3 text-left transition-all ${
-                isSel ? 'border-primary bg-primary/5 ring-1 ring-primary/30' : 'hover:border-muted-foreground/30'
-              }`}
-            >
-              <div className="text-xl leading-none">{g.emoji}</div>
-              <div className="flex-1 text-sm font-medium">{fr ? g.fr : g.en}</div>
-              {isSel && <Check className="h-4 w-4 text-primary shrink-0" />}
-            </button>
-          );
-        })}
-      </div>
-
-      {selected.size > 0 && (
-        <div className="rounded-xl border bg-muted/30 p-3 text-xs text-muted-foreground">
-          {fr ? 'Nous préparerons votre espace avec les bons outils.' : 'We\'ll prepare your workspace with the right tools.'}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          {options.map((o) => {
+            const isSel = picked === o.key;
+            return (
+              <button
+                key={o.key}
+                type="button"
+                onClick={() => setPicked(o.key)}
+                className={`relative aspect-square rounded-2xl border p-3 flex flex-col items-start justify-between text-left transition-all overflow-hidden ${
+                  isSel ? 'border-primary ring-2 ring-primary/30 shadow-lg' : 'hover:border-muted-foreground/40'
+                }`}
+              >
+                <div className={`absolute inset-0 opacity-10 bg-gradient-to-br ${o.gradient}`} />
+                <div className="relative text-2xl">{o.emoji}</div>
+                <div className="relative text-[13px] font-bold leading-tight">
+                  {o.label}
+                </div>
+                {isSel && (
+                  <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary text-primary-foreground grid place-items-center">
+                    <Check className="h-3.5 w-3.5" />
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
-      )}
 
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" onClick={() => navigate(-1)}>
-          {fr ? 'Retour' : 'Back'}
-        </Button>
-        <Button onClick={handleSubmit} disabled={saving} className="gap-2">
-          {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-          {fr ? 'Continuer' : 'Continue'}
-          <ArrowRight className="h-4 w-4" />
+        <Button onClick={submit} disabled={!picked} className="w-full h-12 gap-2 text-base font-bold">
+          {fr ? 'Continuer' : 'Continue'} <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
-
-      <AddOrNewWorkspaceDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        currentOrgName={currentOrg?.name}
-        onAddToCurrent={applyToCurrent}
-        onCreateNew={persistAndGoCreate}
-        loading={saving}
-      />
-    </div>
+    </StartShell>
   );
 }
