@@ -11,6 +11,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
 import { trackEvent } from '@/hooks/useClientAnalytics';
+import type { SiteviralType } from '@/types/database';
 
 interface Step {
   id: string;
