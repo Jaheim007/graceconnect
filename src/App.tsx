@@ -467,8 +467,18 @@ const App = () => (
                 <Route path="/beauty/messages" element={<BeautyMessagesList />} />
                 <Route path="/beauty/messages/:id" element={<RequireAuth><BeautyConversation /></RequireAuth>} />
                 <Route path="/beauty/pro/onboarding" element={<BeautyProviderOnboarding />} />
-                <Route path="/beauty/pro" element={<RequireAuth><BeautyProDashboard /></RequireAuth>} />
-                <Route path="/beauty/pro/kyc" element={<RequireAuth><BeautyKYCPage /></RequireAuth>} />
+                {/* Fixated pro dashboard shell for Beauty */}
+                <Route path="/beauty/pro" element={<RequireAuth><BeautyProLayout /></RequireAuth>}>
+                  <Route index element={<BeautyProOverview />} />
+                  <Route path="messages" element={<BeautyProMessagesPane />}>
+                    <Route path=":id" element={<BeautyProConversationPane />} />
+                  </Route>
+                  <Route path="orders" element={<BeautyProOrdersPane />} />
+                  <Route path="revenue" element={<BeautyProRevenuePane />} />
+                  <Route path="settings" element={<BeautyProSettingsPane />} />
+                  <Route path="kyc" element={<BeautyKYCPage />} />
+                  <Route path="dashboard" element={<BeautyProDashboard />} />
+                </Route>
                 {/* SiteViral Church */}
                 <Route path="/church" element={<Navigate to="/church/discover" replace />} />
                 <Route path="/church/about" element={<ChurchLanding />} />
