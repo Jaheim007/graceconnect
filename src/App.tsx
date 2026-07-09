@@ -464,45 +464,38 @@ const App = () => (
                 <Route path="/beauty/search" element={<BeautySearch />} />
                 <Route path="/beauty/p/:slug" element={<BeautyProviderProfile />} />
                 <Route path="/beauty/book/:serviceId" element={<Navigate to="/beauty/search" replace />} />
-                <Route path="/beauty/bookings" element={<Navigate to="/beauty/pro/orders" replace />} />
-                <Route path="/beauty/bookings/:id" element={<RequireAuth><BeautyBookingDetail /></RequireAuth>} />
-                <Route path="/beauty/messages" element={<Navigate to="/beauty/pro/messages" replace />} />
-                <Route path="/beauty/messages/:id" element={<RequireAuth><BeautyConversation /></RequireAuth>} />
+                <Route path="/beauty/bookings" element={<Navigate to="/admin/beauty/orders" replace />} />
+                <Route path="/beauty/bookings/:id" element={<Navigate to="/admin/beauty/orders" replace />} />
+                <Route path="/beauty/messages" element={<Navigate to="/admin/beauty/messages" replace />} />
+                <Route path="/beauty/messages/:id" element={<Navigate to="/admin/beauty/messages/:id" replace />} />
 
                 <Route path="/beauty/pro/onboarding" element={<BeautyProviderOnboarding />} />
-                {/* Fixated pro dashboard shell for Beauty */}
-                <Route path="/beauty/pro" element={<RequireAuth><BeautyProLayout /></RequireAuth>}>
-                  <Route index element={<BeautyProOverview />} />
-                  <Route path="messages" element={<BeautyProMessagesPane />}>
-                    <Route path=":id" element={<BeautyProConversationPane />} />
-                  </Route>
-                  <Route path="orders" element={<BeautyProOrdersPane />} />
-                  <Route path="revenue" element={<BeautyProRevenuePane />} />
-                  <Route path="settings" element={<BeautyProSettingsPane />} />
-                  <Route path="kyc" element={<BeautyKYCPage />} />
-                  <Route path="dashboard" element={<BeautyProDashboard />} />
-                </Route>
+                <Route path="/beauty/pro" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/beauty/pro/messages" element={<Navigate to="/admin/beauty/messages" replace />} />
+                <Route path="/beauty/pro/messages/:id" element={<Navigate to="/admin/beauty/messages/:id" replace />} />
+                <Route path="/beauty/pro/orders" element={<Navigate to="/admin/beauty/orders" replace />} />
+                <Route path="/beauty/pro/revenue" element={<Navigate to="/admin/beauty/revenue" replace />} />
+                <Route path="/beauty/pro/settings" element={<Navigate to="/admin/beauty/settings" replace />} />
+                <Route path="/beauty/pro/kyc" element={<Navigate to="/admin/beauty/kyc" replace />} />
+                <Route path="/beauty/pro/dashboard" element={<Navigate to="/dashboard" replace />} />
                 {/* SiteViral Church */}
                 <Route path="/church" element={<Navigate to="/church/discover" replace />} />
                 <Route path="/church/about" element={<ChurchLanding />} />
                 <Route path="/church/discover" element={<ChurchDiscover />} />
                 <Route path="/church/pro/onboarding" element={<ChurchOnboarding />} />
-                {/* Fixated pro dashboard shell for Church — same shape as the other verticals */}
-                <Route path="/church/pro" element={<RequireAuth><ChurchProLayout /></RequireAuth>}>
-                  <Route index element={<ChurchProDashboard />} />
-                  <Route path="kyc" element={<ChurchKYCPage />} />
-                  <Route path="sermons" element={<ChurchProSermons />} />
-                  <Route path="sermons/:id" element={<ChurchProSermonDetail />} />
-                  <Route path="giving" element={<ChurchProGiving />} />
-                  <Route path="campaigns" element={<ChurchProCampaigns />} />
-                  <Route path="events" element={<ChurchProEvents />} />
-                  <Route path="prayer" element={<ChurchProPrayer />} />
-                  <Route path="announcements" element={<ChurchProAnnouncements />} />
-                  <Route path="team" element={<ChurchProTeam />} />
-                  <Route path="members" element={<ChurchProSectionStub titleFr="Membres & diaspora" titleEn="Members & diaspora" phase="Phase 5" />} />
-                  <Route path="settings" element={<ChurchProSettings />} />
-                  <Route path="appointments" element={<ChurchProAppointments />} />
-                </Route>
+                <Route path="/church/pro" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/church/pro/kyc" element={<Navigate to="/admin/church/kyc" replace />} />
+                <Route path="/church/pro/sermons" element={<Navigate to="/admin/church/sermons" replace />} />
+                <Route path="/church/pro/sermons/:id" element={<Navigate to="/admin/church/sermons/:id" replace />} />
+                <Route path="/church/pro/giving" element={<Navigate to="/admin/church/giving" replace />} />
+                <Route path="/church/pro/campaigns" element={<Navigate to="/admin/church/campaigns" replace />} />
+                <Route path="/church/pro/events" element={<Navigate to="/admin/church/events" replace />} />
+                <Route path="/church/pro/prayer" element={<Navigate to="/admin/church/prayer" replace />} />
+                <Route path="/church/pro/announcements" element={<Navigate to="/admin/church/announcements" replace />} />
+                <Route path="/church/pro/team" element={<Navigate to="/admin/church/team" replace />} />
+                <Route path="/church/pro/members" element={<Navigate to="/admin/church/members" replace />} />
+                <Route path="/church/pro/settings" element={<Navigate to="/admin/church/settings" replace />} />
+                <Route path="/church/pro/appointments" element={<Navigate to="/admin/church/appointments" replace />} />
 
                 <Route path="/church/:slug/events/:eventId" element={<ChurchEventRegisterPage />} />
                 <Route path="/church/:slug/give" element={<ChurchGivePage />} />
@@ -516,26 +509,19 @@ const App = () => (
                 <Route path="/home/discover" element={<HomeDiscover />} />
                 <Route path="/home/pro/onboarding" element={<HomeProviderOnboarding />} />
 
-                {/* Fixated pro dashboard shell. Children render inside the sidebar layout
-                    on desktop; each child page also keeps its own mobile header. */}
-                <Route path="/home/pro" element={<RequireAuth><HomeProLayout /></RequireAuth>}>
-                  <Route index element={<HomeProOverview />} />
-                  <Route path="messages" element={<HomeProMessagesPane />}>
-                    <Route path=":id" element={<HomeProConversationPane />} />
-                  </Route>
-                  <Route path="orders" element={<HomeProOrdersPane />} />
-                  <Route path="revenue" element={<HomeProRevenuePane />} />
-                  <Route path="settings" element={<HomeProSettingsPane />} />
-                  <Route path="services" element={<HomeProServices />} />
-                  <Route path="kyc" element={<HomeKYCPage />} />
-                </Route>
+                <Route path="/home/pro" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/home/pro/messages" element={<Navigate to="/admin/home/messages" replace />} />
+                <Route path="/home/pro/messages/:id" element={<Navigate to="/admin/home/messages/:id" replace />} />
+                <Route path="/home/pro/orders" element={<Navigate to="/admin/home/orders" replace />} />
+                <Route path="/home/pro/revenue" element={<Navigate to="/admin/home/revenue" replace />} />
+                <Route path="/home/pro/settings" element={<Navigate to="/admin/home/settings" replace />} />
+                <Route path="/home/pro/services" element={<Navigate to="/admin/home/services" replace />} />
+                <Route path="/home/pro/kyc" element={<Navigate to="/admin/home/kyc" replace />} />
 
-                {/* Legacy routes → redirect INTO the fixated pro shell so the
-                    sidebar stays visible and pages don't hijack the viewport. */}
-                <Route path="/home/messages" element={<Navigate to="/home/pro/messages" replace />} />
-                <Route path="/home/messages/:id" element={<RequireAuth><HomeConversation /></RequireAuth>} />
-                <Route path="/home/bookings" element={<Navigate to="/home/pro/orders" replace />} />
-                <Route path="/home/booking/:id" element={<RequireAuth><HomeBookingDetail /></RequireAuth>} />
+                <Route path="/home/messages" element={<Navigate to="/admin/home/messages" replace />} />
+                <Route path="/home/messages/:id" element={<Navigate to="/admin/home/messages/:id" replace />} />
+                <Route path="/home/bookings" element={<Navigate to="/admin/home/orders" replace />} />
+                <Route path="/home/booking/:id" element={<Navigate to="/admin/home/orders" replace />} />
                 <Route path="/home/pro/:slug" element={<HomeProviderPublic />} />
 
 
@@ -544,23 +530,19 @@ const App = () => (
                 <Route path="/events/about" element={<EventsLanding />} />
                 <Route path="/events/discover" element={<EventsDiscover />} />
                 <Route path="/events/pro/onboarding" element={<EventsProviderOnboarding />} />
-                {/* Fixated pro dashboard shell for Events */}
-                <Route path="/events/pro" element={<RequireAuth><EventsProLayout /></RequireAuth>}>
-                  <Route index element={<EventsProOverview />} />
-                  <Route path="messages" element={<EventsProMessagesPane />}>
-                    <Route path=":id" element={<EventsProConversationPane />} />
-                  </Route>
-                  <Route path="orders" element={<EventsProOrdersPane />} />
-                  <Route path="revenue" element={<EventsProRevenuePane />} />
-                  <Route path="settings" element={<EventsProSettingsPane />} />
-                  <Route path="kyc" element={<EventsKYCPage />} />
-                  <Route path="packages" element={<EventsProPackages />} />
-                  <Route path="dashboard" element={<EventsProDashboard />} />
-                </Route>
-                <Route path="/events/messages" element={<Navigate to="/events/pro/messages" replace />} />
-                <Route path="/events/messages/:id" element={<RequireAuth><EventsConversation /></RequireAuth>} />
-                <Route path="/events/bookings" element={<Navigate to="/events/pro/orders" replace />} />
-                <Route path="/events/booking/:id" element={<RequireAuth><EventsBookingDetail /></RequireAuth>} />
+                <Route path="/events/pro" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/events/pro/messages" element={<Navigate to="/admin/events-service/messages" replace />} />
+                <Route path="/events/pro/messages/:id" element={<Navigate to="/admin/events-service/messages/:id" replace />} />
+                <Route path="/events/pro/orders" element={<Navigate to="/admin/events-service/orders" replace />} />
+                <Route path="/events/pro/revenue" element={<Navigate to="/admin/events-service/revenue" replace />} />
+                <Route path="/events/pro/settings" element={<Navigate to="/admin/events-service/settings" replace />} />
+                <Route path="/events/pro/kyc" element={<Navigate to="/admin/events-service/kyc" replace />} />
+                <Route path="/events/pro/packages" element={<Navigate to="/admin/events-service/packages" replace />} />
+                <Route path="/events/pro/dashboard" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/events/messages" element={<Navigate to="/admin/events-service/messages" replace />} />
+                <Route path="/events/messages/:id" element={<Navigate to="/admin/events-service/messages/:id" replace />} />
+                <Route path="/events/bookings" element={<Navigate to="/admin/events-service/orders" replace />} />
+                <Route path="/events/booking/:id" element={<Navigate to="/admin/events-service/orders" replace />} />
 
                 <Route path="/events/pro/:slug" element={<EventsProviderPublic />} />
 
@@ -569,23 +551,19 @@ const App = () => (
                 <Route path="/learn/about" element={<EducationLanding />} />
                 <Route path="/learn/discover" element={<EducationDiscover />} />
                 <Route path="/learn/pro/onboarding" element={<EducationTutorOnboarding />} />
-                {/* Fixated pro dashboard shell for Learn (Education) */}
-                <Route path="/learn/pro" element={<RequireAuth><EducationProLayout /></RequireAuth>}>
-                  <Route index element={<EducationProOverview />} />
-                  <Route path="messages" element={<EducationProMessagesPane />}>
-                    <Route path=":id" element={<EducationProConversationPane />} />
-                  </Route>
-                  <Route path="orders" element={<EducationProOrdersPane />} />
-                  <Route path="revenue" element={<EducationProRevenuePane />} />
-                  <Route path="settings" element={<EducationProSettingsPane />} />
-                  <Route path="kyc" element={<EducationKYCPage />} />
-                  <Route path="subjects" element={<EducationTutorSubjects />} />
-                  <Route path="dashboard" element={<EducationTutorDashboard />} />
-                </Route>
-                <Route path="/learn/messages" element={<Navigate to="/learn/pro/messages" replace />} />
-                <Route path="/learn/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
-                <Route path="/learn/bookings" element={<Navigate to="/learn/pro/orders" replace />} />
-                <Route path="/learn/booking/:id" element={<RequireAuth><EducationBookingDetail /></RequireAuth>} />
+                <Route path="/learn/pro" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/learn/pro/messages" element={<Navigate to="/admin/learn/messages" replace />} />
+                <Route path="/learn/pro/messages/:id" element={<Navigate to="/admin/learn/messages/:id" replace />} />
+                <Route path="/learn/pro/orders" element={<Navigate to="/admin/learn/orders" replace />} />
+                <Route path="/learn/pro/revenue" element={<Navigate to="/admin/learn/revenue" replace />} />
+                <Route path="/learn/pro/settings" element={<Navigate to="/admin/learn/settings" replace />} />
+                <Route path="/learn/pro/kyc" element={<Navigate to="/admin/learn/kyc" replace />} />
+                <Route path="/learn/pro/subjects" element={<Navigate to="/admin/learn/subjects" replace />} />
+                <Route path="/learn/pro/dashboard" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/learn/messages" element={<Navigate to="/admin/learn/messages" replace />} />
+                <Route path="/learn/messages/:id" element={<Navigate to="/admin/learn/messages/:id" replace />} />
+                <Route path="/learn/bookings" element={<Navigate to="/admin/learn/orders" replace />} />
+                <Route path="/learn/booking/:id" element={<Navigate to="/admin/learn/orders" replace />} />
 
                 <Route path="/learn/pro/:slug" element={<EducationTutorPublic />} />
                 {/* Legacy /education aliases */}
@@ -593,15 +571,15 @@ const App = () => (
                 <Route path="/education/about" element={<EducationLanding />} />
                 <Route path="/education/discover" element={<EducationDiscover />} />
                 <Route path="/education/pro/onboarding" element={<EducationTutorOnboarding />} />
-                <Route path="/education/pro" element={<Navigate to="/learn/pro" replace />} />
-                <Route path="/education/pro/kyc" element={<Navigate to="/learn/pro/kyc" replace />} />
-                <Route path="/education/pro/subjects" element={<Navigate to="/learn/pro/subjects" replace />} />
-                <Route path="/education/pro/revenue" element={<Navigate to="/learn/pro/revenue" replace />} />
+                <Route path="/education/pro" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/education/pro/kyc" element={<Navigate to="/admin/learn/kyc" replace />} />
+                <Route path="/education/pro/subjects" element={<Navigate to="/admin/learn/subjects" replace />} />
+                <Route path="/education/pro/revenue" element={<Navigate to="/admin/learn/revenue" replace />} />
 
-                <Route path="/education/messages" element={<Navigate to="/learn/pro/messages" replace />} />
-                <Route path="/education/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
-                <Route path="/education/bookings" element={<Navigate to="/learn/pro/orders" replace />} />
-                <Route path="/education/booking/:id" element={<RequireAuth><EducationBookingDetail /></RequireAuth>} />
+                <Route path="/education/messages" element={<Navigate to="/admin/learn/messages" replace />} />
+                <Route path="/education/messages/:id" element={<Navigate to="/admin/learn/messages/:id" replace />} />
+                <Route path="/education/bookings" element={<Navigate to="/admin/learn/orders" replace />} />
+                <Route path="/education/booking/:id" element={<Navigate to="/admin/learn/orders" replace />} />
 
                 <Route path="/education/pro/:slug" element={<EducationTutorPublic />} />
 
