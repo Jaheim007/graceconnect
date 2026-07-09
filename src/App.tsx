@@ -76,6 +76,14 @@ const HomeKYCPage = lazy(() => import("@/pages/home/HomeKYCPage"));
 const HomeProServices = lazy(() => import("@/pages/home/HomeProServices"));
 const HomeProRevenue = lazy(() => import("@/pages/home/HomeProRevenue"));
 const HomeBookingDetail = lazy(() => import("@/pages/home/HomeBookingDetail"));
+// Pro shell (fixated dashboard) — desktop keeps sidebar visible, right pane routes.
+const HomeProLayout = lazy(() => import("@/pages/home/pro/HomeProLayout"));
+const HomeProOverview = lazy(() => import("@/pages/home/pro/HomeProOverview"));
+const HomeProMessagesPane = lazy(() => import("@/pages/home/pro/HomeProMessagesPane"));
+const HomeProConversationPane = lazy(() => import("@/pages/home/pro/HomeProConversationPane"));
+const HomeProOrdersPane = lazy(() => import("@/pages/home/pro/HomeProOrdersPane"));
+const HomeProRevenuePane = lazy(() => import("@/pages/home/pro/HomeProRevenuePane"));
+const HomeProSettingsPane = lazy(() => import("@/pages/home/pro/HomeProSettingsPane"));
 const EventsActionHub = lazy(() => import("@/pages/events/EventsActionHub"));
 const EventsLanding = lazy(() => import("@/pages/events/EventsLanding"));
 const EventsDiscover = lazy(() => import("@/pages/events/EventsDiscover"));
