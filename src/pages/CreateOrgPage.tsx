@@ -256,8 +256,11 @@ export default function CreateOrgPage() {
 
               {/* Step 0: Type */}
               {step === 0 && (
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">{isFr ? 'Quel type de plateforme ?' : 'What type of platform?'}</h2>
+                <div className="space-y-5">
+                  <div className="space-y-1">
+                    <h2 className="text-xl font-bold tracking-tight">{isFr ? 'Quel type de plateforme ?' : 'What type of platform?'}</h2>
+                    <p className="text-sm text-muted-foreground">{isFr ? 'Choisis ce qui te ressemble le mieux.' : 'Pick what fits you best.'}</p>
+                  </div>
                   <div className="grid grid-cols-2 gap-3">
                     {TYPES.map(type => (
                       <button
@@ -268,20 +271,27 @@ export default function CreateOrgPage() {
                           setStep(1);
                         }}
                         className={cn(
-                          'p-4 rounded-2xl border-2 text-left transition-all',
+                          'group relative p-5 rounded-2xl border text-left transition-all duration-200',
+                          'hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/10',
                           selectedCategory === type.value
-                            ? 'border-primary bg-primary/10'
-                            : 'border-border bg-card hover:border-muted-foreground/40'
+                            ? 'border-primary bg-primary/5 shadow-md shadow-primary/10'
+                            : 'border-border bg-card hover:border-primary/40'
                         )}
                       >
-                        <span className="text-2xl block mb-1">{type.emoji}</span>
-                        <span className="text-sm font-bold block">{type.label}</span>
-                        <span className="text-[10px] text-muted-foreground">{type.desc}</span>
+                        <div className={cn(
+                          'h-10 w-10 rounded-xl flex items-center justify-center text-xl mb-3 transition-colors',
+                          selectedCategory === type.value ? 'bg-primary/15' : 'bg-muted group-hover:bg-primary/10'
+                        )}>
+                          {type.emoji}
+                        </div>
+                        <span className="text-sm font-bold block mb-0.5">{type.label}</span>
+                        <span className="text-[11px] text-muted-foreground leading-snug block">{type.desc}</span>
                       </button>
                     ))}
                   </div>
                 </div>
               )}
+
 
               {/* Step 1: Name only */}
               {step === 1 && (
