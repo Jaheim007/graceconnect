@@ -66,11 +66,23 @@ export default function StartOfferingPage() {
       return;
     }
     const activityParam = OPTIONS.find((o) => o.key === picked)?.activityParam || picked;
-    // Store minimal so /details can read it
+    const resolved = resolveActivity(activityParam);
+    // Seed sv_start_config so downstream flows apply the correct siteviral type + features
     try {
       const existing = JSON.parse(sessionStorage.getItem(CONFIG_KEY) || '{}');
-      sessionStorage.setItem(CONFIG_KEY, JSON.stringify({ ...existing, activity: activityParam }));
+      sessionStorage.setItem(CONFIG_KEY, JSON.stringify({
+        ...existing,
+        activity: activityParam,
+        siteviral_type: resolved.siteviral_type,
+        enabled_features: resolved.enabled_features,
+      }));
     } catch {}
+
+    // Digital products use the unified "Créer ta plateforme" 4-step flow
+    if (picked === 'digital') {
+      navigate('/create-org');
+      return;
+    }
     navigate(`/start/details?activity=${activityParam}`);
   };
 
