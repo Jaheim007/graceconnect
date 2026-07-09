@@ -111,7 +111,7 @@ export function ContactSellerWidget({
     if (!parsed.success) {
       toast({
         title: isFr ? 'Vérifiez le formulaire' : 'Check the form',
-        description: parsed.error.errors[0]?.message,
+        description: parsed.error.issues[0]?.message,
         variant: 'destructive',
       });
       return;
