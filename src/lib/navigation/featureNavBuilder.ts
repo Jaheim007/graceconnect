@@ -1,6 +1,6 @@
 import {
   BookOpen, Store, Share2, Package, Calendar, Receipt, Gift,
-  Sparkles, MessageSquare, Ticket, Star, LayoutDashboard,
+  Sparkles, MessageSquare, Ticket, Star, LayoutDashboard, Inbox,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
@@ -44,6 +44,23 @@ function revenueRouteFor(type: SiteviralType | null | undefined): string {
     case 'services':
     case 'influencers':            return '/events/pro/revenue';
     default:                       return '/admin/sales';
+  }
+}
+
+/**
+ * Per-vertical inbox route. Returns null when the vertical has no dedicated
+ * messages surface (falls back to the generic /admin inbox in that case).
+ */
+function messagesRouteFor(type: SiteviralType | null | undefined): string | null {
+  switch (type) {
+    case 'beauty':                 return '/beauty/messages';
+    case 'artisans_home_services': return '/home/messages';
+    case 'tutors_home_teachers':   return '/education/messages';
+    case 'instrumentists':
+    case 'services':
+    case 'sport':
+    case 'influencers':            return '/events/messages';
+    default:                       return null;
   }
 }
 
@@ -168,7 +185,11 @@ function specFor(
 
 /**
  * Nav display order — operational tools first, then growth/earn.
- * KYC / payment / location deliberately excluded (Settings-only).
+ *
+ * NOT in top-level nav (per product decision):
+ *   - reviews            → surfaced inside CRM / client detail, not its own tab
+ *   - ai_formation_creation → optional module, activate from Settings → Modules
+ *   - kyc / payment / location → Settings only
  */
 const ORDER: SiteviralFeatureKey[] = [
   'appointment',
@@ -177,9 +198,7 @@ const ORDER: SiteviralFeatureKey[] = [
   'donation_gifts',
   'events',
   'ai_book_creation',
-  'ai_formation_creation',
   'product_comments',
-  'reviews',
   'affiliation',
 ];
 
@@ -189,6 +208,9 @@ const ORDER: SiteviralFeatureKey[] = [
  *
  * Rules (per user directive):
  *   - Show ONLY the operational features enabled for this vertical.
+ *   - Add a per-vertical Messages inbox for service verticals (artisan,
+ *     beauty, tutors, events) — clients need to be able to contact the pro.
+ *   - Reviews / AI courses are NOT in top nav — they live in Settings → Modules.
  *   - KYC / Payment integration / Location go to Settings, never in nav.
  *   - "Discover" and "My workspace" are NOT appended for confirmed providers —
  *     they're already inside their workspace.
@@ -218,6 +240,17 @@ export function buildFeatureNavItems(
     if (!enabled.includes(key)) continue;
     const spec = specFor(key, ctx.hasManageableOrg, type);
     if (spec) items.push(toItem(spec));
+  }
+
+  // Messages — service verticals need an inbox so clients can reach them.
+  const msgRoute = messagesRouteFor(type);
+  if (msgRoute && ctx.isAuthenticated) {
+    items.push(toItem({
+      id: 'messages', icon: Inbox, tone: 'cyan',
+      titleFr: 'Messages', titleEn: 'Messages',
+      descFr: 'Contacts et demandes clients', descEn: 'Client contacts & requests',
+      route: msgRoute,
+    }));
   }
 
   // Revenue — every provider needs to see their money
