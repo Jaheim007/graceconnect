@@ -591,10 +591,11 @@ const App = () => (
                 <Route path="/education/pro/kyc" element={<RequireAuth><EducationKYCPage /></RequireAuth>} />
                 <Route path="/education/pro/subjects" element={<RequireAuth><EducationTutorSubjects /></RequireAuth>} />
                 <Route path="/education/pro/revenue" element={<RequireAuth><EducationTutorRevenue /></RequireAuth>} />
-                <Route path="/education/messages" element={<RequireAuth><EducationMessagesList /></RequireAuth>} />
+                <Route path="/education/messages" element={<Navigate to="/learn/pro/messages" replace />} />
                 <Route path="/education/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
-                <Route path="/education/bookings" element={<RequireAuth><EducationBookingsList /></RequireAuth>} />
+                <Route path="/education/bookings" element={<Navigate to="/learn/pro/orders" replace />} />
                 <Route path="/education/booking/:id" element={<RequireAuth><EducationBookingDetail /></RequireAuth>} />
+
                 <Route path="/education/pro/:slug" element={<EducationTutorPublic />} />
 
 
