@@ -12,6 +12,7 @@ import { resolveActivity } from '@/lib/siteviral/moduleToFeatures';
 import { CHURCH_DENOMINATIONS } from '@/lib/churchDenominations';
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
 import { setIntent } from '@/lib/intent';
+import { SpaceReadyDialog } from '@/components/start/SpaceReadyDialog';
 import { toast } from 'sonner';
 
 const CONFIG_KEY = 'sv_start_config';
