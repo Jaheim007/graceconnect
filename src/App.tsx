@@ -61,6 +61,13 @@ const BeautyBookingsList = lazy(() => import("@/pages/beauty/BeautyBookingsList"
 const BeautyMessagesList = lazy(() => import("@/pages/beauty/BeautyMessagesList"));
 const BeautyConversation = lazy(() => import("@/pages/beauty/BeautyConversation"));
 const BeautyProDashboard = lazy(() => import("@/pages/beauty/BeautyProDashboard"));
+const BeautyProLayout = lazy(() => import("@/pages/beauty/pro/BeautyProLayout"));
+const BeautyProOverview = lazy(() => import("@/pages/beauty/pro/BeautyProOverview"));
+const BeautyProMessagesPane = lazy(() => import("@/pages/beauty/pro/BeautyProMessagesPane"));
+const BeautyProConversationPane = lazy(() => import("@/pages/beauty/pro/BeautyProConversationPane"));
+const BeautyProOrdersPane = lazy(() => import("@/pages/beauty/pro/BeautyProOrdersPane"));
+const BeautyProRevenuePane = lazy(() => import("@/pages/beauty/pro/BeautyProRevenuePane"));
+const BeautyProSettingsPane = lazy(() => import("@/pages/beauty/pro/BeautyProSettingsPane"));
 const BeautyKYCPage = lazy(() => import("@/pages/beauty/BeautyKYCPage"));
 // SiteViral Home
 const HomeActionHub = lazy(() => import("@/pages/home/HomeActionHub"));
