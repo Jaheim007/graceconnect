@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
-import type { SiteviralFeatureKey } from '@/types/database';
+import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 
 interface Tile {
   id: string;
@@ -19,14 +19,30 @@ interface Tile {
   border: string; iconColor: string; bgColor: string;
 }
 
-/** Map of every SiteViral feature → dashboard tile. */
-function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean): Tile | null {
+/** Per-vertical routes for booking, since each vertical has its own pro dashboard. */
+function bookingRouteFor(type: SiteviralType | null | undefined): string {
+  switch (type) {
+    case 'beauty': return '/beauty/bookings';
+    case 'artisans_home_services': return '/home/pro/dashboard';
+    case 'tutors_home_teachers': return '/education/tutor/bookings';
+    case 'church': return '/church/pro/appointments';
+    case 'instrumentists':
+    case 'influencers':
+    case 'sport':
+    case 'services':
+    default: return '/events/pro/dashboard';
+  }
+}
+
+
+/** Map of every SiteViral feature → dashboard tile. Routes point to real, existing pages. */
+function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: SiteviralType | null | undefined): Tile | null {
   switch (key) {
     case 'appointment': return {
       id: 'booking', icon: Calendar,
       fr: 'Rendez-vous', en: 'Bookings',
       subFr: 'Agenda et réservations', subEn: 'Calendar & bookings',
-      route: '/dashboard/booking',
+      route: bookingRouteFor(type),
       border: 'border-pink-500/30 hover:border-pink-500/60',
       iconColor: 'text-pink-500', bgColor: 'bg-pink-500/10',
     };
@@ -42,7 +58,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean): Tile | nu
       id: 'orders', icon: Receipt,
       fr: 'Commandes & devis', en: 'Orders & quotes',
       subFr: 'Génère et suis tes commandes', subEn: 'Track your orders',
-      route: '/dashboard/orders',
+      route: '/admin/sales',
       border: 'border-blue-500/30 hover:border-blue-500/60',
       iconColor: 'text-blue-500', bgColor: 'bg-blue-500/10',
     };
@@ -50,7 +66,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean): Tile | nu
       id: 'giving', icon: Gift,
       fr: 'Dons & offrandes', en: 'Donations',
       subFr: 'Campagnes et cadeaux', subEn: 'Campaigns & gifts',
-      route: '/dashboard/giving',
+      route: '/admin/campaigns',
       border: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconColor: 'text-emerald-500', bgColor: 'bg-emerald-500/10',
     };
@@ -74,7 +90,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean): Tile | nu
       id: 'comments', icon: MessageSquare,
       fr: 'Commentaires', en: 'Comments',
       subFr: 'Modère les avis produits', subEn: 'Moderate product reviews',
-      route: '/dashboard/comments',
+      route: '/admin/crm',
       border: 'border-cyan-500/30 hover:border-cyan-500/60',
       iconColor: 'text-cyan-500', bgColor: 'bg-cyan-500/10',
     };
@@ -82,7 +98,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean): Tile | nu
       id: 'location', icon: MapPin,
       fr: "Zone d'intervention", en: 'Service area',
       subFr: 'Adresse et carte', subEn: 'Address & map',
-      route: '/dashboard/location',
+      route: '/admin/settings',
       border: 'border-red-500/30 hover:border-red-500/60',
       iconColor: 'text-red-500', bgColor: 'bg-red-500/10',
     };
@@ -90,7 +106,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean): Tile | nu
       id: 'events', icon: Ticket,
       fr: 'Événements & billets', en: 'Events & tickets',
       subFr: 'Crée et vends des billets', subEn: 'Create & sell tickets',
-      route: '/dashboard/events',
+      route: '/admin/events',
       border: 'border-indigo-500/30 hover:border-indigo-500/60',
       iconColor: 'text-indigo-500', bgColor: 'bg-indigo-500/10',
     };
@@ -98,7 +114,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean): Tile | nu
       id: 'reviews', icon: Star,
       fr: 'Avis clients', en: 'Client reviews',
       subFr: 'Notes et retours', subEn: 'Ratings & feedback',
-      route: '/dashboard/reviews',
+      route: '/admin/crm',
       border: 'border-yellow-500/30 hover:border-yellow-500/60',
       iconColor: 'text-yellow-500', bgColor: 'bg-yellow-500/10',
     };
@@ -106,7 +122,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean): Tile | nu
       id: 'kyc', icon: ShieldCheck,
       fr: 'Vérification (KYC)', en: 'Verification (KYC)',
       subFr: 'Sois payé plus vite', subEn: 'Get paid faster',
-      route: '/dashboard/kyc',
+      route: '/admin/kyc',
       border: 'border-slate-500/30 hover:border-slate-500/60',
       iconColor: 'text-slate-500', bgColor: 'bg-slate-500/10',
     };
@@ -114,7 +130,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean): Tile | nu
       id: 'share', icon: Share2,
       fr: 'Gagner', en: 'Earn',
       subFr: 'Partage et gagne', subEn: 'Share & earn',
-      route: '/gagner',
+      route: '/admin/affiliation',
       border: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconColor: 'text-emerald-500', bgColor: 'bg-emerald-500/10',
     };
@@ -122,13 +138,14 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean): Tile | nu
       id: 'payments', icon: CreditCard,
       fr: 'Paiements', en: 'Payments',
       subFr: 'Mobile Money & payouts', subEn: 'Mobile Money & payouts',
-      route: '/dashboard/payments',
+      route: '/admin/payouts',
       border: 'border-amber-500/30 hover:border-amber-500/60',
       iconColor: 'text-amber-500', bgColor: 'bg-amber-500/10',
     };
   }
   return null;
 }
+
 
 // Default (no org / no vertical yet): keep the original digital creator paths.
 const DEFAULT_KEYS: SiteviralFeatureKey[] = ['ai_book_creation', 'digital_products', 'affiliation'];
@@ -162,7 +179,7 @@ export function QuickStartPaths() {
   const keys = useDefaults ? DEFAULT_KEYS : DISPLAY_ORDER.filter((k) => enabled.includes(k));
 
   const paths: Tile[] = keys
-    .map((k) => tileFor(k, hasManageableOrg))
+    .map((k) => tileFor(k, hasManageableOrg, (currentOrg?.siteviral_type as SiteviralType) ?? null))
     .filter((t): t is Tile => !!t)
     .slice(0, 6);
 
