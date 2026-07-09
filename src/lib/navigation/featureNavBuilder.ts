@@ -2,6 +2,9 @@ import {
   BookOpen, Store, Share2, Package, Calendar, Receipt, Gift,
   Sparkles, MessageSquare, Ticket, Star, LayoutDashboard, Inbox,
 } from 'lucide-react';
+// Star + Sparkles kept: still referenced by specFor() for `reviews` /
+// `ai_formation_creation` in case they get re-enabled from Settings.
+void Star; void Sparkles;
 import type { LucideIcon } from 'lucide-react';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 import type { ActionNavItem } from './actionNavItems';
