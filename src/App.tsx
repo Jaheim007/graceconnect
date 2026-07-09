@@ -535,10 +535,19 @@ const App = () => (
                 <Route path="/events/about" element={<EventsLanding />} />
                 <Route path="/events/discover" element={<EventsDiscover />} />
                 <Route path="/events/pro/onboarding" element={<EventsProviderOnboarding />} />
-                <Route path="/events/pro" element={<RequireAuth><EventsProDashboard /></RequireAuth>} />
-                <Route path="/events/pro/kyc" element={<RequireAuth><EventsKYCPage /></RequireAuth>} />
-                <Route path="/events/pro/packages" element={<RequireAuth><EventsProPackages /></RequireAuth>} />
-                <Route path="/events/pro/revenue" element={<RequireAuth><EventsProRevenue /></RequireAuth>} />
+                {/* Fixated pro dashboard shell for Events */}
+                <Route path="/events/pro" element={<RequireAuth><EventsProLayout /></RequireAuth>}>
+                  <Route index element={<EventsProOverview />} />
+                  <Route path="messages" element={<EventsProMessagesPane />}>
+                    <Route path=":id" element={<EventsProConversationPane />} />
+                  </Route>
+                  <Route path="orders" element={<EventsProOrdersPane />} />
+                  <Route path="revenue" element={<EventsProRevenuePane />} />
+                  <Route path="settings" element={<EventsProSettingsPane />} />
+                  <Route path="kyc" element={<EventsKYCPage />} />
+                  <Route path="packages" element={<EventsProPackages />} />
+                  <Route path="dashboard" element={<EventsProDashboard />} />
+                </Route>
                 <Route path="/events/messages" element={<RequireAuth><EventsMessagesList /></RequireAuth>} />
                 <Route path="/events/messages/:id" element={<RequireAuth><EventsConversation /></RequireAuth>} />
                 <Route path="/events/bookings" element={<RequireAuth><EventsBookingsList /></RequireAuth>} />
