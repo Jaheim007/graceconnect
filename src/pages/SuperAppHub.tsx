@@ -101,8 +101,8 @@ export default function SuperAppHub() {
               <button
                 type="button"
                 onClick={() => {
-                  setIntent('client', '/services');
-                  navigate('/services');
+                  setIntent('client', '/discover');
+                  navigate('/discover');
                 }}
                 className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xl"
               >

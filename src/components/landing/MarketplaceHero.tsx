@@ -2,38 +2,26 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ShieldCheck, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
-
-const CATEGORIES_FOR_SEARCH = [
-  { value: '', fr: 'Toutes catégories', en: 'All categories' },
-  { value: '/beauty/search',    fr: 'Beauté',       en: 'Beauty' },
-  { value: '/learn/discover', fr: 'Cours',        en: 'Tutoring' },
-  { value: '/home/discover',      fr: 'Artisans',     en: 'Home services' },
-  { value: '/events/discover',    fr: 'Événements',   en: 'Events' },
-  { value: '/discover?type=digital', fr: 'Digital', en: 'Digital' },
-  { value: '/discover?type=music',   fr: 'Musique', en: 'Music' },
-];
 
 export function MarketplaceHero() {
   const navigate = useNavigate();
   const { locale } = useI18n();
   const fr = locale === 'fr';
   const [q, setQ] = useState('');
-  const [cat, setCat] = useState('');
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIntent('client', '/services');
-    const base = cat || '/discover';
+    setIntent('client', '/discover');
+    const base = '/discover';
     if (q.trim()) {
-      const sep = base.includes('?') ? '&' : '?';
-      navigate(`${base}${sep}q=${encodeURIComponent(q.trim())}`);
+      navigate(`${base}?q=${encodeURIComponent(q.trim())}`);
     } else {
       navigate(base);
     }
   };
+
 
   return (
     <section className="relative overflow-hidden bg-sidebar text-sidebar-foreground pt-14">
@@ -94,27 +82,7 @@ export function MarketplaceHero() {
                 className="flex-1 bg-transparent outline-none text-sm sm:text-base placeholder:text-muted-foreground h-12"
               />
             </div>
-            <div className="hidden md:flex items-center border-l border-border pl-1">
-              <Select value={cat || 'all'} onValueChange={(v) => setCat(v === 'all' ? '' : v)}>
-                <SelectTrigger
-                  className="h-12 min-w-[170px] border-0 bg-transparent text-sm font-semibold text-foreground shadow-none focus:ring-0 focus:ring-offset-0 rounded-full hover:bg-muted/60 transition"
-                  aria-label={fr ? 'Catégorie' : 'Category'}
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl border-border/80 shadow-xl">
-                  {CATEGORIES_FOR_SEARCH.map((c) => (
-                    <SelectItem
-                      key={c.value || 'all'}
-                      value={c.value || 'all'}
-                      className="text-sm font-medium cursor-pointer"
-                    >
-                      {fr ? c.fr : c.en}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+
             <Button
               type="submit"
               size="lg"
@@ -159,7 +127,7 @@ export function MarketplaceIntentSplit() {
     <section className="container max-w-6xl px-4 py-16">
       <div className="grid gap-4 md:grid-cols-2">
         <button
-          onClick={() => { setIntent('client', '/services'); navigate('/services'); }}
+          onClick={() => { setIntent('client', '/discover'); navigate('/discover'); }}
           className="group text-left rounded-3xl border bg-card p-7 sm:p-9 hover:border-primary/50 hover:shadow-xl hover:-translate-y-0.5 transition-all"
         >
           <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">

@@ -60,7 +60,7 @@ export default function AuthCallbackPage() {
           return;
         }
         // Client intent: never route to /start or seller dashboard.
-        navigate(intent.returnTo || '/services', { replace: true });
+        navigate(intent.returnTo || '/discover', { replace: true });
         return;
       }
 

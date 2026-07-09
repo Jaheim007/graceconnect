@@ -58,7 +58,7 @@ export default function AuthPage() {
         const storedIntent = getIntent();
         if (storedIntent) {
           clearIntent();
-          navigate(returnTo || storedIntent.returnTo || (storedIntent.kind === 'client' ? '/services' : '/start'), { replace: true });
+          navigate(returnTo || storedIntent.returnTo || (storedIntent.kind === 'client' ? '/discover' : '/start'), { replace: true });
           return;
         }
         if (returnTo) {

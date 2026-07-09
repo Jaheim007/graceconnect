@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Search, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
+import { CategoryPickerDialog } from './CategoryPickerDialog';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -14,6 +16,7 @@ export function LandingFinalCTA() {
   const navigate = useNavigate();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   return (
     <section className="py-20 px-4">
@@ -37,7 +40,7 @@ export function LandingFinalCTA() {
               <Button
                 size="lg"
                 className="px-8 h-12 gap-2 group w-full sm:w-auto shadow-lg shadow-primary/40 bg-primary hover:bg-primary/90"
-                onClick={() => { setIntent('client', '/services'); navigate('/services'); }}
+                onClick={() => setPickerOpen(true)}
               >
                 <Search className="h-4 w-4" /> {isFr ? 'Trouver un service' : 'Find a service'}
                 <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
@@ -54,6 +57,8 @@ export function LandingFinalCTA() {
           </div>
         </motion.div>
       </div>
+
+      <CategoryPickerDialog open={pickerOpen} onOpenChange={setPickerOpen} intent="client" />
     </section>
   );
 }
