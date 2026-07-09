@@ -55,6 +55,7 @@ export default function CreateOrgPage() {
   const isFr = locale === 'fr';
   const [step, setStep] = useState(0); // 0=type, 1=name, 2=currency, 3=goal
   const [loading, setLoading] = useState(false);
+  const [resuming, setResuming] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<string>('both');
   const [selectedCurrency, setSelectedCurrency] = useState(() => detectCurrencyFromTimezone());
@@ -90,10 +91,12 @@ export default function CreateOrgPage() {
       if (pending.currency) setSelectedCurrency(pending.currency);
       if (pending.goal) setSelectedGoal(pending.goal);
       setStep(3);
+      setResuming(true);
       setTimeout(() => { void onSubmit(); }, 50);
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
 
 
   const onSubmit = async () => {
@@ -192,18 +195,46 @@ export default function CreateOrgPage() {
   const totalSteps = 4;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex flex-col">
       <SEOHead title="Créer ma plateforme — Siteviral" description="Crée ta plateforme en 30 secondes. Vends, collecte des dons, et active tes ambassadeurs." noindex />
       <OrgOnboardingWizard open={showOnboarding} onClose={() => { setShowOnboarding(false); navigate('/onboarding/type'); }} />
 
-      <div className="w-full max-w-md">
+      {/* Top bar with brand */}
+      <header className="w-full border-b border-border/40 bg-background/70 backdrop-blur">
+        <div className="mx-auto max-w-5xl px-4 h-14 flex items-center justify-between">
+          <button onClick={() => navigate('/')} className="flex items-center gap-2">
+            <img src="/logo-s.png" alt="Siteviral" className="h-7 w-7 rounded-lg" />
+            <span className="text-sm font-bold tracking-tight">Siteviral</span>
+          </button>
+          <span className="text-[11px] text-muted-foreground hidden sm:block">
+            {isFr ? 'Étape' : 'Step'} {step + 1} / {totalSteps}
+          </span>
+        </div>
+      </header>
+
+      {resuming && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center">
+          <div className="text-center space-y-4 max-w-sm px-6">
+            <div className="mx-auto h-14 w-14 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30">
+              <Rocket className="h-6 w-6 animate-pulse" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="text-lg font-bold">{isFr ? 'Création de ta plateforme…' : 'Creating your platform…'}</h2>
+              <p className="text-xs text-muted-foreground">{isFr ? 'Encore quelques secondes.' : 'A few more seconds.'}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex-1 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-lg">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
+          <div className="h-11 w-11 rounded-2xl bg-primary flex items-center justify-center shadow-md shadow-primary/20">
             <Building2 className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">{isFr ? 'Crée ta plateforme' : 'Create your platform'}</h1>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight">{isFr ? 'Crée ta plateforme' : 'Create your platform'}</h1>
             <p className="text-xs text-muted-foreground">{isFr ? 'Étape' : 'Step'} {step + 1}/{totalSteps} — 30 {isFr ? 'secondes' : 'seconds'}</p>
           </div>
         </div>
@@ -215,6 +246,7 @@ export default function CreateOrgPage() {
               i <= step ? 'bg-primary' : 'bg-muted')} />
           ))}
         </div>
+
 
         <div className="relative min-h-[280px]">
           <AnimatePresence mode="wait">
