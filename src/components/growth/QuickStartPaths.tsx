@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import {
   BookOpen, Store, Share2, Compass, ArrowRight, Calendar, Receipt, Gift,
-  Sparkles, MessageSquare, MapPin, Ticket, Star, ShieldCheck, CreditCard,
+  Sparkles, MessageSquare, Ticket, Star,
   type LucideIcon,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -19,23 +19,26 @@ interface Tile {
   border: string; iconColor: string; bgColor: string;
 }
 
-/** Per-vertical routes for booking, since each vertical has its own pro dashboard. */
+/** Per-vertical bookings-list route. */
 function bookingRouteFor(type: SiteviralType | null | undefined): string {
   switch (type) {
-    case 'beauty': return '/beauty/bookings';
-    case 'artisans_home_services': return '/home/pro/dashboard';
-    case 'tutors_home_teachers': return '/education/tutor/bookings';
-    case 'church': return '/church/pro/appointments';
+    case 'beauty':                 return '/beauty/bookings';
+    case 'artisans_home_services': return '/home/bookings';
+    case 'tutors_home_teachers':   return '/education/bookings';
+    case 'church':                 return '/church/pro/appointments';
     case 'instrumentists':
     case 'influencers':
     case 'sport':
     case 'services':
-    default: return '/events/pro/dashboard';
+    default:                       return '/events/pro';
   }
 }
 
-
-/** Map of every SiteViral feature → dashboard tile. Routes point to real, existing pages. */
+/**
+ * Feature → dashboard tile.
+ * Platform-config features (kyc / payment / location) are NEVER shown as tiles —
+ * they belong in Settings.
+ */
 function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: SiteviralType | null | undefined): Tile | null {
   switch (key) {
     case 'appointment': return {
@@ -82,7 +85,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       id: 'ai-content', icon: Sparkles,
       fr: 'Contenu & formations IA', en: 'AI content & courses',
       subFr: 'Posts, cours, scripts', subEn: 'Posts, courses, scripts',
-      route: '/creer-formation',
+      route: hasManageableOrg ? '/admin/programs' : '/creer-formation',
       border: 'border-fuchsia-500/30 hover:border-fuchsia-500/60',
       iconColor: 'text-fuchsia-500', bgColor: 'bg-fuchsia-500/10',
     };
@@ -93,14 +96,6 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       route: '/admin/crm',
       border: 'border-cyan-500/30 hover:border-cyan-500/60',
       iconColor: 'text-cyan-500', bgColor: 'bg-cyan-500/10',
-    };
-    case 'location': return {
-      id: 'location', icon: MapPin,
-      fr: "Zone d'intervention", en: 'Service area',
-      subFr: 'Adresse et carte', subEn: 'Address & map',
-      route: '/admin/settings',
-      border: 'border-red-500/30 hover:border-red-500/60',
-      iconColor: 'text-red-500', bgColor: 'bg-red-500/10',
     };
     case 'events': return {
       id: 'events', icon: Ticket,
@@ -118,14 +113,6 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       border: 'border-yellow-500/30 hover:border-yellow-500/60',
       iconColor: 'text-yellow-500', bgColor: 'bg-yellow-500/10',
     };
-    case 'kyc': return {
-      id: 'kyc', icon: ShieldCheck,
-      fr: 'Vérification (KYC)', en: 'Verification (KYC)',
-      subFr: 'Sois payé plus vite', subEn: 'Get paid faster',
-      route: '/admin/kyc',
-      border: 'border-slate-500/30 hover:border-slate-500/60',
-      iconColor: 'text-slate-500', bgColor: 'bg-slate-500/10',
-    };
     case 'affiliation': return {
       id: 'share', icon: Share2,
       fr: 'Gagner', en: 'Earn',
@@ -134,14 +121,11 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       border: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconColor: 'text-emerald-500', bgColor: 'bg-emerald-500/10',
     };
-    case 'payment': return {
-      id: 'payments', icon: CreditCard,
-      fr: 'Paiements', en: 'Payments',
-      subFr: 'Mobile Money & payouts', subEn: 'Mobile Money & payouts',
-      route: '/admin/payouts',
-      border: 'border-amber-500/30 hover:border-amber-500/60',
-      iconColor: 'text-amber-500', bgColor: 'bg-amber-500/10',
-    };
+    // Platform config — never shown as a tile
+    case 'kyc':
+    case 'payment':
+    case 'location':
+      return null;
   }
   return null;
 }
@@ -150,21 +134,18 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
 // Default (no org / no vertical yet): keep the original digital creator paths.
 const DEFAULT_KEYS: SiteviralFeatureKey[] = ['ai_book_creation', 'digital_products', 'affiliation'];
 
-/** Order tiles get shown in inside the dashboard. */
+/** Order tiles are shown inside the dashboard. */
 const DISPLAY_ORDER: SiteviralFeatureKey[] = [
   'appointment',
-  'digital_products',
-  'ai_book_creation',
-  'ai_formation_creation',
   'order_generator',
+  'digital_products',
   'donation_gifts',
   'events',
-  'location',
-  'reviews',
+  'ai_book_creation',
+  'ai_formation_creation',
   'product_comments',
+  'reviews',
   'affiliation',
-  'kyc',
-  'payment',
 ];
 
 export function QuickStartPaths() {
@@ -175,23 +156,26 @@ export function QuickStartPaths() {
 
   const hasManageableOrg = userOrgs.some((o) => canManage(o.id));
   const enabled = (currentOrg?.enabled_features ?? []) as SiteviralFeatureKey[];
-  const useDefaults = !currentOrg || enabled.length === 0;
+  const typeConfirmed = !!currentOrg?.type_confirmed_at;
+  const useDefaults = !currentOrg || enabled.length === 0 || !typeConfirmed;
   const keys = useDefaults ? DEFAULT_KEYS : DISPLAY_ORDER.filter((k) => enabled.includes(k));
 
   const paths: Tile[] = keys
     .map((k) => tileFor(k, hasManageableOrg, (currentOrg?.siteviral_type as SiteviralType) ?? null))
     .filter((t): t is Tile => !!t)
-    .slice(0, 6);
+    .slice(0, 8);
 
-  // Always append "Discover"
-  paths.push({
-    id: 'discover', icon: Compass,
-    fr: 'Découvrir', en: 'Discover',
-    subFr: 'Livres, cours et plus', subEn: 'Books, courses & more',
-    route: '/discover',
-    border: 'border-violet-500/30 hover:border-violet-500/60',
-    iconColor: 'text-violet-500', bgColor: 'bg-violet-500/10',
-  });
+  // Append "Discover" only when the user has no confirmed vertical yet.
+  if (useDefaults) {
+    paths.push({
+      id: 'discover', icon: Compass,
+      fr: 'Découvrir', en: 'Discover',
+      subFr: 'Livres, cours et plus', subEn: 'Books, courses & more',
+      route: '/discover',
+      border: 'border-violet-500/30 hover:border-violet-500/60',
+      iconColor: 'text-violet-500', bgColor: 'bg-violet-500/10',
+    });
+  }
 
   return (
     <div className="space-y-2">

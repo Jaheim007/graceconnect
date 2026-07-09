@@ -1,7 +1,6 @@
 import {
-  BookOpen, Store, Share2, Compass, Package, LayoutDashboard,
-  Building2, Shield, Calendar, Receipt, Gift, Sparkles, MessageSquare,
-  MapPin, Ticket, Star, ShieldCheck, CreditCard,
+  BookOpen, Store, Share2, Package, Calendar, Receipt, Gift,
+  Sparkles, MessageSquare, Ticket, Star, LayoutDashboard,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
@@ -15,13 +14,36 @@ interface Ctx {
   isSuperadmin: boolean;
 }
 
+/**
+ * Per-vertical booking dashboard route.
+ * Uses the *bookings list* pages (not the pro home) so the tap lands on the
+ * actual appointment feed.
+ */
 function bookingRouteFor(type: SiteviralType | null | undefined): string {
   switch (type) {
-    case 'beauty': return '/beauty/bookings';
-    case 'artisans_home_services': return '/home/pro/dashboard';
-    case 'tutors_home_teachers': return '/education/tutor/bookings';
-    case 'church': return '/church/pro/appointments';
-    default: return '/events/pro/dashboard';
+    case 'beauty':                 return '/beauty/bookings';
+    case 'artisans_home_services': return '/home/bookings';
+    case 'tutors_home_teachers':   return '/education/bookings';
+    case 'church':                 return '/church/pro/appointments';
+    case 'instrumentists':
+    case 'services':
+    case 'sport':
+    case 'influencers':            return '/events/pro';
+    default:                       return '/admin';
+  }
+}
+
+/**
+ * Per-vertical revenue route.
+ */
+function revenueRouteFor(type: SiteviralType | null | undefined): string {
+  switch (type) {
+    case 'artisans_home_services': return '/home/pro/revenue';
+    case 'tutors_home_teachers':   return '/education/pro/revenue';
+    case 'instrumentists':
+    case 'services':
+    case 'influencers':            return '/events/pro/revenue';
+    default:                       return '/admin/sales';
   }
 }
 
@@ -32,7 +54,7 @@ interface Spec {
   descFr: string; descEn: string;
   route: string;
   tone: 'primary' | 'sky' | 'amber' | 'emerald' | 'violet' | 'pink' | 'blue'
-      | 'fuchsia' | 'cyan' | 'red' | 'indigo' | 'yellow' | 'slate' | 'teal' | 'orange' | 'rose';
+      | 'fuchsia' | 'cyan' | 'indigo' | 'yellow' | 'teal';
 }
 
 const TONE: Record<Spec['tone'], { border: string; iconBg: string; iconColor: string }> = {
@@ -45,13 +67,9 @@ const TONE: Record<Spec['tone'], { border: string; iconBg: string; iconColor: st
   blue:     { border: 'border-blue-500/30 hover:border-blue-500/60',         iconBg: 'bg-blue-500/12',          iconColor: 'text-blue-500' },
   fuchsia:  { border: 'border-fuchsia-500/30 hover:border-fuchsia-500/60',   iconBg: 'bg-fuchsia-500/12',       iconColor: 'text-fuchsia-500' },
   cyan:     { border: 'border-cyan-500/30 hover:border-cyan-500/60',         iconBg: 'bg-cyan-500/12',          iconColor: 'text-cyan-500' },
-  red:      { border: 'border-red-500/30 hover:border-red-500/60',           iconBg: 'bg-red-500/12',           iconColor: 'text-red-500' },
   indigo:   { border: 'border-indigo-500/30 hover:border-indigo-500/60',     iconBg: 'bg-indigo-500/12',        iconColor: 'text-indigo-500' },
   yellow:   { border: 'border-yellow-500/30 hover:border-yellow-500/60',     iconBg: 'bg-yellow-500/12',        iconColor: 'text-yellow-500' },
-  slate:    { border: 'border-slate-500/30 hover:border-slate-500/60',       iconBg: 'bg-slate-500/12',         iconColor: 'text-slate-500' },
   teal:     { border: 'border-teal-500/30 hover:border-teal-500/60',         iconBg: 'bg-teal-500/12',          iconColor: 'text-teal-500' },
-  orange:   { border: 'border-orange-500/30 hover:border-orange-500/60',     iconBg: 'bg-orange-500/12',        iconColor: 'text-orange-500' },
-  rose:     { border: 'border-rose-500/30 hover:border-rose-500/60',         iconBg: 'bg-rose-500/12',          iconColor: 'text-rose-500' },
 };
 
 function toItem(s: Spec): ActionNavItem {
@@ -65,6 +83,14 @@ function toItem(s: Spec): ActionNavItem {
   };
 }
 
+/**
+ * Map a functional feature key to a nav item.
+ *
+ * Excluded on purpose (Settings-only, never in nav):
+ *   - kyc         → identity verification, handled in Settings + popup
+ *   - payment     → payment integration, handled in Settings
+ *   - location    → service area / map, handled in Settings
+ */
 function specFor(
   key: SiteviralFeatureKey,
   hasManageableOrg: boolean,
@@ -86,7 +112,7 @@ function specFor(
     case 'order_generator': return {
       id: 'orders', icon: Receipt, tone: 'blue',
       titleFr: 'Commandes', titleEn: 'Orders',
-      descFr: 'Génère et suis tes commandes', descEn: 'Track your orders',
+      descFr: 'Devis et commandes clients', descEn: 'Quotes & client orders',
       route: '/admin/sales',
     };
     case 'donation_gifts': return {
@@ -113,12 +139,6 @@ function specFor(
       descFr: 'Modère les retours', descEn: 'Moderate feedback',
       route: '/admin/crm',
     };
-    case 'location': return {
-      id: 'location', icon: MapPin, tone: 'red',
-      titleFr: 'Zone', titleEn: 'Area',
-      descFr: "Zone d'intervention", descEn: 'Service area',
-      route: '/admin/settings',
-    };
     case 'events': return {
       id: 'events', icon: Ticket, tone: 'indigo',
       titleFr: 'Événements', titleEn: 'Events',
@@ -131,29 +151,25 @@ function specFor(
       descFr: 'Notes clients', descEn: 'Client ratings',
       route: '/admin/crm',
     };
-    case 'kyc': return {
-      id: 'kyc', icon: ShieldCheck, tone: 'slate',
-      titleFr: 'Vérification', titleEn: 'Verification',
-      descFr: 'KYC pour payouts', descEn: 'KYC for payouts',
-      route: '/admin/kyc',
-    };
     case 'affiliation': return {
       id: 'share', icon: Share2, tone: 'emerald',
       titleFr: 'Gagner', titleEn: 'Earn',
       descFr: 'Partage et gagne', descEn: 'Share & earn',
       route: '/admin/affiliation',
     };
-    case 'payment': return {
-      id: 'payments', icon: CreditCard, tone: 'amber',
-      titleFr: 'Paiements', titleEn: 'Payments',
-      descFr: 'Mobile Money & payouts', descEn: 'Mobile Money & payouts',
-      route: '/admin/payouts',
-    };
+    // Platform config — never in nav
+    case 'kyc':
+    case 'payment':
+    case 'location':
+      return null;
   }
   return null;
 }
 
-/** Display priority — most-used-per-day first (mobile bottom nav truncates). */
+/**
+ * Nav display order — operational tools first, then growth/earn.
+ * KYC / payment / location deliberately excluded (Settings-only).
+ */
 const ORDER: SiteviralFeatureKey[] = [
   'appointment',
   'order_generator',
@@ -162,18 +178,21 @@ const ORDER: SiteviralFeatureKey[] = [
   'events',
   'ai_book_creation',
   'ai_formation_creation',
-  'reviews',
   'product_comments',
-  'location',
+  'reviews',
   'affiliation',
-  'payment',
-  'kyc',
 ];
 
 /**
- * Builds a vertical-aware nav list from the org's enabled_features.
- * Falls back to null so callers can use their generic list when there's no
- * confirmed type on the current org.
+ * Builds a strictly matrix-driven nav list for a confirmed SiteViral type.
+ * Returns null when the caller should fall back to the generic digital nav.
+ *
+ * Rules (per user directive):
+ *   - Show ONLY the operational features enabled for this vertical.
+ *   - KYC / Payment integration / Location go to Settings, never in nav.
+ *   - "Discover" and "My workspace" are NOT appended for confirmed providers —
+ *     they're already inside their workspace.
+ *   - Revenue tile appended when the org can manage sales.
  */
 export function buildFeatureNavItems(
   ctx: Ctx,
@@ -184,6 +203,7 @@ export function buildFeatureNavItems(
 
   const items: ActionNavItem[] = [];
 
+  // Personal shortcut — only if the user already bought something.
   if (ctx.isAuthenticated && ctx.hasPurchases) {
     items.push(toItem({
       id: 'purchases', icon: Package, tone: 'primary',
@@ -193,44 +213,20 @@ export function buildFeatureNavItems(
     }));
   }
 
+  // Matrix-driven operational tools
   for (const key of ORDER) {
     if (!enabled.includes(key)) continue;
     const spec = specFor(key, ctx.hasManageableOrg, type);
     if (spec) items.push(toItem(spec));
   }
 
-  // Universal discovery entry
-  items.push(toItem({
-    id: 'discover', icon: Compass, tone: 'violet',
-    titleFr: 'Découvrir', titleEn: 'Discover',
-    descFr: 'Explorer la plateforme', descEn: 'Explore the platform',
-    route: '/discover',
-  }));
-
+  // Revenue — every provider needs to see their money
   if (ctx.isAuthenticated && ctx.hasManageableOrg) {
     items.push(toItem({
-      id: 'sales', icon: LayoutDashboard, tone: 'teal',
+      id: 'revenue', icon: LayoutDashboard, tone: 'teal',
       titleFr: 'Revenus', titleEn: 'Revenue',
       descFr: 'Ventes et retraits', descEn: 'Sales & payouts',
-      route: '/admin/sales',
-    }));
-  }
-
-  if (ctx.isAuthenticated && ctx.hasOrgs) {
-    items.push(toItem({
-      id: 'orgs', icon: Building2, tone: 'orange',
-      titleFr: 'Ma plateforme', titleEn: 'My workspace',
-      descFr: 'Gérer mon espace', descEn: 'Manage my space',
-      route: ctx.hasManageableOrg ? '/admin' : '/create-org',
-    }));
-  }
-
-  if (ctx.isSuperadmin) {
-    items.push(toItem({
-      id: 'superadmin', icon: Shield, tone: 'rose',
-      titleFr: 'Super Admin', titleEn: 'Super Admin',
-      descFr: 'Gérer la plateforme', descEn: 'Platform admin',
-      route: '/superadmin',
+      route: revenueRouteFor(type),
     }));
   }
 
