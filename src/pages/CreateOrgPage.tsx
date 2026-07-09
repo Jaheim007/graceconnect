@@ -393,6 +393,7 @@ export default function CreateOrgPage() {
           </button>
         )}
       </div>
+      </div>
     </div>
   );
 }
