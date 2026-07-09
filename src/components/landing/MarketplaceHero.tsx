@@ -127,7 +127,7 @@ export function MarketplaceIntentSplit() {
     <section className="container max-w-6xl px-4 py-16">
       <div className="grid gap-4 md:grid-cols-2">
         <button
-          onClick={() => { setIntent('client', '/services'); navigate('/services'); }}
+          onClick={() => { setIntent('client', '/discover'); navigate('/discover'); }}
           className="group text-left rounded-3xl border bg-card p-7 sm:p-9 hover:border-primary/50 hover:shadow-xl hover:-translate-y-0.5 transition-all"
         >
           <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">

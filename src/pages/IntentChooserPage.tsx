@@ -14,7 +14,7 @@ export default function IntentChooserPage() {
   const fr = locale === 'fr';
 
   const pick = (kind: 'client' | 'provider') => {
-    const route = kind === 'provider' ? '/start' : '/services';
+    const route = kind === 'provider' ? '/start' : '/discover';
     setIntent(kind, route);
     navigate(route);
   };

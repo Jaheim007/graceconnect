@@ -38,11 +38,11 @@ export function LandingNav() {
     { to: '/discover?type=digital',    label: isFr ? 'Produits digitaux' : 'Digital products' },
     { to: '/discover?type=music',      label: isFr ? 'Musique'      : 'Music' },
     { to: '/discover?type=influencer', label: isFr ? 'Influenceurs' : 'Influencers' },
-    { to: '/services',         label: isFr ? 'Tous les services' : 'All services' },
+    { to: '/discover',         label: isFr ? 'Tous les services' : 'All services' },
   ];
 
   const navItems = [
-    { to: '/services',      label: isFr ? 'Explorer'   : 'Explore' },
+    { to: '/discover',      label: isFr ? 'Explorer'   : 'Explore' },
     { to: '/start-selling', label: isFr ? 'Proposer un service' : 'Offer a service' },
   ];
 
