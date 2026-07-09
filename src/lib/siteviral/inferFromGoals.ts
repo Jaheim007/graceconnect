@@ -9,6 +9,7 @@ export type StartGoalId =
   | 'receive_appointments'
   | 'offer_beauty'
   | 'offer_home'
+  | 'offer_church'
   | 'offer_tutoring'
   | 'offer_music'
   | 'offer_influencer'
