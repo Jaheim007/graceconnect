@@ -576,10 +576,11 @@ const App = () => (
                   <Route path="subjects" element={<EducationTutorSubjects />} />
                   <Route path="dashboard" element={<EducationTutorDashboard />} />
                 </Route>
-                <Route path="/learn/messages" element={<RequireAuth><EducationMessagesList /></RequireAuth>} />
+                <Route path="/learn/messages" element={<Navigate to="/learn/pro/messages" replace />} />
                 <Route path="/learn/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
-                <Route path="/learn/bookings" element={<RequireAuth><EducationBookingsList /></RequireAuth>} />
+                <Route path="/learn/bookings" element={<Navigate to="/learn/pro/orders" replace />} />
                 <Route path="/learn/booking/:id" element={<RequireAuth><EducationBookingDetail /></RequireAuth>} />
+
                 <Route path="/learn/pro/:slug" element={<EducationTutorPublic />} />
                 {/* Legacy /education aliases */}
                 <Route path="/education" element={<Navigate to="/learn/discover" replace />} />
