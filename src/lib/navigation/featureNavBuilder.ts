@@ -15,31 +15,32 @@ interface Ctx {
 }
 
 /**
- * Per-vertical booking dashboard route.
- * Uses the *bookings list* pages (not the pro home) so the tap lands on the
- * actual appointment feed.
+ * Per-vertical bookings/orders dashboard route.
+ * Routes stay INSIDE the pro shell (`/{vertical}/pro/orders`) so the sidebar
+ * remains visible on desktop and the page doesn't hijack the whole viewport.
  */
 function bookingRouteFor(type: SiteviralType | null | undefined): string {
   switch (type) {
-    case 'beauty':                 return '/beauty/bookings';
-    case 'artisans_home_services': return '/home/bookings';
-    case 'tutors_home_teachers':   return '/education/bookings';
+    case 'beauty':                 return '/beauty/pro/orders';
+    case 'artisans_home_services': return '/home/pro/orders';
+    case 'tutors_home_teachers':   return '/learn/pro/orders';
     case 'church':                 return '/church/pro/appointments';
     case 'instrumentists':
     case 'services':
     case 'sport':
-    case 'influencers':            return '/events/pro';
+    case 'influencers':            return '/events/pro/orders';
     default:                       return '/admin';
   }
 }
 
 /**
- * Per-vertical revenue route.
+ * Per-vertical revenue route (always inside the pro shell).
  */
 function revenueRouteFor(type: SiteviralType | null | undefined): string {
   switch (type) {
+    case 'beauty':                 return '/beauty/pro/revenue';
     case 'artisans_home_services': return '/home/pro/revenue';
-    case 'tutors_home_teachers':   return '/education/pro/revenue';
+    case 'tutors_home_teachers':   return '/learn/pro/revenue';
     case 'instrumentists':
     case 'services':
     case 'influencers':            return '/events/pro/revenue';
@@ -48,21 +49,22 @@ function revenueRouteFor(type: SiteviralType | null | undefined): string {
 }
 
 /**
- * Per-vertical inbox route. Returns null when the vertical has no dedicated
- * messages surface (falls back to the generic /admin inbox in that case).
+ * Per-vertical inbox route — pinned to the pro shell so opening Messages
+ * keeps the dashboard visible instead of full-page hijacking.
  */
 function messagesRouteFor(type: SiteviralType | null | undefined): string | null {
   switch (type) {
-    case 'beauty':                 return '/beauty/messages';
-    case 'artisans_home_services': return '/home/messages';
-    case 'tutors_home_teachers':   return '/education/messages';
+    case 'beauty':                 return '/beauty/pro/messages';
+    case 'artisans_home_services': return '/home/pro/messages';
+    case 'tutors_home_teachers':   return '/learn/pro/messages';
     case 'instrumentists':
     case 'services':
     case 'sport':
-    case 'influencers':            return '/events/messages';
+    case 'influencers':            return '/events/pro/messages';
     default:                       return null;
   }
 }
+
 
 interface Spec {
   id: string;
@@ -130,8 +132,9 @@ function specFor(
       id: 'orders', icon: Receipt, tone: 'blue',
       titleFr: 'Commandes', titleEn: 'Orders',
       descFr: 'Devis et commandes clients', descEn: 'Quotes & client orders',
-      route: '/admin/sales',
+      route: bookingRouteFor(type),
     };
+
     case 'donation_gifts': return {
       id: 'giving', icon: Gift, tone: 'emerald',
       titleFr: 'Dons', titleEn: 'Giving',

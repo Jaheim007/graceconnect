@@ -462,10 +462,11 @@ const App = () => (
                 <Route path="/beauty/search" element={<BeautySearch />} />
                 <Route path="/beauty/p/:slug" element={<BeautyProviderProfile />} />
                 <Route path="/beauty/book/:serviceId" element={<Navigate to="/beauty/search" replace />} />
-                <Route path="/beauty/bookings" element={<BeautyBookingsList />} />
+                <Route path="/beauty/bookings" element={<Navigate to="/beauty/pro/orders" replace />} />
                 <Route path="/beauty/bookings/:id" element={<RequireAuth><BeautyBookingDetail /></RequireAuth>} />
-                <Route path="/beauty/messages" element={<BeautyMessagesList />} />
+                <Route path="/beauty/messages" element={<Navigate to="/beauty/pro/messages" replace />} />
                 <Route path="/beauty/messages/:id" element={<RequireAuth><BeautyConversation /></RequireAuth>} />
+
                 <Route path="/beauty/pro/onboarding" element={<BeautyProviderOnboarding />} />
                 {/* Fixated pro dashboard shell for Beauty */}
                 <Route path="/beauty/pro" element={<RequireAuth><BeautyProLayout /></RequireAuth>}>
@@ -523,12 +524,14 @@ const App = () => (
                   <Route path="kyc" element={<HomeKYCPage />} />
                 </Route>
 
-                {/* Legacy full-page routes still work for direct links & mobile deep links */}
-                <Route path="/home/messages" element={<RequireAuth><HomeMessagesList /></RequireAuth>} />
+                {/* Legacy routes → redirect INTO the fixated pro shell so the
+                    sidebar stays visible and pages don't hijack the viewport. */}
+                <Route path="/home/messages" element={<Navigate to="/home/pro/messages" replace />} />
                 <Route path="/home/messages/:id" element={<RequireAuth><HomeConversation /></RequireAuth>} />
-                <Route path="/home/bookings" element={<RequireAuth><HomeBookingsList /></RequireAuth>} />
+                <Route path="/home/bookings" element={<Navigate to="/home/pro/orders" replace />} />
                 <Route path="/home/booking/:id" element={<RequireAuth><HomeBookingDetail /></RequireAuth>} />
                 <Route path="/home/pro/:slug" element={<HomeProviderPublic />} />
+
 
                 {/* SiteViral Events */}
                 <Route path="/events" element={<Navigate to="/events/discover" replace />} />
@@ -548,10 +551,11 @@ const App = () => (
                   <Route path="packages" element={<EventsProPackages />} />
                   <Route path="dashboard" element={<EventsProDashboard />} />
                 </Route>
-                <Route path="/events/messages" element={<RequireAuth><EventsMessagesList /></RequireAuth>} />
+                <Route path="/events/messages" element={<Navigate to="/events/pro/messages" replace />} />
                 <Route path="/events/messages/:id" element={<RequireAuth><EventsConversation /></RequireAuth>} />
-                <Route path="/events/bookings" element={<RequireAuth><EventsBookingsList /></RequireAuth>} />
+                <Route path="/events/bookings" element={<Navigate to="/events/pro/orders" replace />} />
                 <Route path="/events/booking/:id" element={<RequireAuth><EventsBookingDetail /></RequireAuth>} />
+
                 <Route path="/events/pro/:slug" element={<EventsProviderPublic />} />
 
                 {/* SiteViral Learn (formerly Education) */}
@@ -572,10 +576,11 @@ const App = () => (
                   <Route path="subjects" element={<EducationTutorSubjects />} />
                   <Route path="dashboard" element={<EducationTutorDashboard />} />
                 </Route>
-                <Route path="/learn/messages" element={<RequireAuth><EducationMessagesList /></RequireAuth>} />
+                <Route path="/learn/messages" element={<Navigate to="/learn/pro/messages" replace />} />
                 <Route path="/learn/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
-                <Route path="/learn/bookings" element={<RequireAuth><EducationBookingsList /></RequireAuth>} />
+                <Route path="/learn/bookings" element={<Navigate to="/learn/pro/orders" replace />} />
                 <Route path="/learn/booking/:id" element={<RequireAuth><EducationBookingDetail /></RequireAuth>} />
+
                 <Route path="/learn/pro/:slug" element={<EducationTutorPublic />} />
                 {/* Legacy /education aliases */}
                 <Route path="/education" element={<Navigate to="/learn/discover" replace />} />
@@ -586,10 +591,11 @@ const App = () => (
                 <Route path="/education/pro/kyc" element={<RequireAuth><EducationKYCPage /></RequireAuth>} />
                 <Route path="/education/pro/subjects" element={<RequireAuth><EducationTutorSubjects /></RequireAuth>} />
                 <Route path="/education/pro/revenue" element={<RequireAuth><EducationTutorRevenue /></RequireAuth>} />
-                <Route path="/education/messages" element={<RequireAuth><EducationMessagesList /></RequireAuth>} />
+                <Route path="/education/messages" element={<Navigate to="/learn/pro/messages" replace />} />
                 <Route path="/education/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
-                <Route path="/education/bookings" element={<RequireAuth><EducationBookingsList /></RequireAuth>} />
+                <Route path="/education/bookings" element={<Navigate to="/learn/pro/orders" replace />} />
                 <Route path="/education/booking/:id" element={<RequireAuth><EducationBookingDetail /></RequireAuth>} />
+
                 <Route path="/education/pro/:slug" element={<EducationTutorPublic />} />
 
 

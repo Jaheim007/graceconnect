@@ -55,35 +55,126 @@ export function TopBar() {
     }
   };
 
+  const greetingName = profile?.display_name?.split(' ')[0] || user?.email?.split('@')[0] || (isFr ? 'toi' : 'you');
+  const greeting = isFr
+    ? (new Date().getHours() < 12 ? 'Bonjour' : new Date().getHours() < 18 ? 'Bon après-midi' : 'Bonsoir')
+    : (new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 18 ? 'Good afternoon' : 'Good evening');
+
+  const renderAvatarButton = (size: 'sm' | 'lg' = 'sm') => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          data-tour="nav-profile"
+          className={cn(
+            'shrink-0 rounded-full overflow-hidden ring-2 ring-border/60 hover:ring-primary/50 transition-all bg-card',
+            size === 'lg' ? 'h-10 w-10' : 'h-8 w-8',
+          )}
+          aria-label={profile?.display_name || 'Account'}
+        >
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={initials} className="h-full w-full object-cover" />
+          ) : (
+            <div className="h-full w-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-xs font-bold text-primary-foreground">
+              {initials}
+            </div>
+          )}
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-60">
+        <div className="px-2 py-2 flex items-center gap-2.5">
+          {avatarUrl ? <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover shrink-0" /> : (
+            <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground shrink-0">{initials}</div>
+          )}
+          <div className="min-w-0">
+            <p className="text-sm font-semibold truncate">{profile?.display_name || 'User'}</p>
+            <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            <div className="mt-1"><PlanBadge /></div>
+          </div>
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => navigate('/profile')}><User className="h-3.5 w-3.5 mr-2" /> {t('topbar.profile')}</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate('/billing')}>
+          <CreditCard className="h-3.5 w-3.5 mr-2" />
+          {isFr ? 'Abonnement & facturation' : 'Subscription & billing'}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={toggleTheme}>
+          {theme === 'dark' ? <Sun className="h-3.5 w-3.5 mr-2" /> : <Moon className="h-3.5 w-3.5 mr-2" />}
+          {isFr ? (theme === 'dark' ? 'Mode clair' : 'Mode sombre') : (theme === 'dark' ? 'Light mode' : 'Dark mode')}
+        </DropdownMenuItem>
+        {(isSuperadmin || managedOrgs.length >= 2) && (
+          <DropdownMenuItem onClick={() => navigate('/create-org')}>
+            <Plus className="h-3.5 w-3.5 mr-2" />
+            {isFr ? 'Créer un espace/page' : 'Create a workspace/page'}
+          </DropdownMenuItem>
+        )}
+        {(isSuperadmin || managedOrgs.length >= 2) && (
+          <DropdownMenuItem onClick={() => setSwitchDialogOpen(true)}>
+            <Building2 className="h-3.5 w-3.5 mr-2" />
+            {isFr ? 'Changer d’espace/page' : 'Switch workspace/page'}
+          </DropdownMenuItem>
+        )}
+        {isSuperadmin && (
+          <DropdownMenuItem onClick={() => navigate('/superadmin')}><Shield className="h-3.5 w-3.5 mr-2" /> {t('topbar.superadmin')}</DropdownMenuItem>
+        )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive"><LogOut className="h-3.5 w-3.5 mr-2" /> {t('topbar.sign_out')}</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   return (
     <>
-      <header className="h-12 sm:h-14 shrink-0 z-40 glass border-b border-border flex items-center px-3 sm:px-4 gap-1.5 sm:gap-2">
-        <div className="flex lg:hidden items-center mr-0.5">
-          <SiteLogo size="sm" animate />
-        </div>
+      {/* MOBILE — Djamo / Wave inspired: avatar + greeting, minimal glyphs on the right */}
+      <header
+        className="lg:hidden h-14 shrink-0 z-40 sticky top-0 flex items-center gap-3 px-4 bg-background/85 backdrop-blur-xl border-b border-border/40"
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      >
+        {user ? (
+          <>
+            {renderAvatarButton('lg')}
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] text-muted-foreground leading-tight truncate">{greeting}</p>
+              <p className="text-sm font-bold truncate leading-tight">{greetingName}</p>
+            </div>
+            <button
+              onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+              className="grid place-items-center h-9 w-9 rounded-full bg-muted/60 hover:bg-muted text-foreground shrink-0"
+              aria-label="Search"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => navigate('/notifications')}
+              className="relative grid place-items-center h-9 w-9 rounded-full bg-muted/60 hover:bg-muted text-foreground shrink-0"
+              aria-label="Notifications"
+              data-tour="nav-notifications"
+            >
+              <Bell className="h-4 w-4" />
+              {unread > 0 && <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />}
+            </button>
+          </>
+        ) : (
+          <>
+            <SiteLogo size="sm" animate />
+            <div className="flex-1" />
+            <Button size="sm" className="h-8 text-xs rounded-full px-4" onClick={() => navigate('/auth')}>{t('topbar.sign_in')}</Button>
+          </>
+        )}
+      </header>
 
-        <div className="hidden sm:block">
-          <GlobalSearch />
-        </div>
+      {/* DESKTOP — unchanged information-dense bar */}
+      <header className="hidden lg:flex h-14 shrink-0 z-40 glass border-b border-border items-center px-4 gap-2">
+        <GlobalSearch />
 
         <button
           onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-          className="hidden lg:flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border bg-muted/50 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors text-xs shrink-0"
+          className="flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border bg-muted/50 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors text-xs shrink-0"
         >
           <Search className="h-3 w-3" />
           <span className="text-[11px]">Cmd+K</span>
         </button>
 
         <div className="flex-1 min-w-0" />
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 sm:hidden shrink-0"
-          onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-        >
-          <Search className="h-4 w-4" />
-        </Button>
 
         <OrgSwitcher variant="topbar" />
         <CreditBalance />
@@ -100,61 +191,11 @@ export function TopBar() {
           </Button>
         )}
 
-        {user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button data-tour="nav-profile" className="flex items-center gap-1.5 h-8 px-1.5 rounded-full ring-1 ring-border hover:ring-primary/40 transition-all bg-card/60 shrink-0">
-                <div className="h-6 w-6 rounded-full overflow-hidden flex items-center justify-center text-[10px] font-bold shrink-0">
-                  {avatarUrl ? <img src={avatarUrl} alt={initials} className="h-full w-full rounded-full object-cover" /> : (
-                    <div className="h-full w-full bg-primary flex items-center justify-center text-primary-foreground">{initials}</div>
-                  )}
-                </div>
-                <span className="hidden md:block text-xs font-medium truncate max-w-[90px]">{profile?.display_name || 'User'}</span>
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              <div className="px-2 py-2 flex items-center gap-2.5">
-                {avatarUrl ? <img src={avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" /> : (
-                  <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground shrink-0">{initials}</div>
-                )}
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold truncate">{profile?.display_name || 'User'}</p>
-                  <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                  <div className="mt-1"><PlanBadge /></div>
-                </div>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/profile')}><User className="h-3.5 w-3.5 mr-2" /> {t('topbar.profile')}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/billing')}>
-                <CreditCard className="h-3.5 w-3.5 mr-2" />
-                {isFr ? 'Abonnement & facturation' : 'Subscription & billing'}
-              </DropdownMenuItem>
-              {/* Workspace controls only appear when they're useful:
-                  superadmin, or the user manages 2+ orgs. Single-org service pros
-                  (artisan, beauty, tutor…) don't need workspace-switching noise. */}
-              {(isSuperadmin || managedOrgs.length >= 2) && (
-                <DropdownMenuItem onClick={() => navigate('/create-org')}>
-                  <Plus className="h-3.5 w-3.5 mr-2" />
-                  {isFr ? 'Créer un espace/page' : 'Create a workspace/page'}
-                </DropdownMenuItem>
-              )}
-              {(isSuperadmin || managedOrgs.length >= 2) && (
-                <DropdownMenuItem onClick={() => setSwitchDialogOpen(true)}>
-                  <Building2 className="h-3.5 w-3.5 mr-2" />
-                  {isFr ? 'Changer d’espace/page' : 'Switch workspace/page'}
-                </DropdownMenuItem>
-              )}
-              {isSuperadmin && (
-                <DropdownMenuItem onClick={() => navigate('/superadmin')}><Shield className="h-3.5 w-3.5 mr-2" /> {t('topbar.superadmin')}</DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive"><LogOut className="h-3.5 w-3.5 mr-2" /> {t('topbar.sign_out')}</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
+        {user ? renderAvatarButton('sm') : (
           <Button size="sm" className="h-7 text-xs shrink-0" onClick={() => navigate('/auth')}>{t('topbar.sign_in')}</Button>
         )}
       </header>
+
 
       {/* Switch workspace/page dialog */}
       <Dialog open={switchDialogOpen} onOpenChange={setSwitchDialogOpen}>
