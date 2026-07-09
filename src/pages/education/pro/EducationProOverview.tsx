@@ -66,7 +66,7 @@ export default function EducationProOverview() {
 
         <div className="space-y-2.5">
           {!kycDone && (
-            <Link to="/learn/pro/kyc" className="block rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 hover:bg-amber-500/15 transition">
+            <Link to="/admin/learn/kyc" className="block rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 hover:bg-amber-500/15 transition">
               <div className="flex items-center gap-3">
                 <ShieldCheck className="h-5 w-5 text-amber-600 shrink-0" />
                 <div className="flex-1 text-sm">
@@ -77,7 +77,7 @@ export default function EducationProOverview() {
             </Link>
           )}
           {kycDone && !hasSubjects && (
-            <Link to="/learn/pro/subjects" className="block rounded-2xl border border-teal-500/40 bg-teal-500/10 p-4 hover:bg-teal-500/15 transition">
+            <Link to="/admin/learn/subjects" className="block rounded-2xl border border-teal-500/40 bg-teal-500/10 p-4 hover:bg-teal-500/15 transition">
               <div className="flex items-center gap-3">
                 <AlertCircle className="h-5 w-5 text-teal-600 shrink-0" />
                 <div className="flex-1 text-sm">
@@ -98,10 +98,10 @@ export default function EducationProOverview() {
 
         <div className="grid gap-2.5 lg:grid-cols-2">
           {[
-            { icon: MessageSquare, label: t("Messages étudiants", "Student messages"), to: "/learn/pro/messages" },
-            { icon: Calendar, label: t("Mes séances", "My sessions"), to: "/learn/pro/orders" },
-            { icon: BookOpen, label: t("Mes matières", "My subjects"), to: "/learn/pro/subjects" },
-            { icon: Share2, label: t("Ma page publique", "My public page"), to: T.slug ? `/learn/pro/${T.slug}` : "/learn/pro/settings" },
+            { icon: MessageSquare, label: t("Messages étudiants", "Student messages"), to: "/admin/learn/messages" },
+            { icon: Calendar, label: t("Mes séances", "My sessions"), to: "/admin/learn/orders" },
+            { icon: BookOpen, label: t("Mes matières", "My subjects"), to: "/admin/learn/subjects" },
+            { icon: Share2, label: t("Ma page publique", "My public page"), to: T.slug ? `/learn/pro/${T.slug}` : "/admin/learn/settings" },
           ].map((a) => (
             <Button key={a.to} asChild variant="outline" className="h-14 justify-start">
               <Link to={a.to}><a.icon className="mr-3 h-4 w-4" />{a.label}</Link>
