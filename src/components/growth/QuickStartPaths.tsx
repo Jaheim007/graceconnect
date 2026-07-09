@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
-import type { SiteviralFeatureKey } from '@/types/database';
+import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 
 interface Tile {
   id: string;
@@ -18,6 +18,22 @@ interface Tile {
   route: string;
   border: string; iconColor: string; bgColor: string;
 }
+
+/** Per-vertical routes for booking, since each vertical has its own pro dashboard. */
+function bookingRouteFor(type: SiteviralType | null | undefined): string {
+  switch (type) {
+    case 'beauty': return '/beauty/bookings';
+    case 'artisans_home_services': return '/home/pro/dashboard';
+    case 'tutors_home_teachers': return '/education/tutor/bookings';
+    case 'church': return '/church/pro/appointments';
+    case 'instrumentists':
+    case 'influencers':
+    case 'sport':
+    case 'services':
+    default: return '/events/pro/dashboard';
+  }
+}
+
 
 /** Map of every SiteViral feature → dashboard tile. */
 function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean): Tile | null {
