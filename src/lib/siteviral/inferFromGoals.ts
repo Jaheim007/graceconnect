@@ -9,6 +9,7 @@ export type StartGoalId =
   | 'receive_appointments'
   | 'offer_beauty'
   | 'offer_home'
+  | 'offer_church'
   | 'offer_tutoring'
   | 'offer_music'
   | 'offer_influencer'
@@ -34,6 +35,7 @@ export interface InferredConfig {
  * Events is NEVER a type trigger on its own.
  */
 function inferType(goals: Set<StartGoalId>): SiteviralType {
+  if (goals.has('offer_church')) return 'church';
   if (goals.has('offer_beauty')) return 'beauty';
   if (goals.has('offer_home')) return 'artisans_home_services';
   if (goals.has('offer_tutoring')) return 'tutors_home_teachers';
