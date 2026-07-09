@@ -67,7 +67,7 @@ export default function EducationProConversationPane() {
     <div className="flex flex-1 min-h-0 flex-col bg-background text-foreground">
       <header className="sticky top-0 z-20 border-b border-border/60 bg-background/95 backdrop-blur">
         <div className="flex h-14 items-center gap-3 px-4">
-          <Link to="/learn/pro/messages" className="lg:hidden rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/admin/learn/messages" className="lg:hidden rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           {otherAvatar ? (
             <img src={otherAvatar} alt="" className="h-9 w-9 rounded-full object-cover" />
           ) : (
