@@ -112,7 +112,7 @@ export default function HomeProOverview() {
           <StatCard label={t("Travaux terminés", "Jobs done")} value={stats?.jobs_completed ?? 0} />
           <StatCard label={t("Revenu 30j", "30d revenue")} value={`${Number(stats?.revenue_30d ?? 0).toLocaleString()} ${provider.currency}`} />
           <StatCard label={t("Services publiés", "Services live")} value={servicesCount} />
-          <StatCard label={t("Note moyenne", "Avg rating")} value={stats?.rating_avg ? Number(stats.rating_avg).toFixed(1) : "—"} />
+          <StatCard label={t("Taux de réponse", "Response rate")} value={stats?.response_rate != null ? `${Math.round(Number(stats.response_rate) * 100)}%` : "—"} />
         </div>
 
         {/* Quick actions */}
