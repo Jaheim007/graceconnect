@@ -71,14 +71,14 @@ export default function ChurchProAppointments() {
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
-  if (!user) return <Navigate to="/auth?returnTo=/church/pro/appointments" replace />;
+  if (!user) return <Navigate to="/auth?returnTo=/admin/church/appointments" replace />;
   if (!church) return <Navigate to="/church/pro/onboarding" replace />;
 
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-4xl px-4 py-6 space-y-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" asChild><Link to="/church/pro"><ArrowLeft className="h-5 w-5" /></Link></Button>
+          <Button variant="ghost" size="icon" asChild><Link to="/dashboard"><ArrowLeft className="h-5 w-5" /></Link></Button>
           <div>
             <p className="text-xs text-muted-foreground">SiteViral Church</p>
             <h1 className="text-xl font-bold flex items-center gap-2"><CalendarClock className="h-5 w-5 text-primary" /> {fr ? 'Rendez-vous pastoraux' : 'Pastoral appointments'}</h1>

@@ -89,8 +89,8 @@ export default function ChurchProSermonDetail() {
 
   if (loading || isLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   if (!user) return <Navigate to="/auth" replace />;
-  if (!sermon) return <Navigate to="/church/pro/sermons" replace />;
-  if ((sermon as any).church?.user_id !== user.id) return <Navigate to="/church/pro" replace />;
+  if (!sermon) return <Navigate to="/admin/church/sermons" replace />;
+  if ((sermon as any).church?.user_id !== user.id) return <Navigate to="/dashboard" replace />;
 
   const unclear: Array<{ start_s: number; end_s: number }> = Array.isArray(sermon.unclear_sections) ? (sermon.unclear_sections as any) : [];
 
@@ -182,7 +182,7 @@ export default function ChurchProSermonDetail() {
       <div className="mx-auto max-w-4xl px-4 py-6 space-y-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild><Link to="/church/pro/sermons"><ArrowLeft className="h-5 w-5" /></Link></Button>
+            <Button variant="ghost" size="icon" asChild><Link to="/admin/church/sermons"><ArrowLeft className="h-5 w-5" /></Link></Button>
             <div>
               <p className="text-xs text-muted-foreground">SiteViral Church · {fr ? 'Prédication' : 'Sermon'}</p>
               <h1 className="text-xl font-bold truncate">{sermon.title}</h1>

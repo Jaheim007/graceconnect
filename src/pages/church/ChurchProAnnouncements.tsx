@@ -47,7 +47,7 @@ export default function ChurchProAnnouncements() {
   const invalidate = () => qc.invalidateQueries({ queryKey: ['church-announcements', church?.id] });
 
   if (loading) return <Spin />;
-  if (!user) return <Navigate to="/auth?returnTo=/church/pro/announcements" replace />;
+  if (!user) return <Navigate to="/auth?returnTo=/admin/church/announcements" replace />;
   if (!church) return <Navigate to="/church/pro/onboarding" replace />;
 
   return (
@@ -55,7 +55,7 @@ export default function ChurchProAnnouncements() {
       <div className="mx-auto max-w-4xl px-4 py-6 space-y-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild><Link to="/church/pro"><ArrowLeft className="h-5 w-5" /></Link></Button>
+            <Button variant="ghost" size="icon" asChild><Link to="/dashboard"><ArrowLeft className="h-5 w-5" /></Link></Button>
             <div>
               <p className="text-xs text-muted-foreground">SiteViral Church</p>
               <h1 className="text-xl font-bold flex items-center gap-2"><Megaphone className="h-5 w-5 text-primary" /> {fr ? 'Annonces' : 'Announcements'}</h1>

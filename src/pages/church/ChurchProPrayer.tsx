@@ -48,7 +48,7 @@ export default function ChurchProPrayer() {
   };
 
   if (loading) return <Spin />;
-  if (!user) return <Navigate to="/auth?returnTo=/church/pro/prayer" replace />;
+  if (!user) return <Navigate to="/auth?returnTo=/admin/church/prayer" replace />;
   if (!church) return <Navigate to="/church/pro/onboarding" replace />;
 
   const counts: Record<Status, number> = { new: 0, praying: 0, answered: 0, archived: 0 };
@@ -58,7 +58,7 @@ export default function ChurchProPrayer() {
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-4xl px-4 py-6 space-y-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" asChild><Link to="/church/pro"><ArrowLeft className="h-5 w-5" /></Link></Button>
+          <Button variant="ghost" size="icon" asChild><Link to="/dashboard"><ArrowLeft className="h-5 w-5" /></Link></Button>
           <div>
             <p className="text-xs text-muted-foreground">SiteViral Church</p>
             <h1 className="text-xl font-bold flex items-center gap-2"><Heart className="h-5 w-5 text-primary" /> {fr ? 'Boîte de prière' : 'Prayer inbox'}</h1>

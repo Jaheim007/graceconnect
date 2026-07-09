@@ -16,7 +16,7 @@ export default function ChurchProSectionStub({ titleFr, titleEn, phase }: { titl
       <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild>
-            <Link to="/church/pro"><ArrowLeft className="h-5 w-5" /></Link>
+            <Link to="/dashboard"><ArrowLeft className="h-5 w-5" /></Link>
           </Button>
           <div>
             <p className="text-xs text-muted-foreground">SiteViral Church</p>

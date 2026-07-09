@@ -119,7 +119,7 @@ export default function ChurchPublicProfile() {
           {fr
             ? 'Votre église est publique et peut recevoir des dons. Complétez la vérification de paiement pour retirer les fonds.'
             : 'Your church is public and can receive gifts. Complete payout verification to withdraw funds.'}{' '}
-          <Link to="/church/pro/kyc" className="underline font-medium">
+          <Link to="/admin/church/kyc" className="underline font-medium">
             {fr ? 'Vérification de paiement' : 'Payout verification'}
           </Link>
         </div>

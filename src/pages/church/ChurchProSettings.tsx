@@ -70,7 +70,7 @@ export default function ChurchProSettings() {
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-6 space-y-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" asChild><Link to="/church/pro"><ArrowLeft className="h-5 w-5" /></Link></Button>
+          <Button variant="ghost" size="icon" asChild><Link to="/dashboard"><ArrowLeft className="h-5 w-5" /></Link></Button>
           <div>
             <p className="text-xs text-muted-foreground">SiteViral Church</p>
             <h1 className="text-xl font-bold flex items-center gap-2"><Settings className="h-5 w-5 text-primary" /> {fr ? 'Paramètres' : 'Settings'}</h1>
@@ -135,7 +135,7 @@ export default function ChurchProSettings() {
             <span className={form.payout_verified ? 'text-emerald-600 font-medium' : 'text-amber-600 font-medium'}>
               {form.payout_verified ? (fr ? 'Vérifié ✓' : 'Verified ✓') : (fr ? 'À compléter' : 'Not verified')}
             </span>
-            {' · '}<Link to="/church/pro/kyc" className="underline text-primary">{fr ? 'Ouvrir' : 'Open'}</Link>
+            {' · '}<Link to="/admin/church/kyc" className="underline text-primary">{fr ? 'Ouvrir' : 'Open'}</Link>
           </div>
         </Section>
 
