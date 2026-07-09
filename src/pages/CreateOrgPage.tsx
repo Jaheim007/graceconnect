@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -77,9 +77,42 @@ export default function CreateOrgPage() {
   const selectedCategory = watch('category');
   const nameVal = watch('name');
 
+  // Auto-resume after auth: if we stashed values before login, restore + submit
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const raw = sessionStorage.getItem('sv_create_org_pending');
+      if (!raw) return;
+      const pending = JSON.parse(raw) as { values: FormData; currency: string; goal: string };
+      sessionStorage.removeItem('sv_create_org_pending');
+      if (pending.values?.name) setValue('name', pending.values.name);
+      if (pending.values?.category) setValue('category', pending.values.category);
+      if (pending.currency) setSelectedCurrency(pending.currency);
+      if (pending.goal) setSelectedGoal(pending.goal);
+      setStep(3);
+      setTimeout(() => { void onSubmit(); }, 50);
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+
   const onSubmit = async () => {
     const valid = await form.trigger();
-    if (!valid || !user) return;
+    if (!valid) return;
+
+    // Not authenticated yet — stash and send to auth, then auto-resume
+    if (!user) {
+      try {
+        sessionStorage.setItem('sv_create_org_pending', JSON.stringify({
+          values: form.getValues(),
+          currency: selectedCurrency,
+          goal: selectedGoal,
+        }));
+      } catch {}
+      navigate('/auth?mode=signup&returnTo=/create-org');
+      return;
+    }
+
 
     setLoading(true);
     const data = form.getValues();
