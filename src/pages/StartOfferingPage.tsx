@@ -78,11 +78,6 @@ export default function StartOfferingPage() {
       }));
     } catch {}
 
-    // Digital products use the unified "Créer ta plateforme" 4-step flow
-    if (picked === 'digital') {
-      navigate('/create-org');
-      return;
-    }
     navigate(`/start/details?activity=${activityParam}`);
   };
 
