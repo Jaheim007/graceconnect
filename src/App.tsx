@@ -551,10 +551,11 @@ const App = () => (
                   <Route path="packages" element={<EventsProPackages />} />
                   <Route path="dashboard" element={<EventsProDashboard />} />
                 </Route>
-                <Route path="/events/messages" element={<RequireAuth><EventsMessagesList /></RequireAuth>} />
+                <Route path="/events/messages" element={<Navigate to="/events/pro/messages" replace />} />
                 <Route path="/events/messages/:id" element={<RequireAuth><EventsConversation /></RequireAuth>} />
-                <Route path="/events/bookings" element={<RequireAuth><EventsBookingsList /></RequireAuth>} />
+                <Route path="/events/bookings" element={<Navigate to="/events/pro/orders" replace />} />
                 <Route path="/events/booking/:id" element={<RequireAuth><EventsBookingDetail /></RequireAuth>} />
+
                 <Route path="/events/pro/:slug" element={<EventsProviderPublic />} />
 
                 {/* SiteViral Learn (formerly Education) */}
