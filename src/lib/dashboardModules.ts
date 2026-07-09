@@ -11,23 +11,35 @@
  * user came in through.
  */
 import {
-  Calendar, Package, Receipt, Gift, CreditCard, BookOpen, Sparkles,
-  MessageSquare, MapPin, Ticket, Star, ShieldCheck, Users2, LucideIcon,
+  Calendar, Package, Gift, BookOpen, Sparkles,
+  MapPin, Ticket, Users2, LucideIcon,
 } from 'lucide-react';
 
+/**
+ * Only *true add-on modules* live here — things a provider can choose to
+ * activate on top of their core service (sell digital products, add AI
+ * courses, sell event tickets, accept giving, etc.).
+ *
+ * Functionalities that are ALWAYS baked into every service are NOT modules
+ * and never appear in Settings → Modules:
+ *   - KYC (mandatory identity check for every provider)
+ *   - Payment integration (comes with the service)
+ *   - Reviews on the provider (comes with the service)
+ *   - Comments on products (comes with digital products)
+ *   - Orders / quotes (comes with sales)
+ *
+ * Affiliation is a special case: available to everyone but OFF by default —
+ * the user turns it on from Settings → Modules if they want to earn by
+ * referring others.
+ */
 export type ModuleId =
   | 'booking'
   | 'digital_products'
-  | 'orders'
   | 'giving'
-  | 'payments'
   | 'ai_book'
   | 'ai_content'
-  | 'comments'
   | 'location'
   | 'events_tickets'
-  | 'reviews'
-  | 'kyc'
   | 'affiliation';
 
 export type Persona =
@@ -48,8 +60,8 @@ export interface DashboardModule {
   descFr: string;
   descEn: string;
   icon: LucideIcon;
-  route: string;              // path under /dashboard
-  color: string;              // tailwind bg-* for card accent
+  route: string;
+  color: string;
 }
 
 export const MODULES: Record<ModuleId, DashboardModule> = {
@@ -62,26 +74,14 @@ export const MODULES: Record<ModuleId, DashboardModule> = {
   digital_products: {
     id: 'digital_products', icon: Package, route: '/dashboard/digital', color: 'bg-violet-500/10 text-violet-600',
     labelFr: 'Produits digitaux', labelEn: 'Digital products',
-    descFr: 'Ebooks, formations, téléchargements.',
-    descEn: 'Ebooks, courses, downloads.',
-  },
-  orders: {
-    id: 'orders', icon: Receipt, route: '/dashboard/orders', color: 'bg-blue-500/10 text-blue-600',
-    labelFr: 'Commandes & devis', labelEn: 'Orders & quotes',
-    descFr: 'Génère et suis toutes tes commandes.',
-    descEn: 'Generate and track all your orders.',
+    descFr: 'Vends ebooks, formations, téléchargements.',
+    descEn: 'Sell ebooks, courses, downloads.',
   },
   giving: {
     id: 'giving', icon: Gift, route: '/dashboard/giving', color: 'bg-emerald-500/10 text-emerald-600',
     labelFr: 'Dons & offrandes',  labelEn: 'Giving & donations',
     descFr: 'Campagnes, offrandes et cadeaux.',
     descEn: 'Campaigns, offerings and gifts.',
-  },
-  payments: {
-    id: 'payments', icon: CreditCard, route: '/dashboard/payments', color: 'bg-amber-500/10 text-amber-600',
-    labelFr: 'Paiements',         labelEn: 'Payments',
-    descFr: 'Mobile Money, virements, payouts.',
-    descEn: 'Mobile Money, transfers, payouts.',
   },
   ai_book: {
     id: 'ai_book', icon: BookOpen, route: '/dashboard/ai-book', color: 'bg-orange-500/10 text-orange-600',
@@ -91,15 +91,9 @@ export const MODULES: Record<ModuleId, DashboardModule> = {
   },
   ai_content: {
     id: 'ai_content', icon: Sparkles, route: '/dashboard/ai-content', color: 'bg-fuchsia-500/10 text-fuchsia-600',
-    labelFr: 'Contenu IA',        labelEn: 'AI content',
-    descFr: 'Sermons, articles, posts, scripts.',
-    descEn: 'Sermons, articles, posts, scripts.',
-  },
-  comments: {
-    id: 'comments', icon: MessageSquare, route: '/dashboard/comments', color: 'bg-cyan-500/10 text-cyan-600',
-    labelFr: 'Commentaires',      labelEn: 'Comments',
-    descFr: 'Modère les avis sur tes produits.',
-    descEn: 'Moderate reviews on your products.',
+    labelFr: 'Contenu & formations IA', labelEn: 'AI content & courses',
+    descFr: 'Sermons, articles, posts, scripts, cours.',
+    descEn: 'Sermons, articles, posts, scripts, courses.',
   },
   location: {
     id: 'location', icon: MapPin, route: '/dashboard/location', color: 'bg-red-500/10 text-red-600',
@@ -113,68 +107,46 @@ export const MODULES: Record<ModuleId, DashboardModule> = {
     descFr: 'Crée événements et vends billets.',
     descEn: 'Create events and sell tickets.',
   },
-  reviews: {
-    id: 'reviews', icon: Star, route: '/dashboard/reviews', color: 'bg-yellow-500/10 text-yellow-600',
-    labelFr: 'Avis clients',      labelEn: 'Reviews',
-    descFr: 'Note et retours de tes clients.',
-    descEn: 'Ratings and feedback from clients.',
-  },
-  kyc: {
-    id: 'kyc', icon: ShieldCheck, route: '/dashboard/kyc', color: 'bg-slate-500/10 text-slate-600',
-    labelFr: 'Vérification (KYC)', labelEn: 'Verification (KYC)',
-    descFr: 'Vérifie ton identité pour être payé.',
-    descEn: 'Verify your identity to get paid.',
-  },
   affiliation: {
     id: 'affiliation', icon: Users2, route: '/dashboard/affiliation', color: 'bg-teal-500/10 text-teal-600',
     labelFr: 'Affiliation',       labelEn: 'Affiliation',
-    descFr: 'Gagne en parrainant d’autres pros.',
-    descEn: 'Earn by referring other pros.',
+    descFr: 'Gagne en parrainant d’autres pros. Désactivé par défaut.',
+    descEn: 'Earn by referring other pros. Off by default.',
   },
 };
 
 export const ALL_MODULE_IDS = Object.keys(MODULES) as ModuleId[];
 
 /**
- * MANDATORY modules — always on for every account. Not toggleable.
- * These are the "essentials" that come standard with the platform:
- * - digital_products: default dashboard everyone gets (sell ebooks, courses, downloads)
- * - orders: needed to track sales/quotes
- * - payments: needed to receive money
- * - kyc: legally required to be paid
- * - affiliation: everyone can earn by referring others
+ * Nothing is mandatory in the Settings → Modules list anymore.
+ * KYC / payments / reviews / comments / orders are baked-in functionalities
+ * of the service — not modules the user can toggle.
  */
-export const MANDATORY_MODULES: ModuleId[] = [
-  'digital_products',
-  'orders',
-  'payments',
-  'kyc',
-  'affiliation',
-];
+export const MANDATORY_MODULES: ModuleId[] = [];
 
 /**
- * OPTIONAL modules — family-specific features. Off by default; user turns them
- * on in Settings → My modules to bring in features from another family
- * (booking, giving, AI content, events, etc.).
+ * All modules are optional and toggleable from Settings → Modules.
+ * Persona presets pre-enable the right ones at signup.
  */
-export const OPTIONAL_MODULE_IDS: ModuleId[] = ALL_MODULE_IDS.filter(
-  (id) => !MANDATORY_MODULES.includes(id),
-);
+export const OPTIONAL_MODULE_IDS: ModuleId[] = [...ALL_MODULE_IDS];
 
-export const isMandatoryModule = (id: ModuleId) => MANDATORY_MODULES.includes(id);
+export const isMandatoryModule = (_id: ModuleId) => false;
 
 /**
  * Persona → default OPTIONAL modules pre-enabled at signup (from product matrix).
- * Mandatory modules are always active and NOT listed here.
+ * Affiliation is intentionally OFF by default for everyone — user activates it
+ * in Settings if they want to earn by referring.
+ * Reviews / comments / KYC / payments are NOT listed — they are baked-in
+ * functionalities of the service, not modules.
  */
 export const DEFAULT_MODULES_BY_PERSONA: Record<Persona, ModuleId[]> = {
-  church:      ['booking','giving','ai_book','ai_content','comments','location','reviews'],
-  digital:     ['giving','ai_book','ai_content','comments'],
-  coach:       ['booking','location','events_tickets','reviews'],
-  home:        ['booking','location','reviews'],
-  beauty:      ['booking','location','reviews'],
-  tutor:       ['booking','ai_content','location','reviews'],
-  musician:    ['booking','ai_content','location','events_tickets','reviews'],
-  influencer:  ['booking','ai_content','events_tickets','reviews'],
-  general:     ['booking','location','reviews'],
+  church:      ['booking','giving','ai_book','ai_content','location'],
+  digital:     ['digital_products','giving','ai_book','ai_content'],
+  coach:       ['booking','location','events_tickets'],
+  home:        ['booking','location'],
+  beauty:      ['booking','location'],
+  tutor:       ['booking','ai_content','location'],
+  musician:    ['booking','ai_content','location','events_tickets'],
+  influencer:  ['booking','ai_content','events_tickets'],
+  general:     ['booking','location'],
 };
