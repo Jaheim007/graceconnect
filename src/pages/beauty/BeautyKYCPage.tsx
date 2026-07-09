@@ -48,7 +48,7 @@ export default function BeautyKYCPage() {
     );
   }
 
-  if (!user) return <Navigate to="/auth?returnTo=/beauty/pro/kyc" replace />;
+  if (!user) return <Navigate to="/auth?returnTo=/admin/beauty/kyc" replace />;
   if (!data?.provider) return <Navigate to="/beauty/pro/onboarding" replace />;
 
   const { provider, submission } = data;
@@ -57,7 +57,7 @@ export default function BeautyKYCPage() {
     <div className="beauty-scope min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/beauty/pro")} className="shrink-0">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
