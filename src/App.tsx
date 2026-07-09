@@ -479,10 +479,22 @@ const App = () => (
                 <Route path="/home/about" element={<HomeLanding />} />
                 <Route path="/home/discover" element={<HomeDiscover />} />
                 <Route path="/home/pro/onboarding" element={<HomeProviderOnboarding />} />
-                <Route path="/home/pro" element={<RequireAuth><HomeProDashboard /></RequireAuth>} />
-                <Route path="/home/pro/kyc" element={<RequireAuth><HomeKYCPage /></RequireAuth>} />
-                <Route path="/home/pro/services" element={<RequireAuth><HomeProServices /></RequireAuth>} />
-                <Route path="/home/pro/revenue" element={<RequireAuth><HomeProRevenue /></RequireAuth>} />
+
+                {/* Fixated pro dashboard shell. Children render inside the sidebar layout
+                    on desktop; each child page also keeps its own mobile header. */}
+                <Route path="/home/pro" element={<RequireAuth><HomeProLayout /></RequireAuth>}>
+                  <Route index element={<HomeProOverview />} />
+                  <Route path="messages" element={<HomeProMessagesPane />}>
+                    <Route path=":id" element={<HomeProConversationPane />} />
+                  </Route>
+                  <Route path="orders" element={<HomeProOrdersPane />} />
+                  <Route path="revenue" element={<HomeProRevenuePane />} />
+                  <Route path="settings" element={<HomeProSettingsPane />} />
+                  <Route path="services" element={<HomeProServices />} />
+                  <Route path="kyc" element={<HomeKYCPage />} />
+                </Route>
+
+                {/* Legacy full-page routes still work for direct links & mobile deep links */}
                 <Route path="/home/messages" element={<RequireAuth><HomeMessagesList /></RequireAuth>} />
                 <Route path="/home/messages/:id" element={<RequireAuth><HomeConversation /></RequireAuth>} />
                 <Route path="/home/bookings" element={<RequireAuth><HomeBookingsList /></RequireAuth>} />
