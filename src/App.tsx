@@ -811,6 +811,54 @@ const App = () => (
                   <Route path="settings" element={<LazyAdminSettings />} />
                   <Route path="features" element={<LazyAdminFeatures />} />
                   <Route path="sales" element={<AdminSales />} />
+                  <Route path="beauty" element={<BeautyProOverview />} />
+                  <Route path="beauty/messages" element={<BeautyProMessagesPane />}>
+                    <Route path=":id" element={<BeautyProConversationPane />} />
+                  </Route>
+                  <Route path="beauty/orders" element={<BeautyProOrdersPane />} />
+                  <Route path="beauty/revenue" element={<BeautyProRevenuePane />} />
+                  <Route path="beauty/settings" element={<BeautyProSettingsPane />} />
+                  <Route path="beauty/kyc" element={<BeautyKYCPage />} />
+                  <Route path="home" element={<HomeProOverview />} />
+                  <Route path="home/messages" element={<HomeProMessagesPane />}>
+                    <Route path=":id" element={<HomeProConversationPane />} />
+                  </Route>
+                  <Route path="home/orders" element={<HomeProOrdersPane />} />
+                  <Route path="home/revenue" element={<HomeProRevenuePane />} />
+                  <Route path="home/settings" element={<HomeProSettingsPane />} />
+                  <Route path="home/services" element={<HomeProServices />} />
+                  <Route path="home/kyc" element={<HomeKYCPage />} />
+                  <Route path="events-service" element={<EventsProOverview />} />
+                  <Route path="events-service/messages" element={<EventsProMessagesPane />}>
+                    <Route path=":id" element={<EventsProConversationPane />} />
+                  </Route>
+                  <Route path="events-service/orders" element={<EventsProOrdersPane />} />
+                  <Route path="events-service/revenue" element={<EventsProRevenuePane />} />
+                  <Route path="events-service/settings" element={<EventsProSettingsPane />} />
+                  <Route path="events-service/kyc" element={<EventsKYCPage />} />
+                  <Route path="events-service/packages" element={<EventsProPackages />} />
+                  <Route path="learn" element={<EducationProOverview />} />
+                  <Route path="learn/messages" element={<EducationProMessagesPane />}>
+                    <Route path=":id" element={<EducationProConversationPane />} />
+                  </Route>
+                  <Route path="learn/orders" element={<EducationProOrdersPane />} />
+                  <Route path="learn/revenue" element={<EducationProRevenuePane />} />
+                  <Route path="learn/settings" element={<EducationProSettingsPane />} />
+                  <Route path="learn/kyc" element={<EducationKYCPage />} />
+                  <Route path="learn/subjects" element={<EducationTutorSubjects />} />
+                  <Route path="church" element={<ChurchProDashboard />} />
+                  <Route path="church/kyc" element={<ChurchKYCPage />} />
+                  <Route path="church/sermons" element={<ChurchProSermons />} />
+                  <Route path="church/sermons/:id" element={<ChurchProSermonDetail />} />
+                  <Route path="church/giving" element={<ChurchProGiving />} />
+                  <Route path="church/campaigns" element={<ChurchProCampaigns />} />
+                  <Route path="church/events" element={<ChurchProEvents />} />
+                  <Route path="church/prayer" element={<ChurchProPrayer />} />
+                  <Route path="church/announcements" element={<ChurchProAnnouncements />} />
+                  <Route path="church/team" element={<ChurchProTeam />} />
+                  <Route path="church/members" element={<ChurchProSectionStub titleFr="Membres & diaspora" titleEn="Members & diaspora" phase="Phase 5" />} />
+                  <Route path="church/settings" element={<ChurchProSettings />} />
+                  <Route path="church/appointments" element={<ChurchProAppointments />} />
                   <Route path="payouts" element={<AdminPayouts />} />
                   <Route path="subscriptions" element={<AdminSubscriptions />} />
                   <Route path="waitlists" element={<AdminWaitlists />} />
