@@ -129,11 +129,16 @@ export function TopBar() {
                 <CreditCard className="h-3.5 w-3.5 mr-2" />
                 {isFr ? 'Abonnement & facturation' : 'Subscription & billing'}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/create-org')}>
-                <Plus className="h-3.5 w-3.5 mr-2" />
-                {isFr ? 'Créer un espace/page' : 'Create a workspace/page'}
-              </DropdownMenuItem>
-              {managedOrgs.length >= 1 && (
+              {/* Workspace controls only appear when they're useful:
+                  superadmin, or the user manages 2+ orgs. Single-org service pros
+                  (artisan, beauty, tutor…) don't need workspace-switching noise. */}
+              {(isSuperadmin || managedOrgs.length >= 2) && (
+                <DropdownMenuItem onClick={() => navigate('/create-org')}>
+                  <Plus className="h-3.5 w-3.5 mr-2" />
+                  {isFr ? 'Créer un espace/page' : 'Create a workspace/page'}
+                </DropdownMenuItem>
+              )}
+              {(isSuperadmin || managedOrgs.length >= 2) && (
                 <DropdownMenuItem onClick={() => setSwitchDialogOpen(true)}>
                   <Building2 className="h-3.5 w-3.5 mr-2" />
                   {isFr ? 'Changer d’espace/page' : 'Switch workspace/page'}
