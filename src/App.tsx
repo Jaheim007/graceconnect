@@ -34,6 +34,11 @@ function StoreRedirect() {
   return <Navigate to={`/org/${slug}/store`} replace />;
 }
 
+function IdRedirect({ toBase }: { toBase: string }) {
+  const { id } = useParams();
+  return <Navigate to={id ? `${toBase}/${id}` : toBase} replace />;
+}
+
 // Lazy-loaded fallback — branded splash
 const PageLoader = () => (
   <div className="min-h-[60dvh] flex flex-col items-center justify-center gap-4">
@@ -61,7 +66,6 @@ const BeautyBookingsList = lazy(() => import("@/pages/beauty/BeautyBookingsList"
 const BeautyMessagesList = lazy(() => import("@/pages/beauty/BeautyMessagesList"));
 const BeautyConversation = lazy(() => import("@/pages/beauty/BeautyConversation"));
 const BeautyProDashboard = lazy(() => import("@/pages/beauty/BeautyProDashboard"));
-const BeautyProLayout = lazy(() => import("@/pages/beauty/pro/BeautyProLayout"));
 const BeautyProOverview = lazy(() => import("@/pages/beauty/pro/BeautyProOverview"));
 const BeautyProMessagesPane = lazy(() => import("@/pages/beauty/pro/BeautyProMessagesPane"));
 const BeautyProConversationPane = lazy(() => import("@/pages/beauty/pro/BeautyProConversationPane"));
@@ -82,7 +86,6 @@ const HomeKYCPage = lazy(() => import("@/pages/home/HomeKYCPage"));
 const HomeProServices = lazy(() => import("@/pages/home/HomeProServices"));
 const HomeBookingDetail = lazy(() => import("@/pages/home/HomeBookingDetail"));
 // Pro shell (fixated dashboard) — desktop keeps sidebar visible, right pane routes.
-const HomeProLayout = lazy(() => import("@/pages/home/pro/HomeProLayout"));
 const HomeProOverview = lazy(() => import("@/pages/home/pro/HomeProOverview"));
 const HomeProMessagesPane = lazy(() => import("@/pages/home/pro/HomeProMessagesPane"));
 const HomeProConversationPane = lazy(() => import("@/pages/home/pro/HomeProConversationPane"));
@@ -95,7 +98,6 @@ const EventsDiscover = lazy(() => import("@/pages/events/EventsDiscover"));
 const EventsProviderPublic = lazy(() => import("@/pages/events/EventsProviderPublic"));
 const EventsProviderOnboarding = lazy(() => import("@/pages/events/EventsProviderOnboarding"));
 const EventsProDashboard = lazy(() => import("@/pages/events/EventsProDashboard"));
-const EventsProLayout = lazy(() => import("@/pages/events/pro/EventsProLayout"));
 const EventsProOverview = lazy(() => import("@/pages/events/pro/EventsProOverview"));
 const EventsProMessagesPane = lazy(() => import("@/pages/events/pro/EventsProMessagesPane"));
 const EventsProConversationPane = lazy(() => import("@/pages/events/pro/EventsProConversationPane"));
@@ -116,7 +118,6 @@ const EducationDiscover = lazy(() => import("@/pages/education/EducationDiscover
 const EducationTutorPublic = lazy(() => import("@/pages/education/EducationTutorPublic"));
 const EducationTutorOnboarding = lazy(() => import("@/pages/education/EducationTutorOnboarding"));
 const EducationTutorDashboard = lazy(() => import("@/pages/education/EducationTutorDashboard"));
-const EducationProLayout = lazy(() => import("@/pages/education/pro/EducationProLayout"));
 const EducationProOverview = lazy(() => import("@/pages/education/pro/EducationProOverview"));
 const EducationProMessagesPane = lazy(() => import("@/pages/education/pro/EducationProMessagesPane"));
 const EducationProConversationPane = lazy(() => import("@/pages/education/pro/EducationProConversationPane"));
@@ -137,8 +138,6 @@ const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
 const ChurchDiscover = lazy(() => import("@/pages/church/ChurchDiscover"));
 const ChurchOnboarding = lazy(() => import("@/pages/church/ChurchOnboarding"));
 const ChurchProDashboard = lazy(() => import("@/pages/church/ChurchProDashboard"));
-const ChurchProLayout = lazy(() => import("@/pages/church/ChurchProLayout"));
-
 const ChurchKYCPage = lazy(() => import("@/pages/church/ChurchKYCPage"));
 const ChurchPublicProfile = lazy(() => import("@/pages/church/ChurchPublicProfile"));
 const ChurchProSectionStub = lazy(() => import("@/pages/church/ChurchProSectionStub"));
@@ -467,12 +466,12 @@ const App = () => (
                 <Route path="/beauty/bookings" element={<Navigate to="/admin/beauty/orders" replace />} />
                 <Route path="/beauty/bookings/:id" element={<Navigate to="/admin/beauty/orders" replace />} />
                 <Route path="/beauty/messages" element={<Navigate to="/admin/beauty/messages" replace />} />
-                <Route path="/beauty/messages/:id" element={<Navigate to="/admin/beauty/messages/:id" replace />} />
+                <Route path="/beauty/messages/:id" element={<IdRedirect toBase="/admin/beauty/messages" />} />
 
                 <Route path="/beauty/pro/onboarding" element={<BeautyProviderOnboarding />} />
                 <Route path="/beauty/pro" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/beauty/pro/messages" element={<Navigate to="/admin/beauty/messages" replace />} />
-                <Route path="/beauty/pro/messages/:id" element={<Navigate to="/admin/beauty/messages/:id" replace />} />
+                <Route path="/beauty/pro/messages/:id" element={<IdRedirect toBase="/admin/beauty/messages" />} />
                 <Route path="/beauty/pro/orders" element={<Navigate to="/admin/beauty/orders" replace />} />
                 <Route path="/beauty/pro/revenue" element={<Navigate to="/admin/beauty/revenue" replace />} />
                 <Route path="/beauty/pro/settings" element={<Navigate to="/admin/beauty/settings" replace />} />
@@ -486,7 +485,7 @@ const App = () => (
                 <Route path="/church/pro" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/church/pro/kyc" element={<Navigate to="/admin/church/kyc" replace />} />
                 <Route path="/church/pro/sermons" element={<Navigate to="/admin/church/sermons" replace />} />
-                <Route path="/church/pro/sermons/:id" element={<Navigate to="/admin/church/sermons/:id" replace />} />
+                <Route path="/church/pro/sermons/:id" element={<IdRedirect toBase="/admin/church/sermons" />} />
                 <Route path="/church/pro/giving" element={<Navigate to="/admin/church/giving" replace />} />
                 <Route path="/church/pro/campaigns" element={<Navigate to="/admin/church/campaigns" replace />} />
                 <Route path="/church/pro/events" element={<Navigate to="/admin/church/events" replace />} />
@@ -511,7 +510,7 @@ const App = () => (
 
                 <Route path="/home/pro" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/home/pro/messages" element={<Navigate to="/admin/home/messages" replace />} />
-                <Route path="/home/pro/messages/:id" element={<Navigate to="/admin/home/messages/:id" replace />} />
+                <Route path="/home/pro/messages/:id" element={<IdRedirect toBase="/admin/home/messages" />} />
                 <Route path="/home/pro/orders" element={<Navigate to="/admin/home/orders" replace />} />
                 <Route path="/home/pro/revenue" element={<Navigate to="/admin/home/revenue" replace />} />
                 <Route path="/home/pro/settings" element={<Navigate to="/admin/home/settings" replace />} />
@@ -519,7 +518,7 @@ const App = () => (
                 <Route path="/home/pro/kyc" element={<Navigate to="/admin/home/kyc" replace />} />
 
                 <Route path="/home/messages" element={<Navigate to="/admin/home/messages" replace />} />
-                <Route path="/home/messages/:id" element={<Navigate to="/admin/home/messages/:id" replace />} />
+                <Route path="/home/messages/:id" element={<IdRedirect toBase="/admin/home/messages" />} />
                 <Route path="/home/bookings" element={<Navigate to="/admin/home/orders" replace />} />
                 <Route path="/home/booking/:id" element={<Navigate to="/admin/home/orders" replace />} />
                 <Route path="/home/pro/:slug" element={<HomeProviderPublic />} />
@@ -532,7 +531,7 @@ const App = () => (
                 <Route path="/events/pro/onboarding" element={<EventsProviderOnboarding />} />
                 <Route path="/events/pro" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/events/pro/messages" element={<Navigate to="/admin/events-service/messages" replace />} />
-                <Route path="/events/pro/messages/:id" element={<Navigate to="/admin/events-service/messages/:id" replace />} />
+                <Route path="/events/pro/messages/:id" element={<IdRedirect toBase="/admin/events-service/messages" />} />
                 <Route path="/events/pro/orders" element={<Navigate to="/admin/events-service/orders" replace />} />
                 <Route path="/events/pro/revenue" element={<Navigate to="/admin/events-service/revenue" replace />} />
                 <Route path="/events/pro/settings" element={<Navigate to="/admin/events-service/settings" replace />} />
@@ -540,7 +539,7 @@ const App = () => (
                 <Route path="/events/pro/packages" element={<Navigate to="/admin/events-service/packages" replace />} />
                 <Route path="/events/pro/dashboard" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/events/messages" element={<Navigate to="/admin/events-service/messages" replace />} />
-                <Route path="/events/messages/:id" element={<Navigate to="/admin/events-service/messages/:id" replace />} />
+                <Route path="/events/messages/:id" element={<IdRedirect toBase="/admin/events-service/messages" />} />
                 <Route path="/events/bookings" element={<Navigate to="/admin/events-service/orders" replace />} />
                 <Route path="/events/booking/:id" element={<Navigate to="/admin/events-service/orders" replace />} />
 
@@ -553,7 +552,7 @@ const App = () => (
                 <Route path="/learn/pro/onboarding" element={<EducationTutorOnboarding />} />
                 <Route path="/learn/pro" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/learn/pro/messages" element={<Navigate to="/admin/learn/messages" replace />} />
-                <Route path="/learn/pro/messages/:id" element={<Navigate to="/admin/learn/messages/:id" replace />} />
+                <Route path="/learn/pro/messages/:id" element={<IdRedirect toBase="/admin/learn/messages" />} />
                 <Route path="/learn/pro/orders" element={<Navigate to="/admin/learn/orders" replace />} />
                 <Route path="/learn/pro/revenue" element={<Navigate to="/admin/learn/revenue" replace />} />
                 <Route path="/learn/pro/settings" element={<Navigate to="/admin/learn/settings" replace />} />
@@ -561,7 +560,7 @@ const App = () => (
                 <Route path="/learn/pro/subjects" element={<Navigate to="/admin/learn/subjects" replace />} />
                 <Route path="/learn/pro/dashboard" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/learn/messages" element={<Navigate to="/admin/learn/messages" replace />} />
-                <Route path="/learn/messages/:id" element={<Navigate to="/admin/learn/messages/:id" replace />} />
+                <Route path="/learn/messages/:id" element={<IdRedirect toBase="/admin/learn/messages" />} />
                 <Route path="/learn/bookings" element={<Navigate to="/admin/learn/orders" replace />} />
                 <Route path="/learn/booking/:id" element={<Navigate to="/admin/learn/orders" replace />} />
 
@@ -577,7 +576,7 @@ const App = () => (
                 <Route path="/education/pro/revenue" element={<Navigate to="/admin/learn/revenue" replace />} />
 
                 <Route path="/education/messages" element={<Navigate to="/admin/learn/messages" replace />} />
-                <Route path="/education/messages/:id" element={<Navigate to="/admin/learn/messages/:id" replace />} />
+                <Route path="/education/messages/:id" element={<IdRedirect toBase="/admin/learn/messages" />} />
                 <Route path="/education/bookings" element={<Navigate to="/admin/learn/orders" replace />} />
                 <Route path="/education/booking/:id" element={<Navigate to="/admin/learn/orders" replace />} />
 
