@@ -421,6 +421,7 @@ const App = () => (
                 <Route path="/start" element={<LazyStartOfferingPage />} />
                 <Route path="/start/details" element={<LazyStartDetailsPage />} />
                 <Route path="/start/finish" element={<LazyStartFinishPage />} />
+                <Route path="/create-org" element={<CreateOrgPage />} />
                 <Route path="/start-selling" element={<Navigate to="/start" replace />} />
                 <Route path="/welcome-intent" element={<LazyIntentChooserPage />} />
                 <Route path="/looking-for" element={<LazyLookingForPage />} />
