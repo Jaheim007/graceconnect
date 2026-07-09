@@ -78,46 +78,12 @@ export function FirstSaleChecklist() {
     staleTime: 60_000,
   });
 
+  const type = (currentOrg?.siteviral_type as SiteviralType | null) ?? null;
+
   const steps: Step[] = useMemo(() => {
     const s = signals;
-    return [
-      {
-        id: 'org',
-        label: { fr: 'Crée ton organisation', en: 'Create your organization' },
-        cta: { fr: 'Créer', en: 'Create' },
-        done: !!s?.hasOrg,
-        onClick: () => navigate('/create-organization'),
-      },
-      {
-        id: 'branding',
-        label: { fr: 'Ajoute logo + description', en: 'Add logo + description' },
-        cta: { fr: 'Personnaliser', en: 'Customize' },
-        done: !!s?.hasOrgBranding,
-        onClick: () => navigate('/admin/settings'),
-      },
-      {
-        id: 'product',
-        label: { fr: 'Publie ton premier produit', en: 'Publish your first product' },
-        cta: { fr: 'Créer un produit', en: 'Create product' },
-        done: !!s?.hasPublishedProduct,
-        onClick: () => navigate('/sell'),
-      },
-      {
-        id: 'affiliate',
-        label: { fr: 'Active ton code ambassadeur', en: 'Activate your ambassador code' },
-        cta: { fr: 'Activer', en: 'Activate' },
-        done: !!s?.hasAffiliateCode,
-        onClick: () => navigate('/earn'),
-      },
-      {
-        id: 'share',
-        label: { fr: 'Partage ton lien sur 1 réseau', en: 'Share your link on 1 channel' },
-        cta: { fr: 'Partager', en: 'Share' },
-        done: !!s?.hasSale, // first sale = proof the share worked
-        onClick: () => navigate('/discover'),
-      },
-    ];
-  }, [signals, navigate]);
+    return buildStepsForType(type, s, navigate);
+  }, [signals, navigate, type]);
 
   const completedCount = steps.filter(s => s.done).length;
   const total = steps.length;
