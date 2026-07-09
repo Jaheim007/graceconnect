@@ -1,19 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Star, ShieldCheck, Zap, ArrowRight, TrendingUp } from 'lucide-react';
+import { Search, ShieldCheck, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
-
-const POPULAR = [
-  { fr: 'Service de coiffure',      en: 'Hairstyling service',   route: '/beauty/search' },
-  { fr: 'Service de cours maths',   en: 'Math tutoring service', route: '/learn/discover' },
-  { fr: 'Service de plomberie',     en: 'Plumbing service',      route: '/home/discover' },
-  { fr: 'Service traiteur mariage', en: 'Wedding catering',      route: '/events/discover' },
-  { fr: 'Service ebook',            en: 'Ebook service',         route: '/discover?type=digital' },
-  { fr: 'Service beatmaking',       en: 'Beatmaking service',    route: '/discover?type=music' },
-];
 
 const CATEGORIES_FOR_SEARCH = [
   { value: '', fr: 'Toutes catégories', en: 'All categories' },
