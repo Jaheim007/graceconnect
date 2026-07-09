@@ -62,7 +62,7 @@ export function MarketplaceHero() {
         }}
       />
 
-      <div className="relative container max-w-6xl px-4 py-20 sm:py-28">
+      <div className="relative container max-w-6xl px-4 py-12 sm:py-16">
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider mb-6 backdrop-blur">
             <ShieldCheck className="h-3.5 w-3.5 text-accent" />
