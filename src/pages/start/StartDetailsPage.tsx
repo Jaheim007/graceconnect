@@ -43,20 +43,7 @@ export default function StartDetailsPage() {
 
   useEffect(() => {
     if (!config.activity) navigate('/start', { replace: true });
-    // Digital products use the unified "Créer ta plateforme" flow
-    if (resolved.activityKey === 'digital') {
-      try {
-        const existing = JSON.parse(sessionStorage.getItem(CONFIG_KEY) || '{}');
-        sessionStorage.setItem(CONFIG_KEY, JSON.stringify({
-          ...existing,
-          activity: 'digital',
-          siteviral_type: resolved.siteviral_type,
-          enabled_features: resolved.enabled_features,
-        }));
-      } catch {}
-      navigate('/create-org', { replace: true });
-    }
-  }, [config.activity, navigate, resolved]);
+  }, [config.activity, navigate]);
 
   const label = fr ? resolved.labelFr : resolved.labelEn;
 
