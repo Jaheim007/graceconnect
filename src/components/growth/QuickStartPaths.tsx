@@ -134,7 +134,9 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
 // Default (no org / no vertical yet): keep the original digital creator paths.
 const DEFAULT_KEYS: SiteviralFeatureKey[] = ['ai_book_creation', 'digital_products', 'affiliation'];
 
-/** Order tiles are shown inside the dashboard. */
+/** Order tiles are shown inside the dashboard.
+ * Reviews & AI courses are intentionally excluded — they're optional modules
+ * activated from Settings, not primary dashboard tiles. */
 const DISPLAY_ORDER: SiteviralFeatureKey[] = [
   'appointment',
   'order_generator',
@@ -142,9 +144,7 @@ const DISPLAY_ORDER: SiteviralFeatureKey[] = [
   'donation_gifts',
   'events',
   'ai_book_creation',
-  'ai_formation_creation',
   'product_comments',
-  'reviews',
   'affiliation',
 ];
 
