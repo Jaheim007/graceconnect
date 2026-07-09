@@ -32,9 +32,9 @@ export default function BeautyProOverview() {
 
   if (isLoading || !provider) return <div className="p-10 text-center text-sm text-muted-foreground">…</div>;
   const stats = (provider as any).beauty_provider_stats;
-  const kycDone = !!(provider as any).kyc_verified_at;
+  const kycDone = (provider as any).status === "active";
   const hasServices = servicesCount > 0;
-  const currency = (provider as any).currency ?? "XOF";
+  const currency = "XOF";
 
   return (
     <div className="pb-24 lg:pb-8">
