@@ -362,6 +362,8 @@ const LazyAdminSettings = lazy(() => import("@/pages/admin/AdminPages").then(m =
 const LazyAdminFeatures = lazy(() => import("@/pages/admin/AdminFeaturesPage"));
 const LazyStartOfferingPage = lazy(() => import("@/pages/StartOfferingPage"));
 const LazyStartSellingPage = lazy(() => import("@/pages/StartSellingPage"));
+const LazyStartDetailsPage = lazy(() => import("@/pages/start/StartDetailsPage"));
+const LazyStartFinishPage = lazy(() => import("@/pages/start/StartFinishPage"));
 const LazyIntentChooserPage = lazy(() => import("@/pages/IntentChooserPage"));
 const LazyLookingForPage = lazy(() => import("@/pages/LookingForPage"));
 const LazyOnboardingType = lazy(() => import("@/pages/onboarding/OnboardingTypePage"));
@@ -417,7 +419,9 @@ const App = () => (
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/superapp" element={<SuperAppHub />} />
                 <Route path="/start" element={<LazyStartOfferingPage />} />
-                <Route path="/start-selling" element={<LazyStartSellingPage />} />
+                <Route path="/start/details" element={<LazyStartDetailsPage />} />
+                <Route path="/start/finish" element={<LazyStartFinishPage />} />
+                <Route path="/start-selling" element={<Navigate to="/start" replace />} />
                 <Route path="/welcome-intent" element={<LazyIntentChooserPage />} />
                 <Route path="/looking-for" element={<LazyLookingForPage />} />
                 <Route path="/services" element={<Navigate to="/discover" replace />} />
