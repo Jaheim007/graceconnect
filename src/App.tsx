@@ -524,12 +524,14 @@ const App = () => (
                   <Route path="kyc" element={<HomeKYCPage />} />
                 </Route>
 
-                {/* Legacy full-page routes still work for direct links & mobile deep links */}
-                <Route path="/home/messages" element={<RequireAuth><HomeMessagesList /></RequireAuth>} />
+                {/* Legacy routes → redirect INTO the fixated pro shell so the
+                    sidebar stays visible and pages don't hijack the viewport. */}
+                <Route path="/home/messages" element={<Navigate to="/home/pro/messages" replace />} />
                 <Route path="/home/messages/:id" element={<RequireAuth><HomeConversation /></RequireAuth>} />
-                <Route path="/home/bookings" element={<RequireAuth><HomeBookingsList /></RequireAuth>} />
+                <Route path="/home/bookings" element={<Navigate to="/home/pro/orders" replace />} />
                 <Route path="/home/booking/:id" element={<RequireAuth><HomeBookingDetail /></RequireAuth>} />
                 <Route path="/home/pro/:slug" element={<HomeProviderPublic />} />
+
 
                 {/* SiteViral Events */}
                 <Route path="/events" element={<Navigate to="/events/discover" replace />} />
