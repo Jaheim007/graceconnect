@@ -55,7 +55,7 @@ export default function ChurchOnboarding() {
     );
   }
 
-  if (existing) return <Navigate to="/church/pro" replace />;
+  if (existing) return <Navigate to="/dashboard" replace />;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();

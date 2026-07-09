@@ -66,7 +66,7 @@ export default function EventsProOverview() {
 
         <div className="space-y-2.5">
           {!kycDone && (
-            <Link to="/events/pro/kyc" className="block rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 hover:bg-amber-500/15 transition">
+            <Link to="/admin/events-service/kyc" className="block rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 hover:bg-amber-500/15 transition">
               <div className="flex items-center gap-3">
                 <ShieldCheck className="h-5 w-5 text-amber-600 shrink-0" />
                 <div className="flex-1 text-sm">
@@ -77,7 +77,7 @@ export default function EventsProOverview() {
             </Link>
           )}
           {kycDone && !hasPackages && (
-            <Link to="/events/pro/packages" className="block rounded-2xl border border-fuchsia-500/40 bg-fuchsia-500/10 p-4 hover:bg-fuchsia-500/15 transition">
+            <Link to="/admin/events-service/packages" className="block rounded-2xl border border-fuchsia-500/40 bg-fuchsia-500/10 p-4 hover:bg-fuchsia-500/15 transition">
               <div className="flex items-center gap-3">
                 <AlertCircle className="h-5 w-5 text-fuchsia-600 shrink-0" />
                 <div className="flex-1 text-sm">
@@ -98,10 +98,10 @@ export default function EventsProOverview() {
 
         <div className="grid gap-2.5 lg:grid-cols-2">
           {[
-            { icon: MessageSquare, label: t("Messages clients", "Client messages"), to: "/events/pro/messages" },
-            { icon: Calendar, label: t("Réservations", "Bookings"), to: "/events/pro/orders" },
-            { icon: PartyPopper, label: t("Mes packages", "My packages"), to: "/events/pro/packages" },
-            { icon: Share2, label: t("Ma page publique", "My public page"), to: p.slug ? `/events/pro/${p.slug}` : "/events/pro/settings" },
+            { icon: MessageSquare, label: t("Messages clients", "Client messages"), to: "/admin/events-service/messages" },
+            { icon: Calendar, label: t("Réservations", "Bookings"), to: "/admin/events-service/orders" },
+            { icon: PartyPopper, label: t("Mes packages", "My packages"), to: "/admin/events-service/packages" },
+            { icon: Share2, label: t("Ma page publique", "My public page"), to: p.slug ? `/events/pro/${p.slug}` : "/admin/events-service/settings" },
           ].map((a) => (
             <Button key={a.to} asChild variant="outline" className="h-14 justify-start">
               <Link to={a.to}><a.icon className="mr-3 h-4 w-4" />{a.label}</Link>

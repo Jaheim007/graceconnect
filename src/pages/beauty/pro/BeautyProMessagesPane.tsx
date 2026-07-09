@@ -56,7 +56,7 @@ export default function BeautyProMessagesPane() {
       <aside className={cn("flex flex-col border-b lg:border-b-0 lg:border-r border-border/60 bg-background",
         "lg:w-80 xl:w-96 lg:shrink-0", activeId ? "hidden lg:flex" : "flex")}>
         <header className="flex items-center gap-2 px-4 py-3 border-b border-border/60">
-          <Link to="/beauty/pro" className="lg:hidden rounded-lg p-1.5 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/dashboard" className="lg:hidden rounded-lg p-1.5 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h2 className="text-base font-bold">{isFr ? "Messages" : "Messages"}</h2>
           <span className="ml-auto text-[11px] text-muted-foreground">{convs?.length ?? 0}</span>
         </header>
@@ -74,7 +74,7 @@ export default function BeautyProMessagesPane() {
                 const isActive = c.id === activeId;
                 return (
                   <li key={c.id}>
-                    <NavLink to={`/beauty/pro/messages/${c.id}`}
+                    <NavLink to={`/admin/beauty/messages/${c.id}`}
                       className={cn("flex items-center gap-3 px-4 py-3 hover:bg-accent/50 transition",
                         isActive && "bg-primary/10 hover:bg-primary/10")}>
                       {c.client?.avatar_url ? (

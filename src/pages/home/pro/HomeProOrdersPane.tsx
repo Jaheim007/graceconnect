@@ -58,7 +58,7 @@ export default function HomeProOrdersPane() {
     <div className="pb-24 lg:pb-8">
       <header className="lg:hidden sticky top-0 z-20 border-b border-border/60 bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/home/pro" className="rounded-lg p-2 hover:bg-accent">
+          <Link to="/dashboard" className="rounded-lg p-2 hover:bg-accent">
             <ClipboardList className="h-4 w-4" />
           </Link>
           <h1 className="text-sm font-bold">{t("Demandes & interventions", "Orders & jobs")}</h1>
@@ -132,7 +132,7 @@ export default function HomeProOrdersPane() {
                 {o.conversation_id && (
                   <div className="mt-3 flex justify-end">
                     <Link
-                      to={`/home/pro/messages/${o.conversation_id}`}
+                      to={`/admin/home/messages/${o.conversation_id}`}
                       className="text-xs font-semibold text-primary hover:underline"
                     >
                       {t("Ouvrir la conversation", "Open conversation")} →

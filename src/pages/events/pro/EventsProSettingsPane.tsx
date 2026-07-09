@@ -38,7 +38,7 @@ export default function EventsProSettingsPane() {
     <div className="pb-24 lg:pb-8">
       <header className="lg:hidden sticky top-0 z-20 border-b border-border/60 bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/events/pro" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/dashboard" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h1 className="text-sm font-bold">{t("Réglages", "Settings")}</h1>
         </div>
       </header>
@@ -71,13 +71,13 @@ export default function EventsProSettingsPane() {
         <Row icon={<ShieldCheck className="h-4 w-4" />} iconBg="bg-amber-500/15 text-amber-600"
           title={t("Vérification d'identité (KYC)", "Identity verification (KYC)")}
           desc={kycDone ? t("Ton identité est vérifiée.", "Your identity is verified.") : t("Obligatoire pour recevoir des paiements.", "Required to receive payouts.")}
-          cta={kycDone ? t("Voir", "View") : t("Faire le KYC", "Verify now")} to="/events/pro/kyc"
+          cta={kycDone ? t("Voir", "View") : t("Faire le KYC", "Verify now")} to="/admin/events-service/kyc"
           badge={kycDone ? { label: t("Vérifié", "Verified"), cls: "bg-emerald-500/15 text-emerald-700" } : { label: t("Requis", "Required"), cls: "bg-amber-500/15 text-amber-700" }} />
 
         <Row icon={<PartyPopper className="h-4 w-4" />} iconBg="bg-fuchsia-500/15 text-fuchsia-600"
           title={t("Mes packages & tarifs", "My packages & pricing")}
           desc={t("Formules, prestations et prix.", "Packages, deliverables and prices.")}
-          cta={t("Gérer", "Manage")} to="/events/pro/packages" />
+          cta={t("Gérer", "Manage")} to="/admin/events-service/packages" />
 
         <Row icon={<User className="h-4 w-4" />} iconBg="bg-violet-500/15 text-violet-600"
           title={t("Profil & compte", "Profile & account")}

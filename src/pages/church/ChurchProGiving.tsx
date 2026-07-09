@@ -67,7 +67,7 @@ export default function ChurchProGiving() {
       <div className="mx-auto max-w-5xl px-4 py-6 space-y-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild><Link to="/church/pro"><ArrowLeft className="h-5 w-5" /></Link></Button>
+            <Button variant="ghost" size="icon" asChild><Link to="/dashboard"><ArrowLeft className="h-5 w-5" /></Link></Button>
             <div>
               <p className="text-xs text-muted-foreground">SiteViral Church</p>
               <h1 className="text-xl font-bold flex items-center gap-2"><HandHeart className="h-5 w-5 text-primary" /> {fr ? 'Dîmes & offrandes' : 'Tithes & offerings'}</h1>
@@ -103,7 +103,7 @@ export default function ChurchProGiving() {
                 <p className="font-semibold">{fr ? 'Vérification de paiement à compléter' : 'Complete payout verification'}</p>
                 <p>{fr ? 'Complétez la vérification de paiement pour retirer vos fonds.' : 'Complete payout verification to withdraw your funds.'}</p>
               </div>
-              <Button asChild size="sm" variant="outline"><Link to="/church/pro/kyc">{fr ? 'Vérifier' : 'Verify'}</Link></Button>
+              <Button asChild size="sm" variant="outline"><Link to="/admin/church/kyc">{fr ? 'Vérifier' : 'Verify'}</Link></Button>
             </div>
           )}
         </div>

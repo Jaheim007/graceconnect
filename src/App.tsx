@@ -34,6 +34,11 @@ function StoreRedirect() {
   return <Navigate to={`/org/${slug}/store`} replace />;
 }
 
+function IdRedirect({ toBase }: { toBase: string }) {
+  const { id } = useParams();
+  return <Navigate to={id ? `${toBase}/${id}` : toBase} replace />;
+}
+
 // Lazy-loaded fallback — branded splash
 const PageLoader = () => (
   <div className="min-h-[60dvh] flex flex-col items-center justify-center gap-4">
@@ -57,11 +62,7 @@ const BeautySearch = lazy(() => import("@/pages/beauty/BeautySearch"));
 const BeautyProviderProfile = lazy(() => import("@/pages/beauty/BeautyProviderProfile"));
 
 const BeautyBookingDetail = lazy(() => import("@/pages/beauty/BeautyBookingDetail"));
-const BeautyBookingsList = lazy(() => import("@/pages/beauty/BeautyBookingsList"));
-const BeautyMessagesList = lazy(() => import("@/pages/beauty/BeautyMessagesList"));
 const BeautyConversation = lazy(() => import("@/pages/beauty/BeautyConversation"));
-const BeautyProDashboard = lazy(() => import("@/pages/beauty/BeautyProDashboard"));
-const BeautyProLayout = lazy(() => import("@/pages/beauty/pro/BeautyProLayout"));
 const BeautyProOverview = lazy(() => import("@/pages/beauty/pro/BeautyProOverview"));
 const BeautyProMessagesPane = lazy(() => import("@/pages/beauty/pro/BeautyProMessagesPane"));
 const BeautyProConversationPane = lazy(() => import("@/pages/beauty/pro/BeautyProConversationPane"));
@@ -75,14 +76,11 @@ const HomeLanding = lazy(() => import("@/pages/home/HomeLanding"));
 const HomeDiscover = lazy(() => import("@/pages/home/HomeDiscover"));
 const HomeProviderPublic = lazy(() => import("@/pages/home/HomeProviderPublic"));
 const HomeProviderOnboarding = lazy(() => import("@/pages/home/HomeProviderOnboarding"));
-const HomeMessagesList = lazy(() => import("@/pages/home/HomeMessagesList"));
 const HomeConversation = lazy(() => import("@/pages/home/HomeConversation"));
-const HomeBookingsList = lazy(() => import("@/pages/home/HomeBookingsList"));
 const HomeKYCPage = lazy(() => import("@/pages/home/HomeKYCPage"));
 const HomeProServices = lazy(() => import("@/pages/home/HomeProServices"));
 const HomeBookingDetail = lazy(() => import("@/pages/home/HomeBookingDetail"));
 // Pro shell (fixated dashboard) — desktop keeps sidebar visible, right pane routes.
-const HomeProLayout = lazy(() => import("@/pages/home/pro/HomeProLayout"));
 const HomeProOverview = lazy(() => import("@/pages/home/pro/HomeProOverview"));
 const HomeProMessagesPane = lazy(() => import("@/pages/home/pro/HomeProMessagesPane"));
 const HomeProConversationPane = lazy(() => import("@/pages/home/pro/HomeProConversationPane"));
@@ -94,20 +92,15 @@ const EventsLanding = lazy(() => import("@/pages/events/EventsLanding"));
 const EventsDiscover = lazy(() => import("@/pages/events/EventsDiscover"));
 const EventsProviderPublic = lazy(() => import("@/pages/events/EventsProviderPublic"));
 const EventsProviderOnboarding = lazy(() => import("@/pages/events/EventsProviderOnboarding"));
-const EventsProDashboard = lazy(() => import("@/pages/events/EventsProDashboard"));
-const EventsProLayout = lazy(() => import("@/pages/events/pro/EventsProLayout"));
 const EventsProOverview = lazy(() => import("@/pages/events/pro/EventsProOverview"));
 const EventsProMessagesPane = lazy(() => import("@/pages/events/pro/EventsProMessagesPane"));
 const EventsProConversationPane = lazy(() => import("@/pages/events/pro/EventsProConversationPane"));
 const EventsProOrdersPane = lazy(() => import("@/pages/events/pro/EventsProOrdersPane"));
 const EventsProRevenuePane = lazy(() => import("@/pages/events/pro/EventsProRevenuePane"));
 const EventsProSettingsPane = lazy(() => import("@/pages/events/pro/EventsProSettingsPane"));
-const EventsMessagesList = lazy(() => import("@/pages/events/EventsMessagesList"));
 const EventsConversation = lazy(() => import("@/pages/events/EventsConversation"));
-const EventsBookingsList = lazy(() => import("@/pages/events/EventsBookingsList"));
 const EventsKYCPage = lazy(() => import("@/pages/events/EventsKYCPage"));
 const EventsProPackages = lazy(() => import("@/pages/events/EventsProPackages"));
-const EventsProRevenue = lazy(() => import("@/pages/events/EventsProRevenue"));
 const EventsBookingDetail = lazy(() => import("@/pages/events/EventsBookingDetail"));
 const SuperadminEvents = lazy(() => import("@/pages/superadmin/SuperadminEvents"));
 const EducationActionHub = lazy(() => import("@/pages/education/EducationActionHub"));
@@ -115,8 +108,6 @@ const EducationLanding = lazy(() => import("@/pages/education/EducationLanding")
 const EducationDiscover = lazy(() => import("@/pages/education/EducationDiscover"));
 const EducationTutorPublic = lazy(() => import("@/pages/education/EducationTutorPublic"));
 const EducationTutorOnboarding = lazy(() => import("@/pages/education/EducationTutorOnboarding"));
-const EducationTutorDashboard = lazy(() => import("@/pages/education/EducationTutorDashboard"));
-const EducationProLayout = lazy(() => import("@/pages/education/pro/EducationProLayout"));
 const EducationProOverview = lazy(() => import("@/pages/education/pro/EducationProOverview"));
 const EducationProMessagesPane = lazy(() => import("@/pages/education/pro/EducationProMessagesPane"));
 const EducationProConversationPane = lazy(() => import("@/pages/education/pro/EducationProConversationPane"));
@@ -124,11 +115,8 @@ const EducationProOrdersPane = lazy(() => import("@/pages/education/pro/Educatio
 const EducationProRevenuePane = lazy(() => import("@/pages/education/pro/EducationProRevenuePane"));
 const EducationProSettingsPane = lazy(() => import("@/pages/education/pro/EducationProSettingsPane"));
 const EducationTutorSubjects = lazy(() => import("@/pages/education/EducationTutorSubjects"));
-const EducationTutorRevenue = lazy(() => import("@/pages/education/EducationTutorRevenue"));
 const EducationKYCPage = lazy(() => import("@/pages/education/EducationKYCPage"));
-const EducationMessagesList = lazy(() => import("@/pages/education/EducationMessagesList"));
 const EducationConversation = lazy(() => import("@/pages/education/EducationConversation"));
-const EducationBookingsList = lazy(() => import("@/pages/education/EducationBookingsList"));
 const EducationBookingDetail = lazy(() => import("@/pages/education/EducationBookingDetail"));
 const SuperadminEducation = lazy(() => import("@/pages/superadmin/SuperadminEducation"));
 // SiteViral Church
@@ -137,8 +125,6 @@ const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
 const ChurchDiscover = lazy(() => import("@/pages/church/ChurchDiscover"));
 const ChurchOnboarding = lazy(() => import("@/pages/church/ChurchOnboarding"));
 const ChurchProDashboard = lazy(() => import("@/pages/church/ChurchProDashboard"));
-const ChurchProLayout = lazy(() => import("@/pages/church/ChurchProLayout"));
-
 const ChurchKYCPage = lazy(() => import("@/pages/church/ChurchKYCPage"));
 const ChurchPublicProfile = lazy(() => import("@/pages/church/ChurchPublicProfile"));
 const ChurchProSectionStub = lazy(() => import("@/pages/church/ChurchProSectionStub"));
@@ -464,45 +450,38 @@ const App = () => (
                 <Route path="/beauty/search" element={<BeautySearch />} />
                 <Route path="/beauty/p/:slug" element={<BeautyProviderProfile />} />
                 <Route path="/beauty/book/:serviceId" element={<Navigate to="/beauty/search" replace />} />
-                <Route path="/beauty/bookings" element={<Navigate to="/beauty/pro/orders" replace />} />
-                <Route path="/beauty/bookings/:id" element={<RequireAuth><BeautyBookingDetail /></RequireAuth>} />
-                <Route path="/beauty/messages" element={<Navigate to="/beauty/pro/messages" replace />} />
-                <Route path="/beauty/messages/:id" element={<RequireAuth><BeautyConversation /></RequireAuth>} />
+                <Route path="/beauty/bookings" element={<Navigate to="/admin/beauty/orders" replace />} />
+                <Route path="/beauty/bookings/:id" element={<Navigate to="/admin/beauty/orders" replace />} />
+                <Route path="/beauty/messages" element={<Navigate to="/admin/beauty/messages" replace />} />
+                <Route path="/beauty/messages/:id" element={<IdRedirect toBase="/admin/beauty/messages" />} />
 
                 <Route path="/beauty/pro/onboarding" element={<BeautyProviderOnboarding />} />
-                {/* Fixated pro dashboard shell for Beauty */}
-                <Route path="/beauty/pro" element={<RequireAuth><BeautyProLayout /></RequireAuth>}>
-                  <Route index element={<BeautyProOverview />} />
-                  <Route path="messages" element={<BeautyProMessagesPane />}>
-                    <Route path=":id" element={<BeautyProConversationPane />} />
-                  </Route>
-                  <Route path="orders" element={<BeautyProOrdersPane />} />
-                  <Route path="revenue" element={<BeautyProRevenuePane />} />
-                  <Route path="settings" element={<BeautyProSettingsPane />} />
-                  <Route path="kyc" element={<BeautyKYCPage />} />
-                  <Route path="dashboard" element={<BeautyProDashboard />} />
-                </Route>
+                <Route path="/beauty/pro" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/beauty/pro/messages" element={<Navigate to="/admin/beauty/messages" replace />} />
+                <Route path="/beauty/pro/messages/:id" element={<IdRedirect toBase="/admin/beauty/messages" />} />
+                <Route path="/beauty/pro/orders" element={<Navigate to="/admin/beauty/orders" replace />} />
+                <Route path="/beauty/pro/revenue" element={<Navigate to="/admin/beauty/revenue" replace />} />
+                <Route path="/beauty/pro/settings" element={<Navigate to="/admin/beauty/settings" replace />} />
+                <Route path="/beauty/pro/kyc" element={<Navigate to="/admin/beauty/kyc" replace />} />
+                <Route path="/beauty/pro/dashboard" element={<Navigate to="/dashboard" replace />} />
                 {/* SiteViral Church */}
                 <Route path="/church" element={<Navigate to="/church/discover" replace />} />
                 <Route path="/church/about" element={<ChurchLanding />} />
                 <Route path="/church/discover" element={<ChurchDiscover />} />
                 <Route path="/church/pro/onboarding" element={<ChurchOnboarding />} />
-                {/* Fixated pro dashboard shell for Church — same shape as the other verticals */}
-                <Route path="/church/pro" element={<RequireAuth><ChurchProLayout /></RequireAuth>}>
-                  <Route index element={<ChurchProDashboard />} />
-                  <Route path="kyc" element={<ChurchKYCPage />} />
-                  <Route path="sermons" element={<ChurchProSermons />} />
-                  <Route path="sermons/:id" element={<ChurchProSermonDetail />} />
-                  <Route path="giving" element={<ChurchProGiving />} />
-                  <Route path="campaigns" element={<ChurchProCampaigns />} />
-                  <Route path="events" element={<ChurchProEvents />} />
-                  <Route path="prayer" element={<ChurchProPrayer />} />
-                  <Route path="announcements" element={<ChurchProAnnouncements />} />
-                  <Route path="team" element={<ChurchProTeam />} />
-                  <Route path="members" element={<ChurchProSectionStub titleFr="Membres & diaspora" titleEn="Members & diaspora" phase="Phase 5" />} />
-                  <Route path="settings" element={<ChurchProSettings />} />
-                  <Route path="appointments" element={<ChurchProAppointments />} />
-                </Route>
+                <Route path="/church/pro" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/church/pro/kyc" element={<Navigate to="/admin/church/kyc" replace />} />
+                <Route path="/church/pro/sermons" element={<Navigate to="/admin/church/sermons" replace />} />
+                <Route path="/church/pro/sermons/:id" element={<IdRedirect toBase="/admin/church/sermons" />} />
+                <Route path="/church/pro/giving" element={<Navigate to="/admin/church/giving" replace />} />
+                <Route path="/church/pro/campaigns" element={<Navigate to="/admin/church/campaigns" replace />} />
+                <Route path="/church/pro/events" element={<Navigate to="/admin/church/events" replace />} />
+                <Route path="/church/pro/prayer" element={<Navigate to="/admin/church/prayer" replace />} />
+                <Route path="/church/pro/announcements" element={<Navigate to="/admin/church/announcements" replace />} />
+                <Route path="/church/pro/team" element={<Navigate to="/admin/church/team" replace />} />
+                <Route path="/church/pro/members" element={<Navigate to="/admin/church/members" replace />} />
+                <Route path="/church/pro/settings" element={<Navigate to="/admin/church/settings" replace />} />
+                <Route path="/church/pro/appointments" element={<Navigate to="/admin/church/appointments" replace />} />
 
                 <Route path="/church/:slug/events/:eventId" element={<ChurchEventRegisterPage />} />
                 <Route path="/church/:slug/give" element={<ChurchGivePage />} />
@@ -516,26 +495,19 @@ const App = () => (
                 <Route path="/home/discover" element={<HomeDiscover />} />
                 <Route path="/home/pro/onboarding" element={<HomeProviderOnboarding />} />
 
-                {/* Fixated pro dashboard shell. Children render inside the sidebar layout
-                    on desktop; each child page also keeps its own mobile header. */}
-                <Route path="/home/pro" element={<RequireAuth><HomeProLayout /></RequireAuth>}>
-                  <Route index element={<HomeProOverview />} />
-                  <Route path="messages" element={<HomeProMessagesPane />}>
-                    <Route path=":id" element={<HomeProConversationPane />} />
-                  </Route>
-                  <Route path="orders" element={<HomeProOrdersPane />} />
-                  <Route path="revenue" element={<HomeProRevenuePane />} />
-                  <Route path="settings" element={<HomeProSettingsPane />} />
-                  <Route path="services" element={<HomeProServices />} />
-                  <Route path="kyc" element={<HomeKYCPage />} />
-                </Route>
+                <Route path="/home/pro" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/home/pro/messages" element={<Navigate to="/admin/home/messages" replace />} />
+                <Route path="/home/pro/messages/:id" element={<IdRedirect toBase="/admin/home/messages" />} />
+                <Route path="/home/pro/orders" element={<Navigate to="/admin/home/orders" replace />} />
+                <Route path="/home/pro/revenue" element={<Navigate to="/admin/home/revenue" replace />} />
+                <Route path="/home/pro/settings" element={<Navigate to="/admin/home/settings" replace />} />
+                <Route path="/home/pro/services" element={<Navigate to="/admin/home/services" replace />} />
+                <Route path="/home/pro/kyc" element={<Navigate to="/admin/home/kyc" replace />} />
 
-                {/* Legacy routes → redirect INTO the fixated pro shell so the
-                    sidebar stays visible and pages don't hijack the viewport. */}
-                <Route path="/home/messages" element={<Navigate to="/home/pro/messages" replace />} />
-                <Route path="/home/messages/:id" element={<RequireAuth><HomeConversation /></RequireAuth>} />
-                <Route path="/home/bookings" element={<Navigate to="/home/pro/orders" replace />} />
-                <Route path="/home/booking/:id" element={<RequireAuth><HomeBookingDetail /></RequireAuth>} />
+                <Route path="/home/messages" element={<Navigate to="/admin/home/messages" replace />} />
+                <Route path="/home/messages/:id" element={<IdRedirect toBase="/admin/home/messages" />} />
+                <Route path="/home/bookings" element={<Navigate to="/admin/home/orders" replace />} />
+                <Route path="/home/booking/:id" element={<Navigate to="/admin/home/orders" replace />} />
                 <Route path="/home/pro/:slug" element={<HomeProviderPublic />} />
 
 
@@ -544,23 +516,19 @@ const App = () => (
                 <Route path="/events/about" element={<EventsLanding />} />
                 <Route path="/events/discover" element={<EventsDiscover />} />
                 <Route path="/events/pro/onboarding" element={<EventsProviderOnboarding />} />
-                {/* Fixated pro dashboard shell for Events */}
-                <Route path="/events/pro" element={<RequireAuth><EventsProLayout /></RequireAuth>}>
-                  <Route index element={<EventsProOverview />} />
-                  <Route path="messages" element={<EventsProMessagesPane />}>
-                    <Route path=":id" element={<EventsProConversationPane />} />
-                  </Route>
-                  <Route path="orders" element={<EventsProOrdersPane />} />
-                  <Route path="revenue" element={<EventsProRevenuePane />} />
-                  <Route path="settings" element={<EventsProSettingsPane />} />
-                  <Route path="kyc" element={<EventsKYCPage />} />
-                  <Route path="packages" element={<EventsProPackages />} />
-                  <Route path="dashboard" element={<EventsProDashboard />} />
-                </Route>
-                <Route path="/events/messages" element={<Navigate to="/events/pro/messages" replace />} />
-                <Route path="/events/messages/:id" element={<RequireAuth><EventsConversation /></RequireAuth>} />
-                <Route path="/events/bookings" element={<Navigate to="/events/pro/orders" replace />} />
-                <Route path="/events/booking/:id" element={<RequireAuth><EventsBookingDetail /></RequireAuth>} />
+                <Route path="/events/pro" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/events/pro/messages" element={<Navigate to="/admin/events-service/messages" replace />} />
+                <Route path="/events/pro/messages/:id" element={<IdRedirect toBase="/admin/events-service/messages" />} />
+                <Route path="/events/pro/orders" element={<Navigate to="/admin/events-service/orders" replace />} />
+                <Route path="/events/pro/revenue" element={<Navigate to="/admin/events-service/revenue" replace />} />
+                <Route path="/events/pro/settings" element={<Navigate to="/admin/events-service/settings" replace />} />
+                <Route path="/events/pro/kyc" element={<Navigate to="/admin/events-service/kyc" replace />} />
+                <Route path="/events/pro/packages" element={<Navigate to="/admin/events-service/packages" replace />} />
+                <Route path="/events/pro/dashboard" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/events/messages" element={<Navigate to="/admin/events-service/messages" replace />} />
+                <Route path="/events/messages/:id" element={<IdRedirect toBase="/admin/events-service/messages" />} />
+                <Route path="/events/bookings" element={<Navigate to="/admin/events-service/orders" replace />} />
+                <Route path="/events/booking/:id" element={<Navigate to="/admin/events-service/orders" replace />} />
 
                 <Route path="/events/pro/:slug" element={<EventsProviderPublic />} />
 
@@ -569,23 +537,19 @@ const App = () => (
                 <Route path="/learn/about" element={<EducationLanding />} />
                 <Route path="/learn/discover" element={<EducationDiscover />} />
                 <Route path="/learn/pro/onboarding" element={<EducationTutorOnboarding />} />
-                {/* Fixated pro dashboard shell for Learn (Education) */}
-                <Route path="/learn/pro" element={<RequireAuth><EducationProLayout /></RequireAuth>}>
-                  <Route index element={<EducationProOverview />} />
-                  <Route path="messages" element={<EducationProMessagesPane />}>
-                    <Route path=":id" element={<EducationProConversationPane />} />
-                  </Route>
-                  <Route path="orders" element={<EducationProOrdersPane />} />
-                  <Route path="revenue" element={<EducationProRevenuePane />} />
-                  <Route path="settings" element={<EducationProSettingsPane />} />
-                  <Route path="kyc" element={<EducationKYCPage />} />
-                  <Route path="subjects" element={<EducationTutorSubjects />} />
-                  <Route path="dashboard" element={<EducationTutorDashboard />} />
-                </Route>
-                <Route path="/learn/messages" element={<Navigate to="/learn/pro/messages" replace />} />
-                <Route path="/learn/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
-                <Route path="/learn/bookings" element={<Navigate to="/learn/pro/orders" replace />} />
-                <Route path="/learn/booking/:id" element={<RequireAuth><EducationBookingDetail /></RequireAuth>} />
+                <Route path="/learn/pro" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/learn/pro/messages" element={<Navigate to="/admin/learn/messages" replace />} />
+                <Route path="/learn/pro/messages/:id" element={<IdRedirect toBase="/admin/learn/messages" />} />
+                <Route path="/learn/pro/orders" element={<Navigate to="/admin/learn/orders" replace />} />
+                <Route path="/learn/pro/revenue" element={<Navigate to="/admin/learn/revenue" replace />} />
+                <Route path="/learn/pro/settings" element={<Navigate to="/admin/learn/settings" replace />} />
+                <Route path="/learn/pro/kyc" element={<Navigate to="/admin/learn/kyc" replace />} />
+                <Route path="/learn/pro/subjects" element={<Navigate to="/admin/learn/subjects" replace />} />
+                <Route path="/learn/pro/dashboard" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/learn/messages" element={<Navigate to="/admin/learn/messages" replace />} />
+                <Route path="/learn/messages/:id" element={<IdRedirect toBase="/admin/learn/messages" />} />
+                <Route path="/learn/bookings" element={<Navigate to="/admin/learn/orders" replace />} />
+                <Route path="/learn/booking/:id" element={<Navigate to="/admin/learn/orders" replace />} />
 
                 <Route path="/learn/pro/:slug" element={<EducationTutorPublic />} />
                 {/* Legacy /education aliases */}
@@ -593,15 +557,15 @@ const App = () => (
                 <Route path="/education/about" element={<EducationLanding />} />
                 <Route path="/education/discover" element={<EducationDiscover />} />
                 <Route path="/education/pro/onboarding" element={<EducationTutorOnboarding />} />
-                <Route path="/education/pro" element={<Navigate to="/learn/pro" replace />} />
-                <Route path="/education/pro/kyc" element={<Navigate to="/learn/pro/kyc" replace />} />
-                <Route path="/education/pro/subjects" element={<Navigate to="/learn/pro/subjects" replace />} />
-                <Route path="/education/pro/revenue" element={<Navigate to="/learn/pro/revenue" replace />} />
+                <Route path="/education/pro" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/education/pro/kyc" element={<Navigate to="/admin/learn/kyc" replace />} />
+                <Route path="/education/pro/subjects" element={<Navigate to="/admin/learn/subjects" replace />} />
+                <Route path="/education/pro/revenue" element={<Navigate to="/admin/learn/revenue" replace />} />
 
-                <Route path="/education/messages" element={<Navigate to="/learn/pro/messages" replace />} />
-                <Route path="/education/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
-                <Route path="/education/bookings" element={<Navigate to="/learn/pro/orders" replace />} />
-                <Route path="/education/booking/:id" element={<RequireAuth><EducationBookingDetail /></RequireAuth>} />
+                <Route path="/education/messages" element={<Navigate to="/admin/learn/messages" replace />} />
+                <Route path="/education/messages/:id" element={<IdRedirect toBase="/admin/learn/messages" />} />
+                <Route path="/education/bookings" element={<Navigate to="/admin/learn/orders" replace />} />
+                <Route path="/education/booking/:id" element={<Navigate to="/admin/learn/orders" replace />} />
 
                 <Route path="/education/pro/:slug" element={<EducationTutorPublic />} />
 
@@ -833,6 +797,54 @@ const App = () => (
                   <Route path="settings" element={<LazyAdminSettings />} />
                   <Route path="features" element={<LazyAdminFeatures />} />
                   <Route path="sales" element={<AdminSales />} />
+                  <Route path="beauty" element={<BeautyProOverview />} />
+                  <Route path="beauty/messages" element={<BeautyProMessagesPane />}>
+                    <Route path=":id" element={<BeautyProConversationPane />} />
+                  </Route>
+                  <Route path="beauty/orders" element={<BeautyProOrdersPane />} />
+                  <Route path="beauty/revenue" element={<BeautyProRevenuePane />} />
+                  <Route path="beauty/settings" element={<BeautyProSettingsPane />} />
+                  <Route path="beauty/kyc" element={<BeautyKYCPage />} />
+                  <Route path="home" element={<HomeProOverview />} />
+                  <Route path="home/messages" element={<HomeProMessagesPane />}>
+                    <Route path=":id" element={<HomeProConversationPane />} />
+                  </Route>
+                  <Route path="home/orders" element={<HomeProOrdersPane />} />
+                  <Route path="home/revenue" element={<HomeProRevenuePane />} />
+                  <Route path="home/settings" element={<HomeProSettingsPane />} />
+                  <Route path="home/services" element={<HomeProServices />} />
+                  <Route path="home/kyc" element={<HomeKYCPage />} />
+                  <Route path="events-service" element={<EventsProOverview />} />
+                  <Route path="events-service/messages" element={<EventsProMessagesPane />}>
+                    <Route path=":id" element={<EventsProConversationPane />} />
+                  </Route>
+                  <Route path="events-service/orders" element={<EventsProOrdersPane />} />
+                  <Route path="events-service/revenue" element={<EventsProRevenuePane />} />
+                  <Route path="events-service/settings" element={<EventsProSettingsPane />} />
+                  <Route path="events-service/kyc" element={<EventsKYCPage />} />
+                  <Route path="events-service/packages" element={<EventsProPackages />} />
+                  <Route path="learn" element={<EducationProOverview />} />
+                  <Route path="learn/messages" element={<EducationProMessagesPane />}>
+                    <Route path=":id" element={<EducationProConversationPane />} />
+                  </Route>
+                  <Route path="learn/orders" element={<EducationProOrdersPane />} />
+                  <Route path="learn/revenue" element={<EducationProRevenuePane />} />
+                  <Route path="learn/settings" element={<EducationProSettingsPane />} />
+                  <Route path="learn/kyc" element={<EducationKYCPage />} />
+                  <Route path="learn/subjects" element={<EducationTutorSubjects />} />
+                  <Route path="church" element={<ChurchProDashboard />} />
+                  <Route path="church/kyc" element={<ChurchKYCPage />} />
+                  <Route path="church/sermons" element={<ChurchProSermons />} />
+                  <Route path="church/sermons/:id" element={<ChurchProSermonDetail />} />
+                  <Route path="church/giving" element={<ChurchProGiving />} />
+                  <Route path="church/campaigns" element={<ChurchProCampaigns />} />
+                  <Route path="church/events" element={<ChurchProEvents />} />
+                  <Route path="church/prayer" element={<ChurchProPrayer />} />
+                  <Route path="church/announcements" element={<ChurchProAnnouncements />} />
+                  <Route path="church/team" element={<ChurchProTeam />} />
+                  <Route path="church/members" element={<ChurchProSectionStub titleFr="Membres & diaspora" titleEn="Members & diaspora" phase="Phase 5" />} />
+                  <Route path="church/settings" element={<ChurchProSettings />} />
+                  <Route path="church/appointments" element={<ChurchProAppointments />} />
                   <Route path="payouts" element={<AdminPayouts />} />
                   <Route path="subscriptions" element={<AdminSubscriptions />} />
                   <Route path="waitlists" element={<AdminWaitlists />} />

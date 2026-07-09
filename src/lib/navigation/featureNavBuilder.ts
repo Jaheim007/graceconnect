@@ -1,6 +1,7 @@
 import {
   BookOpen, Store, Share2, Package, Calendar, Receipt, Gift,
   Sparkles, MessageSquare, Ticket, Star, LayoutDashboard, Inbox, Users,
+  Settings,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -17,19 +18,19 @@ interface Ctx {
 
 /**
  * Per-vertical bookings/orders dashboard route.
- * Routes stay INSIDE the pro shell (`/{vertical}/pro/orders`) so the sidebar
- * remains visible on desktop and the page doesn't hijack the whole viewport.
+ * Routes stay inside the regular blue dashboard/admin shell so the sidebar
+ * remains visible and the page doesn't hijack the whole viewport.
  */
 function bookingRouteFor(type: SiteviralType | null | undefined): string {
   switch (type) {
-    case 'beauty':                 return '/beauty/pro/orders';
-    case 'artisans_home_services': return '/home/pro/orders';
-    case 'tutors_home_teachers':   return '/learn/pro/orders';
-    case 'church':                 return '/church/pro/appointments';
+    case 'beauty':                 return '/admin/beauty/orders';
+    case 'artisans_home_services': return '/admin/home/orders';
+    case 'tutors_home_teachers':   return '/admin/learn/orders';
+    case 'church':                 return '/admin/church/appointments';
     case 'instrumentists':
     case 'services':
     case 'sport':
-    case 'influencers':            return '/events/pro/orders';
+    case 'influencers':            return '/admin/events-service/orders';
     default:                       return '/admin';
   }
 }
@@ -39,12 +40,12 @@ function bookingRouteFor(type: SiteviralType | null | undefined): string {
  */
 function revenueRouteFor(type: SiteviralType | null | undefined): string {
   switch (type) {
-    case 'beauty':                 return '/beauty/pro/revenue';
-    case 'artisans_home_services': return '/home/pro/revenue';
-    case 'tutors_home_teachers':   return '/learn/pro/revenue';
+    case 'beauty':                 return '/admin/beauty/revenue';
+    case 'artisans_home_services': return '/admin/home/revenue';
+    case 'tutors_home_teachers':   return '/admin/learn/revenue';
     case 'instrumentists':
     case 'services':
-    case 'influencers':            return '/events/pro/revenue';
+    case 'influencers':            return '/admin/events-service/revenue';
     default:                       return '/admin/sales';
   }
 }
@@ -55,13 +56,13 @@ function revenueRouteFor(type: SiteviralType | null | undefined): string {
  */
 function messagesRouteFor(type: SiteviralType | null | undefined): string | null {
   switch (type) {
-    case 'beauty':                 return '/beauty/pro/messages';
-    case 'artisans_home_services': return '/home/pro/messages';
-    case 'tutors_home_teachers':   return '/learn/pro/messages';
+    case 'beauty':                 return '/admin/beauty/messages';
+    case 'artisans_home_services': return '/admin/home/messages';
+    case 'tutors_home_teachers':   return '/admin/learn/messages';
     case 'instrumentists':
     case 'services':
     case 'sport':
-    case 'influencers':            return '/events/pro/messages';
+    case 'influencers':            return '/admin/events-service/messages';
     default:                       return null;
   }
 }
@@ -140,13 +141,13 @@ function specFor(
       id: 'giving', icon: Gift, tone: 'emerald',
       titleFr: 'Dons', titleEn: 'Giving',
       descFr: 'Campagnes et cadeaux', descEn: 'Campaigns & gifts',
-      route: '/admin/campaigns',
+      route: type === 'church' ? '/admin/church/giving' : '/admin/campaigns',
     };
     case 'ai_book_creation': return {
       id: 'write', icon: BookOpen, tone: 'primary',
       titleFr: 'Écrire', titleEn: 'Write',
       descFr: "Ton livre avec l'IA", descEn: 'Your book with AI',
-      route: '/ecrire',
+      route: type === 'church' ? '/admin/church/sermons' : '/ecrire',
     };
     case 'ai_formation_creation': return {
       id: 'ai-content', icon: Sparkles, tone: 'fuchsia',
@@ -165,7 +166,7 @@ function specFor(
       id: 'events', icon: Ticket, tone: 'indigo',
       titleFr: 'Événements', titleEn: 'Events',
       descFr: 'Billets et invitations', descEn: 'Tickets & invites',
-      route: '/admin/events',
+      route: type === 'church' ? '/admin/church/events' : '/admin/events',
     };
     case 'reviews': return {
       id: 'reviews', icon: Star, tone: 'yellow',
@@ -229,6 +230,18 @@ export function buildFeatureNavItems(
   if (!type || enabled.length === 0) return null;
 
   const items: ActionNavItem[] = [];
+  const pushUnique = (spec: Spec) => {
+    if (!items.some((item) => item.id === spec.id || item.route === spec.route)) {
+      items.push(toItem(spec));
+    }
+  };
+
+  pushUnique({
+    id: 'dashboard', icon: LayoutDashboard, tone: 'primary',
+    titleFr: 'Aperçu', titleEn: 'Overview',
+    descFr: 'Tableau de bord', descEn: 'Dashboard',
+    route: '/dashboard',
+  });
 
   // Personal shortcut — only if the user already bought something.
   if (ctx.isAuthenticated && ctx.hasPurchases) {
@@ -244,28 +257,59 @@ export function buildFeatureNavItems(
   for (const key of ORDER) {
     if (!enabled.includes(key)) continue;
     const spec = specFor(key, ctx.hasManageableOrg, type);
-    if (spec) items.push(toItem(spec));
+    if (spec) pushUnique(spec);
+  }
+
+  // Vertical-native management items that used to live in disconnected pro sidebars.
+  // They now appear in the same blue dashboard sidebar.
+  switch (type) {
+    case 'church':
+      pushUnique({ id: 'sermons', icon: BookOpen, tone: 'primary', titleFr: 'Prédications', titleEn: 'Sermons', descFr: 'Audio, livre et PDF', descEn: 'Audio, book & PDF', route: '/admin/church/sermons' });
+      pushUnique({ id: 'church-campaigns', icon: Gift, tone: 'emerald', titleFr: 'Campagnes', titleEn: 'Campaigns', descFr: 'Collectes ciblées', descEn: 'Targeted fundraisers', route: '/admin/church/campaigns' });
+      pushUnique({ id: 'prayer', icon: MessageSquare, tone: 'cyan', titleFr: 'Prières', titleEn: 'Prayer', descFr: 'Requêtes privées', descEn: 'Private requests', route: '/admin/church/prayer' });
+      pushUnique({ id: 'announcements', icon: Inbox, tone: 'blue', titleFr: 'Annonces', titleEn: 'Announcements', descFr: 'Nouvelles communauté', descEn: 'Community news', route: '/admin/church/announcements' });
+      pushUnique({ id: 'team', icon: Users, tone: 'teal', titleFr: 'Équipe', titleEn: 'Team', descFr: 'Co-administrateurs', descEn: 'Co-admins', route: '/admin/church/team' });
+      pushUnique({ id: 'church-settings', icon: Settings, tone: 'amber', titleFr: 'Réglages église', titleEn: 'Church settings', descFr: 'Marque et paiement', descEn: 'Brand & payout', route: '/admin/church/settings' });
+      break;
+    case 'artisans_home_services':
+      pushUnique({ id: 'services', icon: Store, tone: 'sky', titleFr: 'Services', titleEn: 'Services', descFr: 'Prestations et tarifs', descEn: 'Services & pricing', route: '/admin/home/services' });
+      pushUnique({ id: 'home-settings', icon: Settings, tone: 'amber', titleFr: 'Réglages activité', titleEn: 'Business settings', descFr: 'Profil et paiements', descEn: 'Profile & payouts', route: '/admin/home/settings' });
+      break;
+    case 'beauty':
+      pushUnique({ id: 'beauty-services', icon: Store, tone: 'pink', titleFr: 'Prestations', titleEn: 'Services', descFr: 'Prestations et tarifs', descEn: 'Services & pricing', route: '/admin/beauty/settings' });
+      break;
+    case 'tutors_home_teachers':
+      pushUnique({ id: 'subjects', icon: BookOpen, tone: 'teal', titleFr: 'Matières', titleEn: 'Subjects', descFr: 'Niveaux et tarifs', descEn: 'Levels & pricing', route: '/admin/learn/subjects' });
+      pushUnique({ id: 'learn-settings', icon: Settings, tone: 'amber', titleFr: 'Réglages activité', titleEn: 'Business settings', descFr: 'Profil et paiements', descEn: 'Profile & payouts', route: '/admin/learn/settings' });
+      break;
+    case 'instrumentists':
+    case 'services':
+    case 'sport':
+    case 'influencers':
+      pushUnique({ id: 'packages', icon: Ticket, tone: 'fuchsia', titleFr: 'Packages', titleEn: 'Packages', descFr: 'Offres et tarifs', descEn: 'Offers & pricing', route: '/admin/events-service/packages' });
+      pushUnique({ id: 'events-service-settings', icon: Settings, tone: 'amber', titleFr: 'Réglages activité', titleEn: 'Business settings', descFr: 'Profil et paiements', descEn: 'Profile & payouts', route: '/admin/events-service/settings' });
+      break;
   }
 
   // Messages — service verticals need an inbox so clients can reach them.
   const msgRoute = messagesRouteFor(type);
   if (msgRoute && ctx.isAuthenticated) {
-    items.push(toItem({
+    pushUnique({
       id: 'messages', icon: Inbox, tone: 'cyan',
       titleFr: 'Messages', titleEn: 'Messages',
       descFr: 'Contacts et demandes clients', descEn: 'Client contacts & requests',
       route: msgRoute,
-    }));
+    });
   }
 
   // Revenue — every provider needs to see their money
   if (ctx.isAuthenticated && ctx.hasManageableOrg) {
-    items.push(toItem({
+    pushUnique({
       id: 'revenue', icon: LayoutDashboard, tone: 'teal',
       titleFr: 'Revenus', titleEn: 'Revenue',
       descFr: 'Ventes et retraits', descEn: 'Sales & payouts',
       route: revenueRouteFor(type),
-    }));
+    });
   }
 
   return items;

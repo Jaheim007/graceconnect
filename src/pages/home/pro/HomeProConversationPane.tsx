@@ -85,7 +85,7 @@ export default function HomeProConversationPane() {
     <div className="flex flex-1 min-h-0 flex-col bg-background text-foreground">
       <header className="sticky top-0 z-20 border-b border-border/60 bg-background/95 backdrop-blur">
         <div className="flex h-14 items-center gap-3 px-4">
-          <Link to="/home/pro/messages" className="lg:hidden rounded-lg p-2 hover:bg-accent">
+          <Link to="/admin/home/messages" className="lg:hidden rounded-lg p-2 hover:bg-accent">
             <ArrowLeft className="h-4 w-4" />
           </Link>
           {otherAvatar ? (

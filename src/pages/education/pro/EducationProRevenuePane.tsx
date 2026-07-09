@@ -49,7 +49,7 @@ export default function EducationProRevenuePane() {
     <div className="pb-24 lg:pb-8">
       <header className="lg:hidden sticky top-0 z-20 border-b border-border/60 bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/learn/pro" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/dashboard" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h1 className="text-sm font-bold">{t("Revenus & paiements", "Revenue & payouts")}</h1>
         </div>
       </header>
@@ -85,7 +85,7 @@ export default function EducationProRevenuePane() {
                 <div className="font-bold text-amber-900 dark:text-amber-200">{t("Débloque tes retraits", "Unlock your payouts")}</div>
                 <div className="text-xs text-amber-800/80 dark:text-amber-200/80">{t("Les retraits s'activent après la validation KYC.", "Payouts activate after KYC validation.")}</div>
               </div>
-              <Button asChild size="sm"><Link to="/learn/pro/kyc">{t("Faire le KYC", "Verify")}</Link></Button>
+              <Button asChild size="sm"><Link to="/admin/learn/kyc">{t("Faire le KYC", "Verify")}</Link></Button>
             </div>
           </div>
         )}

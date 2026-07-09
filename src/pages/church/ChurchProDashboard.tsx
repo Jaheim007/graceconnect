@@ -54,7 +54,7 @@ export default function ChurchProDashboard() {
   if (loading || isLoading) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   }
-  if (!user) return <Navigate to="/auth?returnTo=/church/pro" replace />;
+  if (!user) return <Navigate to="/auth?returnTo=/dashboard" replace />;
   if (!data?.church) return <Navigate to="/church/pro/onboarding" replace />;
 
   const { church, counts } = data;
@@ -69,15 +69,15 @@ export default function ChurchProDashboard() {
   ];
 
   const quickLinks = [
-    { to: '/church/pro/sermons', icon: Mic, title: fr ? 'Prédications → Livre' : 'Sermons → Book', desc: fr ? 'Uploader audio, transcrire, transformer en livre/PDF' : 'Upload audio, transcribe, transform to book/PDF', badge: <Sparkles className="h-3 w-3" /> },
-    { to: '/church/pro/giving', icon: HandHeart, title: fr ? 'Dîmes & offrandes' : 'Tithes & offerings', desc: fr ? 'Dons, campagnes, reçus' : 'Gifts, campaigns, receipts' },
-    { to: '/church/pro/campaigns', icon: HandHeart, title: fr ? 'Campagnes' : 'Campaigns', desc: fr ? 'Collectes ciblées avec objectif' : 'Targeted fundraisers with a goal' },
-    { to: '/church/pro/events', icon: Ticket, title: fr ? 'Événements & billets' : 'Events & tickets', desc: fr ? 'Cultes, conférences, billetterie' : 'Services, conferences, ticketing' },
-    { to: '/church/pro/appointments', icon: CalendarClock, title: fr ? 'Rendez-vous pastoraux' : 'Pastoral appointments', desc: fr ? 'Gérer les demandes de rendez-vous' : 'Manage appointment requests' },
-    { to: '/church/pro/prayer', icon: Heart, title: fr ? 'Boîte de prière' : 'Prayer inbox', desc: fr ? 'Requêtes privées de la communauté' : 'Private community requests' },
-    { to: '/church/pro/announcements', icon: Users, title: fr ? 'Annonces' : 'Announcements', desc: fr ? 'Nouvelles pour la communauté' : 'News for the community' },
-    { to: '/church/pro/team', icon: Users, title: fr ? 'Équipe' : 'Team', desc: fr ? 'Inviter co-administrateurs' : 'Invite co-admins' },
-    { to: '/church/pro/settings', icon: Settings, title: fr ? 'Paramètres' : 'Settings', desc: fr ? 'Marque, paiement, domaine' : 'Branding, payout, domain' },
+    { to: '/admin/church/sermons', icon: Mic, title: fr ? 'Prédications → Livre' : 'Sermons → Book', desc: fr ? 'Uploader audio, transcrire, transformer en livre/PDF' : 'Upload audio, transcribe, transform to book/PDF', badge: <Sparkles className="h-3 w-3" /> },
+    { to: '/admin/church/giving', icon: HandHeart, title: fr ? 'Dîmes & offrandes' : 'Tithes & offerings', desc: fr ? 'Dons, campagnes, reçus' : 'Gifts, campaigns, receipts' },
+    { to: '/admin/church/campaigns', icon: HandHeart, title: fr ? 'Campagnes' : 'Campaigns', desc: fr ? 'Collectes ciblées avec objectif' : 'Targeted fundraisers with a goal' },
+    { to: '/admin/church/events', icon: Ticket, title: fr ? 'Événements & billets' : 'Events & tickets', desc: fr ? 'Cultes, conférences, billetterie' : 'Services, conferences, ticketing' },
+    { to: '/admin/church/appointments', icon: CalendarClock, title: fr ? 'Rendez-vous pastoraux' : 'Pastoral appointments', desc: fr ? 'Gérer les demandes de rendez-vous' : 'Manage appointment requests' },
+    { to: '/admin/church/prayer', icon: Heart, title: fr ? 'Boîte de prière' : 'Prayer inbox', desc: fr ? 'Requêtes privées de la communauté' : 'Private community requests' },
+    { to: '/admin/church/announcements', icon: Users, title: fr ? 'Annonces' : 'Announcements', desc: fr ? 'Nouvelles pour la communauté' : 'News for the community' },
+    { to: '/admin/church/team', icon: Users, title: fr ? 'Équipe' : 'Team', desc: fr ? 'Inviter co-administrateurs' : 'Invite co-admins' },
+    { to: '/admin/church/settings', icon: Settings, title: fr ? 'Paramètres' : 'Settings', desc: fr ? 'Marque, paiement, domaine' : 'Branding, payout, domain' },
   ];
 
   return (
@@ -116,7 +116,7 @@ export default function ChurchProDashboard() {
               </p>
             </div>
             <Button asChild size="sm">
-              <Link to="/church/pro/kyc">{fr ? 'Vérifier' : 'Verify'}</Link>
+              <Link to="/admin/church/kyc">{fr ? 'Vérifier' : 'Verify'}</Link>
             </Button>
           </div>
         ) : (

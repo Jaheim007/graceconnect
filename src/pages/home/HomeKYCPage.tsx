@@ -10,7 +10,7 @@ export default function HomeKYCPage() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/home/pro" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/dashboard" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h1 className="text-sm font-bold">{isFr ? "Vérification d'identité" : "Identity verification"}</h1>
         </div>
       </header>
@@ -25,7 +25,7 @@ export default function HomeKYCPage() {
             : "Identity verification for SiteViral Home ships in the next phase. Meanwhile, you can finish your profile and services."}
         </p>
         <Button asChild className="mt-6 bg-gradient-to-br from-sky-500 to-emerald-500 text-white">
-          <Link to="/home/pro">{isFr ? "Retour au tableau de bord" : "Back to dashboard"}</Link>
+          <Link to="/dashboard">{isFr ? "Retour au tableau de bord" : "Back to dashboard"}</Link>
         </Button>
       </div>
     </div>
