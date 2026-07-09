@@ -155,11 +155,12 @@ function specFor(
       route: hasManageableOrg ? '/admin/programs' : '/creer-formation',
     };
     case 'product_comments': return {
-      id: 'comments', icon: MessageSquare, tone: 'cyan',
-      titleFr: 'Commentaires', titleEn: 'Comments',
-      descFr: 'Modère les retours', descEn: 'Moderate feedback',
+      id: 'crm', icon: Users, tone: 'cyan',
+      titleFr: 'CRM communautaire', titleEn: 'Community CRM',
+      descFr: 'Contacts, dons et achats', descEn: 'Contacts, donations & purchases',
       route: '/admin/crm',
     };
+
     case 'events': return {
       id: 'events', icon: Ticket, tone: 'indigo',
       titleFr: 'Événements', titleEn: 'Events',
