@@ -264,12 +264,12 @@ export function buildFeatureNavItems(
   // They now appear in the same blue dashboard sidebar.
   switch (type) {
     case 'church':
-      pushUnique({ id: 'sermons', icon: BookOpen, tone: 'primary', titleFr: 'Prédications', titleEn: 'Sermons', descFr: 'Audio, livre et PDF', descEn: 'Audio, book & PDF', route: '/admin/church/sermons' });
-      pushUnique({ id: 'church-campaigns', icon: Gift, tone: 'emerald', titleFr: 'Campagnes', titleEn: 'Campaigns', descFr: 'Collectes ciblées', descEn: 'Targeted fundraisers', route: '/admin/church/campaigns' });
-      pushUnique({ id: 'prayer', icon: MessageSquare, tone: 'cyan', titleFr: 'Prières', titleEn: 'Prayer', descFr: 'Requêtes privées', descEn: 'Private requests', route: '/admin/church/prayer' });
-      pushUnique({ id: 'announcements', icon: Inbox, tone: 'blue', titleFr: 'Annonces', titleEn: 'Announcements', descFr: 'Nouvelles communauté', descEn: 'Community news', route: '/admin/church/announcements' });
+      // Primary church modules ONLY. Optional modules (CRM, Prayer, Campaigns,
+      // Appointments, Announcements) are activated by the user from
+      // Settings → Modules and surface via the matrix flow above.
+      pushUnique({ id: 'sermons', icon: BookOpen, tone: 'primary', titleFr: 'Livres & prédications', titleEn: 'Books & sermons', descFr: 'Audio, livre et PDF', descEn: 'Audio, book & PDF', route: '/admin/church/sermons' });
       pushUnique({ id: 'team', icon: Users, tone: 'teal', titleFr: 'Équipe', titleEn: 'Team', descFr: 'Co-administrateurs', descEn: 'Co-admins', route: '/admin/church/team' });
-      pushUnique({ id: 'church-settings', icon: Settings, tone: 'amber', titleFr: 'Réglages église', titleEn: 'Church settings', descFr: 'Marque et paiement', descEn: 'Brand & payout', route: '/admin/church/settings' });
+      pushUnique({ id: 'church-settings', icon: Settings, tone: 'amber', titleFr: 'Réglages église', titleEn: 'Church settings', descFr: 'Marque, paiement et modules', descEn: 'Brand, payout & modules', route: '/admin/church/settings' });
       break;
     case 'artisans_home_services':
       pushUnique({ id: 'services', icon: Store, tone: 'sky', titleFr: 'Services', titleEn: 'Services', descFr: 'Prestations et tarifs', descEn: 'Services & pricing', route: '/admin/home/services' });
