@@ -78,7 +78,7 @@ export default function HomeProMessagesPane() {
       >
         <header className="flex items-center gap-2 px-4 py-3 border-b border-border/60">
           {/* Mobile back link when no conv selected */}
-          <Link to="/home/pro" className="lg:hidden rounded-lg p-1.5 hover:bg-accent">
+          <Link to="/dashboard" className="lg:hidden rounded-lg p-1.5 hover:bg-accent">
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <h2 className="text-base font-bold">{isFr ? "Messages" : "Messages"}</h2>
@@ -99,7 +99,7 @@ export default function HomeProMessagesPane() {
                 return (
                   <li key={c.id}>
                     <NavLink
-                      to={`/home/pro/messages/${c.id}`}
+                      to={`/admin/home/messages/${c.id}`}
                       className={cn(
                         "flex items-center gap-3 px-4 py-3 hover:bg-accent/50 transition",
                         isActive && "bg-primary/10 hover:bg-primary/10",
