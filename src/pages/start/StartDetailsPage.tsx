@@ -161,6 +161,14 @@ export default function StartDetailsPage() {
             : 'By continuing, you accept our terms.'}
         </p>
       </div>
+
+      <SpaceReadyDialog
+        open={readyOpen}
+        onOpenChange={setReadyOpen}
+        activityLabel={label}
+        spaceName={name.trim() || undefined}
+        returnTo="/start/finish"
+      />
     </StartShell>
   );
 }
