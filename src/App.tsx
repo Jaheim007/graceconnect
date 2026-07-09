@@ -587,10 +587,11 @@ const App = () => (
                 <Route path="/education/about" element={<EducationLanding />} />
                 <Route path="/education/discover" element={<EducationDiscover />} />
                 <Route path="/education/pro/onboarding" element={<EducationTutorOnboarding />} />
-                <Route path="/education/pro" element={<RequireAuth><EducationTutorDashboard /></RequireAuth>} />
-                <Route path="/education/pro/kyc" element={<RequireAuth><EducationKYCPage /></RequireAuth>} />
-                <Route path="/education/pro/subjects" element={<RequireAuth><EducationTutorSubjects /></RequireAuth>} />
-                <Route path="/education/pro/revenue" element={<RequireAuth><EducationTutorRevenue /></RequireAuth>} />
+                <Route path="/education/pro" element={<Navigate to="/learn/pro" replace />} />
+                <Route path="/education/pro/kyc" element={<Navigate to="/learn/pro/kyc" replace />} />
+                <Route path="/education/pro/subjects" element={<Navigate to="/learn/pro/subjects" replace />} />
+                <Route path="/education/pro/revenue" element={<Navigate to="/learn/pro/revenue" replace />} />
+
                 <Route path="/education/messages" element={<Navigate to="/learn/pro/messages" replace />} />
                 <Route path="/education/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
                 <Route path="/education/bookings" element={<Navigate to="/learn/pro/orders" replace />} />
