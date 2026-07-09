@@ -56,6 +56,7 @@ import { StickyBuyBar } from '@/components/products/StickyBuyBar';
 import { ReadingProgressBar } from '@/components/ui/ReadingProgressBar';
 import { ProductTableOfContents } from '@/components/products/ProductTableOfContents';
 import { PixelInjector } from '@/components/org/PixelInjector';
+import { ContactSellerWidget } from '@/components/products/ContactSellerWidget';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
