@@ -1,7 +1,8 @@
 import {
   BookOpen, Store, Share2, Package, Calendar, Receipt, Gift,
-  Sparkles, MessageSquare, Ticket, Star, LayoutDashboard, Inbox,
+  Sparkles, MessageSquare, Ticket, Star, LayoutDashboard, Inbox, Users,
 } from 'lucide-react';
+
 import type { LucideIcon } from 'lucide-react';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 import type { ActionNavItem } from './actionNavItems';
