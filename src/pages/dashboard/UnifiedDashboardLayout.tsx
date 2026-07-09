@@ -29,7 +29,6 @@ function DashboardSidebar() {
   ];
 
   const settingsItems = [
-    { url: '/dashboard/settings/modules', icon: Sliders,  label: fr ? 'Mes modules' : 'My modules' },
     { url: '/dashboard/settings',         icon: Settings, label: fr ? 'Paramètres'  : 'Settings' },
   ];
 
