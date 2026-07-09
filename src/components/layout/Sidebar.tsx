@@ -11,7 +11,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { getActionNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
 import { applyNavOverride } from '@/lib/navigation/actionNavItemOverrides';
+import { buildFeatureNavItems } from '@/lib/navigation/featureNavBuilder';
 import { useOrgFeatures } from '@/hooks/useOrgFeatures';
+import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 
 export function Sidebar() {
   const location = useLocation();
@@ -38,24 +40,29 @@ export function Sidebar() {
   const { has, org: featureOrg, type: siteviralType } = useOrgFeatures();
   const typeConfirmed = !!featureOrg?.type_confirmed_at;
 
-  const rawNavItems = getActionNavItems({
-    isAuthenticated: !!user,
-    hasPurchases,
-    hasManageableOrg,
-    hasOrgs,
-    isSuperadmin,
-  }, resolveRoute);
+  const enabledFeatures = (featureOrg?.enabled_features ?? []) as SiteviralFeatureKey[];
 
-  // Safe filter: only hide when (a) org has a confirmed SiteViral type AND
-  // (b) the item is feature-gated AND (c) that feature is NOT enabled.
-  // Unconfirmed orgs, or orgs with the feature enabled, keep every item.
-  const navItems = rawNavItems
-    .filter((item) => {
-      if (!item.featureKey) return true;
-      if (!typeConfirmed) return true;
-      return has(item.featureKey);
-    })
-    .map((item) => applyNavOverride(item, siteviralType));
+  // Feature-driven nav when the org has a confirmed SiteViral type. Falls back
+  // to the legacy digital-defaults (which are also per-item feature-gated).
+  const featureBuilt = buildFeatureNavItems(
+    { isAuthenticated: !!user, hasPurchases, hasManageableOrg, hasOrgs, isSuperadmin },
+    enabledFeatures,
+    siteviralType as SiteviralType | null,
+  );
+
+  const navItems: ActionNavItem[] =
+    typeConfirmed && featureBuilt && featureBuilt.length > 0
+      ? featureBuilt
+      : getActionNavItems(
+          { isAuthenticated: !!user, hasPurchases, hasManageableOrg, hasOrgs, isSuperadmin },
+          resolveRoute,
+        )
+          .filter((item) => {
+            if (!item.featureKey) return true;
+            if (!typeConfirmed) return true;
+            return has(item.featureKey);
+          })
+          .map((item) => applyNavOverride(item, siteviralType));
 
   const isActive = (route: string) => {
     if (route === '/') return location.pathname === '/';
