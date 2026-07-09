@@ -139,14 +139,24 @@ export const isMandatoryModule = (_id: ModuleId) => false;
  * Reviews / comments / KYC / payments are NOT listed — they are baked-in
  * functionalities of the service, not modules.
  */
+/**
+ * Minimal defaults: only the modules truly core to each vertical are enabled
+ * at signup. Everything else stays OFF and is activated by the user from
+ * Settings → Modules. This keeps every new dashboard focused on what the
+ * user actually needs, matching product spec.
+ *
+ *  - Digital seller: just sell digital products. Giving / AI / events opt-in.
+ *  - Church: offerings + sermons/books + events. Booking/CRM/etc opt-in.
+ *  - Everyone else: booking is the core, rest opt-in.
+ */
 export const DEFAULT_MODULES_BY_PERSONA: Record<Persona, ModuleId[]> = {
-  church:      ['booking','giving','ai_book','ai_content','location'],
-  digital:     ['digital_products','giving','ai_book','ai_content'],
-  coach:       ['booking','location','events_tickets'],
-  home:        ['booking','location'],
-  beauty:      ['booking','location'],
-  tutor:       ['booking','ai_content','location'],
-  musician:    ['booking','ai_content','location','events_tickets'],
-  influencer:  ['booking','ai_content','events_tickets'],
-  general:     ['booking','location'],
+  church:      ['giving','ai_book','events_tickets'],
+  digital:     ['digital_products'],
+  coach:       ['booking'],
+  home:        ['booking'],
+  beauty:      ['booking'],
+  tutor:       ['booking'],
+  musician:    ['booking'],
+  influencer:  ['digital_products'],
+  general:     ['booking'],
 };
