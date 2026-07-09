@@ -22,14 +22,14 @@ interface Ctx {
  */
 function bookingRouteFor(type: SiteviralType | null | undefined): string {
   switch (type) {
-    case 'beauty':                 return '/beauty/pro/orders';
-    case 'artisans_home_services': return '/home/pro/orders';
-    case 'tutors_home_teachers':   return '/learn/pro/orders';
-    case 'church':                 return '/church/pro/appointments';
+    case 'beauty':                 return '/admin/beauty/orders';
+    case 'artisans_home_services': return '/admin/home/orders';
+    case 'tutors_home_teachers':   return '/admin/learn/orders';
+    case 'church':                 return '/admin/church/appointments';
     case 'instrumentists':
     case 'services':
     case 'sport':
-    case 'influencers':            return '/events/pro/orders';
+    case 'influencers':            return '/admin/events-service/orders';
     default:                       return '/admin';
   }
 }
@@ -39,12 +39,12 @@ function bookingRouteFor(type: SiteviralType | null | undefined): string {
  */
 function revenueRouteFor(type: SiteviralType | null | undefined): string {
   switch (type) {
-    case 'beauty':                 return '/beauty/pro/revenue';
-    case 'artisans_home_services': return '/home/pro/revenue';
-    case 'tutors_home_teachers':   return '/learn/pro/revenue';
+    case 'beauty':                 return '/admin/beauty/revenue';
+    case 'artisans_home_services': return '/admin/home/revenue';
+    case 'tutors_home_teachers':   return '/admin/learn/revenue';
     case 'instrumentists':
     case 'services':
-    case 'influencers':            return '/events/pro/revenue';
+    case 'influencers':            return '/admin/events-service/revenue';
     default:                       return '/admin/sales';
   }
 }
@@ -55,13 +55,13 @@ function revenueRouteFor(type: SiteviralType | null | undefined): string {
  */
 function messagesRouteFor(type: SiteviralType | null | undefined): string | null {
   switch (type) {
-    case 'beauty':                 return '/beauty/pro/messages';
-    case 'artisans_home_services': return '/home/pro/messages';
-    case 'tutors_home_teachers':   return '/learn/pro/messages';
+    case 'beauty':                 return '/admin/beauty/messages';
+    case 'artisans_home_services': return '/admin/home/messages';
+    case 'tutors_home_teachers':   return '/admin/learn/messages';
     case 'instrumentists':
     case 'services':
     case 'sport':
-    case 'influencers':            return '/events/pro/messages';
+    case 'influencers':            return '/admin/events-service/messages';
     default:                       return null;
   }
 }
@@ -229,6 +229,13 @@ export function buildFeatureNavItems(
   if (!type || enabled.length === 0) return null;
 
   const items: ActionNavItem[] = [];
+
+  items.push(toItem({
+    id: 'dashboard', icon: LayoutDashboard, tone: 'primary',
+    titleFr: 'Aperçu', titleEn: 'Overview',
+    descFr: 'Tableau de bord', descEn: 'Dashboard',
+    route: '/dashboard',
+  }));
 
   // Personal shortcut — only if the user already bought something.
   if (ctx.isAuthenticated && ctx.hasPurchases) {
