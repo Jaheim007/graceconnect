@@ -42,8 +42,9 @@ export default function StartDetailsPage() {
   const isChurch = resolved.activityKey === 'church';
 
   useEffect(() => {
-    if (!config.activity) navigate('/start', { replace: true });
-  }, [config.activity, navigate]);
+    if (!config.activity) { navigate('/start', { replace: true }); return; }
+    if (resolved.activityKey === 'digital') { navigate('/create-org', { replace: true }); }
+  }, [config.activity, resolved.activityKey, navigate]);
 
   const label = fr ? resolved.labelFr : resolved.labelEn;
 
