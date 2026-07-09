@@ -32,7 +32,7 @@ export default function HomeProviderOnboarding() {
     if (!user) { navigate("/auth?returnTo=/home/pro/onboarding"); return; }
     (async () => {
       const { data } = await supabase.from("home_providers").select("id").eq("user_id", user.id).maybeSingle();
-      if (data) navigate("/home/pro", { replace: true });
+      if (data) navigate("/dashboard", { replace: true });
       else setChecking(false);
     })();
   }, [user, navigate]);
@@ -54,7 +54,7 @@ export default function HomeProviderOnboarding() {
     setSaving(false);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     toast({ title: t("Compte pro créé", "Pro account created") });
-    navigate("/home/pro", { replace: true });
+    navigate("/dashboard", { replace: true });
   };
 
   if (checking) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;

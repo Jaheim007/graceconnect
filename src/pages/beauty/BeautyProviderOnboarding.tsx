@@ -126,7 +126,7 @@ export default function BeautyProviderOnboarding() {
       if (cancelled) return;
       if (existingProvider) {
         try { localStorage.removeItem(STORAGE_KEY); } catch {}
-        navigate("/beauty/pro", { replace: true });
+        navigate("/dashboard", { replace: true });
         return;
       }
       const { data } = await supabase
@@ -253,7 +253,7 @@ export default function BeautyProviderOnboarding() {
 
       try { localStorage.removeItem(STORAGE_KEY); } catch {}
       toast.success("Profil créé ! Prochaine étape : KYC.");
-      navigate("/beauty/pro");
+      navigate("/dashboard");
     } catch (e: any) {
       toast.error(e.message ?? "Impossible de créer le profil");
     } finally {
