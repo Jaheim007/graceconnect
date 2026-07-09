@@ -1,96 +1,124 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Scissors, GraduationCap, Wrench, Church, ShoppingBag, CalendarDays, Music, Megaphone, Briefcase, ArrowRight } from 'lucide-react';
+import { Scissors, GraduationCap, Wrench, Church, ShoppingBag, CalendarDays, Music, Megaphone, Briefcase, Search, Rocket } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
 
 type Cat = {
+  key: string;
   icon: typeof Scissors;
   fr: string; en: string;
-  route: string;
+  findRoute: string;
+  proposeRoute: string;
   gradient: string;
-  fromFr: string; fromEn: string;
 };
 
 const CATS: Cat[] = [
-  { icon: Scissors,      fr: 'Beauté',            en: 'Beauty',           route: '/beauty/search',
-    gradient: 'from-pink-500 via-rose-500 to-orange-400',
-    fromFr: 'À partir de 2 500 F', fromEn: 'From $5' },
-  { icon: GraduationCap, fr: 'Cours & tuteurs',   en: 'Tutoring',         route: '/learn/discover',
-    gradient: 'from-sky-500 via-blue-500 to-indigo-500',
-    fromFr: 'À partir de 3 000 F/h', fromEn: 'From $6/h' },
-  { icon: Wrench,        fr: 'Artisans',          en: 'Home & artisans',  route: '/home/discover',
-    gradient: 'from-amber-500 via-orange-500 to-red-500',
-    fromFr: 'Devis gratuit', fromEn: 'Free quote' },
-  { icon: CalendarDays,  fr: 'Événements',        en: 'Events',           route: '/events/discover',
-    gradient: 'from-fuchsia-500 via-purple-500 to-indigo-600',
-    fromFr: 'Packs sur mesure', fromEn: 'Custom packages' },
-  { icon: Church,        fr: 'Églises',           en: 'Churches',         route: '/church/discover',
-    gradient: 'from-violet-500 via-purple-500 to-slate-600',
-    fromFr: 'Espace ministère', fromEn: 'Ministry space' },
-  { icon: ShoppingBag,   fr: 'Produits digitaux', en: 'Digital products', route: '/discover?type=digital',
-    gradient: 'from-emerald-500 via-teal-500 to-cyan-500',
-    fromFr: 'Dès 1 000 F', fromEn: 'From $2' },
-  { icon: Music,         fr: 'Musique & audio',   en: 'Music & audio',    route: '/discover?type=music',
-    gradient: 'from-indigo-500 via-blue-600 to-slate-700',
-    fromFr: 'Beats, mixage…', fromEn: 'Beats, mixing…' },
-  { icon: Megaphone,     fr: 'Influenceurs',      en: 'Influencers',      route: '/discover?type=influencer',
-    gradient: 'from-yellow-500 via-orange-500 to-pink-500',
-    fromFr: 'Campagnes sponso', fromEn: 'Sponsored posts' },
-  { icon: Briefcase,     fr: 'Tous les services', en: 'All services',     route: '/discover',
-    gradient: 'from-slate-700 via-slate-800 to-slate-900',
-    fromFr: 'Voir tout', fromEn: 'Browse all' },
+  { key: 'beauty',      icon: Scissors,      fr: 'Beauté',            en: 'Beauty',           findRoute: '/beauty/search',            proposeRoute: '/start?activity=beauty',     gradient: 'from-pink-500 via-rose-500 to-orange-400' },
+  { key: 'plumbing',    icon: Wrench,        fr: 'Plomberie',         en: 'Plumbing',         findRoute: '/home/discover?q=plomberie', proposeRoute: '/start?activity=home',       gradient: 'from-amber-500 via-orange-500 to-red-500' },
+  { key: 'tutors',      icon: GraduationCap, fr: 'Cours & tuteurs',   en: 'Tutors',           findRoute: '/learn/discover',           proposeRoute: '/start?activity=learn',      gradient: 'from-sky-500 via-blue-500 to-indigo-500' },
+  { key: 'events',      icon: CalendarDays,  fr: 'Événements',        en: 'Events',           findRoute: '/events/discover',          proposeRoute: '/start?activity=events',     gradient: 'from-fuchsia-500 via-purple-500 to-indigo-600' },
+  { key: 'digital',     icon: ShoppingBag,   fr: 'Produits digitaux', en: 'Digital products', findRoute: '/discover?type=digital',    proposeRoute: '/start?activity=digital',    gradient: 'from-emerald-500 via-teal-500 to-cyan-500' },
+  { key: 'music',       icon: Music,         fr: 'Musique & audio',   en: 'Music & audio',    findRoute: '/discover?type=music',      proposeRoute: '/start?activity=music',      gradient: 'from-indigo-500 via-blue-600 to-slate-700' },
+  { key: 'church',      icon: Church,        fr: 'Églises',           en: 'Churches',         findRoute: '/church/discover',          proposeRoute: '/start?activity=church',     gradient: 'from-violet-500 via-purple-500 to-slate-600' },
+  { key: 'influencers', icon: Megaphone,     fr: 'Influenceurs',      en: 'Influencers',      findRoute: '/discover?type=influencer', proposeRoute: '/start?activity=influencer', gradient: 'from-yellow-500 via-orange-500 to-pink-500' },
+  { key: 'all',         icon: Briefcase,     fr: 'Tous les services', en: 'All services',     findRoute: '/discover',                 proposeRoute: '/start',                     gradient: 'from-slate-700 via-slate-800 to-slate-900' },
 ];
 
 export function MarketplaceCategories() {
   const navigate = useNavigate();
   const { locale } = useI18n();
   const fr = locale === 'fr';
+  const [picked, setPicked] = useState<Cat | null>(null);
+
+  const go = (route: string, kind: 'client' | 'provider') => {
+    setIntent(kind, route);
+    setPicked(null);
+    navigate(route);
+  };
 
   return (
-    <section className="container max-w-6xl px-4 py-16 sm:py-20">
-      <div className="flex items-end justify-between mb-8 gap-4">
+    <section className="container max-w-6xl px-4 py-10 sm:py-12">
+      <div className="flex items-end justify-between mb-5 gap-4">
         <div>
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
-            {fr ? 'Parcourir les catégories' : 'Browse categories'}
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight">
+            {fr ? 'Choisissez une catégorie' : 'Pick a category'}
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-xl">
-            {fr ? 'Des milliers de pros vérifiés dans les catégories les plus demandées.' : 'Thousands of verified pros across the most in-demand categories.'}
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            {fr ? 'Tapez pour trouver ou pour proposer ce service.' : 'Tap to find or to offer that service.'}
           </p>
         </div>
-        <button
-          onClick={() => navigate('/discover')}
-          className="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
-        >
-          {fr ? 'Voir tout' : 'View all'} <ArrowRight className="h-4 w-4" />
-        </button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-        {CATS.map((c) => (
-          <button
-            key={c.route + c.en}
-            onClick={() => { setIntent('client', c.route); navigate(c.route); }}
-            className="group relative overflow-hidden rounded-2xl border bg-card text-left hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-          >
-            {/* Gradient artwork */}
-            <div className={`relative aspect-[5/3] bg-gradient-to-br ${c.gradient} overflow-hidden`}>
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.3),transparent_60%)]" />
-              <div className="absolute bottom-3 left-3 h-11 w-11 rounded-xl bg-white/20 backdrop-blur-md grid place-items-center ring-1 ring-white/30">
-                <c.icon className="h-5 w-5 text-white" />
+      {/* Horizontal snap slider */}
+      <div className="-mx-4 px-4 overflow-x-auto no-scrollbar">
+        <div className="flex gap-3 snap-x snap-mandatory pb-2">
+          {CATS.map((c) => (
+            <button
+              key={c.key}
+              onClick={() => setPicked(c)}
+              className="snap-start shrink-0 w-[150px] sm:w-[180px] group relative overflow-hidden rounded-2xl border bg-card text-left hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className={`relative aspect-[5/4] bg-gradient-to-br ${c.gradient} overflow-hidden`}>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.3),transparent_60%)]" />
+                <div className="absolute bottom-2 left-2 h-10 w-10 rounded-xl bg-white/20 backdrop-blur-md grid place-items-center ring-1 ring-white/30">
+                  <c.icon className="h-5 w-5 text-white" />
+                </div>
               </div>
-              <div className="absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-md text-white px-2 py-1 rounded-full ring-1 ring-white/25">
-                {fr ? c.fromFr : c.fromEn}
+              <div className="p-3">
+                <span className="text-sm font-bold">{fr ? c.fr : c.en}</span>
               </div>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm sm:text-base font-bold">{fr ? c.fr : c.en}</span>
-                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition" />
-              </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {/* Find or Propose chooser */}
+      <Dialog open={!!picked} onOpenChange={(o) => !o && setPicked(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {picked ? (fr ? picked.fr : picked.en) : ''}
+            </DialogTitle>
+            <DialogDescription>
+              {fr ? 'Que voulez-vous faire dans cette catégorie ?' : 'What do you want to do in this category?'}
+            </DialogDescription>
+          </DialogHeader>
+          {picked && (
+            <div className="grid gap-3 sm:grid-cols-2 mt-2">
+              <button
+                onClick={() => go(picked.findRoute, 'client')}
+                className="rounded-2xl border p-4 text-left hover:border-primary/60 hover:shadow-md transition"
+              >
+                <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center mb-2">
+                  <Search className="h-5 w-5 text-primary" />
+                </div>
+                <div className="font-bold text-sm">
+                  {fr ? 'Je cherche' : 'I\'m looking'}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {fr ? 'Voir les pros et réserver.' : 'Browse pros and book.'}
+                </p>
+              </button>
+              <button
+                onClick={() => go(picked.proposeRoute, 'provider')}
+                className="rounded-2xl border p-4 text-left bg-primary text-primary-foreground hover:shadow-lg transition"
+              >
+                <div className="h-10 w-10 rounded-xl bg-white/15 grid place-items-center mb-2">
+                  <Rocket className="h-5 w-5" />
+                </div>
+                <div className="font-bold text-sm">
+                  {fr ? 'Je propose' : 'I offer'}
+                </div>
+                <p className="text-xs text-primary-foreground/85 mt-1">
+                  {fr ? 'Publier mon service ici.' : 'List my service here.'}
+                </p>
+              </button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
