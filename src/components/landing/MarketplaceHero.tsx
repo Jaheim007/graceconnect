@@ -1,19 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Star, ShieldCheck, Zap, ArrowRight, TrendingUp } from 'lucide-react';
+import { Search, ShieldCheck, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
-
-const POPULAR = [
-  { fr: 'Service de coiffure',      en: 'Hairstyling service',   route: '/beauty/search' },
-  { fr: 'Service de cours maths',   en: 'Math tutoring service', route: '/learn/discover' },
-  { fr: 'Service de plomberie',     en: 'Plumbing service',      route: '/home/discover' },
-  { fr: 'Service traiteur mariage', en: 'Wedding catering',      route: '/events/discover' },
-  { fr: 'Service ebook',            en: 'Ebook service',         route: '/discover?type=digital' },
-  { fr: 'Service beatmaking',       en: 'Beatmaking service',    route: '/discover?type=music' },
-];
 
 const CATEGORIES_FOR_SEARCH = [
   { value: '', fr: 'Toutes catégories', en: 'All categories' },
@@ -134,22 +125,6 @@ export function MarketplaceHero() {
             </Button>
           </form>
 
-          {/* Popular chips */}
-          <div className="mt-5 flex flex-wrap items-center gap-2">
-            <span className="text-xs text-sidebar-foreground/60 mr-1 inline-flex items-center gap-1">
-              <TrendingUp className="h-3.5 w-3.5" /> {fr ? 'Populaire :' : 'Popular:'}
-            </span>
-            {POPULAR.map((p) => (
-              <button
-                key={p.route + p.en}
-                onClick={() => { setIntent('client', p.route); navigate(p.route); }}
-                className="text-xs px-3 py-1.5 rounded-full border border-white/15 bg-white/5 hover:border-accent/60 hover:bg-white/10 transition"
-              >
-                {fr ? p.fr : p.en}
-              </button>
-            ))}
-          </div>
-
           {/* Propose CTA — inline, single screen */}
           <div className="mt-8 rounded-2xl border border-white/15 bg-white/5 backdrop-blur p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
             <div className="flex-1">
@@ -168,18 +143,6 @@ export function MarketplaceHero() {
               {fr ? 'Proposer mes services' : 'Offer my services'}
               <ArrowRight className="h-4 w-4 ml-1.5" />
             </Button>
-          </div>
-
-          {/* Trust row */}
-          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-sidebar-foreground/75">
-            <div className="flex items-center gap-1.5">
-              <div className="flex text-accent">
-                {[0,1,2,3,4].map(i => <Star key={i} className="h-3.5 w-3.5 fill-current" />)}
-              </div>
-              <span className="font-semibold">4.9/5</span>
-            </div>
-            <div className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-accent" /> {fr ? 'Paiement protégé' : 'Protected payment'}</div>
-            <div className="flex items-center gap-1.5"><Zap className="h-4 w-4 text-accent" /> {fr ? 'Réponse < 1h' : 'Reply < 1h'}</div>
           </div>
         </div>
       </div>

@@ -2,8 +2,11 @@ import { lazy, Suspense } from 'react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { MarketplaceHero } from '@/components/landing/MarketplaceHero';
 import { MarketplaceCategories } from '@/components/landing/MarketplaceCategories';
+import { MarketplaceHowItWorks } from '@/components/landing/MarketplaceHowItWorks';
 import { SEOHead } from '@/components/seo/SEOHead';
 
+const LandingTrustShield = lazy(() => import('@/components/landing/LandingTrustShield').then(m => ({ default: m.LandingTrustShield })));
+const LandingFinalCTA = lazy(() => import('@/components/landing/LandingFinalCTA').then(m => ({ default: m.LandingFinalCTA })));
 const LandingFooterCompact = lazy(() => import('@/components/landing/LandingFooterCompact').then(m => ({ default: m.LandingFooterCompact })));
 
 export default function LandingPage() {
@@ -18,7 +21,10 @@ export default function LandingPage() {
       <LandingNav />
       <MarketplaceHero />
       <MarketplaceCategories />
+      <MarketplaceHowItWorks />
       <Suspense fallback={null}>
+        <LandingTrustShield />
+        <LandingFinalCTA />
         <LandingFooterCompact />
       </Suspense>
     </div>
