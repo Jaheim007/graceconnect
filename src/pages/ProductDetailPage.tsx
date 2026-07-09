@@ -744,6 +744,15 @@ export default function ProductDetailPage() {
               />
             </div>
 
+            <ContactSellerWidget
+              organizationId={product.organization_id}
+              orgName={org?.name}
+              orgLogoUrl={org?.logo_url}
+              productId={product.id}
+              productTitle={product.title}
+            />
+
+
             <ProductSidebarExtras
               product={product}
               org={org}
