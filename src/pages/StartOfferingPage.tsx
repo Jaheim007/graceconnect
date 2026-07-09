@@ -78,6 +78,11 @@ export default function StartOfferingPage() {
       }));
     } catch {}
 
+    // Digital products use the public 4-step "Créer ta plateforme" wizard
+    if (picked === 'digital') {
+      navigate('/create-org');
+      return;
+    }
     navigate(`/start/details?activity=${activityParam}`);
   };
 
