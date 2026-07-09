@@ -21,7 +21,10 @@ export default function LandingPage() {
       <LandingNav />
       <MarketplaceHero />
       <MarketplaceCategories />
+      <MarketplaceHowItWorks />
       <Suspense fallback={null}>
+        <LandingTrustShield />
+        <LandingFinalCTA />
         <LandingFooterCompact />
       </Suspense>
     </div>
