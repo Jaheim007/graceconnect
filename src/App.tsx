@@ -61,6 +61,13 @@ const BeautyBookingsList = lazy(() => import("@/pages/beauty/BeautyBookingsList"
 const BeautyMessagesList = lazy(() => import("@/pages/beauty/BeautyMessagesList"));
 const BeautyConversation = lazy(() => import("@/pages/beauty/BeautyConversation"));
 const BeautyProDashboard = lazy(() => import("@/pages/beauty/BeautyProDashboard"));
+const BeautyProLayout = lazy(() => import("@/pages/beauty/pro/BeautyProLayout"));
+const BeautyProOverview = lazy(() => import("@/pages/beauty/pro/BeautyProOverview"));
+const BeautyProMessagesPane = lazy(() => import("@/pages/beauty/pro/BeautyProMessagesPane"));
+const BeautyProConversationPane = lazy(() => import("@/pages/beauty/pro/BeautyProConversationPane"));
+const BeautyProOrdersPane = lazy(() => import("@/pages/beauty/pro/BeautyProOrdersPane"));
+const BeautyProRevenuePane = lazy(() => import("@/pages/beauty/pro/BeautyProRevenuePane"));
+const BeautyProSettingsPane = lazy(() => import("@/pages/beauty/pro/BeautyProSettingsPane"));
 const BeautyKYCPage = lazy(() => import("@/pages/beauty/BeautyKYCPage"));
 // SiteViral Home
 const HomeActionHub = lazy(() => import("@/pages/home/HomeActionHub"));
@@ -88,6 +95,13 @@ const EventsDiscover = lazy(() => import("@/pages/events/EventsDiscover"));
 const EventsProviderPublic = lazy(() => import("@/pages/events/EventsProviderPublic"));
 const EventsProviderOnboarding = lazy(() => import("@/pages/events/EventsProviderOnboarding"));
 const EventsProDashboard = lazy(() => import("@/pages/events/EventsProDashboard"));
+const EventsProLayout = lazy(() => import("@/pages/events/pro/EventsProLayout"));
+const EventsProOverview = lazy(() => import("@/pages/events/pro/EventsProOverview"));
+const EventsProMessagesPane = lazy(() => import("@/pages/events/pro/EventsProMessagesPane"));
+const EventsProConversationPane = lazy(() => import("@/pages/events/pro/EventsProConversationPane"));
+const EventsProOrdersPane = lazy(() => import("@/pages/events/pro/EventsProOrdersPane"));
+const EventsProRevenuePane = lazy(() => import("@/pages/events/pro/EventsProRevenuePane"));
+const EventsProSettingsPane = lazy(() => import("@/pages/events/pro/EventsProSettingsPane"));
 const EventsMessagesList = lazy(() => import("@/pages/events/EventsMessagesList"));
 const EventsConversation = lazy(() => import("@/pages/events/EventsConversation"));
 const EventsBookingsList = lazy(() => import("@/pages/events/EventsBookingsList"));
@@ -102,6 +116,13 @@ const EducationDiscover = lazy(() => import("@/pages/education/EducationDiscover
 const EducationTutorPublic = lazy(() => import("@/pages/education/EducationTutorPublic"));
 const EducationTutorOnboarding = lazy(() => import("@/pages/education/EducationTutorOnboarding"));
 const EducationTutorDashboard = lazy(() => import("@/pages/education/EducationTutorDashboard"));
+const EducationProLayout = lazy(() => import("@/pages/education/pro/EducationProLayout"));
+const EducationProOverview = lazy(() => import("@/pages/education/pro/EducationProOverview"));
+const EducationProMessagesPane = lazy(() => import("@/pages/education/pro/EducationProMessagesPane"));
+const EducationProConversationPane = lazy(() => import("@/pages/education/pro/EducationProConversationPane"));
+const EducationProOrdersPane = lazy(() => import("@/pages/education/pro/EducationProOrdersPane"));
+const EducationProRevenuePane = lazy(() => import("@/pages/education/pro/EducationProRevenuePane"));
+const EducationProSettingsPane = lazy(() => import("@/pages/education/pro/EducationProSettingsPane"));
 const EducationTutorSubjects = lazy(() => import("@/pages/education/EducationTutorSubjects"));
 const EducationTutorRevenue = lazy(() => import("@/pages/education/EducationTutorRevenue"));
 const EducationKYCPage = lazy(() => import("@/pages/education/EducationKYCPage"));
@@ -446,8 +467,18 @@ const App = () => (
                 <Route path="/beauty/messages" element={<BeautyMessagesList />} />
                 <Route path="/beauty/messages/:id" element={<RequireAuth><BeautyConversation /></RequireAuth>} />
                 <Route path="/beauty/pro/onboarding" element={<BeautyProviderOnboarding />} />
-                <Route path="/beauty/pro" element={<RequireAuth><BeautyProDashboard /></RequireAuth>} />
-                <Route path="/beauty/pro/kyc" element={<RequireAuth><BeautyKYCPage /></RequireAuth>} />
+                {/* Fixated pro dashboard shell for Beauty */}
+                <Route path="/beauty/pro" element={<RequireAuth><BeautyProLayout /></RequireAuth>}>
+                  <Route index element={<BeautyProOverview />} />
+                  <Route path="messages" element={<BeautyProMessagesPane />}>
+                    <Route path=":id" element={<BeautyProConversationPane />} />
+                  </Route>
+                  <Route path="orders" element={<BeautyProOrdersPane />} />
+                  <Route path="revenue" element={<BeautyProRevenuePane />} />
+                  <Route path="settings" element={<BeautyProSettingsPane />} />
+                  <Route path="kyc" element={<BeautyKYCPage />} />
+                  <Route path="dashboard" element={<BeautyProDashboard />} />
+                </Route>
                 {/* SiteViral Church */}
                 <Route path="/church" element={<Navigate to="/church/discover" replace />} />
                 <Route path="/church/about" element={<ChurchLanding />} />
@@ -504,10 +535,19 @@ const App = () => (
                 <Route path="/events/about" element={<EventsLanding />} />
                 <Route path="/events/discover" element={<EventsDiscover />} />
                 <Route path="/events/pro/onboarding" element={<EventsProviderOnboarding />} />
-                <Route path="/events/pro" element={<RequireAuth><EventsProDashboard /></RequireAuth>} />
-                <Route path="/events/pro/kyc" element={<RequireAuth><EventsKYCPage /></RequireAuth>} />
-                <Route path="/events/pro/packages" element={<RequireAuth><EventsProPackages /></RequireAuth>} />
-                <Route path="/events/pro/revenue" element={<RequireAuth><EventsProRevenue /></RequireAuth>} />
+                {/* Fixated pro dashboard shell for Events */}
+                <Route path="/events/pro" element={<RequireAuth><EventsProLayout /></RequireAuth>}>
+                  <Route index element={<EventsProOverview />} />
+                  <Route path="messages" element={<EventsProMessagesPane />}>
+                    <Route path=":id" element={<EventsProConversationPane />} />
+                  </Route>
+                  <Route path="orders" element={<EventsProOrdersPane />} />
+                  <Route path="revenue" element={<EventsProRevenuePane />} />
+                  <Route path="settings" element={<EventsProSettingsPane />} />
+                  <Route path="kyc" element={<EventsKYCPage />} />
+                  <Route path="packages" element={<EventsProPackages />} />
+                  <Route path="dashboard" element={<EventsProDashboard />} />
+                </Route>
                 <Route path="/events/messages" element={<RequireAuth><EventsMessagesList /></RequireAuth>} />
                 <Route path="/events/messages/:id" element={<RequireAuth><EventsConversation /></RequireAuth>} />
                 <Route path="/events/bookings" element={<RequireAuth><EventsBookingsList /></RequireAuth>} />
@@ -519,10 +559,19 @@ const App = () => (
                 <Route path="/learn/about" element={<EducationLanding />} />
                 <Route path="/learn/discover" element={<EducationDiscover />} />
                 <Route path="/learn/pro/onboarding" element={<EducationTutorOnboarding />} />
-                <Route path="/learn/pro" element={<RequireAuth><EducationTutorDashboard /></RequireAuth>} />
-                <Route path="/learn/pro/kyc" element={<RequireAuth><EducationKYCPage /></RequireAuth>} />
-                <Route path="/learn/pro/subjects" element={<RequireAuth><EducationTutorSubjects /></RequireAuth>} />
-                <Route path="/learn/pro/revenue" element={<RequireAuth><EducationTutorRevenue /></RequireAuth>} />
+                {/* Fixated pro dashboard shell for Learn (Education) */}
+                <Route path="/learn/pro" element={<RequireAuth><EducationProLayout /></RequireAuth>}>
+                  <Route index element={<EducationProOverview />} />
+                  <Route path="messages" element={<EducationProMessagesPane />}>
+                    <Route path=":id" element={<EducationProConversationPane />} />
+                  </Route>
+                  <Route path="orders" element={<EducationProOrdersPane />} />
+                  <Route path="revenue" element={<EducationProRevenuePane />} />
+                  <Route path="settings" element={<EducationProSettingsPane />} />
+                  <Route path="kyc" element={<EducationKYCPage />} />
+                  <Route path="subjects" element={<EducationTutorSubjects />} />
+                  <Route path="dashboard" element={<EducationTutorDashboard />} />
+                </Route>
                 <Route path="/learn/messages" element={<RequireAuth><EducationMessagesList /></RequireAuth>} />
                 <Route path="/learn/messages/:id" element={<RequireAuth><EducationConversation /></RequireAuth>} />
                 <Route path="/learn/bookings" element={<RequireAuth><EducationBookingsList /></RequireAuth>} />
