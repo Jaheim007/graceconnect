@@ -132,11 +132,11 @@ export function ChurchHeader({ showBack = true, right }: ChurchHeaderProps) {
               </DropdownMenuItem>
               {myChurch && (
                 <>
-                  <DropdownMenuItem onClick={() => navigate("/church/pro")}>
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     {t("Mon espace pastoral", "My pastoral space")}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/church/pro/settings")}>
+                  <DropdownMenuItem onClick={() => navigate("/admin/church/settings")}>
                     <Settings className="mr-2 h-4 w-4" />
                     {t("Paramètres de l'église", "Church settings")}
                   </DropdownMenuItem>

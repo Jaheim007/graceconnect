@@ -131,7 +131,7 @@ export function BeautyHeader({ showBack = true, right }: BeautyHeaderProps) {
                 {t("Mes messages", "My messages")}
               </DropdownMenuItem>
               {isProvider && (
-                <DropdownMenuItem onClick={() => navigate("/beauty/pro")}>
+                <DropdownMenuItem onClick={() => navigate("/dashboard")}>
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   {t("Mon espace pro", "My pro space")}
                 </DropdownMenuItem>
