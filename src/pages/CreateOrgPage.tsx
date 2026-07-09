@@ -55,6 +55,7 @@ export default function CreateOrgPage() {
   const isFr = locale === 'fr';
   const [step, setStep] = useState(0); // 0=type, 1=name, 2=currency, 3=goal
   const [loading, setLoading] = useState(false);
+  const [resuming, setResuming] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<string>('both');
   const [selectedCurrency, setSelectedCurrency] = useState(() => detectCurrencyFromTimezone());
@@ -90,10 +91,12 @@ export default function CreateOrgPage() {
       if (pending.currency) setSelectedCurrency(pending.currency);
       if (pending.goal) setSelectedGoal(pending.goal);
       setStep(3);
+      setResuming(true);
       setTimeout(() => { void onSubmit(); }, 50);
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
 
 
   const onSubmit = async () => {
@@ -192,18 +195,46 @@ export default function CreateOrgPage() {
   const totalSteps = 4;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex flex-col">
       <SEOHead title="Créer ma plateforme — Siteviral" description="Crée ta plateforme en 30 secondes. Vends, collecte des dons, et active tes ambassadeurs." noindex />
       <OrgOnboardingWizard open={showOnboarding} onClose={() => { setShowOnboarding(false); navigate('/onboarding/type'); }} />
 
-      <div className="w-full max-w-md">
+      {/* Top bar with brand */}
+      <header className="w-full border-b border-border/40 bg-background/70 backdrop-blur">
+        <div className="mx-auto max-w-5xl px-4 h-14 flex items-center justify-between">
+          <button onClick={() => navigate('/')} className="flex items-center gap-2">
+            <img src="/logo-s.png" alt="Siteviral" className="h-7 w-7 rounded-lg" />
+            <span className="text-sm font-bold tracking-tight">Siteviral</span>
+          </button>
+          <span className="text-[11px] text-muted-foreground hidden sm:block">
+            {isFr ? 'Étape' : 'Step'} {step + 1} / {totalSteps}
+          </span>
+        </div>
+      </header>
+
+      {resuming && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center">
+          <div className="text-center space-y-4 max-w-sm px-6">
+            <div className="mx-auto h-14 w-14 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30">
+              <Rocket className="h-6 w-6 animate-pulse" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="text-lg font-bold">{isFr ? 'Création de ta plateforme…' : 'Creating your platform…'}</h2>
+              <p className="text-xs text-muted-foreground">{isFr ? 'Encore quelques secondes.' : 'A few more seconds.'}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex-1 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-lg">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
+          <div className="h-11 w-11 rounded-2xl bg-primary flex items-center justify-center shadow-md shadow-primary/20">
             <Building2 className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">{isFr ? 'Crée ta plateforme' : 'Create your platform'}</h1>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight">{isFr ? 'Crée ta plateforme' : 'Create your platform'}</h1>
             <p className="text-xs text-muted-foreground">{isFr ? 'Étape' : 'Step'} {step + 1}/{totalSteps} — 30 {isFr ? 'secondes' : 'seconds'}</p>
           </div>
         </div>
@@ -216,6 +247,7 @@ export default function CreateOrgPage() {
           ))}
         </div>
 
+
         <div className="relative min-h-[280px]">
           <AnimatePresence mode="wait">
             <motion.div key={step} variants={slideVariants}
@@ -224,8 +256,11 @@ export default function CreateOrgPage() {
 
               {/* Step 0: Type */}
               {step === 0 && (
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">{isFr ? 'Quel type de plateforme ?' : 'What type of platform?'}</h2>
+                <div className="space-y-5">
+                  <div className="space-y-1">
+                    <h2 className="text-xl font-bold tracking-tight">{isFr ? 'Quel type de plateforme ?' : 'What type of platform?'}</h2>
+                    <p className="text-sm text-muted-foreground">{isFr ? 'Choisis ce qui te ressemble le mieux.' : 'Pick what fits you best.'}</p>
+                  </div>
                   <div className="grid grid-cols-2 gap-3">
                     {TYPES.map(type => (
                       <button
@@ -236,20 +271,27 @@ export default function CreateOrgPage() {
                           setStep(1);
                         }}
                         className={cn(
-                          'p-4 rounded-2xl border-2 text-left transition-all',
+                          'group relative p-5 rounded-2xl border text-left transition-all duration-200',
+                          'hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/10',
                           selectedCategory === type.value
-                            ? 'border-primary bg-primary/10'
-                            : 'border-border bg-card hover:border-muted-foreground/40'
+                            ? 'border-primary bg-primary/5 shadow-md shadow-primary/10'
+                            : 'border-border bg-card hover:border-primary/40'
                         )}
                       >
-                        <span className="text-2xl block mb-1">{type.emoji}</span>
-                        <span className="text-sm font-bold block">{type.label}</span>
-                        <span className="text-[10px] text-muted-foreground">{type.desc}</span>
+                        <div className={cn(
+                          'h-10 w-10 rounded-xl flex items-center justify-center text-xl mb-3 transition-colors',
+                          selectedCategory === type.value ? 'bg-primary/15' : 'bg-muted group-hover:bg-primary/10'
+                        )}>
+                          {type.emoji}
+                        </div>
+                        <span className="text-sm font-bold block mb-0.5">{type.label}</span>
+                        <span className="text-[11px] text-muted-foreground leading-snug block">{type.desc}</span>
                       </button>
                     ))}
                   </div>
                 </div>
               )}
+
 
               {/* Step 1: Name only */}
               {step === 1 && (
@@ -360,6 +402,7 @@ export default function CreateOrgPage() {
             ← Retour
           </button>
         )}
+      </div>
       </div>
     </div>
   );
