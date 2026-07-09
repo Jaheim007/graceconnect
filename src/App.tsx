@@ -701,7 +701,7 @@ const App = () => (
                   <Route path="/dashboard/settings" element={<Navigate to="/admin/settings" replace />} />
                   <Route path="/quick-start" element={<QuickStartPage />} />
                   <Route path="/quick-publish" element={<QuickPublishPage />} />
-                  <Route path="/create-org" element={<CreateOrgPage />} />
+                  {/* /create-org is public (moved above); auth prompted at final step */}
                   <Route path="/onboarding/type" element={<LazyOnboardingType />} />
                   <Route path="/onboarding/goals" element={<LazyOnboardingGoals />} />
                   
