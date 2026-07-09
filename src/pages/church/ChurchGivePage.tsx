@@ -46,7 +46,7 @@ export default function ChurchGivePage() {
     queryFn: async () => {
       const { data } = await supabase
         .from('church_providers')
-        .select('id, slug, name, logo_url, cover_url, currency, status, city, country, denomination, description')
+        .select('id, slug, name, logo_url, cover_url, currency, status, city, country, denomination, bio')
         .eq('slug', slug!)
         .maybeSingle();
       return data;
@@ -157,8 +157,8 @@ export default function ChurchGivePage() {
               )}
             </div>
           </div>
-          {church.description && (
-            <p className="text-sm text-muted-foreground mt-4 leading-relaxed line-clamp-3">{church.description}</p>
+          {church.bio && (
+            <p className="text-sm text-muted-foreground mt-4 leading-relaxed line-clamp-3">{church.bio}</p>
           )}
         </div>
 
