@@ -47,6 +47,23 @@ function revenueRouteFor(type: SiteviralType | null | undefined): string {
   }
 }
 
+/**
+ * Per-vertical inbox route. Returns null when the vertical has no dedicated
+ * messages surface (falls back to the generic /admin inbox in that case).
+ */
+function messagesRouteFor(type: SiteviralType | null | undefined): string | null {
+  switch (type) {
+    case 'beauty':                 return '/beauty/messages';
+    case 'artisans_home_services': return '/home/messages';
+    case 'tutors_home_teachers':   return '/education/messages';
+    case 'instrumentists':
+    case 'services':
+    case 'sport':
+    case 'influencers':            return '/events/messages';
+    default:                       return null;
+  }
+}
+
 interface Spec {
   id: string;
   icon: LucideIcon;
