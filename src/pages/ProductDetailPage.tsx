@@ -56,6 +56,7 @@ import { StickyBuyBar } from '@/components/products/StickyBuyBar';
 import { ReadingProgressBar } from '@/components/ui/ReadingProgressBar';
 import { ProductTableOfContents } from '@/components/products/ProductTableOfContents';
 import { PixelInjector } from '@/components/org/PixelInjector';
+import { ContactSellerWidget } from '@/components/products/ContactSellerWidget';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -743,6 +744,15 @@ export default function ProductDetailPage() {
                 organizationId={product.organization_id}
               />
             </div>
+
+            <ContactSellerWidget
+              organizationId={product.organization_id}
+              orgName={org?.name}
+              orgLogoUrl={org?.logo_url}
+              productId={product.id}
+              productTitle={product.title}
+            />
+
 
             <ProductSidebarExtras
               product={product}
