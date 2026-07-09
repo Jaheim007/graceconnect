@@ -37,7 +37,7 @@ export default function BeautyProSettingsPane() {
     <div className="pb-24 lg:pb-8">
       <header className="lg:hidden sticky top-0 z-20 border-b border-border/60 bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/beauty/pro" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/dashboard" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h1 className="text-sm font-bold">{t("Réglages", "Settings")}</h1>
         </div>
       </header>
@@ -72,13 +72,13 @@ export default function BeautyProSettingsPane() {
         <Row icon={<ShieldCheck className="h-4 w-4" />} iconBg="bg-amber-500/15 text-amber-600"
           title={t("Vérification d'identité (KYC)", "Identity verification (KYC)")}
           desc={kycDone ? t("Ton identité est vérifiée.", "Your identity is verified.") : t("Obligatoire pour recevoir des paiements.", "Required to receive payouts.")}
-          cta={kycDone ? t("Voir", "View") : t("Faire le KYC", "Verify now")} to="/beauty/pro/kyc"
+          cta={kycDone ? t("Voir", "View") : t("Faire le KYC", "Verify now")} to="/admin/beauty/kyc"
           badge={kycDone ? { label: t("Vérifié", "Verified"), cls: "bg-emerald-500/15 text-emerald-700" } : { label: t("Requis", "Required"), cls: "bg-amber-500/15 text-amber-700" }} />
 
         <Row icon={<Sparkles className="h-4 w-4" />} iconBg="bg-pink-500/15 text-pink-600"
           title={t("Mes prestations & tarifs", "My services & pricing")}
           desc={t("Prestations, durées, tarifs et disponibilités.", "Services, durations, prices and availability.")}
-          cta={t("Gérer", "Manage")} to="/beauty/pro" />
+          cta={t("Gérer", "Manage")} to="/dashboard" />
 
         <Row icon={<User className="h-4 w-4" />} iconBg="bg-violet-500/15 text-violet-600"
           title={t("Profil & compte", "Profile & account")}

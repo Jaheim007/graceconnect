@@ -49,7 +49,7 @@ export default function HomeProSettingsPane() {
     <div className="pb-24 lg:pb-8">
       <header className="lg:hidden sticky top-0 z-20 border-b border-border/60 bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-          <Link to="/home/pro" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
+          <Link to="/dashboard" className="rounded-lg p-2 hover:bg-accent"><ArrowLeft className="h-4 w-4" /></Link>
           <h1 className="text-sm font-bold">{t("Réglages", "Settings")}</h1>
         </div>
       </header>
@@ -105,7 +105,7 @@ export default function HomeProSettingsPane() {
             ? t("Ton identité est vérifiée. Les retraits sont actifs.", "Your identity is verified. Payouts are active.")
             : t("Obligatoire pour recevoir des paiements Mobile Money.", "Required to receive Mobile Money payouts.")}
           cta={kycDone ? t("Voir", "View") : t("Faire le KYC", "Verify now")}
-          to="/home/pro/kyc"
+          to="/admin/home/kyc"
           badge={kycDone ? { label: t("Vérifié", "Verified"), cls: "bg-emerald-500/15 text-emerald-700" } : { label: t("Requis", "Required"), cls: "bg-amber-500/15 text-amber-700" }}
         />
 
@@ -117,7 +117,7 @@ export default function HomeProSettingsPane() {
           desc={t("Ce que tu proposes, ta zone d'intervention et tes prix.",
                  "What you offer, your service zone and your prices.")}
           cta={t("Gérer", "Manage")}
-          to="/home/pro/services"
+          to="/admin/home/services"
         />
 
         {/* Profile */}
