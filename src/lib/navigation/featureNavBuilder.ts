@@ -132,8 +132,9 @@ function specFor(
       id: 'orders', icon: Receipt, tone: 'blue',
       titleFr: 'Commandes', titleEn: 'Orders',
       descFr: 'Devis et commandes clients', descEn: 'Quotes & client orders',
-      route: '/admin/sales',
+      route: bookingRouteFor(type),
     };
+
     case 'donation_gifts': return {
       id: 'giving', icon: Gift, tone: 'emerald',
       titleFr: 'Dons', titleEn: 'Giving',
