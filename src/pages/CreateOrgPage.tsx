@@ -77,6 +77,25 @@ export default function CreateOrgPage() {
   const selectedCategory = watch('category');
   const nameVal = watch('name');
 
+  // Auto-resume after auth: if we stashed values before login, restore + submit
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const raw = sessionStorage.getItem('sv_create_org_pending');
+      if (!raw) return;
+      const pending = JSON.parse(raw) as { values: FormData; currency: string; goal: string };
+      sessionStorage.removeItem('sv_create_org_pending');
+      if (pending.values?.name) setValue('name', pending.values.name);
+      if (pending.values?.category) setValue('category', pending.values.category);
+      if (pending.currency) setSelectedCurrency(pending.currency);
+      if (pending.goal) setSelectedGoal(pending.goal);
+      setStep(3);
+      setTimeout(() => { void onSubmit(); }, 50);
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+
   const onSubmit = async () => {
     const valid = await form.trigger();
     if (!valid) return;
