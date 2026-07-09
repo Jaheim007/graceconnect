@@ -335,13 +335,12 @@ export default function ServicesPage() {
             {SERVICE_CATEGORIES.map((item) => (
               <button
                 key={item.key}
-                onClick={() => setCategory(item.key)}
-                onDoubleClick={() => go(item.route)}
+                onClick={() => go(item.route)}
                 className={cn(
-                  'shrink-0 text-xs font-medium text-muted-foreground transition hover:text-foreground',
-                  category === item.key && 'text-foreground',
+                  'shrink-0 inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground',
                 )}
               >
+                <item.icon className="h-3.5 w-3.5" />
                 {isFr ? item.fr : item.en}
               </button>
             ))}
