@@ -41,6 +41,7 @@ export default function StartDetailsPage() {
   const [city, setCity] = useState<string>(config.stored?.city ?? '');
   const [denomination, setDenomination] = useState<string>(config.stored?.denomination ?? 'pentecostal');
   const isChurch = resolved.activityKey === 'church';
+  const [readyOpen, setReadyOpen] = useState(false);
 
   useEffect(() => {
     if (!config.activity) { navigate('/start', { replace: true }); return; }
