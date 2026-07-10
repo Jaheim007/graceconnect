@@ -23,12 +23,12 @@ interface Interest {
 }
 
 const INTERESTS: Interest[] = [
-  { key: 'beauty',    emoji: '💅', fr: 'Beauté & Style',   en: 'Beauty & Style' },
-  { key: 'education', emoji: '🎓', fr: 'Éducation',        en: 'Education' },
-  { key: 'home',      emoji: '🛠️', fr: 'Maison & Artisans', en: 'Home & Artisans' },
-  { key: 'church',    emoji: '⛪', fr: 'Église',            en: 'Church' },
-  { key: 'digital',   emoji: '📚', fr: 'Digital & Ebooks',  en: 'Digital & Ebooks' },
-  { key: 'events',    emoji: '🎉', fr: 'Événements',        en: 'Events' },
+  { key: 'digital',   emoji: '📚', fr: 'Digital & Ebooks',    en: 'Digital & Ebooks' },
+  { key: 'beauty',    emoji: '💅', fr: 'Beauté & Style',      en: 'Beauty & Style' },
+  { key: 'home',      emoji: '🛠️', fr: 'Artisans',             en: 'Artisans' },
+  { key: 'events',    emoji: '🎉', fr: 'Événements',           en: 'Events' },
+  { key: 'education', emoji: '🎓', fr: 'Éducation & Coachs',   en: 'Education & Coaches' },
+  { key: 'other',     emoji: '✨', fr: 'Autres services',      en: 'Other services' },
 ];
 
 export default function LookingForPage() {
