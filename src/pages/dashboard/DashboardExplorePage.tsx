@@ -13,18 +13,18 @@ import { ForYouFeed } from '@/components/discover/ForYouFeed';
 import { CategoryCarousels } from '@/components/discover/CategoryCarousels';
 import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
 import { RecentlyViewedProducts } from '@/components/discover/RecentlyViewedProducts';
-import { BUYER_WORLDS, normalizeBuyerWorld, type BuyerWorld } from '@/lib/siteviral/buyerWorlds';
+import { BUYER_WORLDS, SERVICE_WORLDS, normalizeBuyerWorld, type BuyerWorld } from '@/lib/siteviral/buyerWorlds';
 
 // Per-world discover experiences — each vertical has its own real listing surface.
+// Church is intentionally NOT wired here: it is a separate platform (not a service
+// people browse for on the marketplace).
 const BeautySearch = lazy(() => import('@/pages/beauty/BeautySearch'));
-const ChurchDiscover = lazy(() => import('@/pages/church/ChurchDiscover'));
 const HomeDiscover = lazy(() => import('@/pages/home/HomeDiscover'));
 const EventsDiscover = lazy(() => import('@/pages/events/EventsDiscover'));
 const EducationDiscover = lazy(() => import('@/pages/education/EducationDiscover'));
 
 const WORLD_COMPONENT: Partial<Record<BuyerWorld, React.LazyExoticComponent<React.ComponentType<any>>>> = {
   beauty: BeautySearch,
-  church: ChurchDiscover,
   home: HomeDiscover,
   events: EventsDiscover,
   education: EducationDiscover,
@@ -117,9 +117,9 @@ export default function DashboardExplorePage() {
             />
           </div>
 
-          {/* World chip row — quick switch */}
+          {/* World chip row — services only (Church has its own platform) */}
           <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
-            {(Object.keys(BUYER_WORLDS) as BuyerWorld[]).map((w) => {
+            {SERVICE_WORLDS.map((w) => {
               const meta = BUYER_WORLDS[w];
               const active = world === w;
               return (
