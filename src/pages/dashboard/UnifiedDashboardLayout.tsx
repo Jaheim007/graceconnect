@@ -34,6 +34,9 @@ function DashboardSidebar() {
   const hasWorkspace = userOrgs.length > 0;
   const world = hasWorkspace ? resolveWorld(currentOrg as any) : null;
   const worldMeta = world ? WORLDS[world] : null;
+  const extraWorlds: string[] = Array.isArray((currentOrg as any)?.extra_worlds)
+    ? (currentOrg as any).extra_worlds
+    : [];
 
   // Layer 1 — Universal items (every authed user)
   const universal: NavItem[] = [
