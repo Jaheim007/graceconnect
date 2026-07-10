@@ -10211,6 +10211,7 @@ export type Database = {
           account_mode: string
           avatar_url: string | null
           bio: string | null
+          buyer_world: string | null
           country: string | null
           created_at: string | null
           display_name: string | null
@@ -10238,6 +10239,7 @@ export type Database = {
           account_mode?: string
           avatar_url?: string | null
           bio?: string | null
+          buyer_world?: string | null
           country?: string | null
           created_at?: string | null
           display_name?: string | null
@@ -10265,6 +10267,7 @@ export type Database = {
           account_mode?: string
           avatar_url?: string | null
           bio?: string | null
+          buyer_world?: string | null
           country?: string | null
           created_at?: string | null
           display_name?: string | null
