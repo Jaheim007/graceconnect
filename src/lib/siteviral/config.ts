@@ -125,14 +125,14 @@ export const SITEVIRAL_TYPES: Record<SiteviralType, SiteviralTypeMeta> = {
     labelFr: 'SiteViral Église', labelEn: 'SiteViral Church',
     descFr: 'Églises, pasteurs, ministères, organisations religieuses',
     descEn: 'Churches, pastors, ministries, religious organizations',
-    defaultFeatures: ['appointment','digital_products','order_generator','donation_gifts','payment','ai_book_creation','ai_formation_creation','product_comments','location','kyc','affiliation'],
+    defaultFeatures: ['digital_products','donation_gifts','events','payment','ai_book_creation','kyc'],
   },
   digital_products: {
     key: 'digital_products', emoji: '📦', available: true,
     labelFr: 'SiteViral Produits Digitaux', labelEn: 'SiteViral Digital Products',
     descFr: 'Vendeurs d\'ebooks, PDF, cours, templates, créateurs digitaux',
     descEn: 'Ebook, PDF, course sellers, digital creators',
-    defaultFeatures: ['digital_products','order_generator','donation_gifts','payment','ai_book_creation','ai_formation_creation','events','product_comments','kyc','affiliation'],
+    defaultFeatures: ['digital_products','payment','ai_book_creation','kyc'],
   },
   sport: {
     key: 'sport', emoji: '🏋️', available: false,
@@ -153,14 +153,14 @@ export const SITEVIRAL_TYPES: Record<SiteviralType, SiteviralTypeMeta> = {
     labelFr: 'SiteViral Beauté', labelEn: 'SiteViral Beauty',
     descFr: 'Salons, barbiers, maquilleurs, professionnels de la beauté',
     descEn: 'Salons, barbers, makeup artists, beauty pros',
-    defaultFeatures: ['appointment','order_generator','payment','ai_book_creation','ai_formation_creation','reviews','location','kyc','affiliation'],
+    defaultFeatures: ['appointment','order_generator','payment','reviews','location','kyc'],
   },
   tutors_home_teachers: {
     key: 'tutors_home_teachers', emoji: '📚', available: true,
     labelFr: 'SiteViral Tuteurs / Enseignants à domicile', labelEn: 'SiteViral Tutors / Home Teachers',
     descFr: 'Professeurs privés, tuteurs, prestataires d\'éducation',
     descEn: 'Private teachers, tutors, education providers',
-    defaultFeatures: ['digital_products','order_generator','reviews','location','kyc','affiliation'],
+    defaultFeatures: ['appointment','digital_products','reviews','location','kyc'],
   },
   instrumentists: {
     key: 'instrumentists', emoji: '🎸', available: false,
