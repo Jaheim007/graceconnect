@@ -1,31 +1,34 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Scissors, GraduationCap, Wrench, Church, ShoppingBag, CalendarDays, Check } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
 import { useBuyerWorld } from '@/hooks/useBuyerWorld';
-import { normalizeBuyerWorld } from '@/lib/siteviral/buyerWorlds';
+import { normalizeBuyerWorld, type BuyerWorld } from '@/lib/siteviral/buyerWorlds';
 import { OnboardingShell } from '@/components/layout/OnboardingShell';
 import { cn } from '@/lib/utils';
 
-interface Choice {
-  key: string;
-  icon: React.ComponentType<{ className?: string }>;
+/**
+ * Multi-select interest picker (inspired by the "Choose your interests" pattern).
+ * Buyers pick one or more worlds; we persist the whole list in `sv_interests`
+ * so future logins skip this step and go straight to their personalized feed.
+ * The first pick is the primary world used to shape the explore landing.
+ */
+
+interface Interest {
+  key: BuyerWorld;
+  emoji: string;
   fr: string;
   en: string;
-  subFr: string;
-  subEn: string;
-  route: string;
 }
 
-const CHOICES: Choice[] = [
-  { key: 'beauty',  icon: Scissors,      fr: 'Beauté',    en: 'Beauty',    subFr: 'Coiffure, ongles, maquillage',       subEn: 'Hair, nails, makeup',              route: '/dashboard/explore?world=beauty' },
-  { key: 'tutor',   icon: GraduationCap, fr: 'Éducation', en: 'Education', subFr: 'Tuteurs et cours à domicile',        subEn: 'Tutors & home teachers',           route: '/dashboard/explore?world=education' },
-  { key: 'artisan', icon: Wrench,        fr: 'Maison',    en: 'Home',      subFr: 'Artisans et services à domicile',    subEn: 'Artisans & home services',         route: '/dashboard/explore?world=home' },
-  { key: 'church',  icon: Church,        fr: 'Église',    en: 'Church',    subFr: 'Églises, ministères, sermons',       subEn: 'Churches, ministries, sermons',    route: '/dashboard/explore?world=church' },
-  { key: 'digital', icon: ShoppingBag,   fr: 'Digital',   en: 'Digital',   subFr: 'Ebooks, cours, produits digitaux',   subEn: 'Ebooks, courses, digital goods',   route: '/dashboard/explore?world=digital' },
-  { key: 'events',  icon: CalendarDays,  fr: 'Événements', en: 'Events',   subFr: 'Traiteurs, DJ, salles, prestataires', subEn: 'Caterers, DJs, venues, vendors',  route: '/dashboard/explore?world=events' },
+const INTERESTS: Interest[] = [
+  { key: 'beauty',    emoji: '💅', fr: 'Beauté & Style',   en: 'Beauty & Style' },
+  { key: 'education', emoji: '🎓', fr: 'Éducation',        en: 'Education' },
+  { key: 'home',      emoji: '🛠️', fr: 'Maison & Artisans', en: 'Home & Artisans' },
+  { key: 'church',    emoji: '⛪', fr: 'Église',            en: 'Church' },
+  { key: 'digital',   emoji: '📚', fr: 'Digital & Ebooks',  en: 'Digital & Ebooks' },
+  { key: 'events',    emoji: '🎉', fr: 'Événements',        en: 'Events' },
 ];
 
 export default function LookingForPage() {
@@ -33,73 +36,93 @@ export default function LookingForPage() {
   const { locale } = useI18n();
   const fr = locale === 'fr';
   const { setBuyerWorld } = useBuyerWorld();
-  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [selected, setSelected] = useState<BuyerWorld[]>(() => {
+    try {
+      const raw = localStorage.getItem('sv_interests');
+      const arr = raw ? (JSON.parse(raw) as string[]) : [];
+      return arr.map((k) => normalizeBuyerWorld(k)).filter(Boolean) as BuyerWorld[];
+    } catch { return []; }
+  });
+
+  const toggle = (k: BuyerWorld) => {
+    setSelected((prev) => (prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]));
+  };
 
   const proceed = () => {
-    const c = CHOICES.find((x) => x.key === selectedKey);
-    if (!c) return;
-    setIntent('client', c.route);
-    try { localStorage.setItem('sv_last_vertical', c.key); } catch {}
-    const world = normalizeBuyerWorld(c.key);
-    if (world) { void setBuyerWorld(world); }
-    navigate(c.route);
+    if (selected.length === 0) return;
+    const primary = selected[0];
+    try {
+      localStorage.setItem('sv_interests', JSON.stringify(selected));
+      localStorage.setItem('sv_last_vertical', primary);
+    } catch {}
+    void setBuyerWorld(primary);
+    const route = `/dashboard/explore?world=${primary}`;
+    setIntent('client', route);
+    navigate(route);
   };
 
   return (
     <>
       <SEOHead
-        title={fr ? 'Que cherchez-vous ? — SiteViral' : 'What are you looking for? — SiteViral'}
-        description={fr ? 'Trouvez le service qu’il vous faut.' : 'Find the service you need.'}
+        title={fr ? 'Choisissez vos centres d’intérêt — SiteViral' : 'Choose your interests — SiteViral'}
+        description={fr ? 'Personnalisez votre découverte.' : 'Personalize your discovery feed.'}
+        noindex
       />
       <OnboardingShell
         step={2}
         totalSteps={3}
         onClose={() => navigate('/')}
         onBack={() => navigate(-1)}
-        primaryLabel={fr ? 'Étape suivante' : 'Next step'}
+        primaryLabel={fr ? 'Continuer' : 'Continue'}
         onPrimary={proceed}
-        primaryDisabled={!selectedKey}
-        secondaryLabel={fr ? 'Étape précédente' : 'Previous step'}
-        onSecondary={() => navigate('/welcome-intent')}
+        primaryDisabled={selected.length === 0}
+        secondaryLabel={fr ? 'Passer' : 'Skip'}
+        onSecondary={() => navigate('/dashboard/explore')}
       >
-        <div className="space-y-8">
-          <h1 className="text-center text-2xl sm:text-3xl font-extrabold tracking-tight">
-            {fr ? 'Que cherchez-vous ?' : 'What are you looking for?'}
-          </h1>
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              {fr ? 'Choisissez vos centres d’intérêt' : 'Choose your interests'}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {fr
+                ? 'Nous personnaliserons votre page Explorer selon vos choix. Sélectionnez-en autant que vous voulez.'
+                : 'We’ll shape your Explore feed from your picks. Choose as many as you like.'}
+            </p>
+          </div>
 
-          <div className="space-y-3">
-            {CHOICES.map((c) => {
-              const isSel = selectedKey === c.key;
+          <div className="flex flex-wrap gap-2.5">
+            {INTERESTS.map((i) => {
+              const isSel = selected.includes(i.key);
               return (
                 <button
-                  key={c.key}
+                  key={i.key}
                   type="button"
-                  onClick={() => setSelectedKey(c.key)}
+                  onClick={() => toggle(i.key)}
+                  aria-pressed={isSel}
                   className={cn(
-                    'w-full rounded-2xl p-5 text-left transition-all flex items-center gap-4 border',
+                    'inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-all',
                     isSel
-                      ? 'bg-foreground text-background border-foreground shadow-lg'
+                      ? 'bg-foreground text-background border-foreground shadow-md scale-[1.02]'
                       : 'bg-card text-foreground border-border/60 hover:border-foreground/40'
                   )}
                 >
-                  <div className="min-w-0 flex-1">
-                    <div className="text-base font-bold leading-tight">{fr ? c.fr : c.en}</div>
-                    <div className={cn('text-sm mt-1', isSel ? 'text-background/70' : 'text-muted-foreground')}>
-                      {fr ? c.subFr : c.subEn}
-                    </div>
-                  </div>
-                  <div className={cn(
-                    'h-10 w-10 rounded-xl flex items-center justify-center shrink-0',
-                    isSel ? 'bg-background/15' : 'bg-muted'
-                  )}>
-                    {isSel ? <Check className="h-5 w-5" /> : <c.icon className="h-5 w-5" />}
-                  </div>
+                  <span className="text-base leading-none">{i.emoji}</span>
+                  <span>{fr ? i.fr : i.en}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className="text-center">
+          {selected.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {fr
+                ? `${selected.length} sélectionné${selected.length > 1 ? 's' : ''} • Premier choix = univers principal`
+                : `${selected.length} selected • First pick = primary world`}
+            </p>
+          )}
+
+          <div className="pt-4 text-center">
             <button
               onClick={() => { setIntent('provider'); navigate('/start'); }}
               className="text-xs text-muted-foreground hover:text-foreground transition"
