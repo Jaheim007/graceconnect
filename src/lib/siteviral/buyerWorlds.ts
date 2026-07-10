@@ -13,7 +13,7 @@ import {
   BookOpen, Heart, Calendar, Store, Gift, Users, Search,
 } from 'lucide-react';
 
-export type BuyerWorld = 'digital' | 'beauty' | 'church' | 'home' | 'events' | 'education';
+export type BuyerWorld = 'digital' | 'beauty' | 'church' | 'home' | 'events' | 'education' | 'other';
 
 export interface BuyerWorldMeta {
   id: BuyerWorld;
@@ -27,10 +27,18 @@ export const BUYER_WORLDS: Record<BuyerWorld, BuyerWorldMeta> = {
   digital:   { id: 'digital',   icon: Package,         emoji: '📦', labelFr: 'Produits digitaux', labelEn: 'Digital products', discoverRoute: '/discover?type=digital' },
   beauty:    { id: 'beauty',    icon: Sparkles,        emoji: '💅', labelFr: 'Beauté',            labelEn: 'Beauty',           discoverRoute: '/beauty' },
   church:    { id: 'church',    icon: Church,          emoji: '⛪', labelFr: 'Église',            labelEn: 'Church',           discoverRoute: '/church' },
-  home:      { id: 'home',      icon: Wrench,          emoji: '🛠️', labelFr: 'Services à domicile', labelEn: 'Home services',  discoverRoute: '/home' },
+  home:      { id: 'home',      icon: Wrench,          emoji: '🛠️', labelFr: 'Artisans',          labelEn: 'Artisans',         discoverRoute: '/home' },
   events:    { id: 'events',    icon: Ticket,          emoji: '🎉', labelFr: 'Événements',        labelEn: 'Events',           discoverRoute: '/events' },
   education: { id: 'education', icon: GraduationCap,   emoji: '📚', labelFr: 'Éducation',         labelEn: 'Education',        discoverRoute: '/education' },
+  other:     { id: 'other',     icon: Store,           emoji: '✨', labelFr: 'Autres services',   labelEn: 'Other services',   discoverRoute: '/dashboard/explore' },
 };
+
+/**
+ * Worlds shown as "services" in the buyer picker and Explore chip row.
+ * Church is intentionally excluded — it is a separate platform, not a service
+ * users browse for on the marketplace surface.
+ */
+export const SERVICE_WORLDS: BuyerWorld[] = ['digital', 'beauty', 'home', 'events', 'education', 'other'];
 
 export interface BuyerNavItem {
   id: string; url: string; icon: LucideIcon;
@@ -75,6 +83,9 @@ export function buyerNavForWorld(world: BuyerWorld): BuyerNavItem[] {
       { id: 'tutors',     url: '/dashboard/bookmarks',   icon: Users,    labelFr: 'Mes tuteurs',     labelEn: 'My tutors' },
       { id: 'discover',   url: explore('education'),     icon: Search,   labelFr: 'Trouver un tuteur', labelEn: 'Find a tutor' },
     ];
+    case 'other': return [
+      { id: 'discover',   url: explore('other'),         icon: Search,   labelFr: 'Explorer',        labelEn: 'Explore' },
+    ];
   }
 }
 
@@ -84,6 +95,6 @@ export function normalizeBuyerWorld(v: string | null | undefined): BuyerWorld | 
   const k = v.toLowerCase();
   if (k === 'tutor' || k === 'learn' || k === 'education') return 'education';
   if (k === 'artisan' || k === 'home') return 'home';
-  if (k === 'digital' || k === 'beauty' || k === 'church' || k === 'events') return k as BuyerWorld;
+  if (k === 'digital' || k === 'beauty' || k === 'church' || k === 'events' || k === 'other') return k as BuyerWorld;
   return null;
 }
