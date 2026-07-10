@@ -8,11 +8,11 @@ import { useI18n } from '@/i18n/I18nContext';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useBuyerWorld } from '@/hooks/useBuyerWorld';
 
-import { FeaturedSection } from '@/components/discover/FeaturedSection';
-import { ForYouFeed } from '@/components/discover/ForYouFeed';
-import { CategoryCarousels } from '@/components/discover/CategoryCarousels';
+const FeaturedSection = lazy(() => import('@/components/discover/FeaturedSection').then(m => ({ default: m.FeaturedSection })));
+const ForYouFeed = lazy(() => import('@/components/discover/ForYouFeed').then(m => ({ default: m.ForYouFeed })));
+const CategoryCarousels = lazy(() => import('@/components/discover/CategoryCarousels').then(m => ({ default: m.CategoryCarousels })));
+const RecentlyViewedProducts = lazy(() => import('@/components/discover/RecentlyViewedProducts').then(m => ({ default: m.RecentlyViewedProducts })));
 import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
-import { RecentlyViewedProducts } from '@/components/discover/RecentlyViewedProducts';
 import { BUYER_WORLDS, SERVICE_WORLDS, normalizeBuyerWorld, type BuyerWorld } from '@/lib/siteviral/buyerWorlds';
 
 // Per-world discover experiences — each vertical has its own real listing surface.
