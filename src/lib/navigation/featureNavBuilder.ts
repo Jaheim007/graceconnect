@@ -1,6 +1,6 @@
 import {
-  BookOpen, Store, Share2, Package, Calendar, Receipt, Gift,
-  Sparkles, Ticket, LayoutDashboard, Inbox, Users, Megaphone, Compass, HandCoins, Wallet,
+  BookOpen, Store, Package, Calendar, Gift,
+  Ticket, LayoutDashboard, Inbox, Users, Megaphone, Compass, HandCoins, Wallet,
   Settings,
 } from 'lucide-react';
 

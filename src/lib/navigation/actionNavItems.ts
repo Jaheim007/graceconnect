@@ -1,5 +1,5 @@
 import {
-  BookOpen, Store, Share2, Compass, Package, LayoutDashboard,
+  BookOpen, Store, Compass, Package, LayoutDashboard,
   Building2, Shield, Calendar, Megaphone, HandCoins, Wallet,
   Scissors, Search
 } from 'lucide-react';
