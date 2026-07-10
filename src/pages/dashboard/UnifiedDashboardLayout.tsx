@@ -5,14 +5,15 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import {
-  LayoutDashboard, Package, Store, BookOpen, Megaphone, Compass, HandCoins,
-  Wallet, Settings, LogOut, MessageSquare,
+  LayoutDashboard, Package, Compass, HandCoins,
+  Wallet, Settings, LogOut, Rocket,
 } from 'lucide-react';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { useAuth } from '@/contexts/AuthContext';
-import { useUserKind } from '@/hooks/useUserKind';
+import { useOrg } from '@/contexts/OrgContext';
 import { useEnabledModules } from '@/hooks/useEnabledModules';
 import { MODULES } from '@/lib/dashboardModules';
+import { WORLDS, resolveWorld, defaultNavForWorld } from '@/lib/siteviral/worlds';
 import { useI18n } from '@/i18n/I18nContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -25,59 +26,40 @@ function DashboardSidebar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
-  const { kind } = useUserKind();
+  const { currentOrg, userOrgs } = useOrg();
   const { modules, isLoading } = useEnabledModules();
   const { locale } = useI18n();
   const fr = locale === 'fr';
 
-  const isProvider = kind === 'provider';
+  const hasWorkspace = userOrgs.length > 0;
+  const world = hasWorkspace ? resolveWorld(currentOrg as any) : null;
+  const worldMeta = world ? WORLDS[world] : null;
 
-  // Baseline items shown to everyone (order matters).
-  const baseline: NavItem[] = [
-    { url: '/dashboard',             icon: LayoutDashboard, label: fr ? 'Aperçu'                    : 'Overview' },
-    { url: '/dashboard/purchases',   icon: Package,         label: fr ? 'Mes achats'                : 'My purchases' },
+  // Layer 1 — Universal items (every authed user)
+  const universal: NavItem[] = [
+    { url: '/dashboard',           icon: LayoutDashboard, label: fr ? 'Aperçu'     : 'Overview' },
+    { url: '/dashboard/purchases', icon: Package,         label: fr ? 'Mes achats' : 'My purchases' },
   ];
 
-  const providerOnly: NavItem[] = [
-    { url: '/dashboard/products',    icon: Store,           label: fr ? 'Vendre'                    : 'Sell' },
-  ];
-
-  const middleShared: NavItem[] = [
-    { url: '/ecrire',                icon: BookOpen,        label: fr ? 'Écrire un livre en 5 min'  : 'Write a book in 5 min' },
-  ];
-
-  const providerPromo: NavItem[] = [
-    { url: '/dashboard/promotions',  icon: Megaphone,       label: fr ? 'Créer une promotion'       : 'Create a promotion' },
-  ];
+  // Layer 2 — Primary-world defaults
+  const worldItems: NavItem[] = world
+    ? defaultNavForWorld(world).map((it) => ({
+        url: it.url,
+        icon: it.icon,
+        label: fr ? it.labelFr : it.labelEn,
+      }))
+    : [];
 
   const tail: NavItem[] = [
-    { url: '/dashboard/explore',     icon: Compass,         label: fr ? 'Explorer'                  : 'Explore' },
-    { url: '/dashboard/claim',       icon: HandCoins,       label: fr ? 'Réclamer'                  : 'Claim' },
-    { url: '/dashboard/revenue',     icon: Wallet,          label: fr ? 'Revenus'                   : 'Revenue' },
+    { url: '/dashboard/explore', icon: Compass,   label: fr ? 'Explorer' : 'Explore' },
+    { url: '/dashboard/claim',   icon: HandCoins, label: fr ? 'Réclamer' : 'Claim' },
+    { url: '/dashboard/revenue', icon: Wallet,    label: fr ? 'Revenus'  : 'Revenue' },
   ];
-
-  const providerNav: NavItem[] = [
-    ...baseline,
-    ...providerOnly,
-    ...middleShared,
-    ...providerPromo,
-    ...tail,
-  ];
-
-  const nonProviderNav: NavItem[] = [
-    ...baseline,
-    { url: '/dashboard/explore',     icon: Compass,         label: fr ? 'Explorer'                  : 'Explore' },
-    ...middleShared,
-    { url: '/dashboard/claim',       icon: HandCoins,       label: fr ? 'Réclamer'                  : 'Claim' },
-    { url: '/dashboard/revenue',     icon: Wallet,          label: fr ? 'Revenus'                   : 'Revenue' },
-  ];
-
-  const primaryNav = isProvider ? providerNav : nonProviderNav;
 
   const settingsItem: NavItem =
-    { url: '/dashboard/settings',   icon: Settings,        label: fr ? 'Paramètres'                : 'Settings' };
+    { url: '/dashboard/settings', icon: Settings, label: fr ? 'Paramètres' : 'Settings' };
 
-  // Optional add-on modules the user turned on in Settings → Modules.
+  // Layer 3 — Add-on modules the user turned on in Settings → Modules.
   const activeModules = modules.map((id) => MODULES[id]).filter(Boolean);
 
   const isActive = (url: string) =>
@@ -86,6 +68,17 @@ function DashboardSidebar() {
   const handleSignOut = async () => {
     try { await signOut(); } finally { navigate('/'); }
   };
+
+  const renderItems = (items: NavItem[]) => items.map((it) => (
+    <SidebarMenuItem key={it.url}>
+      <SidebarMenuButton asChild isActive={isActive(it.url)} tooltip={it.label}>
+        <NavLink to={it.url} end={it.url === '/dashboard'} className="flex items-center gap-2">
+          <it.icon className="h-4 w-4" />
+          {!collapsed && <span>{it.label}</span>}
+        </NavLink>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  ));
 
   return (
     <Sidebar collapsible="icon">
@@ -97,22 +90,48 @@ function DashboardSidebar() {
 
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {primaryNav.map((it) => (
-                <SidebarMenuItem key={it.url}>
-                  <SidebarMenuButton asChild isActive={isActive(it.url)} tooltip={it.label}>
-                    <NavLink to={it.url} end={it.url === '/dashboard'} className="flex items-center gap-2">
-                      <it.icon className="h-4 w-4" />
-                      {!collapsed && <span>{it.label}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <SidebarMenu>{renderItems(universal)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Add-on modules activated from Settings → Modules */}
+        {/* Primary world block */}
+        {worldMeta && worldItems.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              <span className="mr-1">{worldMeta.emoji}</span>
+              {fr ? worldMeta.labelFr : worldMeta.labelEn}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>{renderItems(worldItems)}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Explorer CTA — user has no workspace yet */}
+        {!hasWorkspace && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip={fr ? 'Créer une plateforme' : 'Create a platform'}>
+                    <NavLink to="/create-org" className="flex items-center gap-2 text-primary font-medium">
+                      <Rocket className="h-4 w-4" />
+                      {!collapsed && <span>{fr ? 'Créer une plateforme' : 'Create a platform'}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>{renderItems(tail)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Layer 3 — activated add-on modules */}
         {(activeModules.length > 0 || isLoading) && (
           <SidebarGroup>
             <SidebarGroupLabel>{fr ? 'Modules activés' : 'Active modules'}</SidebarGroupLabel>
