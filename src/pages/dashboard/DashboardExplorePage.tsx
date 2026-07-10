@@ -183,7 +183,7 @@ function InterestHub() {
       const arr = raw ? (JSON.parse(raw) as string[]) : [];
       return arr
         .map((k) => normalizeBuyerWorld(k))
-        .filter((k): k is BuyerWorld => !!k);
+        .filter((k): k is BuyerWorld => !!k && k !== 'church');
     } catch { return []; }
   }, []);
 
