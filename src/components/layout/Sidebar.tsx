@@ -9,6 +9,8 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useBuyerWorld } from '@/hooks/useBuyerWorld';
+import { buyerNavForWorld, BUYER_WORLDS } from '@/lib/siteviral/buyerWorlds';
 import { getActionNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
 import { applyNavOverride } from '@/lib/navigation/actionNavItemOverrides';
 import { buildFeatureNavItems } from '@/lib/navigation/featureNavBuilder';
