@@ -40,6 +40,15 @@ function DashboardSidebar() {
     ? (currentOrg as any).extra_worlds
     : [];
 
+  // Buyer world (only relevant when there's no workspace)
+  const { world: buyerWorld } = useBuyerWorld();
+  const buyerWorldMeta = !hasWorkspace && buyerWorld ? BUYER_WORLDS[buyerWorld] : null;
+  const buyerItems: NavItem[] = buyerWorldMeta
+    ? buyerNavForWorld(buyerWorldMeta.id).map((it) => ({
+        url: it.url, icon: it.icon, label: fr ? it.labelFr : it.labelEn,
+      }))
+    : [];
+
   // Layer 1 — Universal items (every authed user)
   const universal: NavItem[] = [
     { url: '/dashboard',           icon: LayoutDashboard, label: fr ? 'Aperçu'     : 'Overview' },
