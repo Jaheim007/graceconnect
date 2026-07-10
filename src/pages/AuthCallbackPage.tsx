@@ -64,10 +64,13 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      // Existing users → their dashboard. New users with no intent → chooser.
-      // (We intentionally ignore sv_last_vertical here: existing users have a
-      // workspace to land in, not a marketing discovery page.)
-      navigate(isNewUser ? '/welcome-intent' : '/dashboard', { replace: true });
+      // Always route through the intent chooser after login. The chooser
+      // fast-forwards providers who already have a workspace to /dashboard,
+      // and asks buyers "what are you looking for?" so their dashboard is
+      // shaped correctly. This matches the desired UX ("when I log in, ask
+      // me if I'm looking or offering").
+      void isNewUser;
+      navigate('/welcome-intent', { replace: true });
     };
 
     const recoverSessionOnce = async () => {

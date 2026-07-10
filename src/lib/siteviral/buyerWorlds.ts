@@ -42,37 +42,38 @@ export interface BuyerNavItem {
  * remains scannable. Every route already exists in the app.
  */
 export function buyerNavForWorld(world: BuyerWorld): BuyerNavItem[] {
+  const explore = (w: BuyerWorld) => `/dashboard/explore?world=${w}`;
   switch (world) {
     case 'digital': return [
       { id: 'library',   url: '/dashboard/purchases',   icon: BookOpen, labelFr: 'Ma bibliothèque', labelEn: 'My library' },
       { id: 'wishlist',  url: '/dashboard/bookmarks',   icon: Heart,    labelFr: 'Favoris',         labelEn: 'Wishlist' },
-      { id: 'discover',  url: '/discover?type=digital', icon: Search,   labelFr: 'Découvrir',       labelEn: 'Discover' },
+      { id: 'discover',  url: explore('digital'),       icon: Search,   labelFr: 'Découvrir',       labelEn: 'Discover' },
     ];
     case 'beauty': return [
       { id: 'appointments', url: '/dashboard/purchases',  icon: Calendar, labelFr: 'Mes rendez-vous', labelEn: 'My appointments' },
       { id: 'favorites',    url: '/dashboard/bookmarks',  icon: Heart,    labelFr: 'Salons favoris',  labelEn: 'Favorite salons' },
-      { id: 'discover',     url: '/beauty',               icon: Search,   labelFr: 'Trouver un salon',labelEn: 'Find a salon' },
+      { id: 'discover',     url: explore('beauty'),       icon: Search,   labelFr: 'Trouver un salon',labelEn: 'Find a salon' },
     ];
     case 'church': return [
       { id: 'church',     url: '/dashboard/purchases',   icon: Church,   labelFr: 'Mon église',      labelEn: 'My church' },
       { id: 'giving',     url: '/mes-dons',              icon: Gift,     labelFr: 'Mes dons',        labelEn: 'My giving' },
-      { id: 'events',     url: '/church',                icon: Calendar, labelFr: 'Événements',      labelEn: 'Upcoming events' },
-      { id: 'discover',   url: '/church',                icon: Search,   labelFr: 'Trouver une église', labelEn: 'Find a church' },
+      { id: 'events',     url: explore('church'),        icon: Calendar, labelFr: 'Événements',      labelEn: 'Upcoming events' },
+      { id: 'discover',   url: explore('church'),        icon: Search,   labelFr: 'Trouver une église', labelEn: 'Find a church' },
     ];
     case 'home': return [
       { id: 'bookings',   url: '/dashboard/purchases',   icon: Calendar, labelFr: 'Mes demandes',    labelEn: 'My bookings' },
       { id: 'providers',  url: '/dashboard/bookmarks',   icon: Users,    labelFr: 'Mes artisans',    labelEn: 'My artisans' },
-      { id: 'discover',   url: '/home',                  icon: Search,   labelFr: 'Trouver un artisan', labelEn: 'Find an artisan' },
+      { id: 'discover',   url: explore('home'),          icon: Search,   labelFr: 'Trouver un artisan', labelEn: 'Find an artisan' },
     ];
     case 'events': return [
       { id: 'tickets',    url: '/dashboard/purchases',   icon: Ticket,   labelFr: 'Mes billets',     labelEn: 'My tickets' },
       { id: 'favorites',  url: '/dashboard/bookmarks',   icon: Heart,    labelFr: 'Prestataires favoris', labelEn: 'Favorite vendors' },
-      { id: 'discover',   url: '/events',                icon: Search,   labelFr: 'Trouver un événement', labelEn: 'Find an event' },
+      { id: 'discover',   url: explore('events'),        icon: Search,   labelFr: 'Trouver un événement', labelEn: 'Find an event' },
     ];
     case 'education': return [
       { id: 'sessions',   url: '/dashboard/purchases',   icon: Calendar, labelFr: 'Mes séances',     labelEn: 'My sessions' },
       { id: 'tutors',     url: '/dashboard/bookmarks',   icon: Users,    labelFr: 'Mes tuteurs',     labelEn: 'My tutors' },
-      { id: 'discover',   url: '/education',             icon: Search,   labelFr: 'Trouver un tuteur', labelEn: 'Find a tutor' },
+      { id: 'discover',   url: explore('education'),     icon: Search,   labelFr: 'Trouver un tuteur', labelEn: 'Find a tutor' },
     ];
   }
 }

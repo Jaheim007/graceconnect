@@ -268,6 +268,7 @@ const WatchPage = lazy(() => import("@/pages/WatchPage"));
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const DashboardRouter = lazy(() => import("@/pages/DashboardRouter"));
+const DashboardExplorePage = lazy(() => import("@/pages/dashboard/DashboardExplorePage"));
 const ResourcesPage = lazy(() => import("@/pages/ResourcesPage"));
 const MyDonationsPage = lazy(() => import("@/pages/MyDonationsPage"));
 const CreateOrgPage = lazy(() => import("@/pages/CreateOrgPage"));
@@ -747,7 +748,7 @@ const App = () => (
                   <Route path="/dashboard/purchases"  element={<Navigate to="/my-programs" replace />} />
                   <Route path="/dashboard/products"   element={<Navigate to="/admin/products" replace />} />
                   <Route path="/dashboard/promotions" element={<Navigate to="/admin/promo-codes" replace />} />
-                  <Route path="/dashboard/explore"    element={<Navigate to="/discover" replace />} />
+                  <Route path="/dashboard/explore"    element={<DashboardExplorePage />} />
                   <Route path="/dashboard/claim"      element={<Navigate to="/admin/affiliation" replace />} />
                   <Route path="/dashboard/revenue"    element={<Navigate to="/admin/sales" replace />} />
                   <Route path="/quick-start" element={<QuickStartPage />} />
