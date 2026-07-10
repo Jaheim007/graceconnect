@@ -14,6 +14,8 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useEnabledModules } from '@/hooks/useEnabledModules';
 import { MODULES } from '@/lib/dashboardModules';
 import { WORLDS, resolveWorld, defaultNavForWorld } from '@/lib/siteviral/worlds';
+import { BUYER_WORLDS, buyerNavForWorld } from '@/lib/siteviral/buyerWorlds';
+import { useBuyerWorld } from '@/hooks/useBuyerWorld';
 import { useI18n } from '@/i18n/I18nContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
