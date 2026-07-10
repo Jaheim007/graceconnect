@@ -743,6 +743,13 @@ const App = () => (
                   <Route path="/dashboard/messages" element={<Navigate to="/notifications" replace />} />
                   <Route path="/dashboard/notifications" element={<Navigate to="/notifications" replace />} />
                   <Route path="/dashboard/settings" element={<Navigate to="/admin/settings" replace />} />
+                  {/* Sidebar aliases → canonical pages */}
+                  <Route path="/dashboard/purchases"  element={<Navigate to="/my-programs" replace />} />
+                  <Route path="/dashboard/products"   element={<Navigate to="/admin/products" replace />} />
+                  <Route path="/dashboard/promotions" element={<Navigate to="/admin/promo-codes" replace />} />
+                  <Route path="/dashboard/explore"    element={<Navigate to="/discover" replace />} />
+                  <Route path="/dashboard/claim"      element={<Navigate to="/admin/affiliation" replace />} />
+                  <Route path="/dashboard/revenue"    element={<Navigate to="/admin/sales" replace />} />
                   <Route path="/quick-start" element={<QuickStartPage />} />
                   <Route path="/quick-publish" element={<QuickPublishPage />} />
                   {/* /create-org is public (moved above); auth prompted at final step */}
