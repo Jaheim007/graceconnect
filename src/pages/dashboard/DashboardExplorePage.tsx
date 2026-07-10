@@ -154,14 +154,16 @@ export default function DashboardExplorePage() {
       ) : (
         <div className="container max-w-6xl px-4 py-6 space-y-8">
           <InterestHub />
-          {!isSearching && <RecentlyViewedProducts />}
-          {!isSearching && <CategoryCarousels />}
-          {!isSearching && <FeaturedSection />}
-          {!isSearching && (
-            <div>
-              <ForYouFeed />
-            </div>
-          )}
+          <Suspense fallback={null}>
+            {!isSearching && <RecentlyViewedProducts />}
+            {!isSearching && <CategoryCarousels />}
+            {!isSearching && <FeaturedSection />}
+            {!isSearching && (
+              <div>
+                <ForYouFeed />
+              </div>
+            )}
+          </Suspense>
         </div>
       )}
     </div>
