@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { ChevronLeft, ChevronRight, LogOut, Settings } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Settings, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
