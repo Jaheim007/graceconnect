@@ -72,21 +72,8 @@ export function getActionNavItems(
       iconColor: 'text-primary',
     });
 
-    if (!ctx.hasManageableOrg) {
-      items.push({
-        id: 'create-platform',
-        icon: Building2,
-        emoji: '🏪',
-        titleFr: 'Créer une plateforme',
-        titleEn: 'Create platform',
-        descFr: 'Créer ton espace de vente ou service',
-        descEn: 'Create your selling or service workspace',
-        route: '/create-org',
-        borderClass: 'border-amber-500/30 hover:border-amber-500/60',
-        iconBg: 'bg-amber-500/15',
-        iconColor: 'text-amber-500',
-      });
-    }
+    // "Create platform" now lives in the profile menu — keeps the buyer
+    // sidebar focused on: Overview · My purchases · Explorer · Earn.
   }
 
   if (ctx.isAuthenticated && ctx.hasManageableOrg) {
