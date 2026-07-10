@@ -3,6 +3,8 @@ import { ArrowRight, Sparkles, Scissors, GraduationCap, Wrench, Church, Shopping
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
+import { useBuyerWorld } from '@/hooks/useBuyerWorld';
+import { normalizeBuyerWorld } from '@/lib/siteviral/buyerWorlds';
 
 interface Choice {
   key: string;
@@ -28,11 +30,14 @@ export default function LookingForPage() {
   const navigate = useNavigate();
   const { locale } = useI18n();
   const fr = locale === 'fr';
+  const { setBuyerWorld } = useBuyerWorld();
 
   const pick = (c: Choice) => {
     // Preserve buyer intent so post-auth routing sends them back here.
     setIntent('client', c.route);
     try { localStorage.setItem('sv_last_vertical', c.key); } catch {}
+    const world = normalizeBuyerWorld(c.key);
+    if (world) { void setBuyerWorld(world); }
     navigate(c.route);
   };
 

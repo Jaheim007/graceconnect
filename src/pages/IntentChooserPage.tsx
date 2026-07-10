@@ -3,20 +3,40 @@ import { Search, Rocket } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
+import { useOrg } from '@/contexts/OrgContext';
+import { useBuyerWorld } from '@/hooks/useBuyerWorld';
+import { normalizeBuyerWorld } from '@/lib/siteviral/buyerWorlds';
 
 /**
- * Fallback two-choice screen: shown only when a logged-in "new" user
- * arrives with no captured intent. Provider/buyer users never reach here.
+ * Fallback two-choice screen: shown when a logged-in user with no captured
+ * intent lands here. Existing providers who pick "offer" skip world creation
+ * and go straight to their dashboard.
  */
 export default function IntentChooserPage() {
   const navigate = useNavigate();
   const { locale } = useI18n();
+  const { userOrgs, canManage } = useOrg();
+  const { setBuyerWorld } = useBuyerWorld();
   const fr = locale === 'fr';
 
+  const hasWorkspace = userOrgs.some((o) => canManage(o.id));
+
   const pick = (kind: 'client' | 'provider') => {
-    const route = kind === 'provider' ? '/start' : '/looking-for';
-    setIntent(kind, route);
-    navigate(route);
+    if (kind === 'provider') {
+      // Already has a world? Go straight there — never re-ask.
+      const route = hasWorkspace ? '/dashboard' : '/start';
+      setIntent('provider', route);
+      navigate(route);
+      return;
+    }
+    // Client / looker: send to the world picker.
+    setIntent('client', '/looking-for');
+    // Clear any stale buyer world so the picker leads them fresh.
+    try {
+      const prev = normalizeBuyerWorld(localStorage.getItem('sv_last_vertical'));
+      if (prev) void setBuyerWorld(prev); // keep persisted; picker will overwrite
+    } catch {}
+    navigate('/looking-for');
   };
 
   return (
@@ -62,12 +82,16 @@ export default function IntentChooserPage() {
               <Rocket className="h-5 w-5 text-primary" />
             </div>
             <h2 className="text-lg font-bold mb-1">
-              {fr ? 'Je veux proposer ou vendre' : 'I want to offer or sell'}
+              {hasWorkspace
+                ? (fr ? 'Aller à mon monde' : 'Go to my world')
+                : (fr ? 'Je veux créer mon monde' : 'I want to create my world')}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {fr
-                ? 'Services, rendez-vous, produits digitaux, dons, événements, cours avec l\'IA…'
-                : 'Services, appointments, digital products, donations, events, AI courses…'}
+              {hasWorkspace
+                ? (fr ? 'Reprenez là où vous vous êtes arrêté.' : 'Pick up where you left off.')
+                : (fr
+                    ? 'Beauté, digital, église, artisan, événements, cours — choisissez votre monde.'
+                    : 'Beauty, digital, church, artisan, events, tutoring — pick your world.')}
             </p>
           </button>
         </div>

@@ -14,6 +14,8 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useEnabledModules } from '@/hooks/useEnabledModules';
 import { MODULES } from '@/lib/dashboardModules';
 import { WORLDS, resolveWorld, defaultNavForWorld } from '@/lib/siteviral/worlds';
+import { BUYER_WORLDS, buyerNavForWorld } from '@/lib/siteviral/buyerWorlds';
+import { useBuyerWorld } from '@/hooks/useBuyerWorld';
 import { useI18n } from '@/i18n/I18nContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -36,6 +38,15 @@ function DashboardSidebar() {
   const worldMeta = world ? WORLDS[world] : null;
   const extraWorlds: string[] = Array.isArray((currentOrg as any)?.extra_worlds)
     ? (currentOrg as any).extra_worlds
+    : [];
+
+  // Buyer world (only relevant when there's no workspace)
+  const { world: buyerWorld } = useBuyerWorld();
+  const buyerWorldMeta = !hasWorkspace && buyerWorld ? BUYER_WORLDS[buyerWorld] : null;
+  const buyerItems: NavItem[] = buyerWorldMeta
+    ? buyerNavForWorld(buyerWorldMeta.id).map((it) => ({
+        url: it.url, icon: it.icon, label: fr ? it.labelFr : it.labelEn,
+      }))
     : [];
 
   // Layer 1 — Universal items (every authed user)
@@ -131,16 +142,39 @@ function DashboardSidebar() {
           );
         })}
 
+        {/* Buyer world block — user has no workspace but told us what they're looking for */}
+        {buyerWorldMeta && buyerItems.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              <span className="mr-1">{buyerWorldMeta.emoji}</span>
+              {fr ? buyerWorldMeta.labelFr : buyerWorldMeta.labelEn}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>{renderItems(buyerItems)}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         {/* Explorer CTA — user has no workspace yet */}
         {!hasWorkspace && (
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
+                {!buyerWorldMeta && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild tooltip={fr ? 'Que cherchez-vous ?' : 'What are you looking for?'}>
+                      <NavLink to="/looking-for" className="flex items-center gap-2">
+                        <Compass className="h-4 w-4" />
+                        {!collapsed && <span>{fr ? 'Que cherchez-vous ?' : 'What are you looking for?'}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip={fr ? 'Créer une plateforme' : 'Create a platform'}>
+                  <SidebarMenuButton asChild tooltip={fr ? 'Créer mon monde' : 'Create my world'}>
                     <NavLink to="/create-org" className="flex items-center gap-2 text-primary font-medium">
                       <Rocket className="h-4 w-4" />
-                      {!collapsed && <span>{fr ? 'Créer une plateforme' : 'Create a platform'}</span>}
+                      {!collapsed && <span>{fr ? 'Créer mon monde' : 'Create my world'}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
