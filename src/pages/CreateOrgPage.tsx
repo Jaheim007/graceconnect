@@ -249,40 +249,45 @@ export default function CreateOrgPage() {
               initial="enter" animate="center" exit="exit"
               transition={{ duration: 0.2 }}>
 
-              {/* Step 0: Type */}
+              {/* Step 0: World picker */}
               {step === 0 && (
                 <div className="space-y-5">
                   <div className="space-y-1">
-                    <h2 className="text-xl font-bold tracking-tight">{isFr ? 'Quel type de plateforme ?' : 'What type of platform?'}</h2>
-                    <p className="text-sm text-muted-foreground">{isFr ? 'Choisis ce qui te ressemble le mieux.' : 'Pick what fits you best.'}</p>
+                    <h2 className="text-xl font-bold tracking-tight">{isFr ? 'Quel type de plateforme veux-tu bâtir ?' : 'What kind of platform do you want to build?'}</h2>
+                    <p className="text-sm text-muted-foreground">{isFr ? 'Choisis ton monde principal. Tu pourras en activer d\'autres plus tard depuis les paramètres.' : 'Pick your primary world. You can activate others later from settings.'}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    {TYPES.map(type => (
-                      <button
-                        key={type.value}
-                        type="button"
-                        onClick={() => {
-                          setValue('category', type.value);
-                          setStep(1);
-                        }}
-                        className={cn(
-                          'group relative p-5 rounded-2xl border text-left transition-all duration-200',
-                          'hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/10',
-                          selectedCategory === type.value
-                            ? 'border-primary bg-primary/5 shadow-md shadow-primary/10'
-                            : 'border-border bg-card hover:border-primary/40'
-                        )}
-                      >
-                        <div className={cn(
-                          'h-10 w-10 rounded-xl flex items-center justify-center text-xl mb-3 transition-colors',
-                          selectedCategory === type.value ? 'bg-primary/15' : 'bg-muted group-hover:bg-primary/10'
-                        )}>
-                          {type.emoji}
-                        </div>
-                        <span className="text-sm font-bold block mb-0.5">{type.label}</span>
-                        <span className="text-[11px] text-muted-foreground leading-snug block">{type.desc}</span>
-                      </button>
-                    ))}
+                    {ALL_WORLDS.map((w) => {
+                      const active = selectedWorld === w.id;
+                      const Icon = w.icon;
+                      return (
+                        <button
+                          key={w.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedWorld(w.id);
+                            setValue('category', w.category as any);
+                            setStep(1);
+                          }}
+                          className={cn(
+                            'group relative p-5 rounded-2xl border text-left transition-all duration-200',
+                            'hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/10',
+                            active
+                              ? 'border-primary bg-primary/5 shadow-md shadow-primary/10'
+                              : 'border-border bg-card hover:border-primary/40'
+                          )}
+                        >
+                          <div className={cn(
+                            'h-10 w-10 rounded-xl flex items-center justify-center mb-3 transition-colors',
+                            active ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary'
+                          )}>
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <span className="text-sm font-bold block mb-0.5">{isFr ? w.labelFr : w.labelEn}</span>
+                          <span className="text-[11px] text-muted-foreground leading-snug block">{isFr ? w.descFr : w.descEn}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
