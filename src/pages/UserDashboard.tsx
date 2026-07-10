@@ -258,13 +258,15 @@ export default function UserDashboard() {
         </motion.div>
         )}
 
-        {/* ═══ QUICK START PATHS ═══ */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }}>
-          <QuickStartPaths />
-        </motion.div>
+        {/* ═══ QUICK START PATHS — sellers/creators only ═══ */}
+        {!isBuyer && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }}>
+            <QuickStartPaths />
+          </motion.div>
+        )}
 
         {/* ═══ SMART NUDGE ═══ */}
-        <SmartNudge />
+        {!isBuyer && <SmartNudge />}
 
         {/* ═══ MY PURCHASES ═══ */}
         <DashboardSection
