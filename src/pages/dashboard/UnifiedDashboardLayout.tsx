@@ -142,16 +142,39 @@ function DashboardSidebar() {
           );
         })}
 
+        {/* Buyer world block — user has no workspace but told us what they're looking for */}
+        {buyerWorldMeta && buyerItems.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              <span className="mr-1">{buyerWorldMeta.emoji}</span>
+              {fr ? buyerWorldMeta.labelFr : buyerWorldMeta.labelEn}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>{renderItems(buyerItems)}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         {/* Explorer CTA — user has no workspace yet */}
         {!hasWorkspace && (
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
+                {!buyerWorldMeta && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild tooltip={fr ? 'Que cherchez-vous ?' : 'What are you looking for?'}>
+                      <NavLink to="/looking-for" className="flex items-center gap-2">
+                        <Compass className="h-4 w-4" />
+                        {!collapsed && <span>{fr ? 'Que cherchez-vous ?' : 'What are you looking for?'}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip={fr ? 'Créer une plateforme' : 'Create a platform'}>
+                  <SidebarMenuButton asChild tooltip={fr ? 'Créer mon monde' : 'Create my world'}>
                     <NavLink to="/create-org" className="flex items-center gap-2 text-primary font-medium">
                       <Rocket className="h-4 w-4" />
-                      {!collapsed && <span>{fr ? 'Créer une plateforme' : 'Create a platform'}</span>}
+                      {!collapsed && <span>{fr ? 'Créer mon monde' : 'Create my world'}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
