@@ -89,21 +89,6 @@ export function getActionNavItems(
     }
   }
 
-  items.push({
-    id: 'write',
-    icon: BookOpen,
-    emoji: '✏️',
-    titleFr: 'Écrire un livre',
-    titleEn: 'Write a book',
-    descFr: "Crée ton livre avec l'IA et vends-le",
-    descEn: 'Create your book with AI and sell it',
-    route: '/ecrire',
-    borderClass: 'border-primary/30 hover:border-primary/60',
-    iconBg: 'bg-primary/15',
-    iconColor: 'text-primary',
-    featureKey: 'ai_book_creation',
-  });
-
   if (ctx.isAuthenticated && ctx.hasManageableOrg) {
     items.push({
       id: 'sell',
@@ -119,7 +104,24 @@ export function getActionNavItems(
       iconColor: 'text-amber-500',
       featureKey: 'digital_products',
     });
+  }
 
+  items.push({
+    id: 'write',
+    icon: BookOpen,
+    emoji: '✏️',
+    titleFr: 'Écrire un livre en 5 min',
+    titleEn: 'Write a book in 5 min',
+    descFr: "Crée ton livre avec l'IA et vends-le",
+    descEn: 'Create your book with AI and sell it',
+    route: '/ecrire',
+    borderClass: 'border-primary/30 hover:border-primary/60',
+    iconBg: 'bg-primary/15',
+    iconColor: 'text-primary',
+    featureKey: 'ai_book_creation',
+  });
+
+  if (ctx.isAuthenticated && ctx.hasManageableOrg) {
     items.push({
       id: 'promotion',
       icon: Megaphone,

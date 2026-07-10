@@ -138,8 +138,10 @@ function specFor(
     };
     case 'ai_book_creation': return {
       id: 'write', icon: BookOpen, tone: 'primary',
-      titleFr: 'Écrire', titleEn: 'Write',
-      descFr: "Ton livre avec l'IA", descEn: 'Your book with AI',
+      titleFr: type === 'church' ? 'Livres & prédications' : 'Écrire un livre en 5 min',
+      titleEn: type === 'church' ? 'Books & sermons' : 'Write a book in 5 min',
+      descFr: type === 'church' ? 'Audio, livre et PDF' : "Ton livre avec l'IA",
+      descEn: type === 'church' ? 'Audio, book & PDF' : 'Your book with AI',
       route: type === 'church' ? '/admin/church/sermons' : '/ecrire',
     };
     case 'events': return {
@@ -222,8 +224,14 @@ export function buildFeatureNavItems(
     route: '/my-programs',
   }));
 
+  const navKeysForType: Partial<Record<SiteviralType, SiteviralFeatureKey[]>> = {
+    digital_products: ['digital_products', 'ai_book_creation'],
+    church: ['digital_products', 'donation_gifts', 'events', 'ai_book_creation'],
+  };
+  const visibleOrder = navKeysForType[type] ?? ORDER;
+
   // Matrix-driven operational tools
-  for (const key of ORDER) {
+  for (const key of visibleOrder) {
     if (!enabled.includes(key)) continue;
     const spec = specFor(key, ctx.hasManageableOrg, type);
     if (spec) pushUnique(spec);
