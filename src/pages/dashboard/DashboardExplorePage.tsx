@@ -1,11 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Search, X } from 'lucide-react';
+import { Search, X, Loader2 } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useBuyerWorld } from '@/hooks/useBuyerWorld';
 
 import { FeaturedSection } from '@/components/discover/FeaturedSection';
 import { ForYouFeed } from '@/components/discover/ForYouFeed';
@@ -13,6 +14,21 @@ import { CategoryCarousels } from '@/components/discover/CategoryCarousels';
 import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
 import { RecentlyViewedProducts } from '@/components/discover/RecentlyViewedProducts';
 import { BUYER_WORLDS, normalizeBuyerWorld, type BuyerWorld } from '@/lib/siteviral/buyerWorlds';
+
+// Per-world discover experiences — each vertical has its own real listing surface.
+const BeautySearch = lazy(() => import('@/pages/beauty/BeautySearch'));
+const ChurchDiscover = lazy(() => import('@/pages/church/ChurchDiscover'));
+const HomeDiscover = lazy(() => import('@/pages/home/HomeDiscover'));
+const EventsDiscover = lazy(() => import('@/pages/events/EventsDiscover'));
+const EducationDiscover = lazy(() => import('@/pages/education/EducationDiscover'));
+
+const WORLD_COMPONENT: Partial<Record<BuyerWorld, React.LazyExoticComponent<React.ComponentType<any>>>> = {
+  beauty: BeautySearch,
+  church: ChurchDiscover,
+  home: HomeDiscover,
+  events: EventsDiscover,
+  education: EducationDiscover,
+};
 
 /**
  * Explore page that lives INSIDE the authenticated dashboard shell (AppLayout).
@@ -23,6 +39,7 @@ export default function DashboardExplorePage() {
   const [params, setParams] = useSearchParams();
   const world = normalizeBuyerWorld(params.get('world'));
   const worldMeta = world ? BUYER_WORLDS[world] : null;
+  const { setBuyerWorld } = useBuyerWorld();
 
   const { locale, t } = useI18n();
   const fr = locale === 'fr';
@@ -32,11 +49,21 @@ export default function DashboardExplorePage() {
   const debouncedSearch = useDebounce(search, 300);
   const isSearching = debouncedSearch.length > 0;
 
+  // (D) Persist buyer world when URL sets it, so sidebar/URL stay in sync.
+  useEffect(() => {
+    if (world) {
+      void setBuyerWorld(world);
+      try { localStorage.setItem('sv_last_vertical', world); } catch {}
+    }
+  }, [world, setBuyerWorld]);
+
   const clearWorld = () => {
     const next = new URLSearchParams(params);
     next.delete('world');
     setParams(next, { replace: true });
   };
+
+  const WorldComponent = world ? WORLD_COMPONENT[world] : undefined;
 
   const title = useMemo(() => {
     if (worldMeta) return fr ? `Explorer — ${worldMeta.labelFr}` : `Explore — ${worldMeta.labelEn}`;
@@ -114,16 +141,26 @@ export default function DashboardExplorePage() {
         </div>
       </div>
 
-      <div className="container max-w-6xl px-4 py-6">
-        {!isSearching && <RecentlyViewedProducts />}
-        {!isSearching && <CategoryCarousels />}
-        {!isSearching && <FeaturedSection />}
-        {!isSearching && (
-          <div className="mt-8">
-            <ForYouFeed />
+      {WorldComponent ? (
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-16 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin" />
           </div>
-        )}
-      </div>
+        }>
+          <WorldComponent />
+        </Suspense>
+      ) : (
+        <div className="container max-w-6xl px-4 py-6">
+          {!isSearching && <RecentlyViewedProducts />}
+          {!isSearching && <CategoryCarousels />}
+          {!isSearching && <FeaturedSection />}
+          {!isSearching && (
+            <div className="mt-8">
+              <ForYouFeed />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
