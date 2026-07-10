@@ -1018,6 +1018,7 @@ export function AdminSettings() {
 
   const orgAny = currentOrg as any;
   const defaultSettingsTab = searchParams.get('tab') === 'modules' ? 'modules' : 'general';
+  const [settingsTab, setSettingsTab] = useState(defaultSettingsTab);
 
   const PUBLISHED_DOMAIN = 'https://siteviral.com';
 
@@ -1092,6 +1093,10 @@ export function AdminSettings() {
     setCommissionPercent(String(currentOrg.affiliation_commission_percent ?? 10));
     setOfferingsEnabled(oa?.offerings_enabled ?? false);
   }, [currentOrg?.id]);
+
+  useEffect(() => {
+    setSettingsTab(defaultSettingsTab);
+  }, [defaultSettingsTab]);
 
   const handleSaveOfferings = async () => {
     if (!currentOrg) return;
@@ -1342,7 +1347,7 @@ export function AdminSettings() {
         onConfirm={handleCurrencyWizardConfirm}
         onCancel={() => { setCurrencyWizardOpen(false); setPendingCurrency(null); }}
       />
-      <Tabs defaultValue={defaultSettingsTab} className="space-y-5">
+      <Tabs value={settingsTab} onValueChange={setSettingsTab} className="space-y-5">
         <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:inline-grid">
           <TabsTrigger value="general">{isFr ? 'Réglages' : 'Settings'}</TabsTrigger>
           <TabsTrigger value="modules">{isFr ? 'Modules' : 'Modules'}</TabsTrigger>
