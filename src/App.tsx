@@ -747,7 +747,7 @@ const App = () => (
                   <Route path="/dashboard/purchases"  element={<Navigate to="/my-programs" replace />} />
                   <Route path="/dashboard/products"   element={<Navigate to="/admin/products" replace />} />
                   <Route path="/dashboard/promotions" element={<Navigate to="/admin/promo-codes" replace />} />
-                  <Route path="/dashboard/explore"    element={<Navigate to="/discover" replace />} />
+                  <Route path="/dashboard/explore"    element={<DashboardExplorePage />} />
                   <Route path="/dashboard/claim"      element={<Navigate to="/admin/affiliation" replace />} />
                   <Route path="/dashboard/revenue"    element={<Navigate to="/admin/sales" replace />} />
                   <Route path="/quick-start" element={<QuickStartPage />} />

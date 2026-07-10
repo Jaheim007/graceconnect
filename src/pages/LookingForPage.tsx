@@ -14,16 +14,18 @@ interface Choice {
   route: string;
 }
 
+// All choices land INSIDE the dashboard shell on /dashboard/explore, with the
+// world pre-selected. Non-world verticals fall back to a plain explore view.
 const CHOICES: Choice[] = [
-  { key: 'beauty',    icon: Scissors,      fr: 'Trouver un service beauté',              en: 'Find a beauty service',            route: '/beauty' },
-  { key: 'tutor',     icon: GraduationCap, fr: 'Trouver un tuteur / prof à domicile', en: 'Find a tutor / home teacher', route: '/education' },
-  { key: 'artisan',   icon: Wrench,        fr: 'Trouver un artisan / service à domicile', en: 'Find an artisan / home service', route: '/home' },
-  { key: 'church',    icon: Church,        fr: 'Trouver une église / ministère',      en: 'Find a church / ministry',    route: '/church' },
-  { key: 'digital',   icon: ShoppingBag,   fr: 'Acheter des produits digitaux',       en: 'Buy digital products',        route: '/discover?type=digital' },
-  { key: 'events',    icon: CalendarDays,  fr: 'Trouver un événement',                en: 'Find an event',               route: '/events' },
-  { key: 'music',     icon: Music,         fr: 'Trouver un musicien / instrumentiste', en: 'Find a musician / instrumentist', route: '/discover?type=music' },
-  { key: 'influencer',icon: Megaphone,     fr: 'Trouver un influenceur',              en: 'Find an influencer',          route: '/discover?type=influencer' },
-  { key: 'general',   icon: Briefcase,     fr: 'Trouver un service général',          en: 'Find a general service',      route: '/discover' },
+  { key: 'beauty',    icon: Scissors,      fr: 'Trouver un service beauté',              en: 'Find a beauty service',            route: '/dashboard/explore?world=beauty' },
+  { key: 'tutor',     icon: GraduationCap, fr: 'Trouver un tuteur / prof à domicile', en: 'Find a tutor / home teacher', route: '/dashboard/explore?world=education' },
+  { key: 'artisan',   icon: Wrench,        fr: 'Trouver un artisan / service à domicile', en: 'Find an artisan / home service', route: '/dashboard/explore?world=home' },
+  { key: 'church',    icon: Church,        fr: 'Trouver une église / ministère',      en: 'Find a church / ministry',    route: '/dashboard/explore?world=church' },
+  { key: 'digital',   icon: ShoppingBag,   fr: 'Acheter des produits digitaux',       en: 'Buy digital products',        route: '/dashboard/explore?world=digital' },
+  { key: 'events',    icon: CalendarDays,  fr: 'Trouver un événement',                en: 'Find an event',               route: '/dashboard/explore?world=events' },
+  { key: 'music',     icon: Music,         fr: 'Trouver un musicien / instrumentiste', en: 'Find a musician / instrumentist', route: '/dashboard/explore' },
+  { key: 'influencer',icon: Megaphone,     fr: 'Trouver un influenceur',              en: 'Find an influencer',          route: '/dashboard/explore' },
+  { key: 'general',   icon: Briefcase,     fr: 'Trouver un service général',          en: 'Find a general service',      route: '/dashboard/explore' },
 ];
 
 export default function LookingForPage() {
