@@ -65,11 +65,19 @@ export default function AuthPage() {
           navigate(returnTo, { replace: true });
           return;
         }
-        // Brand-new user (created within the last minute) with no intent → let them
-        // pick between seeking and offering. Existing users go to their dashboard.
-        const createdAt = user.created_at ? new Date(user.created_at).getTime() : 0;
-        const isNewUser = createdAt > 0 && Date.now() - createdAt < 60_000;
-        navigate(isNewUser ? '/welcome-intent' : '/dashboard', { replace: true });
+        // Always ask "what do you want to do?" after sign-in, so buyers land in
+        // the right vertical instead of a generic dashboard. Short-circuit only
+        // if the user has already answered the interest picker before — then
+        // send them straight to their personalized explore feed.
+        try {
+          const raw = localStorage.getItem('sv_interests');
+          const interests = raw ? (JSON.parse(raw) as string[]) : [];
+          if (Array.isArray(interests) && interests.length > 0) {
+            navigate(`/dashboard/explore?world=${interests[0]}`, { replace: true });
+            return;
+          }
+        } catch {}
+        navigate('/welcome-intent', { replace: true });
       }
     }
   }, [user, navigate, returnTo]);

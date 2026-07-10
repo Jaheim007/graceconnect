@@ -64,11 +64,16 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      // Always route through the intent chooser after login. The chooser
-      // fast-forwards providers who already have a workspace to /dashboard,
-      // and asks buyers "what are you looking for?" so their dashboard is
-      // shaped correctly. This matches the desired UX ("when I log in, ask
-      // me if I'm looking or offering").
+      // Buyer who already picked interests before → skip the chooser and go
+      // straight to their personalized explore feed. Otherwise ask.
+      try {
+        const raw = localStorage.getItem('sv_interests');
+        const interests = raw ? (JSON.parse(raw) as string[]) : [];
+        if (Array.isArray(interests) && interests.length > 0) {
+          navigate(`/dashboard/explore?world=${interests[0]}`, { replace: true });
+          return;
+        }
+      } catch {}
       void isNewUser;
       navigate('/welcome-intent', { replace: true });
     };
