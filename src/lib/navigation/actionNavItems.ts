@@ -1,10 +1,11 @@
 import {
   BookOpen, Store, Compass, Package, LayoutDashboard,
   Building2, Shield, Calendar, Megaphone, HandCoins, Wallet,
-  Scissors, Search
+  Scissors, Search, ClipboardList, GraduationCap, Ticket,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { SiteviralFeatureKey } from '@/types/database';
+import type { BuyerWorld } from '@/lib/siteviral/buyerWorlds';
 
 export interface ActionNavItem {
   id: string;
