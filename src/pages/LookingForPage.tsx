@@ -3,6 +3,8 @@ import { ArrowRight, Sparkles, Scissors, GraduationCap, Wrench, Church, Shopping
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
+import { useBuyerWorld } from '@/hooks/useBuyerWorld';
+import { normalizeBuyerWorld } from '@/lib/siteviral/buyerWorlds';
 
 interface Choice {
   key: string;
