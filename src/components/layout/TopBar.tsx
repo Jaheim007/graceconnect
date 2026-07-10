@@ -101,10 +101,12 @@ export function TopBar() {
           {theme === 'dark' ? <Sun className="h-3.5 w-3.5 mr-2" /> : <Moon className="h-3.5 w-3.5 mr-2" />}
           {isFr ? (theme === 'dark' ? 'Mode clair' : 'Mode sombre') : (theme === 'dark' ? 'Light mode' : 'Dark mode')}
         </DropdownMenuItem>
-        {(isSuperadmin || managedOrgs.length >= 2) && (
+        {(isSuperadmin || managedOrgs.length === 0 || managedOrgs.length >= 2) && (
           <DropdownMenuItem onClick={() => navigate('/create-org')}>
             <Plus className="h-3.5 w-3.5 mr-2" />
-            {isFr ? 'Créer un espace/page' : 'Create a workspace/page'}
+            {managedOrgs.length === 0
+              ? (isFr ? 'Créer une plateforme' : 'Create a platform')
+              : (isFr ? 'Créer un espace/page' : 'Create a workspace/page')}
           </DropdownMenuItem>
         )}
         {(isSuperadmin || managedOrgs.length >= 2) && (

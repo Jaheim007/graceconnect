@@ -150,12 +150,13 @@ export default function DashboardExplorePage() {
           <WorldComponent />
         </Suspense>
       ) : (
-        <div className="container max-w-6xl px-4 py-6">
+        <div className="container max-w-6xl px-4 py-6 space-y-8">
+          <InterestHub />
           {!isSearching && <RecentlyViewedProducts />}
           {!isSearching && <CategoryCarousels />}
           {!isSearching && <FeaturedSection />}
           {!isSearching && (
-            <div className="mt-8">
+            <div>
               <ForYouFeed />
             </div>
           )}
@@ -164,3 +165,63 @@ export default function DashboardExplorePage() {
     </div>
   );
 }
+
+/**
+ * "For you" hub built from the interests the user picked in /looking-for.
+ * Each interest becomes a big card that jumps into that world's real listing.
+ * This is what makes Explorer feel like a mix of *your* interests — not a
+ * digital-products-only wall.
+ */
+function InterestHub() {
+  const { locale } = useI18n();
+  const fr = locale === 'fr';
+  const interests = useMemo<BuyerWorld[]>(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('sv_interests') : null;
+      const arr = raw ? (JSON.parse(raw) as string[]) : [];
+      return arr
+        .map((k) => normalizeBuyerWorld(k))
+        .filter((k): k is BuyerWorld => !!k);
+    } catch { return []; }
+  }, []);
+
+  if (interests.length === 0) return null;
+
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+          {fr ? 'Pour vous' : 'For you'}
+        </h2>
+        <Link to="/looking-for" className="text-xs text-primary font-medium hover:underline">
+          {fr ? 'Modifier' : 'Edit'}
+        </Link>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {interests.map((w) => {
+          const meta = BUYER_WORLDS[w];
+          return (
+            <Link
+              key={w}
+              to={`/dashboard/explore?world=${w}`}
+              className="group rounded-2xl border border-border bg-card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-3"
+            >
+              <div className="h-12 w-12 rounded-xl bg-primary/10 grid place-items-center text-2xl shrink-0">
+                <span>{meta.emoji}</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="font-bold text-sm truncate">
+                  {fr ? meta.labelFr : meta.labelEn}
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  {fr ? 'Voir les meilleurs profils' : 'Browse top providers'}
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
