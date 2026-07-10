@@ -1,58 +1,97 @@
-## Goal
+# Siteviral nav restructure + real-time messaging + order generation
 
-Every page a pro reaches from their dashboard must stay **inside** the fixated Pro Shell (sidebar visible on desktop, bottom nav on mobile). No more full-page hijacks. Plus a mobile top bar that feels as clean and confident as Djamo / Wave.
+Big scope — splitting into 4 tracks so we ship in the right order.
 
 ---
 
-## 1. Reconnect disconnected pages to the Pro Shell
+## Track 1 — Digital (Siteviral) sidebar: strict default items
 
-**Problem:** Links like "Messages", "Bookings", "Sales" still route to legacy pages (`/home/messages`, `/home/bookings`, `/dashboard/sales`, etc.) that render outside `ProShell`, so the sidebar and brand disappear.
+Rewrite the "digital" branch in `src/lib/navigation/featureNavBuilder.ts` so the sidebar shows **only** the items below by default. Everything else is moved into Settings → Modules and only appears in the sidebar when toggled on.
 
-**Fix:**
-- Rewrite every dashboard/bottom-nav CTA for a provider to point at the `pro/*` route of their vertical:
-  - `/home/messages` → `/home/pro/messages` (same for beauty/events/learn)
-  - `/home/bookings` → `/home/pro/orders`
-  - `/dashboard/sales`, `/dashboard/revenue`, `/home/pro/revenue` → `/home/pro/revenue`
-  - Settings / KYC / services links → their `/{vertical}/pro/settings/*` equivalents
-- Add redirect routes in `App.tsx` so any old bookmark or lingering link (`/{vertical}/messages`, `/{vertical}/messages/:id`, `/{vertical}/bookings`) sends **providers** into `pro/*` (clients still land on the public list).
-- Sweep components: `HomeProDashboard`, `BeautyProDashboard`, `EventsProDashboard`, `EducationTutorDashboard`, `featureNavBuilder`, `BeautyHeader`, and any card that hard-codes a legacy path.
+**If the user has an organization (provider):**
 
-## 2. Orders ≠ Revenue
+1. Overview → `/dashboard`
+2. My purchases → `/dashboard/purchases`
+3. Sell (digital products) → `/dashboard/products`
+4. Write a book in 5 min → `/ecrire`
+5. Create a promotion → `/dashboard/promotions`
+6. Explore → `/discover`
+7. Claim (affiliate / réclamer) → `/dashboard/affiliate`
+8. Revenue → `/dashboard/revenue`
+9. Settings → `/dashboard/settings`
+10. Sign out (footer action)
 
-**Problem:** The mobile bottom-nav "Orders" tab opens the old "My sales & donations" (a revenue view).
+**If the user does NOT have an organization:**
 
-**Fix:**
-- Bottom-nav "Orders" for a provider → `/{vertical}/pro/orders` (incoming bookings/requests only).
-- Keep "Revenue" tab pointing to `/{vertical}/pro/revenue` (sales, payouts, KYC).
-- Rename the legacy `SalesPage` label to "Revenue" so the term "Orders" is never reused for money.
-- Client-side (buyer) "Orders" tab stays as `MyPurchases`.
+1. Overview → `/dashboard`
+2. My purchases → `/dashboard/purchases`
+3. Explore → `/discover`
+4. Claim → `/dashboard/affiliate what is this Claim interface is it to see how they gain from commissions`
+5. Revenue → `/dashboard/revenue`
+6. Settings → `/dashboard/settings`
 
-## 3. Mobile top nav — Djamo / Wave polish
+Detection: reuse `useUserKind()` (`provider` vs `buyer`/`new`) — already exists at `src/hooks/useUserKind.ts`.
 
-Redesign `TopBar.tsx` for mobile (`< lg`):
-- Large round avatar on the left (tap → account sheet), business name + role chip beside it.
-- Center: nothing (removes clutter — Djamo style).
-- Right: single "action" pill grouping search + notifications with a subtle unread dot; theme + language collapse into the account sheet.
-- Sticky, translucent blur (`backdrop-blur-xl`), 56 px tall, 1 px hairline border, safe-area padding.
-- Credits chip becomes a compact glyph-only badge (like Wave's balance chip); tapping opens the credits sheet.
-- Workspace switcher collapses into the avatar sheet when the user has only one org (already the rule) and is hidden entirely on mobile top bar.
-- Bottom-nav untouched except for the label/route fixes above.
+**Removed from default sidebar** (moved to Settings → Modules, opt‑in):
+CRM, Community, Events (digital), Order generation, Announcements, Campaigns, Appointments, Affiliate marketplace tools, Coupons, Bundles, any other "extra" items currently forced in.
 
-Desktop top bar is unchanged.
+## Track 2 — Settings → Modules matrix for Digital
 
-## 4. Verification
+Extend `src/lib/dashboardModules.ts` and `src/pages/dashboard/ModulesSettings.tsx` so the "Modules to activate" list for the digital persona contains the removed items above, each with a `sidebarRoute` used by `featureNavBuilder` to inject the item into the sidebar when enabled. Nothing changes for the church/beauty/events/education personas — their module lists stay as they are.
 
-- Manual routes: `/home/pro`, `/home/pro/messages`, `/home/pro/orders`, `/home/pro/revenue`, `/beauty/pro/*`, `/events/pro/*`, `/learn/pro/*` — sidebar must remain visible at ≥ lg.
-- Legacy `/home/messages` while signed in as a provider → redirects to `/home/pro/messages`.
-- Mobile viewport (`375×812`): top bar matches new spec; Orders tab opens bookings list, Revenue tab opens revenue.
+## Track 3 — Real‑time messaging on public pages (provider inbox)
 
-## Files touched (approx.)
+New generic messaging layer for providers of any vertical (digital orgs, church, beauty, home, events, education). Non‑providers do NOT get a Messages entry.
 
-- `src/App.tsx` — legacy redirect routes for providers.
-- `src/components/layout/TopBar.tsx` — mobile redesign.
-- `src/components/layout/BottomNav.tsx` (or equivalent per-vertical nav) — route + label fixes.
-- `src/lib/navigation/featureNavBuilder.ts`, `actionNavItems.ts` — path rewrites.
-- `src/pages/home/HomeProDashboard.tsx`, `src/pages/beauty/BeautyProDashboard.tsx`, `src/pages/events/EventsProDashboard.tsx`, `src/pages/education/EducationTutorDashboard.tsx` — link rewrites (or replace with a small redirect to the new shell overview if fully superseded).
-- `src/components/beauty/BeautyHeader.tsx` — link rewrites.
+**DB (new migration):**
 
-No schema changes.
+- `conversations(id uuid pk, org_id uuid null, provider_user_id uuid not null, client_id uuid not null, vertical text, last_message_at timestamptz, created_at timestamptz)` + unique on `(provider_user_id, client_id, vertical)`.
+- `messages(id uuid pk, conversation_id uuid fk, sender_id uuid, kind text check in ('text','order'), body text, order_payload jsonb, created_at timestamptz, read_at timestamptz)`.
+- GRANTs to `authenticated` + `service_role`; RLS: only participants (`provider_user_id` or `client_id`) can select/insert; realtime enabled on both tables.
+
+**UI:**
+
+- `POST message` on the public org page ("Message this seller / church / provider") — visible only when the target is a provider offering services. Hidden for pure digital‑product‑only orgs? → still allowed since user asked "we can message them" on public pages universally.
+- Provider inbox at `/dashboard/messages` (new). List left, thread right, realtime via Supabase channels. Reuses the pattern already in `src/pages/education/pro/EducationProMessagesPane.tsx` but generic.
+- Client inbox reachable from user menu when they have ≥1 conversation.
+
+Sidebar: "Messages" is added to the provider sidebar for **all verticals** automatically (baked‑in for providers, like KYC/payments — not a toggle).
+
+## Track 4 — Order generation via message
+
+Inside a thread, the provider can click **"Send an order"** → modal with `{title, description, amount, currency, due_date?}` → inserts a `messages` row with `kind='order'` and a JSON payload. The message bubble renders as an order card with **Pay now** (client) / **Mark as paid** or **Cancel** (provider) actions. Payment uses the existing checkout route with a one‑off line item; on success the order row's status flips via edge function webhook.
+
+Scope note: for this pass we ship the order **card + create flow + status transitions**. Wiring to a full checkout is done through the existing `platformCheckout` helper — no new PSP work.
+
+## Track 5 — Route hygiene
+
+Audit `src/App.tsx` to confirm every sidebar target above resolves to a real route and renders the right page. Fix any that currently redirect elsewhere:
+
+- `/dashboard/purchases` → MyProgramsPage or dedicated purchases page
+- `/dashboard/products` → seller products list
+- `/dashboard/promotions` → promo creation hub
+- `/dashboard/affiliate` → claim/affiliate page
+- `/dashboard/revenue` → revenue page
+- `/dashboard/settings` → settings (Modules tab inside)
+- `/dashboard/messages` → new inbox
+- `/ecrire` → 5‑min book editor
+- `/discover` → explore
+- Sign‑out action (footer of sidebar) calls `supabase.auth.signOut()` then routes to `/`.
+
+---
+
+## Suggested execution order (one PR per track)
+
+1. Track 1 + Track 5 together (sidebar + route fixes) — smallest, unblocks the rest.
+2. Track 2 (Modules matrix) — makes removed items reachable.
+3. Track 3 (messaging + DB + realtime).
+4. Track 4 (order card on top of messaging).
+
+## Open questions before I start
+
+1. **Purchases page**: should `/dashboard/purchases` be a brand‑new page listing every purchase (digital products + programs + tickets + donations), or reuse `MyProgramsPage`? I'd recommend a new unified page.
+2. **"Claim"**: confirm this means the affiliate / réclamer page (`/dashboard/affiliate` — where users claim commissions), not something else.
+3. **Messaging scope for church/beauty/etc**: today each vertical has its own `*_conversations` table. Do we (a) migrate them all to the new generic `conversations` table, or (b) keep vertical tables and just add a generic one for digital? I'd recommend **(b)** for this pass to avoid a risky migration, and unify later.
+4. **Order payment**: OK to route Pay‑now through the existing platform checkout (Stripe/GeniusPay depending on region), or do you want a lighter "manual mark as paid" flow first?
+
+Once you confirm 1‑4 I'll ship Track 1 + 5 in the next turn.
