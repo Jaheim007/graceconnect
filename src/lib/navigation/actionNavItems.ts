@@ -142,7 +142,7 @@ export function getActionNavItems(
     icon: Compass,
     emoji: '🔍',
     titleFr: 'Découvrir',
-    titleEn: 'Discover',
+    titleEn: 'Explore',
     descFr: 'Voir et acheter des livres, formations et plus',
     descEn: 'Browse & buy books, courses & more',
     route: '/discover',
