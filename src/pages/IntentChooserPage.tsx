@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Rocket, Check } from 'lucide-react';
+import { Search, Rocket, Check, Church } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
@@ -10,7 +10,7 @@ import { normalizeBuyerWorld } from '@/lib/siteviral/buyerWorlds';
 import { OnboardingShell } from '@/components/layout/OnboardingShell';
 import { cn } from '@/lib/utils';
 
-type Kind = 'client' | 'provider';
+type Kind = 'client' | 'provider' | 'church';
 
 export default function IntentChooserPage() {
   const navigate = useNavigate();
@@ -30,6 +30,11 @@ export default function IntentChooserPage() {
       navigate(route);
       return;
     }
+    if (selected === 'church') {
+      setIntent('provider', '/church/onboarding');
+      navigate('/church/onboarding');
+      return;
+    }
     setIntent('client', '/looking-for');
     try {
       const prev = normalizeBuyerWorld(localStorage.getItem('sv_last_vertical'));
@@ -47,20 +52,28 @@ export default function IntentChooserPage() {
     {
       kind: 'client',
       icon: Search,
-      title: fr ? 'Je cherche quelque chose' : "I'm looking for something",
+      title: fr ? 'Je cherche un service' : "I'm looking for a service",
       subtitle: fr
-        ? 'Beauté, tuteur, artisan, église, digital, événements…'
-        : 'Beauty, tutor, artisan, church, digital, events…',
+        ? 'Beauté, tuteur, artisan, digital, événements…'
+        : 'Beauty, tutor, artisan, digital, events…',
     },
     {
       kind: 'provider',
       icon: Rocket,
       title: hasWorkspace
         ? (fr ? 'Aller à mon monde' : 'Go to my world')
-        : (fr ? 'Je veux créer mon monde' : 'I want to create my world'),
+        : (fr ? 'Je veux proposer un service' : 'I want to offer a service'),
       subtitle: hasWorkspace
         ? (fr ? 'Reprenez là où vous vous êtes arrêté.' : 'Pick up where you left off.')
-        : (fr ? 'Beauté, digital, église, artisan, événements, cours.' : 'Beauty, digital, church, artisan, events, tutoring.'),
+        : (fr ? 'Digital, beauté, artisan, événements, cours…' : 'Digital, beauty, artisan, events, tutoring…'),
+    },
+    {
+      kind: 'church',
+      icon: Church,
+      title: fr ? 'Je veux créer ma plateforme d\'église' : 'I want to build my church platform',
+      subtitle: fr
+        ? 'Sermons, dons, événements, membres — un monde à part.'
+        : 'Sermons, giving, events, members — its own world.',
     },
   ];
 
