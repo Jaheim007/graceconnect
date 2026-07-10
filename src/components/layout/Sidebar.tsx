@@ -142,9 +142,9 @@ export function Sidebar() {
 
       {/* Settings + Sign out */}
       <div className={cn('border-t border-border', collapsed ? 'px-1 py-2' : 'px-2 py-2')}>
-        {hasManageableOrg && (
+        {user && (
           <Link
-            to="/admin/settings"
+            to={hasManageableOrg ? "/admin/settings" : "/notification-preferences"}
             className={cn(
               'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-sidebar-foreground opacity-80 hover:opacity-100 hover:bg-sidebar-accent',
               collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'
