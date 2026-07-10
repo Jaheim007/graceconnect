@@ -27,7 +27,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
 } from '@/components/ui/alert-dialog';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { db } from '@/lib/db';
@@ -1011,11 +1011,13 @@ export function AdminSettings() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const qc = useQueryClient();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
   const orgAny = currentOrg as any;
+  const defaultSettingsTab = searchParams.get('tab') === 'modules' ? 'modules' : 'general';
 
   const PUBLISHED_DOMAIN = 'https://siteviral.com';
 
@@ -1340,7 +1342,7 @@ export function AdminSettings() {
         onConfirm={handleCurrencyWizardConfirm}
         onCancel={() => { setCurrencyWizardOpen(false); setPendingCurrency(null); }}
       />
-      <Tabs defaultValue="general" className="space-y-5">
+      <Tabs defaultValue={defaultSettingsTab} className="space-y-5">
         <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:inline-grid">
           <TabsTrigger value="general">{isFr ? 'Réglages' : 'Settings'}</TabsTrigger>
           <TabsTrigger value="modules">{isFr ? 'Modules' : 'Modules'}</TabsTrigger>
