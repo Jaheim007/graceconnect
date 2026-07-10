@@ -141,16 +141,26 @@ export default function DashboardExplorePage() {
         </div>
       </div>
 
-      <div className="container max-w-6xl px-4 py-6">
-        {!isSearching && <RecentlyViewedProducts />}
-        {!isSearching && <CategoryCarousels />}
-        {!isSearching && <FeaturedSection />}
-        {!isSearching && (
-          <div className="mt-8">
-            <ForYouFeed />
+      {WorldComponent ? (
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-16 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin" />
           </div>
-        )}
-      </div>
+        }>
+          <WorldComponent />
+        </Suspense>
+      ) : (
+        <div className="container max-w-6xl px-4 py-6">
+          {!isSearching && <RecentlyViewedProducts />}
+          {!isSearching && <CategoryCarousels />}
+          {!isSearching && <FeaturedSection />}
+          {!isSearching && (
+            <div className="mt-8">
+              <ForYouFeed />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
