@@ -82,12 +82,16 @@ export default function IntentChooserPage() {
               <Rocket className="h-5 w-5 text-primary" />
             </div>
             <h2 className="text-lg font-bold mb-1">
-              {fr ? 'Je veux proposer ou vendre' : 'I want to offer or sell'}
+              {hasWorkspace
+                ? (fr ? 'Aller à mon monde' : 'Go to my world')
+                : (fr ? 'Je veux créer mon monde' : 'I want to create my world')}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {fr
-                ? 'Services, rendez-vous, produits digitaux, dons, événements, cours avec l\'IA…'
-                : 'Services, appointments, digital products, donations, events, AI courses…'}
+              {hasWorkspace
+                ? (fr ? 'Reprenez là où vous vous êtes arrêté.' : 'Pick up where you left off.')
+                : (fr
+                    ? 'Beauté, digital, église, artisan, événements, cours — choisissez votre monde.'
+                    : 'Beauty, digital, church, artisan, events, tutoring — pick your world.')}
             </p>
           </button>
         </div>
