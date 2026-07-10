@@ -335,7 +335,39 @@ export default function ProfilePage() {
                       if (error) throw error;
                       toast({ title: t('profile.deleted'), description: t('profile.deleted_desc') });
                       await signOut();
-                      navigate('/');
+
+                      // Delete = delete. Wipe every trace of the user from this
+                      // browser so a refresh cannot rehydrate the deleted account.
+                      try {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        // IndexedDB (Supabase auth, react-query persister, etc.)
+                        if ('indexedDB' in window && 'databases' in indexedDB) {
+                          const dbs = await (indexedDB as any).databases?.() ?? [];
+                          await Promise.all(
+                            dbs.map((d: { name?: string }) => d.name && indexedDB.deleteDatabase(d.name))
+                          );
+                        }
+                        // Service worker caches (offline shell, cached API responses)
+                        if ('caches' in window) {
+                          const keys = await caches.keys();
+                          await Promise.all(keys.map((k) => caches.delete(k)));
+                        }
+                        // Unregister service workers so they don't re-serve stale HTML
+                        if ('serviceWorker' in navigator) {
+                          const regs = await navigator.serviceWorker.getRegistrations();
+                          await Promise.all(regs.map((r) => r.unregister()));
+                        }
+                        // Cookies scoped to this origin
+                        document.cookie.split(';').forEach((c) => {
+                          const name = c.split('=')[0].trim();
+                          if (!name) return;
+                          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+                        });
+                      } catch { /* best-effort cleanup */ }
+
+                      // Hard reload to a fresh anonymous shell — no cached UI, no in-memory state.
+                      window.location.replace('/');
                     } catch (err: unknown) {
                       toast({ title: t('common.error'), description: err instanceof Error ? err.message : '', variant: 'destructive' });
                     } finally { setDeleting(false); }
