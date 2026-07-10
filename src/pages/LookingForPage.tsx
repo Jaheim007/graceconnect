@@ -30,11 +30,14 @@ export default function LookingForPage() {
   const navigate = useNavigate();
   const { locale } = useI18n();
   const fr = locale === 'fr';
+  const { setBuyerWorld } = useBuyerWorld();
 
   const pick = (c: Choice) => {
     // Preserve buyer intent so post-auth routing sends them back here.
     setIntent('client', c.route);
     try { localStorage.setItem('sv_last_vertical', c.key); } catch {}
+    const world = normalizeBuyerWorld(c.key);
+    if (world) { void setBuyerWorld(world); }
     navigate(c.route);
   };
 
