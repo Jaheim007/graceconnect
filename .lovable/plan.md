@@ -1,109 +1,79 @@
-# Siteviral: The Multiverse Model
+# Plan: Vertical separation, interest-driven dashboards, Explore polish
 
-## The vision (recap in plain words)
+Big picture: SiteViral is a family of verticals (Digital, Beauty, Artisan (ex-Home), Events, Education/Influencers, Church, Others). Church is a **separate world** — never appears in "services you can find/offer". A user's dashboard nav must adapt to the verticals they said they're interested in on `/looking-for`. Explore must feel unified and professional across all verticals, not digital-first.
 
-Siteviral is **one universe** with several **worlds**: Digital, Beauty, Church, Home services, Events, Education. Every user is one of three types:
+---
 
-1. **Providers** — offer a service (sell digital products, cut hair, teach, cater events, pastor a church…)
-2. **Explorers / buyers** — browse, purchase, book, affiliate, read. No workspace needed.
-3. **Hybrid** — started as one, wants to add another world later.
+## 1. Remove Church from the services universe
 
-The rule: **one workspace = one primary world**, but any other world can be **activated later** from Settings → Modules without creating a second workspace. Nobody is ever *blocked* from a world — it's just not shown until they turn it on.
+- Remove Church from `/looking-for` interest chips (services picker).
+- Remove Church from buyer Explore worlds (`buyerWorlds.ts` + `DashboardExplorePage` world switcher).
+- Remove Church from `IntentChooserPage` / `WelcomeIntentPage` "what are you looking for" service options.
+- Keep Church fully functional at `/church/*` — landing, onboarding, dashboard, giving. Untouched.
+- Add a new entry point in `WelcomeIntentPage` and profile menu: **"Build my church platform"** → `/church/onboarding`. This is the *only* way Church surfaces in the general flow.
+- Rename "Home" vertical to **"Artisan"** everywhere user-facing (FR: Artisan, EN: Artisan/Trades). Routes stay `/home/*` internally to avoid breakage; only labels + icons + copy change.
 
-## What the user sees
+## 2. Add "Others" vertical to the picker
 
-### A. Landing (siteviral.com)
-Two clear doors:
-- **"I want to offer a service"** → world picker → workspace creation
-- **"I'm looking for a service / to explore"** → discover feed, no workspace required
+- Add a **"Other services"** / **"Autres"** chip on `/looking-for` and in Explore worlds so users with unlisted needs aren't stuck. Maps to a generic Explore feed (all verticals mixed, no filter).
 
-(This already exists as `IntentChooserPage` — we just make it the real front door and clean the copy.)
+## 3. Interest-driven adaptive sidebar
 
-### B. Workspace creation — the world picker
-Replace the current "creator / organization / brand" question with:
+Today the buyer sidebar is fixed: Overview · My Purchases · Explorer · Earn. Extend it so extra items are appended based on `localStorage.sv_interests`:
 
-> *What kind of platform do you want to build?*
->  ◻ Digital products & courses
->  ◻ Beauty services
->  ◻ Church / ministry
->  ◻ Home services (artisans)
->  ◻ Events (vendors)
->  ◻ Education / tutoring
 
-The chosen world becomes the workspace's `primary_world`. That's the ONLY thing that changes the default sidebar + default modules.
+| Interest  | Extra nav items appended                    |
+| --------- | ------------------------------------------- |
+| digital   | (none — base nav is already digital-shaped) |
+| beauty    | My Appointments, My Orders                  |
+| artisan   | My Requests, My Orders                      |
+| events    | My Bookings, My Orders                      |
+| education | My Sessions, My Tutors                      |
+| other     | (none)                                      |
 
-### C. Dashboard — one screen, world-aware
-A single `UnifiedDashboardLayout` (already exists). The sidebar is built from three layers:
 
-```text
-┌──────────────────────────────────────┐
-│ 1. Universal items                   │  Overview, Purchases, Explore,
-│    (every authed user)               │  Claim, Revenue, Settings, Sign out
-├──────────────────────────────────────┤
-│ 2. Primary-world defaults            │  Digital → Sell, Write a book, Promotions
-│    (from workspace.primary_world)    │  Beauty  → Bookings, Messages, Availability
-│                                      │  Church  → Sermons, Offerings, Team, Events
-│                                      │  Home    → Jobs, Messages, Availability
-│                                      │  Events  → Packages, Bookings, Messages
-│                                      │  Educ.   → Sessions, Messages, Subjects
-├──────────────────────────────────────┤
-│ 3. Activated modules                 │  Only appear when toggled ON in
-│    (from feature_activations)        │  Settings → Modules
-└──────────────────────────────────────┘
-```
+Deduped, capped so the sidebar stays: **Overview · My Purchases · Explorer · [interest items] · Earn · Profile (with logout)**. Never more than ~6 items.
 
-Nothing else pollutes the sidebar. That fixes the current over-saturation problem for good.
+Implementation: extend `getActionNavItems` with an optional `interests: string[]` param, read from `useBuyerWorld` / localStorage in `Sidebar.tsx` and `BottomNav`.
 
-### D. Settings → Modules — the activation matrix
-Two sections in the Modules tab:
+These are the different services that offere services:  
+"Digital Products, Musicians / Instrumentists , Sport / Coach, Artisans, Influencers and these who want to offer any different kind of service"
 
-1. **Extra features for your current world** — e.g. Digital: CRM, Community, Order generator, Affiliation, Coupons, Bundles, Reviews… (all OFF by default)
-2. **Add another world to this workspace** — e.g. a Beauty workspace can turn ON "Sell digital products", which adds the digital default sidebar block to their existing dashboard.
+## 4. Explore consistency pass
 
-Turning a world ON = inserts its default sidebar block (layer 2) below the primary one. Turning it OFF = removes it. Data persists.
+Problem: `/dashboard/explore` (default) and `/dashboard/explore?world=beauty` render with different layouts/spacing/typography — feels digital-first.
 
-### E. Explorers (no workspace)
-Their dashboard shows only: Overview, My purchases, Explore, Claim (affiliate), Revenue (partner earnings), Settings, Sign out — plus a big **"Create a platform"** CTA that opens the world picker.
+Fix in `DashboardExplorePage.tsx`:
 
-## Technical plan
+- Wrap every world (Digital, Beauty, Artisan, Events, Education, Other) in the **same shell**: page header (world name + short subtitle + world switcher chips) → optional "For you" mixed strip (only on default view) → world grid.
+- Normalize card component: reuse one `ExploreCard` across verticals (image/emoji, title, subtitle, price/CTA slot).
+- Ensure spacing, container width, and typography match the digital variant (which is the current baseline).
+- Default (no `?world=`) view: keep the multi-interest "For you" hub, but each interest section uses the same card grid — no more digital-only wall.
 
-### 1. Data model
-- Add `organizations.primary_world` enum: `digital | beauty | church | home | events | education` (backfill from existing `type`/`vertical` columns; they already exist under different names — audit `siteviral/config.ts`).
-- Reuse existing `feature_activations` table for module toggles. Add a `world` column so we can list activations grouped by world in the UI.
+## 5. Welcome / intent flow copy
 
-### 2. Sidebar builder — single source of truth
-Refactor `src/lib/navigation/featureNavBuilder.ts` into three pure functions:
-```
-buildUniversalItems(user)          // layer 1
-buildWorldDefaults(primaryWorld)   // layer 2
-buildActivatedModules(activations) // layer 3
-```
-`UnifiedDashboardLayout` concatenates them in that order. Delete every ad-hoc override currently in that file.
+- `/welcome-intent`: three cards →
+  1. **I'm looking for a service** (buyer) → `/looking-for`
+  2. **I want to offer a service** (seller) → existing seller path
+  3. **I want to build my church platform** → `/church/onboarding`
+- Church chip removed from `/looking-for`.
 
-### 3. World picker
-- Rewrite `CreateOrgPage` step 1 as the 6-world grid above.
-- Store choice in `organizations.primary_world`.
-- Seed default `feature_activations` rows for that world.
+---
 
-### 4. Settings → Modules
-- Extend `dashboardModules.ts` with a `world` field on each module.
-- `ModulesSettings.tsx`: two tabs, "This world's extras" and "Other worlds".
-- Toggling writes to `feature_activations`; sidebar re-renders reactively.
+## Technical touch points
 
-### 5. Landing / intent
-- Make `IntentChooserPage` the destination of the header "Join / Sign in" for logged-out users.
-- Logged-in users go straight to `/dashboard`.
-- Explorer path never forces workspace creation.
+- `src/pages/LookingForPage.tsx` — remove church chip, add "other".
+- `src/pages/WelcomeIntentPage.tsx` — add church-platform CTA.
+- `src/pages/IntentChooserPage.tsx` — mirror the above.
+- `src/lib/siteviral/buyerWorlds.ts` — drop church, add "other".
+- `src/pages/dashboard/DashboardExplorePage.tsx` — unified shell, dedup card layouts, keep For-You hub.
+- `src/lib/navigation/actionNavItems.ts` — accept `interests` and append per-interest items.
+- `src/components/layout/Sidebar.tsx` + `BottomNav.tsx` — pass interests through.
+- `src/components/layout/TopBar.tsx` — profile menu keeps "Create a platform" (unchanged) + logout below.
+- Rename Home → Artisan labels in nav items and world labels only (no route changes).
 
-### 6. Route hygiene
-Every sidebar item resolves to a real route already registered in `App.tsx`. No `/dash/*` alias layer needed if we just point items at their real routes.
+## Out of scope (call out, don't do)
 
-## Out of scope for this pass
-- Real-time messaging + order-via-message (Tracks 3 & 4 from the previous plan) — do those *after* the multiverse skeleton lands, once every world has a "Messages" module slot.
-- No migration of existing per-vertical tables (`beauty_*`, `church_*`, …). They stay as-is; the sidebar just points at them.
-
-## Questions before I build
-
-1. **Primary world switch.** If a user later realizes they picked the wrong primary world, should we allow changing `primary_world` from Settings, or is it locked once chosen (they can only *activate* other worlds alongside it)?
-2. **Explorer "Revenue" item.** For a pure explorer (no workspace, no partner account), should Revenue be hidden until they earn something, or always visible as an empty state pointing to the affiliate program?
-3. **World picker copy.** OK with the 6 labels above (Digital products & courses / Beauty services / Church & ministry / Home services / Events / Education & tutoring), or do you want different wording?
+- No DB migration — interests still live in `localStorage.sv_interests` (per prior decision).
+- No changes to `/church/*` internals.
+- No new backend endpoints.

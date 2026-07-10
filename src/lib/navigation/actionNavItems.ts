@@ -1,10 +1,11 @@
 import {
   BookOpen, Store, Compass, Package, LayoutDashboard,
   Building2, Shield, Calendar, Megaphone, HandCoins, Wallet,
-  Scissors, Search
+  Scissors, Search, ClipboardList, GraduationCap, Ticket,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { SiteviralFeatureKey } from '@/types/database';
+import type { BuyerWorld } from '@/lib/siteviral/buyerWorlds';
 
 export interface ActionNavItem {
   id: string;
@@ -29,6 +30,57 @@ interface NavContext {
   hasManageableOrg: boolean;
   hasOrgs: boolean;
   isSuperadmin: boolean;
+  /** Buyer interests picked on /looking-for — used to shape the sidebar
+   *  with vertical-specific shortcuts (appointments, bookings, sessions…). */
+  interests?: BuyerWorld[];
+}
+
+/** Per-interest extra nav items appended to buyer sidebars. */
+function interestNavItems(interest: BuyerWorld, isFr: boolean): ActionNavItem[] {
+  switch (interest) {
+    case 'beauty':
+      return [{
+        id: 'beauty-appointments',
+        icon: Calendar, emoji: '📅',
+        titleFr: 'Mes rendez-vous', titleEn: 'My appointments',
+        descFr: 'Mes rendez-vous beauté', descEn: 'My beauty appointments',
+        route: '/beauty/bookings',
+        borderClass: 'border-rose-500/30 hover:border-rose-500/60',
+        iconBg: 'bg-rose-500/15', iconColor: 'text-rose-500',
+      }];
+    case 'home':
+      return [{
+        id: 'home-requests',
+        icon: ClipboardList, emoji: '🛠️',
+        titleFr: 'Mes demandes', titleEn: 'My requests',
+        descFr: 'Interventions et devis', descEn: 'Requests & quotes',
+        route: '/home',
+        borderClass: 'border-orange-500/30 hover:border-orange-500/60',
+        iconBg: 'bg-orange-500/15', iconColor: 'text-orange-500',
+      }];
+    case 'events':
+      return [{
+        id: 'events-bookings',
+        icon: Ticket, emoji: '🎉',
+        titleFr: 'Mes réservations', titleEn: 'My bookings',
+        descFr: 'Prestataires événements', descEn: 'Event vendors',
+        route: '/events',
+        borderClass: 'border-fuchsia-500/30 hover:border-fuchsia-500/60',
+        iconBg: 'bg-fuchsia-500/15', iconColor: 'text-fuchsia-500',
+      }];
+    case 'education':
+      return [{
+        id: 'education-sessions',
+        icon: GraduationCap, emoji: '🎓',
+        titleFr: 'Mes séances', titleEn: 'My sessions',
+        descFr: 'Cours et tuteurs', descEn: 'Classes & tutors',
+        route: '/education',
+        borderClass: 'border-cyan-500/30 hover:border-cyan-500/60',
+        iconBg: 'bg-cyan-500/15', iconColor: 'text-cyan-500',
+      }];
+    default:
+      return [];
+  }
 }
 
 /**
@@ -141,6 +193,19 @@ export function getActionNavItems(
     iconBg: 'bg-violet-500/15',
     iconColor: 'text-violet-500',
   });
+
+  // Buyer interest-driven items — appended right after Explorer so buyers see
+  // vertical-specific shortcuts (appointments, bookings, sessions, requests).
+  if (ctx.isAuthenticated && !ctx.hasManageableOrg && ctx.interests?.length) {
+    const seen = new Set<string>();
+    for (const w of ctx.interests) {
+      for (const it of interestNavItems(w, false)) {
+        if (seen.has(it.id)) continue;
+        seen.add(it.id);
+        items.push(it);
+      }
+    }
+  }
 
   if (ctx.isAuthenticated) {
     items.push({
