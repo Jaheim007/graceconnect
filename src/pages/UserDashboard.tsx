@@ -478,7 +478,7 @@ export default function UserDashboard() {
             </PremiumCard>
           )}
 
-          {!hasOrgs && (
+          {!hasOrgs && !isBuyer && (
             <PremiumCard variant="default" noPadding animate={false} className="p-0">
               <button
                 onClick={() => navigate('/ecrire')}
