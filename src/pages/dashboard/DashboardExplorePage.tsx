@@ -1,11 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Search, X } from 'lucide-react';
+import { Search, X, Loader2 } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useBuyerWorld } from '@/hooks/useBuyerWorld';
 
 import { FeaturedSection } from '@/components/discover/FeaturedSection';
 import { ForYouFeed } from '@/components/discover/ForYouFeed';
@@ -13,6 +14,21 @@ import { CategoryCarousels } from '@/components/discover/CategoryCarousels';
 import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
 import { RecentlyViewedProducts } from '@/components/discover/RecentlyViewedProducts';
 import { BUYER_WORLDS, normalizeBuyerWorld, type BuyerWorld } from '@/lib/siteviral/buyerWorlds';
+
+// Per-world discover experiences — each vertical has its own real listing surface.
+const BeautySearch = lazy(() => import('@/pages/beauty/BeautySearch'));
+const ChurchDiscover = lazy(() => import('@/pages/church/ChurchDiscover'));
+const HomeDiscover = lazy(() => import('@/pages/home/HomeDiscover'));
+const EventsDiscover = lazy(() => import('@/pages/events/EventsDiscover'));
+const EducationDiscover = lazy(() => import('@/pages/education/EducationDiscover'));
+
+const WORLD_COMPONENT: Partial<Record<BuyerWorld, React.LazyExoticComponent<React.ComponentType<any>>>> = {
+  beauty: BeautySearch,
+  church: ChurchDiscover,
+  home: HomeDiscover,
+  events: EventsDiscover,
+  education: EducationDiscover,
+};
 
 /**
  * Explore page that lives INSIDE the authenticated dashboard shell (AppLayout).
