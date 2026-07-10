@@ -71,6 +71,7 @@ export function Sidebar() {
     if (clean === '/admin') return location.pathname === '/admin' || location.pathname === '/admin/';
     return location.pathname.startsWith(clean);
   };
+  const settingsAlreadyInNav = navItems.some((item) => item.route.split('?')[0] === '/admin/settings');
 
   const renderNavItem = (item: ActionNavItem) => {
     const active = isActive(item.route);
@@ -142,7 +143,7 @@ export function Sidebar() {
 
       {/* Settings + Sign out */}
       <div className={cn('border-t border-border', collapsed ? 'px-1 py-2' : 'px-2 py-2')}>
-        {user && (
+        {user && !settingsAlreadyInNav && (
           <Link
             to={hasManageableOrg ? "/admin/settings" : "/notification-preferences"}
             className={cn(
