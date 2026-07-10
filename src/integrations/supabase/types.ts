@@ -8843,6 +8843,7 @@ export type Database = {
           currency: string | null
           description: string | null
           enabled_features: string[]
+          extra_worlds: Database["public"]["Enums"]["siteviral_world"][]
           features_confirmed_at: string | null
           fts_vector: unknown
           id: string
@@ -8898,6 +8899,7 @@ export type Database = {
           currency?: string | null
           description?: string | null
           enabled_features?: string[]
+          extra_worlds?: Database["public"]["Enums"]["siteviral_world"][]
           features_confirmed_at?: string | null
           fts_vector?: unknown
           id?: string
@@ -8953,6 +8955,7 @@ export type Database = {
           currency?: string | null
           description?: string | null
           enabled_features?: string[]
+          extra_worlds?: Database["public"]["Enums"]["siteviral_world"][]
           features_confirmed_at?: string | null
           fts_vector?: unknown
           id?: string
