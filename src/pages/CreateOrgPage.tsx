@@ -52,6 +52,7 @@ export default function CreateOrgPage() {
   const [resuming, setResuming] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<string>('both');
+  const [selectedWorld, setSelectedWorld] = useState<SiteviralWorld>('digital');
   const [selectedCurrency, setSelectedCurrency] = useState(() => detectCurrencyFromTimezone());
 
   const urlPartnerCode = searchParams.get('partner');
