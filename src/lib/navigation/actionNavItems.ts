@@ -93,20 +93,22 @@ export function getActionNavItems(
     });
   }
 
-  items.push({
-    id: 'write',
-    icon: BookOpen,
-    emoji: '✏️',
-    titleFr: 'Écrire un livre en 5 min',
-    titleEn: 'Write a book in 5 min',
-    descFr: "Crée ton livre avec l'IA et vends-le",
-    descEn: 'Create your book with AI and sell it',
-    route: '/ecrire',
-    borderClass: 'border-primary/30 hover:border-primary/60',
-    iconBg: 'bg-primary/15',
-    iconColor: 'text-primary',
-    featureKey: 'ai_book_creation',
-  });
+  if (ctx.isAuthenticated && ctx.hasManageableOrg) {
+    items.push({
+      id: 'write',
+      icon: BookOpen,
+      emoji: '✏️',
+      titleFr: 'Écrire un livre en 5 min',
+      titleEn: 'Write a book in 5 min',
+      descFr: "Crée ton livre avec l'IA et vends-le",
+      descEn: 'Create your book with AI and sell it',
+      route: '/ecrire',
+      borderClass: 'border-primary/30 hover:border-primary/60',
+      iconBg: 'bg-primary/15',
+      iconColor: 'text-primary',
+      featureKey: 'ai_book_creation',
+    });
+  }
 
   if (ctx.isAuthenticated && ctx.hasManageableOrg) {
     items.push({
@@ -124,15 +126,17 @@ export function getActionNavItems(
     });
   }
 
+  // Explorer — buyers land in the in-dashboard explorer (mixed feed by interest);
+  // sellers keep the marketing /discover surface.
   items.push({
     id: 'discover',
     icon: Compass,
     emoji: '🔍',
-    titleFr: 'Découvrir',
+    titleFr: 'Explorer',
     titleEn: 'Explore',
     descFr: 'Voir et acheter des livres, formations et plus',
     descEn: 'Browse & buy books, courses & more',
-    route: '/discover',
+    route: ctx.hasManageableOrg ? '/discover' : '/dashboard/explore',
     borderClass: 'border-violet-500/30 hover:border-violet-500/60',
     iconBg: 'bg-violet-500/15',
     iconColor: 'text-violet-500',
@@ -143,8 +147,8 @@ export function getActionNavItems(
       id: 'claim',
       icon: HandCoins,
       emoji: '💰',
-      titleFr: 'Réclamer',
-      titleEn: 'Claim',
+      titleFr: 'Gagner',
+      titleEn: 'Earn',
       descFr: 'Affiliation et commissions',
       descEn: 'Affiliate commissions',
       route: ctx.hasManageableOrg ? '/admin/affiliation' : '/gagner',
@@ -155,21 +159,23 @@ export function getActionNavItems(
     });
   }
 
-  if (ctx.isAuthenticated) {
+  // Revenue is a seller concept — buyers see their commissions under "Earn".
+  if (ctx.isAuthenticated && ctx.hasManageableOrg) {
     items.push({
       id: 'sales',
       icon: Wallet,
       emoji: '💵',
       titleFr: 'Revenus',
       titleEn: 'Revenue',
-      descFr: ctx.hasManageableOrg ? 'Ventes, dons reçus, commissions et retraits' : 'Commissions et gains affiliés',
-      descEn: ctx.hasManageableOrg ? 'Sales, donations, commissions & payouts' : 'Commissions and affiliate earnings',
-      route: ctx.hasManageableOrg ? '/admin/sales' : '/partner',
+      descFr: 'Ventes, dons reçus, commissions et retraits',
+      descEn: 'Sales, donations, commissions & payouts',
+      route: '/admin/sales',
       borderClass: 'border-teal-500/30 hover:border-teal-500/60',
       iconBg: 'bg-teal-500/15',
       iconColor: 'text-teal-500',
     });
   }
+
 
   if (ctx.isSuperadmin) {
     items.push({
