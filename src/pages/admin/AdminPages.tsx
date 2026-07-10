@@ -27,7 +27,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
 } from '@/components/ui/alert-dialog';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { db } from '@/lib/db';
@@ -39,6 +39,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUpsertOrgPageSettings, useOrgPageSettings } from '@/hooks/useOrgPageSettings';
 import { BulkActionsToolbar, useBulkSelect } from '@/components/admin/BulkActions';
 import { ImageCropDialog } from '@/components/ui/ImageCropDialog';
@@ -47,6 +48,7 @@ import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { ChariowImportDialog } from '@/components/chariow/ChariowImportDialog';
 import { DomainSettings as DomainSettingsWidget } from '@/components/admin/DomainSettings';
 import { CountrySelector } from '@/components/ui/CountrySelector';
+import AdminFeaturesPage from './AdminFeaturesPage';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -1009,11 +1011,14 @@ export function AdminSettings() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const qc = useQueryClient();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
   const orgAny = currentOrg as any;
+  const defaultSettingsTab = searchParams.get('tab') === 'modules' ? 'modules' : 'general';
+  const [settingsTab, setSettingsTab] = useState(defaultSettingsTab);
 
   const PUBLISHED_DOMAIN = 'https://siteviral.com';
 
@@ -1088,6 +1093,10 @@ export function AdminSettings() {
     setCommissionPercent(String(currentOrg.affiliation_commission_percent ?? 10));
     setOfferingsEnabled(oa?.offerings_enabled ?? false);
   }, [currentOrg?.id]);
+
+  useEffect(() => {
+    setSettingsTab(defaultSettingsTab);
+  }, [defaultSettingsTab]);
 
   const handleSaveOfferings = async () => {
     if (!currentOrg) return;
@@ -1338,6 +1347,17 @@ export function AdminSettings() {
         onConfirm={handleCurrencyWizardConfirm}
         onCancel={() => { setCurrencyWizardOpen(false); setPendingCurrency(null); }}
       />
+      <Tabs value={settingsTab} onValueChange={setSettingsTab} className="space-y-5">
+        <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:inline-grid">
+          <TabsTrigger value="general">{isFr ? 'Réglages' : 'Settings'}</TabsTrigger>
+          <TabsTrigger value="modules">{isFr ? 'Modules' : 'Modules'}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="modules" className="mt-0">
+          <AdminFeaturesPage />
+        </TabsContent>
+
+        <TabsContent value="general" className="mt-0">
       <div className="space-y-5">
 
         {/* ── 1. PROFILE ── */}
@@ -1687,6 +1707,8 @@ export function AdminSettings() {
 
         <p className="text-[11px] text-muted-foreground text-center pb-4">{isFr ? 'Contactez le support pour modifier le plan.' : 'Contact support to change your plan.'}</p>
       </div>
+        </TabsContent>
+      </Tabs>
       {/* Crop Dialog */}
       {settingsCropSrc && (
         <ImageCropDialog

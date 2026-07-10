@@ -375,7 +375,7 @@ export default function UserDashboard() {
         )}
 
         {/* ═══ CREATE PLATFORM CTA (no-org users) ═══ */}
-        {!hasOrgs && !isBuyer && (
+        {!hasOrgs && (
           <PremiumCard variant="glass" delay={0.1} className="space-y-3 border-primary/30 bg-primary/5">
             <div className="flex items-center gap-3">
               <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -476,7 +476,7 @@ export default function UserDashboard() {
             </PremiumCard>
           )}
 
-          {!hasOrgs && !isBuyer && (
+          {!hasOrgs && (
             <PremiumCard variant="default" noPadding animate={false} className="p-0">
               <button
                 onClick={() => navigate('/ecrire')}

@@ -735,7 +735,7 @@ const App = () => (
                   <Route path="/resources" element={<ResourcesPage />} />
                   <Route path="/my-donations" element={<MyDonationsPage />} />
                   <Route path="/dashboard" element={<DashboardRouter />} />
-                  <Route path="/dashboard/settings/modules" element={<Navigate to="/admin/features" replace />} />
+                  <Route path="/dashboard/settings/modules" element={<Navigate to="/admin/settings?tab=modules" replace />} />
                   <Route path="/dashboard/digital" element={<Navigate to="/admin/products" replace />} />
                   <Route path="/dashboard/orders" element={<Navigate to="/invoices" replace />} />
                   <Route path="/dashboard/kyc" element={<Navigate to="/admin/kyc" replace />} />

@@ -1,6 +1,6 @@
 import {
-  BookOpen, Store, Share2, Package, Calendar, Receipt, Gift,
-  Sparkles, MessageSquare, Ticket, Star, LayoutDashboard, Inbox, Users,
+  BookOpen, Store, Package, Calendar, Gift,
+  Ticket, LayoutDashboard, Inbox, Users, Megaphone, Compass, HandCoins, Wallet,
   Settings,
 } from 'lucide-react';
 
@@ -130,13 +130,6 @@ function specFor(
       descFr: 'Publie et monétise', descEn: 'Publish & monetize',
       route: hasManageableOrg ? '/admin/products' : '/create-org',
     };
-    case 'order_generator': return {
-      id: 'orders', icon: Receipt, tone: 'blue',
-      titleFr: 'Commandes', titleEn: 'Orders',
-      descFr: 'Devis et commandes clients', descEn: 'Quotes & client orders',
-      route: bookingRouteFor(type),
-    };
-
     case 'donation_gifts': return {
       id: 'giving', icon: Gift, tone: 'emerald',
       titleFr: 'Dons', titleEn: 'Giving',
@@ -145,42 +138,26 @@ function specFor(
     };
     case 'ai_book_creation': return {
       id: 'write', icon: BookOpen, tone: 'primary',
-      titleFr: 'Écrire', titleEn: 'Write',
-      descFr: "Ton livre avec l'IA", descEn: 'Your book with AI',
+      titleFr: type === 'church' ? 'Livres & prédications' : 'Écrire un livre en 5 min',
+      titleEn: type === 'church' ? 'Books & sermons' : 'Write a book in 5 min',
+      descFr: type === 'church' ? 'Audio, livre et PDF' : "Ton livre avec l'IA",
+      descEn: type === 'church' ? 'Audio, book & PDF' : 'Your book with AI',
       route: type === 'church' ? '/admin/church/sermons' : '/ecrire',
     };
-    case 'ai_formation_creation': return {
-      id: 'ai-content', icon: Sparkles, tone: 'fuchsia',
-      titleFr: 'Formations IA', titleEn: 'AI courses',
-      descFr: 'Cours et contenus', descEn: 'Courses & content',
-      route: hasManageableOrg ? '/admin/programs' : '/creer-formation',
-    };
-    case 'product_comments': return {
-      id: 'crm', icon: Users, tone: 'cyan',
-      titleFr: 'CRM communautaire', titleEn: 'Community CRM',
-      descFr: 'Contacts, dons et achats', descEn: 'Contacts, donations & purchases',
-      route: '/admin/crm',
-    };
-
     case 'events': return {
       id: 'events', icon: Ticket, tone: 'indigo',
       titleFr: 'Événements', titleEn: 'Events',
       descFr: 'Billets et invitations', descEn: 'Tickets & invites',
       route: type === 'church' ? '/admin/church/events' : '/admin/events',
     };
-    case 'reviews': return {
-      id: 'reviews', icon: Star, tone: 'yellow',
-      titleFr: 'Avis', titleEn: 'Reviews',
-      descFr: 'Notes clients', descEn: 'Client ratings',
-      route: '/admin/crm',
-    };
-    case 'affiliation': return {
-      id: 'share', icon: Share2, tone: 'emerald',
-      titleFr: 'Gagner', titleEn: 'Earn',
-      descFr: 'Partage et gagne', descEn: 'Share & earn',
-      route: '/admin/affiliation',
-    };
+    // Optional/extra tools stay in Settings → Modules until activated for a
+    // focused dashboard: order generator, AI courses, CRM/comments, reviews.
+    case 'order_generator':
+    case 'ai_formation_creation':
+    case 'product_comments':
+    case 'reviews':
     // Platform config — never in nav
+    case 'affiliation':
     case 'kyc':
     case 'payment':
     case 'location':
@@ -199,13 +176,10 @@ function specFor(
  */
 const ORDER: SiteviralFeatureKey[] = [
   'appointment',
-  'order_generator',
   'digital_products',
   'donation_gifts',
   'events',
   'ai_book_creation',
-  'product_comments',
-  'affiliation',
 ];
 
 /**
@@ -243,18 +217,21 @@ export function buildFeatureNavItems(
     route: '/dashboard',
   });
 
-  // Personal shortcut — only if the user already bought something.
-  if (ctx.isAuthenticated && ctx.hasPurchases) {
-    items.push(toItem({
-      id: 'purchases', icon: Package, tone: 'primary',
-      titleFr: 'Mes achats', titleEn: 'My purchases',
-      descFr: 'Livres et ressources', descEn: 'Books & resources',
-      route: '/resources',
-    }));
-  }
+  items.push(toItem({
+    id: 'purchases', icon: Package, tone: 'primary',
+    titleFr: 'Mes achats', titleEn: 'My purchases',
+    descFr: 'Livres et ressources', descEn: 'Books & resources',
+    route: '/my-programs',
+  }));
+
+  const navKeysForType: Partial<Record<SiteviralType, SiteviralFeatureKey[]>> = {
+    digital_products: ['digital_products', 'ai_book_creation'],
+    church: ['digital_products', 'donation_gifts', 'events', 'ai_book_creation'],
+  };
+  const visibleOrder = navKeysForType[type] ?? ORDER;
 
   // Matrix-driven operational tools
-  for (const key of ORDER) {
+  for (const key of visibleOrder) {
     if (!enabled.includes(key)) continue;
     const spec = specFor(key, ctx.hasManageableOrg, type);
     if (spec) pushUnique(spec);
@@ -269,25 +246,21 @@ export function buildFeatureNavItems(
       // Settings → Modules and surface via the matrix flow above.
       pushUnique({ id: 'sermons', icon: BookOpen, tone: 'primary', titleFr: 'Livres & prédications', titleEn: 'Books & sermons', descFr: 'Audio, livre et PDF', descEn: 'Audio, book & PDF', route: '/admin/church/sermons' });
       pushUnique({ id: 'team', icon: Users, tone: 'teal', titleFr: 'Équipe', titleEn: 'Team', descFr: 'Co-administrateurs', descEn: 'Co-admins', route: '/admin/church/team' });
-      pushUnique({ id: 'church-settings', icon: Settings, tone: 'amber', titleFr: 'Réglages église', titleEn: 'Church settings', descFr: 'Marque, paiement et modules', descEn: 'Brand, payout & modules', route: '/admin/church/settings' });
       break;
     case 'artisans_home_services':
       pushUnique({ id: 'services', icon: Store, tone: 'sky', titleFr: 'Services', titleEn: 'Services', descFr: 'Prestations et tarifs', descEn: 'Services & pricing', route: '/admin/home/services' });
-      pushUnique({ id: 'home-settings', icon: Settings, tone: 'amber', titleFr: 'Réglages activité', titleEn: 'Business settings', descFr: 'Profil et paiements', descEn: 'Profile & payouts', route: '/admin/home/settings' });
       break;
     case 'beauty':
       pushUnique({ id: 'beauty-services', icon: Store, tone: 'pink', titleFr: 'Prestations', titleEn: 'Services', descFr: 'Prestations et tarifs', descEn: 'Services & pricing', route: '/admin/beauty/settings' });
       break;
     case 'tutors_home_teachers':
       pushUnique({ id: 'subjects', icon: BookOpen, tone: 'teal', titleFr: 'Matières', titleEn: 'Subjects', descFr: 'Niveaux et tarifs', descEn: 'Levels & pricing', route: '/admin/learn/subjects' });
-      pushUnique({ id: 'learn-settings', icon: Settings, tone: 'amber', titleFr: 'Réglages activité', titleEn: 'Business settings', descFr: 'Profil et paiements', descEn: 'Profile & payouts', route: '/admin/learn/settings' });
       break;
     case 'instrumentists':
     case 'services':
     case 'sport':
     case 'influencers':
       pushUnique({ id: 'packages', icon: Ticket, tone: 'fuchsia', titleFr: 'Packages', titleEn: 'Packages', descFr: 'Offres et tarifs', descEn: 'Offers & pricing', route: '/admin/events-service/packages' });
-      pushUnique({ id: 'events-service-settings', icon: Settings, tone: 'amber', titleFr: 'Réglages activité', titleEn: 'Business settings', descFr: 'Profil et paiements', descEn: 'Profile & payouts', route: '/admin/events-service/settings' });
       break;
   }
 
@@ -302,15 +275,45 @@ export function buildFeatureNavItems(
     });
   }
 
+  if (ctx.isAuthenticated && ctx.hasManageableOrg) {
+    pushUnique({
+      id: 'promotion', icon: Megaphone, tone: 'sky',
+      titleFr: 'Promotion', titleEn: 'Promotion',
+      descFr: 'Codes promo et campagnes', descEn: 'Promo codes and campaigns',
+      route: '/admin/promo-codes',
+    });
+  }
+
+  pushUnique({
+    id: 'explore', icon: Compass, tone: 'violet',
+    titleFr: 'Explorer', titleEn: 'Explore',
+    descFr: 'Découvrir des ressources', descEn: 'Discover resources',
+    route: '/discover',
+  });
+
+  pushUnique({
+    id: 'claim', icon: HandCoins, tone: 'emerald',
+    titleFr: 'Réclamer', titleEn: 'Claim',
+    descFr: 'Affiliation et commissions', descEn: 'Affiliate commissions',
+    route: ctx.hasManageableOrg ? '/admin/affiliation' : '/gagner',
+  });
+
   // Revenue — every provider needs to see their money
   if (ctx.isAuthenticated && ctx.hasManageableOrg) {
     pushUnique({
-      id: 'revenue', icon: LayoutDashboard, tone: 'teal',
+      id: 'revenue', icon: Wallet, tone: 'teal',
       titleFr: 'Revenus', titleEn: 'Revenue',
       descFr: 'Ventes et retraits', descEn: 'Sales & payouts',
       route: revenueRouteFor(type),
     });
   }
+
+  pushUnique({
+    id: 'settings', icon: Settings, tone: 'amber',
+    titleFr: 'Paramètres', titleEn: 'Settings',
+    descFr: 'Profil, paiement et modules', descEn: 'Profile, payout & modules',
+    route: '/admin/settings',
+  });
 
   return items;
 }

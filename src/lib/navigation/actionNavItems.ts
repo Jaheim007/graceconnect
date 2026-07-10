@@ -1,6 +1,6 @@
 import {
-  BookOpen, Store, Share2, Compass, Package, LayoutDashboard,
-  Building2, GraduationCap, Shield, Sparkles, Calendar,
+  BookOpen, Store, Compass, Package, LayoutDashboard,
+  Building2, Shield, Calendar, Megaphone, HandCoins, Wallet,
   Scissors, Search
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -43,7 +43,21 @@ export function getActionNavItems(
 
   const items: ActionNavItem[] = [];
 
-  if (ctx.isAuthenticated && ctx.hasPurchases) {
+  if (ctx.isAuthenticated) {
+    items.push({
+      id: 'overview',
+      icon: LayoutDashboard,
+      emoji: '📊',
+      titleFr: 'Aperçu',
+      titleEn: 'Overview',
+      descFr: 'Tableau de bord',
+      descEn: 'Dashboard',
+      route: '/dashboard',
+      borderClass: 'border-primary/30 hover:border-primary/60',
+      iconBg: 'bg-primary/15',
+      iconColor: 'text-primary',
+    });
+
     items.push({
       id: 'purchases',
       icon: Package,
@@ -52,10 +66,43 @@ export function getActionNavItems(
       titleEn: 'My Purchases',
       descFr: 'Accéder à mes livres et ressources',
       descEn: 'Access my books and resources',
-      route: '/resources',
+      route: '/my-programs',
       borderClass: 'border-primary/30 hover:border-primary/60',
       iconBg: 'bg-primary/15',
       iconColor: 'text-primary',
+    });
+
+    if (!ctx.hasManageableOrg) {
+      items.push({
+        id: 'create-platform',
+        icon: Building2,
+        emoji: '🏪',
+        titleFr: 'Créer une plateforme',
+        titleEn: 'Create platform',
+        descFr: 'Créer ton espace de vente ou service',
+        descEn: 'Create your selling or service workspace',
+        route: '/create-org',
+        borderClass: 'border-amber-500/30 hover:border-amber-500/60',
+        iconBg: 'bg-amber-500/15',
+        iconColor: 'text-amber-500',
+      });
+    }
+  }
+
+  if (ctx.isAuthenticated && ctx.hasManageableOrg) {
+    items.push({
+      id: 'sell',
+      icon: Store,
+      emoji: '🛒',
+      titleFr: 'Vendre',
+      titleEn: 'Sell',
+      descFr: 'Vends tes livres, formations et plus',
+      descEn: 'Sell your books, courses & more',
+      route: r('sell', '/admin/products'),
+      borderClass: 'border-amber-500/30 hover:border-amber-500/60',
+      iconBg: 'bg-amber-500/15',
+      iconColor: 'text-amber-500',
+      featureKey: 'digital_products',
     });
   }
 
@@ -63,8 +110,8 @@ export function getActionNavItems(
     id: 'write',
     icon: BookOpen,
     emoji: '✏️',
-    titleFr: 'Écrire un livre',
-    titleEn: 'Write a book',
+    titleFr: 'Écrire un livre en 5 min',
+    titleEn: 'Write a book in 5 min',
     descFr: "Crée ton livre avec l'IA et vends-le",
     descEn: 'Create your book with AI and sell it',
     route: '/ecrire',
@@ -74,57 +121,28 @@ export function getActionNavItems(
     featureKey: 'ai_book_creation',
   });
 
-  items.push({
-    id: 'course',
-    icon: GraduationCap,
-    emoji: '🎓',
-    titleFr: 'Créer une formation',
-    titleEn: 'Create a course',
-    descFr: "Crée ta formation avec l'IA en quelques minutes",
-    descEn: 'Create your course with AI in minutes',
-    route: r('course', '/creer-formation'),
-    borderClass: 'border-sky-500/30 hover:border-sky-500/60',
-    iconBg: 'bg-sky-500/15',
-    iconColor: 'text-sky-500',
-    featureKey: 'ai_formation_creation',
-  });
-
-  items.push({
-    id: 'sell',
-    icon: Store,
-    emoji: '🛒',
-    titleFr: 'Vendre',
-    titleEn: 'Sell',
-    descFr: 'Vends tes livres, formations et plus',
-    descEn: 'Sell your books, courses & more',
-    route: r('sell', '/vendre'),
-    borderClass: 'border-amber-500/30 hover:border-amber-500/60',
-    iconBg: 'bg-amber-500/15',
-    iconColor: 'text-amber-500',
-    featureKey: 'digital_products',
-  });
-
-  items.push({
-    id: 'share',
-    icon: Share2,
-    emoji: '💰',
-    titleFr: 'Gagner',
-    titleEn: 'Earn',
-    descFr: "Partage et gagne de l'argent",
-    descEn: 'Share & earn money',
-    route: '/gagner',
-    borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
-    iconBg: 'bg-emerald-500/15',
-    iconColor: 'text-emerald-500',
-    featureKey: 'affiliation',
-  });
+  if (ctx.isAuthenticated && ctx.hasManageableOrg) {
+    items.push({
+      id: 'promotion',
+      icon: Megaphone,
+      emoji: '📣',
+      titleFr: 'Promotion',
+      titleEn: 'Promotion',
+      descFr: 'Codes promo et campagnes',
+      descEn: 'Promo codes and campaigns',
+      route: '/admin/promo-codes',
+      borderClass: 'border-sky-500/30 hover:border-sky-500/60',
+      iconBg: 'bg-sky-500/15',
+      iconColor: 'text-sky-500',
+    });
+  }
 
   items.push({
     id: 'discover',
     icon: Compass,
     emoji: '🔍',
     titleFr: 'Découvrir',
-    titleEn: 'Discover',
+    titleEn: 'Explore',
     descFr: 'Voir et acheter des livres, formations et plus',
     descEn: 'Browse & buy books, courses & more',
     route: '/discover',
@@ -133,35 +151,36 @@ export function getActionNavItems(
     iconColor: 'text-violet-500',
   });
 
-  if (ctx.isAuthenticated && ctx.hasManageableOrg) {
+  if (ctx.isAuthenticated) {
     items.push({
-      id: 'sales',
-      icon: LayoutDashboard,
-      emoji: '💵',
-      titleFr: 'Mes ventes & revenus',
-      titleEn: 'My Sales & Earnings',
-      descFr: 'Ventes, dons reçus, commissions et retraits',
-      descEn: 'Sales, donations, commissions & payouts',
-      route: '/admin/sales',
-      borderClass: 'border-teal-500/30 hover:border-teal-500/60',
-      iconBg: 'bg-teal-500/15',
-      iconColor: 'text-teal-500',
+      id: 'claim',
+      icon: HandCoins,
+      emoji: '💰',
+      titleFr: 'Réclamer',
+      titleEn: 'Claim',
+      descFr: 'Affiliation et commissions',
+      descEn: 'Affiliate commissions',
+      route: ctx.hasManageableOrg ? '/admin/affiliation' : '/gagner',
+      borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
+      iconBg: 'bg-emerald-500/15',
+      iconColor: 'text-emerald-500',
+      featureKey: 'affiliation',
     });
   }
 
-  if (ctx.isAuthenticated && ctx.hasOrgs) {
+  if (ctx.isAuthenticated) {
     items.push({
-      id: 'orgs',
-      icon: Building2,
-      emoji: '🏪',
-      titleFr: 'Mes organisations',
-      titleEn: 'My organizations',
-      descFr: 'Voir ou créer une boutique / organisation',
-      descEn: 'View or create a store / organization',
-      route: r('orgs', '/create-org'),
-      borderClass: 'border-orange-500/30 hover:border-orange-500/60',
-      iconBg: 'bg-orange-500/15',
-      iconColor: 'text-orange-500',
+      id: 'sales',
+      icon: Wallet,
+      emoji: '💵',
+      titleFr: 'Revenus',
+      titleEn: 'Revenue',
+      descFr: ctx.hasManageableOrg ? 'Ventes, dons reçus, commissions et retraits' : 'Commissions et gains affiliés',
+      descEn: ctx.hasManageableOrg ? 'Sales, donations, commissions & payouts' : 'Commissions and affiliate earnings',
+      route: ctx.hasManageableOrg ? '/admin/sales' : '/partner',
+      borderClass: 'border-teal-500/30 hover:border-teal-500/60',
+      iconBg: 'bg-teal-500/15',
+      iconColor: 'text-teal-500',
     });
   }
 
