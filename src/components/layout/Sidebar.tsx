@@ -26,6 +26,7 @@ export function Sidebar() {
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
   const { hasPurchases, hasOrgs } = useUserProfile();
+  const { world: buyerWorld } = useBuyerWorld();
 
   const hasManageableOrg = userOrgs.some(o => canManage(o.id));
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
