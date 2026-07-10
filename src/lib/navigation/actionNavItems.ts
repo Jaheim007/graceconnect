@@ -194,6 +194,19 @@ export function getActionNavItems(
     iconColor: 'text-violet-500',
   });
 
+  // Buyer interest-driven items — appended right after Explorer so buyers see
+  // vertical-specific shortcuts (appointments, bookings, sessions, requests).
+  if (ctx.isAuthenticated && !ctx.hasManageableOrg && ctx.interests?.length) {
+    const seen = new Set<string>();
+    for (const w of ctx.interests) {
+      for (const it of interestNavItems(w, false)) {
+        if (seen.has(it.id)) continue;
+        seen.add(it.id);
+        items.push(it);
+      }
+    }
+  }
+
   if (ctx.isAuthenticated) {
     items.push({
       id: 'claim',
