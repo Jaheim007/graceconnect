@@ -168,16 +168,16 @@ export function getActionNavItems(
     });
   }
 
-  if (ctx.isAuthenticated && ctx.hasManageableOrg) {
+  if (ctx.isAuthenticated) {
     items.push({
       id: 'sales',
       icon: Wallet,
       emoji: '💵',
       titleFr: 'Revenus',
       titleEn: 'Revenue',
-      descFr: 'Ventes, dons reçus, commissions et retraits',
-      descEn: 'Sales, donations, commissions & payouts',
-      route: '/admin/sales',
+      descFr: ctx.hasManageableOrg ? 'Ventes, dons reçus, commissions et retraits' : 'Commissions et gains affiliés',
+      descEn: ctx.hasManageableOrg ? 'Sales, donations, commissions & payouts' : 'Commissions and affiliate earnings',
+      route: ctx.hasManageableOrg ? '/admin/sales' : '/partner',
       borderClass: 'border-teal-500/30 hover:border-teal-500/60',
       iconBg: 'bg-teal-500/15',
       iconColor: 'text-teal-500',
