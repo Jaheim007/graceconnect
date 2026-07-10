@@ -142,13 +142,15 @@ export default function DashboardExplorePage() {
       </div>
 
       {WorldComponent ? (
-        <Suspense fallback={
-          <div className="flex items-center justify-center py-16 text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin" />
-          </div>
-        }>
-          <WorldComponent />
-        </Suspense>
+        <div className="container max-w-6xl px-4 py-6">
+          <Suspense fallback={
+            <div className="flex items-center justify-center py-16 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin" />
+            </div>
+          }>
+            <WorldComponent />
+          </Suspense>
+        </div>
       ) : (
         <div className="container max-w-6xl px-4 py-6 space-y-8">
           <InterestHub />
