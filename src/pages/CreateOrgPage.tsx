@@ -127,6 +127,17 @@ export default function CreateOrgPage() {
       });
       if (error) throw error;
 
+      // Persist chosen world + apply its default features so the dashboard is
+      // shaped right on first load.
+      const worldMeta = WORLDS[selectedWorld];
+      try {
+        await (db.from('organizations') as any).update({ primary_world: selectedWorld }).eq('id', orgId);
+      } catch {}
+      try {
+        const { confirmSiteviralType } = await import('@/lib/siteviral/activation');
+        await confirmSiteviralType(orgId as string, worldMeta.siteviralType, worldMeta.defaultFeatures, 'onboarding');
+      } catch {}
+
       const { data: newOrg } = await db
         .from('organizations')
         .select('*')
