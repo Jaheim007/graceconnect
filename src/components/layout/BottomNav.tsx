@@ -6,6 +6,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { getActionNavItems, getBeautyNavItems } from '@/lib/navigation/actionNavItems';
+import { normalizeBuyerWorld, type BuyerWorld } from '@/lib/siteviral/buyerWorlds';
 import { buildFeatureNavItems } from '@/lib/navigation/featureNavBuilder';
 import { useOrgFeatures } from '@/hooks/useOrgFeatures';
 import { useQuery } from '@tanstack/react-query';
@@ -88,8 +89,14 @@ export function BottomNav() {
     if (typeConfirmed && featureBuilt && featureBuilt.length > 0) return featureBuilt;
 
     // 2. Legacy digital-defaults, still respecting per-item featureKey gate.
+    let interests: BuyerWorld[] = [];
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('sv_interests') : null;
+      const arr = raw ? (JSON.parse(raw) as string[]) : [];
+      interests = arr.map(normalizeBuyerWorld).filter((k): k is BuyerWorld => !!k);
+    } catch {}
     const raw = getActionNavItems(
-      { isAuthenticated: !!user, hasPurchases, hasManageableOrg, hasOrgs, isSuperadmin },
+      { isAuthenticated: !!user, hasPurchases, hasManageableOrg, hasOrgs, isSuperadmin, interests },
       resolveRoute,
     );
     return raw.filter((item) => {

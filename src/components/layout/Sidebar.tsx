@@ -10,7 +10,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useBuyerWorld } from '@/hooks/useBuyerWorld';
-import { buyerNavForWorld, BUYER_WORLDS } from '@/lib/siteviral/buyerWorlds';
+import { buyerNavForWorld, BUYER_WORLDS, normalizeBuyerWorld, type BuyerWorld } from '@/lib/siteviral/buyerWorlds';
 import { getActionNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
 import { applyNavOverride } from '@/lib/navigation/actionNavItemOverrides';
 import { buildFeatureNavItems } from '@/lib/navigation/featureNavBuilder';
@@ -53,11 +53,20 @@ export function Sidebar() {
     siteviralType as SiteviralType | null,
   );
 
+  // Interests picked on /looking-for — shape buyer sidebar with vertical shortcuts.
+  const interests: BuyerWorld[] = (() => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('sv_interests') : null;
+      const arr = raw ? (JSON.parse(raw) as string[]) : [];
+      return arr.map(normalizeBuyerWorld).filter((k): k is BuyerWorld => !!k);
+    } catch { return []; }
+  })();
+
   const navItems: ActionNavItem[] =
     typeConfirmed && featureBuilt && featureBuilt.length > 0
       ? featureBuilt
       : getActionNavItems(
-          { isAuthenticated: !!user, hasPurchases, hasManageableOrg, hasOrgs, isSuperadmin },
+          { isAuthenticated: !!user, hasPurchases, hasManageableOrg, hasOrgs, isSuperadmin, interests },
           resolveRoute,
         )
           .filter((item) => {
