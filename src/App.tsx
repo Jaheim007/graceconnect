@@ -268,6 +268,7 @@ const WatchPage = lazy(() => import("@/pages/WatchPage"));
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const DashboardRouter = lazy(() => import("@/pages/DashboardRouter"));
+const DashboardExplorePage = lazy(() => import("@/pages/dashboard/DashboardExplorePage"));
 const ResourcesPage = lazy(() => import("@/pages/ResourcesPage"));
 const MyDonationsPage = lazy(() => import("@/pages/MyDonationsPage"));
 const CreateOrgPage = lazy(() => import("@/pages/CreateOrgPage"));
