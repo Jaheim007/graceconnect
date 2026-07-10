@@ -39,6 +39,7 @@ export default function DashboardExplorePage() {
   const [params, setParams] = useSearchParams();
   const world = normalizeBuyerWorld(params.get('world'));
   const worldMeta = world ? BUYER_WORLDS[world] : null;
+  const { setBuyerWorld } = useBuyerWorld();
 
   const { locale, t } = useI18n();
   const fr = locale === 'fr';
@@ -48,11 +49,21 @@ export default function DashboardExplorePage() {
   const debouncedSearch = useDebounce(search, 300);
   const isSearching = debouncedSearch.length > 0;
 
+  // (D) Persist buyer world when URL sets it, so sidebar/URL stay in sync.
+  useEffect(() => {
+    if (world) {
+      void setBuyerWorld(world);
+      try { localStorage.setItem('sv_last_vertical', world); } catch {}
+    }
+  }, [world, setBuyerWorld]);
+
   const clearWorld = () => {
     const next = new URLSearchParams(params);
     next.delete('world');
     setParams(next, { replace: true });
   };
+
+  const WorldComponent = world ? WORLD_COMPONENT[world] : undefined;
 
   const title = useMemo(() => {
     if (worldMeta) return fr ? `Explorer — ${worldMeta.labelFr}` : `Explore — ${worldMeta.labelEn}`;
