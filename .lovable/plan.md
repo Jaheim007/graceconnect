@@ -1,97 +1,109 @@
-# Siteviral nav restructure + real-time messaging + order generation
+# Siteviral: The Multiverse Model
 
-Big scope — splitting into 4 tracks so we ship in the right order.
+## The vision (recap in plain words)
 
----
+Siteviral is **one universe** with several **worlds**: Digital, Beauty, Church, Home services, Events, Education. Every user is one of three types:
 
-## Track 1 — Digital (Siteviral) sidebar: strict default items
+1. **Providers** — offer a service (sell digital products, cut hair, teach, cater events, pastor a church…)
+2. **Explorers / buyers** — browse, purchase, book, affiliate, read. No workspace needed.
+3. **Hybrid** — started as one, wants to add another world later.
 
-Rewrite the "digital" branch in `src/lib/navigation/featureNavBuilder.ts` so the sidebar shows **only** the items below by default. Everything else is moved into Settings → Modules and only appears in the sidebar when toggled on.
+The rule: **one workspace = one primary world**, but any other world can be **activated later** from Settings → Modules without creating a second workspace. Nobody is ever *blocked* from a world — it's just not shown until they turn it on.
 
-**If the user has an organization (provider):**
+## What the user sees
 
-1. Overview → `/dashboard`
-2. My purchases → `/dashboard/purchases`
-3. Sell (digital products) → `/dashboard/products`
-4. Write a book in 5 min → `/ecrire`
-5. Create a promotion → `/dashboard/promotions`
-6. Explore → `/discover`
-7. Claim (affiliate / réclamer) → `/dashboard/affiliate`
-8. Revenue → `/dashboard/revenue`
-9. Settings → `/dashboard/settings`
-10. Sign out (footer action)
+### A. Landing (siteviral.com)
+Two clear doors:
+- **"I want to offer a service"** → world picker → workspace creation
+- **"I'm looking for a service / to explore"** → discover feed, no workspace required
 
-**If the user does NOT have an organization:**
+(This already exists as `IntentChooserPage` — we just make it the real front door and clean the copy.)
 
-1. Overview → `/dashboard`
-2. My purchases → `/dashboard/purchases`
-3. Explore → `/discover`
-4. Claim → `/dashboard/affiliate what is this Claim interface is it to see how they gain from commissions`
-5. Revenue → `/dashboard/revenue`
-6. Settings → `/dashboard/settings`
+### B. Workspace creation — the world picker
+Replace the current "creator / organization / brand" question with:
 
-Detection: reuse `useUserKind()` (`provider` vs `buyer`/`new`) — already exists at `src/hooks/useUserKind.ts`.
+> *What kind of platform do you want to build?*
+>  ◻ Digital products & courses
+>  ◻ Beauty services
+>  ◻ Church / ministry
+>  ◻ Home services (artisans)
+>  ◻ Events (vendors)
+>  ◻ Education / tutoring
 
-**Removed from default sidebar** (moved to Settings → Modules, opt‑in):
-CRM, Community, Events (digital), Order generation, Announcements, Campaigns, Appointments, Affiliate marketplace tools, Coupons, Bundles, any other "extra" items currently forced in.
+The chosen world becomes the workspace's `primary_world`. That's the ONLY thing that changes the default sidebar + default modules.
 
-## Track 2 — Settings → Modules matrix for Digital
+### C. Dashboard — one screen, world-aware
+A single `UnifiedDashboardLayout` (already exists). The sidebar is built from three layers:
 
-Extend `src/lib/dashboardModules.ts` and `src/pages/dashboard/ModulesSettings.tsx` so the "Modules to activate" list for the digital persona contains the removed items above, each with a `sidebarRoute` used by `featureNavBuilder` to inject the item into the sidebar when enabled. Nothing changes for the church/beauty/events/education personas — their module lists stay as they are.
+```text
+┌──────────────────────────────────────┐
+│ 1. Universal items                   │  Overview, Purchases, Explore,
+│    (every authed user)               │  Claim, Revenue, Settings, Sign out
+├──────────────────────────────────────┤
+│ 2. Primary-world defaults            │  Digital → Sell, Write a book, Promotions
+│    (from workspace.primary_world)    │  Beauty  → Bookings, Messages, Availability
+│                                      │  Church  → Sermons, Offerings, Team, Events
+│                                      │  Home    → Jobs, Messages, Availability
+│                                      │  Events  → Packages, Bookings, Messages
+│                                      │  Educ.   → Sessions, Messages, Subjects
+├──────────────────────────────────────┤
+│ 3. Activated modules                 │  Only appear when toggled ON in
+│    (from feature_activations)        │  Settings → Modules
+└──────────────────────────────────────┘
+```
 
-## Track 3 — Real‑time messaging on public pages (provider inbox)
+Nothing else pollutes the sidebar. That fixes the current over-saturation problem for good.
 
-New generic messaging layer for providers of any vertical (digital orgs, church, beauty, home, events, education). Non‑providers do NOT get a Messages entry.
+### D. Settings → Modules — the activation matrix
+Two sections in the Modules tab:
 
-**DB (new migration):**
+1. **Extra features for your current world** — e.g. Digital: CRM, Community, Order generator, Affiliation, Coupons, Bundles, Reviews… (all OFF by default)
+2. **Add another world to this workspace** — e.g. a Beauty workspace can turn ON "Sell digital products", which adds the digital default sidebar block to their existing dashboard.
 
-- `conversations(id uuid pk, org_id uuid null, provider_user_id uuid not null, client_id uuid not null, vertical text, last_message_at timestamptz, created_at timestamptz)` + unique on `(provider_user_id, client_id, vertical)`.
-- `messages(id uuid pk, conversation_id uuid fk, sender_id uuid, kind text check in ('text','order'), body text, order_payload jsonb, created_at timestamptz, read_at timestamptz)`.
-- GRANTs to `authenticated` + `service_role`; RLS: only participants (`provider_user_id` or `client_id`) can select/insert; realtime enabled on both tables.
+Turning a world ON = inserts its default sidebar block (layer 2) below the primary one. Turning it OFF = removes it. Data persists.
 
-**UI:**
+### E. Explorers (no workspace)
+Their dashboard shows only: Overview, My purchases, Explore, Claim (affiliate), Revenue (partner earnings), Settings, Sign out — plus a big **"Create a platform"** CTA that opens the world picker.
 
-- `POST message` on the public org page ("Message this seller / church / provider") — visible only when the target is a provider offering services. Hidden for pure digital‑product‑only orgs? → still allowed since user asked "we can message them" on public pages universally.
-- Provider inbox at `/dashboard/messages` (new). List left, thread right, realtime via Supabase channels. Reuses the pattern already in `src/pages/education/pro/EducationProMessagesPane.tsx` but generic.
-- Client inbox reachable from user menu when they have ≥1 conversation.
+## Technical plan
 
-Sidebar: "Messages" is added to the provider sidebar for **all verticals** automatically (baked‑in for providers, like KYC/payments — not a toggle).
+### 1. Data model
+- Add `organizations.primary_world` enum: `digital | beauty | church | home | events | education` (backfill from existing `type`/`vertical` columns; they already exist under different names — audit `siteviral/config.ts`).
+- Reuse existing `feature_activations` table for module toggles. Add a `world` column so we can list activations grouped by world in the UI.
 
-## Track 4 — Order generation via message
+### 2. Sidebar builder — single source of truth
+Refactor `src/lib/navigation/featureNavBuilder.ts` into three pure functions:
+```
+buildUniversalItems(user)          // layer 1
+buildWorldDefaults(primaryWorld)   // layer 2
+buildActivatedModules(activations) // layer 3
+```
+`UnifiedDashboardLayout` concatenates them in that order. Delete every ad-hoc override currently in that file.
 
-Inside a thread, the provider can click **"Send an order"** → modal with `{title, description, amount, currency, due_date?}` → inserts a `messages` row with `kind='order'` and a JSON payload. The message bubble renders as an order card with **Pay now** (client) / **Mark as paid** or **Cancel** (provider) actions. Payment uses the existing checkout route with a one‑off line item; on success the order row's status flips via edge function webhook.
+### 3. World picker
+- Rewrite `CreateOrgPage` step 1 as the 6-world grid above.
+- Store choice in `organizations.primary_world`.
+- Seed default `feature_activations` rows for that world.
 
-Scope note: for this pass we ship the order **card + create flow + status transitions**. Wiring to a full checkout is done through the existing `platformCheckout` helper — no new PSP work.
+### 4. Settings → Modules
+- Extend `dashboardModules.ts` with a `world` field on each module.
+- `ModulesSettings.tsx`: two tabs, "This world's extras" and "Other worlds".
+- Toggling writes to `feature_activations`; sidebar re-renders reactively.
 
-## Track 5 — Route hygiene
+### 5. Landing / intent
+- Make `IntentChooserPage` the destination of the header "Join / Sign in" for logged-out users.
+- Logged-in users go straight to `/dashboard`.
+- Explorer path never forces workspace creation.
 
-Audit `src/App.tsx` to confirm every sidebar target above resolves to a real route and renders the right page. Fix any that currently redirect elsewhere:
+### 6. Route hygiene
+Every sidebar item resolves to a real route already registered in `App.tsx`. No `/dash/*` alias layer needed if we just point items at their real routes.
 
-- `/dashboard/purchases` → MyProgramsPage or dedicated purchases page
-- `/dashboard/products` → seller products list
-- `/dashboard/promotions` → promo creation hub
-- `/dashboard/affiliate` → claim/affiliate page
-- `/dashboard/revenue` → revenue page
-- `/dashboard/settings` → settings (Modules tab inside)
-- `/dashboard/messages` → new inbox
-- `/ecrire` → 5‑min book editor
-- `/discover` → explore
-- Sign‑out action (footer of sidebar) calls `supabase.auth.signOut()` then routes to `/`.
+## Out of scope for this pass
+- Real-time messaging + order-via-message (Tracks 3 & 4 from the previous plan) — do those *after* the multiverse skeleton lands, once every world has a "Messages" module slot.
+- No migration of existing per-vertical tables (`beauty_*`, `church_*`, …). They stay as-is; the sidebar just points at them.
 
----
+## Questions before I build
 
-## Suggested execution order (one PR per track)
-
-1. Track 1 + Track 5 together (sidebar + route fixes) — smallest, unblocks the rest.
-2. Track 2 (Modules matrix) — makes removed items reachable.
-3. Track 3 (messaging + DB + realtime).
-4. Track 4 (order card on top of messaging).
-
-## Open questions before I start
-
-1. **Purchases page**: should `/dashboard/purchases` be a brand‑new page listing every purchase (digital products + programs + tickets + donations), or reuse `MyProgramsPage`? I'd recommend a new unified page.
-2. **"Claim"**: confirm this means the affiliate / réclamer page (`/dashboard/affiliate` — where users claim commissions), not something else.
-3. **Messaging scope for church/beauty/etc**: today each vertical has its own `*_conversations` table. Do we (a) migrate them all to the new generic `conversations` table, or (b) keep vertical tables and just add a generic one for digital? I'd recommend **(b)** for this pass to avoid a risky migration, and unify later.
-4. **Order payment**: OK to route Pay‑now through the existing platform checkout (Stripe/GeniusPay depending on region), or do you want a lighter "manual mark as paid" flow first?
-
-Once you confirm 1‑4 I'll ship Track 1 + 5 in the next turn.
+1. **Primary world switch.** If a user later realizes they picked the wrong primary world, should we allow changing `primary_world` from Settings, or is it locked once chosen (they can only *activate* other worlds alongside it)?
+2. **Explorer "Revenue" item.** For a pure explorer (no workspace, no partner account), should Revenue be hidden until they earn something, or always visible as an empty state pointing to the affiliate program?
+3. **World picker copy.** OK with the 6 labels above (Digital products & courses / Beauty services / Church & ministry / Home services / Events / Education & tutoring), or do you want different wording?

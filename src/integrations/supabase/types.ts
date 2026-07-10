@@ -6202,6 +6202,7 @@ export type Database = {
           id: string
           org_id: string
           source: string
+          world: Database["public"]["Enums"]["siteviral_world"] | null
         }
         Insert: {
           action?: string
@@ -6211,6 +6212,7 @@ export type Database = {
           id?: string
           org_id: string
           source?: string
+          world?: Database["public"]["Enums"]["siteviral_world"] | null
         }
         Update: {
           action?: string
@@ -6220,6 +6222,7 @@ export type Database = {
           id?: string
           org_id?: string
           source?: string
+          world?: Database["public"]["Enums"]["siteviral_world"] | null
         }
         Relationships: [
           {
@@ -8840,6 +8843,7 @@ export type Database = {
           currency: string | null
           description: string | null
           enabled_features: string[]
+          extra_worlds: Database["public"]["Enums"]["siteviral_world"][]
           features_confirmed_at: string | null
           fts_vector: unknown
           id: string
@@ -8866,6 +8870,7 @@ export type Database = {
           paystack_subaccount_code: string | null
           plan_type: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent: number | null
+          primary_world: Database["public"]["Enums"]["siteviral_world"] | null
           seo_description: string | null
           seo_image: string | null
           seo_title: string | null
@@ -8894,6 +8899,7 @@ export type Database = {
           currency?: string | null
           description?: string | null
           enabled_features?: string[]
+          extra_worlds?: Database["public"]["Enums"]["siteviral_world"][]
           features_confirmed_at?: string | null
           fts_vector?: unknown
           id?: string
@@ -8920,6 +8926,7 @@ export type Database = {
           paystack_subaccount_code?: string | null
           plan_type?: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent?: number | null
+          primary_world?: Database["public"]["Enums"]["siteviral_world"] | null
           seo_description?: string | null
           seo_image?: string | null
           seo_title?: string | null
@@ -8948,6 +8955,7 @@ export type Database = {
           currency?: string | null
           description?: string | null
           enabled_features?: string[]
+          extra_worlds?: Database["public"]["Enums"]["siteviral_world"][]
           features_confirmed_at?: string | null
           fts_vector?: unknown
           id?: string
@@ -8974,6 +8982,7 @@ export type Database = {
           paystack_subaccount_code?: string | null
           plan_type?: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent?: number | null
+          primary_world?: Database["public"]["Enums"]["siteviral_world"] | null
           seo_description?: string | null
           seo_image?: string | null
           seo_title?: string | null
@@ -12882,6 +12891,13 @@ export type Database = {
       platform_role: "superadmin" | "user"
       purchase_status: "pending" | "completed" | "failed"
       report_status: "pending" | "reviewed" | "resolved" | "dismissed"
+      siteviral_world:
+        | "digital"
+        | "beauty"
+        | "church"
+        | "home"
+        | "events"
+        | "education"
       subscription_provider:
         | "stripe"
         | "paystack"
@@ -13170,6 +13186,14 @@ export const Constants = {
       platform_role: ["superadmin", "user"],
       purchase_status: ["pending", "completed", "failed"],
       report_status: ["pending", "reviewed", "resolved", "dismissed"],
+      siteviral_world: [
+        "digital",
+        "beauty",
+        "church",
+        "home",
+        "events",
+        "education",
+      ],
       subscription_provider: [
         "stripe",
         "paystack",
