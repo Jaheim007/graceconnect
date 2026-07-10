@@ -19,13 +19,7 @@ import { OrgOnboardingWizard } from '@/components/onboarding/OrgOnboardingWizard
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
-
-const TYPES = [
-  { value: 'leader', emoji: '👤', label: 'Créateur / Auteur', desc: 'Tu vends tes propres créations' },
-  { value: 'church', emoji: '🏢', label: 'Organisation', desc: 'Église, association, entreprise' },
-  { value: 'ngo', emoji: '🌍', label: 'ONG / Association', desc: 'Collecte de fonds et ressources' },
-  { value: 'community', emoji: '🏘️', label: 'Communauté', desc: 'Groupe, club, mouvement' },
-] as const;
+import { ALL_WORLDS, WORLDS, type SiteviralWorld } from '@/lib/siteviral/worlds';
 
 const GOALS = [
   { value: 'sell', emoji: '💰', label: 'Vendre', desc: 'Produits numériques, ebooks, formations' },
