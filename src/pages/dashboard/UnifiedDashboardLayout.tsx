@@ -110,6 +110,27 @@ function DashboardSidebar() {
           </SidebarGroup>
         )}
 
+        {/* Extra worlds activated from Settings → Modules */}
+        {extraWorlds.map((ew) => {
+          const meta = (WORLDS as any)[ew];
+          if (!meta) return null;
+          const items = defaultNavForWorld(ew as any).map((it) => ({
+            url: it.url, icon: it.icon, label: fr ? it.labelFr : it.labelEn,
+          }));
+          if (items.length === 0) return null;
+          return (
+            <SidebarGroup key={ew}>
+              <SidebarGroupLabel>
+                <span className="mr-1">{meta.emoji}</span>
+                {fr ? meta.labelFr : meta.labelEn}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>{renderItems(items)}</SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
+
         {/* Explorer CTA — user has no workspace yet */}
         {!hasWorkspace && (
           <SidebarGroup>
