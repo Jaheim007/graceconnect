@@ -249,21 +249,18 @@ export function buildFeatureNavItems(
       break;
     case 'artisans_home_services':
       pushUnique({ id: 'services', icon: Store, tone: 'sky', titleFr: 'Services', titleEn: 'Services', descFr: 'Prestations et tarifs', descEn: 'Services & pricing', route: '/admin/home/services' });
-      pushUnique({ id: 'home-settings', icon: Settings, tone: 'amber', titleFr: 'Réglages activité', titleEn: 'Business settings', descFr: 'Profil et paiements', descEn: 'Profile & payouts', route: '/admin/home/settings' });
       break;
     case 'beauty':
       pushUnique({ id: 'beauty-services', icon: Store, tone: 'pink', titleFr: 'Prestations', titleEn: 'Services', descFr: 'Prestations et tarifs', descEn: 'Services & pricing', route: '/admin/beauty/settings' });
       break;
     case 'tutors_home_teachers':
       pushUnique({ id: 'subjects', icon: BookOpen, tone: 'teal', titleFr: 'Matières', titleEn: 'Subjects', descFr: 'Niveaux et tarifs', descEn: 'Levels & pricing', route: '/admin/learn/subjects' });
-      pushUnique({ id: 'learn-settings', icon: Settings, tone: 'amber', titleFr: 'Réglages activité', titleEn: 'Business settings', descFr: 'Profil et paiements', descEn: 'Profile & payouts', route: '/admin/learn/settings' });
       break;
     case 'instrumentists':
     case 'services':
     case 'sport':
     case 'influencers':
       pushUnique({ id: 'packages', icon: Ticket, tone: 'fuchsia', titleFr: 'Packages', titleEn: 'Packages', descFr: 'Offres et tarifs', descEn: 'Offers & pricing', route: '/admin/events-service/packages' });
-      pushUnique({ id: 'events-service-settings', icon: Settings, tone: 'amber', titleFr: 'Réglages activité', titleEn: 'Business settings', descFr: 'Profil et paiements', descEn: 'Profile & payouts', route: '/admin/events-service/settings' });
       break;
   }
 
