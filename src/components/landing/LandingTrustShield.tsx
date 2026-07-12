@@ -1,69 +1,74 @@
-import { motion } from 'framer-motion';
-import { Shield, Lock, Eye, Fingerprint } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Shield, Lock, Eye, Fingerprint, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
-};
-
+/**
+ * Repositioned as digital-creator protection. Real features only.
+ */
 export function LandingTrustShield() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
   const features = isFr ? [
-    { icon: Lock, label: 'Watermark intelligent', desc: "Email de l'acheteur en diagonale sur chaque document" },
-    { icon: Eye, label: 'Prévisualisation sécurisée', desc: 'Aperçu flou 20% — pas de téléchargement avant achat' },
-    { icon: Fingerprint, label: 'Hash forensique', desc: 'Chaque copie est unique et traçable' },
-    { icon: Shield, label: 'Anti-piratage actif', desc: 'Logs de téléchargement + signalement intégré' },
+    { icon: Lock, label: 'Watermark intelligent', desc: "Email de l'acheteur en diagonale sur chaque document." },
+    { icon: Eye, label: 'Prévisualisation sécurisée', desc: 'Aperçu flou — pas de téléchargement avant achat.' },
+    { icon: Fingerprint, label: 'Hash forensique', desc: 'Chaque copie est unique et traçable.' },
+    { icon: Shield, label: 'Anti-piratage actif', desc: 'Logs de téléchargement + signalement intégré.' },
   ] : [
-    { icon: Lock, label: 'Smart watermark', desc: "Buyer's email stamped diagonally on every document" },
-    { icon: Eye, label: 'Secure preview', desc: '20% blur preview — no download before purchase' },
-    { icon: Fingerprint, label: 'Forensic hash', desc: 'Every copy is unique and traceable' },
-    { icon: Shield, label: 'Active anti-piracy', desc: 'Download logs + built-in reporting' },
+    { icon: Lock, label: 'Smart watermark', desc: "Buyer's email stamped diagonally on every document." },
+    { icon: Eye, label: 'Secure preview', desc: 'Blurred preview — no download before purchase.' },
+    { icon: Fingerprint, label: 'Forensic hash', desc: 'Every copy is unique and traceable.' },
+    { icon: Shield, label: 'Active anti-piracy', desc: 'Download logs + built-in reporting.' },
   ];
 
   return (
-    <section className="py-24 px-4">
-      <div className="container max-w-4xl">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-14">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-primary/10 mx-auto mb-5">
-            <Shield className="h-8 w-8 text-primary" />
+    <section className="container max-w-6xl px-4 sm:px-6 py-14 sm:py-16">
+      <div className="rounded-3xl border border-border bg-card p-6 sm:p-10">
+        <div className="grid lg:grid-cols-[1fr_1.15fr] gap-8 lg:gap-12 items-start">
+          <div>
+            <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-primary/10 mb-5">
+              <Shield className="h-6 w-6 text-primary" />
+            </div>
+            <p className="text-xs font-bold uppercase tracking-[0.15em] text-primary mb-2">
+              {isFr ? 'Créateurs digitaux' : 'Digital creators'}
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+              {isFr ? 'Conçu pour protéger les créateurs digitaux' : 'Built to protect digital creators'}
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md">
+              {isFr
+                ? 'Vendez ebooks, documents et ressources digitales avec prévisualisation sécurisée, watermarking individualisé, traçabilité et outils anti-piratage.'
+                : 'Sell ebooks, documents and digital resources with secure previews, individualised watermarking, traceability and anti-piracy tools.'}
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2.5">
+              <Button asChild className="h-10 px-4 font-semibold gap-1.5">
+                <Link to="/discover?type=digital">
+                  {isFr ? 'Explorer les produits digitaux' : 'Explore digital products'}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="h-10 px-4 font-semibold">
+                <Link to="/start?activity=digital">
+                  {isFr ? 'Vendre des produits digitaux' : 'Sell digital products'}
+                </Link>
+              </Button>
+            </div>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold">
-            {isFr ? (
-              <>Tes contenus sont <span className="text-primary">protégés</span></>
-            ) : (
-              <>Your content is <span className="text-primary">protected</span></>
-            )}
-          </h2>
-          <p className="text-sm text-muted-foreground mt-3 max-w-md mx-auto">
-            {isFr
-              ? '8 couches de sécurité. Watermark. Traçabilité. Chaque copie est unique et identifiable.'
-              : '8 security layers. Watermark. Traceability. Every copy is unique and identifiable.'}
-          </p>
-        </motion.div>
 
-        <div className="grid sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
-          {features.map((feature, i) => (
-            <motion.div
-              key={feature.label}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              transition={{ delay: i * 0.08 }}
-              className="flex gap-4 items-start bg-card border border-border/60 rounded-2xl p-6 hover:border-primary/20 hover:shadow-[var(--shadow-card)] transition-all duration-300 group"
-            >
-              <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
-                <feature.icon className="h-5 w-5 text-primary" />
+          <div className="grid sm:grid-cols-2 gap-3">
+            {features.map(f => (
+              <div key={f.label} className="flex gap-3 rounded-2xl border border-border/70 bg-background p-4">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <f.icon className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm">{f.label}</p>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{f.desc}</p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-sm mb-1">{feature.label}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{feature.desc}</p>
-              </div>
-            </motion.div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -2,7 +2,10 @@ import { lazy, Suspense } from 'react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { MarketplaceHero } from '@/components/landing/MarketplaceHero';
 import { MarketplaceCategories } from '@/components/landing/MarketplaceCategories';
+import { AvailableNowSection } from '@/components/landing/AvailableNowSection';
 import { MarketplaceHowItWorks } from '@/components/landing/MarketplaceHowItWorks';
+import { GrowingServicesSection } from '@/components/landing/GrowingServicesSection';
+import { ChurchCallout } from '@/components/landing/ChurchCallout';
 import { SEOHead } from '@/components/seo/SEOHead';
 
 const LandingTrustShield = lazy(() => import('@/components/landing/LandingTrustShield').then(m => ({ default: m.LandingTrustShield })));
@@ -13,18 +16,25 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead
-        title="SiteViral — Trouvez un service ou proposez le vôtre"
-        description="La marketplace panafricaine des services et produits digitaux. Beauté, tuteurs, artisans, événements, ebooks. Paiement sécurisé, Mobile Money inclus."
+        title="SiteViral — Trouvez un produit, un service ou un professionnel"
+        description="Achetez des produits digitaux et découvrez un réseau grandissant d'artisans, professionnels de la beauté, tuteurs, coachs, musiciens et créateurs. Paiement sécurisé."
         canonicalUrl="https://siteviral.com"
-        keywords="marketplace Afrique, freelance, services à domicile, tuteurs, coiffure, ebooks, Mobile Money, SiteViral"
+        keywords="marketplace, produits digitaux, artisans, beauté, tuteurs, coaching, ebooks, SiteViral"
       />
       <LandingNav />
-      <MarketplaceHero />
-      <MarketplaceCategories />
-      <MarketplaceHowItWorks />
+      <main id="main-content">
+        <MarketplaceHero />
+        <MarketplaceCategories />
+        <AvailableNowSection />
+        <MarketplaceHowItWorks />
+        <GrowingServicesSection />
+        <ChurchCallout />
+        <Suspense fallback={null}>
+          <LandingTrustShield />
+          <LandingFinalCTA />
+        </Suspense>
+      </main>
       <Suspense fallback={null}>
-        <LandingTrustShield />
-        <LandingFinalCTA />
         <LandingFooterCompact />
       </Suspense>
     </div>
