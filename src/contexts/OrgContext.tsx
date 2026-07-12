@@ -198,7 +198,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         currentOrg,
         currentOrgRole,
         setCurrentOrg,
-        isLoadingOrgs: authLoading || (!!user && (!isFetched || isError)) || isLoading || (userOrgs.length > 0 && !currentOrg),
+        isLoadingOrgs: authLoading || (!!user && (!isFetched || isError)) || isLoading || (userOrgs.length > 0 && !currentOrg && localStorage.getItem('sv_current_org_id') !== '__personal__'),
         refetchOrgs,
         joinOrg,
         leaveOrg,
