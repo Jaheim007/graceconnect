@@ -270,6 +270,7 @@ const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const DashboardRouter = lazy(() => import("@/pages/DashboardRouter"));
 const DashboardExplorePage = lazy(() => import("@/pages/dashboard/DashboardExplorePage"));
 const PersonalActivityPage = lazy(() => import("@/pages/dashboard/PersonalActivityPage"));
+const PersonalMessagesPage = lazy(() => import("@/pages/dashboard/PersonalMessagesPage"));
 const ResourcesPage = lazy(() => import("@/pages/ResourcesPage"));
 const MyDonationsPage = lazy(() => import("@/pages/MyDonationsPage"));
 const CreateOrgPage = lazy(() => import("@/pages/CreateOrgPage"));
