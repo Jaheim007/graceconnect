@@ -8,76 +8,74 @@ export function LandingFooterCompact() {
 
   const columns: { title: string; links: { to: string; label: string }[] }[] = [
     {
-      title: isFr ? 'Catégories' : 'Categories',
+      title: isFr ? 'Marketplace' : 'Marketplace',
       links: [
-        { to: '/beauty/search',                   label: isFr ? 'Beauté'            : 'Beauty' },
-        { to: '/learn/discover',                label: isFr ? 'Cours & tuteurs'   : 'Tutoring' },
-        { to: '/home/discover',                     label: isFr ? 'Artisans'          : 'Home & artisans' },
-        { to: '/events/discover',                   label: isFr ? 'Événements'        : 'Events' },
-        { to: '/church/discover',                   label: isFr ? 'Églises'           : 'Churches' },
+        { to: '/discover',                 label: isFr ? 'Explorer'          : 'Explore' },
         { to: '/discover?type=digital',    label: isFr ? 'Produits digitaux' : 'Digital products' },
+        { to: '/home/discover',            label: isFr ? 'Artisans'          : 'Artisans' },
+        { to: '/beauty/search',            label: isFr ? 'Beauté'            : 'Beauty' },
+        { to: '/discover?type=sport',      label: isFr ? 'Coaching'          : 'Coaching' },
+        { to: '/learn/discover',           label: isFr ? 'Cours & tuteurs'   : 'Tutors' },
         { to: '/discover?type=music',      label: isFr ? 'Musique'           : 'Music' },
         { to: '/discover?type=influencer', label: isFr ? 'Influenceurs'      : 'Influencers' },
+        { to: '/discover',                 label: isFr ? 'Autres services'   : 'Other services' },
       ],
     },
     {
-      title: isFr ? 'Pour les clients' : 'For clients',
+      title: isFr ? 'Pour les clients' : 'For customers',
       links: [
-        { to: '/looking-for', label: isFr ? 'Trouver un service' : 'Find a service' },
-        { to: '/discover',    label: isFr ? 'Explorer'           : 'Explore' },
-        { to: '/how-it-works',label: isFr ? 'Comment ça marche'  : 'How it works' },
-        { to: '/temoignages', label: isFr ? 'Témoignages'        : 'Testimonials' },
-        { to: '/faq',         label: 'FAQ' },
-        { to: '/help',        label: isFr ? 'Aide'               : 'Help center' },
+        { to: '/#how',            label: isFr ? 'Comment ça marche' : 'How it works' },
+        { to: '/dashboard',       label: isFr ? 'Mon activité'      : 'Activity' },
+        { to: '/bookmarks',       label: isFr ? 'Enregistrés'       : 'Saved' },
+        { to: '/contact',         label: isFr ? 'Aide'              : 'Help' },
+        { to: '/refund-policy',   label: isFr ? 'Remboursement'     : 'Refund policy' },
       ],
     },
     {
-      title: isFr ? 'Pour les pros' : 'For pros',
+      title: isFr ? 'Pour les professionnels' : 'For professionals',
       links: [
-        { to: '/start-selling',      label: isFr ? 'Proposer mes services' : 'Offer my services' },
-        { to: '/start',              label: isFr ? 'Créer mon espace'     : 'Create my space' },
-        { to: '/pricing',            label: isFr ? 'Tarifs'               : 'Pricing' },
-        { to: '/ambassador-program', label: isFr ? 'Programme ambassadeur': 'Ambassador program' },
-        { to: '/guide/vendre-ebook-afrique', label: 'Guides' },
-        { to: '/calculateur',        label: isFr ? 'Calculateur revenus'  : 'Earnings calculator' },
+        { to: '/start',           label: isFr ? 'Proposer mes services' : 'Offer your services' },
+        { to: '/start',           label: isFr ? 'Créer un espace pro'   : 'Create a workspace' },
+        { to: '/referrals',       label: isFr ? 'Programme d\'affiliation' : 'Earn / affiliation' },
+      ],
+    },
+    {
+      title: isFr ? 'Pour les églises' : 'For churches',
+      links: [
+        { to: '/churches',                label: isFr ? 'SiteViral pour les églises' : 'SiteViral for churches' },
+        { to: '/church/pro/onboarding',   label: isFr ? 'Créer un espace église'    : 'Create a church space' },
       ],
     },
     {
       title: isFr ? 'Entreprise' : 'Company',
       links: [
-        { to: '/about',    label: isFr ? 'À propos'      : 'About' },
-        { to: '/blog',     label: 'Blog' },
-        { to: '/presse',   label: isFr ? 'Presse'        : 'Press' },
-        { to: '/partenaires', label: isFr ? 'Partenaires' : 'Partners' },
+        { to: '/about',    label: isFr ? 'À propos'        : 'About' },
         { to: '/contact',  label: 'Contact' },
-        { to: '/terms',    label: isFr ? 'CGU'           : 'Terms' },
+        { to: '/terms',    label: isFr ? 'CGU'             : 'Terms' },
         { to: '/privacy',  label: isFr ? 'Confidentialité' : 'Privacy' },
-        { to: '/security', label: isFr ? 'Sécurité'      : 'Security' },
+        { to: '/security', label: isFr ? 'Sécurité'        : 'Security' },
       ],
     },
   ];
 
   return (
     <footer className="border-t border-border bg-card/40">
-      <div className="container px-4 py-14">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="container px-4 sm:px-6 py-14">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-6">
           <div className="lg:col-span-1 space-y-4">
             <SiteLogo size="md" linked={false} />
             <p className="text-xs text-muted-foreground max-w-[240px] leading-relaxed">
               {isFr
-                ? 'La marketplace panafricaine des services et produits digitaux.'
-                : 'The pan-African marketplace for services and digital products.'}
+                ? 'Trouvez un produit, un service ou un professionnel — ou proposez le vôtre.'
+                : 'Find a product, a service or a professional — or offer your own.'}
             </p>
-            <div className="flex items-center gap-1 text-base">
-              🇬🇭 🇰🇪 🇨🇮 🇳🇬 🇿🇦 🇺🇸 🇬🇧 🇫🇷
-            </div>
           </div>
 
-          {columns.map((col) => (
+          {columns.map(col => (
             <div key={col.title}>
               <h4 className="text-xs font-bold uppercase tracking-[0.15em] mb-4">{col.title}</h4>
               <ul className="space-y-2.5">
-                {col.links.map((l) => (
+                {col.links.map(l => (
                   <li key={l.to + l.label}>
                     <Link to={l.to} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                       {l.label}
@@ -95,8 +93,8 @@ export function LandingFooterCompact() {
           </p>
           <div className="flex items-center gap-4 text-xs">
             <Link to="/status" className="text-muted-foreground hover:text-foreground">{isFr ? 'Statut' : 'Status'}</Link>
-            <Link to="/changelog" className="text-muted-foreground hover:text-foreground">Changelog</Link>
             <Link to="/refund-policy" className="text-muted-foreground hover:text-foreground">{isFr ? 'Remboursement' : 'Refund'}</Link>
+            <Link to="/security" className="text-muted-foreground hover:text-foreground">{isFr ? 'Sécurité' : 'Security'}</Link>
           </div>
         </div>
       </div>

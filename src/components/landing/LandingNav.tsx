@@ -1,8 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Menu, X, ArrowRight, User, LogOut, CreditCard, Sparkles, Gift, BarChart3, Package, Settings, ShieldCheck, MessageSquare } from 'lucide-react';
+import {
+  Menu, X, ArrowRight, User, LogOut, CreditCard, Sparkles, Gift,
+  BarChart3, Package, Settings, ShieldCheck, MessageSquare, Church,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
@@ -14,10 +16,10 @@ import { isNativePlatform } from '@/lib/capacitor';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { EXPLORE_CATEGORIES } from '@/lib/exploreCategories';
 
 export function LandingNav() {
   const navigate = useNavigate();
-  
   const [menuOpen, setMenuOpen] = useState(false);
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
@@ -29,68 +31,67 @@ export function LandingNav() {
   const displayName = profile?.display_name || user?.user_metadata?.display_name || user?.email?.split('@')[0] || '';
   const initials = displayName ? displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) : 'U';
 
-  const verticals = [
-    { to: '/beauty/search',    label: isFr ? 'Beauté'            : 'Beauty' },
-    { to: '/learn/discover',   label: isFr ? 'Cours & tuteurs'   : 'Tutoring' },
-    { to: '/home/discover',    label: isFr ? 'Artisans'          : 'Artisans' },
-    { to: '/events/discover',  label: isFr ? 'Événements'        : 'Events' },
-    { to: '/church/discover',  label: isFr ? 'Églises'           : 'Churches' },
-    { to: '/discover?type=digital',    label: isFr ? 'Produits digitaux' : 'Digital products' },
-    { to: '/discover?type=music',      label: isFr ? 'Musique'      : 'Music' },
-    { to: '/discover?type=influencer', label: isFr ? 'Influenceurs' : 'Influencers' },
-    { to: '/discover',         label: isFr ? 'Tous les services' : 'All services' },
-  ];
-
-  const navItems = [
-    { to: '/discover',      label: isFr ? 'Explorer'   : 'Explore' },
-    { to: '/start-selling', label: isFr ? 'Proposer un service' : 'Offer a service' },
+  const primaryLinks = [
+    { to: '/discover', label: isFr ? 'Explorer' : 'Explore' },
+    { to: '/churches', label: isFr ? 'Pour les églises' : 'For churches' },
+    { to: '/#how', label: isFr ? 'Comment ça marche' : 'How it works' },
   ];
 
   return (
     <header className={cn(
-      'fixed top-0 z-50 w-full border-b border-border/40',
-      nativeApp ? 'native-landing-topbar bg-background/95' : 'glass'
+      'sticky top-0 z-50 w-full border-b border-border/60 backdrop-blur',
+      nativeApp ? 'native-landing-topbar bg-background/95' : 'bg-background/85'
     )}>
-      <div className="container flex items-center justify-between h-14 px-4">
-        <div className="flex items-center gap-2">
-          <SiteLogo size="md" animate />
-          {nativeApp && <span className="text-sm font-semibold tracking-tight text-foreground">SiteViral</span>}
-        </div>
+      <div className="container flex items-center justify-between h-16 sm:h-[72px] px-4 sm:px-6">
+        {/* Left cluster: logo + primary nav */}
+        <div className="flex items-center gap-6 sm:gap-8">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
+            <SiteLogo size="md" animate />
+            <span className="hidden sm:inline text-[15px] font-extrabold tracking-tight text-foreground">SiteViral</span>
+          </Link>
 
-        <div className="hidden md:flex items-center gap-1">
-          {navItems.map((item) => (
-            <Button key={item.label} variant="ghost" size="sm" asChild className="text-xs">
-              <Link to={item.to}>{item.label}</Link>
-            </Button>
-          ))}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-xs">
-                {isFr ? 'Catégories' : 'Categories'}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                {isFr ? 'Univers SiteViral' : 'SiteViral universes'}
-              </DropdownMenuLabel>
-              {verticals.map((v) => (
-                <DropdownMenuItem key={v.to} onClick={() => navigate(v.to)} className="text-xs">
-                  {v.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        <div className="flex items-center gap-1 sm:gap-2">
-          {user && <PlanBadge compact />}
-          <GlobalPreferencesSelector />
-
-          {user ? (
-            /* ── Logged-in: show avatar dropdown ── */
+          <nav className="hidden lg:flex items-center gap-1">
+            {primaryLinks.map(l => (
+              <Link
+                key={l.to}
+                to={l.to}
+                className="px-3 py-2 text-sm font-semibold text-foreground/80 hover:text-foreground transition-colors rounded-md hover:bg-muted/60"
+              >
+                {l.label}
+              </Link>
+            ))}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 h-8 px-2 rounded-lg hover:bg-muted/60 transition-colors">
+                <button className="px-3 py-2 text-sm font-semibold text-foreground/80 hover:text-foreground transition-colors rounded-md hover:bg-muted/60">
+                  {isFr ? 'Catégories' : 'Categories'}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64">
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  {isFr ? 'Marketplace' : 'Marketplace'}
+                </DropdownMenuLabel>
+                {EXPLORE_CATEGORIES.map(c => (
+                  <DropdownMenuItem key={c.slug} onClick={() => navigate(c.route)} className="text-sm gap-2">
+                    <c.icon className="h-4 w-4 text-muted-foreground" />
+                    {isFr ? c.fr : c.en}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </nav>
+        </div>
+
+        {/* Right cluster */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {user && <PlanBadge compact />}
+          <div className="hidden sm:block">
+            <GlobalPreferencesSelector />
+          </div>
+
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 h-9 px-2 rounded-lg hover:bg-muted/60 transition-colors">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="" className="h-7 w-7 rounded-full object-cover border border-border" />
                   ) : (
@@ -98,75 +99,57 @@ export function LandingNav() {
                       {initials}
                     </div>
                   )}
-                  <span className="hidden sm:block text-xs font-medium text-foreground max-w-[100px] truncate">{displayName}</span>
+                  <span className="hidden sm:block text-sm font-medium text-foreground max-w-[120px] truncate">{displayName}</span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-60">
                 <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
                   {isFr ? 'Mon compte' : 'My account'}
                 </DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => navigate('/dashboard')} className="text-xs gap-2">
-                  <User className="h-3.5 w-3.5" /> Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/my-programs')} className="text-xs gap-2">
-                  <Package className="h-3.5 w-3.5" /> {isFr ? 'Mes achats' : 'My purchases'}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/billing')} className="text-xs gap-2">
-                  <CreditCard className="h-3.5 w-3.5" /> {isFr ? 'Mon abonnement' : 'My subscription'}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/billing/usage')} className="text-xs gap-2">
-                  <Sparkles className="h-3.5 w-3.5" /> {isFr ? 'Mon usage du mois' : 'Monthly usage'}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/my-reviews')} className="text-xs gap-2">
-                  <MessageSquare className="h-3.5 w-3.5" /> {isFr ? 'Mes avis' : 'My reviews'}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/referrals')} className="text-xs gap-2">
-                  <Gift className="h-3.5 w-3.5" /> {isFr ? 'Parrainage' : 'Referrals'}
-                </DropdownMenuItem>
-
+                <DropdownMenuItem onClick={() => navigate('/dashboard')} className="text-sm gap-2"><User className="h-4 w-4" /> Dashboard</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/my-programs')} className="text-sm gap-2"><Package className="h-4 w-4" /> {isFr ? 'Mes achats' : 'My purchases'}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/billing')} className="text-sm gap-2"><CreditCard className="h-4 w-4" /> {isFr ? 'Mon abonnement' : 'Subscription'}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/my-reviews')} className="text-sm gap-2"><MessageSquare className="h-4 w-4" /> {isFr ? 'Mes avis' : 'My reviews'}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/referrals')} className="text-sm gap-2"><Gift className="h-4 w-4" /> {isFr ? 'Parrainage' : 'Referrals'}</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                  {isFr ? 'Créateur' : 'Creator'}
-                </DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => navigate('/admin')} className="text-xs gap-2">
-                  <Settings className="h-3.5 w-3.5" /> {isFr ? 'Espace admin' : 'Admin panel'}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/creator/analytics')} className="text-xs gap-2">
-                  <BarChart3 className="h-3.5 w-3.5" /> {isFr ? 'Analytics avancées' : 'Advanced analytics'}
-                </DropdownMenuItem>
-
-                {isSuperadmin && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate('/superadmin')} className="text-xs gap-2">
-                      <ShieldCheck className="h-3.5 w-3.5" /> Superadmin
-                    </DropdownMenuItem>
-                  </>
-                )}
-
+                <DropdownMenuItem onClick={() => navigate('/start')} className="text-sm gap-2"><Sparkles className="h-4 w-4" /> {isFr ? 'Proposer mes services' : 'Offer my services'}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/admin')} className="text-sm gap-2"><Settings className="h-4 w-4" /> {isFr ? 'Espace admin' : 'Admin panel'}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/creator/analytics')} className="text-sm gap-2"><BarChart3 className="h-4 w-4" /> Analytics</DropdownMenuItem>
+                {isSuperadmin && (<><DropdownMenuSeparator /><DropdownMenuItem onClick={() => navigate('/superadmin')} className="text-sm gap-2"><ShieldCheck className="h-4 w-4" /> Superadmin</DropdownMenuItem></>)}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut()} className="text-xs gap-2 text-destructive">
-                  <LogOut className="h-3.5 w-3.5" /> {t('sidebar.sign_out') || (isFr ? 'Déconnexion' : 'Sign out')}
-                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => signOut()} className="text-sm gap-2 text-destructive"><LogOut className="h-4 w-4" /> {t('sidebar.sign_out') || (isFr ? 'Déconnexion' : 'Sign out')}</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            /* ── Not logged in ── */
             <>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/start-selling')} className="hidden md:inline-flex text-xs px-3 font-semibold">
-                {isFr ? 'Proposer mes services' : 'Offer my services'}
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/start')}
+                className="hidden md:inline-flex text-sm font-semibold h-10 px-4"
+              >
+                {isFr ? 'Proposer mes services' : 'Offer your services'}
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=signin')} className="hidden sm:inline-flex text-xs px-3">
-                {t('landing_nav.sign_in')}
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/auth?mode=signin')}
+                className="hidden sm:inline-flex text-sm font-semibold h-10 px-4"
+              >
+                {isFr ? 'Se connecter' : 'Sign in'}
               </Button>
-              <Button size="sm" className="text-xs px-4 gap-1.5 bg-foreground text-background hover:bg-foreground/90" onClick={() => navigate('/auth?mode=signup')}>
-                {isFr ? 'Rejoindre' : 'Join'} <ArrowRight className="h-3 w-3 hidden sm:block" />
+              <Button
+                onClick={() => navigate('/auth?mode=signup')}
+                className="h-10 px-4 sm:px-5 text-sm font-semibold gap-1.5 bg-foreground text-background hover:bg-foreground/90"
+              >
+                {isFr ? 'Créer un compte' : 'Create account'}
+                <ArrowRight className="h-3.5 w-3.5 hidden sm:block" />
               </Button>
             </>
           )}
 
-          <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? (isFr ? 'Fermer le menu' : 'Close menu') : (isFr ? 'Ouvrir le menu' : 'Open menu')} aria-expanded={menuOpen}>
-            {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          <Button variant="ghost" size="icon" className="h-10 w-10 lg:hidden" onClick={() => setMenuOpen(!menuOpen)}
+            aria-label={menuOpen ? (isFr ? 'Fermer le menu' : 'Close menu') : (isFr ? 'Ouvrir le menu' : 'Open menu')}
+            aria-expanded={menuOpen}>
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
       </div>
@@ -177,58 +160,43 @@ export function LandingNav() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-sm overflow-hidden"
+            className="lg:hidden border-t border-border/60 bg-background overflow-hidden"
           >
             <nav className="container px-4 py-4 space-y-1">
-              {navItems.map((item) => (
-                <Link key={item.label} to={item.to} onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors">
-                  {item.label}
+              {primaryLinks.map(l => (
+                <Link key={l.to} to={l.to} onClick={() => setMenuOpen(false)}
+                  className="block px-3 py-2.5 rounded-lg text-sm font-semibold text-foreground hover:bg-muted transition-colors">
+                  {l.label}
                 </Link>
               ))}
-              <div className="pt-2 mt-2 border-t border-border/40">
-                <div className="px-3 pt-1 pb-2 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+              <div className="pt-3 mt-2 border-t border-border/60">
+                <div className="px-3 pb-2 text-[11px] uppercase tracking-wider text-muted-foreground font-bold">
                   {isFr ? 'Catégories' : 'Categories'}
                 </div>
-                {verticals.map((v) => (
-                  <Link key={v.to} to={v.to} onClick={() => setMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors">
-                    {v.label}
+                {EXPLORE_CATEGORIES.map(c => (
+                  <Link key={c.slug} to={c.route} onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors">
+                    <c.icon className="h-4 w-4 text-muted-foreground" /> {isFr ? c.fr : c.en}
                   </Link>
                 ))}
               </div>
-              {user ? (
-                <div className="pt-2 border-t border-border/40 mt-2 space-y-1">
-                  {[
-                    { to: '/dashboard', icon: User, label: 'Dashboard' },
-                    { to: '/my-programs', icon: Package, label: isFr ? 'Mes achats' : 'My purchases' },
-                    { to: '/billing', icon: CreditCard, label: isFr ? 'Mon abonnement' : 'My subscription' },
-                    { to: '/billing/usage', icon: Sparkles, label: isFr ? 'Mon usage du mois' : 'Monthly usage' },
-                    { to: '/my-reviews', icon: MessageSquare, label: isFr ? 'Mes avis' : 'My reviews' },
-                    { to: '/referrals', icon: Gift, label: isFr ? 'Parrainage' : 'Referrals' },
-                    { to: '/admin', icon: Settings, label: isFr ? 'Espace admin' : 'Admin panel' },
-                    { to: '/creator/analytics', icon: BarChart3, label: isFr ? 'Analytics avancées' : 'Advanced analytics' },
-                  ].map((it) => (
-                    <button
-                      key={it.to}
-                      onClick={() => { navigate(it.to); setMenuOpen(false); }}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors text-left"
-                    >
-                      <it.icon className="h-4 w-4 text-muted-foreground" /> {it.label}
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => { signOut(); setMenuOpen(false); }}
-                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors text-left"
-                  >
-                    <LogOut className="h-4 w-4" /> {isFr ? 'Déconnexion' : 'Sign out'}
-                  </button>
-                </div>
-              ) : (
-                <div className="pt-2 border-t border-border/40 mt-2 space-y-2">
-                  <Button variant="outline" className="w-full" onClick={() => { navigate('/auth?mode=signin'); setMenuOpen(false); }}>
-                    {t('landing_nav.sign_in')}
+              <div className="pt-3 mt-2 border-t border-border/60 flex items-center justify-between px-1">
+                <GlobalPreferencesSelector />
+                <Link to="/churches" onClick={() => setMenuOpen(false)}
+                  className="text-sm font-semibold text-foreground/80 inline-flex items-center gap-1.5">
+                  <Church className="h-4 w-4" /> {isFr ? 'Pour les églises' : 'For churches'}
+                </Link>
+              </div>
+              {!user && (
+                <div className="pt-3 border-t border-border/60 mt-2 space-y-2">
+                  <Button variant="outline" className="w-full h-11 font-semibold" onClick={() => { navigate('/start'); setMenuOpen(false); }}>
+                    {isFr ? 'Proposer mes services' : 'Offer your services'}
                   </Button>
-                  <Button className="w-full gap-1.5" onClick={() => { navigate('/auth?mode=signup'); setMenuOpen(false); }}>
-                    {t('landing_nav.get_started')} <ArrowRight className="h-3.5 w-3.5" />
+                  <Button variant="ghost" className="w-full h-11 font-semibold" onClick={() => { navigate('/auth?mode=signin'); setMenuOpen(false); }}>
+                    {isFr ? 'Se connecter' : 'Sign in'}
+                  </Button>
+                  <Button className="w-full h-11 font-semibold gap-1.5" onClick={() => { navigate('/auth?mode=signup'); setMenuOpen(false); }}>
+                    {isFr ? 'Créer un compte' : 'Create account'} <ArrowRight className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               )}

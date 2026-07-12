@@ -1,170 +1,194 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Search, ArrowRight, ShoppingBag, Calendar, MessageSquare, GraduationCap, Wrench, Building2 } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
 
+/**
+ * Editorial marketplace hero.
+ * - Deep navy surface (bg-sidebar), warm accent, generous spacing.
+ * - Real SiteViral UI concept cards on the right (silent motion, static on mobile).
+ * - Reduced-motion aware.
+ */
 export function MarketplaceHero() {
   const navigate = useNavigate();
   const { locale } = useI18n();
   const fr = locale === 'fr';
   const [q, setQ] = useState('');
+  const reduce = useReducedMotion();
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     setIntent('client', '/discover');
-    const base = '/discover';
-    if (q.trim()) {
-      navigate(`${base}?q=${encodeURIComponent(q.trim())}`);
-    } else {
-      navigate(base);
-    }
+    const target = q.trim() ? `/discover?q=${encodeURIComponent(q.trim())}` : '/discover';
+    navigate(target);
   };
 
-
   return (
-    <section className="relative overflow-hidden bg-sidebar text-sidebar-foreground pt-14">
-      {/* Layered brand-tinted background */}
-      <div
-        className="absolute inset-0 opacity-40 pointer-events-none"
+    <section className="relative overflow-hidden bg-sidebar text-sidebar-foreground">
+      {/* Soft brand-tinted glow */}
+      <div className="absolute inset-0 pointer-events-none opacity-70"
         style={{
           backgroundImage:
-            'radial-gradient(circle at 15% 20%, hsl(var(--accent)/0.35), transparent 55%), radial-gradient(circle at 85% 70%, hsl(var(--primary)/0.45), transparent 55%)',
+            'radial-gradient(circle at 12% 15%, hsl(var(--accent)/0.28), transparent 55%), radial-gradient(circle at 90% 80%, hsl(var(--primary)/0.35), transparent 60%)',
         }}
       />
-      <div
-        className="absolute inset-0 opacity-[0.08] pointer-events-none mix-blend-overlay"
+      {/* Fine grid texture */}
+      <div className="absolute inset-0 opacity-[0.06] pointer-events-none"
         style={{
           backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Ccircle cx='1' cy='1' r='1'/%3E%3C/g%3E%3C/svg%3E\")",
+            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='0.5'%3E%3Cpath d='M0 0h48v48H0z'/%3E%3C/g%3E%3C/svg%3E\")",
         }}
       />
 
-      <div className="relative container max-w-6xl px-4 py-12 sm:py-16">
-        <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider mb-6 backdrop-blur">
-            <ShieldCheck className="h-3.5 w-3.5 text-accent" />
-            {fr ? 'Marketplace panafricaine · Services vérifiés' : 'Pan-African marketplace · Verified services'}
-          </div>
+      <div className="relative container max-w-6xl px-4 sm:px-6 pt-16 sm:pt-24 pb-16 sm:pb-24">
+        <div className="grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-14 items-center">
+          {/* Copy + search */}
+          <div>
+            <h1 className="text-[2.5rem] sm:text-5xl lg:text-[64px] font-black leading-[1.02] tracking-[-0.02em]">
+              {fr ? (
+                <>Trouvez le bon <span className="text-accent">produit</span>,<br className="hidden sm:block" /> service ou professionnel.</>
+              ) : (
+                <>Find the right <span className="text-accent">product</span>,<br className="hidden sm:block" /> service or professional.</>
+              )}
+            </h1>
 
-          <h1 className="text-[2.5rem] sm:text-6xl lg:text-7xl font-black leading-[1.02] tracking-tight">
-            {fr ? (
-              <>
-                Trouvez le bon <span className="text-accent">service</span>,<br className="hidden sm:block" />
-                <span className="text-sidebar-foreground/90">au bon prix.</span>
-              </>
-            ) : (
-              <>
-                Find the right <span className="text-accent">service</span>,<br className="hidden sm:block" />
-                <span className="text-sidebar-foreground/90">at the right price.</span>
-              </>
-            )}
-          </h1>
+            <p className="mt-5 text-base sm:text-lg text-sidebar-foreground/70 max-w-xl leading-relaxed">
+              {fr
+                ? "Achetez des produits digitaux dès aujourd'hui et découvrez un réseau grandissant d'artisans, professionnels de la beauté, tuteurs, coachs, musiciens et créateurs."
+                : 'Buy digital products today and discover a growing network of artisans, beauty professionals, tutors, coaches, musicians and creators.'}
+            </p>
 
-          <p className="mt-5 text-base sm:text-lg text-sidebar-foreground/70 max-w-2xl leading-relaxed">
-            {fr
-              ? 'Beauté, tuteurs, artisans, événements, produits digitaux — réservez en 2 minutes. Paiement protégé, Mobile Money inclus.'
-              : 'Beauty, tutors, artisans, events, digital products — book in 2 minutes. Protected payment, Mobile Money included.'}
-          </p>
-
-          {/* Premium search bar with category dropdown */}
-          <form
-            onSubmit={submit}
-            className="mt-8 flex flex-col md:flex-row gap-2 max-w-3xl rounded-2xl md:rounded-full bg-white/95 text-foreground p-2 shadow-2xl shadow-black/30"
-          >
-            <div className="flex-1 flex items-center gap-2 px-4">
-              <Search className="h-5 w-5 text-muted-foreground shrink-0" />
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder={fr ? 'Quel service cherchez-vous aujourd’hui ?' : 'What service are you looking for today?'}
-                className="flex-1 bg-transparent outline-none text-sm sm:text-base placeholder:text-muted-foreground h-12"
-              />
-            </div>
-
-            <Button
-              type="submit"
-              size="lg"
-              className="h-12 px-8 rounded-xl md:rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-lg"
-            >
-              <Search className="h-4 w-4 md:hidden" />
-              <span className="hidden md:inline">{fr ? 'Rechercher' : 'Search'}</span>
-            </Button>
-          </form>
-
-          {/* Propose CTA — inline, single screen */}
-          <div className="mt-8 rounded-2xl border border-white/15 bg-white/5 backdrop-blur p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-            <div className="flex-1">
-              <div className="text-xs font-bold uppercase tracking-[0.18em] text-accent mb-1">
-                {fr ? 'Vous êtes un pro ?' : 'Are you a pro?'}
+            <form onSubmit={submit} className="mt-8 flex items-stretch gap-2 max-w-xl bg-background rounded-2xl p-1.5 shadow-2xl shadow-black/30">
+              <div className="flex items-center flex-1 min-w-0 pl-3">
+                <Search className="h-5 w-5 text-muted-foreground shrink-0" />
+                <input
+                  value={q}
+                  onChange={e => setQ(e.target.value)}
+                  placeholder={fr ? 'Rechercher produits, services ou professionnels' : 'Search products, services or professionals'}
+                  className="flex-1 min-w-0 bg-transparent border-0 outline-none px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground"
+                  aria-label={fr ? 'Recherche' : 'Search'}
+                />
               </div>
-              <h2 className="text-lg sm:text-xl font-black leading-snug">
-                {fr ? 'Proposez vos services à des millions de personnes.' : 'Offer your services to millions of people.'}
-              </h2>
+              <Button type="submit" className="h-11 px-5 sm:px-6 rounded-xl text-sm font-bold shrink-0">
+                {fr ? 'Rechercher' : 'Search'}
+              </Button>
+            </form>
+
+            {/* Provider CTA */}
+            <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5 max-w-xl">
+              <div className="flex-1">
+                <p className="text-sm font-bold text-sidebar-foreground">
+                  {fr ? 'Prêt à proposer vos compétences ?' : 'Ready to offer your skills?'}
+                </p>
+                <p className="text-xs sm:text-sm text-sidebar-foreground/60 mt-0.5">
+                  {fr ? 'Créez votre espace pro et commencez à toucher des clients.' : 'Create your service space and start reaching customers.'}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => { setIntent('provider', '/start'); navigate('/start'); }}
+                className="h-11 px-5 rounded-xl border-white/25 bg-white/5 text-sidebar-foreground hover:bg-white/10 font-semibold gap-1.5 shrink-0"
+              >
+                {fr ? 'Proposer mes services' : 'Offer your services'}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
             </div>
-            <Button
-              size="lg"
-              onClick={() => { setIntent('provider', '/start'); navigate('/start'); }}
-              className="h-12 px-6 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-bold shadow-lg whitespace-nowrap"
-            >
-              {fr ? 'Proposer mes services' : 'Offer my services'}
-              <ArrowRight className="h-4 w-4 ml-1.5" />
-            </Button>
           </div>
+
+          {/* Visual: product UI montage */}
+          <HeroMontage reduce={!!reduce} fr={fr} />
         </div>
       </div>
     </section>
   );
 }
 
-export function MarketplaceIntentSplit() {
-  const navigate = useNavigate();
-  const { locale } = useI18n();
-  const fr = locale === 'fr';
+function HeroMontage({ reduce, fr }: { reduce: boolean; fr: boolean }) {
+  const cards = [
+    {
+      icon: ShoppingBag,
+      title: fr ? 'Ebook · Achat instantané' : 'Ebook · Instant purchase',
+      sub: fr ? 'Téléchargement protégé' : 'Protected download',
+      tint: 'from-emerald-500/25 to-emerald-500/5',
+      iconTint: 'text-emerald-400',
+    },
+    {
+      icon: Calendar,
+      title: fr ? 'Rendez-vous beauté' : 'Beauty booking',
+      sub: fr ? 'Samedi · 14h30' : 'Saturday · 2:30 PM',
+      tint: 'from-pink-500/25 to-pink-500/5',
+      iconTint: 'text-pink-300',
+    },
+    {
+      icon: Wrench,
+      title: fr ? 'Devis artisan' : 'Artisan quote',
+      sub: fr ? 'Réponse en 2h' : 'Reply in 2h',
+      tint: 'from-sky-500/25 to-sky-500/5',
+      iconTint: 'text-sky-300',
+    },
+    {
+      icon: GraduationCap,
+      title: fr ? 'Session tuteur' : 'Tutor session',
+      sub: fr ? 'Mathématiques · 1h' : 'Mathematics · 1h',
+      tint: 'from-indigo-500/25 to-indigo-500/5',
+      iconTint: 'text-indigo-300',
+    },
+    {
+      icon: MessageSquare,
+      title: fr ? 'Nouvelle demande' : 'New enquiry',
+      sub: fr ? 'Reçue à l\'instant' : 'Just received',
+      tint: 'from-amber-500/25 to-amber-500/5',
+      iconTint: 'text-amber-300',
+    },
+    {
+      icon: Building2,
+      title: fr ? 'Personnel ↔ Espace pro' : 'Personal ↔ Workspace',
+      sub: fr ? 'Basculer en un clic' : 'Switch in one click',
+      tint: 'from-violet-500/25 to-violet-500/5',
+      iconTint: 'text-violet-300',
+    },
+  ];
 
   return (
-    <section className="container max-w-6xl px-4 py-16">
-      <div className="grid gap-4 md:grid-cols-2">
-        <button
-          onClick={() => { setIntent('client', '/discover'); navigate('/discover'); }}
-          className="group text-left rounded-3xl border bg-card p-7 sm:p-9 hover:border-primary/50 hover:shadow-xl hover:-translate-y-0.5 transition-all"
-        >
-          <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
-            {fr ? 'Je cherche un service' : 'I need a service'}
-          </div>
-          <h3 className="mt-3 text-2xl sm:text-3xl font-black leading-tight">
-            {fr ? 'Trouvez le service qu’il vous faut et réservez.' : 'Find the service you need and book it.'}
-          </h3>
-          <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-            {fr ? 'Comparez les profils vérifiés, discutez, réservez et payez en toute sécurité.' : 'Compare verified profiles, chat, book and pay securely.'}
-          </p>
-          <div className="mt-6 inline-flex items-center gap-1.5 text-sm font-bold text-primary">
-            {fr ? 'Explorer' : 'Explore'} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition" />
-          </div>
-        </button>
+    <div
+      className="relative h-[420px] sm:h-[480px] hidden md:block"
+      aria-hidden="true"
+    >
+      {/* Backdrop panel */}
+      <div className="absolute inset-4 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-sm" />
 
-        <button
-          onClick={() => { setIntent('provider'); navigate('/start-selling'); }}
-          className="group text-left rounded-3xl border p-7 sm:p-9 bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground hover:shadow-2xl hover:-translate-y-0.5 transition-all relative overflow-hidden"
-        >
-          <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-accent/30 blur-3xl" />
-          <div className="relative">
-            <div className="text-xs font-bold uppercase tracking-[0.18em] text-accent">
-              {fr ? 'Je propose' : 'I offer'}
+      <div className="relative h-full grid grid-cols-2 gap-3 p-6">
+        {cards.map((c, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: reduce ? 0 : 0.15 + i * 0.08, duration: 0.5, ease: 'easeOut' }}
+            className={`relative rounded-2xl border border-white/10 bg-gradient-to-br ${c.tint} backdrop-blur-md p-4 flex flex-col justify-between overflow-hidden`}
+          >
+            {!reduce && (
+              <motion.div
+                className="absolute -inset-1 opacity-0"
+                animate={{ opacity: [0, 0.5, 0] }}
+                transition={{ delay: i * 0.6, duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
+                style={{
+                  background: 'radial-gradient(circle at 50% 0%, rgba(255,255,255,0.15), transparent 60%)',
+                }}
+              />
+            )}
+            <div className={`h-9 w-9 rounded-xl bg-white/10 grid place-items-center ${c.iconTint}`}>
+              <c.icon className="h-5 w-5" />
             </div>
-            <h3 className="mt-3 text-2xl sm:text-3xl font-black leading-tight">
-              {fr ? 'Vendez vos services et gagnez plus.' : 'Sell your services and earn more.'}
-            </h3>
-            <p className="mt-3 text-sm text-primary-foreground/85 leading-relaxed">
-              {fr ? 'Créez votre boutique en 5 minutes. Outils pros, paiements Mobile Money, clients qualifiés.' : 'Set up in 5 minutes. Pro tools, Mobile Money payouts, qualified clients.'}
-            </p>
-            <div className="mt-6 inline-flex items-center gap-1.5 text-sm font-bold">
-              {fr ? 'Proposer mes services' : 'Offer my services'} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition" />
+            <div>
+              <div className="text-[13px] font-bold text-sidebar-foreground">{c.title}</div>
+              <div className="text-[11px] text-sidebar-foreground/60 mt-0.5">{c.sub}</div>
             </div>
-          </div>
-        </button>
+          </motion.div>
+        ))}
       </div>
-    </section>
+    </div>
   );
 }
