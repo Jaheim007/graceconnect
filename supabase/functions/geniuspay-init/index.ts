@@ -46,28 +46,38 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Require auth (per project memory: all purchases require auth)
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: claimsData, error: claimsErr } = await supabase.auth.getClaims(
-      authHeader.replace('Bearer ', ''),
-    );
-    if (claimsErr || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    const userId = claimsData.claims.sub as string;
-    const userEmail = (claimsData.claims.email as string | undefined) || '';
-
     const body: InitBody = await req.json();
+
+    // Auth policy:
+    //  - Donations may be anonymous (guest donors are supported by the /donate UI).
+    //  - All other purchase types (product, credit_purchase, template_clone, platform_subscription)
+    //    still require a valid Bearer token.
+    const authHeader = req.headers.get('Authorization');
+    const isDonation = body.type === 'donation';
+    let userId: string | null = null;
+    let userEmail = '';
+
+    if (authHeader?.startsWith('Bearer ')) {
+      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: claimsData, error: claimsErr } = await supabase.auth.getClaims(
+        authHeader.replace('Bearer ', ''),
+      );
+      if (!claimsErr && claimsData?.claims) {
+        userId = claimsData.claims.sub as string;
+        userEmail = (claimsData.claims.email as string | undefined) || '';
+      } else if (!isDonation) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    } else if (!isDonation) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const amount = Number(body.amount);
     if (!Number.isFinite(amount) || amount < 200) {
       return new Response(JSON.stringify({ error: 'amount must be >= 200 XOF' }), {
