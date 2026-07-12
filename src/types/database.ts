@@ -62,6 +62,15 @@ export interface Organization {
   paystack_subaccount_code?: string;
   siteviral_type?: SiteviralType | null;
   enabled_features?: SiteviralFeatureKey[];
+  provider_profile?: {
+    workspace_type?: string | null;
+    specialties?: string[];
+    starter_services?: string[];
+    custom_services?: string[];
+    custom_profession?: string | null;
+    service_mode?: string | null;
+    name_mode?: 'business' | 'personal';
+  } | null;
   type_confirmed_at?: string | null;
   features_confirmed_at?: string | null;
   created_at: string;

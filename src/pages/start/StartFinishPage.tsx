@@ -25,12 +25,19 @@ const slugify = (name: string) =>
 
 interface StoredConfig {
   activity: string;
+  workspace_type?: string;
   siteviral_type: SiteviralType;
   enabled_features: SiteviralFeatureKey[];
   name: string;
   city?: string;
   denomination?: string | null;
   currency?: string;
+  specialties?: string[];
+  custom_profession?: string;
+  starter_services?: string[];
+  custom_services?: string[];
+  service_mode?: string | null;
+  name_mode?: 'business' | 'personal';
 }
 
 export default function StartFinishPage() {
@@ -104,6 +111,23 @@ export default function StartFinishPage() {
           cfg.enabled_features as SiteviralFeatureKey[],
           'onboarding',
         );
+
+        // Persist the provider profile snapshot from the new onboarding wizard.
+        // Safe additive write — old orgs keep provider_profile = {}.
+        const providerProfile = {
+          workspace_type: cfg.workspace_type ?? cfg.activity ?? null,
+          specialties: cfg.specialties ?? [],
+          starter_services: cfg.starter_services ?? [],
+          custom_services: cfg.custom_services ?? [],
+          custom_profession: cfg.custom_profession ?? null,
+          service_mode: cfg.service_mode ?? null,
+          name_mode: cfg.name_mode ?? 'business',
+        };
+        try {
+          await db.from('organizations')
+            .update({ provider_profile: providerProfile } as any)
+            .eq('id', orgId!);
+        } catch { /* non-fatal — dashboard still works */ }
 
         // Fetch and set current
         const { data: org } = await db.from('organizations').select('*').eq('id', orgId!).maybeSingle();

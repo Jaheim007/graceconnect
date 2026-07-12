@@ -6,27 +6,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { StartShell } from '@/components/start/StartShell';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
-import { resolveActivity } from '@/lib/siteviral/moduleToFeatures';
-import { MARKET_CATS } from '@/lib/marketplaceCats';
-
-interface Option {
-  key: string;                 // marketplace cat key
-  emoji: string;
-  activityParam: string;       // ?activity=<param>
-}
-
-// Keep landing-page verticals aligned with marketplaceCats keys.
-const OPTIONS: Option[] = [
-  { key: 'digital',     emoji: '🛒', activityParam: 'digital' },
-  { key: 'artisans',    emoji: '🛠️', activityParam: 'home' },
-  { key: 'beauty',      emoji: '💅', activityParam: 'beauty' },
-  { key: 'church',      emoji: '⛪', activityParam: 'church' },
-  { key: 'influencers', emoji: '📣', activityParam: 'influencer' },
-  { key: 'sport',       emoji: '🏋️', activityParam: 'sport' },
-  { key: 'tutors',      emoji: '🎓', activityParam: 'learn' },
-  { key: 'music',       emoji: '🎼', activityParam: 'music' },
-  { key: 'general',     emoji: '💼', activityParam: 'general' },
-];
+import { WORKSPACE_TYPES, getWorkspaceType } from '@/lib/siteviral/serviceTaxonomy';
 
 const CONFIG_KEY = 'sv_start_config';
 
@@ -38,59 +18,45 @@ export default function StartOfferingPage() {
 
   const preselect = params.get('activity');
   const [picked, setPicked] = useState<string | null>(() => {
-    if (preselect) {
-      const r = resolveActivity(preselect);
-      return r.activityKey;
-    }
-    return null;
+    const t = getWorkspaceType(preselect);
+    return t ? t.key : null;
   });
 
   useEffect(() => {
-    if (preselect) {
-      const r = resolveActivity(preselect);
-      setPicked(r.activityKey);
-    }
+    const t = getWorkspaceType(preselect);
+    if (t) setPicked(t.key);
   }, [preselect]);
 
-  const options = useMemo(
-    () => OPTIONS.map((o) => {
-      const cat = MARKET_CATS.find((c) => c.key === o.key)!;
-      return { ...o, label: fr ? cat.fr : cat.en, gradient: cat.gradient };
-    }),
-    [fr],
-  );
+  const options = useMemo(() => WORKSPACE_TYPES, []);
 
   const submit = () => {
     if (!picked) {
-      toast.error(fr ? 'Choisissez une activité' : 'Pick one activity');
+      toast.error(fr ? 'Choisissez une catégorie' : 'Pick one category');
       return;
     }
-    const activityParam = OPTIONS.find((o) => o.key === picked)?.activityParam || picked;
-    const resolved = resolveActivity(activityParam);
-    // Seed sv_start_config so downstream flows apply the correct siteviral type + features
+    const type = getWorkspaceType(picked)!;
     try {
       const existing = JSON.parse(sessionStorage.getItem(CONFIG_KEY) || '{}');
       sessionStorage.setItem(CONFIG_KEY, JSON.stringify({
         ...existing,
-        activity: activityParam,
-        siteviral_type: resolved.siteviral_type,
-        enabled_features: resolved.enabled_features,
+        workspace_type: type.key,
+        activity: type.key, // legacy field kept for downstream compat
+        siteviral_type: type.siteviral_type,
       }));
-    } catch {}
+    } catch { /* ignore */ }
 
-    // Digital products use the public 4-step "Créer ta plateforme" wizard
-    if (picked === 'digital') {
+    if (type.key === 'digital') {
       navigate('/create-org');
       return;
     }
-    navigate(`/start/details?activity=${activityParam}`);
+    navigate(`/start/details?activity=${type.key}`);
   };
 
   return (
     <StartShell step={1} onBack={() => navigate('/')}>
       <SEOHead
         title={fr ? 'Que proposez-vous ? — Siteviral' : 'What do you offer? — Siteviral'}
-        description={fr ? 'Choisissez votre activité en un clic.' : 'Pick your activity in one tap.'}
+        description={fr ? 'Choisissez votre catégorie en un clic.' : 'Pick your category in one tap.'}
         noindex
       />
 
@@ -101,8 +67,8 @@ export default function StartOfferingPage() {
           </h1>
           <p className="text-sm text-muted-foreground">
             {fr
-              ? 'Une seule activité pour commencer. Vous pourrez en ajouter plus tard.'
-              : 'One activity to start. You can add more later.'}
+              ? 'Une seule catégorie pour commencer. Vous pourrez en ajouter une autre plus tard.'
+              : 'One category to start. You can add another later.'}
           </p>
         </div>
 
@@ -121,7 +87,7 @@ export default function StartOfferingPage() {
                 <div className={`absolute inset-0 opacity-10 bg-gradient-to-br ${o.gradient}`} />
                 <div className="relative text-2xl">{o.emoji}</div>
                 <div className="relative text-[13px] font-bold leading-tight">
-                  {o.label}
+                  {fr ? o.label.fr : o.label.en}
                 </div>
                 {isSel && (
                   <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary text-primary-foreground grid place-items-center">
@@ -132,6 +98,12 @@ export default function StartOfferingPage() {
             );
           })}
         </div>
+
+        <p className="text-[11px] text-muted-foreground text-center">
+          {fr
+            ? 'Vous créez un espace d’église ? Utilisez la page dédiée « Créer un espace d’église ».'
+            : 'Creating a church space? Use the dedicated “Create a church space” page.'}
+        </p>
 
         <Button onClick={submit} disabled={!picked} className="w-full h-12 gap-2 text-base font-bold">
           {fr ? 'Continuer' : 'Continue'} <ArrowRight className="h-4 w-4" />
