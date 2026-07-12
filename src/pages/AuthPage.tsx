@@ -14,7 +14,8 @@ import { SiteLogo } from '@/components/ui/SiteLogo';
 import authBg from '@/assets/auth-bg.jpg';
 import { cn } from '@/lib/utils';
 import { isNativePlatform } from '@/lib/capacitor';
-import { clearIntent, getIntent } from '@/lib/intent';
+import { resolvePostAuthRedirect } from '@/lib/authRedirect';
+import { safeReturnTo, setPendingAction } from '@/lib/pendingAction';
 
 export default function AuthPage() {
   const [searchParams] = useSearchParams();
