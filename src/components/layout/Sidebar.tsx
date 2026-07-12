@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { ChevronLeft, ChevronRight, LogOut, Settings, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Settings, Search, Home as HomeIcon, Compass, ListChecks, Gift, User as UserIcon, MessageSquare, Bookmark, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -153,31 +153,37 @@ export function Sidebar() {
         {/* Buyer-world sub-items removed — buyers keep a focused nav:
             Overview · My Purchases · Explorer · Earn. World switching lives
             under the profile menu / "What are you looking for?" entry. */}
-        {user && !hasManageableOrg && !buyerWorld && (
-          <div className="pb-2 mb-2 border-b border-border/60 space-y-1">
-            <Link
-              to="/looking-for"
-              className={cn(
-                'flex items-center gap-3 rounded-xl text-sm font-medium border border-dashed border-primary/40 hover:bg-primary/5',
-                collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'
-              )}
-            >
-              <Search className="h-4 w-4 text-primary shrink-0" />
-              {!collapsed && <span className="text-xs">{isFr ? 'Que cherchez-vous ?' : 'What are you looking for?'}</span>}
-            </Link>
-            <Link
-              to="/create-org"
-              className={cn(
-                'flex items-center gap-3 rounded-xl text-sm font-medium border border-dashed border-amber-500/40 hover:bg-amber-500/5',
-                collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'
-              )}
-            >
-              <span className="text-base shrink-0">🏪</span>
-              {!collapsed && <span className="text-xs">{isFr ? 'Créer mon monde' : 'Create my world'}</span>}
-            </Link>
-          </div>
+        {user && !currentOrg ? (
+          <PersonalSidebarNav collapsed={collapsed} isFr={isFr} pathname={location.pathname} />
+        ) : (
+          <>
+            {user && !hasManageableOrg && !buyerWorld && (
+              <div className="pb-2 mb-2 border-b border-border/60 space-y-1">
+                <Link
+                  to="/looking-for"
+                  className={cn(
+                    'flex items-center gap-3 rounded-xl text-sm font-medium border border-dashed border-primary/40 hover:bg-primary/5',
+                    collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'
+                  )}
+                >
+                  <Search className="h-4 w-4 text-primary shrink-0" />
+                  {!collapsed && <span className="text-xs">{isFr ? 'Que cherchez-vous ?' : 'What are you looking for?'}</span>}
+                </Link>
+                <Link
+                  to="/create-org"
+                  className={cn(
+                    'flex items-center gap-3 rounded-xl text-sm font-medium border border-dashed border-amber-500/40 hover:bg-amber-500/5',
+                    collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'
+                  )}
+                >
+                  <span className="text-base shrink-0">🏪</span>
+                  {!collapsed && <span className="text-xs">{isFr ? 'Créer mon monde' : 'Create my world'}</span>}
+                </Link>
+              </div>
+            )}
+            {navItems.map(renderNavItem)}
+          </>
         )}
-        {navItems.map(renderNavItem)}
       </nav>
 
       {/* Settings + Sign out */}
@@ -213,5 +219,77 @@ export function Sidebar() {
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </button>
     </aside>
+  );
+}
+
+/**
+ * Personal-mode desktop sidebar navigation (Step 3).
+ * Mirrors PersonalBottomNav on mobile: Home / Explore / Activity / Earn / Profile.
+ * Messages lives as a secondary item; optional customer tools (bookmarks,
+ * wishlist) are grouped below and only shown when their routes exist.
+ */
+function PersonalSidebarNav({
+  collapsed,
+  isFr,
+  pathname,
+}: {
+  collapsed: boolean;
+  isFr: boolean;
+  pathname: string;
+}) {
+  const primary = [
+    { route: '/dashboard/home',     icon: HomeIcon,     fr: 'Accueil',   en: 'Home' },
+    { route: '/dashboard/explore',  icon: Compass,      fr: 'Explorer',  en: 'Explore' },
+    { route: '/dashboard/activity', icon: ListChecks,   fr: 'Activité',  en: 'Activity' },
+    { route: '/dashboard/earn',     icon: Gift,         fr: 'Gagner',    en: 'Earn' },
+    { route: '/dashboard/profile',  icon: UserIcon,     fr: 'Profil',    en: 'Profile' },
+  ];
+  const secondary = [
+    { route: '/dashboard/messages', icon: MessageSquare, fr: 'Messages',  en: 'Messages' },
+    { route: '/bookmarks',          icon: Bookmark,      fr: 'Favoris',   en: 'Bookmarks' },
+    { route: '/wishlist',           icon: Heart,         fr: 'Souhaits',  en: 'Wishlist' },
+  ];
+
+  const isActive = (route: string) => {
+    if (route === '/dashboard/home') return pathname === '/dashboard' || pathname === '/dashboard/home';
+    return pathname === route || pathname.startsWith(route + '/');
+  };
+
+  const renderItem = (item: { route: string; icon: any; fr: string; en: string }, tone: 'primary' | 'secondary') => {
+    const active = isActive(item.route);
+    const Icon = item.icon;
+    return (
+      <Link
+        key={item.route}
+        to={item.route}
+        aria-current={active ? 'page' : undefined}
+        className={cn(
+          'flex items-center gap-3 rounded-xl text-sm font-medium transition-all',
+          collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2',
+          active
+            ? 'bg-primary/10 text-primary'
+            : tone === 'primary'
+              ? 'text-sidebar-foreground hover:bg-sidebar-accent/80'
+              : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60',
+        )}
+      >
+        <Icon className="h-4 w-4 shrink-0" />
+        {!collapsed && <span className="text-xs">{isFr ? item.fr : item.en}</span>}
+      </Link>
+    );
+  };
+
+  return (
+    <>
+      <div className="space-y-1">{primary.map((i) => renderItem(i, 'primary'))}</div>
+      <div className="mt-3 pt-3 border-t border-border/60 space-y-1">
+        {!collapsed && (
+          <div className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+            {isFr ? 'Plus' : 'More'}
+          </div>
+        )}
+        {secondary.map((i) => renderItem(i, 'secondary'))}
+      </div>
+    </>
   );
 }

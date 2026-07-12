@@ -270,6 +270,7 @@ const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const DashboardRouter = lazy(() => import("@/pages/DashboardRouter"));
 const DashboardExplorePage = lazy(() => import("@/pages/dashboard/DashboardExplorePage"));
 const PersonalActivityPage = lazy(() => import("@/pages/dashboard/PersonalActivityPage"));
+const PersonalMessagesPage = lazy(() => import("@/pages/dashboard/PersonalMessagesPage"));
 const ResourcesPage = lazy(() => import("@/pages/ResourcesPage"));
 const MyDonationsPage = lazy(() => import("@/pages/MyDonationsPage"));
 const CreateOrgPage = lazy(() => import("@/pages/CreateOrgPage"));
@@ -746,7 +747,11 @@ const App = () => (
                   <Route path="/dashboard/orders" element={<Navigate to="/dashboard/activity" replace />} />
                   <Route path="/dashboard/kyc" element={<Navigate to="/admin/kyc" replace />} />
                   <Route path="/dashboard/affiliation" element={<Navigate to="/admin/affiliation" replace />} />
-                  <Route path="/dashboard/messages" element={<Navigate to="/notifications" replace />} />
+                  <Route path="/dashboard/messages" element={<PersonalMessagesPage />} />
+                  <Route path="/dashboard/messages/beauty/:id" element={<BeautyConversation />} />
+                  <Route path="/dashboard/messages/home/:id" element={<HomeConversation />} />
+                  <Route path="/dashboard/messages/events/:id" element={<EventsConversation />} />
+                  <Route path="/dashboard/messages/learn/:id" element={<EducationConversation />} />
                   <Route path="/dashboard/notifications" element={<Navigate to="/notifications" replace />} />
                   <Route path="/dashboard/settings" element={<Navigate to="/admin/settings" replace />} />
                   {/* Sidebar aliases → canonical pages */}
