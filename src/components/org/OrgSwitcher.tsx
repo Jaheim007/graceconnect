@@ -1,12 +1,13 @@
 /**
- * OrgSwitcher — Premium organization switching UI.
- * Inspired by Facebook/Instagram/WhatsApp account switching patterns.
- * Uses a drawer (mobile) or popover (desktop) with org avatars, roles & active state.
+ * OrgSwitcher — Space switcher for Personal + managed workspaces.
+ * Personal is a client-side context (currentOrg === null) — never a DB row.
  */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrg } from '@/contexts/OrgContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
+import { useCurrentSpace } from '@/hooks/useCurrentSpace';
 import { Organization } from '@/types/database';
 import { brandUrl } from '@/lib/storageUrl';
 import { cn } from '@/lib/utils';
@@ -15,7 +16,7 @@ import { isOrgVerifiedOrKyc } from '@/lib/verifiedLabel';
 import { SITEVIRAL_TYPES } from '@/lib/siteviral/config';
 import {
   Building2, ChevronDown, Check, Plus, Crown, ShieldCheck, Pencil, Users2,
-  Link2, ArrowRight, Settings2,
+  Link2, ArrowRight, Settings2, User as UserIcon,
 } from 'lucide-react';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
@@ -32,86 +33,130 @@ const roleConfigFn = (isFr: boolean): Record<string, { label: string; icon: type
 });
 
 interface OrgSwitcherProps {
-  /** Render mode — "sidebar" shows full card, "topbar" shows compact pill */
   variant?: 'sidebar' | 'topbar';
   collapsed?: boolean;
 }
 
 export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitcherProps) {
   const { currentOrg, userOrgs, setCurrentOrg, getRoleFor } = useOrg();
+  const { user } = useAuth();
+  const space = useCurrentSpace();
   const navigate = useNavigate();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const roleConfig = roleConfigFn(isFr);
   const [open, setOpen] = useState(false);
 
-  if (!currentOrg || userOrgs.length === 0) return null;
+  if (!user || !space) return null;
 
-  // OrgSwitcher only shows workspaces/pages the user manages (owner/admin)
   const managedOrgs = userOrgs.filter((o) => {
     const role = getRoleFor(o.id);
     return role === 'owner' || role === 'admin';
   });
 
-  const handleSelect = (org: Organization) => {
+  const isPersonal = space.kind === 'personal';
+
+  const handleSelectPersonal = () => {
+    setCurrentOrg(null);
+    setOpen(false);
+    navigate('/dashboard');
+  };
+
+  const handleSelectOrg = (org: Organization) => {
     const role = getRoleFor(org.id);
     const isManager = role === 'owner' || role === 'admin';
     setCurrentOrg(org);
     setOpen(false);
-    if (isManager) {
-      navigate('/dashboard');
-    } else {
-      navigate(`/org/${org.slug}`);
-    }
+    if (isManager) navigate('/dashboard');
+    else navigate(`/org/${org.slug}`);
   };
 
-  const OrgAvatar = ({ org, size = 'md' }: { org: Organization; size?: 'sm' | 'md' | 'lg' }) => {
-    const sizeClasses = { sm: 'h-8 w-8 text-xs', md: 'h-10 w-10 text-sm', lg: 'h-12 w-12 text-base' };
-    const logo = brandUrl(org.logo_url);
-    const initials = org.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  const initialsFrom = (s: string) =>
+    s.split(/\s+/).map((w) => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
 
+  const Avatar = ({
+    src, name, size = 'md', active, fallbackIcon,
+  }: { src?: string | null; name: string; size?: 'sm' | 'md' | 'lg'; active?: boolean; fallbackIcon?: React.ReactNode }) => {
+    const sizeClasses = { sm: 'h-8 w-8 text-xs', md: 'h-10 w-10 text-sm', lg: 'h-12 w-12 text-base' };
     return (
       <div className={cn(
         'rounded-xl overflow-hidden flex items-center justify-center shrink-0 font-bold ring-2 transition-all',
         sizeClasses[size],
-        org.id === currentOrg?.id
-          ? 'ring-primary shadow-[0_0_12px_hsl(var(--primary)/0.3)]'
-          : 'ring-transparent'
+        active ? 'ring-primary shadow-[0_0_12px_hsl(var(--primary)/0.3)]' : 'ring-transparent'
       )}>
-        {logo ? (
-          <img src={logo} alt={org.name} className="h-full w-full object-cover" />
+        {src ? (
+          <img src={src} alt={name} className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center text-primary-foreground">
-            {initials}
+            {fallbackIcon ?? initialsFrom(name)}
           </div>
         )}
       </div>
     );
   };
 
+  const PersonalRow = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+      className={cn(
+        'w-full flex items-center gap-2 px-2 py-2 rounded-xl transition-all duration-200 group text-left',
+        isPersonal ? 'bg-primary/10 border border-primary/25' : 'hover:bg-muted/60 border border-transparent'
+      )}
+    >
+      <button onClick={handleSelectPersonal} className="flex items-center gap-3 flex-1 min-w-0 text-left">
+        <div className="relative">
+          <Avatar
+            src={space.kind === 'personal' ? space.avatarUrl : (user.user_metadata?.avatar_url ?? null)}
+            name={user.email ?? 'U'}
+            size="md"
+            active={isPersonal}
+            fallbackIcon={<UserIcon className="h-4 w-4 text-primary-foreground" />}
+          />
+          {isPersonal && (
+            <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-primary flex items-center justify-center shadow-md">
+              <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <span className={cn('text-sm font-semibold truncate', isPersonal ? 'text-primary' : 'text-foreground')}>
+              {isFr ? 'Personnel' : 'Personal'}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className="text-[10px] text-muted-foreground truncate">
+              {user.email}
+            </span>
+          </div>
+        </div>
+        {!isPersonal && (
+          <ArrowRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+        )}
+      </button>
+    </motion.div>
+  );
+
   const OrgRow = ({ org }: { org: Organization }) => {
     const role = getRoleFor(org.id);
     const config = roleConfig[role || 'member'];
     const RoleIcon = config.icon;
-    const isActive = org.id === currentOrg?.id;
+    const isActive = !isPersonal && org.id === currentOrg?.id;
     const verified = isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status);
     const typeMeta = org.siteviral_type ? SITEVIRAL_TYPES[org.siteviral_type as keyof typeof SITEVIRAL_TYPES] : null;
     const typeLabel = typeMeta ? (isFr ? typeMeta.labelFr : typeMeta.labelEn).replace(/^SiteViral\s+/i, '') : (isFr ? 'Type non défini' : 'No type set');
 
     return (
       <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
         className={cn(
           'w-full flex items-center gap-2 px-2 py-2 rounded-xl transition-all duration-200 group text-left',
-          isActive
-            ? 'bg-primary/10 border border-primary/25'
-            : 'hover:bg-muted/60 border border-transparent'
+          isActive ? 'bg-primary/10 border border-primary/25' : 'hover:bg-muted/60 border border-transparent'
         )}
       >
-        <button onClick={() => handleSelect(org)} className="flex items-center gap-3 flex-1 min-w-0 text-left">
+        <button onClick={() => handleSelectOrg(org)} className="flex items-center gap-3 flex-1 min-w-0 text-left">
           <div className="relative">
-            <OrgAvatar org={org} size="md" />
+            <Avatar src={brandUrl(org.logo_url)} name={org.name} size="md" active={isActive} />
             {isActive && (
               <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-primary flex items-center justify-center shadow-md">
                 <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />
@@ -120,10 +165,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className={cn(
-                'text-sm font-semibold truncate',
-                isActive ? 'text-primary' : 'text-foreground'
-              )}>
+              <span className={cn('text-sm font-semibold truncate', isActive ? 'text-primary' : 'text-foreground')}>
                 {org.name}
               </span>
               {verified && <VerifiedBadge size="xs" showTooltip={false} />}
@@ -153,60 +195,41 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
     );
   };
 
-  // Trigger button — adapts to variant
-  const TriggerButton = (
+  // Trigger button — reads from useCurrentSpace so it reflects Personal too
+  const triggerLabel = space.label;
+  const triggerAvatar = space.avatarUrl;
+  const triggerFallbackIcon = isPersonal ? <UserIcon className="h-4 w-4 text-primary-foreground" /> : undefined;
+
+  const TriggerButton =
     variant === 'topbar' ? (
-      <Button variant="ghost" size="sm" className="h-7 text-[11px] font-semibold gap-1 max-w-[100px] lg:hidden border border-border px-2 shrink-0">
-        <Building2 className="h-3 w-3 shrink-0 text-primary" />
-        <span className="truncate">{currentOrg.name}</span>
+      <Button variant="ghost" size="sm" className="h-7 text-[11px] font-semibold gap-1 max-w-[120px] lg:hidden border border-border px-2 shrink-0">
+        {isPersonal ? <UserIcon className="h-3 w-3 shrink-0 text-primary" /> : <Building2 className="h-3 w-3 shrink-0 text-primary" />}
+        <span className="truncate">{triggerLabel}</span>
         <ChevronDown className="h-2.5 w-2.5 shrink-0 text-muted-foreground" />
       </Button>
     ) : collapsed ? (
       <button className="w-full flex items-center justify-center p-1.5 rounded-lg hover:bg-primary/10 transition-colors">
-        <OrgAvatar org={currentOrg} size="sm" />
+        <Avatar src={triggerAvatar} name={triggerLabel} size="sm" fallbackIcon={triggerFallbackIcon} />
       </button>
     ) : (
       <button className="w-full p-2.5 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 hover:from-primary/15 hover:to-primary/10 transition-all text-left group">
         <div className="flex items-center gap-2.5">
-          <OrgAvatar org={currentOrg} size="sm" />
+          <Avatar src={triggerAvatar} name={triggerLabel} size="sm" fallbackIcon={triggerFallbackIcon} />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <p className="text-xs font-bold text-primary truncate">{currentOrg.name}</p>
-              {isOrgVerifiedOrKyc(currentOrg.is_verified, (currentOrg as any).kyc_status) && (
+              <p className="text-xs font-bold text-primary truncate">{triggerLabel}</p>
+              {!isPersonal && currentOrg && isOrgVerifiedOrKyc(currentOrg.is_verified, (currentOrg as any).kyc_status) && (
                 <VerifiedBadge size="xs" showTooltip={false} />
               )}
             </div>
-          </div>
-          {managedOrgs.length > 1 && (
-            <ChevronDown className="h-3.5 w-3.5 text-primary/60 shrink-0 group-hover:text-primary transition-colors" />
-          )}
-        </div>
-      </button>
-    )
-  );
-
-  // Always allow opening the dialog — even with 0-1 managed orgs, user can create a new one
-  if (managedOrgs.length === 0 && variant === 'topbar') return null;
-  if (managedOrgs.length === 0 && variant === 'sidebar') {
-    // No managed orgs: show a "Create platform" CTA card instead
-    return (
-      <div className={cn(collapsed ? 'px-1 mt-3' : 'mx-3 mt-3')}>
-        <button
-          onClick={() => navigate('/create-org')}
-          className="w-full p-2.5 rounded-xl border border-dashed border-primary/30 hover:border-primary/50 bg-primary/5 hover:bg-primary/10 transition-all text-left group"
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <Plus className="h-4 w-4 text-primary" />
-            </div>
-            {!collapsed && (
-              <p className="text-xs font-semibold text-primary">{isFr ? 'Créer un espace/page' : 'Create a workspace/page'}</p>
+            {isPersonal && (
+              <p className="text-[10px] text-muted-foreground truncate">{isFr ? 'Mon espace' : 'My space'}</p>
             )}
           </div>
-        </button>
-      </div>
+          <ChevronDown className="h-3.5 w-3.5 text-primary/60 shrink-0 group-hover:text-primary transition-colors" />
+        </div>
+      </button>
     );
-  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -216,37 +239,45 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
         </div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[400px] p-0 gap-0 overflow-hidden rounded-2xl border-primary/10 max-h-[85vh] flex flex-col">
-        {/* Header */}
         <div className="relative bg-gradient-to-br from-primary/15 via-primary/8 to-transparent px-5 pt-5 pb-4 shrink-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.12),transparent_60%)]" />
           <DialogHeader className="relative">
             <DialogTitle className="text-base font-bold flex items-center gap-2">
               <Building2 className="h-4 w-4 text-primary" />
-              {isFr ? 'Changer d’espace/page' : 'Switch workspace/page'}
+              {isFr ? 'Changer d’espace' : 'Switch space'}
             </DialogTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              {managedOrgs.length} {isFr ? 'espace(s) — chacun a son propre type SiteViral' : 'workspace(s) — each has its own SiteViral type'}
+              {isFr
+                ? `Personnel + ${managedOrgs.length} espace(s)`
+                : `Personal + ${managedOrgs.length} workspace(s)`}
             </p>
           </DialogHeader>
         </div>
 
-        {/* Platform list — only managed orgs */}
         <div className="px-3 py-3 flex-1 min-h-0 overflow-y-auto space-y-1">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 py-2">
-              {isFr ? 'Mes espaces / pages' : 'My workspaces / pages'}
+              {isFr ? 'Mon espace' : 'My space'}
             </p>
-            <AnimatePresence>
-              {managedOrgs.map((org, i) => (
-                <motion.div key={org.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                  <OrgRow org={org} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            <PersonalRow />
           </div>
+
+          {managedOrgs.length > 0 && (
+            <div className="mt-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 py-2">
+                {isFr ? 'Mes espaces / pages' : 'My workspaces / pages'}
+              </p>
+              <AnimatePresence>
+                {managedOrgs.map((org, i) => (
+                  <motion.div key={org.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                    <OrgRow org={org} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
         </div>
 
-        {/* Footer action */}
         <div className="border-t border-border/60 px-4 py-3 bg-muted/30 shrink-0">
           <Button
             variant="outline"
