@@ -53,7 +53,7 @@ export default function PersonalHome() {
         .select('id, slot_start, status')
         .eq('client_id', user!.id)
         .gte('slot_start', new Date().toISOString())
-        .in('status', ['pending', 'confirmed'])
+        .in('status', ['pending_payment', 'confirmed'])
         .order('slot_start', { ascending: true })
         .limit(3);
       return data || [];
@@ -67,7 +67,7 @@ export default function PersonalHome() {
       const { data } = await db.from('home_bookings')
         .select('id, scheduled_for, status')
         .eq('client_id', user!.id)
-        .in('status', ['pending', 'confirmed'])
+        .in('status', ['pending_payment', 'confirmed'])
         .order('scheduled_for', { ascending: true, nullsFirst: false })
         .limit(3);
       return data || [];
@@ -95,7 +95,7 @@ export default function PersonalHome() {
       const { data } = await db.from('events_bookings')
         .select('id, event_date, status')
         .eq('client_id', user!.id)
-        .in('status', ['pending', 'confirmed'])
+        .in('status', ['pending_payment', 'confirmed'])
         .order('event_date', { ascending: true, nullsFirst: false })
         .limit(3);
       return data || [];

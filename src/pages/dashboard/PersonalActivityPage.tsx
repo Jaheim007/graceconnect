@@ -240,7 +240,7 @@ function BookingsTab({ userId, isFr }: { userId?: string; isFr: boolean }) {
       const { data } = await db.from('beauty_bookings')
         .select('id, slot_start, status')
         .eq('client_id', userId!)
-        .in('status', ['pending', 'confirmed'])
+        .in('status', ['pending_payment', 'confirmed'])
         .order('slot_start', { ascending: true });
       return data || [];
     },
@@ -252,7 +252,7 @@ function BookingsTab({ userId, isFr }: { userId?: string; isFr: boolean }) {
       const { data } = await db.from('home_bookings')
         .select('id, scheduled_for, status')
         .eq('client_id', userId!)
-        .in('status', ['pending', 'confirmed'])
+        .in('status', ['pending_payment', 'confirmed'])
         .order('scheduled_for', { ascending: true, nullsFirst: false });
       return data || [];
     },
