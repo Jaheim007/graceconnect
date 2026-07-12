@@ -153,31 +153,37 @@ export function Sidebar() {
         {/* Buyer-world sub-items removed — buyers keep a focused nav:
             Overview · My Purchases · Explorer · Earn. World switching lives
             under the profile menu / "What are you looking for?" entry. */}
-        {user && !hasManageableOrg && !buyerWorld && (
-          <div className="pb-2 mb-2 border-b border-border/60 space-y-1">
-            <Link
-              to="/looking-for"
-              className={cn(
-                'flex items-center gap-3 rounded-xl text-sm font-medium border border-dashed border-primary/40 hover:bg-primary/5',
-                collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'
-              )}
-            >
-              <Search className="h-4 w-4 text-primary shrink-0" />
-              {!collapsed && <span className="text-xs">{isFr ? 'Que cherchez-vous ?' : 'What are you looking for?'}</span>}
-            </Link>
-            <Link
-              to="/create-org"
-              className={cn(
-                'flex items-center gap-3 rounded-xl text-sm font-medium border border-dashed border-amber-500/40 hover:bg-amber-500/5',
-                collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'
-              )}
-            >
-              <span className="text-base shrink-0">🏪</span>
-              {!collapsed && <span className="text-xs">{isFr ? 'Créer mon monde' : 'Create my world'}</span>}
-            </Link>
-          </div>
+        {user && !currentOrg ? (
+          <PersonalSidebarNav collapsed={collapsed} isFr={isFr} pathname={location.pathname} />
+        ) : (
+          <>
+            {user && !hasManageableOrg && !buyerWorld && (
+              <div className="pb-2 mb-2 border-b border-border/60 space-y-1">
+                <Link
+                  to="/looking-for"
+                  className={cn(
+                    'flex items-center gap-3 rounded-xl text-sm font-medium border border-dashed border-primary/40 hover:bg-primary/5',
+                    collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'
+                  )}
+                >
+                  <Search className="h-4 w-4 text-primary shrink-0" />
+                  {!collapsed && <span className="text-xs">{isFr ? 'Que cherchez-vous ?' : 'What are you looking for?'}</span>}
+                </Link>
+                <Link
+                  to="/create-org"
+                  className={cn(
+                    'flex items-center gap-3 rounded-xl text-sm font-medium border border-dashed border-amber-500/40 hover:bg-amber-500/5',
+                    collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'
+                  )}
+                >
+                  <span className="text-base shrink-0">🏪</span>
+                  {!collapsed && <span className="text-xs">{isFr ? 'Créer mon monde' : 'Create my world'}</span>}
+                </Link>
+              </div>
+            )}
+            {navItems.map(renderNavItem)}
+          </>
         )}
-        {navItems.map(renderNavItem)}
       </nav>
 
       {/* Settings + Sign out */}
