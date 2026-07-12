@@ -145,6 +145,7 @@ const ChurchProAppointments = lazy(() => import("@/pages/church/ChurchProAppoint
 const ChurchEventRegisterPage = lazy(() => import("@/pages/church/ChurchEventRegisterPage"));
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
+const ChurchesPage = lazy(() => import("@/pages/ChurchesPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
 const AuthCallbackPage = lazy(() => import("@/pages/AuthCallbackPage"));
@@ -435,6 +436,16 @@ const App = () => (
                 {/* Public routes */}
                 <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 <Route path="/" element={<LandingPage />} />
+                <Route path="/churches" element={<ChurchesPage />} />
+                <Route path="/solutions/church" element={<Navigate to="/churches" replace />} />
+                <Route path="/explore/digital-products" element={<Navigate to="/discover?type=digital" replace />} />
+                <Route path="/explore/artisans" element={<Navigate to="/home/discover" replace />} />
+                <Route path="/explore/beauty" element={<Navigate to="/beauty/search" replace />} />
+                <Route path="/explore/coaching" element={<Navigate to="/discover?type=sport" replace />} />
+                <Route path="/explore/tutors" element={<Navigate to="/learn/discover" replace />} />
+                <Route path="/explore/music" element={<Navigate to="/discover?type=music" replace />} />
+                <Route path="/explore/influencers" element={<Navigate to="/discover?type=influencer" replace />} />
+                <Route path="/explore/other-services" element={<Navigate to="/discover" replace />} />
                 <Route path="/superapp" element={<SuperAppHub />} />
                 <Route path="/start" element={<LazyStartOfferingPage />} />
                 <Route path="/start/details" element={<LazyStartDetailsPage />} />
