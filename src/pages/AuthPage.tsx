@@ -48,40 +48,21 @@ export default function AuthPage() {
   }, [intent]);
 
   useEffect(() => {
-    if (user) {
-      const savedIntent = sessionStorage.getItem('sv_auth_intent');
-      if (savedIntent === 'ambassador' || savedIntent === 'creator') {
-        sessionStorage.removeItem('sv_auth_intent');
-        const modeKey = 'sv_app_mode';
-        try { localStorage.setItem(modeKey, savedIntent); } catch {}
-        navigate(returnTo || '/dashboard', { replace: true });
-      } else {
-        const storedIntent = getIntent();
-        if (storedIntent) {
-          clearIntent();
-          navigate(returnTo || storedIntent.returnTo || (storedIntent.kind === 'client' ? '/discover' : '/start'), { replace: true });
-          return;
-        }
-        if (returnTo) {
-          navigate(returnTo, { replace: true });
-          return;
-        }
-        // Always ask "what do you want to do?" after sign-in, so buyers land in
-        // the right vertical instead of a generic dashboard. Short-circuit only
-        // if the user has already answered the interest picker before — then
-        // send them straight to their personalized explore feed.
-        try {
-          const raw = localStorage.getItem('sv_interests');
-          const interests = raw ? (JSON.parse(raw) as string[]) : [];
-          if (Array.isArray(interests) && interests.length > 0) {
-            navigate(`/dashboard/explore?world=${interests[0]}`, { replace: true });
-            return;
-          }
-        } catch {}
-        navigate('/welcome-intent', { replace: true });
-      }
+    if (!user) return;
+    const savedIntent = sessionStorage.getItem('sv_auth_intent');
+    if (savedIntent === 'ambassador' || savedIntent === 'creator') {
+      sessionStorage.removeItem('sv_auth_intent');
+      try { localStorage.setItem('sv_app_mode', savedIntent); } catch {}
+      const safe = safeReturnTo(returnTo) || '/dashboard';
+      navigate(safe, { replace: true });
+      return;
     }
+    const createdAt = new Date(user.created_at).getTime();
+    const isNewUser = Date.now() - createdAt < 60_000;
+    const target = resolvePostAuthRedirect({ isNewUser, explicitReturnTo: returnTo });
+    navigate(target, { replace: true });
   }, [user, navigate, returnTo]);
+
 
   const [googleLoading, setGoogleLoading] = useState(false);
   const [facebookLoading, setFacebookLoading] = useState(false);
