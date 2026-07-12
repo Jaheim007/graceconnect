@@ -37,7 +37,7 @@ export default function ChurchesPage() {
 
   const startChurch = () => {
     setIntent('provider', '/church/pro/onboarding');
-    setPendingAction({ kind: 'create_church_space', route: '/church/pro/onboarding' });
+    setPendingAction('create_organization', '/church/pro/onboarding', { kind: 'church' });
     navigate('/church/pro/onboarding');
   };
 

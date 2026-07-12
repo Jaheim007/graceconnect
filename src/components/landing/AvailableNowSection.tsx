@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowUpRight, ShoppingBag } from 'lucide-react';
 import { db } from '@/lib/db';
 import { useI18n } from '@/i18n/I18nContext';
-import { formatMoney } from '@/lib/currency';
+import { formatPrice } from '@/lib/currency';
 
 interface Row {
   id: string;
@@ -114,7 +114,7 @@ export function AvailableNowSection() {
                     </span>
                     {typeof p.price === 'number' && p.price > 0 && (
                       <span className="text-xs font-bold text-foreground shrink-0">
-                        {formatMoney(p.price, p.currency || 'USD')}
+                        {formatPrice(p.price, p.currency || 'USD')}
                       </span>
                     )}
                     {p.price === 0 && (
