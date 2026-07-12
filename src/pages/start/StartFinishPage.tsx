@@ -25,12 +25,19 @@ const slugify = (name: string) =>
 
 interface StoredConfig {
   activity: string;
+  workspace_type?: string;
   siteviral_type: SiteviralType;
   enabled_features: SiteviralFeatureKey[];
   name: string;
   city?: string;
   denomination?: string | null;
   currency?: string;
+  specialties?: string[];
+  custom_profession?: string;
+  starter_services?: string[];
+  custom_services?: string[];
+  service_mode?: string | null;
+  name_mode?: 'business' | 'personal';
 }
 
 export default function StartFinishPage() {
