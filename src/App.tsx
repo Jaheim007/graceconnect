@@ -736,16 +736,20 @@ const App = () => (
                   <Route path="/resources" element={<ResourcesPage />} />
                   <Route path="/my-donations" element={<MyDonationsPage />} />
                   <Route path="/dashboard" element={<DashboardRouter />} />
+                  <Route path="/dashboard/home"       element={<DashboardRouter />} />
+                  <Route path="/dashboard/activity"   element={<PersonalActivityPage />} />
+                  <Route path="/dashboard/earn"       element={<Navigate to="/gagner" replace />} />
+                  <Route path="/dashboard/profile"    element={<ProfilePage />} />
                   <Route path="/dashboard/settings/modules" element={<Navigate to="/admin/settings?tab=modules" replace />} />
                   <Route path="/dashboard/digital" element={<Navigate to="/admin/products" replace />} />
-                  <Route path="/dashboard/orders" element={<Navigate to="/invoices" replace />} />
+                  <Route path="/dashboard/orders" element={<Navigate to="/dashboard/activity" replace />} />
                   <Route path="/dashboard/kyc" element={<Navigate to="/admin/kyc" replace />} />
                   <Route path="/dashboard/affiliation" element={<Navigate to="/admin/affiliation" replace />} />
                   <Route path="/dashboard/messages" element={<Navigate to="/notifications" replace />} />
                   <Route path="/dashboard/notifications" element={<Navigate to="/notifications" replace />} />
                   <Route path="/dashboard/settings" element={<Navigate to="/admin/settings" replace />} />
                   {/* Sidebar aliases → canonical pages */}
-                  <Route path="/dashboard/purchases"  element={<Navigate to="/my-programs" replace />} />
+                  <Route path="/dashboard/purchases"  element={<Navigate to="/dashboard/activity?tab=purchases" replace />} />
                   <Route path="/dashboard/products"   element={<Navigate to="/admin/products" replace />} />
                   <Route path="/dashboard/promotions" element={<Navigate to="/admin/promo-codes" replace />} />
                   <Route path="/dashboard/explore"    element={<DashboardExplorePage />} />

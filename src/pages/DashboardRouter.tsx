@@ -2,16 +2,20 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import UserDashboard from '@/pages/UserDashboard';
+import PersonalHome from '@/pages/dashboard/PersonalHome';
 
 /**
- * Unified personal dashboard. Every vertical uses the same UserDashboard
- * overview — labels adapt to the workspace type via useAdaptiveLabels and
- * the sidebar changes via featureNavBuilder. We intentionally do NOT branch
- * to a per-vertical dashboard component here.
+ * Dashboard entry point.
+ *
+ * - Personal mode (currentOrg === null) → the Step-2 PersonalHome customer shell.
+ * - Any org selected → the existing UserDashboard (unchanged provider/overview).
+ *
+ * We never branch to a per-vertical dashboard here — the sidebar and labels
+ * still adapt via useAdaptiveLabels + featureNavBuilder.
  */
 export default function DashboardRouter() {
   const { user } = useAuth();
-  const { isLoadingOrgs } = useOrg();
+  const { currentOrg, isLoadingOrgs } = useOrg();
 
   if (isLoadingOrgs || !user) {
     return (
@@ -23,5 +27,6 @@ export default function DashboardRouter() {
     );
   }
 
+  if (!currentOrg) return <PersonalHome />;
   return <UserDashboard />;
 }
