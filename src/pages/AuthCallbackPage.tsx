@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
-import { getIntent, clearIntent } from '@/lib/intent';
+import { resolvePostAuthRedirect } from '@/lib/authRedirect';
+import { safeReturnTo } from '@/lib/pendingAction';
 
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function AuthCallbackPage() {
       if (!session || handled.current) return;
       handled.current = true;
 
+      // Legacy ambassador/creator/partner intent set from marketing pages.
       const savedIntent = sessionStorage.getItem('sv_auth_intent');
       if (savedIntent === 'ambassador' || savedIntent === 'creator') {
         sessionStorage.removeItem('sv_auth_intent');
@@ -27,55 +29,25 @@ export default function AuthCallbackPage() {
         sessionStorage.removeItem('sv_auth_intent');
       }
 
-      // Check if user came from a custom domain/subdomain and redirect back
+      // Custom domain / subdomain bounce — preserve exact returnTo.
       const originDomain = sessionStorage.getItem('sv_auth_origin_domain');
       if (originDomain) {
         sessionStorage.removeItem('sv_auth_origin_domain');
         const savedReturnTo = sessionStorage.getItem('sv_auth_returnTo');
         sessionStorage.removeItem('sv_auth_returnTo');
-        // Redirect back to their domain — session will sync via shared Supabase auth
-        const returnPath = savedReturnTo || '/dashboard';
+        const returnPath = safeReturnTo(savedReturnTo) || '/dashboard';
         window.location.replace(`${originDomain}${returnPath}`);
         return;
       }
 
-      const savedReturnTo = sessionStorage.getItem('sv_auth_returnTo');
-      if (savedReturnTo) {
-        sessionStorage.removeItem('sv_auth_returnTo');
-        navigate(savedReturnTo, { replace: true });
-        return;
-      }
-
       const createdAt = new Date(session.user.created_at).getTime();
-      const now = Date.now();
-      const isNewUser = now - createdAt < 60_000;
+      const isNewUser = Date.now() - createdAt < 60_000;
 
-      // Intent-first routing (§AuthCallback)
-      const intent = getIntent();
-      if (intent) {
-        clearIntent();
-        if (intent.kind === 'provider') {
-          // Provider intent: brand-new → /start; existing users get their dashboard.
-          navigate(isNewUser ? '/start' : (intent.returnTo || '/dashboard'), { replace: true });
-          return;
-        }
-        // Client intent: never route to /start or seller dashboard.
-        navigate(intent.returnTo || '/discover', { replace: true });
-        return;
-      }
-
-      // Buyer who already picked interests before → skip the chooser and go
-      // straight to their personalized explore feed. Otherwise ask.
-      try {
-        const raw = localStorage.getItem('sv_interests');
-        const interests = raw ? (JSON.parse(raw) as string[]) : [];
-        if (Array.isArray(interests) && interests.length > 0) {
-          navigate(`/dashboard/explore?world=${interests[0]}`, { replace: true });
-          return;
-        }
-      } catch {}
-      void isNewUser;
-      navigate('/welcome-intent', { replace: true });
+      const target = resolvePostAuthRedirect({
+        isNewUser,
+        explicitReturnTo: null, // OAuth loses URL params — pendingAction / sv_auth_returnTo covers it.
+      });
+      navigate(target, { replace: true });
     };
 
     const recoverSessionOnce = async () => {
@@ -84,7 +56,6 @@ export default function AuthCallbackPage() {
         await handleRedirect(session);
         return true;
       }
-
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: { session: syncedSession } } = await supabase.auth.getSession();
@@ -93,7 +64,6 @@ export default function AuthCallbackPage() {
           return true;
         }
       }
-
       return false;
     };
 
