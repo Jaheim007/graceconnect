@@ -141,8 +141,8 @@ export function Sidebar() {
         <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
       </div>
 
-      {/* Org switcher */}
-      {hasOrgs && canManageCurrentOrg && (
+      {/* Space switcher (Personal + managed workspaces) */}
+      {user && (
         <div className="px-2 pt-2">
           <OrgSwitcher variant="sidebar" collapsed={collapsed} />
         </div>

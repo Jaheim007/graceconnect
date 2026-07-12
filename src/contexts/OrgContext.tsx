@@ -70,9 +70,12 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     memberRows.map((m) => [m.organization_id, m.role])
   );
 
-  // Restore or auto-select currentOrg when orgs list changes
+  // Restore or auto-select currentOrg when the membership list resolves.
+  // Sentinel "__personal__" in localStorage means the user explicitly chose
+  // the Personal (currentOrg = null) context. It's an invalid uuid so it can
+  // never collide with a real organizations.id.
   useEffect(() => {
-    if (userOrgs.length === 0) return;
+    if (!user) return;
 
     // If we already have a valid currentOrg in this list, keep it
     if (currentOrg && userOrgs.find((o) => o.id === currentOrg.id)) return;
@@ -81,6 +84,10 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     if (!restoredRef.current) {
       restoredRef.current = true;
       const saved = localStorage.getItem('sv_current_org_id');
+      if (saved === '__personal__') {
+        setCurrentOrgState(null);
+        return;
+      }
       if (saved) {
         const found = userOrgs.find((o) => o.id === saved);
         if (found) {
@@ -88,17 +95,31 @@ export function OrgProvider({ children }: { children: ReactNode }) {
           return;
         }
       }
+      // No saved choice: users with 0 managed orgs default to Personal.
+      if (userOrgs.length === 0) {
+        localStorage.setItem('sv_current_org_id', '__personal__');
+        setCurrentOrgState(null);
+        return;
+      }
+      // Legacy behavior for existing owners: pick the first org.
+      setCurrentOrgState(userOrgs[0]);
+      return;
     }
 
-    // Fallback: pick the first org
-    setCurrentOrgState(userOrgs[0]);
-  }, [userOrgs, currentOrg]);
+    // After initial restore, only auto-pick if we have orgs and none is set
+    // AND the user hasn't explicitly chosen Personal.
+    if (userOrgs.length === 0) return;
+    const saved = localStorage.getItem('sv_current_org_id');
+    if (saved === '__personal__') return;
+    if (!currentOrg) setCurrentOrgState(userOrgs[0]);
+  }, [userOrgs, currentOrg, user]);
 
   // Clear currentOrg when user logs out
   useEffect(() => {
     if (!user) {
       setCurrentOrgState(null);
       restoredRef.current = false;
+      try { localStorage.removeItem('sv_current_org_id'); } catch {}
     }
   }, [user]);
 
@@ -106,7 +127,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     const prev = currentOrg;
     setCurrentOrgState(org);
     if (org) localStorage.setItem('sv_current_org_id', org.id);
-    else localStorage.removeItem('sv_current_org_id');
+    else localStorage.setItem('sv_current_org_id', '__personal__');
     // Invalidate all org-scoped queries when switching to a different org
     if (org && prev && org.id !== prev.id) {
       qc.invalidateQueries();
@@ -177,7 +198,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         currentOrg,
         currentOrgRole,
         setCurrentOrg,
-        isLoadingOrgs: authLoading || (!!user && (!isFetched || isError)) || isLoading || (userOrgs.length > 0 && !currentOrg),
+        isLoadingOrgs: authLoading || (!!user && (!isFetched || isError)) || isLoading || (userOrgs.length > 0 && !currentOrg && localStorage.getItem('sv_current_org_id') !== '__personal__'),
         refetchOrgs,
         joinOrg,
         leaveOrg,
