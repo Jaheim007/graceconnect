@@ -8871,6 +8871,7 @@ export type Database = {
           plan_type: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent: number | null
           primary_world: Database["public"]["Enums"]["siteviral_world"] | null
+          provider_profile: Json
           seo_description: string | null
           seo_image: string | null
           seo_title: string | null
@@ -8927,6 +8928,7 @@ export type Database = {
           plan_type?: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent?: number | null
           primary_world?: Database["public"]["Enums"]["siteviral_world"] | null
+          provider_profile?: Json
           seo_description?: string | null
           seo_image?: string | null
           seo_title?: string | null
@@ -8983,6 +8985,7 @@ export type Database = {
           plan_type?: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent?: number | null
           primary_world?: Database["public"]["Enums"]["siteviral_world"] | null
+          provider_profile?: Json
           seo_description?: string | null
           seo_image?: string | null
           seo_title?: string | null
