@@ -20,6 +20,7 @@ interface OrgContextType {
   currentOrgRole: OrgMemberRole | null;
   setCurrentOrg: (org: Organization | null) => void;
   isLoadingOrgs: boolean;
+  workspaceReady: boolean;
   refetchOrgs: () => void;
   joinOrg: (orgId: string) => Promise<{ error: Error | null }>;
   leaveOrg: (orgId: string) => Promise<{ error: Error | null }>;
@@ -30,6 +31,52 @@ interface OrgContextType {
 }
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
+
+const CURRENT_ORG_STORAGE_KEY = 'sv_current_org_id';
+const RECENT_WORKSPACES_STORAGE_KEY = 'sv_recent_workspace_ids';
+const MANAGEABLE_ROLES: OrgMemberRole[] = ['owner', 'admin', 'editor'];
+
+const isManageableRole = (role: OrgMemberRole | string | null | undefined) =>
+  MANAGEABLE_ROLES.includes(role as OrgMemberRole);
+
+const readCurrentWorkspaceId = () => {
+  try {
+    const saved = localStorage.getItem(CURRENT_ORG_STORAGE_KEY);
+    if (saved === '__personal__') {
+      localStorage.removeItem(CURRENT_ORG_STORAGE_KEY);
+      return null;
+    }
+    return saved;
+  } catch {
+    return null;
+  }
+};
+
+const readRecentWorkspaceIds = () => {
+  try {
+    const raw = localStorage.getItem(RECENT_WORKSPACES_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed)
+      ? parsed.filter((id): id is string => typeof id === 'string' && id.length > 0)
+      : [];
+  } catch {
+    return [];
+  }
+};
+
+const persistWorkspaceId = (orgId: string | null) => {
+  try {
+    if (!orgId) {
+      localStorage.removeItem(CURRENT_ORG_STORAGE_KEY);
+      return;
+    }
+
+    localStorage.setItem(CURRENT_ORG_STORAGE_KEY, orgId);
+    const recent = readRecentWorkspaceIds().filter((id) => id !== orgId && id !== '__personal__');
+    localStorage.setItem(RECENT_WORKSPACES_STORAGE_KEY, JSON.stringify([orgId, ...recent].slice(0, 12)));
+  } catch {}
+};
 
 export function OrgProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
@@ -49,7 +96,38 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         .select('*, organizations(*)')
         .eq('user_id', user.id);
       if (error) throw error;
-      return (data || []) as Array<OrganizationMember & { organizations: Organization }>;
+
+      const byOrgId = new Map<string, OrganizationMember & { organizations: Organization }>();
+      ((data || []) as Array<OrganizationMember & { organizations: Organization | null }>).forEach((row) => {
+        if (row.organizations) {
+          byOrgId.set(row.organization_id, row as OrganizationMember & { organizations: Organization });
+        }
+      });
+
+      // Safety net for legacy rows: an owner must be manageable even if their
+      // organization_members row is missing/stale. Validation still happens
+      // against the hydrated manageable list before any restore is accepted.
+      const { data: ownedOrgs } = await supabase
+        .from('organizations')
+        .select('*')
+        .eq('owner_id', user.id);
+
+      ((ownedOrgs || []) as Organization[]).forEach((org) => {
+        const existing = byOrgId.get(org.id);
+        byOrgId.set(org.id, {
+          ...(existing || {
+            id: `owner-${org.id}`,
+            organization_id: org.id,
+            user_id: user.id,
+            role: 'owner' as OrgMemberRole,
+            joined_at: org.created_at,
+          }),
+          role: 'owner' as OrgMemberRole,
+          organizations: org,
+        });
+      });
+
+      return Array.from(byOrgId.values());
     },
     enabled: !authLoading && !!user,
     // Retry on failure so transient network errors don't leave the user stuck
@@ -76,6 +154,27 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     () => Object.fromEntries(memberRows.map((m) => [m.organization_id, m.role])),
     [memberRows],
   );
+  const manageableOrgs = useMemo(
+    () => userOrgs.filter((o) => isManageableRole(membershipMap[o.id])),
+    [userOrgs, membershipMap],
+  );
+
+  useEffect(() => {
+    if (!user) {
+      setCurrentOrgState(null);
+      setWorkspaceRestored(false);
+      restoredRef.current = false;
+      restoredUserIdRef.current = null;
+      return;
+    }
+
+    if (restoredUserIdRef.current !== user.id) {
+      restoredUserIdRef.current = user.id;
+      restoredRef.current = false;
+      setCurrentOrgState(null);
+      setWorkspaceRestored(false);
+    }
+  }, [user?.id, user]);
 
   // Restore currentOrg globally before the signed-in shell renders.
   // SiteViral has no selectable "Personal" workspace: if the account can
@@ -84,87 +183,67 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     if (!isFetched || isLoading || isError) return;
 
-    if (restoredUserIdRef.current !== user.id) {
-      restoredUserIdRef.current = user.id;
-      restoredRef.current = false;
-      setWorkspaceRestored(false);
-    }
-
-    const manageableOrgs = userOrgs.filter((o) => ['owner', 'admin', 'editor'].includes(membershipMap[o.id] || ''));
     const currentIsManageable = !!currentOrg && manageableOrgs.some((o) => o.id === currentOrg.id);
 
     const selectRestoredOrg = (org: Organization | null) => {
       setCurrentOrgState(org);
       if (org) {
-        localStorage.setItem('sv_current_org_id', org.id);
+        persistWorkspaceId(org.id);
       } else {
-        try { localStorage.removeItem('sv_current_org_id'); } catch {}
+        persistWorkspaceId(null);
       }
+      restoredRef.current = true;
       setWorkspaceRestored(true);
+    };
+
+    const resolveFallbackOrg = () => {
+      const saved = readCurrentWorkspaceId();
+      if (saved) {
+        const savedOrg = manageableOrgs.find((o) => o.id === saved);
+        if (savedOrg) return savedOrg;
+      }
+
+      const recentOrg = readRecentWorkspaceIds()
+        .map((id) => manageableOrgs.find((o) => o.id === id))
+        .find((org): org is Organization => !!org);
+
+      return recentOrg ?? manageableOrgs[0] ?? null;
     };
 
     // If we already have a valid manageable currentOrg in this list, keep it.
     if (currentIsManageable) {
+      persistWorkspaceId(currentOrg.id);
+      restoredRef.current = true;
       if (!workspaceRestored) setWorkspaceRestored(true);
       return;
     }
 
-    // Current workspace became invalid/non-manageable — repair globally.
-    if (currentOrg) {
-      selectRestoredOrg(manageableOrgs[0] ?? null);
-      return;
-    }
-
-    if (manageableOrgs.length > 0 && workspaceRestored) {
-      let pick = manageableOrgs[0];
-      try {
-        const saved = localStorage.getItem('sv_current_org_id');
-        const found = saved ? manageableOrgs.find((o) => o.id === saved) : null;
-        if (found) pick = found;
-      } catch {}
-      selectRestoredOrg(pick);
-      return;
-    }
-
-    if (!restoredRef.current) {
-      restoredRef.current = true;
-      const saved = localStorage.getItem('sv_current_org_id');
-      // Legacy sentinel from the old Personal model — treat as "no workspace".
-      if (saved === '__personal__') {
-        try { localStorage.removeItem('sv_current_org_id'); } catch {}
-        selectRestoredOrg(manageableOrgs[0] ?? null);
+    // Zero manageable workspaces is the only valid account-level empty state.
+    if (manageableOrgs.length === 0) {
+      if (currentOrg) {
+        selectRestoredOrg(null);
         return;
       }
-      if (saved) {
-        const found = manageableOrgs.find((o) => o.id === saved);
-        if (found) {
-          selectRestoredOrg(found);
-          return;
-        }
-      }
-      selectRestoredOrg(manageableOrgs[0] ?? null);
+      persistWorkspaceId(null);
+      restoredRef.current = true;
+      if (!workspaceRestored) setWorkspaceRestored(true);
+      return;
     }
-  }, [userOrgs, currentOrg, user, isFetched, isLoading, isError, workspaceRestored, membershipMap]);
 
-  // Clear currentOrg when user logs out
-  useEffect(() => {
-    if (!user) {
-      setCurrentOrgState(null);
-      setWorkspaceRestored(false);
-      restoredRef.current = false;
-      restoredUserIdRef.current = null;
-      try { localStorage.removeItem('sv_current_org_id'); } catch {}
-    }
-  }, [user]);
+    // Current workspace is missing, stale, or no longer manageable — repair it
+    // globally before AppLayout/AdaptiveLayout render the signed-in shell.
+    selectRestoredOrg(resolveFallbackOrg());
+  }, [manageableOrgs, currentOrg, user, isFetched, isLoading, isError, workspaceRestored]);
 
   const setCurrentOrg = useCallback((org: Organization | null) => {
     const prev = currentOrg;
     setCurrentOrgState(org);
     if (org) {
-      localStorage.setItem('sv_current_org_id', org.id);
+      persistWorkspaceId(org.id);
     } else {
-      try { localStorage.removeItem('sv_current_org_id'); } catch {}
+      persistWorkspaceId(null);
     }
+    setWorkspaceRestored(true);
     // Invalidate all org-scoped queries when switching to a different org
     if (org && prev && org.id !== prev.id) {
       qc.invalidateQueries();
@@ -179,6 +258,13 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   const currentOrgRole = currentOrg
     ? (membershipMap[currentOrg.id] as OrgMemberRole) ?? null
     : null;
+
+  const currentOrgIsManageable = !!currentOrg && manageableOrgs.some((o) => o.id === currentOrg.id);
+  const workspaceReady = !authLoading && (!user || (
+    isFetched && !isLoading && !isError && workspaceRestored && (
+      manageableOrgs.length === 0 || currentOrgIsManageable
+    )
+  ));
 
   const joinOrg = async (orgId: string) => {
     if (!user) return { error: new Error('Not authenticated') };
@@ -220,13 +306,16 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     return { error: error as Error | null };
   };
 
-  const isMemberOf = (orgId: string) => !!membershipMap[orgId];
-  const canManage = (orgId: string) =>
-    ['owner', 'admin', 'editor'].includes(membershipMap[orgId] || '');
-  const canAdmin = (orgId: string) =>
-    ['owner', 'admin'].includes(membershipMap[orgId] || '');
-  const getRoleFor = (orgId: string): OrgMemberRole | null =>
-    (membershipMap[orgId] as OrgMemberRole) ?? null;
+  const isMemberOf = useCallback((orgId: string) => !!membershipMap[orgId], [membershipMap]);
+  const canManage = useCallback((orgId: string) => isManageableRole(membershipMap[orgId]), [membershipMap]);
+  const canAdmin = useCallback(
+    (orgId: string) => ['owner', 'admin'].includes(membershipMap[orgId] || ''),
+    [membershipMap],
+  );
+  const getRoleFor = useCallback(
+    (orgId: string): OrgMemberRole | null => (membershipMap[orgId] as OrgMemberRole) ?? null,
+    [membershipMap],
+  );
   return (
     <OrgContext.Provider
       value={{
@@ -234,7 +323,8 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         currentOrg,
         currentOrgRole,
         setCurrentOrg,
-        isLoadingOrgs: authLoading || (!!user && (!isFetched || isError || !workspaceRestored)) || isLoading,
+        isLoadingOrgs: !workspaceReady,
+        workspaceReady,
         refetchOrgs,
         joinOrg,
         leaveOrg,
