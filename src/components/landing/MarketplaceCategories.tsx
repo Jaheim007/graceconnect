@@ -144,7 +144,7 @@ export function MarketplaceCategories() {
             <div className="mt-4">
               <div className="flex items-center gap-1.5">
                 <span className="text-[15px] font-bold leading-tight">{fr ? c.fr : c.en}</span>
-                <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
               </div>
               <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed line-clamp-2">
                 {fr ? c.descFr : c.descEn}
