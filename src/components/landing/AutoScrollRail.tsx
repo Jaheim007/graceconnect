@@ -107,13 +107,8 @@ export function AutoScrollRail<T>({
   };
 
   return (
-    <div
-      className={className}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
-      onBlurCapture={() => setPaused(false)}
-    >
+    <div className={className}>
+
       {showControls && (
         <div className="hidden sm:flex items-center justify-end gap-2 mb-4 container max-w-6xl px-4 sm:px-6">
           <Button variant="outline" size="icon" aria-label={labels?.prev ?? 'Previous'} onClick={() => scrollByCards(-1)} className="h-9 w-9 rounded-full">
