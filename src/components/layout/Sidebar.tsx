@@ -19,13 +19,15 @@ import { useOrgFeatures } from '@/hooks/useOrgFeatures';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 
 /**
- * Unified professional signed-in sidebar.
- * Two visually grouped sections but ONE navigation:
- *   • ACCOUNT   — always visible (Explore, Purchases, Programs, Messages, Earn)
- *   • WORKSPACE — visible when a workspace is selected (feature-driven admin nav)
+ * Unified professional signed-in sidebar — compact, low-saturation design.
  *
- * No route-aware split. No "Personal" sidebar. Same design across all
- * signed-in routes.
+ * Visual system:
+ *  • Dark navy background (bg-sidebar)
+ *  • Small uppercase group labels (ACCOUNT / WORKSPACE)
+ *  • Compact ~44px rows, colored icon left, label right
+ *  • Active row: subtle filled background + 3px left accent bar
+ *  • Inactive rows: no borders, no background — just hover state
+ *  • Collapsed: 64px icon rail with tooltips
  */
 export function Sidebar() {
   const location = useLocation();
@@ -43,7 +45,6 @@ export function Sidebar() {
   const typeConfirmed = !!featureOrg?.type_confirmed_at;
   const enabledFeatures = (featureOrg?.enabled_features ?? []) as SiteviralFeatureKey[];
 
-  // WORKSPACE nav — feature-driven, only when a workspace is selected AND user can manage it.
   const workspaceNav: ActionNavItem[] =
     currentOrg && canManageCurrentOrg
       ? (() => {
@@ -53,7 +54,6 @@ export function Sidebar() {
             siteviralType as SiteviralType | null,
           );
           if (built && built.length > 0) return built;
-          // Fallback: legacy digital defaults (kept feature-gated)
           return getActionNavItems(
             { isAuthenticated: !!user, hasPurchases, hasManageableOrg, hasOrgs, isSuperadmin },
           )
@@ -67,7 +67,6 @@ export function Sidebar() {
         })()
       : [];
 
-  // ACCOUNT nav — always visible for signed-in users.
   const accountNav: ActionNavItem[] = user
     ? [
         {
@@ -75,40 +74,35 @@ export function Sidebar() {
           titleFr: 'Explorer', titleEn: 'Explore',
           descFr: 'Découvrir', descEn: 'Discover',
           route: '/dashboard/explore',
-          borderClass: 'border-violet-500/30 hover:border-violet-500/60',
-          iconBg: 'bg-violet-500/12', iconColor: 'text-violet-500',
+          borderClass: '', iconBg: '', iconColor: 'text-violet-400',
         },
         {
           id: 'acc-purchases', icon: Package, emoji: '',
           titleFr: 'Mes achats', titleEn: 'My Purchases',
           descFr: 'Livres, PDFs et ressources', descEn: 'Books, PDFs & resources',
           route: '/my-purchases',
-          borderClass: 'border-primary/30 hover:border-primary/60',
-          iconBg: 'bg-primary/12', iconColor: 'text-primary',
+          borderClass: '', iconBg: '', iconColor: 'text-primary',
         },
         {
           id: 'acc-programs', icon: GraduationCap, emoji: '',
           titleFr: 'Mes programmes', titleEn: 'My Programs',
           descFr: 'Cours et progression', descEn: 'Courses & progress',
           route: '/my-programs',
-          borderClass: 'border-sky-500/30 hover:border-sky-500/60',
-          iconBg: 'bg-sky-500/12', iconColor: 'text-sky-500',
+          borderClass: '', iconBg: '', iconColor: 'text-sky-400',
         },
         {
           id: 'acc-messages', icon: MessageSquare, emoji: '',
           titleFr: 'Messages', titleEn: 'Messages',
           descFr: 'Vos conversations', descEn: 'Your conversations',
           route: '/dashboard/messages',
-          borderClass: 'border-cyan-500/30 hover:border-cyan-500/60',
-          iconBg: 'bg-cyan-500/12', iconColor: 'text-cyan-500',
+          borderClass: '', iconBg: '', iconColor: 'text-cyan-400',
         },
         {
           id: 'acc-earn', icon: HandCoins, emoji: '',
           titleFr: 'Gagner', titleEn: 'Earn',
           descFr: 'Affiliation et commissions', descEn: 'Affiliate commissions',
           route: '/gagner',
-          borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
-          iconBg: 'bg-emerald-500/12', iconColor: 'text-emerald-500',
+          borderClass: '', iconBg: '', iconColor: 'text-emerald-400',
         },
       ]
     : [];
@@ -130,116 +124,158 @@ export function Sidebar() {
   const renderNavItem = (item: ActionNavItem) => {
     const active = isActive(item.route);
     const Icon = item.icon;
-    const link = (
+
+    const rowExpanded = (
       <Link
         to={item.route}
         aria-current={active ? 'page' : undefined}
         className={cn(
-          'flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 border',
+          'group relative flex items-center gap-2.5 h-10 px-2.5 rounded-md text-[13px] font-medium transition-colors',
           active
-            ? cn('bg-card text-card-foreground shadow-md dark:shadow-sm', item.borderClass.replace('hover:', ''))
-            : cn('border-transparent text-sidebar-foreground hover:bg-sidebar-accent/80', item.borderClass),
+            ? 'bg-sidebar-accent text-sidebar-foreground'
+            : 'text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
         )}
       >
-        <div className={cn('h-8 w-8 rounded-lg flex items-center justify-center shrink-0', item.iconBg)}>
-          <Icon className={cn('h-4 w-4', item.iconColor)} />
-        </div>
-        {!collapsed && (
-          <div className="min-w-0">
-            <div className={cn('font-semibold text-xs truncate', active ? 'text-card-foreground' : 'text-sidebar-foreground')}>
-              {isFr ? item.titleFr : item.titleEn}
-            </div>
-          </div>
+        {active && (
+          <span
+            aria-hidden
+            className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-primary"
+          />
         )}
+        <Icon className={cn('h-[18px] w-[18px] shrink-0', item.iconColor || 'text-sidebar-foreground/70')} />
+        <span className="truncate">{isFr ? item.titleFr : item.titleEn}</span>
       </Link>
     );
+
+    const rowCollapsed = (
+      <Link
+        to={item.route}
+        aria-current={active ? 'page' : undefined}
+        aria-label={isFr ? item.titleFr : item.titleEn}
+        className={cn(
+          'relative flex items-center justify-center h-10 w-10 mx-auto rounded-md transition-colors',
+          active
+            ? 'bg-sidebar-accent'
+            : 'hover:bg-sidebar-accent/50',
+        )}
+      >
+        {active && (
+          <span aria-hidden className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-primary" />
+        )}
+        <Icon className={cn('h-[18px] w-[18px]', item.iconColor || 'text-sidebar-foreground/80')} />
+      </Link>
+    );
+
     if (collapsed) {
       return (
         <Tooltip key={item.id} delayDuration={0}>
-          <TooltipTrigger asChild>{link}</TooltipTrigger>
+          <TooltipTrigger asChild>{rowCollapsed}</TooltipTrigger>
           <TooltipContent side="right">
-            <p className="font-semibold text-xs">{isFr ? item.titleFr : item.titleEn}</p>
-            <p className="text-[10px] text-muted-foreground">{isFr ? item.descFr : item.descEn}</p>
+            <p className="text-xs font-semibold">{isFr ? item.titleFr : item.titleEn}</p>
           </TooltipContent>
         </Tooltip>
       );
     }
-    return <div key={item.id}>{link}</div>;
+    return <div key={item.id}>{rowExpanded}</div>;
   };
 
   const renderGroupLabel = (label: string) =>
-    !collapsed && (
-      <div className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+    !collapsed ? (
+      <div className="px-2.5 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-sidebar-foreground/45">
         {label}
       </div>
+    ) : (
+      <div className="my-2 mx-3 h-px bg-sidebar-foreground/10" />
     );
 
   return (
     <aside
       className={cn(
         'h-screen sticky top-0 flex flex-col border-r border-border bg-sidebar transition-all duration-300 overflow-hidden',
-        collapsed ? 'w-16' : 'w-60',
+        collapsed ? 'w-[68px]' : 'w-60',
       )}
     >
       {/* Logo */}
-      <div className={cn('flex items-center h-14 px-4 border-b border-border', collapsed && 'justify-center px-0')}>
+      <div className={cn('flex items-center h-14 px-4 border-b border-sidebar-foreground/10', collapsed && 'justify-center px-0')}>
         <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
       </div>
 
       {/* Workspace switcher */}
       {user && (
-        <div className="px-2 pt-2">
+        <div className={cn(collapsed ? 'px-1.5 pt-2' : 'px-2 pt-2')}>
           <OrgSwitcher variant="sidebar" collapsed={collapsed} />
         </div>
       )}
 
-      <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-1 scrollbar-hide">
-        {/* ACCOUNT group */}
+      <nav className={cn('flex-1 overflow-y-auto py-1 space-y-0.5 scrollbar-hide', collapsed ? 'px-1.5' : 'px-2')}>
         {accountNav.length > 0 && (
           <>
             {renderGroupLabel(isFr ? 'COMPTE' : 'ACCOUNT')}
-            <div className="space-y-1">{accountNav.map(renderNavItem)}</div>
+            <div className="space-y-0.5">{accountNav.map(renderNavItem)}</div>
           </>
         )}
 
-        {/* WORKSPACE group */}
         {workspaceNav.length > 0 && (
           <>
-            {renderGroupLabel(isFr ? 'ESPACE DE TRAVAIL' : 'WORKSPACE')}
-            <div className="space-y-1">{workspaceNav.map(renderNavItem)}</div>
+            {renderGroupLabel(isFr ? 'ESPACE' : 'WORKSPACE')}
+            <div className="space-y-0.5">{workspaceNav.map(renderNavItem)}</div>
           </>
         )}
       </nav>
 
       {/* Settings + Sign out */}
-      <div className={cn('border-t border-border', collapsed ? 'px-1 py-2' : 'px-2 py-2')}>
+      <div className={cn('border-t border-sidebar-foreground/10', collapsed ? 'px-1.5 py-1.5' : 'px-2 py-1.5')}>
         {user && !settingsAlreadyInNav && canManageCurrentOrg && (
-          <Link
-            to="/admin/settings"
-            className={cn(
-              'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-sidebar-foreground opacity-80 hover:opacity-100 hover:bg-sidebar-accent',
-              collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2',
-            )}
-          >
-            <Settings className="h-4 w-4 shrink-0" />
-            {!collapsed && <span className="text-xs">{isFr ? 'Paramètres' : 'Settings'}</span>}
-          </Link>
+          collapsed ? (
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Link
+                  to="/admin/settings"
+                  aria-label={isFr ? 'Paramètres' : 'Settings'}
+                  className="flex items-center justify-center h-10 w-10 mx-auto rounded-md text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+                >
+                  <Settings className="h-[18px] w-[18px]" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right"><p className="text-xs font-semibold">{isFr ? 'Paramètres' : 'Settings'}</p></TooltipContent>
+            </Tooltip>
+          ) : (
+            <Link
+              to="/admin/settings"
+              className="flex items-center gap-2.5 h-10 px-2.5 rounded-md text-[13px] font-medium text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+            >
+              <Settings className="h-[18px] w-[18px] shrink-0" />
+              <span>{isFr ? 'Paramètres' : 'Settings'}</span>
+            </Link>
+          )
         )}
-        <button
-          onClick={signOut}
-          className={cn(
-            'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-destructive hover:bg-destructive/10',
-            collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2',
-          )}
-        >
-          <LogOut className="h-4 w-4 shrink-0" />
-          {!collapsed && <span className="text-xs">{t('sidebar.sign_out')}</span>}
-        </button>
+        {collapsed ? (
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <button
+                onClick={signOut}
+                aria-label={t('sidebar.sign_out')}
+                className="flex items-center justify-center h-10 w-10 mx-auto rounded-md text-destructive hover:bg-destructive/10"
+              >
+                <LogOut className="h-[18px] w-[18px]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right"><p className="text-xs font-semibold">{t('sidebar.sign_out')}</p></TooltipContent>
+          </Tooltip>
+        ) : (
+          <button
+            onClick={signOut}
+            className="flex items-center gap-2.5 h-10 w-full px-2.5 rounded-md text-[13px] font-medium text-destructive hover:bg-destructive/10"
+          >
+            <LogOut className="h-[18px] w-[18px] shrink-0" />
+            <span>{t('sidebar.sign_out')}</span>
+          </button>
+        )}
       </div>
 
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="flex items-center justify-center h-10 w-full border-t border-border text-sidebar-foreground opacity-70 hover:opacity-100 hover:bg-sidebar-accent transition-colors"
+        className="flex items-center justify-center h-9 w-full border-t border-sidebar-foreground/10 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
