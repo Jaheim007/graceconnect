@@ -122,10 +122,6 @@ export function ChurchHeader({ showBack = true, right }: ChurchHeaderProps) {
                 {displayName || user.email}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate("/church/discover")}>
-                <Compass className="mr-2 h-4 w-4" />
-                {t("Découvrir les églises", "Discover churches")}
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/my-donations")}>
                 <HandHeart className="mr-2 h-4 w-4" />
                 {t("Mes dons", "My donations")}
