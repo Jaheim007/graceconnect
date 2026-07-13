@@ -797,7 +797,7 @@ const App = () => (
 
                   {/* Admin — inside AppLayout for seamless navigation */}
                   <Route path="/admin" element={<RequireOrgManage><AdminShell /></RequireOrgManage>}>
-                  <Route index element={<DashboardRouter />} />
+                  <Route index element={<UserDashboard />} />
                   <Route path="create" element={<AdminCreateHub />} />
                   <Route path="content" element={<AdminContentHub />} />
                   <Route path="people" element={<AdminPeople />} />
