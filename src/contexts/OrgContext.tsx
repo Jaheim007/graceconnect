@@ -115,6 +115,17 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    if (manageableOrgs.length > 0 && workspaceRestored) {
+      let pick = manageableOrgs[0];
+      try {
+        const saved = localStorage.getItem('sv_current_org_id');
+        const found = saved ? manageableOrgs.find((o) => o.id === saved) : null;
+        if (found) pick = found;
+      } catch {}
+      selectRestoredOrg(pick);
+      return;
+    }
+
     if (!restoredRef.current) {
       restoredRef.current = true;
       const saved = localStorage.getItem('sv_current_org_id');
@@ -203,7 +214,6 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       .eq('user_id', user.id);
     if (!error) {
       refetchOrgs();
-      if (currentOrg?.id === orgId) setCurrentOrg(null);
       const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Someone';
       onMemberLeft(user.id, userName, orgId, org?.name || 'une organisation');
     }
