@@ -598,8 +598,8 @@ const App = () => (
                 <Route path="/referrals" element={<RequireAuth><ReferralsPage /></RequireAuth>} />
                 <Route path="/parrainage" element={<Navigate to="/referrals" replace />} />
                 {/* Legacy / convenience aliases */}
-                <Route path="/my-purchases" element={<Navigate to="/my-programs" replace />} />
-                <Route path="/mes-achats" element={<Navigate to="/my-programs" replace />} />
+                <Route path="/my-purchases" element={<RequireAuth><ResourcesPage /></RequireAuth>} />
+                <Route path="/mes-achats" element={<Navigate to="/my-purchases" replace />} />
                 <Route path="/creator/advanced-analytics" element={<Navigate to="/creator/analytics" replace />} />
                 <Route path="/account" element={<Navigate to="/billing" replace />} />
                 <Route path="/showcase" element={<ShowcasePage />} />
