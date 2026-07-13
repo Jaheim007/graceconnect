@@ -156,7 +156,6 @@ export function AutoScrollRail<T>({
             <div
               key={i}
               aria-hidden={isClone ? true : undefined}
-              {...(isClone ? { inert: '' as unknown as boolean } : {})}
               className="contents"
             >
               {renderItem(item, i)}
