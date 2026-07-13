@@ -4,9 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Loader2 } from 'lucide-react';
 
-// Require auth — only blocks on auth loading, never on profile/org
+// Require auth and globally hydrate workspace before signed-in shells render.
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
+  const { workspaceReady } = useOrg();
   const location = useLocation();
 
   const oauthPending = (() => {
@@ -31,6 +32,9 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     }
     return <Nav to={authUrl} replace />;
   }
+
+  if (!workspaceReady) return <FullPageLoader />;
+
   return <>{children}</>;
 }
 
@@ -43,11 +47,9 @@ export function RequireSuperadmin({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-// Require org manage role (owner/admin/editor).
-// New model: no workspace is auto-selected on load. If the user reaches an
-// admin route without a currentOrg but has manageable orgs, auto-pick the
-// first one so their existing sessions "just work". Users with zero
-// manageable orgs are sent to /create-org to create one intentionally.
+// Require org manage role (owner/admin/editor). Root workspace hydration should
+// already have selected a manageable workspace; this guard only repairs rare
+// direct admin loads and sends true zero-workspace users to creation.
 export function RequireOrgManage({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const { currentOrg, currentOrgRole, isLoadingOrgs, userOrgs, canManage, setCurrentOrg } = useOrg();

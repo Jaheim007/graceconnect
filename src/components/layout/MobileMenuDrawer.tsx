@@ -104,6 +104,7 @@ export function MobileMenuDrawer({ onClose }: Props) {
 
   const orgInitials = currentOrg?.name?.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'W';
   const orgLogo = brandUrl(currentOrg?.logo_url);
+  const displayOrgName = currentOrg?.name ?? manageableOrgs[0]?.name ?? (isFr ? 'Compte' : 'Account');
 
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
@@ -128,9 +129,7 @@ export function MobileMenuDrawer({ onClose }: Props) {
               {isFr ? 'Espace' : 'Workspace'}
             </div>
             <div className="text-[13px] font-semibold truncate leading-tight">
-              {currentOrg?.name ?? (manageableOrgs.length > 0
-                ? (isFr ? 'Choisir un espace' : 'Choose workspace')
-                : (isFr ? 'Compte' : 'Account'))}
+              {displayOrgName}
             </div>
           </div>
           {manageableOrgs.length > 0 && <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}

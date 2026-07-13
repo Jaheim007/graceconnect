@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BottomNav } from './BottomNav';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { LayoutDashboard, Compass, Package, MessageSquare, Menu as MenuIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -25,6 +26,7 @@ export function GlobalBottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { workspaceReady } = useOrg();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [menuOpen, setMenuOpen] = useState(false);
@@ -35,7 +37,7 @@ export function GlobalBottomNav() {
     HIDE_NAV_ROUTES.some((r) => location.pathname.startsWith(r)) ||
     isBeautyThread;
 
-  if (hidden) return null;
+  if (hidden || (user && !workspaceReady)) return null;
 
   const inVerticalSurface = /^\/(beauty|home|events|education|church)\b/.test(location.pathname);
 

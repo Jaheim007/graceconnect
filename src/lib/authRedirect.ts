@@ -8,8 +8,8 @@ import { getIntent, clearIntent } from '@/lib/intent';
  *   1. Pending customer/provider action (validated returnTo)
  *   2. Explicit ?returnTo query param (validated)
  *   3. Explicit stored intent (provider / client) from a CTA
- *   4. Last-used space via sv_current_org_id → /dashboard restores it
- *   5. Personal Home (/dashboard with currentOrg === null)
+ *   4. Last-used workspace via sv_current_org_id → root org hydration restores it
+ *   5. Unified account home for true zero-workspace users
  *
  * `/welcome-intent` is NEVER forced for a normal sign-in; it stays reachable
  * as an opt-in chooser only.
@@ -44,11 +44,11 @@ export function resolvePostAuthRedirect(opts: {
       const safe = safeReturnTo(intent.returnTo || null);
       return isNewUser ? (safe || '/start') : (safe || '/dashboard');
     }
-    // Client intent: just return to what they were doing, otherwise Personal Home.
+    // Client intent: just return to what they were doing, otherwise account home.
     return safeReturnTo(intent.returnTo || null) || '/dashboard';
   }
 
-  // 4 + 5. Personal Home OR last-used workspace — DashboardRouter picks based
-  // on sv_current_org_id which OrgContext already restores on boot.
+  // 4 + 5. Account home OR last-used workspace — OrgContext restores globally
+  // before signed-in shells render, and /dashboard resolves to /admin when ready.
   return '/dashboard';
 }
