@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode, type KeyboardEvent } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -6,7 +6,7 @@ interface AutoScrollRailProps<T> {
   items: T[];
   renderItem: (item: T, index: number) => ReactNode;
   ariaLabel?: string;
-  /** Seconds for one full loop of the duplicated rail. Default 45. */
+  /** Seconds for one full seamless loop. Default 30. */
   cycleSeconds?: number;
   /** Show desktop prev/next controls. Default true. */
   showControls?: boolean;
@@ -17,34 +17,42 @@ interface AutoScrollRailProps<T> {
 
 /**
  * Reusable horizontal auto-scrolling rail (seamless marquee).
- * - Duplicates items and loops seamlessly via scrollLeft wrap.
+ * - Duplicates items and loops seamlessly via translate3d.
  * - Pauses on hover / keyboard focus / drag / swipe / tab-hidden.
  * - Respects prefers-reduced-motion.
- * - Cloned items are hidden from assistive tech (aria-hidden + tabIndex=-1).
+ * - Cloned items are hidden from assistive tech and removed from tab order.
  */
 export function AutoScrollRail<T>({
   items,
   renderItem,
   ariaLabel,
-  cycleSeconds = 45,
+  cycleSeconds = 30,
   showControls = true,
   className = '',
   scrollerClassName = 'gap-4 px-4 sm:px-8 pb-2',
   labels,
 }: AutoScrollRailProps<T>) {
-  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const groupRef = useRef<HTMLDivElement | null>(null);
+  const offsetRef = useRef(0);
+  const loopWidthRef = useRef(1);
   const hoverRef = useRef(false);
   const focusRef = useRef(false);
   const draggingRef = useRef(false);
   const dragStartXRef = useRef(0);
-  const dragStartScrollRef = useRef(0);
+  const dragStartOffsetRef = useRef(0);
   const dragMovedRef = useRef(false);
 
-  const doubled = useMemo(() => [...items, ...items], [items]);
-  const originalLen = items.length;
-
-  const reduceMotion = typeof window !== 'undefined'
-    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const [reduceMotion, setReduceMotion] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReduceMotion(query.matches);
+    update();
+    query.addEventListener?.('change', update);
+    return () => query.removeEventListener?.('change', update);
+  }, []);
 
   const [tabHidden, setTabHidden] = useState(false);
   useEffect(() => {
@@ -54,56 +62,94 @@ export function AutoScrollRail<T>({
   }, []);
 
   useEffect(() => {
-    if (reduceMotion) return;
-    const el = scrollerRef.current;
-    if (!el) return;
+    const track = trackRef.current;
+    const group = groupRef.current;
+    if (!track || !group) return;
+
+    const applyTransform = () => {
+      track.style.transform = `translate3d(${-offsetRef.current}px, 0, 0)`;
+    };
+
+    const measure = () => {
+      loopWidthRef.current = Math.max(group.scrollWidth, group.getBoundingClientRect().width, 1);
+      offsetRef.current = offsetRef.current % loopWidthRef.current;
+      applyTransform();
+    };
+
+    measure();
+
+    const resizeObserver = typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(measure)
+      : null;
+    resizeObserver?.observe(group);
+
+    if (reduceMotion) {
+      applyTransform();
+      return () => resizeObserver?.disconnect();
+    }
+
     let raf = 0;
     let last = performance.now();
     const step = (now: number) => {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
       const paused = hoverRef.current || focusRef.current || draggingRef.current || tabHidden;
-      if (!paused && el) {
-        const half = el.scrollWidth / 2 || 1;
-        const speed = half / cycleSeconds;
-        el.scrollLeft += speed * dt;
-        if (el.scrollLeft >= half) el.scrollLeft -= half;
+      if (!paused) {
+        const loopWidth = loopWidthRef.current || 1;
+        const speed = loopWidth / cycleSeconds;
+        offsetRef.current = (offsetRef.current + speed * dt) % loopWidth;
+        applyTransform();
       }
       raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [reduceMotion, tabHidden, cycleSeconds]);
+    return () => {
+      cancelAnimationFrame(raf);
+      resizeObserver?.disconnect();
+    };
+  }, [items.length, reduceMotion, tabHidden, cycleSeconds]);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const cloneGroup = track.querySelector('[data-rail-clones="true"]');
+    cloneGroup
+      ?.querySelectorAll<HTMLElement>('a, button, input, textarea, select, [tabindex]')
+      .forEach((node) => node.setAttribute('tabindex', '-1'));
+  }, [items.length]);
 
   const scrollByCards = useCallback((dir: 1 | -1) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const card = el.firstElementChild as HTMLElement | null;
+    const track = trackRef.current;
+    const card = groupRef.current?.firstElementChild as HTMLElement | null;
     const step = card ? card.offsetWidth + 16 : 280;
-    el.scrollBy({ left: dir * step * 2, behavior: 'smooth' });
+    const loopWidth = loopWidthRef.current || 1;
+    offsetRef.current = (offsetRef.current + dir * step * 2 + loopWidth) % loopWidth;
+    if (track) track.style.transform = `translate3d(${-offsetRef.current}px, 0, 0)`;
   }, []);
 
   const onPointerDown = (e: React.PointerEvent) => {
-    const el = scrollerRef.current;
-    if (!el) return;
+    const viewport = viewportRef.current;
+    if (!viewport) return;
     draggingRef.current = true;
     dragMovedRef.current = false;
     dragStartXRef.current = e.clientX;
-    dragStartScrollRef.current = el.scrollLeft;
-    el.setPointerCapture(e.pointerId);
+    dragStartOffsetRef.current = offsetRef.current;
+    viewport.setPointerCapture(e.pointerId);
   };
   const onPointerMove = (e: React.PointerEvent) => {
     if (!draggingRef.current) return;
-    const el = scrollerRef.current;
-    if (!el) return;
+    const track = trackRef.current;
+    if (!track) return;
     const dx = e.clientX - dragStartXRef.current;
     if (Math.abs(dx) > 4) dragMovedRef.current = true;
-    el.scrollLeft = dragStartScrollRef.current - dx;
+    const loopWidth = loopWidthRef.current || 1;
+    offsetRef.current = (dragStartOffsetRef.current - dx + loopWidth) % loopWidth;
+    track.style.transform = `translate3d(${-offsetRef.current}px, 0, 0)`;
   };
   const endDrag = (e: React.PointerEvent) => {
     if (!draggingRef.current) return;
     draggingRef.current = false;
-    try { scrollerRef.current?.releasePointerCapture(e.pointerId); } catch { /* noop */ }
+    try { viewportRef.current?.releasePointerCapture(e.pointerId); } catch { /* noop */ }
   };
   // Prevent click after a drag
   const onClickCapture = (e: React.MouseEvent) => {
@@ -136,7 +182,7 @@ export function AutoScrollRail<T>({
         </div>
       )}
       <div
-        ref={scrollerRef}
+        ref={viewportRef}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
@@ -148,20 +194,16 @@ export function AutoScrollRail<T>({
         role="region"
         aria-label={ariaLabel}
         tabIndex={0}
-        className={`flex overflow-x-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing select-none ${scrollerClassName}`}
+        className="overflow-hidden cursor-grab active:cursor-grabbing select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        {doubled.map((item, i) => {
-          const isClone = i >= originalLen;
-          return (
-            <div
-              key={i}
-              aria-hidden={isClone ? true : undefined}
-              className="contents"
-            >
-              {renderItem(item, i)}
-            </div>
-          );
-        })}
+        <div ref={trackRef} className="flex w-max will-change-transform">
+          <div ref={groupRef} className={`flex shrink-0 ${scrollerClassName}`}>
+            {items.map((item, i) => renderItem(item, i))}
+          </div>
+          <div aria-hidden="true" data-rail-clones="true" className={`flex shrink-0 ${scrollerClassName}`}>
+            {items.map((item, i) => renderItem(item, i + items.length))}
+          </div>
+        </div>
       </div>
     </div>
   );
