@@ -42,7 +42,6 @@ export function TopBar() {
   const managedOrgs = userOrgs.filter((o) => canManage(o.id));
 
   const handleSelectOrg = (org: Organization) => {
-    const role = getRoleFor(org.id);
     setCurrentOrg(org);
     setSwitchDialogOpen(false);
     if (canManage(org.id)) {

@@ -52,7 +52,6 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
   const managedOrgs = userOrgs.filter((o) => canManage(o.id));
 
   const handleSelectOrg = (org: Organization) => {
-    const role = getRoleFor(org.id);
     const isManager = canManage(org.id);
     setCurrentOrg(org);
     setOpen(false);
