@@ -89,7 +89,7 @@ export function ChurchCallout() {
             </div>
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }
