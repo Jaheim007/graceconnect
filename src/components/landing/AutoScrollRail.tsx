@@ -71,7 +71,7 @@ export function AutoScrollRail<T>({
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [paused, reduceMotion, tabHidden, cycleSeconds]);
+  }, [reduceMotion, tabHidden, cycleSeconds]);
 
   const scrollByCards = useCallback((dir: 1 | -1) => {
     const el = scrollerRef.current;
