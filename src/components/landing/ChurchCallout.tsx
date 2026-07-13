@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Church, ArrowRight, Users, HandCoins, Radio, CalendarDays, Bell, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
+import { Reveal } from './Reveal';
 
 /**
  * Dedicated homepage callout for SiteViral for Churches.
@@ -29,7 +30,7 @@ export function ChurchCallout() {
 
   return (
     <section className="container max-w-6xl px-4 sm:px-6 py-16 sm:py-20">
-      <div className="relative overflow-hidden rounded-3xl bg-sidebar text-sidebar-foreground border border-white/10 p-8 sm:p-12">
+      <Reveal className="relative overflow-hidden rounded-3xl bg-sidebar text-sidebar-foreground border border-white/10 p-8 sm:p-12">
         <div className="absolute inset-0 opacity-60 pointer-events-none"
           style={{
             backgroundImage:
@@ -88,7 +89,7 @@ export function ChurchCallout() {
             </div>
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

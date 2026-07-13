@@ -25,28 +25,36 @@ export function MarketplaceCategories() {
   const reduceMotion = typeof window !== 'undefined'
     && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-  // Auto-scroll loop
+  // Pause when tab hidden
+  const [tabHidden, setTabHidden] = useState(false);
+  useEffect(() => {
+    const onVis = () => setTabHidden(document.hidden);
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, []);
+
+  // Auto-scroll loop — target ~35s for one full cycle of the duplicated rail.
   useEffect(() => {
     if (reduceMotion) return;
     const el = scrollerRef.current;
     if (!el) return;
     let raf = 0;
     let last = performance.now();
-    const speed = 30; // px per second
 
     const step = (now: number) => {
-      const dt = (now - last) / 1000;
+      const dt = Math.min((now - last) / 1000, 0.05); // clamp long frames (tab switch)
       last = now;
-      if (!paused && !draggingRef.current && el) {
+      if (!paused && !draggingRef.current && !tabHidden && el) {
+        const half = el.scrollWidth / 2 || 1;
+        const speed = half / 35; // one full cycle over ~35s regardless of card count
         el.scrollLeft += speed * dt;
-        const half = el.scrollWidth / 2;
         if (el.scrollLeft >= half) el.scrollLeft -= half;
       }
       raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [paused, reduceMotion]);
+  }, [paused, reduceMotion, tabHidden]);
 
   const scrollByCards = useCallback((dir: 1 | -1) => {
     const el = scrollerRef.current;
@@ -128,15 +136,15 @@ export function MarketplaceCategories() {
             to={c.route}
             data-cat-card
             onDragStart={(e) => e.preventDefault()}
-            className="group relative shrink-0 w-[75vw] xs:w-[64vw] sm:w-[300px] lg:w-[280px] rounded-2xl border border-border bg-card p-5 hover:border-foreground/20 hover:shadow-lg transition-all"
+            className="group relative shrink-0 w-[75vw] xs:w-[64vw] sm:w-[300px] lg:w-[280px] rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-foreground/25 hover:shadow-xl hover:shadow-foreground/5 active:scale-[0.98]"
           >
-            <div className={`h-11 w-11 rounded-xl grid place-items-center ${c.tint}`}>
+            <div className={`h-11 w-11 rounded-xl grid place-items-center transition-transform duration-300 group-hover:scale-110 ${c.tint}`}>
               <c.icon className="h-5 w-5" />
             </div>
             <div className="mt-4">
               <div className="flex items-center gap-1.5">
                 <span className="text-[15px] font-bold leading-tight">{fr ? c.fr : c.en}</span>
-                <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
               </div>
               <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed line-clamp-2">
                 {fr ? c.descFr : c.descEn}
