@@ -120,10 +120,8 @@ export function GlobalBottomNav() {
       </nav>
 
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent side="left" className="p-0 w-[280px] max-w-[85vw]">
-          <div onClick={() => setMenuOpen(false)}>
-            <Sidebar />
-          </div>
+        <SheetContent side="right" className="p-0 w-[86vw] max-w-[380px] border-l border-border/60">
+          <MobileMenuDrawer onClose={() => setMenuOpen(false)} />
         </SheetContent>
       </Sheet>
     </>
