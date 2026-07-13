@@ -2154,7 +2154,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'compliance.doc_acceptable': 'Usage Acceptable',
     // Page titles & descriptions
     'page.dashboard': 'Tableau de bord',
-    'page.dashboard_desc': 'Votre aperçu personnel — suivez vos achats, dons, gains ambassadeur et l\'activité de vos plateformes.',
+    'page.dashboard_desc': 'Votre aperçu SiteViral — suivez vos achats, dons, gains ambassadeur et l\'activité de vos plateformes.',
     'page.my_network': 'Mon Réseau',
     'page.my_network_desc': 'Ressources, campagnes et événements de vos abonnements.',
     'page.explorer': 'Explorer',
