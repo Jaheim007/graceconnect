@@ -1,23 +1,16 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { useOrg } from '@/contexts/OrgContext';
 import { Skeleton } from '@/components/ui/skeleton';
-import UserDashboard from '@/pages/UserDashboard';
 import PersonalHome from '@/pages/dashboard/PersonalHome';
 
 /**
- * Dashboard entry point.
- *
- * - Personal mode (currentOrg === null) → the Step-2 PersonalHome customer shell.
- * - Any org selected → the existing UserDashboard (unchanged provider/overview).
- *
- * We never branch to a per-vertical dashboard here — the sidebar and labels
- * still adapt via useAdaptiveLabels + featureNavBuilder.
+ * /dashboard is always the account-wide customer home.
+ * Managing a workspace happens under /admin/*, which honors the
+ * currently selected org from OrgContext.
  */
 export default function DashboardRouter() {
-  const { user } = useAuth();
-  const { currentOrg, isLoadingOrgs } = useOrg();
+  const { user, loading } = useAuth();
 
-  if (isLoadingOrgs || !user) {
+  if (loading || !user) {
     return (
       <div className="container max-w-2xl px-4 py-8 space-y-4">
         <Skeleton className="h-8 w-48" />
@@ -27,6 +20,5 @@ export default function DashboardRouter() {
     );
   }
 
-  if (!currentOrg) return <PersonalHome />;
-  return <UserDashboard />;
+  return <PersonalHome />;
 }
