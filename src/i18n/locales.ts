@@ -451,7 +451,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'compliance.doc_acceptable': 'Acceptable Use',
     // Page titles & descriptions
     'page.dashboard': 'Dashboard',
-    'page.dashboard_desc': 'Your personal overview — track your purchases, donations, ambassador earnings, and platform activity.',
+    'page.dashboard_desc': 'Your SiteViral overview — track your purchases, donations, ambassador earnings, and platform activity.',
     'page.my_network': 'My Network',
     'page.my_network_desc': 'Resources, campaigns, and events from your subscriptions.',
     'page.explorer': 'Explorer',
