@@ -2,7 +2,6 @@ import { lazy, Suspense } from 'react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { MarketplaceHero } from '@/components/landing/MarketplaceHero';
 import { MarketplaceCategories } from '@/components/landing/MarketplaceCategories';
-import { AvailableNowSection } from '@/components/landing/AvailableNowSection';
 import { MarketplaceHowItWorks } from '@/components/landing/MarketplaceHowItWorks';
 import { GrowingServicesSection } from '@/components/landing/GrowingServicesSection';
 import { ChurchCallout } from '@/components/landing/ChurchCallout';
@@ -25,12 +24,13 @@ export default function LandingPage() {
       <main id="main-content">
         <MarketplaceHero />
         <MarketplaceCategories />
-        <AvailableNowSection />
         <MarketplaceHowItWorks />
-        <GrowingServicesSection />
-        <ChurchCallout />
         <Suspense fallback={null}>
           <LandingTrustShield />
+        </Suspense>
+        <ChurchCallout />
+        <GrowingServicesSection />
+        <Suspense fallback={null}>
           <LandingFinalCTA />
         </Suspense>
       </main>
