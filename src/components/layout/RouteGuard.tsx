@@ -47,11 +47,9 @@ export function RequireSuperadmin({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-// Require org manage role (owner/admin/editor).
-// New model: no workspace is auto-selected on load. If the user reaches an
-// admin route without a currentOrg but has manageable orgs, auto-pick the
-// first one so their existing sessions "just work". Users with zero
-// manageable orgs are sent to /create-org to create one intentionally.
+// Require org manage role (owner/admin/editor). Root workspace hydration should
+// already have selected a manageable workspace; this guard only repairs rare
+// direct admin loads and sends true zero-workspace users to creation.
 export function RequireOrgManage({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const { currentOrg, currentOrgRole, isLoadingOrgs, userOrgs, canManage, setCurrentOrg } = useOrg();

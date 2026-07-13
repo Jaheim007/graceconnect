@@ -1,7 +1,7 @@
 /**
  * Pending action — a customer/provider action interrupted by auth.
  *
- * Priority after login: resume this action → last-used org context → Personal Home.
+ * Priority after login: resume this action → last-used workspace → account home.
  * Stored in sessionStorage (dies with the tab if abandoned). Do NOT store
  * sensitive data (card, MoMo secret, password). Only enough to bring the user
  * back to the exact composer/checkout/booking step.
