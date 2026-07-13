@@ -250,6 +250,16 @@ export function buildFeatureNavItems(
   // Vertical-native management items that used to live in disconnected pro sidebars.
   // They now appear in the same blue dashboard sidebar.
   switch (type) {
+    case 'digital_products':
+      // "Create a course" is a first-class flow for digital sellers, always
+      // available regardless of feature-flag detail (route resolves at click).
+      pushUnique({
+        id: 'create-course', icon: GraduationCap, tone: 'violet',
+        titleFr: 'Créer une formation', titleEn: 'Create a course',
+        descFr: "Ton cours avec l'IA", descEn: 'Your course with AI',
+        route: '/creer-formation',
+      });
+      break;
     case 'church':
       // Primary church modules ONLY. Optional modules (CRM, Prayer, Campaigns,
       // Appointments, Announcements) are activated by the user from
