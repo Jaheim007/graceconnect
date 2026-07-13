@@ -30,7 +30,7 @@ export function ChurchCallout() {
 
   return (
     <section className="container max-w-6xl px-4 sm:px-6 py-16 sm:py-20">
-      <div className="relative overflow-hidden rounded-3xl bg-sidebar text-sidebar-foreground border border-white/10 p-8 sm:p-12">
+      <Reveal className="relative overflow-hidden rounded-3xl bg-sidebar text-sidebar-foreground border border-white/10 p-8 sm:p-12">
         <div className="absolute inset-0 opacity-60 pointer-events-none"
           style={{
             backgroundImage:
