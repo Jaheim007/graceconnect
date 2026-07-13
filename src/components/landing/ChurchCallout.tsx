@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Church, ArrowRight, Users, HandCoins, Radio, CalendarDays, Bell, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
+import { Reveal } from './Reveal';
 
 /**
  * Dedicated homepage callout for SiteViral for Churches.
