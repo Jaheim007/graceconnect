@@ -598,8 +598,9 @@ const App = () => (
                 <Route path="/referrals" element={<RequireAuth><ReferralsPage /></RequireAuth>} />
                 <Route path="/parrainage" element={<Navigate to="/referrals" replace />} />
                 {/* Legacy / convenience aliases */}
-                <Route path="/my-purchases" element={<RequireAuth><ResourcesPage /></RequireAuth>} />
+                {/* /my-purchases and /mes-achats moved into the AppLayout group below */}
                 <Route path="/mes-achats" element={<Navigate to="/my-purchases" replace />} />
+
                 <Route path="/creator/advanced-analytics" element={<Navigate to="/creator/analytics" replace />} />
                 <Route path="/account" element={<Navigate to="/billing" replace />} />
                 <Route path="/showcase" element={<ShowcasePage />} />
@@ -791,6 +792,9 @@ const App = () => (
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
                   <Route path="/creator/analytics" element={<CreatorAdvancedAnalyticsPage />} />
                   <Route path="/my-programs" element={<MyProgramsPage />} />
+                  <Route path="/my-purchases" element={<ResourcesPage />} />
+
+
                   <Route path="/my-reviews" element={<MyReviewsPage />} />
                   <Route path="/mes-avis" element={<Navigate to="/my-reviews" replace />} />
                   <Route path="/credits" element={<CreditsPage />} />

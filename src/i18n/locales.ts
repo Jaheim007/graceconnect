@@ -451,7 +451,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'compliance.doc_acceptable': 'Acceptable Use',
     // Page titles & descriptions
     'page.dashboard': 'Dashboard',
-    'page.dashboard_desc': 'Your personal overview — track your purchases, donations, ambassador earnings, and platform activity.',
+    'page.dashboard_desc': 'Your SiteViral overview — track your purchases, donations, ambassador earnings, and platform activity.',
     'page.my_network': 'My Network',
     'page.my_network_desc': 'Resources, campaigns, and events from your subscriptions.',
     'page.explorer': 'Explorer',
@@ -550,7 +550,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'tour.done': 'Got it!',
     'tour.step_of': 'Step {step} of {total}',
     // Per-page tour content
-    'tour.dashboard_1_title': 'Your personal overview',
+    'tour.dashboard_1_title': 'Your SiteViral overview',
     'tour.dashboard_1_desc': 'See your purchases, donations, and ambassador earnings at a glance.',
     'tour.dashboard_2_title': 'Quick actions',
     'tour.dashboard_2_desc': 'Access your resources, create a platform, or manage your account.',
@@ -2154,7 +2154,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'compliance.doc_acceptable': 'Usage Acceptable',
     // Page titles & descriptions
     'page.dashboard': 'Tableau de bord',
-    'page.dashboard_desc': 'Votre aperçu personnel — suivez vos achats, dons, gains ambassadeur et l\'activité de vos plateformes.',
+    'page.dashboard_desc': 'Votre aperçu SiteViral — suivez vos achats, dons, gains ambassadeur et l\'activité de vos plateformes.',
     'page.my_network': 'Mon Réseau',
     'page.my_network_desc': 'Ressources, campagnes et événements de vos abonnements.',
     'page.explorer': 'Explorer',
@@ -2253,7 +2253,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'tour.done': 'Compris !',
     'tour.step_of': 'Étape {step} de {total}',
     // Per-page tour content
-    'tour.dashboard_1_title': 'Votre aperçu personnel',
+    'tour.dashboard_1_title': 'Votre aperçu SiteViral',
     'tour.dashboard_1_desc': 'Consultez vos achats, dons et gains ambassadeur en un coup d\'œil.',
     'tour.dashboard_2_title': 'Actions rapides',
     'tour.dashboard_2_desc': 'Accédez à vos ressources, créez une organisation ou gérez votre compte.',
