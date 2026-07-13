@@ -224,7 +224,7 @@ export function buildFeatureNavItems(
     id: 'dashboard', icon: LayoutDashboard, tone: 'primary',
     titleFr: 'Aperçu', titleEn: 'Overview',
     descFr: 'Tableau de bord', descEn: 'Dashboard',
-    route: '/dashboard',
+    route: '/admin',
   });
 
   // (Removed) My Purchases — this is an ACCOUNT-level destination, not a
@@ -232,7 +232,10 @@ export function buildFeatureNavItems(
 
 
   const navKeysForType: Partial<Record<SiteviralType, SiteviralFeatureKey[]>> = {
-    digital_products: ['digital_products', 'ai_book_creation'],
+    // Digital sellers: Sell + book + course + product comments (each
+    // gated by enabled_features). Events & donations are hidden here even
+    // if legacy flags exist, because they belong to church/other workspaces.
+    digital_products: ['digital_products', 'ai_book_creation', 'ai_formation_creation', 'product_comments'],
     church: ['digital_products', 'donation_gifts', 'events', 'ai_book_creation'],
   };
   const visibleOrder = navKeysForType[type] ?? ORDER;
