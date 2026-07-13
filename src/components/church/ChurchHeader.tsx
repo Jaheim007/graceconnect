@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Sun, Moon, LayoutDashboard, LogOut, User, ArrowLeft, HandHeart, Compass, Settings } from "lucide-react";
+import { Sun, Moon, LayoutDashboard, LogOut, User, ArrowLeft, HandHeart, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
