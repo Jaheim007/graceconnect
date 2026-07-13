@@ -70,21 +70,23 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     memberRows.map((m) => [m.organization_id, m.role])
   );
 
-  // Restore or auto-select currentOrg when the membership list resolves.
-  // Sentinel "__personal__" in localStorage means the user explicitly chose
-  // the Personal (currentOrg = null) context. It's an invalid uuid so it can
-  // never collide with a real organizations.id.
+  // Restore currentOrg from localStorage when memberships resolve.
+  // New model (2026-07): there is no "Personal" workspace choice — the app
+  // defaults to the account-wide customer view and a workspace is only
+  // selected when the user wants to manage one. We therefore never auto-pick
+  // the first org on first load; we only restore a previously chosen uuid.
   useEffect(() => {
     if (!user) return;
 
-    // If we already have a valid currentOrg in this list, keep it
+    // If we already have a valid currentOrg in this list, keep it.
     if (currentOrg && userOrgs.find((o) => o.id === currentOrg.id)) return;
 
-    // First time: try to restore from localStorage
     if (!restoredRef.current) {
       restoredRef.current = true;
       const saved = localStorage.getItem('sv_current_org_id');
+      // Legacy sentinel from the old Personal model — treat as "no workspace".
       if (saved === '__personal__') {
+        try { localStorage.removeItem('sv_current_org_id'); } catch {}
         setCurrentOrgState(null);
         return;
       }
@@ -95,23 +97,9 @@ export function OrgProvider({ children }: { children: ReactNode }) {
           return;
         }
       }
-      // No saved choice: users with 0 managed orgs default to Personal.
-      if (userOrgs.length === 0) {
-        localStorage.setItem('sv_current_org_id', '__personal__');
-        setCurrentOrgState(null);
-        return;
-      }
-      // Legacy behavior for existing owners: pick the first org.
-      setCurrentOrgState(userOrgs[0]);
-      return;
+      // No saved choice → stay in account-wide (customer) mode.
+      setCurrentOrgState(null);
     }
-
-    // After initial restore, only auto-pick if we have orgs and none is set
-    // AND the user hasn't explicitly chosen Personal.
-    if (userOrgs.length === 0) return;
-    const saved = localStorage.getItem('sv_current_org_id');
-    if (saved === '__personal__') return;
-    if (!currentOrg) setCurrentOrgState(userOrgs[0]);
   }, [userOrgs, currentOrg, user]);
 
   // Clear currentOrg when user logs out
@@ -126,8 +114,11 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   const setCurrentOrg = useCallback((org: Organization | null) => {
     const prev = currentOrg;
     setCurrentOrgState(org);
-    if (org) localStorage.setItem('sv_current_org_id', org.id);
-    else localStorage.setItem('sv_current_org_id', '__personal__');
+    if (org) {
+      localStorage.setItem('sv_current_org_id', org.id);
+    } else {
+      try { localStorage.removeItem('sv_current_org_id'); } catch {}
+    }
     // Invalidate all org-scoped queries when switching to a different org
     if (org && prev && org.id !== prev.id) {
       qc.invalidateQueries();
