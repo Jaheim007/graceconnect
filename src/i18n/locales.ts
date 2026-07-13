@@ -550,7 +550,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'tour.done': 'Got it!',
     'tour.step_of': 'Step {step} of {total}',
     // Per-page tour content
-    'tour.dashboard_1_title': 'Your personal overview',
+    'tour.dashboard_1_title': 'Your SiteViral overview',
     'tour.dashboard_1_desc': 'See your purchases, donations, and ambassador earnings at a glance.',
     'tour.dashboard_2_title': 'Quick actions',
     'tour.dashboard_2_desc': 'Access your resources, create a platform, or manage your account.',
