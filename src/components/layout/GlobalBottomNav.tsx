@@ -6,7 +6,7 @@ import { LayoutDashboard, Compass, Package, MessageSquare, Menu as MenuIcon } fr
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { Sidebar } from './Sidebar';
+import { MobileMenuDrawer } from './MobileMenuDrawer';
 
 /** Hide bottom nav (prefix match) */
 const HIDE_NAV_ROUTES = ['/auth', '/reels', '/superadmin'];
