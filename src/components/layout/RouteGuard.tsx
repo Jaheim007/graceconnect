@@ -4,9 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Loader2 } from 'lucide-react';
 
-// Require auth — only blocks on auth loading, never on profile/org
+// Require auth and globally hydrate workspace before signed-in shells render.
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
+  const { workspaceReady } = useOrg();
   const location = useLocation();
 
   const oauthPending = (() => {
@@ -31,6 +32,9 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     }
     return <Nav to={authUrl} replace />;
   }
+
+  if (!workspaceReady) return <FullPageLoader />;
+
   return <>{children}</>;
 }
 
