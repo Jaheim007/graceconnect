@@ -3,9 +3,11 @@ import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
+import { FullPageLoader } from './RouteGuard';
 
 import { PublicTopBar } from './PublicTopBar';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { CommandPalette } from '@/components/command/CommandPalette';
 import { cn } from '@/lib/utils';
@@ -34,6 +36,7 @@ const pageVariants = {
  */
 export function AdaptiveLayout({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const { isLoadingOrgs } = useOrg();
   const location = useLocation();
   const nativeApp = isNativePlatform();
 
@@ -57,6 +60,10 @@ export function AdaptiveLayout({ children }: { children: ReactNode }) {
         {/* BottomNav is now rendered globally by GlobalBottomNav */}
       </div>
     );
+  }
+
+  if (isLoadingOrgs) {
+    return <FullPageLoader />;
   }
 
   // Authenticated: full app shell
