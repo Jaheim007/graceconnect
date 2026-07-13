@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingFooterCompact } from '@/components/landing/LandingFooterCompact';
+import { AutoScrollRail } from '@/components/landing/AutoScrollRail';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
 import { setPendingAction } from '@/lib/pendingAction';
@@ -92,9 +93,9 @@ export default function ChurchesPage() {
         </div>
       </section>
 
-      {/* Capabilities grid */}
-      <section className="container max-w-6xl px-4 sm:px-6 py-16 sm:py-20">
-        <div className="max-w-2xl mb-10">
+      {/* Capabilities rail */}
+      <section className="py-16 sm:py-20">
+        <div className="container max-w-6xl px-4 sm:px-6 max-w-2xl mb-10">
           <p className="text-xs font-bold uppercase tracking-[0.15em] text-primary mb-2">
             {fr ? 'Ce que vous obtenez' : 'What you get'}
           </p>
@@ -103,17 +104,23 @@ export default function ChurchesPage() {
           </h2>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {capabilities.map(c => (
-            <div key={c.title} className="rounded-2xl border border-border bg-card p-5">
+        <AutoScrollRail
+          items={capabilities}
+          ariaLabel={fr ? 'Fonctionnalités église' : 'Church capabilities'}
+          labels={{ prev: fr ? 'Précédent' : 'Previous', next: fr ? 'Suivant' : 'Next' }}
+          renderItem={(c, i) => (
+            <div
+              key={`${c.title}-${i}`}
+              className="shrink-0 w-[75vw] xs:w-[64vw] sm:w-[300px] lg:w-[280px] rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-foreground/25 hover:shadow-xl hover:shadow-foreground/5"
+            >
               <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary grid place-items-center mb-4">
                 <c.icon className="h-5 w-5" />
               </div>
               <div className="font-bold text-[15px]">{c.title}</div>
               <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{c.text}</p>
             </div>
-          ))}
-        </div>
+          )}
+        />
       </section>
 
       {/* Admin & security */}
