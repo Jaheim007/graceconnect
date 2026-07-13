@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Bell, Sun, Moon, LogOut, User, Shield, Plus, Search, Building2, Check, CreditCard } from 'lucide-react';
+import { Bell, Sun, Moon, LogOut, User, Shield, Plus, Search, Building2, Check, CreditCard, Package, GraduationCap, HandCoins, Compass } from 'lucide-react';
 import { PlanBadge } from '@/components/billing/PlanBadge';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { OrgSwitcher } from '@/components/org/OrgSwitcher';
