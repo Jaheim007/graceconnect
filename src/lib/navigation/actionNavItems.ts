@@ -118,7 +118,7 @@ export function getActionNavItems(
       titleEn: 'My Purchases',
       descFr: 'Accéder à mes livres et ressources',
       descEn: 'Access my books and resources',
-      route: '/my-programs',
+      route: '/my-purchases',
       borderClass: 'border-primary/30 hover:border-primary/60',
       iconBg: 'bg-primary/15',
       iconColor: 'text-primary',
