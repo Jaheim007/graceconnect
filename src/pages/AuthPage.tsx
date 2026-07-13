@@ -168,14 +168,11 @@ export default function AuthPage() {
         <div className={cn('w-full max-w-md', nativeApp && 'native-auth-card max-w-lg')}>
           <div className={cn('bg-card/95 backdrop-blur-md rounded-3xl border border-border shadow-elevated p-7 space-y-6', nativeApp && 'rounded-[2rem] border-border/80 shadow-premium')}>
             {nativeApp && (
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center justify-center gap-3" aria-label="SiteViral">
                 <SiteLogo size="lg" animate />
-                <div className="space-y-0.5">
-                  <p className="text-base font-bold leading-none text-foreground">SiteViral</p>
-                  <p className="text-xs text-muted-foreground">
-                    {document.documentElement.lang === 'fr' ? 'Connexion sécurisée' : 'Secure sign in'}
-                  </p>
-                </div>
+                <p className="text-xs text-muted-foreground">
+                  {document.documentElement.lang === 'fr' ? 'Connexion sécurisée' : 'Secure sign in'}
+                </p>
               </div>
             )}
 

@@ -122,7 +122,7 @@ const SuperadminEducation = lazy(() => import("@/pages/superadmin/SuperadminEduc
 // SiteViral Church
 const ChurchActionHub = lazy(() => import("@/pages/church/ChurchActionHub"));
 const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
-const ChurchDiscover = lazy(() => import("@/pages/church/ChurchDiscover"));
+
 const ChurchOnboarding = lazy(() => import("@/pages/church/ChurchOnboarding"));
 const ChurchProDashboard = lazy(() => import("@/pages/church/ChurchProDashboard"));
 const ChurchKYCPage = lazy(() => import("@/pages/church/ChurchKYCPage"));
@@ -479,9 +479,9 @@ const App = () => (
                 <Route path="/beauty/pro/kyc" element={<Navigate to="/admin/beauty/kyc" replace />} />
                 <Route path="/beauty/pro/dashboard" element={<Navigate to="/dashboard" replace />} />
                 {/* SiteViral Church */}
-                <Route path="/church" element={<Navigate to="/church/discover" replace />} />
+                <Route path="/church" element={<Navigate to="/churches" replace />} />
                 <Route path="/church/about" element={<ChurchLanding />} />
-                <Route path="/church/discover" element={<ChurchDiscover />} />
+                <Route path="/church/discover" element={<Navigate to="/churches" replace />} />
                 <Route path="/church/pro/onboarding" element={<ChurchOnboarding />} />
                 <Route path="/church/pro" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/church/pro/kyc" element={<Navigate to="/admin/church/kyc" replace />} />

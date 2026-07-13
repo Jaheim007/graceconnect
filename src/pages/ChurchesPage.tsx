@@ -85,7 +85,7 @@ export default function ChurchesPage() {
                 <ArrowRight className="h-4 w-4" />
               </Button>
               <Button asChild variant="outline" className="h-12 px-6 rounded-xl font-semibold border-white/25 bg-white/5 text-sidebar-foreground hover:bg-white/10">
-                <Link to="/church/discover">{fr ? 'Voir les églises' : 'Browse churches'}</Link>
+                <Link to="/auth?mode=signin">{fr ? 'Se connecter pour gérer' : 'Sign in to manage'}</Link>
               </Button>
             </div>
           </div>
@@ -171,7 +171,7 @@ export default function ChurchesPage() {
             <ArrowRight className="h-4 w-4" />
           </Button>
           <Button asChild variant="outline" className="h-12 px-6 rounded-xl font-semibold">
-            <Link to="/church/discover">{fr ? 'Explorer les églises' : 'Browse churches'}</Link>
+            <Link to="/auth?mode=signin">{fr ? 'Se connecter pour gérer votre église' : 'Sign in to manage your church'}</Link>
           </Button>
         </div>
       </section>

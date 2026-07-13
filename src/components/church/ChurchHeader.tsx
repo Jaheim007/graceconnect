@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Sun, Moon, LayoutDashboard, LogOut, User, ArrowLeft, HandHeart, Compass, Settings } from "lucide-react";
+import { Sun, Moon, LayoutDashboard, LogOut, User, ArrowLeft, HandHeart, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -122,10 +122,6 @@ export function ChurchHeader({ showBack = true, right }: ChurchHeaderProps) {
                 {displayName || user.email}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate("/church/discover")}>
-                <Compass className="mr-2 h-4 w-4" />
-                {t("Découvrir les églises", "Discover churches")}
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/my-donations")}>
                 <HandHeart className="mr-2 h-4 w-4" />
                 {t("Mes dons", "My donations")}

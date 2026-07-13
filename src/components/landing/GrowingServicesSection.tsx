@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Sparkles, Bell, Send } from 'lucide-react';
+import { Sparkles, Bell, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 
@@ -34,11 +34,11 @@ export function GrowingServicesSection() {
 
           <div className="grid gap-3">
             <ActionRow
-              icon={Send}
-              title={fr ? 'Dites-nous ce que vous cherchez' : 'Tell us what you need'}
-              text={fr ? 'On priorise les catégories les plus demandées.' : "We prioritise the most requested categories."}
-              to="/looking-for"
-              cta={fr ? 'Publier une demande' : 'Post a request'}
+              icon={Search}
+              title={fr ? 'Trouver un service' : 'Find a service'}
+              text={fr ? 'Parcourez la marketplace et contactez un pro.' : 'Browse the marketplace and reach out to a pro.'}
+              to="/discover"
+              cta={fr ? 'Explorer' : 'Explore'}
             />
             <ActionRow
               icon={Bell}

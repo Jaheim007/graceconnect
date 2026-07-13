@@ -1,74 +1,85 @@
-import { Link } from 'react-router-dom';
-import { Shield, Lock, Eye, Fingerprint, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ShieldCheck, Lock, MessageSquareLock, FileKey } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 
 /**
- * Repositioned as digital-creator protection. Real features only.
+ * Broad marketplace trust/security section.
+ * Real capabilities only — spans products, services, bookings and church payments.
  */
 export function LandingTrustShield() {
   const { locale } = useI18n();
-  const isFr = locale === 'fr';
+  const fr = locale === 'fr';
 
-  const features = isFr ? [
-    { icon: Lock, label: 'Watermark intelligent', desc: "Email de l'acheteur en diagonale sur chaque document." },
-    { icon: Eye, label: 'Prévisualisation sécurisée', desc: 'Aperçu flou — pas de téléchargement avant achat.' },
-    { icon: Fingerprint, label: 'Hash forensique', desc: 'Chaque copie est unique et traçable.' },
-    { icon: Shield, label: 'Anti-piratage actif', desc: 'Logs de téléchargement + signalement intégré.' },
+  const cards = fr ? [
+    {
+      icon: Lock,
+      title: 'Paiements sécurisés',
+      text: 'Mobile Money et cartes internationales via des prestataires établis.',
+    },
+    {
+      icon: MessageSquareLock,
+      title: 'Communication protégée',
+      text: 'Échanges intégrés entre clients et professionnels sur la plateforme.',
+    },
+    {
+      icon: FileKey,
+      title: 'Protection des contenus digitaux',
+      text: "Prévisualisations sécurisées, marquage individualisé et traçabilité sur les ressources compatibles.",
+    },
+    {
+      icon: ShieldCheck,
+      title: 'Compte et pros',
+      text: "Vérifications de paiement, gestion des rôles et outils de signalement.",
+    },
   ] : [
-    { icon: Lock, label: 'Smart watermark', desc: "Buyer's email stamped diagonally on every document." },
-    { icon: Eye, label: 'Secure preview', desc: 'Blurred preview — no download before purchase.' },
-    { icon: Fingerprint, label: 'Forensic hash', desc: 'Every copy is unique and traceable.' },
-    { icon: Shield, label: 'Active anti-piracy', desc: 'Download logs + built-in reporting.' },
+    {
+      icon: Lock,
+      title: 'Secure payments',
+      text: 'Mobile Money and international cards via established providers.',
+    },
+    {
+      icon: MessageSquareLock,
+      title: 'Protected communication',
+      text: 'Buyers and providers exchange messages through the platform.',
+    },
+    {
+      icon: FileKey,
+      title: 'Digital-content protection',
+      text: 'Secure previews, individualised watermarking and traceability for supported digital resources.',
+    },
+    {
+      icon: ShieldCheck,
+      title: 'Account and provider safeguards',
+      text: 'Payout verification, role management and reporting tools.',
+    },
   ];
 
   return (
     <section className="container max-w-6xl px-4 sm:px-6 py-14 sm:py-16">
       <div className="rounded-3xl border border-border bg-card p-6 sm:p-10">
-        <div className="grid lg:grid-cols-[1fr_1.15fr] gap-8 lg:gap-12 items-start">
-          <div>
-            <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-primary/10 mb-5">
-              <Shield className="h-6 w-6 text-primary" />
-            </div>
-            <p className="text-xs font-bold uppercase tracking-[0.15em] text-primary mb-2">
-              {isFr ? 'Créateurs digitaux' : 'Digital creators'}
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-              {isFr ? 'Conçu pour protéger les créateurs digitaux' : 'Built to protect digital creators'}
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md">
-              {isFr
-                ? 'Vendez ebooks, documents et ressources digitales avec prévisualisation sécurisée, watermarking individualisé, traçabilité et outils anti-piratage.'
-                : 'Sell ebooks, documents and digital resources with secure previews, individualised watermarking, traceability and anti-piracy tools.'}
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2.5">
-              <Button asChild className="h-10 px-4 font-semibold gap-1.5">
-                <Link to="/discover?type=digital">
-                  {isFr ? 'Explorer les produits digitaux' : 'Explore digital products'}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-10 px-4 font-semibold">
-                <Link to="/start?activity=digital">
-                  {isFr ? 'Vendre des produits digitaux' : 'Sell digital products'}
-                </Link>
-              </Button>
-            </div>
+        <div className="max-w-2xl mb-8">
+          <div className="inline-flex items-center justify-center h-11 w-11 rounded-2xl bg-primary/10 mb-4">
+            <ShieldCheck className="h-5 w-5 text-primary" />
           </div>
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+            {fr ? 'Conçu pour des transactions sûres et de confiance' : 'Built for secure, trusted transactions'}
+          </h2>
+          <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
+            {fr
+              ? "Des achats digitaux aux réservations de services et aux paiements d'église, SiteViral aide les gens à se connecter, payer, communiquer et suivre leur activité en toute confiance."
+              : 'From digital purchases to service bookings and church payments, SiteViral helps people connect, pay, communicate and manage activity with confidence.'}
+          </p>
+        </div>
 
-          <div className="grid sm:grid-cols-2 gap-3">
-            {features.map(f => (
-              <div key={f.label} className="flex gap-3 rounded-2xl border border-border/70 bg-background p-4">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <f.icon className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-bold text-sm">{f.label}</p>
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{f.desc}</p>
-                </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {cards.map(c => (
+            <div key={c.title} className="rounded-2xl border border-border/70 bg-background p-4 sm:p-5">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mb-3">
+                <c.icon className="h-5 w-5 text-primary" />
               </div>
-            ))}
-          </div>
+              <p className="font-bold text-sm">{c.title}</p>
+              <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{c.text}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

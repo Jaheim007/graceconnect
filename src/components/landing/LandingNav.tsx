@@ -45,9 +45,8 @@ export function LandingNav() {
       <div className="container flex items-center justify-between h-16 sm:h-[72px] px-4 sm:px-6">
         {/* Left cluster: logo + primary nav */}
         <div className="flex items-center gap-6 sm:gap-8">
-          <Link to="/" className="flex items-center gap-2 shrink-0">
-            <SiteLogo size="md" animate />
-            <span className="hidden sm:inline text-[15px] font-extrabold tracking-tight text-foreground">SiteViral</span>
+          <Link to="/" className="flex items-center shrink-0" aria-label="SiteViral">
+            <SiteLogo size="md" animate linked={false} />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">

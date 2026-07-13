@@ -42,8 +42,7 @@ export function OnboardingShell({
       {/* Top bar */}
       <header className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border/60">
         <div className="mx-auto w-full max-w-xl px-4 h-14 flex items-center gap-3">
-          <SiteLogo size="sm" animate />
-          <span className="text-sm font-semibold tracking-tight">SiteViral</span>
+          <span className="inline-flex items-center" aria-label="SiteViral"><SiteLogo size="sm" animate /></span>
           <div className="flex-1" />
           <button
             type="button"

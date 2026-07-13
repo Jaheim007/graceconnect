@@ -21,11 +21,8 @@ export function PublicTopBar() {
       'sticky top-0 z-40 flex items-center gap-3 border-b border-border px-4',
       nativeApp ? 'native-public-topbar bg-background/95 py-2' : 'h-14 glass'
     )}>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center" aria-label="SiteViral">
         <SiteLogo size="sm" animate />
-        <span className={cn('text-sm font-semibold tracking-tight text-foreground', !nativeApp && 'hidden sm:inline')}>
-          SiteViral
-        </span>
       </div>
       <div className="flex-1" />
 

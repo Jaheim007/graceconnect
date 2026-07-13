@@ -49,8 +49,7 @@ export default function SuperAppHub() {
       {/* Top bar */}
       <header className="sticky top-0 z-40 h-14 border-b border-border/60 bg-background/80">
         <div className="mx-auto flex h-full max-w-6xl items-center gap-3 px-4">
-          <SiteLogo size="sm" animate />
-          <span className="text-sm font-black tracking-tight">SiteViral</span>
+          <span className="inline-flex items-center" aria-label="SiteViral"><SiteLogo size="sm" animate /></span>
           <div className="flex-1" />
           <GlobalPreferencesSelector />
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
