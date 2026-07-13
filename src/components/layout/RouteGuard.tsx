@@ -43,22 +43,27 @@ export function RequireSuperadmin({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-// Require org manage role (owner/admin/editor)
-// Shows loader while orgs are loading — never redirects during loading phase
+// Require org manage role (owner/admin/editor).
+// New model: no workspace is auto-selected on load. If the user reaches an
+// admin route without a currentOrg but has manageable orgs, auto-pick the
+// first one so their existing sessions "just work". Users with zero
+// manageable orgs are sent to /create-org to create one intentionally.
 export function RequireOrgManage({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
-  const { currentOrg, currentOrgRole, isLoadingOrgs } = useOrg();
+  const { currentOrg, currentOrgRole, isLoadingOrgs, userOrgs, canManage, setCurrentOrg } = useOrg();
 
-  // Block only on auth loading
   if (loading) return <FullPageLoader />;
   if (!user) return <Nav to="/auth" replace />;
-
-  // While org memberships are loading, keep showing loader — don't redirect
   if (isLoadingOrgs) return <FullPageLoader />;
 
-  // If done loading and still no org, send to buyer marketplace — not create-org
-  // (create-org should only be visited intentionally)
-  if (!currentOrg) return <Nav to="/marketplace" replace />;
+  if (!currentOrg) {
+    const firstManageable = userOrgs.find((o) => canManage(o.id));
+    if (firstManageable) {
+      setCurrentOrg(firstManageable);
+      return <FullPageLoader />;
+    }
+    return <Nav to="/create-org" replace />;
+  }
 
   const allowed = ['owner', 'admin', 'editor'].includes(currentOrgRole || '');
   if (!allowed) return <Nav to="/feed" replace />;
