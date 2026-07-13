@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
+import { FullPageLoader } from './RouteGuard';
 
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useOrg } from '@/contexts/OrgContext';
@@ -43,11 +44,15 @@ const pageVariants = {
  */
 export function AppLayout() {
   const location = useLocation();
-  const { userOrgs } = useOrg();
+  const { userOrgs, isLoadingOrgs } = useOrg();
   const hideNav = HIDE_NAV_ROUTES.some((r) => location.pathname.startsWith(r));
 
   useRealtimeNotifications(userOrgs.map(o => o.id));
   useNewUserRedirect();
+
+  if (!hideNav && isLoadingOrgs) {
+    return <FullPageLoader />;
+  }
 
   return (
     <CompareProvider>
