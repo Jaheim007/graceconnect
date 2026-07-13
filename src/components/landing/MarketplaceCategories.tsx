@@ -136,9 +136,9 @@ export function MarketplaceCategories() {
             to={c.route}
             data-cat-card
             onDragStart={(e) => e.preventDefault()}
-            className="group relative shrink-0 w-[75vw] xs:w-[64vw] sm:w-[300px] lg:w-[280px] rounded-2xl border border-border bg-card p-5 hover:border-foreground/20 hover:shadow-lg transition-all"
+            className="group relative shrink-0 w-[75vw] xs:w-[64vw] sm:w-[300px] lg:w-[280px] rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-foreground/25 hover:shadow-xl hover:shadow-foreground/5 active:scale-[0.98]"
           >
-            <div className={`h-11 w-11 rounded-xl grid place-items-center ${c.tint}`}>
+            <div className={`h-11 w-11 rounded-xl grid place-items-center transition-transform duration-300 group-hover:scale-110 ${c.tint}`}>
               <c.icon className="h-5 w-5" />
             </div>
             <div className="mt-4">
