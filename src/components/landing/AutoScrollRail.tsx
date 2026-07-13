@@ -61,7 +61,7 @@ export function AutoScrollRail<T>({
     const step = (now: number) => {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
-      if (!paused && !draggingRef.current && !tabHidden && el) {
+      if (!pausedRef.current && !draggingRef.current && !tabHidden && el) {
         const half = el.scrollWidth / 2 || 1;
         const speed = half / cycleSeconds;
         el.scrollLeft += speed * dt;
