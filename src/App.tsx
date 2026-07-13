@@ -122,7 +122,7 @@ const SuperadminEducation = lazy(() => import("@/pages/superadmin/SuperadminEduc
 // SiteViral Church
 const ChurchActionHub = lazy(() => import("@/pages/church/ChurchActionHub"));
 const ChurchLanding = lazy(() => import("@/pages/church/ChurchLanding"));
-const ChurchDiscover = lazy(() => import("@/pages/church/ChurchDiscover"));
+
 const ChurchOnboarding = lazy(() => import("@/pages/church/ChurchOnboarding"));
 const ChurchProDashboard = lazy(() => import("@/pages/church/ChurchProDashboard"));
 const ChurchKYCPage = lazy(() => import("@/pages/church/ChurchKYCPage"));
