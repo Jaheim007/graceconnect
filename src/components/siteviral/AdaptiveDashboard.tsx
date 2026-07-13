@@ -29,10 +29,24 @@ export function AdaptiveDashboard() {
   const navigate = useNavigate();
   const isFr = locale === 'fr';
 
-  const activeKeys = useMemo(
-    () => Array.from(features) as SiteviralFeatureKey[],
-    [features]
-  );
+  const siteviralType = currentOrg?.siteviral_type as string | null | undefined;
+
+  const activeKeys = useMemo(() => {
+    const all = Array.from(features) as SiteviralFeatureKey[];
+    if (siteviralType === 'digital_products') {
+      // Digital sellers see only digital-relevant cards. Events & donations
+      // are hidden here even if legacy flags exist — they belong to church
+      // or explicitly enabled organization flows.
+      const allow: SiteviralFeatureKey[] = [
+        'digital_products', 'ai_book_creation', 'ai_formation_creation', 'product_comments',
+      ];
+      const filtered = all.filter((k) => allow.includes(k));
+      // Ensure Create a course is always available as a first-class action.
+      if (!filtered.includes('ai_formation_creation')) filtered.push('ai_formation_creation');
+      return filtered;
+    }
+    return all;
+  }, [features, siteviralType]);
 
   // Detect empty state for the "first action" section — cheap counts only.
   const { data: emptiness } = useQuery({
