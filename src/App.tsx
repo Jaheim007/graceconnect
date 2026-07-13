@@ -269,6 +269,7 @@ const WatchPage = lazy(() => import("@/pages/WatchPage"));
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const DashboardRouter = lazy(() => import("@/pages/DashboardRouter"));
+const UserDashboard = lazy(() => import("@/pages/UserDashboard"));
 const DashboardExplorePage = lazy(() => import("@/pages/dashboard/DashboardExplorePage"));
 const PersonalActivityPage = lazy(() => import("@/pages/dashboard/PersonalActivityPage"));
 const PersonalMessagesPage = lazy(() => import("@/pages/dashboard/PersonalMessagesPage"));
@@ -796,7 +797,7 @@ const App = () => (
 
                   {/* Admin — inside AppLayout for seamless navigation */}
                   <Route path="/admin" element={<RequireOrgManage><AdminShell /></RequireOrgManage>}>
-                  <Route index element={<DashboardRouter />} />
+                  <Route index element={<UserDashboard />} />
                   <Route path="create" element={<AdminCreateHub />} />
                   <Route path="content" element={<AdminContentHub />} />
                   <Route path="people" element={<AdminPeople />} />
