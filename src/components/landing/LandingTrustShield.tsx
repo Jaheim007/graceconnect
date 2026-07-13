@@ -1,5 +1,6 @@
 import { ShieldCheck, Lock, MessageSquareLock, FileKey } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
+import { Reveal } from './Reveal';
 
 /**
  * Broad marketplace trust/security section.
