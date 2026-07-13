@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Bell, Sun, Moon, LogOut, User, Shield, Plus, Search, Building2, Check, CreditCard } from 'lucide-react';
+import { Bell, Sun, Moon, LogOut, User, Shield, Plus, Search, Building2, Check, CreditCard, Package, GraduationCap, HandCoins, Compass } from 'lucide-react';
 import { PlanBadge } from '@/components/billing/PlanBadge';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { OrgSwitcher } from '@/components/org/OrgSwitcher';
@@ -91,6 +91,11 @@ export function TopBar() {
             <div className="mt-1"><PlanBadge /></div>
           </div>
         </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => navigate('/dashboard/explore')}><Compass className="h-3.5 w-3.5 mr-2" /> {isFr ? 'Explorer' : 'Explore'}</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate('/my-purchases')}><Package className="h-3.5 w-3.5 mr-2" /> {isFr ? 'Mes achats' : 'My Purchases'}</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate('/my-programs')}><GraduationCap className="h-3.5 w-3.5 mr-2" /> {isFr ? 'Mes programmes' : 'My Programs'}</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate('/gagner')}><HandCoins className="h-3.5 w-3.5 mr-2" /> {isFr ? 'Gagner' : 'Earn'}</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => navigate('/profile')}><User className="h-3.5 w-3.5 mr-2" /> {t('topbar.profile')}</DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate('/billing')}>

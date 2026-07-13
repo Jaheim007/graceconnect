@@ -217,12 +217,9 @@ export function buildFeatureNavItems(
     route: '/dashboard',
   });
 
-  items.push(toItem({
-    id: 'purchases', icon: Package, tone: 'primary',
-    titleFr: 'Mes achats', titleEn: 'My purchases',
-    descFr: 'Livres et ressources', descEn: 'Books & resources',
-    route: '/my-programs',
-  }));
+  // (Removed) My Purchases — this is an ACCOUNT-level destination, not a
+  // workspace-management module. Users reach it from the TopBar avatar menu.
+
 
   const navKeysForType: Partial<Record<SiteviralType, SiteviralFeatureKey[]>> = {
     digital_products: ['digital_products', 'ai_book_creation'],
@@ -275,28 +272,11 @@ export function buildFeatureNavItems(
     });
   }
 
-  if (ctx.isAuthenticated && ctx.hasManageableOrg) {
-    pushUnique({
-      id: 'promotion', icon: Megaphone, tone: 'sky',
-      titleFr: 'Promotion', titleEn: 'Promotion',
-      descFr: 'Codes promo et campagnes', descEn: 'Promo codes and campaigns',
-      route: '/admin/promo-codes',
-    });
-  }
+  // (Removed from workspace sidebar) Promotion, Explore, Claim/Earn.
+  //   - Promotion → lives inside Sell (Products → Promotions) when needed.
+  //   - Explore   → account-level, accessed from the TopBar.
+  //   - Earn      → account-level, always at /gagner, accessed from avatar menu.
 
-  pushUnique({
-    id: 'explore', icon: Compass, tone: 'violet',
-    titleFr: 'Explorer', titleEn: 'Explore',
-    descFr: 'Découvrir des ressources', descEn: 'Discover resources',
-    route: '/discover',
-  });
-
-  pushUnique({
-    id: 'claim', icon: HandCoins, tone: 'emerald',
-    titleFr: 'Réclamer', titleEn: 'Claim',
-    descFr: 'Affiliation et commissions', descEn: 'Affiliate commissions',
-    route: ctx.hasManageableOrg ? '/admin/affiliation' : '/gagner',
-  });
 
   // Revenue — every provider needs to see their money
   if (ctx.isAuthenticated && ctx.hasManageableOrg) {

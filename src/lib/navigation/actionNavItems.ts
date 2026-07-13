@@ -118,7 +118,7 @@ export function getActionNavItems(
       titleEn: 'My Purchases',
       descFr: 'Accéder à mes livres et ressources',
       descEn: 'Access my books and resources',
-      route: '/my-programs',
+      route: '/my-purchases',
       borderClass: 'border-primary/30 hover:border-primary/60',
       iconBg: 'bg-primary/15',
       iconColor: 'text-primary',
@@ -162,21 +162,8 @@ export function getActionNavItems(
     });
   }
 
-  if (ctx.isAuthenticated && ctx.hasManageableOrg) {
-    items.push({
-      id: 'promotion',
-      icon: Megaphone,
-      emoji: '📣',
-      titleFr: 'Promotion',
-      titleEn: 'Promotion',
-      descFr: 'Codes promo et campagnes',
-      descEn: 'Promo codes and campaigns',
-      route: '/admin/promo-codes',
-      borderClass: 'border-sky-500/30 hover:border-sky-500/60',
-      iconBg: 'bg-sky-500/15',
-      iconColor: 'text-sky-500',
-    });
-  }
+  // (Removed) Promotion is not a top-level nav item — it lives inside Sell.
+
 
   // Explorer — buyers land in the in-dashboard explorer (mixed feed by interest);
   // sellers keep the marketing /discover surface.
@@ -216,7 +203,7 @@ export function getActionNavItems(
       titleEn: 'Earn',
       descFr: 'Affiliation et commissions',
       descEn: 'Affiliate commissions',
-      route: ctx.hasManageableOrg ? '/admin/affiliation' : '/gagner',
+      route: '/gagner',
       borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconBg: 'bg-emerald-500/15',
       iconColor: 'text-emerald-500',

@@ -149,15 +149,18 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* Navigation items — signed-in users see the account-wide customer nav.
-          Workspace management lives under /admin and has its own layout. */}
+      {/* Route-aware nav:
+          - /admin/* → professional WORKSPACE navigation (feature-driven).
+          - everywhere else → account-wide customer nav.
+          Global actions (Purchases, Programs, Earn, Explore, Messages) live in
+          the TopBar/avatar menu so the workspace sidebar stays focused. */}
       <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-1 scrollbar-hide">
-        {user ? (
+        {user && location.pathname.startsWith('/admin') ? (
+          <>{navItems.map(renderNavItem)}</>
+        ) : user ? (
           <PersonalSidebarNav collapsed={collapsed} isFr={isFr} pathname={location.pathname} />
         ) : (
-          <>
-            {navItems.map(renderNavItem)}
-          </>
+          <>{navItems.map(renderNavItem)}</>
         )}
       </nav>
 
