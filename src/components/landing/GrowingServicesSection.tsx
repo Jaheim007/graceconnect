@@ -69,15 +69,17 @@ function ActionRow({
   title: string; text: string; to: string; cta: string; primary?: boolean;
 }) {
   return (
-    <div className={`flex items-center gap-4 rounded-2xl border p-4 ${primary ? 'border-primary/40 bg-primary/[0.04]' : 'border-border bg-card'}`}>
-      <div className={`h-10 w-10 rounded-xl grid place-items-center shrink-0 ${primary ? 'bg-primary/15 text-primary' : 'bg-muted text-foreground/70'}`}>
-        <Icon className="h-5 w-5" />
+    <div className={`flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 rounded-2xl border p-4 ${primary ? 'border-primary/40 bg-primary/[0.04]' : 'border-border bg-card'}`}>
+      <div className="flex items-start gap-3 sm:contents">
+        <div className={`h-10 w-10 rounded-xl grid place-items-center shrink-0 ${primary ? 'bg-primary/15 text-primary' : 'bg-muted text-foreground/70'}`}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-bold leading-snug break-words">{title}</div>
+          <div className="text-xs text-muted-foreground mt-0.5 break-words sm:line-clamp-2">{text}</div>
+        </div>
       </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-bold leading-tight">{title}</div>
-        <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{text}</div>
-      </div>
-      <Button asChild size="sm" variant={primary ? 'default' : 'outline'} className="shrink-0 h-9 font-semibold">
+      <Button asChild size="sm" variant={primary ? 'default' : 'outline'} className="w-full sm:w-auto sm:shrink-0 h-9 font-semibold">
         <Link to={to}>{cta}</Link>
       </Button>
     </div>
