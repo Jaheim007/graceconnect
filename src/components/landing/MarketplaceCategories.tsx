@@ -23,6 +23,7 @@ export function MarketplaceCategories() {
 
       <AutoScrollRail
         items={EXPLORE_CATEGORIES}
+        cycleSeconds={30}
         ariaLabel={fr ? 'Catégories de la marketplace' : 'Marketplace categories'}
         labels={{ prev: fr ? 'Précédent' : 'Previous', next: fr ? 'Suivant' : 'Next' }}
         renderItem={(c, i) => (

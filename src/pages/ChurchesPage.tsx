@@ -106,6 +106,7 @@ export default function ChurchesPage() {
 
         <AutoScrollRail
           items={capabilities}
+          cycleSeconds={30}
           ariaLabel={fr ? 'Fonctionnalités église' : 'Church capabilities'}
           labels={{ prev: fr ? 'Précédent' : 'Previous', next: fr ? 'Suivant' : 'Next' }}
           renderItem={(c, i) => (
