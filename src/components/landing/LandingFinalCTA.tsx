@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Briefcase, Church, ArrowRight } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
+import { Reveal } from './Reveal';
 
 /**
  * Three-path final CTA: buyer, provider, church.
