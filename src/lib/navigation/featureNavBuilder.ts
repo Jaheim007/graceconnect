@@ -154,7 +154,7 @@ function specFor(
       id: 'create-course', icon: GraduationCap, tone: 'violet',
       titleFr: 'Créer une formation', titleEn: 'Create a course',
       descFr: "Ton cours avec l'IA", descEn: 'Your course with AI',
-      route: '/creer-formation',
+      route: '/admin/programs',
     };
     case 'product_comments': return {
       id: 'product-comments', icon: MessageSquare, tone: 'cyan',
@@ -257,7 +257,7 @@ export function buildFeatureNavItems(
         id: 'create-course', icon: GraduationCap, tone: 'violet',
         titleFr: 'Créer une formation', titleEn: 'Create a course',
         descFr: "Ton cours avec l'IA", descEn: 'Your course with AI',
-        route: '/creer-formation',
+        route: '/admin/programs',
       });
       break;
     case 'church':
