@@ -5,6 +5,7 @@ import {
   useEffect,
   ReactNode,
   useCallback,
+  useMemo,
   useRef,
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -67,9 +68,13 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     return () => window.clearTimeout(retryTimer);
   }, [user, isError, refetchMembers]);
 
-  const userOrgs = memberRows.map((m) => m.organizations).filter(Boolean);
-  const membershipMap = Object.fromEntries(
-    memberRows.map((m) => [m.organization_id, m.role])
+  const userOrgs = useMemo(
+    () => memberRows.map((m) => m.organizations).filter(Boolean),
+    [memberRows],
+  );
+  const membershipMap = useMemo(
+    () => Object.fromEntries(memberRows.map((m) => [m.organization_id, m.role])),
+    [memberRows],
   );
 
   // Restore currentOrg globally before the signed-in shell renders.
@@ -88,9 +93,25 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     const manageableOrgs = userOrgs.filter((o) => ['owner', 'admin', 'editor'].includes(membershipMap[o.id] || ''));
     const currentIsManageable = !!currentOrg && manageableOrgs.some((o) => o.id === currentOrg.id);
 
+    const selectRestoredOrg = (org: Organization | null) => {
+      setCurrentOrgState(org);
+      if (org) {
+        localStorage.setItem('sv_current_org_id', org.id);
+      } else {
+        try { localStorage.removeItem('sv_current_org_id'); } catch {}
+      }
+      setWorkspaceRestored(true);
+    };
+
     // If we already have a valid manageable currentOrg in this list, keep it.
     if (currentIsManageable) {
       if (!workspaceRestored) setWorkspaceRestored(true);
+      return;
+    }
+
+    // Current workspace became invalid/non-manageable — repair globally.
+    if (currentOrg) {
+      selectRestoredOrg(manageableOrgs[0] ?? null);
       return;
     }
 
@@ -100,20 +121,17 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       // Legacy sentinel from the old Personal model — treat as "no workspace".
       if (saved === '__personal__') {
         try { localStorage.removeItem('sv_current_org_id'); } catch {}
-        setCurrentOrgState(manageableOrgs[0] ?? null);
-        setWorkspaceRestored(true);
+        selectRestoredOrg(manageableOrgs[0] ?? null);
         return;
       }
       if (saved) {
         const found = manageableOrgs.find((o) => o.id === saved);
         if (found) {
-          setCurrentOrgState(found);
-          setWorkspaceRestored(true);
+          selectRestoredOrg(found);
           return;
         }
       }
-      setCurrentOrgState(manageableOrgs[0] ?? null);
-      setWorkspaceRestored(true);
+      selectRestoredOrg(manageableOrgs[0] ?? null);
     }
   }, [userOrgs, currentOrg, user, isFetched, isLoading, isError, workspaceRestored, membershipMap]);
 
