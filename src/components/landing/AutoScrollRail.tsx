@@ -35,7 +35,7 @@ export function AutoScrollRail<T>({
   labels,
 }: AutoScrollRailProps<T>) {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
   const draggingRef = useRef(false);
   const dragStartXRef = useRef(0);
   const dragStartScrollRef = useRef(0);
@@ -61,7 +61,7 @@ export function AutoScrollRail<T>({
     const step = (now: number) => {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
-      if (!paused && !draggingRef.current && !tabHidden && el) {
+      if (!pausedRef.current && !draggingRef.current && !tabHidden && el) {
         const half = el.scrollWidth / 2 || 1;
         const speed = half / cycleSeconds;
         el.scrollLeft += speed * dt;
@@ -71,7 +71,7 @@ export function AutoScrollRail<T>({
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [paused, reduceMotion, tabHidden, cycleSeconds]);
+  }, [reduceMotion, tabHidden, cycleSeconds]);
 
   const scrollByCards = useCallback((dir: 1 | -1) => {
     const el = scrollerRef.current;
@@ -107,13 +107,8 @@ export function AutoScrollRail<T>({
   };
 
   return (
-    <div
-      className={className}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
-      onBlurCapture={() => setPaused(false)}
-    >
+    <div className={className}>
+
       {showControls && (
         <div className="hidden sm:flex items-center justify-end gap-2 mb-4 container max-w-6xl px-4 sm:px-6">
           <Button variant="outline" size="icon" aria-label={labels?.prev ?? 'Previous'} onClick={() => scrollByCards(-1)} className="h-9 w-9 rounded-full">
