@@ -203,7 +203,7 @@ export function getActionNavItems(
       titleEn: 'Earn',
       descFr: 'Affiliation et commissions',
       descEn: 'Affiliate commissions',
-      route: ctx.hasManageableOrg ? '/admin/affiliation' : '/gagner',
+      route: '/gagner',
       borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconBg: 'bg-emerald-500/15',
       iconColor: 'text-emerald-500',
