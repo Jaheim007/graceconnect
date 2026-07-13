@@ -26,7 +26,7 @@ import { Organization } from '@/types/database';
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
   const { user, profile, isSuperadmin, signOut } = useAuth();
-  const { currentOrg, userOrgs, setCurrentOrg, getRoleFor } = useOrg();
+  const { currentOrg, userOrgs, setCurrentOrg, getRoleFor, canManage } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const navigate = useNavigate();
   const { t, locale } = useI18n();
@@ -39,16 +39,12 @@ export function TopBar() {
     ? profile.display_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : user?.email?.[0]?.toUpperCase() || 'U';
 
-  const managedOrgs = userOrgs.filter((o) => {
-    const role = getRoleFor(o.id);
-    return role === 'owner' || role === 'admin';
-  });
+  const managedOrgs = userOrgs.filter((o) => canManage(o.id));
 
   const handleSelectOrg = (org: Organization) => {
-    const role = getRoleFor(org.id);
     setCurrentOrg(org);
     setSwitchDialogOpen(false);
-    if (role === 'owner' || role === 'admin') {
+    if (canManage(org.id)) {
       navigate('/dashboard');
     } else {
       navigate(`/org/${org.slug}`);

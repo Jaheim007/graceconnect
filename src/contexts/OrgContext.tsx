@@ -5,6 +5,7 @@ import {
   useEffect,
   ReactNode,
   useCallback,
+  useMemo,
   useRef,
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -34,8 +35,10 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const qc = useQueryClient();
   const [currentOrg, setCurrentOrgState] = useState<Organization | null>(null);
-  // Track whether we've done the initial restore from localStorage
+  const [workspaceRestored, setWorkspaceRestored] = useState(false);
+  // Track whether we've done the initial restore from localStorage for this user
   const restoredRef = useRef(false);
+  const restoredUserIdRef = useRef<string | null>(null);
 
   const { data: memberRows = [], refetch: refetchMembers, isLoading, isFetched, isError } = useQuery({
     queryKey: ['user-memberships', user?.id],
@@ -65,21 +68,63 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     return () => window.clearTimeout(retryTimer);
   }, [user, isError, refetchMembers]);
 
-  const userOrgs = memberRows.map((m) => m.organizations).filter(Boolean);
-  const membershipMap = Object.fromEntries(
-    memberRows.map((m) => [m.organization_id, m.role])
+  const userOrgs = useMemo(
+    () => memberRows.map((m) => m.organizations).filter(Boolean),
+    [memberRows],
+  );
+  const membershipMap = useMemo(
+    () => Object.fromEntries(memberRows.map((m) => [m.organization_id, m.role])),
+    [memberRows],
   );
 
-  // Restore currentOrg from localStorage when memberships resolve.
-  // New model (2026-07): there is no "Personal" workspace choice — the app
-  // defaults to the account-wide customer view and a workspace is only
-  // selected when the user wants to manage one. We therefore never auto-pick
-  // the first org on first load; we only restore a previously chosen uuid.
+  // Restore currentOrg globally before the signed-in shell renders.
+  // SiteViral has no selectable "Personal" workspace: if the account can
+  // manage at least one workspace, a valid workspace must always be selected.
   useEffect(() => {
     if (!user) return;
+    if (!isFetched || isLoading || isError) return;
 
-    // If we already have a valid currentOrg in this list, keep it.
-    if (currentOrg && userOrgs.find((o) => o.id === currentOrg.id)) return;
+    if (restoredUserIdRef.current !== user.id) {
+      restoredUserIdRef.current = user.id;
+      restoredRef.current = false;
+      setWorkspaceRestored(false);
+    }
+
+    const manageableOrgs = userOrgs.filter((o) => ['owner', 'admin', 'editor'].includes(membershipMap[o.id] || ''));
+    const currentIsManageable = !!currentOrg && manageableOrgs.some((o) => o.id === currentOrg.id);
+
+    const selectRestoredOrg = (org: Organization | null) => {
+      setCurrentOrgState(org);
+      if (org) {
+        localStorage.setItem('sv_current_org_id', org.id);
+      } else {
+        try { localStorage.removeItem('sv_current_org_id'); } catch {}
+      }
+      setWorkspaceRestored(true);
+    };
+
+    // If we already have a valid manageable currentOrg in this list, keep it.
+    if (currentIsManageable) {
+      if (!workspaceRestored) setWorkspaceRestored(true);
+      return;
+    }
+
+    // Current workspace became invalid/non-manageable — repair globally.
+    if (currentOrg) {
+      selectRestoredOrg(manageableOrgs[0] ?? null);
+      return;
+    }
+
+    if (manageableOrgs.length > 0 && workspaceRestored) {
+      let pick = manageableOrgs[0];
+      try {
+        const saved = localStorage.getItem('sv_current_org_id');
+        const found = saved ? manageableOrgs.find((o) => o.id === saved) : null;
+        if (found) pick = found;
+      } catch {}
+      selectRestoredOrg(pick);
+      return;
+    }
 
     if (!restoredRef.current) {
       restoredRef.current = true;
@@ -87,26 +132,27 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       // Legacy sentinel from the old Personal model — treat as "no workspace".
       if (saved === '__personal__') {
         try { localStorage.removeItem('sv_current_org_id'); } catch {}
-        setCurrentOrgState(null);
+        selectRestoredOrg(manageableOrgs[0] ?? null);
         return;
       }
       if (saved) {
-        const found = userOrgs.find((o) => o.id === saved);
+        const found = manageableOrgs.find((o) => o.id === saved);
         if (found) {
-          setCurrentOrgState(found);
+          selectRestoredOrg(found);
           return;
         }
       }
-      // No saved choice → stay in account-wide (customer) mode.
-      setCurrentOrgState(null);
+      selectRestoredOrg(manageableOrgs[0] ?? null);
     }
-  }, [userOrgs, currentOrg, user]);
+  }, [userOrgs, currentOrg, user, isFetched, isLoading, isError, workspaceRestored, membershipMap]);
 
   // Clear currentOrg when user logs out
   useEffect(() => {
     if (!user) {
       setCurrentOrgState(null);
+      setWorkspaceRestored(false);
       restoredRef.current = false;
+      restoredUserIdRef.current = null;
       try { localStorage.removeItem('sv_current_org_id'); } catch {}
     }
   }, [user]);
@@ -168,7 +214,6 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       .eq('user_id', user.id);
     if (!error) {
       refetchOrgs();
-      if (currentOrg?.id === orgId) setCurrentOrg(null);
       const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Someone';
       onMemberLeft(user.id, userName, orgId, org?.name || 'une organisation');
     }
@@ -189,7 +234,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         currentOrg,
         currentOrgRole,
         setCurrentOrg,
-        isLoadingOrgs: authLoading || (!!user && (!isFetched || isError)) || isLoading,
+        isLoadingOrgs: authLoading || (!!user && (!isFetched || isError || !workspaceRestored)) || isLoading,
         refetchOrgs,
         joinOrg,
         leaveOrg,

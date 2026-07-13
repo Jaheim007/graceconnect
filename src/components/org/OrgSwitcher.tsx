@@ -39,7 +39,7 @@ interface OrgSwitcherProps {
 }
 
 export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitcherProps) {
-  const { currentOrg, userOrgs, setCurrentOrg, getRoleFor } = useOrg();
+  const { currentOrg, userOrgs, setCurrentOrg, getRoleFor, canManage } = useOrg();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { locale } = useI18n();
@@ -49,14 +49,10 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
 
   if (!user) return null;
 
-  const managedOrgs = userOrgs.filter((o) => {
-    const role = getRoleFor(o.id);
-    return role === 'owner' || role === 'admin';
-  });
+  const managedOrgs = userOrgs.filter((o) => canManage(o.id));
 
   const handleSelectOrg = (org: Organization) => {
-    const role = getRoleFor(org.id);
-    const isManager = role === 'owner' || role === 'admin';
+    const isManager = canManage(org.id);
     setCurrentOrg(org);
     setOpen(false);
     if (isManager) navigate('/admin');
