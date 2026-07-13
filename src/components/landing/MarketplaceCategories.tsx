@@ -25,28 +25,36 @@ export function MarketplaceCategories() {
   const reduceMotion = typeof window !== 'undefined'
     && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-  // Auto-scroll loop
+  // Pause when tab hidden
+  const [tabHidden, setTabHidden] = useState(false);
+  useEffect(() => {
+    const onVis = () => setTabHidden(document.hidden);
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, []);
+
+  // Auto-scroll loop — target ~35s for one full cycle of the duplicated rail.
   useEffect(() => {
     if (reduceMotion) return;
     const el = scrollerRef.current;
     if (!el) return;
     let raf = 0;
     let last = performance.now();
-    const speed = 30; // px per second
 
     const step = (now: number) => {
-      const dt = (now - last) / 1000;
+      const dt = Math.min((now - last) / 1000, 0.05); // clamp long frames (tab switch)
       last = now;
-      if (!paused && !draggingRef.current && el) {
+      if (!paused && !draggingRef.current && !tabHidden && el) {
+        const half = el.scrollWidth / 2 || 1;
+        const speed = half / 35; // one full cycle over ~35s regardless of card count
         el.scrollLeft += speed * dt;
-        const half = el.scrollWidth / 2;
         if (el.scrollLeft >= half) el.scrollLeft -= half;
       }
       raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [paused, reduceMotion]);
+  }, [paused, reduceMotion, tabHidden]);
 
   const scrollByCards = useCallback((dir: 1 | -1) => {
     const el = scrollerRef.current;
