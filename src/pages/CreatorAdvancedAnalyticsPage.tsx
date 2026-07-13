@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft, TrendingDown, TrendingUp, Users, AlertTriangle, Crown, BarChart3,
   Sparkles, ShoppingBag, Activity, Download,
@@ -46,10 +46,13 @@ export default function CreatorAdvancedAnalyticsPage() {
     [userOrgs, canManage],
   );
 
-  // Auto-select the only manageable workspace if none is active.
-  if (!currentOrg && !isLoadingOrgs && manageableOrgs.length === 1) {
-    setCurrentOrg(manageableOrgs[0]);
-  }
+  // Root hydration normally resolves this before render; keep a defensive
+  // repair path for direct analytics loads without showing a chooser.
+  useEffect(() => {
+    if (!currentOrg && !isLoadingOrgs && manageableOrgs.length > 0) {
+      setCurrentOrg(manageableOrgs[0]);
+    }
+  }, [currentOrg, isLoadingOrgs, manageableOrgs, setCurrentOrg]);
 
   const { data: cohorts, isLoading: loadingCohorts } = useBuyerCohorts(currentOrg?.id);
   const { data: churn, isLoading: loadingChurn } = useChurnMetrics(currentOrg?.id);
@@ -115,26 +118,8 @@ export default function CreatorAdvancedAnalyticsPage() {
     if (isLoadingOrgs) {
       return <div className="min-h-screen flex items-center justify-center"><BarChart3 className="w-6 h-6 animate-pulse text-muted-foreground" /></div>;
     }
-    if (manageableOrgs.length > 1) {
-      return (
-        <div className="container max-w-xl px-4 py-10 space-y-4">
-          <h1 className="text-xl font-bold">{isFr ? 'Choisissez un espace' : 'Choose a workspace'}</h1>
-          <p className="text-sm text-muted-foreground">
-            {isFr ? 'Analytics est propre à un espace de travail.' : 'Analytics is scoped to a workspace.'}
-          </p>
-          <div className="grid gap-2">
-            {manageableOrgs.map((org) => (
-              <button
-                key={org.id}
-                onClick={() => setCurrentOrg(org)}
-                className="w-full text-left rounded-2xl border border-border bg-card p-3 hover:border-primary/40 transition"
-              >
-                <div className="text-sm font-semibold">{org.name}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-      );
+    if (manageableOrgs.length > 0) {
+      return <div className="min-h-screen flex items-center justify-center"><BarChart3 className="w-6 h-6 animate-pulse text-muted-foreground" /></div>;
     }
     return (
       <div className="min-h-screen flex items-center justify-center p-4">

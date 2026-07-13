@@ -186,9 +186,11 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
     );
   }
 
-  // Trigger button — always reflects an org (currentOrg or a prompt to pick one).
-  const triggerLabel = currentOrg?.name ?? (isFr ? 'Choisir un espace' : 'Choose a workspace');
-  const triggerAvatar = currentOrg ? brandUrl(currentOrg.logo_url) : null;
+  // Trigger button — after root hydration this should be currentOrg. The
+  // fallback prevents a stale "Choose workspace" label during rare repair ticks.
+  const displayOrg = currentOrg && canManage(currentOrg.id) ? currentOrg : managedOrgs[0] ?? null;
+  const triggerLabel = displayOrg?.name ?? (isFr ? 'Créer un espace' : 'Create workspace');
+  const triggerAvatar = displayOrg ? brandUrl(displayOrg.logo_url) : null;
 
   const TriggerButton =
     variant === 'topbar' ? (
@@ -208,7 +210,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
               <p className="text-xs font-bold text-primary truncate">{triggerLabel}</p>
-              {currentOrg && isOrgVerifiedOrKyc(currentOrg.is_verified, (currentOrg as any).kyc_status) && (
+              {displayOrg && isOrgVerifiedOrKyc(displayOrg.is_verified, (displayOrg as any).kyc_status) && (
                 <VerifiedBadge size="xs" showTooltip={false} />
               )}
             </div>
