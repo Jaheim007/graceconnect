@@ -74,17 +74,13 @@ export default function AuthCallbackPage() {
     });
 
     const attemptSessionRecovery = async () => {
-      const url = new URL(window.location.href);
-      const code = url.searchParams.get('code');
+      // NOTE: The Supabase client is configured with `detectSessionInUrl: true`,
+      // so it automatically exchanges the `?code=` param for a session on load.
+      // Calling `exchangeCodeForSession` manually here races with that auto-exchange
+      // and produces "400: State has already been used" errors that leave the user
+      // stuck on the "Connecting…" spinner. We rely on onAuthStateChange +
+      // getSession polling below instead.
 
-      if (code) {
-        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-        if (!error && data.session) {
-          await handleRedirect(data.session);
-          return;
-        }
-        console.warn('OAuth code exchange did not return a session immediately, retrying recovery...', error?.message);
-      }
 
       if (await recoverSessionOnce()) return;
 
