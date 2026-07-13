@@ -35,11 +35,21 @@ const CHART_COLORS = [
 
 export default function CreatorAdvancedAnalyticsPage() {
   const navigate = useNavigate();
-  const { currentOrg } = useOrg();
+  const { currentOrg, userOrgs, canManage, setCurrentOrg, isLoadingOrgs } = useOrg();
   const { locale } = useI18n();
   const { fmt } = useDisplayCurrency();
   const isFr = locale === 'fr';
   const [period, setPeriod] = useState<Period>(90);
+
+  const manageableOrgs = useMemo(
+    () => userOrgs.filter((o) => canManage(o.id)),
+    [userOrgs, canManage],
+  );
+
+  // Auto-select the only manageable workspace if none is active.
+  if (!currentOrg && !isLoadingOrgs && manageableOrgs.length === 1) {
+    setCurrentOrg(manageableOrgs[0]);
+  }
 
   const { data: cohorts, isLoading: loadingCohorts } = useBuyerCohorts(currentOrg?.id);
   const { data: churn, isLoading: loadingChurn } = useChurnMetrics(currentOrg?.id);
