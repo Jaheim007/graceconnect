@@ -114,7 +114,7 @@ export default function PersonalHome() {
     <div className="native-page-screen bg-background">
       <SEOHead
         title={isFr ? 'Accueil — SiteViral' : 'Home — SiteViral'}
-        description={isFr ? 'Votre espace personnel' : 'Your personal space'}
+        description={isFr ? 'Votre compte SiteViral' : 'Your SiteViral account'}
       />
 
       <div className="container max-w-3xl px-4 py-5 space-y-6">
