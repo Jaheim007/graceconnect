@@ -34,11 +34,10 @@ export function AdaptiveDashboard() {
   const activeKeys = useMemo(() => {
     const all = Array.from(features) as SiteviralFeatureKey[];
     if (siteviralType === 'digital_products') {
-      // Digital sellers see only digital-relevant cards. Events & donations
-      // are hidden here even if legacy flags exist — they belong to church
-      // or explicitly enabled organization flows.
+      // Digital sellers see only: Sell, Write a book, Create a course.
+      // Product comments, events & donations are hidden here.
       const allow: SiteviralFeatureKey[] = [
-        'digital_products', 'ai_book_creation', 'ai_formation_creation', 'product_comments',
+        'digital_products', 'ai_book_creation', 'ai_formation_creation',
       ];
       const filtered = all.filter((k) => allow.includes(k));
       // Ensure Create a course is always available as a first-class action.

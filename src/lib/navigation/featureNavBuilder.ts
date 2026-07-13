@@ -235,7 +235,7 @@ export function buildFeatureNavItems(
     // Digital sellers: Sell + book + course + product comments (each
     // gated by enabled_features). Events & donations are hidden here even
     // if legacy flags exist, because they belong to church/other workspaces.
-    digital_products: ['digital_products', 'ai_book_creation', 'ai_formation_creation', 'product_comments'],
+    digital_products: ['digital_products', 'ai_book_creation', 'ai_formation_creation'],
     church: ['digital_products', 'donation_gifts', 'events', 'ai_book_creation'],
   };
   const visibleOrder = navKeysForType[type] ?? ORDER;
