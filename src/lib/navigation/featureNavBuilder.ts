@@ -217,12 +217,9 @@ export function buildFeatureNavItems(
     route: '/dashboard',
   });
 
-  items.push(toItem({
-    id: 'purchases', icon: Package, tone: 'primary',
-    titleFr: 'Mes achats', titleEn: 'My purchases',
-    descFr: 'Livres et ressources', descEn: 'Books & resources',
-    route: '/my-programs',
-  }));
+  // (Removed) My Purchases — this is an ACCOUNT-level destination, not a
+  // workspace-management module. Users reach it from the TopBar avatar menu.
+
 
   const navKeysForType: Partial<Record<SiteviralType, SiteviralFeatureKey[]>> = {
     digital_products: ['digital_products', 'ai_book_creation'],
