@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingFooterCompact } from '@/components/landing/LandingFooterCompact';
+import { AutoScrollRail } from '@/components/landing/AutoScrollRail';
 import { useI18n } from '@/i18n/I18nContext';
 import { setIntent } from '@/lib/intent';
 import { setPendingAction } from '@/lib/pendingAction';
