@@ -97,9 +97,8 @@ function DashboardSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
-        <div className="flex items-center gap-2 px-3 py-4">
+        <div className="flex items-center px-3 py-4" aria-label="SiteViral">
           <SiteLogo size="sm" />
-          {!collapsed && <span className="font-bold text-sm tracking-tight">SiteViral</span>}
         </div>
 
         <SidebarGroup>
