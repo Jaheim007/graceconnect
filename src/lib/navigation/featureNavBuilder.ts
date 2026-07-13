@@ -1,7 +1,7 @@
 import {
   BookOpen, Store, Package, Calendar, Gift,
   Ticket, LayoutDashboard, Inbox, Users, Megaphone, Compass, HandCoins, Wallet,
-  Settings,
+  Settings, GraduationCap, MessageSquare,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -150,11 +150,21 @@ function specFor(
       descFr: 'Billets et invitations', descEn: 'Tickets & invites',
       route: type === 'church' ? '/admin/church/events' : '/admin/events',
     };
+    case 'ai_formation_creation': return {
+      id: 'create-course', icon: GraduationCap, tone: 'violet',
+      titleFr: 'Créer une formation', titleEn: 'Create a course',
+      descFr: "Ton cours avec l'IA", descEn: 'Your course with AI',
+      route: '/admin/programs',
+    };
+    case 'product_comments': return {
+      id: 'product-comments', icon: MessageSquare, tone: 'cyan',
+      titleFr: 'Commentaires produits', titleEn: 'Product comments',
+      descFr: 'Modération et réponses', descEn: 'Moderate & reply',
+      route: '/admin/comments',
+    };
     // Optional/extra tools stay in Settings → Modules until activated for a
-    // focused dashboard: order generator, AI courses, CRM/comments, reviews.
+    // focused dashboard: order generator, reviews.
     case 'order_generator':
-    case 'ai_formation_creation':
-    case 'product_comments':
     case 'reviews':
     // Platform config — never in nav
     case 'affiliation':
@@ -214,7 +224,7 @@ export function buildFeatureNavItems(
     id: 'dashboard', icon: LayoutDashboard, tone: 'primary',
     titleFr: 'Aperçu', titleEn: 'Overview',
     descFr: 'Tableau de bord', descEn: 'Dashboard',
-    route: '/dashboard',
+    route: '/admin',
   });
 
   // (Removed) My Purchases — this is an ACCOUNT-level destination, not a
@@ -222,7 +232,10 @@ export function buildFeatureNavItems(
 
 
   const navKeysForType: Partial<Record<SiteviralType, SiteviralFeatureKey[]>> = {
-    digital_products: ['digital_products', 'ai_book_creation'],
+    // Digital sellers: Sell + book + course + product comments (each
+    // gated by enabled_features). Events & donations are hidden here even
+    // if legacy flags exist, because they belong to church/other workspaces.
+    digital_products: ['digital_products', 'ai_book_creation', 'ai_formation_creation', 'product_comments'],
     church: ['digital_products', 'donation_gifts', 'events', 'ai_book_creation'],
   };
   const visibleOrder = navKeysForType[type] ?? ORDER;
@@ -237,6 +250,16 @@ export function buildFeatureNavItems(
   // Vertical-native management items that used to live in disconnected pro sidebars.
   // They now appear in the same blue dashboard sidebar.
   switch (type) {
+    case 'digital_products':
+      // "Create a course" is a first-class flow for digital sellers, always
+      // available regardless of feature-flag detail (route resolves at click).
+      pushUnique({
+        id: 'create-course', icon: GraduationCap, tone: 'violet',
+        titleFr: 'Créer une formation', titleEn: 'Create a course',
+        descFr: "Ton cours avec l'IA", descEn: 'Your course with AI',
+        route: '/admin/programs',
+      });
+      break;
     case 'church':
       // Primary church modules ONLY. Optional modules (CRM, Prayer, Campaigns,
       // Appointments, Announcements) are activated by the user from

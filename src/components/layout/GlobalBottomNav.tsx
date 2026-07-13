@@ -6,7 +6,7 @@ import { LayoutDashboard, Compass, Package, MessageSquare, Menu as MenuIcon } fr
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { Sidebar } from './Sidebar';
+import { MobileMenuDrawer } from './MobileMenuDrawer';
 
 /** Hide bottom nav (prefix match) */
 const HIDE_NAV_ROUTES = ['/auth', '/reels', '/superadmin'];
@@ -120,10 +120,8 @@ export function GlobalBottomNav() {
       </nav>
 
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent side="left" className="p-0 w-[280px] max-w-[85vw]">
-          <div onClick={() => setMenuOpen(false)}>
-            <Sidebar />
-          </div>
+        <SheetContent side="right" className="p-0 w-[86vw] max-w-[380px] border-l border-border/60">
+          <MobileMenuDrawer onClose={() => setMenuOpen(false)} />
         </SheetContent>
       </Sheet>
     </>

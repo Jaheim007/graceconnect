@@ -35,11 +35,21 @@ const CHART_COLORS = [
 
 export default function CreatorAdvancedAnalyticsPage() {
   const navigate = useNavigate();
-  const { currentOrg } = useOrg();
+  const { currentOrg, userOrgs, canManage, setCurrentOrg, isLoadingOrgs } = useOrg();
   const { locale } = useI18n();
   const { fmt } = useDisplayCurrency();
   const isFr = locale === 'fr';
   const [period, setPeriod] = useState<Period>(90);
+
+  const manageableOrgs = useMemo(
+    () => userOrgs.filter((o) => canManage(o.id)),
+    [userOrgs, canManage],
+  );
+
+  // Auto-select the only manageable workspace if none is active.
+  if (!currentOrg && !isLoadingOrgs && manageableOrgs.length === 1) {
+    setCurrentOrg(manageableOrgs[0]);
+  }
 
   const { data: cohorts, isLoading: loadingCohorts } = useBuyerCohorts(currentOrg?.id);
   const { data: churn, isLoading: loadingChurn } = useChurnMetrics(currentOrg?.id);
@@ -102,13 +112,43 @@ export default function CreatorAdvancedAnalyticsPage() {
   }, [churn, isFr]);
 
   if (!currentOrg) {
+    if (isLoadingOrgs) {
+      return <div className="min-h-screen flex items-center justify-center"><BarChart3 className="w-6 h-6 animate-pulse text-muted-foreground" /></div>;
+    }
+    if (manageableOrgs.length > 1) {
+      return (
+        <div className="container max-w-xl px-4 py-10 space-y-4">
+          <h1 className="text-xl font-bold">{isFr ? 'Choisissez un espace' : 'Choose a workspace'}</h1>
+          <p className="text-sm text-muted-foreground">
+            {isFr ? 'Analytics est propre à un espace de travail.' : 'Analytics is scoped to a workspace.'}
+          </p>
+          <div className="grid gap-2">
+            {manageableOrgs.map((org) => (
+              <button
+                key={org.id}
+                onClick={() => setCurrentOrg(org)}
+                className="w-full text-left rounded-2xl border border-border bg-card p-3 hover:border-primary/40 transition"
+              >
+                <div className="text-sm font-semibold">{org.name}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="max-w-md">
           <CardContent className="p-6 text-center space-y-3">
             <BarChart3 className="w-10 h-10 mx-auto text-muted-foreground" />
-            <p>{isFr ? 'Sélectionnez une organisation pour voir les analyses.' : 'Select an organization to view analytics.'}</p>
-            <Button onClick={() => navigate('/dashboard')}>{isFr ? 'Retour' : 'Back'}</Button>
+            <p className="font-semibold">{isFr ? 'Analytics nécessite un espace' : 'Analytics requires a workspace'}</p>
+            <p className="text-sm text-muted-foreground">
+              {isFr ? 'Créez un espace pour suivre vos ventes et cohortes.' : 'Create a workspace to track sales and cohorts.'}
+            </p>
+            <div className="flex gap-2 justify-center">
+              <Button variant="outline" onClick={() => navigate('/dashboard')}>{isFr ? 'Retour' : 'Back'}</Button>
+              <Button onClick={() => navigate('/create-org')}>{isFr ? 'Créer un espace' : 'Create workspace'}</Button>
+            </div>
           </CardContent>
         </Card>
       </div>

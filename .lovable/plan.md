@@ -1,56 +1,80 @@
+# Correction pass — mobile, Digital Products, /dashboard, Analytics
 
-## Goal
+Four connected fixes. Preserves all data (users, workspaces, products, courses, enrollments, purchases, messages, commissions, revenue, church data, events data).
 
-There must be ONE signed-in shell (AppLayout + professional dark-navy Sidebar + TopBar) for every authenticated route. No "Personal" sidebar, no `PersonalBottomNav` on customer routes, no detached full-width pages for Purchases/Programs/Earn. The same sidebar shows two grouped sections: **ACCOUNT** (Explore, My Purchases, My Programs, Messages, Earn) and **WORKSPACE** (workspace-specific tools when a workspace is selected).
+## 1. Native mobile drawer + bottom nav
 
-## Changes
+**Files:** `src/components/layout/GlobalBottomNav.tsx`, new `src/components/layout/MobileMenuDrawer.tsx`, `src/components/layout/Sidebar.tsx`, `src/index.css`.
 
-### 1. Move detached pages into the unified shell (`src/App.tsx`)
-- Remove standalone `<Route path="/gagner" element={<GagnerPage />} />` and re-add it under the `<AppLayout />` route group as `RequireAuth`.
-- Same for `/ecrire`, `/vendre`, `/creer-formation` when signed-in (keep public variants unauth via AdaptiveLayout only if guest — but since these are hybrid, wrap them inside AppLayout when authed by routing through a wrapper that omits AdaptiveLayout's chrome for signed-in users). Simplest: strip `AdaptiveLayout` from GagnerPage and mount route inside AppLayout.
-- Ensure `/my-purchases`, `/my-programs`, `/dashboard/explore`, `/dashboard/messages` render inside AppLayout (already are for programs/explore/messages; `/my-purchases` currently sits outside — move it inside the AppLayout route group and drop the standalone `<Route path="/my-purchases">` at line 601).
+- Keep 5-item bottom nav (Overview, Explore, Purchases, Messages, Menu).
+- "Menu" opens a new `MobileMenuDrawer` — NOT the desktop `Sidebar` stuffed in a Sheet. Purpose-built native list:
+  - Full `100dvh` height, safe-area top/bottom padding via `env(safe-area-inset-*)`.
+  - Compact header: workspace selector (compact chip, tap-target ≥44px) + close button.
+  - Groups: ACCOUNT / WORKSPACE (small caps label).
+  - Rows: 48px min-height, icon (rounded tinted square), label only — no description, no border card per row.
+  - Body scrolls independently; header sticky.
+  - Native transitions from existing `Sheet`; press feedback `active:scale-[0.98]`.
+- `Sidebar.tsx` gains a `variant?: 'mobile' | 'desktop'` OR we ship a separate component for mobile to avoid regressing desktop. Chosen: separate component.
+- Verify at 320/360/375/390/412/430 px with Playwright.
 
-### 2. Rewrite `Sidebar.tsx` — one professional sidebar for all routes
-- Remove the route-aware split between "customer sidebar" and "workspace sidebar". Always render the professional dark-navy workspace-style sidebar.
-- Top: workspace switcher card (`OrgSwitcher`) — shows current workspace or "Create workspace" CTA when none.
-- Group **ACCOUNT** (always visible): Explore (`/discover`), My Purchases (`/my-purchases`), My Programs (`/my-programs`), Messages (`/dashboard/messages`), Earn (`/gagner`).
-- Group **WORKSPACE** (only when `currentOrg`): Overview (`/admin`), plus module items from `featureNavBuilder` filtered to exclude Promotion, Claim, My Purchases, My Programs (already done). Include Revenue, Settings.
-- Bottom: Sign out.
-- Same styling for desktop and mobile drawer. Remove `PersonalSidebarNav` usage.
+## 2. Digital Products workspace overview & sidebar
 
-### 3. Kill `PersonalBottomNav` on customer routes
-- In `GlobalBottomNav.tsx`, replace the `PersonalBottomNav` branch with a compact unified bottom nav: Overview, Explore, Purchases, Messages, Menu (opens the full Sidebar as a Sheet drawer). Same shell everywhere; consistent with sidebar IA.
-- Vertical provider surfaces keep their existing vertical `BottomNav`.
+**Files:** `src/lib/navigation/featureNavBuilder.ts`, `src/components/siteviral/AdaptiveDashboard.tsx`.
 
-### 4. Copy cleanup
-- `src/i18n/locales.ts`: replace `'page.dashboard_desc'` "Your personal overview…" and `'tour.dashboard_1_title'` "Your personal overview" with account/workspace-neutral wording ("Your SiteViral overview" / "Votre tableau SiteViral").
-- `PersonalHome.tsx`: audit and remove any "personal space / espace personnel" copy in headings/subtitles.
-- Keep filenames (`PersonalHome`, `PersonalActivityPage`, `PersonalMessagesPage`, `PersonalBottomNav`) as internal artifacts — no visible "Personal" wording.
+Sidebar for `siteviral_type === 'digital_products'` shows exactly:
+Overview, Sell (`/admin/products`), Write a book (`/ecrire`), Create a course (`/creer-formation` → routes to `/create-org` when no org, else new admin creation entry — keeping existing route), Product comments (only if `product_comments` enabled), Revenue, Settings.
 
-### 5. Avatar menu simplification (`TopBar.tsx`)
-- Remove Explore / My Purchases / My Programs / Earn from the avatar dropdown (they now live in the sidebar).
-- Keep: Profile, Billing & invoices, Appearance, Create workspace, Switch/manage workspace, Account settings/security, Sign out.
+- Add `ai_formation_creation` handling in `specFor` → "Create a course / Créer une formation" tone violet, route `/creer-formation`.
+- Add `product_comments` handling → "Product comments" route `/admin/comments` if that page exists, else keep hidden.
+- For `digital_products` type: `navKeysForType.digital_products = ['digital_products','ai_book_creation','ai_formation_creation','product_comments']`. Explicitly excludes `donation_gifts` and `events` unless the org has them enabled AND is not `digital_products` type (church keeps them).
+- `AdaptiveDashboard`: for digital_products type, filter `firstActions` and `activeKeys` to the same allow-list; hide events/donations cards unless explicitly enabled AND appropriate for the type. Remove any "Earn" quick action from the workspace overview (it isn't there today but audit and enforce).
 
-### 6. Workspace preservation
-- `OrgContext` already preserves `currentOrg` across route changes — no change needed. Verify `AdminShell` no longer auto-clears.
-- Login/redirect priority (pending action → last route → `/dashboard`) already handled by `useNewUserRedirect` + `AuthCallbackPage`.
+## 3. `/dashboard` smart resolver
 
-### 7. Ensure `/admin` copy uses workspace name, not "personal space"
-- `AdminShell` empty state already workspace-worded. Audit `UserDashboard` briefly for any residual "personal" copy.
+**Files:** `src/pages/DashboardRouter.tsx`, `src/components/layout/TopBar.tsx` (avatar Dashboard link → `/dashboard`).
 
-## Explicitly out of scope in this pass
-- Full Favorites/Wishlist consolidation into a single `/saved` page. Data preserved; old direct sidebar entries already removed. Will report as remaining gap.
-- Native mobile shell (Capacitor) — unchanged.
+New resolver logic in `DashboardRouter`:
+1. Pending action (existing `pendingAction` util): resume it.
+2. `currentOrg` set AND user canManage → `Navigate to /admin`.
+3. Else if `userOrgs.length === 1` with manage rights AND nothing saved → auto-select, `Navigate to /admin`.
+4. Else if manageable orgs > 1 AND no saved → render inline `WorkspaceChooser` (list of manageable orgs, "Choose a workspace to manage" copy, "Create workspace" link).
+5. Else (zero manageable orgs) → render `PersonalHome` inside the unified shell (no rename of the file needed; UX is neutral).
 
-## Files to touch
-- `src/App.tsx` — move `/my-purchases` and `/gagner` into `AppLayout` group.
-- `src/pages/GagnerPage.tsx` — remove `AdaptiveLayout` wrapper (page becomes route child of AppLayout).
-- `src/components/layout/Sidebar.tsx` — one unified sidebar with ACCOUNT + WORKSPACE groups.
-- `src/components/layout/GlobalBottomNav.tsx` — unified compact bottom nav, drop `PersonalBottomNav` branch.
-- `src/components/layout/TopBar.tsx` — trim avatar menu duplicates.
-- `src/lib/navigation/actionNavItems.ts` — expose an `ACCOUNT_NAV_ITEMS` array used by both Sidebar and BottomNav.
-- `src/i18n/locales.ts` — 2 string edits.
-- `src/pages/dashboard/PersonalHome.tsx` — copy audit.
+## 4. Analytics gating
 
-## Acceptance check
-After edits: manually walk `/my-purchases`, `/my-programs`, `/gagner`, `/dashboard/explore`, `/dashboard/messages`, `/admin` — all render the same professional Sidebar + TopBar. Workspace selector preserved across all. Run `tsgo`.
+**Files:** `src/pages/CreatorAdvancedAnalyticsPage.tsx`, `src/components/layout/TopBar.tsx`, wherever the avatar exposes Analytics.
+
+- If `currentOrg` null AND exactly one manageable org exists → auto-select + reload page.
+- If `currentOrg` null AND multiple → show workspace chooser inline (reusing chooser from #3).
+- If zero manageable orgs → hide Analytics entry from menus; page shows a soft "Analytics requires a workspace" with CTA to `/create-org`.
+- TopBar avatar: only render Analytics link when `managedOrgs.length > 0`.
+
+## 5. Copy cleanup
+
+- OrgSwitcher: when no org selected but orgs exist, label is `Choisir un espace` / `Choose workspace` (no truncation).
+- Remove any remaining `personal space` / `espace personnel` strings.
+
+## Out of scope (preserve current behavior)
+
+- No DB migrations.
+- No changes to PersonalHome content (still renders inside unified shell for zero-workspace case).
+- Events/donations code, church code, payments, KYC, RLS untouched.
+- Desktop sidebar visual language unchanged.
+
+## Verification
+
+- `tsgo --noEmit`.
+- Playwright: sign in as test user, visit `/dashboard`, `/admin`, `/my-purchases`, open mobile drawer at 360/390/430.
+- Visual screenshot check of Digital Products workspace overview.
+
+## Files changed (estimate)
+
+1. `src/components/layout/GlobalBottomNav.tsx`
+2. `src/components/layout/MobileMenuDrawer.tsx` (new)
+3. `src/lib/navigation/featureNavBuilder.ts`
+4. `src/components/siteviral/AdaptiveDashboard.tsx`
+5. `src/pages/DashboardRouter.tsx`
+6. `src/components/layout/TopBar.tsx`
+7. `src/pages/CreatorAdvancedAnalyticsPage.tsx`
+8. `src/components/org/OrgSwitcher.tsx` (copy only)
+9. `src/index.css` (safe-area utility if missing)
