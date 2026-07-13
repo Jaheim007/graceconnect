@@ -35,7 +35,7 @@ export function AutoScrollRail<T>({
   labels,
 }: AutoScrollRailProps<T>) {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
   const draggingRef = useRef(false);
   const dragStartXRef = useRef(0);
   const dragStartScrollRef = useRef(0);
