@@ -2253,7 +2253,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'tour.done': 'Compris !',
     'tour.step_of': 'Étape {step} de {total}',
     // Per-page tour content
-    'tour.dashboard_1_title': 'Votre aperçu personnel',
+    'tour.dashboard_1_title': 'Votre aperçu SiteViral',
     'tour.dashboard_1_desc': 'Consultez vos achats, dons et gains ambassadeur en un coup d\'œil.',
     'tour.dashboard_2_title': 'Actions rapides',
     'tour.dashboard_2_desc': 'Accédez à vos ressources, créez une organisation ou gérez votre compte.',
