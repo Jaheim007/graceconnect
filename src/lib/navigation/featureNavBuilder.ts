@@ -150,11 +150,21 @@ function specFor(
       descFr: 'Billets et invitations', descEn: 'Tickets & invites',
       route: type === 'church' ? '/admin/church/events' : '/admin/events',
     };
+    case 'ai_formation_creation': return {
+      id: 'create-course', icon: GraduationCap, tone: 'violet',
+      titleFr: 'Créer une formation', titleEn: 'Create a course',
+      descFr: "Ton cours avec l'IA", descEn: 'Your course with AI',
+      route: '/creer-formation',
+    };
+    case 'product_comments': return {
+      id: 'product-comments', icon: MessageSquare, tone: 'cyan',
+      titleFr: 'Commentaires produits', titleEn: 'Product comments',
+      descFr: 'Modération et réponses', descEn: 'Moderate & reply',
+      route: '/admin/comments',
+    };
     // Optional/extra tools stay in Settings → Modules until activated for a
-    // focused dashboard: order generator, AI courses, CRM/comments, reviews.
+    // focused dashboard: order generator, reviews.
     case 'order_generator':
-    case 'ai_formation_creation':
-    case 'product_comments':
     case 'reviews':
     // Platform config — never in nav
     case 'affiliation':
