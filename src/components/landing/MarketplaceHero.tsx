@@ -75,22 +75,21 @@ export function MarketplaceHero() {
           </Button>
         </form>
 
-        {/* Provider prompt */}
-        <div className="mx-auto mt-10 sm:mt-12 max-w-xl flex flex-col items-center gap-3">
-          <p className="text-sm sm:text-base font-bold text-sidebar-foreground">
-            {fr ? 'Prêt à proposer vos compétences ?' : 'Ready to offer your skills?'}
+        {/* Provider prompt — benefit-led */}
+        <div className="mx-auto mt-12 sm:mt-16 max-w-xl flex flex-col items-center gap-3">
+          <p className="text-xl sm:text-2xl font-black tracking-tight text-sidebar-foreground">
+            {fr ? 'Transformez vos compétences en revenus.' : 'Turn your skills into income.'}
           </p>
-          <p className="text-xs sm:text-sm text-sidebar-foreground/60 -mt-1">
+          <p className="text-sm sm:text-base text-sidebar-foreground/70 max-w-md">
             {fr
-              ? 'Créez votre espace professionnel et commencez à toucher des clients.'
-              : 'Create your professional space and start reaching customers.'}
+              ? 'Créez votre espace pro en quelques minutes, encaissez en toute sécurité, développez votre clientèle.'
+              : 'Set up your pro space in minutes, get paid securely, and grow your client base.'}
           </p>
           <Button
-            variant="outline"
             onClick={() => { setIntent('provider', '/start'); navigate('/start'); }}
-            className="h-11 px-5 rounded-xl border-white/25 bg-white/5 text-sidebar-foreground hover:bg-white/10 font-semibold gap-1.5 mt-1"
+            className="h-12 px-6 rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 font-bold gap-1.5 mt-2 shadow-lg shadow-accent/20"
           >
-            {fr ? 'Proposer mes services' : 'Offer your services'}
+            {fr ? 'Commencer à vendre' : 'Start selling'}
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
