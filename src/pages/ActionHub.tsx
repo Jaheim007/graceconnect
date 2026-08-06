@@ -213,7 +213,7 @@ export default function ActionHub() {
               <motion.button
                 key={action.id}
                 variants={item}
-                onClick={() => navigate(action.route)}
+                onClick={() => handleAction(action)}
                 className={cn(
                   'w-full flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl border bg-card transition-all duration-150 group text-left',
                   'active:scale-[0.97] active:opacity-80',
