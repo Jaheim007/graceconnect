@@ -784,8 +784,9 @@ const App = () => (
                   <Route path="/quick-start" element={<QuickStartPage />} />
                   <Route path="/quick-publish" element={<QuickPublishPage />} />
                   {/* /create-org is public (moved above); auth prompted at final step */}
-                  <Route path="/onboarding/type" element={<LazyOnboardingType />} />
-                  <Route path="/onboarding/goals" element={<LazyOnboardingGoals />} />
+                  {/* Legacy type/goals onboarding retired — everything happens in /create-org + unified dashboard */}
+                  <Route path="/onboarding/type" element={<Navigate to="/admin" replace />} />
+                  <Route path="/onboarding/goals" element={<Navigate to="/admin" replace />} />
                   
                   <Route path="/support" element={<SupportPage />} />
                   <Route path="/affiliation" element={<Navigate to="/gagner" replace />} />
