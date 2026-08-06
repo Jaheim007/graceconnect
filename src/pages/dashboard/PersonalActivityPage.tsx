@@ -34,7 +34,11 @@ export default function PersonalActivityPage() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [params, setParams] = useSearchParams();
-  const active = (params.get('tab') as Tab) || 'purchases';
+  const services = showServiceSurfaces();
+  const requested = (params.get('tab') as Tab) || 'purchases';
+  const active: Tab =
+    !services && ['orders', 'bookings', 'tickets'].includes(requested) ? 'purchases' : requested;
+
 
   const setTab = (t: Tab) => {
     const next = new URLSearchParams(params);
