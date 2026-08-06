@@ -99,9 +99,11 @@ export default function SuperadminLayout() {
     <div className="min-h-screen flex bg-background">
       {/* ═══ SIDEBAR ═══ */}
       <aside className={cn(
-        'hidden lg:flex flex-col border-r border-border/60 bg-card/80 backdrop-blur-xl transition-all duration-300 shrink-0 sticky top-0 h-screen',
-        collapsed ? 'w-[68px]' : 'w-[220px]'
+        'relative hidden lg:flex flex-col border-r border-border/60 bg-card/80 backdrop-blur-xl transition-all duration-300 shrink-0 sticky top-0 h-screen shadow-xl',
+        'before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(120%_50%_at_0%_0%,hsl(var(--primary)/0.08),transparent_60%)]',
+        collapsed ? 'w-[68px]' : 'w-[232px]'
       )}>
+
         {/* Logo header */}
         <div className={cn('p-4 border-b border-border/40 flex items-center gap-3', collapsed && 'justify-center')}>
           <div className="h-10 w-10 rounded-xl overflow-hidden shrink-0 shadow-md ring-1 ring-border/40">
