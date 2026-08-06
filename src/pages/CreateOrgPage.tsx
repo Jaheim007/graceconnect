@@ -19,15 +19,10 @@ import { OrgOnboardingWizard } from '@/components/onboarding/OrgOnboardingWizard
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
-import { ALL_WORLDS, WORLDS, type SiteviralWorld } from '@/lib/siteviral/worlds';
+import { WORLDS, type SiteviralWorld } from '@/lib/siteviral/worlds';
 import { createWorkspace } from '@/lib/siteviral/createWorkspace';
+import { PLATFORM_PROFILES, getPlatformProfile, profileForWorld, type PlatformProfileId } from '@/lib/siteviral/platformProfiles';
 
-
-const GOALS = [
-  { value: 'sell', emoji: '💰', label: 'Vendre', desc: 'Produits numériques, ebooks, formations' },
-  { value: 'donate', emoji: '❤️', label: 'Collecter des dons', desc: 'Campagnes de financement' },
-  { value: 'both', emoji: '🚀', label: 'Les deux', desc: 'Ventes + collecte de dons' },
-] as const;
 
 const schema = z.object({
   name: z.string().min(3, 'Au moins 3 caractères').max(80),
@@ -54,12 +49,15 @@ export default function CreateOrgPage() {
   const worldParam = (searchParams.get('world') || searchParams.get('activity') || '') as SiteviralWorld;
   const presetWorld: SiteviralWorld | null = worldParam && worldParam in WORLDS ? worldParam : null;
 
-  const [step, setStep] = useState(presetWorld ? 1 : 0); // 0=type, 1=name, 2=currency, 3=goal
+  const presetProfile = profileForWorld(presetWorld);
+  const [step, setStep] = useState(presetProfile ? 1 : 0); // 0=platform profile, 1=name, 2=currency, 3=first objective
   const [loading, setLoading] = useState(false);
   const [resuming, setResuming] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [selectedGoal, setSelectedGoal] = useState<string>('both');
-  const [selectedWorld, setSelectedWorld] = useState<SiteviralWorld>(presetWorld ?? 'digital');
+  const [profileId, setProfileId] = useState<PlatformProfileId>(presetProfile ?? 'creator');
+  const profile = getPlatformProfile(profileId);
+  const [selectedGoal, setSelectedGoal] = useState<string>(profile.objectives[0].id);
+  const selectedWorld: SiteviralWorld = profile.world;
 
   const [selectedCurrency, setSelectedCurrency] = useState(() => detectCurrencyFromTimezone());
 
@@ -142,11 +140,13 @@ export default function CreateOrgPage() {
         }
       } catch { /* ignore */ }
 
+      const objective = profile.objectives.find((o) => o.id === selectedGoal) ?? profile.objectives[0];
+
       const { orgId, org: newOrg } = await createWorkspace({
         name: data.name,
         world: selectedWorld,
         currency: selectedCurrency,
-        extraFeatures,
+        extraFeatures: [...extraFeatures, ...objective.features],
         providerProfile,
         partnerCode,
       });
