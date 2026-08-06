@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, BookOpen, GraduationCap, Store, Compass, HandCoins, Rocket } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -48,13 +48,43 @@ export default function ActionHub() {
     }
   };
 
-  const actions = getActionNavItems({
+  /** Visitor menu — the core SiteViral actions, no marketplace surfaces. */
+  const visitorActions = [
+    { id: 'write', icon: BookOpen, titleFr: 'Écrire un livre avec l\'IA', titleEn: 'Write a book with AI',
+      descFr: "De l'idée au livre prêt à vendre", descEn: 'From idea to a sellable book',
+      route: '/ecrire', borderClass: 'border-primary/30 hover:border-primary/60',
+      iconBg: 'bg-primary/15', iconColor: 'text-primary' },
+    { id: 'course', icon: GraduationCap, titleFr: 'Créer une formation', titleEn: 'Create a formation',
+      descFr: 'Modules, leçons, quiz et certificats', descEn: 'Modules, lessons, quizzes and certificates',
+      route: '/creer-formation', borderClass: 'border-indigo-500/30 hover:border-indigo-500/60',
+      iconBg: 'bg-indigo-500/15', iconColor: 'text-indigo-500' },
+    { id: 'sell', icon: Store, titleFr: 'Vendre mes produits digitaux', titleEn: 'Sell my digital products',
+      descFr: 'Ebooks, PDF, formations — paiements inclus', descEn: 'Ebooks, PDFs, formations — payments included',
+      route: '/vendre', borderClass: 'border-amber-500/30 hover:border-amber-500/60',
+      iconBg: 'bg-amber-500/15', iconColor: 'text-amber-500' },
+    { id: 'platform', icon: Rocket, titleFr: 'Créer ma plateforme', titleEn: 'Create my platform',
+      descFr: 'Créateur, organisation, ONG, communauté ou église', descEn: 'Creator, organization, NGO, community or church',
+      route: '/create-org', borderClass: 'border-sky-500/30 hover:border-sky-500/60',
+      iconBg: 'bg-sky-500/15', iconColor: 'text-sky-500' },
+    { id: 'earn', icon: HandCoins, titleFr: 'Gagner avec l\'affiliation', titleEn: 'Earn through affiliation',
+      descFr: 'Partage et touche des commissions', descEn: 'Share products and earn commissions',
+      route: '/gagner', borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
+      iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-500' },
+    { id: 'discover', icon: Compass, titleFr: 'Découvrir des produits', titleEn: 'Discover products',
+      descFr: 'Livres, formations et ressources', descEn: 'Books, formations and resources',
+      route: '/discover', borderClass: 'border-violet-500/30 hover:border-violet-500/60',
+      iconBg: 'bg-violet-500/15', iconColor: 'text-violet-500' },
+  ];
+
+  const authedActions = getActionNavItems({
     isAuthenticated: !!user,
     hasPurchases,
     hasManageableOrg,
     hasOrgs,
     isSuperadmin,
   }, resolveRoute);
+
+  const actions = user ? authedActions : visitorActions;
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background">
