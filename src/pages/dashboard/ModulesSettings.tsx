@@ -73,12 +73,6 @@ export default function ModulesSettings() {
       descFr: 'Obligatoire pour tout prestataire.', descEn: 'Required for every provider.' },
     { icon: CreditCard, labelFr: 'Paiements', labelEn: 'Payments',
       descFr: 'Encaissement intégré à ton service.', descEn: 'Built into your service.' },
-    { icon: Star, labelFr: 'Avis clients', labelEn: 'Client reviews',
-      descFr: 'Les clients notent ton service.', descEn: 'Clients rate your service.' },
-    { icon: MessageSquare, labelFr: 'Commentaires', labelEn: 'Comments',
-      descFr: 'Sur tes produits et publications.', descEn: 'On your products and posts.' },
-    { icon: Receipt, labelFr: 'Commandes & devis', labelEn: 'Orders & quotes',
-      descFr: 'Suivi de tes ventes.', descEn: 'Tracks your sales.' },
   ];
 
   const otherWorlds = ALL_WORLDS.filter((w) => w.id !== primaryWorld);
