@@ -12,7 +12,7 @@ import { User, Building2, HeartHandshake, Users, Church, type LucideIcon } from 
 import type { SiteviralFeatureKey } from '@/types/database';
 import type { SiteviralWorld } from '@/lib/siteviral/worlds';
 
-export type PlatformProfileId = 'creator' | 'organization' | 'ngo' | 'community' | 'church';
+export type PlatformProfileId = 'creator' | 'ngo' | 'community' | 'church';
 
 export interface PlatformObjective {
   id: string;
@@ -32,7 +32,6 @@ export interface PlatformProfile {
   world: SiteviralWorld;
   /** organizations.category value. */
   category: 'church' | 'leader' | 'community' | 'ngo' | 'other';
-  recommended?: boolean;
   objectives: PlatformObjective[];
 }
 
@@ -44,7 +43,7 @@ export const PLATFORM_PROFILES: PlatformProfile[] = [
     icon: User, emoji: '✍️',
     labelFr: 'Créateur / Auteur', labelEn: 'Creator / Author',
     descFr: 'Livres, formations et produits digitaux', descEn: 'Books, courses and digital products',
-    world: 'digital', category: 'leader', recommended: true,
+    world: 'digital', category: 'leader',
     objectives: [
       { id: 'sell-digital', emoji: '💰', labelFr: 'Vendre des produits digitaux', labelEn: 'Sell digital products', features: SELL },
       { id: 'write-book', emoji: '📖', labelFr: 'Écrire un livre', labelEn: 'Write a book', features: [...SELL, 'ai_book_creation'] },
@@ -53,16 +52,19 @@ export const PLATFORM_PROFILES: PlatformProfile[] = [
     ],
   },
   {
-    id: 'organization',
-    icon: Building2, emoji: '🏢',
-    labelFr: 'Organisation', labelEn: 'Organization',
-    descFr: 'Contenus, ressources et paiements', descEn: 'Content, resources and payments',
-    world: 'digital', category: 'other',
+    id: 'church',
+    icon: Church, emoji: '⛪',
+    labelFr: 'Église / Ministère', labelEn: 'Church / Ministry',
+    descFr: 'Prédications, ressources, offrandes et événements', descEn: 'Sermons, resources, offerings and events',
+    world: 'church', category: 'church',
     objectives: [
-      { id: 'sell-content', emoji: '💰', labelFr: 'Vendre du contenu digital', labelEn: 'Sell digital content', features: SELL },
-      { id: 'publish-resources', emoji: '📄', labelFr: 'Publier des ressources', labelEn: 'Publish resources', features: SELL },
-      { id: 'create-formations', emoji: '🎓', labelFr: 'Créer des formations', labelEn: 'Create formations', features: [...SELL, 'ai_formation_creation'] },
-      { id: 'receive-payments', emoji: '💳', labelFr: 'Recevoir des paiements', labelEn: 'Receive payments', features: ['payment', 'kyc'] },
+      { id: 'sermon-to-book', emoji: '📖', labelFr: 'Transformer les prédications en livres/ressources', labelEn: 'Turn sermons into books/resources', features: ['ai_book_creation', ...SELL] },
+      { id: 'sell-teachings', emoji: '💰', labelFr: 'Vendre enseignements et ressources spirituelles', labelEn: 'Sell teachings and spiritual resources', features: SELL },
+      { id: 'offerings', emoji: '🎁', labelFr: 'Recevoir offrandes, dîmes et dons', labelEn: 'Receive offerings, tithes and donations', features: ['donation_gifts', 'payment', 'kyc'] },
+      { id: 'campaigns', emoji: '🚀', labelFr: 'Créer des campagnes de financement', labelEn: 'Create fundraising campaigns', features: ['donation_gifts', 'payment', 'kyc'] },
+      { id: 'events', emoji: '📅', labelFr: 'Publier des événements', labelEn: 'Publish events', features: ['events', 'payment'] },
+      { id: 'formations', emoji: '🎓', labelFr: 'Créer des formations', labelEn: 'Create formations', features: [...SELL, 'ai_formation_creation'] },
+      { id: 'all', emoji: '✨', labelFr: 'Utiliser plusieurs outils ensemble', labelEn: 'Use several tools together', features: [...SELL, 'donation_gifts', 'events', 'ai_book_creation', 'kyc'] },
     ],
   },
   {
@@ -89,22 +91,6 @@ export const PLATFORM_PROFILES: PlatformProfile[] = [
       { id: 'publish-resources', emoji: '📄', labelFr: 'Publier des ressources', labelEn: 'Publish resources', features: SELL },
       { id: 'support', emoji: '❤️', labelFr: 'Recevoir du soutien', labelEn: 'Receive support', features: ['donation_gifts', 'payment'] },
       { id: 'create-formations', emoji: '🎓', labelFr: 'Créer des formations', labelEn: 'Create formations', features: [...SELL, 'ai_formation_creation'] },
-    ],
-  },
-  {
-    id: 'church',
-    icon: Church, emoji: '⛪',
-    labelFr: 'Église / Ministère', labelEn: 'Church / Ministry',
-    descFr: 'Prédications, ressources, offrandes et événements', descEn: 'Sermons, resources, offerings and events',
-    world: 'church', category: 'church',
-    objectives: [
-      { id: 'sermon-to-book', emoji: '📖', labelFr: 'Transformer les prédications en livres/ressources', labelEn: 'Turn sermons into books/resources', features: ['ai_book_creation', ...SELL] },
-      { id: 'sell-teachings', emoji: '💰', labelFr: 'Vendre enseignements et ressources spirituelles', labelEn: 'Sell teachings and spiritual resources', features: SELL },
-      { id: 'offerings', emoji: '🎁', labelFr: 'Recevoir offrandes, dîmes et dons', labelEn: 'Receive offerings, tithes and donations', features: ['donation_gifts', 'payment', 'kyc'] },
-      { id: 'campaigns', emoji: '🚀', labelFr: 'Créer des campagnes de financement', labelEn: 'Create fundraising campaigns', features: ['donation_gifts', 'payment', 'kyc'] },
-      { id: 'events', emoji: '📅', labelFr: 'Publier des événements', labelEn: 'Publish events', features: ['events', 'payment'] },
-      { id: 'formations', emoji: '🎓', labelFr: 'Créer des formations', labelEn: 'Create formations', features: [...SELL, 'ai_formation_creation'] },
-      { id: 'all', emoji: '✨', labelFr: 'Utiliser plusieurs outils ensemble', labelEn: 'Use several tools together', features: [...SELL, 'donation_gifts', 'events', 'ai_book_creation', 'kyc'] },
     ],
   },
 ];
