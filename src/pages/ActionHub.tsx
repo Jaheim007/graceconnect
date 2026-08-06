@@ -76,7 +76,7 @@ export default function ActionHub() {
       iconBg: 'bg-violet-500/15', iconColor: 'text-violet-500' },
   ];
 
-  const authedActions = getActionNavItems({
+  const baseAuthed = getActionNavItems({
     isAuthenticated: !!user,
     hasPurchases,
     hasManageableOrg,
@@ -84,7 +84,47 @@ export default function ActionHub() {
     isSuperadmin,
   }, resolveRoute);
 
+  /** Signed-in users always see the full menu — empty states are handled by prompts. */
+  const authedActions = (() => {
+    const items = [...baseAuthed];
+    const has = (id: string) => items.some(i => i.id === id);
+    if (!has('sell')) {
+      items.splice(2, 0, {
+        id: 'sell', icon: Store, emoji: '🛒',
+        titleFr: 'Vendre', titleEn: 'Sell',
+        descFr: 'Vends tes livres, formations et plus', descEn: 'Sell your books, courses & more',
+        route: resolveRoute('sell'),
+        borderClass: 'border-amber-500/30 hover:border-amber-500/60',
+        iconBg: 'bg-amber-500/15', iconColor: 'text-amber-500',
+      });
+    }
+    if (!has('sales')) {
+      items.push({
+        id: 'sales', icon: Wallet, emoji: '💵',
+        titleFr: 'Revenus', titleEn: 'Revenue',
+        descFr: 'Ventes, dons reçus, commissions et retraits', descEn: 'Sales, donations, commissions & payouts',
+        route: hasManageableOrg ? '/admin/sales' : '/create-org',
+        borderClass: 'border-teal-500/30 hover:border-teal-500/60',
+        iconBg: 'bg-teal-500/15', iconColor: 'text-teal-500',
+      });
+    }
+    return items;
+  })();
+
   const actions = user ? authedActions : visitorActions;
+
+  const handleAction = (action: { id: string; route: string }) => {
+    if (action.id === 'sales' && !hasManageableOrg) {
+      setPrompt('revenue');
+      return;
+    }
+    if (action.id === 'purchases' && !hasPurchases) {
+      setPrompt('purchases');
+      return;
+    }
+    navigate(action.route);
+  };
+
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background">
