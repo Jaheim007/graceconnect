@@ -347,31 +347,29 @@ export default function CreateOrgPage() {
                 </div>
               )}
 
-              {/* Step 3: Goal + Create */}
+              {/* Step 3: First objective + Create */}
               {step === 3 && (
                 <div className="space-y-5">
                   <h2 className="text-lg font-semibold">{isFr ? 'Que veux-tu faire en premier ?' : 'What do you want to do first?'}</h2>
                   <div className="space-y-2">
-                    {GOALS.map(goal => (
+                    {profile.objectives.map(goal => (
                       <button
-                        key={goal.value}
+                        key={goal.id}
                         type="button"
-                        onClick={() => setSelectedGoal(goal.value)}
+                        onClick={() => setSelectedGoal(goal.id)}
                         className={cn(
                           'w-full flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all',
-                          selectedGoal === goal.value
+                          selectedGoal === goal.id
                             ? 'border-primary bg-primary/5'
                             : 'border-border hover:border-muted-foreground/40'
                         )}
                       >
                         <span className="text-2xl">{goal.emoji}</span>
-                        <div>
-                          <p className="text-sm font-bold">{goal.label}</p>
-                          <p className="text-[10px] text-muted-foreground">{goal.desc}</p>
-                        </div>
+                        <p className="text-sm font-bold">{isFr ? goal.labelFr : goal.labelEn}</p>
                       </button>
                     ))}
                   </div>
+
 
                   <Button
                     className="w-full h-12 gap-2 text-base font-bold"
