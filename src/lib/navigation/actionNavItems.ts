@@ -6,6 +6,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import type { SiteviralFeatureKey } from '@/types/database';
 import type { BuyerWorld } from '@/lib/siteviral/buyerWorlds';
+import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 
 export interface ActionNavItem {
   id: string;
@@ -145,7 +146,7 @@ export function getActionNavItems(
     });
   }
 
-  if (ctx.isAuthenticated && ctx.hasManageableOrg) {
+  if (ctx.isAuthenticated) {
     items.push({
       id: 'write',
       icon: BookOpen,
@@ -159,6 +160,23 @@ export function getActionNavItems(
       iconBg: 'bg-primary/15',
       iconColor: 'text-primary',
       featureKey: 'ai_book_creation',
+    });
+  }
+
+  if (ctx.isAuthenticated) {
+    items.push({
+      id: 'course',
+      icon: GraduationCap,
+      emoji: '🎓',
+      titleFr: 'Créer une formation',
+      titleEn: 'Create a formation',
+      descFr: "Modules, leçons et certificats avec l'IA",
+      descEn: 'Modules, lessons and certificates with AI',
+      route: r('course', '/creer-formation'),
+      borderClass: 'border-indigo-500/30 hover:border-indigo-500/60',
+      iconBg: 'bg-indigo-500/15',
+      iconColor: 'text-indigo-500',
+      featureKey: 'ai_formation_creation',
     });
   }
 
@@ -183,7 +201,7 @@ export function getActionNavItems(
 
   // Buyer interest-driven items — appended right after Explorer so buyers see
   // vertical-specific shortcuts (appointments, bookings, sessions, requests).
-  if (ctx.isAuthenticated && !ctx.hasManageableOrg && ctx.interests?.length) {
+  if (showServiceSurfaces() && ctx.isAuthenticated && !ctx.hasManageableOrg && ctx.interests?.length) {
     const seen = new Set<string>();
     for (const w of ctx.interests) {
       for (const it of interestNavItems(w, false)) {
