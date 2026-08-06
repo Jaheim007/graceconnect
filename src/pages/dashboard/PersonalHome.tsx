@@ -247,7 +247,7 @@ export default function PersonalHome() {
               {isFr ? 'Achats récents' : 'Recent purchases'}
             </h2>
             <Link to="/dashboard/activity?tab=purchases" className="text-xs text-primary font-medium hover:underline">
-              {isFr ? 'Ma bibliothèque' : 'My library'}
+              {isFr ? 'Mes achats' : 'My purchases'}
             </Link>
           </div>
           {purchases.length === 0 ? (
