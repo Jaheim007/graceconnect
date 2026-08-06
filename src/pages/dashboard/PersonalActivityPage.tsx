@@ -8,6 +8,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 
 /**
  * PersonalActivityPage — a customer-facing aggregation layer.
