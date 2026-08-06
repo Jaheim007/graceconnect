@@ -11,7 +11,7 @@ import { buildFeatureNavItems } from '@/lib/navigation/featureNavBuilder';
 import { getActionNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
 import { applyNavOverride } from '@/lib/navigation/actionNavItemOverrides';
 import {
-  Compass, Package, GraduationCap, MessageSquare, HandCoins, Settings,
+  Compass, Library, GraduationCap, MessageSquare, HandCoins, Settings, ShieldCheck,
 } from 'lucide-react';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 import { brandUrl } from '@/lib/storageUrl';
