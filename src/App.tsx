@@ -385,8 +385,6 @@ const LazyStartSellingPage = lazy(() => import("@/pages/StartSellingPage"));
 const LazyStartFinishPage = lazy(() => import("@/pages/start/StartFinishPage"));
 const LazyIntentChooserPage = lazy(() => import("@/pages/IntentChooserPage"));
 const LazyLookingForPage = lazy(() => import("@/pages/LookingForPage"));
-const LazyOnboardingType = lazy(() => import("@/pages/onboarding/OnboardingTypePage"));
-const LazyOnboardingGoals = lazy(() => import("@/pages/onboarding/OnboardingGoalsPage"));
 
 const LazySuperadminOrgs = lazy(() => import("@/pages/superadmin/SuperadminPages").then(m => ({ default: m.SuperadminOrgs })));
 const LazySuperadminKYC = lazy(() => import("@/pages/superadmin/SuperadminPages").then(m => ({ default: m.SuperadminKYC })));
