@@ -50,7 +50,7 @@ export default function CreateOrgPage() {
   const presetWorld: SiteviralWorld | null = worldParam && worldParam in WORLDS ? worldParam : null;
 
   const presetProfile = profileForWorld(presetWorld);
-  const [step, setStep] = useState(presetProfile ? 1 : 0); // 0=platform profile, 1=name, 2=currency, 3=first objective
+  const [step, setStep] = useState(presetProfile ? 1 : 0); // 0=platform profile, 1=name, 2=currency + create
   const [loading, setLoading] = useState(false);
   const [resuming, setResuming] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -91,7 +91,7 @@ export default function CreateOrgPage() {
       if (pending.values?.category) setValue('category', pending.values.category);
       if (pending.currency) setSelectedCurrency(pending.currency);
       if (pending.goal) setSelectedGoal(pending.goal);
-      setStep(3);
+      setStep(2);
       setResuming(true);
       setTimeout(() => { void onSubmit(); }, 50);
     } catch {}
@@ -187,7 +187,7 @@ export default function CreateOrgPage() {
     exit: { x: -60, opacity: 0 },
   };
 
-  const totalSteps = 4;
+  const totalSteps = 3;
 
   return (
     <div className="relative min-h-screen bg-background flex flex-col">
