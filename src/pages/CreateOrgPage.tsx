@@ -280,7 +280,13 @@ export default function CreateOrgPage() {
                             <Icon className="h-5 w-5" />
                           </div>
                           <span className="text-sm font-bold block mb-0.5">{isFr ? w.labelFr : w.labelEn}</span>
+                          {w.id === 'digital' && (
+                            <span className="inline-block mb-1 rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary">
+                              {isFr ? 'Recommandé' : 'Recommended'}
+                            </span>
+                          )}
                           <span className="text-[11px] text-muted-foreground leading-snug block">{isFr ? w.descFr : w.descEn}</span>
+
                         </button>
                       );
                     })}
