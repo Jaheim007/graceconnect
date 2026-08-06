@@ -228,16 +228,16 @@ export function buildFeatureNavItems(
   // workspace-management module. Users reach it from the TopBar avatar menu.
 
 
-  const navKeysForType: Partial<Record<SiteviralType, SiteviralFeatureKey[]>> = {
-    // Digital sellers: Sell + book + course + product comments (each
-    // gated by enabled_features). Events & donations are hidden here even
-    // if legacy flags exist, because they belong to church/other workspaces.
-    digital_products: ['digital_products', 'ai_book_creation', 'ai_formation_creation'],
-    // Church platforms use the SAME dashboard as any other SiteViral
-    // platform — only Giving is added on top. No vertical-specific pages.
-    church: ['digital_products', 'ai_book_creation', 'ai_formation_creation', 'donation_gifts'],
-  };
-  const visibleOrder = navKeysForType[type] ?? ORDER;
+  // ONE dashboard for every SiteViral platform (Creator, Church, NGO,
+  // Community…): Overview → Sell → Write a book → Create a course → Giving.
+  // Nothing vertical-specific, so the sidebar stays short and predictable.
+  const UNIFIED_NAV_KEYS: SiteviralFeatureKey[] = [
+    'digital_products',
+    'ai_book_creation',
+    'ai_formation_creation',
+    'donation_gifts',
+  ];
+  const visibleOrder = UNIFIED_NAV_KEYS;
 
 
   // Matrix-driven operational tools
@@ -247,22 +247,17 @@ export function buildFeatureNavItems(
     if (spec) pushUnique(spec);
   }
 
-  // Vertical-native management items that used to live in disconnected pro sidebars.
-  // They now appear in the same blue dashboard sidebar.
+  // "Create a course" is a first-class flow on every platform type.
+  pushUnique({
+    id: 'create-course', icon: GraduationCap, tone: 'violet',
+    titleFr: 'Créer une formation', titleEn: 'Create a course',
+    descFr: "Ton cours avec l'IA", descEn: 'Your course with AI',
+    route: '/admin/programs',
+  });
+
+  // Vertical-native management items (legacy service verticals only).
   switch (type) {
-    case 'digital_products':
-    case 'church':
-      // Same dashboard for every platform type: "Create a course" is a
-      // first-class flow (route resolves at click). Church platforms get
-      // Giving from the matrix above — no vertical-specific pages, and Team
-      // lives in Settings.
-      pushUnique({
-        id: 'create-course', icon: GraduationCap, tone: 'violet',
-        titleFr: 'Créer une formation', titleEn: 'Create a course',
-        descFr: "Ton cours avec l'IA", descEn: 'Your course with AI',
-        route: '/admin/programs',
-      });
-      break;
+
 
     case 'artisans_home_services':
       pushUnique({ id: 'services', icon: Store, tone: 'sky', titleFr: 'Services', titleEn: 'Services', descFr: 'Prestations et tarifs', descEn: 'Services & pricing', route: '/admin/home/services' });
