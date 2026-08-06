@@ -3,7 +3,7 @@ import { BottomNav } from './BottomNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
-import { LayoutDashboard, Compass, Package, MessageSquare, HandCoins, Menu as MenuIcon } from 'lucide-react';
+import { LayoutDashboard, Compass, Library, MessageSquare, HandCoins, Menu as MenuIcon } from 'lucide-react';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
