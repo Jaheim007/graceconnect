@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 import { brandUrl } from '@/lib/storageUrl';
+import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 
 interface Props {
   onClose: () => void;
