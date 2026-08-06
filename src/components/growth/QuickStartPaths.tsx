@@ -67,7 +67,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       route: '/ecrire',
     };
     case 'ai_formation_creation': return {
-      id: 'ai-content', icon: Sparkles,
+      id: 'ai-content', icon: GraduationCap,
       fr: 'Créer une formation', en: 'Create a course',
       subFr: "L'IA t'aide à créer ton cours", subEn: 'AI helps you build your course',
       route: hasManageableOrg ? '/admin/programs' : '/creer-formation',
@@ -78,7 +78,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
 
     case 'reviews': return null;
     case 'affiliation': return {
-      id: 'share', icon: Share2,
+      id: 'share', icon: HandCoins,
       fr: 'Gagner', en: 'Earn',
       subFr: 'Partage et gagne', subEn: 'Share & earn',
       route: '/admin/affiliation',
