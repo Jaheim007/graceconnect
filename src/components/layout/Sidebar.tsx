@@ -1,8 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
-  ChevronLeft, ChevronRight, LogOut, Settings,
-  Compass, Package, GraduationCap, MessageSquare, HandCoins,
+  ChevronLeft, ChevronRight, LogOut, Settings, ShieldCheck,
+  Compass, Library, GraduationCap, MessageSquare, HandCoins,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
