@@ -95,6 +95,19 @@ export function MobileMenuDrawer({ onClose }: Props) {
   ] : [];
 
 
+  /** ONE dashboard nav: overview, then what you own, then what you sell. */
+  const unifiedNav: ActionNavItem[] = (() => {
+    const overview = workspaceNav.filter((it) => it.route.split('?')[0] === '/admin');
+    const rest = workspaceNav.filter((it) => it.route.split('?')[0] !== '/admin');
+    const seen = new Set<string>();
+    return [...overview, ...accountNav, ...rest].filter((it) => {
+      const key = it.route.split('?')[0];
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  })();
+
   const isActive = (route: string) => {
     const clean = route.split('?')[0];
     if (clean === '/admin') return location.pathname === '/admin';
@@ -152,72 +165,32 @@ export function MobileMenuDrawer({ onClose }: Props) {
         className="flex-1 overflow-y-auto overscroll-contain px-2 py-2"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
       >
-        {accountNav.length > 0 && (
-          <div className="mb-3">
-            <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              {isFr ? 'MENU' : 'MENU'}
-
-            </div>
-            <ul className="space-y-0.5">
-              {accountNav.map((item) => {
-                const Icon = item.icon; const active = isActive(item.route);
-                return (
-                  <li key={item.id}>
-                    <button
-                      onClick={() => handleNav(item.route)}
-                      className={cn(
-                        'w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left',
-                        'active:scale-[0.98] transition',
-                        active ? 'bg-primary/8 text-foreground' : 'text-foreground/90 hover:bg-muted/50',
-                      )}
-                    >
-                      <div className={cn('h-8 w-8 rounded-lg grid place-items-center shrink-0', item.iconBg)}>
-                        <Icon className={cn('h-4 w-4', item.iconColor)} />
-                      </div>
-                      <span className="text-[14px] font-medium truncate flex-1">
-                        {isFr ? item.titleFr : item.titleEn}
-                      </span>
-                      {active && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        )}
-
-        {workspaceNav.length > 0 && (
-          <div className="mb-3">
-            <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              {currentOrg?.name?.toUpperCase().slice(0, 22) || (isFr ? 'ESPACE PRO' : 'WORKSPACE')}
-            </div>
-            <ul className="space-y-0.5">
-              {workspaceNav.map((item) => {
-                const Icon = item.icon; const active = isActive(item.route);
-                return (
-                  <li key={item.id}>
-                    <button
-                      onClick={() => handleNav(item.route)}
-                      className={cn(
-                        'w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left',
-                        'active:scale-[0.98] transition',
-                        active ? 'bg-primary/8 text-foreground' : 'text-foreground/90 hover:bg-muted/50',
-                      )}
-                    >
-                      <div className={cn('h-8 w-8 rounded-lg grid place-items-center shrink-0', item.iconBg)}>
-                        <Icon className={cn('h-4 w-4', item.iconColor)} />
-                      </div>
-                      <span className="text-[14px] font-medium truncate flex-1">
-                        {isFr ? item.titleFr : item.titleEn}
-                      </span>
-                      {active && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        )}
+        {/* ONE unified nav — no groups */}
+        <ul className="space-y-0.5 mb-3">
+          {unifiedNav.map((item) => {
+            const Icon = item.icon; const active = isActive(item.route);
+            return (
+              <li key={item.id}>
+                <button
+                  onClick={() => handleNav(item.route)}
+                  className={cn(
+                    'w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left',
+                    'active:scale-[0.98] transition',
+                    active ? 'bg-primary/8 text-foreground' : 'text-foreground/90 hover:bg-muted/50',
+                  )}
+                >
+                  <div className={cn('h-8 w-8 rounded-lg grid place-items-center shrink-0', item.iconBg)}>
+                    <Icon className={cn('h-4 w-4', item.iconColor)} />
+                  </div>
+                  <span className="text-[14px] font-medium truncate flex-1">
+                    {isFr ? item.titleFr : item.titleEn}
+                  </span>
+                  {active && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
 
         {/* Workspace switcher (only when >1) */}
         {manageableOrgs.length > 1 && (
