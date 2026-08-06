@@ -132,7 +132,7 @@ export default function SuperadminLayout() {
                   {group.items.map(({ to, label, icon: Icon, end }) => {
                     const linkEl = (
                       <NavLink key={to} to={to} end={end}
-                      <NavLink key={to} to={to} end={end}
+
                         className={({ isActive }) => cn(
                           'group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all duration-200',
                           isActive
