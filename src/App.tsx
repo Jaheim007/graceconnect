@@ -448,11 +448,11 @@ const App = () => (
                 <Route path="/explore/influencers" element={<Navigate to="/discover?type=influencer" replace />} />
                 <Route path="/explore/other-services" element={<Navigate to="/discover" replace />} />
                 <Route path="/superapp" element={<SuperAppHub />} />
-                <Route path="/start" element={<LazyStartOfferingPage />} />
-                <Route path="/start/details" element={<LazyStartDetailsPage />} />
+                <Route path="/start" element={<Navigate to="/create-org" replace />} />
+                <Route path="/start/details" element={<Navigate to="/create-org" replace />} />
                 <Route path="/start/finish" element={<LazyStartFinishPage />} />
                 <Route path="/create-org" element={<CreateOrgPage />} />
-                <Route path="/start-selling" element={<Navigate to="/start" replace />} />
+                <Route path="/start-selling" element={<Navigate to="/create-org" replace />} />
                 <Route path="/welcome-intent" element={<LazyIntentChooserPage />} />
                 <Route path="/looking-for" element={<LazyLookingForPage />} />
                 <Route path="/services" element={<Navigate to="/discover" replace />} />

@@ -77,7 +77,7 @@ export default function StartFinishPage() {
       return;
     }
     if (!cfg?.name) {
-      navigate('/start', { replace: true });
+      navigate('/create-org', { replace: true });
       return;
     }
     if (ran.current) return;
