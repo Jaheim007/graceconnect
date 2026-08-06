@@ -154,6 +154,11 @@ import { showServiceSurfaces } from "@/lib/siteviral/visibility";
 function HiddenSurface({ children }: { children: React.ReactNode }) {
   return showServiceSurfaces() ? <>{children}</> : <Navigate to="/" replace />;
 }
+/** Same guard for workspace/admin vertical panes — falls back to the unified dashboard. */
+function HiddenAdmin({ children }: { children: React.ReactNode }) {
+  return showServiceSurfaces() ? <>{children}</> : <Navigate to="/admin" replace />;
+}
+
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const ChurchesPage = lazy(() => import("@/pages/ChurchesPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
@@ -462,7 +467,9 @@ const App = () => (
                 <Route path="/superapp" element={showServiceSurfaces() ? <SuperAppHub /> : <Navigate to="/" replace />} />
                 <Route path="/start" element={<Navigate to="/create-org" replace />} />
                 <Route path="/start/details" element={<Navigate to="/create-org" replace />} />
-                <Route path="/start/finish" element={<LazyStartFinishPage />} />
+                <Route path="/start/finish" element={showServiceSurfaces() ? <LazyStartFinishPage /> : <Navigate to="/create-org" replace />} />
+                <Route path="/start/*" element={<Navigate to="/create-org" replace />} />
+
                 <Route path="/create-org" element={<CreateOrgPage />} />
                 <Route path="/start-selling" element={<Navigate to="/create-org" replace />} />
                 {/* Buyer/provider intent chooser + interest picker: components kept,
@@ -846,41 +853,43 @@ const App = () => (
                   <Route path="settings" element={<LazyAdminSettings />} />
                   
                   <Route path="sales" element={<AdminSales />} />
-                  <Route path="beauty" element={<BeautyProOverview />} />
-                  <Route path="beauty/messages" element={<BeautyProMessagesPane />}>
+                  {/* Hidden service-vertical workspaces — code preserved, unreachable */}
+                  <Route path="beauty" element={<HiddenAdmin><BeautyProOverview /></HiddenAdmin>} />
+                  <Route path="beauty/messages" element={<HiddenAdmin><BeautyProMessagesPane /></HiddenAdmin>}>
                     <Route path=":id" element={<BeautyProConversationPane />} />
                   </Route>
-                  <Route path="beauty/orders" element={<BeautyProOrdersPane />} />
-                  <Route path="beauty/revenue" element={<BeautyProRevenuePane />} />
-                  <Route path="beauty/settings" element={<BeautyProSettingsPane />} />
-                  <Route path="beauty/kyc" element={<BeautyKYCPage />} />
-                  <Route path="home" element={<HomeProOverview />} />
-                  <Route path="home/messages" element={<HomeProMessagesPane />}>
+                  <Route path="beauty/orders" element={<HiddenAdmin><BeautyProOrdersPane /></HiddenAdmin>} />
+                  <Route path="beauty/revenue" element={<HiddenAdmin><BeautyProRevenuePane /></HiddenAdmin>} />
+                  <Route path="beauty/settings" element={<HiddenAdmin><BeautyProSettingsPane /></HiddenAdmin>} />
+                  <Route path="beauty/kyc" element={<HiddenAdmin><BeautyKYCPage /></HiddenAdmin>} />
+                  <Route path="home" element={<HiddenAdmin><HomeProOverview /></HiddenAdmin>} />
+                  <Route path="home/messages" element={<HiddenAdmin><HomeProMessagesPane /></HiddenAdmin>}>
                     <Route path=":id" element={<HomeProConversationPane />} />
                   </Route>
-                  <Route path="home/orders" element={<HomeProOrdersPane />} />
-                  <Route path="home/revenue" element={<HomeProRevenuePane />} />
-                  <Route path="home/settings" element={<HomeProSettingsPane />} />
-                  <Route path="home/services" element={<HomeProServices />} />
-                  <Route path="home/kyc" element={<HomeKYCPage />} />
-                  <Route path="events-service" element={<EventsProOverview />} />
-                  <Route path="events-service/messages" element={<EventsProMessagesPane />}>
+                  <Route path="home/orders" element={<HiddenAdmin><HomeProOrdersPane /></HiddenAdmin>} />
+                  <Route path="home/revenue" element={<HiddenAdmin><HomeProRevenuePane /></HiddenAdmin>} />
+                  <Route path="home/settings" element={<HiddenAdmin><HomeProSettingsPane /></HiddenAdmin>} />
+                  <Route path="home/services" element={<HiddenAdmin><HomeProServices /></HiddenAdmin>} />
+                  <Route path="home/kyc" element={<HiddenAdmin><HomeKYCPage /></HiddenAdmin>} />
+                  <Route path="events-service" element={<HiddenAdmin><EventsProOverview /></HiddenAdmin>} />
+                  <Route path="events-service/messages" element={<HiddenAdmin><EventsProMessagesPane /></HiddenAdmin>}>
                     <Route path=":id" element={<EventsProConversationPane />} />
                   </Route>
-                  <Route path="events-service/orders" element={<EventsProOrdersPane />} />
-                  <Route path="events-service/revenue" element={<EventsProRevenuePane />} />
-                  <Route path="events-service/settings" element={<EventsProSettingsPane />} />
-                  <Route path="events-service/kyc" element={<EventsKYCPage />} />
-                  <Route path="events-service/packages" element={<EventsProPackages />} />
-                  <Route path="learn" element={<EducationProOverview />} />
-                  <Route path="learn/messages" element={<EducationProMessagesPane />}>
+                  <Route path="events-service/orders" element={<HiddenAdmin><EventsProOrdersPane /></HiddenAdmin>} />
+                  <Route path="events-service/revenue" element={<HiddenAdmin><EventsProRevenuePane /></HiddenAdmin>} />
+                  <Route path="events-service/settings" element={<HiddenAdmin><EventsProSettingsPane /></HiddenAdmin>} />
+                  <Route path="events-service/kyc" element={<HiddenAdmin><EventsKYCPage /></HiddenAdmin>} />
+                  <Route path="events-service/packages" element={<HiddenAdmin><EventsProPackages /></HiddenAdmin>} />
+                  <Route path="learn" element={<HiddenAdmin><EducationProOverview /></HiddenAdmin>} />
+                  <Route path="learn/messages" element={<HiddenAdmin><EducationProMessagesPane /></HiddenAdmin>}>
                     <Route path=":id" element={<EducationProConversationPane />} />
                   </Route>
-                  <Route path="learn/orders" element={<EducationProOrdersPane />} />
-                  <Route path="learn/revenue" element={<EducationProRevenuePane />} />
-                  <Route path="learn/settings" element={<EducationProSettingsPane />} />
-                  <Route path="learn/kyc" element={<EducationKYCPage />} />
-                  <Route path="learn/subjects" element={<EducationTutorSubjects />} />
+                  <Route path="learn/orders" element={<HiddenAdmin><EducationProOrdersPane /></HiddenAdmin>} />
+                  <Route path="learn/revenue" element={<HiddenAdmin><EducationProRevenuePane /></HiddenAdmin>} />
+                  <Route path="learn/settings" element={<HiddenAdmin><EducationProSettingsPane /></HiddenAdmin>} />
+                  <Route path="learn/kyc" element={<HiddenAdmin><EducationKYCPage /></HiddenAdmin>} />
+                  <Route path="learn/subjects" element={<HiddenAdmin><EducationTutorSubjects /></HiddenAdmin>} />
+
                   <Route path="church" element={<ChurchProDashboard />} />
                   <Route path="church/kyc" element={<ChurchKYCPage />} />
                   <Route path="church/sermons" element={<ChurchProSermons />} />
