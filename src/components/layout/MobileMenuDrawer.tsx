@@ -78,10 +78,10 @@ export function MobileMenuDrawer({ onClose }: Props) {
     { id: 'acc-explore', icon: Compass, emoji: '', titleFr: 'Explorer', titleEn: 'Explore',
       descFr: '', descEn: '', route: '/dashboard/explore',
       borderClass: '', iconBg: 'bg-violet-500/12', iconColor: 'text-violet-500' },
-    { id: 'acc-purchases', icon: Package, emoji: '', titleFr: 'Mes achats', titleEn: 'My purchases',
+    { id: 'acc-purchases', icon: Library, emoji: '', titleFr: 'Ma bibliothèque', titleEn: 'My library',
       descFr: '', descEn: '', route: '/my-purchases',
       borderClass: '', iconBg: 'bg-primary/12', iconColor: 'text-primary' },
-    { id: 'acc-programs', icon: GraduationCap, emoji: '', titleFr: 'Mes programmes', titleEn: 'My programs',
+    { id: 'acc-programs', icon: GraduationCap, emoji: '', titleFr: 'Mes cours', titleEn: 'My courses',
       descFr: '', descEn: '', route: '/my-programs',
       borderClass: '', iconBg: 'bg-sky-500/12', iconColor: 'text-sky-500' },
     ...(showServiceSurfaces() ? [{
@@ -93,6 +93,7 @@ export function MobileMenuDrawer({ onClose }: Props) {
       descFr: '', descEn: '', route: '/gagner',
       borderClass: '', iconBg: 'bg-emerald-500/12', iconColor: 'text-emerald-500' },
   ] : [];
+
 
   const isActive = (route: string) => {
     const clean = route.split('?')[0];
