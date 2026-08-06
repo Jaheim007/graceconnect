@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles, BookOpen, GraduationCap, Store, Compass, HandCoins, Rocket, Wallet } from 'lucide-react';
 
