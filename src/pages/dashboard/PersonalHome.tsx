@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { BUYER_WORLDS, SERVICE_WORLDS } from '@/lib/siteviral/buyerWorlds';
+import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import { cn } from '@/lib/utils';
 
 /**
