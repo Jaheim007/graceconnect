@@ -127,7 +127,7 @@ export function GlobalBottomNav() {
       </nav>
 
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent side="right" className="p-0 w-[86vw] max-w-[380px] border-l border-border/60">
+        <SheetContent side="right" className="p-0 w-[86vw] max-w-[380px] border-l border-border/60 [&>button:last-child]:hidden">
           <MobileMenuDrawer onClose={() => setMenuOpen(false)} />
         </SheetContent>
       </Sheet>
