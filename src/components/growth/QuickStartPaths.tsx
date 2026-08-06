@@ -116,7 +116,7 @@ const DISPLAY_ORDER: SiteviralFeatureKey[] = [
   'ai_book_creation',
   'ai_formation_creation',
   'donation_gifts',
-  'events',
+  
   'affiliation',
 ];
 
