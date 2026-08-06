@@ -215,30 +215,41 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'h-screen sticky top-0 flex flex-col border-r border-border bg-sidebar transition-all duration-300 overflow-hidden',
-        collapsed ? 'w-[68px]' : 'w-60',
+        'relative h-screen sticky top-0 flex flex-col border-r border-sidebar-foreground/10 bg-sidebar shadow-2xl transition-all duration-300 overflow-hidden',
+        collapsed ? 'w-[68px]' : 'w-[248px]',
       )}
     >
+      {/* Ambient glow — pure decoration */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_60%_at_0%_0%,hsl(var(--primary)/0.16),transparent_60%)]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-sidebar-foreground/15 to-transparent"
+      />
+
       {/* Logo */}
-      <div className={cn('flex items-center h-14 px-4 border-b border-sidebar-foreground/10', collapsed && 'justify-center px-0')}>
+      <div className={cn('relative flex items-center h-16 px-4', collapsed && 'justify-center px-0')}>
         <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
       </div>
 
       {/* Workspace switcher */}
       {user && (
-        <div className={cn(collapsed ? 'px-1.5 pt-2' : 'px-2 pt-2')}>
+        <div className={cn('relative', collapsed ? 'px-1.5 pb-1' : 'px-3 pb-2')}>
           <OrgSwitcher variant="sidebar" collapsed={collapsed} />
         </div>
       )}
 
-      <nav className={cn('flex-1 overflow-y-auto py-2 scrollbar-hide', collapsed ? 'px-1.5' : 'px-2')}>
+      <nav className={cn('relative flex-1 overflow-y-auto py-2 scrollbar-hide', collapsed ? 'px-1.5' : 'px-3')}>
         {/* ONE unified dashboard nav — no groups, no separate workspace section */}
-        <div className="space-y-0.5">{unifiedNav.map(renderNavItem)}</div>
+        <div className="space-y-1">{unifiedNav.map(renderNavItem)}</div>
       </nav>
 
 
       {/* Superadmin + Settings + Sign out */}
-      <div className={cn('border-t border-sidebar-foreground/10', collapsed ? 'px-1.5 py-1.5' : 'px-2 py-1.5')}>
+      <div className={cn('relative border-t border-sidebar-foreground/10 bg-sidebar-foreground/[0.03] backdrop-blur-sm', collapsed ? 'px-1.5 py-2' : 'px-3 py-2')}>
+
         {isSuperadmin && (
           collapsed ? (
             <Tooltip delayDuration={0}>
