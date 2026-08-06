@@ -251,8 +251,11 @@ export function buildFeatureNavItems(
   // They now appear in the same blue dashboard sidebar.
   switch (type) {
     case 'digital_products':
-      // "Create a course" is a first-class flow for digital sellers, always
-      // available regardless of feature-flag detail (route resolves at click).
+    case 'church':
+      // Same dashboard for every platform type: "Create a course" is a
+      // first-class flow (route resolves at click). Church platforms get
+      // Giving from the matrix above — no vertical-specific pages, and Team
+      // lives in Settings.
       pushUnique({
         id: 'create-course', icon: GraduationCap, tone: 'violet',
         titleFr: 'Créer une formation', titleEn: 'Create a course',
@@ -260,13 +263,7 @@ export function buildFeatureNavItems(
         route: '/admin/programs',
       });
       break;
-    case 'church':
-      // Primary church modules ONLY. Optional modules (CRM, Prayer, Campaigns,
-      // Appointments, Announcements) are activated by the user from
-      // Settings → Modules and surface via the matrix flow above.
-      pushUnique({ id: 'sermons', icon: BookOpen, tone: 'primary', titleFr: 'Livres & prédications', titleEn: 'Books & sermons', descFr: 'Audio, livre et PDF', descEn: 'Audio, book & PDF', route: '/admin/church/sermons' });
-      pushUnique({ id: 'team', icon: Users, tone: 'teal', titleFr: 'Équipe', titleEn: 'Team', descFr: 'Co-administrateurs', descEn: 'Co-admins', route: '/admin/church/team' });
-      break;
+
     case 'artisans_home_services':
       pushUnique({ id: 'services', icon: Store, tone: 'sky', titleFr: 'Services', titleEn: 'Services', descFr: 'Prestations et tarifs', descEn: 'Services & pricing', route: '/admin/home/services' });
       break;
