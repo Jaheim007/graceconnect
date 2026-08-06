@@ -380,9 +380,7 @@ const LazyAdminAffiliation = lazy(() => import("@/pages/admin/AdminPages").then(
 const LazyAdminKYC = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminKYC })));
 const LazyAdminSettings = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminSettings })));
 const LazyAdminFeatures = lazy(() => import("@/pages/admin/AdminFeaturesPage"));
-const LazyStartOfferingPage = lazy(() => import("@/pages/StartOfferingPage"));
 const LazyStartSellingPage = lazy(() => import("@/pages/StartSellingPage"));
-const LazyStartDetailsPage = lazy(() => import("@/pages/start/StartDetailsPage"));
 const LazyStartFinishPage = lazy(() => import("@/pages/start/StartFinishPage"));
 const LazyIntentChooserPage = lazy(() => import("@/pages/IntentChooserPage"));
 const LazyLookingForPage = lazy(() => import("@/pages/LookingForPage"));
