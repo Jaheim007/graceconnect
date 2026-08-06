@@ -1017,8 +1017,8 @@ export function AdminSettings() {
 
   const orgAny = currentOrg as any;
 
-
   const PUBLISHED_DOMAIN = 'https://siteviral.com';
+
 
   // Profile fields
   const [orgName, setOrgName] = useState(currentOrg?.name ?? '');
@@ -1343,9 +1343,8 @@ export function AdminSettings() {
         onCancel={() => { setCurrencyWizardOpen(false); setPendingCurrency(null); }}
       />
       <div className="space-y-5">
-
-
         {/* ── 1. PROFILE ── */}
+
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
           <div className="px-5 pt-5 pb-3 flex items-center gap-2.5 border-b border-border/60">
             <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
