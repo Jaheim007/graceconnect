@@ -201,7 +201,7 @@ export default function CreateOrgPage() {
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(60%_40%_at_15%_0%,hsl(var(--primary)/0.14),transparent_70%),radial-gradient(50%_40%_at_90%_10%,hsl(var(--accent)/0.14),transparent_70%)]" />
 
       <SEOHead title="Créer ma plateforme — Siteviral" description="Crée ta plateforme en 30 secondes. Vends, collecte des dons, et active tes ambassadeurs." noindex />
-      <OrgOnboardingWizard open={showOnboarding} onClose={() => { setShowOnboarding(false); navigate('/onboarding/type'); }} />
+      <OrgOnboardingWizard open={showOnboarding} onClose={() => { setShowOnboarding(false); navigate('/admin'); }} />
 
       {/* Top bar with brand */}
       <header className="w-full border-b border-border/40 bg-background/70 backdrop-blur">
