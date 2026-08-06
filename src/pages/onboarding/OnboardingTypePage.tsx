@@ -61,7 +61,7 @@ export default function OnboardingTypePage() {
     try {
       await confirmSiteviralType(orgId, 'digital_products', [], 'onboarding');
       await qc.invalidateQueries({ queryKey: ['user-orgs'] });
-      navigate('/admin/features');
+      navigate('/admin');
     } catch (e: any) {
       toast.error(e?.message ?? 'Error');
     } finally {
