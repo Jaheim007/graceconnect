@@ -83,14 +83,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       border: 'border-fuchsia-500/30 hover:border-fuchsia-500/60',
       iconColor: 'text-fuchsia-500', bgColor: 'bg-fuchsia-500/10',
     };
-    case 'product_comments': return {
-      id: 'comments', icon: MessageSquare,
-      fr: 'Commentaires', en: 'Comments',
-      subFr: 'Modère les avis produits', subEn: 'Moderate product reviews',
-      route: '/admin/crm',
-      border: 'border-cyan-500/30 hover:border-cyan-500/60',
-      iconColor: 'text-cyan-500', bgColor: 'bg-cyan-500/10',
-    };
+    case 'product_comments': return null;
     case 'events': return {
       id: 'events', icon: Ticket,
       fr: 'Événements & billets', en: 'Events & tickets',
