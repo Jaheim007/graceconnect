@@ -230,6 +230,8 @@ export default function PersonalHome() {
             </div>
           )}
         </section>
+        )}
+
 
         {/* Recent digital purchases */}
         <section className="space-y-3">
