@@ -247,6 +247,51 @@ export default function ActionHub() {
           </motion.div>
         </motion.div>
       </main>
+
+      {/* Empty-state prompts */}
+      <Dialog open={!!prompt} onOpenChange={(o) => !o && setPrompt(null)}>
+        <DialogContent className="max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-black">
+              {prompt === 'revenue'
+                ? (isFr ? 'Pas encore de revenus' : 'No revenue yet')
+                : (isFr ? 'Aucun achat pour l’instant' : 'No purchases yet')}
+            </DialogTitle>
+            <DialogDescription className="text-sm">
+              {prompt === 'revenue'
+                ? (isFr
+                    ? 'Commence par créer quelque chose à vendre — tes revenus apparaîtront ici.'
+                    : 'Start by creating something to sell — your revenue will show up here.')
+                : (isFr
+                    ? 'Découvre des livres, formations et ressources à acheter.'
+                    : 'Discover books, formations and resources to buy.')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2 pt-1">
+            {prompt === 'revenue' ? (
+              <>
+                <Button className="h-11 justify-start gap-2.5 rounded-xl font-semibold"
+                  onClick={() => { setPrompt(null); navigate('/ecrire'); }}>
+                  <BookOpen className="h-4 w-4" />
+                  {isFr ? 'Écrire un livre en 5 min' : 'Write a book in 5 min'}
+                </Button>
+                <Button variant="outline" className="h-11 justify-start gap-2.5 rounded-xl font-semibold"
+                  onClick={() => { setPrompt(null); navigate(resolveRoute('sell')); }}>
+                  <Store className="h-4 w-4" />
+                  {isFr ? 'Vendre du contenu' : 'Sell content'}
+                </Button>
+              </>
+            ) : (
+              <Button className="h-11 justify-start gap-2.5 rounded-xl font-semibold"
+                onClick={() => { setPrompt(null); navigate('/discover'); }}>
+                <Compass className="h-4 w-4" />
+                {isFr ? 'Découvrir des produits' : 'Discover products'}
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }
