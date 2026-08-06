@@ -1,37 +1,37 @@
 import { lazy, Suspense } from 'react';
 import { LandingNav } from '@/components/landing/LandingNav';
-import { MarketplaceHero } from '@/components/landing/MarketplaceHero';
-import { MarketplaceCategories } from '@/components/landing/MarketplaceCategories';
-import { MarketplaceHowItWorks } from '@/components/landing/MarketplaceHowItWorks';
-import { GrowingServicesSection } from '@/components/landing/GrowingServicesSection';
+import { CoreHero } from '@/components/landing/CoreHero';
+import { CorePillars } from '@/components/landing/CorePillars';
 import { ChurchCallout } from '@/components/landing/ChurchCallout';
 import { SEOHead } from '@/components/seo/SEOHead';
 
+// NOTE: the service-marketplace landing sections (MarketplaceHero,
+// MarketplaceCategories, MarketplaceHowItWorks, GrowingServicesSection,
+// AvailableNowSection) are intentionally left in the codebase but are no longer
+// mounted on the main homepage. See src/lib/siteviral/visibility.ts.
 const LandingTrustShield = lazy(() => import('@/components/landing/LandingTrustShield').then(m => ({ default: m.LandingTrustShield })));
-const LandingFinalCTA = lazy(() => import('@/components/landing/LandingFinalCTA').then(m => ({ default: m.LandingFinalCTA })));
+const CoreFinalCTA = lazy(() => import('@/components/landing/CoreFinalCTA').then(m => ({ default: m.CoreFinalCTA })));
 const LandingFooterCompact = lazy(() => import('@/components/landing/LandingFooterCompact').then(m => ({ default: m.LandingFooterCompact })));
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead
-        title="SiteViral — Trouvez un produit, un service ou un professionnel"
-        description="Achetez des produits digitaux et découvrez un réseau grandissant d'artisans, professionnels de la beauté, tuteurs, coachs, musiciens et créateurs. Paiement sécurisé."
+        title="SiteViral — Crée, vends et gagne avec tes contenus digitaux"
+        description="Écris des livres et des formations avec l'IA, vends tes produits digitaux, bâtis ta plateforme publique et gagne grâce à l'affiliation. Paiement mobile inclus."
         canonicalUrl="https://siteviral.com"
-        keywords="marketplace, produits digitaux, artisans, beauté, tuteurs, coaching, ebooks, SiteViral"
+        keywords="créer un livre IA, vendre formation en ligne, produits digitaux, affiliation, plateforme créateur, SiteViral"
       />
       <LandingNav />
       <main id="main-content">
-        <MarketplaceHero />
-        <MarketplaceCategories />
-        <MarketplaceHowItWorks />
+        <CoreHero />
+        <CorePillars />
         <Suspense fallback={null}>
           <LandingTrustShield />
         </Suspense>
         <ChurchCallout />
-        <GrowingServicesSection />
         <Suspense fallback={null}>
-          <LandingFinalCTA />
+          <CoreFinalCTA />
         </Suspense>
       </main>
       <Suspense fallback={null}>

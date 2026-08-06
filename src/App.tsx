@@ -144,6 +144,7 @@ const ChurchSermonPdfSuccessPage = lazy(() => import("@/pages/church/ChurchSermo
 const ChurchProAppointments = lazy(() => import("@/pages/church/ChurchProAppointments"));
 const ChurchEventRegisterPage = lazy(() => import("@/pages/church/ChurchEventRegisterPage"));
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
+import { showServiceSurfaces } from "@/lib/siteviral/visibility";
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const ChurchesPage = lazy(() => import("@/pages/ChurchesPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
@@ -438,21 +439,26 @@ const App = () => (
                 <Route path="/churches" element={<ChurchesPage />} />
                 <Route path="/solutions/church" element={<Navigate to="/churches" replace />} />
                 <Route path="/explore/digital-products" element={<Navigate to="/discover?type=digital" replace />} />
-                <Route path="/explore/artisans" element={<Navigate to="/home/discover" replace />} />
-                <Route path="/explore/beauty" element={<Navigate to="/beauty/search" replace />} />
-                <Route path="/explore/coaching" element={<Navigate to="/discover?type=sport" replace />} />
-                <Route path="/explore/tutors" element={<Navigate to="/learn/discover" replace />} />
-                <Route path="/explore/music" element={<Navigate to="/discover?type=music" replace />} />
-                <Route path="/explore/influencers" element={<Navigate to="/discover?type=influencer" replace />} />
+                {/* Hidden service-marketplace aliases — kept as routes, redirected to
+                    digital discovery until SERVICE_MARKETPLACE_ENABLED is flipped on. */}
+                <Route path="/explore/artisans" element={<Navigate to="/discover" replace />} />
+                <Route path="/explore/beauty" element={<Navigate to="/discover" replace />} />
+                <Route path="/explore/coaching" element={<Navigate to="/discover" replace />} />
+                <Route path="/explore/tutors" element={<Navigate to="/discover" replace />} />
+                <Route path="/explore/music" element={<Navigate to="/discover" replace />} />
+                <Route path="/explore/influencers" element={<Navigate to="/discover" replace />} />
                 <Route path="/explore/other-services" element={<Navigate to="/discover" replace />} />
-                <Route path="/superapp" element={<SuperAppHub />} />
+                {/* SuperAppHub component preserved; hidden from the main experience. */}
+                <Route path="/superapp" element={showServiceSurfaces() ? <SuperAppHub /> : <Navigate to="/" replace />} />
                 <Route path="/start" element={<Navigate to="/create-org" replace />} />
                 <Route path="/start/details" element={<Navigate to="/create-org" replace />} />
                 <Route path="/start/finish" element={<LazyStartFinishPage />} />
                 <Route path="/create-org" element={<CreateOrgPage />} />
                 <Route path="/start-selling" element={<Navigate to="/create-org" replace />} />
-                <Route path="/welcome-intent" element={<LazyIntentChooserPage />} />
-                <Route path="/looking-for" element={<LazyLookingForPage />} />
+                {/* Buyer/provider intent chooser + interest picker: components kept,
+                    hidden from the restored digital-first experience. */}
+                <Route path="/welcome-intent" element={showServiceSurfaces() ? <LazyIntentChooserPage /> : <Navigate to="/dashboard" replace />} />
+                <Route path="/looking-for" element={showServiceSurfaces() ? <LazyLookingForPage /> : <Navigate to="/dashboard" replace />} />
                 <Route path="/services" element={<Navigate to="/discover" replace />} />
                 <Route path="/digital" element={<Navigate to="/discover?type=digital" replace />} />
                 <Route path="/digital/about" element={<LandingPage />} />

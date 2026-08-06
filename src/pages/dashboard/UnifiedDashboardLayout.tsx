@@ -19,6 +19,7 @@ import { useBuyerWorld } from '@/hooks/useBuyerWorld';
 import { useI18n } from '@/i18n/I18nContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 
 interface NavItem { url: string; icon: any; label: string }
 
@@ -159,7 +160,7 @@ function DashboardSidebar() {
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                {!buyerWorldMeta && (
+                {showServiceSurfaces() && !buyerWorldMeta && (
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild tooltip={fr ? 'Que cherchez-vous ?' : 'What are you looking for?'}>
                       <NavLink to="/looking-for" className="flex items-center gap-2">

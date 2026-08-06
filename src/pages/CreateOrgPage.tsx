@@ -19,15 +19,10 @@ import { OrgOnboardingWizard } from '@/components/onboarding/OrgOnboardingWizard
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
-import { ALL_WORLDS, WORLDS, type SiteviralWorld } from '@/lib/siteviral/worlds';
+import { WORLDS, type SiteviralWorld } from '@/lib/siteviral/worlds';
 import { createWorkspace } from '@/lib/siteviral/createWorkspace';
+import { PLATFORM_PROFILES, getPlatformProfile, profileForWorld, type PlatformProfileId } from '@/lib/siteviral/platformProfiles';
 
-
-const GOALS = [
-  { value: 'sell', emoji: '💰', label: 'Vendre', desc: 'Produits numériques, ebooks, formations' },
-  { value: 'donate', emoji: '❤️', label: 'Collecter des dons', desc: 'Campagnes de financement' },
-  { value: 'both', emoji: '🚀', label: 'Les deux', desc: 'Ventes + collecte de dons' },
-] as const;
 
 const schema = z.object({
   name: z.string().min(3, 'Au moins 3 caractères').max(80),
@@ -54,12 +49,15 @@ export default function CreateOrgPage() {
   const worldParam = (searchParams.get('world') || searchParams.get('activity') || '') as SiteviralWorld;
   const presetWorld: SiteviralWorld | null = worldParam && worldParam in WORLDS ? worldParam : null;
 
-  const [step, setStep] = useState(presetWorld ? 1 : 0); // 0=type, 1=name, 2=currency, 3=goal
+  const presetProfile = profileForWorld(presetWorld);
+  const [step, setStep] = useState(presetProfile ? 1 : 0); // 0=platform profile, 1=name, 2=currency, 3=first objective
   const [loading, setLoading] = useState(false);
   const [resuming, setResuming] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [selectedGoal, setSelectedGoal] = useState<string>('both');
-  const [selectedWorld, setSelectedWorld] = useState<SiteviralWorld>(presetWorld ?? 'digital');
+  const [profileId, setProfileId] = useState<PlatformProfileId>(presetProfile ?? 'creator');
+  const profile = getPlatformProfile(profileId);
+  const [selectedGoal, setSelectedGoal] = useState<string>(profile.objectives[0].id);
+  const selectedWorld: SiteviralWorld = profile.world;
 
   const [selectedCurrency, setSelectedCurrency] = useState(() => detectCurrencyFromTimezone());
 
@@ -142,11 +140,13 @@ export default function CreateOrgPage() {
         }
       } catch { /* ignore */ }
 
+      const objective = profile.objectives.find((o) => o.id === selectedGoal) ?? profile.objectives[0];
+
       const { orgId, org: newOrg } = await createWorkspace({
         name: data.name,
         world: selectedWorld,
         currency: selectedCurrency,
-        extraFeatures,
+        extraFeatures: [...extraFeatures, ...objective.features],
         providerProfile,
         partnerCode,
       });
@@ -245,24 +245,25 @@ export default function CreateOrgPage() {
               initial="enter" animate="center" exit="exit"
               transition={{ duration: 0.2 }}>
 
-              {/* Step 0: World picker */}
+              {/* Step 0: Platform profile */}
               {step === 0 && (
                 <div className="space-y-5">
                   <div className="space-y-1">
                     <h2 className="text-xl font-bold tracking-tight">{isFr ? 'Quel type de plateforme veux-tu bâtir ?' : 'What kind of platform do you want to build?'}</h2>
-                    <p className="text-sm text-muted-foreground">{isFr ? 'Choisis ton monde principal. Tu pourras en activer d\'autres plus tard depuis les paramètres.' : 'Pick your primary world. You can activate others later from settings.'}</p>
+                    <p className="text-sm text-muted-foreground">{isFr ? 'Choisis ton profil. Tu pourras activer d\'autres outils plus tard depuis les paramètres.' : 'Pick your profile. You can activate more tools later from settings.'}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    {ALL_WORLDS.map((w) => {
-                      const active = selectedWorld === w.id;
-                      const Icon = w.icon;
+                    {PLATFORM_PROFILES.map((p) => {
+                      const active = profileId === p.id;
+                      const Icon = p.icon;
                       return (
                         <button
-                          key={w.id}
+                          key={p.id}
                           type="button"
                           onClick={() => {
-                            setSelectedWorld(w.id);
-                            setValue('category', w.category as any);
+                            setProfileId(p.id);
+                            setSelectedGoal(p.objectives[0].id);
+                            setValue('category', p.category as any);
                             setStep(1);
                           }}
                           className={cn(
@@ -279,20 +280,20 @@ export default function CreateOrgPage() {
                           )}>
                             <Icon className="h-5 w-5" />
                           </div>
-                          <span className="text-sm font-bold block mb-0.5">{isFr ? w.labelFr : w.labelEn}</span>
-                          {w.id === 'digital' && (
+                          <span className="text-sm font-bold block mb-0.5">{isFr ? p.labelFr : p.labelEn}</span>
+                          {p.recommended && (
                             <span className="inline-block mb-1 rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary">
                               {isFr ? 'Recommandé' : 'Recommended'}
                             </span>
                           )}
-                          <span className="text-[11px] text-muted-foreground leading-snug block">{isFr ? w.descFr : w.descEn}</span>
-
+                          <span className="text-[11px] text-muted-foreground leading-snug block">{isFr ? p.descFr : p.descEn}</span>
                         </button>
                       );
                     })}
                   </div>
                 </div>
               )}
+
 
 
               {/* Step 1: Name only */}
@@ -346,31 +347,29 @@ export default function CreateOrgPage() {
                 </div>
               )}
 
-              {/* Step 3: Goal + Create */}
+              {/* Step 3: First objective + Create */}
               {step === 3 && (
                 <div className="space-y-5">
                   <h2 className="text-lg font-semibold">{isFr ? 'Que veux-tu faire en premier ?' : 'What do you want to do first?'}</h2>
                   <div className="space-y-2">
-                    {GOALS.map(goal => (
+                    {profile.objectives.map(goal => (
                       <button
-                        key={goal.value}
+                        key={goal.id}
                         type="button"
-                        onClick={() => setSelectedGoal(goal.value)}
+                        onClick={() => setSelectedGoal(goal.id)}
                         className={cn(
                           'w-full flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all',
-                          selectedGoal === goal.value
+                          selectedGoal === goal.id
                             ? 'border-primary bg-primary/5'
                             : 'border-border hover:border-muted-foreground/40'
                         )}
                       >
                         <span className="text-2xl">{goal.emoji}</span>
-                        <div>
-                          <p className="text-sm font-bold">{goal.label}</p>
-                          <p className="text-[10px] text-muted-foreground">{goal.desc}</p>
-                        </div>
+                        <p className="text-sm font-bold">{isFr ? goal.labelFr : goal.labelEn}</p>
                       </button>
                     ))}
                   </div>
+
 
                   <Button
                     className="w-full h-12 gap-2 text-base font-bold"

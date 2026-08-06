@@ -42,7 +42,7 @@ export function resolvePostAuthRedirect(opts: {
     if (intent.kind === 'provider') {
       // Brand-new provider → onboarding; existing → their dashboard.
       const safe = safeReturnTo(intent.returnTo || null);
-      return isNewUser ? (safe || '/start') : (safe || '/dashboard');
+      return isNewUser ? (safe || '/create-org') : (safe || '/dashboard');
     }
     // Client intent: just return to what they were doing, otherwise account home.
     return safeReturnTo(intent.returnTo || null) || '/dashboard';
