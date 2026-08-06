@@ -84,6 +84,14 @@ export default function ActionHub() {
       <header className="h-12 sm:h-14 sticky top-0 z-40 glass border-b border-border flex items-center px-3 sm:px-4 gap-2">
         <SiteLogo size="sm" animate />
         <div className="flex-1" />
+        <Button
+          variant="ghost"
+          size="sm"
+          className="hidden h-8 rounded-xl px-3 text-xs font-semibold text-muted-foreground hover:text-foreground sm:inline-flex"
+          onClick={() => navigate('/landing')}
+        >
+          {isFr ? 'Découvrir SiteViral' : 'About SiteViral'}
+        </Button>
         <GlobalPreferencesSelector />
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
           {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -105,7 +113,7 @@ export default function ActionHub() {
           variants={container}
           initial="hidden"
           animate="show"
-          className="w-full max-w-md space-y-5"
+          className="w-full max-w-2xl space-y-6"
         >
           {/* Compact hero */}
           <motion.div variants={item} className="text-center space-y-1.5">
@@ -113,20 +121,20 @@ export default function ActionHub() {
               <Sparkles className="h-3 w-3" />
               {isFr ? 'Gratuit pour commencer' : 'Free to start'}
             </div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground leading-tight">
               {user && displayName
                 ? (isFr ? `Salut ${displayName} 👋` : `Hey ${displayName} 👋`)
                 : (isFr ? 'Que veux-tu faire ?' : 'What do you want to do?')}
             </h1>
             {!user && (
-              <p className="text-xs text-muted-foreground max-w-[260px] mx-auto">
+              <p className="text-xs sm:text-sm text-muted-foreground max-w-[340px] mx-auto">
                 {isFr ? 'Crée, vends et gagne — tout en un seul endroit.' : 'Create, sell & earn — all in one place.'}
               </p>
             )}
           </motion.div>
 
           {/* Action cards — larger touch targets */}
-          <div className="space-y-2.5">
+          <div className="grid gap-2.5 sm:grid-cols-2">
             {actions.map((action) => (
               <motion.button
                 key={action.id}
@@ -153,12 +161,15 @@ export default function ActionHub() {
 
           {/* Footer link */}
           <motion.div variants={item} className="text-center pt-1">
-            <button
-              onClick={() => navigate('/a-propos')}
-              className="text-[10px] text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 rounded-xl px-4 text-xs font-semibold"
+              onClick={() => navigate('/landing')}
             >
-              {isFr ? 'En savoir plus sur SiteViral' : 'Learn more about SiteViral'}
-            </button>
+              {isFr ? 'Voir la page de présentation' : 'See the landing page'}
+              <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+            </Button>
           </motion.div>
         </motion.div>
       </main>
