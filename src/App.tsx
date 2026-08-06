@@ -380,7 +380,7 @@ const LazyAdminMembers = lazy(() => import("@/pages/admin/AdminPages").then(m =>
 const LazyAdminAffiliation = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminAffiliation })));
 const LazyAdminKYC = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminKYC })));
 const LazyAdminSettings = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminSettings })));
-const LazyAdminFeatures = lazy(() => import("@/pages/admin/AdminFeaturesPage"));
+
 const LazyStartSellingPage = lazy(() => import("@/pages/StartSellingPage"));
 const LazyStartFinishPage = lazy(() => import("@/pages/start/StartFinishPage"));
 const LazyIntentChooserPage = lazy(() => import("@/pages/IntentChooserPage"));
@@ -762,7 +762,7 @@ const App = () => (
                   <Route path="/dashboard/activity"   element={<PersonalActivityPage />} />
                   <Route path="/dashboard/earn"       element={<Navigate to="/gagner" replace />} />
                   <Route path="/dashboard/profile"    element={<ProfilePage />} />
-                  <Route path="/dashboard/settings/modules" element={<Navigate to="/admin/settings?tab=modules" replace />} />
+                  <Route path="/dashboard/settings/modules" element={<Navigate to="/admin/settings" replace />} />
                   <Route path="/dashboard/digital" element={<Navigate to="/admin/products" replace />} />
                   <Route path="/dashboard/orders" element={<Navigate to="/dashboard/activity" replace />} />
                   <Route path="/dashboard/kyc" element={<Navigate to="/admin/kyc" replace />} />
@@ -836,7 +836,7 @@ const App = () => (
                   
                   <Route path="kyc" element={<LazyAdminKYC />} />
                   <Route path="settings" element={<LazyAdminSettings />} />
-                  <Route path="features" element={<LazyAdminFeatures />} />
+                  
                   <Route path="sales" element={<AdminSales />} />
                   <Route path="beauty" element={<BeautyProOverview />} />
                   <Route path="beauty/messages" element={<BeautyProMessagesPane />}>

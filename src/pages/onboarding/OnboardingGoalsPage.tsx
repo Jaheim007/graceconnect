@@ -51,7 +51,7 @@ export default function OnboardingGoalsPage() {
     const picked = goals.filter((g) => selected.has(g.id));
     if (picked.length === 0) {
       // No selection → go to Add More Functionalities so user can browse
-      navigate('/admin/features');
+      navigate('/admin');
       return;
     }
     setSaving(true);
@@ -75,7 +75,7 @@ export default function OnboardingGoalsPage() {
   }
 
   function handleSkip() {
-    navigate('/admin/features');
+    navigate('/admin');
   }
 
   return (

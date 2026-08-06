@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, Check, Plus, Settings2 } from 'lucide-react';
+import { ArrowRight, Sparkles, Check, Settings2 } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useOrgFeatures } from '@/hooks/useOrgFeatures';
@@ -102,15 +102,6 @@ export function AdaptiveDashboard() {
             </p>
           )}
         </div>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => navigate('/admin/features')}
-          className="gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          {isFr ? 'Ajouter des fonctionnalités' : 'Add functionalities'}
-        </Button>
       </div>
 
       {/* First-action prompts */}

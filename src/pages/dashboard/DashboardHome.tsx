@@ -48,7 +48,7 @@ export default function DashboardHome() {
                 {fr ? 'Modules actifs' : 'Active modules'}
               </h2>
               <Button asChild variant="outline" size="sm" className="gap-1.5">
-                <Link to="/dashboard/settings/modules">
+                <Link to="/admin/settings">
                   <Sliders className="h-3.5 w-3.5" /> {fr ? 'Gérer' : 'Manage'}
                 </Link>
               </Button>
@@ -59,7 +59,7 @@ export default function DashboardHome() {
                   {fr ? 'Aucun module actif pour l’instant.' : 'No modules active yet.'}
                 </p>
                 <Button asChild>
-                  <Link to="/dashboard/settings/modules">
+                  <Link to="/admin/settings">
                     {fr ? 'Activer mes premiers modules' : 'Turn on my first modules'}
                   </Link>
                 </Button>
@@ -110,7 +110,7 @@ export default function DashboardHome() {
               </div>
               <div className="mt-4 text-center">
                 <Button asChild variant="outline" size="sm">
-                  <Link to="/dashboard/settings/modules">
+                  <Link to="/admin/settings">
                     {fr ? 'Activer un module' : 'Turn on a module'}
                   </Link>
                 </Button>

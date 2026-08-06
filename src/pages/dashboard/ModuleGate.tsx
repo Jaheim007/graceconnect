@@ -52,7 +52,7 @@ export function ModuleGate({ moduleId, component: Component }: Props) {
         </Button>
         <div className="mt-3">
           <Button asChild variant="ghost" size="sm">
-            <Link to="/dashboard/settings/modules">{fr ? 'Voir tous les modules' : 'See all modules'}</Link>
+            <Link to="/admin/settings">{fr ? 'Voir tous les modules' : 'See all modules'}</Link>
           </Button>
         </div>
       </div>
