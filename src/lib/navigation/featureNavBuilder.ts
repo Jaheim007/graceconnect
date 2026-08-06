@@ -156,12 +156,8 @@ function specFor(
       descFr: "Ton cours avec l'IA", descEn: 'Your course with AI',
       route: '/admin/programs',
     };
-    case 'product_comments': return {
-      id: 'product-comments', icon: MessageSquare, tone: 'cyan',
-      titleFr: 'Commentaires produits', titleEn: 'Product comments',
-      descFr: 'Modération et réponses', descEn: 'Moderate & reply',
-      route: '/admin/comments',
-    };
+    // Hidden in the current digital-first experience (kept for later).
+    case 'product_comments': return null;
     // Optional/extra tools stay in Settings → Modules until activated for a
     // focused dashboard: order generator, reviews.
     case 'order_generator':
