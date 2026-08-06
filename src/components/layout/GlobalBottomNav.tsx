@@ -3,7 +3,7 @@ import { BottomNav } from './BottomNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
-import { LayoutDashboard, Compass, Package, MessageSquare, HandCoins, Menu as MenuIcon } from 'lucide-react';
+import { LayoutDashboard, Compass, Library, MessageSquare, HandCoins, Menu as MenuIcon } from 'lucide-react';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -57,11 +57,12 @@ export function GlobalBottomNav() {
   const items = [
     { id: 'overview', route: '/dashboard', icon: LayoutDashboard, fr: 'Accueil',  en: 'Home' },
     { id: 'explore',  route: '/dashboard/explore', icon: Compass, fr: 'Explorer', en: 'Explore' },
-    { id: 'purchases', route: '/my-purchases', icon: Package,     fr: 'Achats',   en: 'Purchases' },
+    { id: 'purchases', route: '/my-purchases', icon: Library,     fr: 'Biblio.',  en: 'Library' },
     showServiceSurfaces()
       ? { id: 'messages', route: '/dashboard/messages', icon: MessageSquare, fr: 'Messages', en: 'Messages' }
       : { id: 'earn', route: '/gagner', icon: HandCoins, fr: 'Gagner', en: 'Earn' },
   ] as const;
+
 
 
   const isActive = (route: string) => {
@@ -126,7 +127,7 @@ export function GlobalBottomNav() {
       </nav>
 
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent side="right" className="p-0 w-[86vw] max-w-[380px] border-l border-border/60">
+        <SheetContent side="right" className="p-0 w-[86vw] max-w-[380px] border-l border-border/60 [&>button:last-child]:hidden">
           <MobileMenuDrawer onClose={() => setMenuOpen(false)} />
         </SheetContent>
       </Sheet>

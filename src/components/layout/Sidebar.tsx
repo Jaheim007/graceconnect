@@ -1,8 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
-  ChevronLeft, ChevronRight, LogOut, Settings,
-  Compass, Package, GraduationCap, MessageSquare, HandCoins,
+  ChevronLeft, ChevronRight, LogOut, Settings, ShieldCheck,
+  Compass, Library, GraduationCap, MessageSquare, HandCoins,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -78,16 +78,16 @@ export function Sidebar() {
           borderClass: '', iconBg: '', iconColor: 'text-violet-400',
         },
         {
-          id: 'acc-purchases', icon: Package, emoji: '',
-          titleFr: 'Mes achats', titleEn: 'My Purchases',
-          descFr: 'Livres, PDFs et ressources', descEn: 'Books, PDFs & resources',
+          id: 'acc-purchases', icon: Library, emoji: '',
+          titleFr: 'Ma bibliothèque', titleEn: 'My library',
+          descFr: 'Livres, PDFs et ressources achetés', descEn: 'Books, PDFs & resources you bought',
           route: '/my-purchases',
           borderClass: '', iconBg: '', iconColor: 'text-primary',
         },
         {
           id: 'acc-programs', icon: GraduationCap, emoji: '',
-          titleFr: 'Mes programmes', titleEn: 'My Programs',
-          descFr: 'Cours et progression', descEn: 'Courses & progress',
+          titleFr: 'Mes cours', titleEn: 'My courses',
+          descFr: 'Formations suivies et progression', descEn: 'Courses & progress',
           route: '/my-programs',
           borderClass: '', iconBg: '', iconColor: 'text-sky-400',
         },
@@ -99,7 +99,6 @@ export function Sidebar() {
           borderClass: '', iconBg: '', iconColor: 'text-cyan-400',
         }] : []),
         {
-
           id: 'acc-earn', icon: HandCoins, emoji: '',
           titleFr: 'Gagner', titleEn: 'Earn',
           descFr: 'Affiliation et commissions', descEn: 'Affiliate commissions',
@@ -108,6 +107,7 @@ export function Sidebar() {
         },
       ]
     : [];
+
 
   const isActive = (route: string) => {
     if (route === '/') return location.pathname === '/';
@@ -212,21 +212,50 @@ export function Sidebar() {
       <nav className={cn('flex-1 overflow-y-auto py-1 space-y-0.5 scrollbar-hide', collapsed ? 'px-1.5' : 'px-2')}>
         {accountNav.length > 0 && (
           <>
-            {renderGroupLabel(isFr ? 'COMPTE' : 'ACCOUNT')}
+            {renderGroupLabel(isFr ? 'MON COMPTE · CE QUE J’AI' : 'MY ACCOUNT · WHAT I OWN')}
             <div className="space-y-0.5">{accountNav.map(renderNavItem)}</div>
           </>
         )}
 
         {workspaceNav.length > 0 && (
           <>
-            {renderGroupLabel(isFr ? 'ESPACE' : 'WORKSPACE')}
+            {renderGroupLabel(
+              (currentOrg?.name?.toUpperCase().slice(0, 22)) ||
+              (isFr ? 'MON ESPACE · CE QUE JE VENDS' : 'MY WORKSPACE · WHAT I SELL'),
+            )}
             <div className="space-y-0.5">{workspaceNav.map(renderNavItem)}</div>
           </>
         )}
+
       </nav>
 
-      {/* Settings + Sign out */}
+      {/* Superadmin + Settings + Sign out */}
       <div className={cn('border-t border-sidebar-foreground/10', collapsed ? 'px-1.5 py-1.5' : 'px-2 py-1.5')}>
+        {isSuperadmin && (
+          collapsed ? (
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Link
+                  to="/superadmin"
+                  aria-label="Super admin"
+                  className="flex items-center justify-center h-10 w-10 mx-auto rounded-md text-amber-400 hover:bg-sidebar-accent/50"
+                >
+                  <ShieldCheck className="h-[18px] w-[18px]" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right"><p className="text-xs font-semibold">Super admin</p></TooltipContent>
+            </Tooltip>
+          ) : (
+            <Link
+              to="/superadmin"
+              className="flex items-center gap-2.5 h-10 px-2.5 rounded-md text-[13px] font-semibold text-amber-400 hover:bg-sidebar-accent/50"
+            >
+              <ShieldCheck className="h-[18px] w-[18px] shrink-0" />
+              <span>Super admin</span>
+            </Link>
+          )
+        )}
+
         {user && !settingsAlreadyInNav && canManageCurrentOrg && (
           collapsed ? (
             <Tooltip delayDuration={0}>
