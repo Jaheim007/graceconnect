@@ -57,14 +57,8 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       border: 'border-amber-500/30 hover:border-amber-500/60',
       iconColor: 'text-amber-500', bgColor: 'bg-amber-500/10',
     };
-    case 'order_generator': return {
-      id: 'orders', icon: Receipt,
-      fr: 'Commandes & devis', en: 'Orders & quotes',
-      subFr: 'Génère et suis tes commandes', subEn: 'Track your orders',
-      route: '/admin/sales',
-      border: 'border-blue-500/30 hover:border-blue-500/60',
-      iconColor: 'text-blue-500', bgColor: 'bg-blue-500/10',
-    };
+    // Hidden in the current digital-first experience (kept for later).
+    case 'order_generator': return null;
     case 'donation_gifts': return {
       id: 'giving', icon: Gift,
       fr: 'Dons & offrandes', en: 'Donations',
