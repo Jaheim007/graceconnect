@@ -582,7 +582,7 @@ const App = () => (
 
                 <Route path="/learn/pro/:slug" element={<HiddenSurface><EducationTutorPublic /></HiddenSurface>} />
                 {/* Legacy /education aliases */}
-                <Route path="/education" element={<Navigate to="/learn/discover" replace />} />
+                <Route path="/education" element={<HiddenSurface><Navigate to="/learn/discover" replace /></HiddenSurface>} />
                 <Route path="/education/about" element={<HiddenSurface><EducationLanding /></HiddenSurface>} />
                 <Route path="/education/discover" element={<HiddenSurface><EducationDiscover /></HiddenSurface>} />
                 <Route path="/education/pro/onboarding" element={<HiddenSurface><EducationTutorOnboarding /></HiddenSurface>} />

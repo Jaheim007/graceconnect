@@ -1,8 +1,8 @@
 # Siteviral
 
-> Africa-first digital platform to sell digital products, collect donations via Mobile Money & cards, book service providers, and earn by sharing as an ambassador.
+> Africa-first digital platform to create and sell digital products, publish AI-assisted books and courses, collect donations via Mobile Money & cards, and earn by sharing as an ambassador.
 
-Siteviral is a multi-vertical marketplace and creator platform for Africa and the diaspora. Creators, churches, tutors, beauty pros, home artisans, and event vendors publish public pages, accept payments in FCFA/EUR/USD (Orange Money, MTN, Wave, cards), and grow through a built-in ambassador program.
+Siteviral is a creator and organization platform for Africa and the diaspora. Creators, churches, NGOs and communities publish public pages, sell digital products, courses and books, accept payments in FCFA/EUR/USD (Orange Money, MTN, Wave, cards), and grow through a built-in ambassador program.
 
 ## Pages
 
@@ -17,13 +17,9 @@ Siteviral is a multi-vertical marketplace and creator platform for Africa and th
 - [Changelog](/changelog): Latest product updates.
 - [Status](/status): Platform uptime and status.
 
-## Verticals
+## Solutions
 
-- [Learn (tutors)](/education): Tutor marketplace for private lessons and courses.
-- [Beauty](/beauty): Book beauty and grooming professionals.
-- [Home services](/home): Book home service artisans.
-- [Events](/events): Book event vendors and packages.
-- [Church](/church): Tools for churches — sermons, giving, announcements.
+- [Churches](/churches): Tools for churches — sermons, giving, announcements.
 
 ## Guides
 
