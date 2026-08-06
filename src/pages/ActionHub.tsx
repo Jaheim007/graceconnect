@@ -197,25 +197,25 @@ export default function ActionHub() {
           animate="show"
           className="w-full max-w-2xl space-y-6"
         >
-          {/* Compact hero */}
-          <motion.div variants={item} className="text-center space-y-1.5">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-semibold mb-1">
+          {/* Hero */}
+          <motion.div variants={item} className="text-center space-y-2">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary shadow-[0_0_24px_-8px_hsl(var(--primary)/0.6)] mb-1">
               <Sparkles className="h-3 w-3" />
               {isFr ? 'Gratuit pour commencer' : 'Free to start'}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground leading-tight">
+            <h1 className="text-[26px] sm:text-4xl font-black tracking-tight text-foreground leading-[1.1]">
               {user && displayName
                 ? (isFr ? `Salut ${displayName} 👋` : `Hey ${displayName} 👋`)
                 : (isFr ? 'Que veux-tu faire ?' : 'What do you want to do?')}
             </h1>
-            {!user && (
-              <p className="text-xs sm:text-sm text-muted-foreground max-w-[340px] mx-auto">
-                {isFr ? 'Crée, vends et gagne — tout en un seul endroit.' : 'Create, sell & earn — all in one place.'}
-              </p>
-            )}
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-[380px] mx-auto">
+              {user
+                ? (isFr ? 'Choisis une action pour continuer.' : 'Pick an action to continue.')
+                : (isFr ? 'Crée, vends et gagne — tout en un seul endroit.' : 'Create, sell & earn — all in one place.')}
+            </p>
           </motion.div>
 
-          {/* Action cards — larger touch targets */}
+          {/* Action cards — glass surface, unified badges */}
           <div className="grid gap-2.5 sm:grid-cols-2">
             {actions.map((action) => (
               <motion.button
@@ -223,20 +223,27 @@ export default function ActionHub() {
                 variants={item}
                 onClick={() => handleAction(action)}
                 className={cn(
-                  'w-full flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl border bg-card transition-all duration-150 group text-left',
-                  'active:scale-[0.97] active:opacity-80',
-                  'hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5',
-                  action.borderClass
+                  'relative w-full flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl text-left group overflow-hidden',
+                  'border border-border/60 bg-card/70 backdrop-blur-xl',
+                  'shadow-[0_1px_2px_hsl(var(--foreground)/0.04)]',
+                  'transition-all duration-200 active:scale-[0.98]',
+                  'hover:-translate-y-0.5 hover:border-primary/40 hover:bg-card',
+                  'hover:shadow-[0_18px_40px_-22px_hsl(var(--primary)/0.45)]',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40'
                 )}
               >
-                <div className={cn('h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0', action.iconBg)}>
-                  <action.icon className={cn('h-5 w-5', action.iconColor)} />
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(120%_120%_at_0%_0%,hsl(var(--primary)/0.10),transparent_60%)]"
+                />
+                <div className="relative h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0 bg-primary/10 text-primary ring-1 ring-inset ring-primary/15 transition-transform duration-200 group-hover:scale-[1.04]">
+                  <action.icon className="h-5 w-5" />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="relative flex-1 min-w-0">
                   <div className="font-bold text-[13px] sm:text-sm text-foreground leading-tight">{isFr ? action.titleFr : action.titleEn}</div>
                   <div className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 leading-snug">{isFr ? action.descFr : action.descEn}</div>
                 </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-all shrink-0" />
+                <ArrowRight className="relative h-4 w-4 text-muted-foreground/70 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
               </motion.button>
             ))}
           </div>
@@ -246,9 +253,10 @@ export default function ActionHub() {
             <Button
               variant="outline"
               size="sm"
-              className="h-9 rounded-xl px-4 text-xs font-semibold"
+              className="h-9 rounded-xl border-border/60 bg-card/60 px-4 text-xs font-semibold backdrop-blur-xl hover:border-primary/40"
               onClick={() => navigate('/landing')}
             >
+
               {isFr ? 'Voir la page de présentation' : 'See the landing page'}
               <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
             </Button>
