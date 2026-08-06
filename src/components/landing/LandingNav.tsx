@@ -126,19 +126,14 @@ export function LandingNav() {
             className="lg:hidden border-t border-border/60 bg-background overflow-hidden"
           >
             <nav className="container px-4 py-4 space-y-1">
-              {primaryLinks.map(l => (
-                <Link key={l.to} to={l.to} onClick={() => setMenuOpen(false)}
-                  className="block px-3 py-2.5 rounded-lg text-sm font-semibold text-foreground hover:bg-muted transition-colors">
-                  {l.label}
-                </Link>
-              ))}
-              <div className="pt-3 mt-2 border-t border-border/60 flex items-center justify-between px-1">
+              <div className="flex items-center justify-between px-1">
                 <GlobalPreferencesSelector />
                 <Link to="/churches" onClick={() => setMenuOpen(false)}
                   className="text-sm font-semibold text-foreground/80 inline-flex items-center gap-1.5">
                   <Church className="h-4 w-4" /> {isFr ? 'Pour les églises' : 'For churches'}
                 </Link>
               </div>
+
               {!user && (
                 <div className="pt-3 border-t border-border/60 mt-2 space-y-2">
                   <Button variant="outline" className="w-full h-11 font-semibold" onClick={() => { navigate('/create-org'); setMenuOpen(false); }}>
