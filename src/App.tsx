@@ -144,6 +144,7 @@ const ChurchSermonPdfSuccessPage = lazy(() => import("@/pages/church/ChurchSermo
 const ChurchProAppointments = lazy(() => import("@/pages/church/ChurchProAppointments"));
 const ChurchEventRegisterPage = lazy(() => import("@/pages/church/ChurchEventRegisterPage"));
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
+import { showServiceSurfaces } from "@/lib/siteviral/visibility";
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const ChurchesPage = lazy(() => import("@/pages/ChurchesPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
@@ -448,7 +449,7 @@ const App = () => (
                 <Route path="/explore/influencers" element={<Navigate to="/discover" replace />} />
                 <Route path="/explore/other-services" element={<Navigate to="/discover" replace />} />
                 {/* SuperAppHub component preserved; hidden from the main experience. */}
-                <Route path="/superapp" element={<Navigate to="/" replace />} />
+                <Route path="/superapp" element={showServiceSurfaces() ? <SuperAppHub /> : <Navigate to="/" replace />} />
                 <Route path="/start" element={<Navigate to="/create-org" replace />} />
                 <Route path="/start/details" element={<Navigate to="/create-org" replace />} />
                 <Route path="/start/finish" element={<LazyStartFinishPage />} />
@@ -456,8 +457,8 @@ const App = () => (
                 <Route path="/start-selling" element={<Navigate to="/create-org" replace />} />
                 {/* Buyer/provider intent chooser + interest picker: components kept,
                     hidden from the restored digital-first experience. */}
-                <Route path="/welcome-intent" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/looking-for" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/welcome-intent" element={showServiceSurfaces() ? <LazyIntentChooserPage /> : <Navigate to="/dashboard" replace />} />
+                <Route path="/looking-for" element={showServiceSurfaces() ? <LazyLookingForPage /> : <Navigate to="/dashboard" replace />} />
                 <Route path="/services" element={<Navigate to="/discover" replace />} />
                 <Route path="/digital" element={<Navigate to="/discover?type=digital" replace />} />
                 <Route path="/digital/about" element={<LandingPage />} />
