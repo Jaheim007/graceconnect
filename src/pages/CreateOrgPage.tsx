@@ -49,12 +49,18 @@ export default function CreateOrgPage() {
   const { toast } = useToast();
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
-  const [step, setStep] = useState(0); // 0=type, 1=name, 2=currency, 3=goal
+  // Preselected world from any entry point: /create-org?world=digital|church|…
+  // (also accepts the legacy ?activity= param used by the old /start flow)
+  const worldParam = (searchParams.get('world') || searchParams.get('activity') || '') as SiteviralWorld;
+  const presetWorld: SiteviralWorld | null = worldParam && worldParam in WORLDS ? worldParam : null;
+
+  const [step, setStep] = useState(presetWorld ? 1 : 0); // 0=type, 1=name, 2=currency, 3=goal
   const [loading, setLoading] = useState(false);
   const [resuming, setResuming] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<string>('both');
-  const [selectedWorld, setSelectedWorld] = useState<SiteviralWorld>('digital');
+  const [selectedWorld, setSelectedWorld] = useState<SiteviralWorld>(presetWorld ?? 'digital');
+
   const [selectedCurrency, setSelectedCurrency] = useState(() => detectCurrencyFromTimezone());
 
   const urlPartnerCode = searchParams.get('partner');
