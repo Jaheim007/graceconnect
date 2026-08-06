@@ -209,25 +209,11 @@ export function Sidebar() {
         </div>
       )}
 
-      <nav className={cn('flex-1 overflow-y-auto py-1 space-y-0.5 scrollbar-hide', collapsed ? 'px-1.5' : 'px-2')}>
-        {accountNav.length > 0 && (
-          <>
-            {renderGroupLabel(isFr ? 'MENU' : 'MENU')}
-            <div className="space-y-0.5">{accountNav.map(renderNavItem)}</div>
-          </>
-        )}
-
-        {workspaceNav.length > 0 && (
-          <>
-            {renderGroupLabel(
-              (currentOrg?.name?.toUpperCase().slice(0, 22)) ||
-              (isFr ? 'ESPACE PRO' : 'WORKSPACE'),
-            )}
-            <div className="space-y-0.5">{workspaceNav.map(renderNavItem)}</div>
-          </>
-        )}
-
+      <nav className={cn('flex-1 overflow-y-auto py-2 scrollbar-hide', collapsed ? 'px-1.5' : 'px-2')}>
+        {/* ONE unified dashboard nav — no groups, no separate workspace section */}
+        <div className="space-y-0.5">{unifiedNav.map(renderNavItem)}</div>
       </nav>
+
 
       {/* Superadmin + Settings + Sign out */}
       <div className={cn('border-t border-sidebar-foreground/10', collapsed ? 'px-1.5 py-1.5' : 'px-2 py-1.5')}>
