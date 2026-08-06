@@ -85,35 +85,8 @@ export default function StartFinishPage() {
       try {
         // Idempotency
         const done = sessionStorage.getItem(DONE_KEY);
-        let orgId = done;
+        setStep(1);
 
-        if (!orgId) {
-          setStep(1);
-          const { data, error } = await db.rpc('create_organization_with_owner', {
-            _name: cfg.name,
-            _slug: slugify(cfg.name),
-            _category: cfg.activity === 'church' ? 'church' : 'leader',
-            _description: cfg.city ? (fr ? `Basé à ${cfg.city}` : `Based in ${cfg.city}`) : null,
-            _currency: cfg.currency || 'XOF',
-          });
-          if (error) throw error;
-          orgId = data as string;
-          sessionStorage.setItem(DONE_KEY, orgId);
-        }
-
-        setStep(2);
-        await new Promise((r) => setTimeout(r, 350));
-
-        setStep(3);
-        await confirmSiteviralType(
-          orgId!,
-          cfg.siteviral_type,
-          cfg.enabled_features as SiteviralFeatureKey[],
-          'onboarding',
-        );
-
-        // Persist the provider profile snapshot from the new onboarding wizard.
-        // Safe additive write — old orgs keep provider_profile = {}.
         const providerProfile = {
           workspace_type: cfg.workspace_type ?? cfg.activity ?? null,
           specialties: cfg.specialties ?? [],
@@ -123,16 +96,26 @@ export default function StartFinishPage() {
           service_mode: cfg.service_mode ?? null,
           name_mode: cfg.name_mode ?? 'business',
         };
-        try {
-          await db.from('organizations')
-            .update({ provider_profile: providerProfile } as any)
-            .eq('id', orgId!);
-        } catch { /* non-fatal — dashboard still works */ }
 
-        // Fetch and set current
-        const { data: org } = await db.from('organizations').select('*').eq('id', orgId!).maybeSingle();
+        // Shared workspace-creation engine — identical to /create-org.
+        const { orgId, org } = await createWorkspace({
+          name: cfg.name,
+          world: worldForSiteviralType(cfg.siteviral_type),
+          currency: cfg.currency || 'XOF',
+          description: cfg.city ? (fr ? `Basé à ${cfg.city}` : `Based in ${cfg.city}`) : null,
+          extraFeatures: cfg.enabled_features as SiteviralFeatureKey[],
+          providerProfile,
+          existingOrgId: done,
+        });
+        sessionStorage.setItem(DONE_KEY, orgId);
+
+        setStep(2);
+        await new Promise((r) => setTimeout(r, 350));
+        setStep(3);
+
         if (org) setCurrentOrg(org as any);
         await refetchOrgs();
+
 
         setStep(4);
         sessionStorage.removeItem(CONFIG_KEY);
