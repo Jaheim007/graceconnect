@@ -55,8 +55,8 @@ export function ProShell({ title, subtitle, brandIcon, brandGradient, items, foo
             </div>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-3 py-2">
-            <ul className="space-y-0.5">
+          <nav className="relative flex-1 overflow-y-auto px-3 py-2">
+            <ul className="space-y-1">
               {items.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -66,33 +66,29 @@ export function ProShell({ title, subtitle, brandIcon, brandGradient, items, foo
                       end={item.end}
                       className={({ isActive }) =>
                         cn(
-                          "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                          "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200",
                           isActive
-                            ? "bg-primary/10 text-primary"
-                            : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                            ? "bg-primary/15 text-primary font-semibold border border-primary/25 shadow-[inset_0_1px_0_0_hsl(var(--primary)/0.12)]"
+                            : "font-medium text-muted-foreground border border-transparent hover:bg-muted/60 hover:text-foreground hover:translate-x-0.5",
                         )
                       }
                     >
                       {({ isActive }) => (
                         <>
-                          <span
-                            className={cn(
-                              "absolute left-0 top-1/2 -translate-y-1/2 h-6 w-[3px] rounded-r-full transition-all",
-                              isActive ? "bg-primary" : "bg-transparent",
-                            )}
-                          />
                           <Icon
                             className={cn(
-                              "h-4 w-4 shrink-0",
+                              "h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110",
                               isActive ? "text-primary" : "text-current",
                             )}
                           />
                           <span className="truncate">{item.label}</span>
-                          {item.badge != null && item.badge !== 0 && (
+                          {item.badge != null && item.badge !== 0 ? (
                             <span className="ml-auto rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary">
                               {item.badge}
                             </span>
-                          )}
+                          ) : isActive ? (
+                            <span aria-hidden className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-primary shadow-[0_0_10px_2px_hsl(var(--primary)/0.6)]" />
+                          ) : null}
                         </>
                       )}
                     </NavLink>
@@ -101,6 +97,7 @@ export function ProShell({ title, subtitle, brandIcon, brandGradient, items, foo
               })}
             </ul>
           </nav>
+
 
           {footer && (
             <div className="border-t border-border/60 p-3">{footer}</div>
