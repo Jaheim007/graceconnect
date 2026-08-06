@@ -232,9 +232,12 @@ export function buildFeatureNavItems(
     // gated by enabled_features). Events & donations are hidden here even
     // if legacy flags exist, because they belong to church/other workspaces.
     digital_products: ['digital_products', 'ai_book_creation', 'ai_formation_creation'],
-    church: ['digital_products', 'donation_gifts', 'events', 'ai_book_creation'],
+    // Church platforms use the SAME dashboard as any other SiteViral
+    // platform — only Giving is added on top. No vertical-specific pages.
+    church: ['digital_products', 'ai_book_creation', 'ai_formation_creation', 'donation_gifts'],
   };
   const visibleOrder = navKeysForType[type] ?? ORDER;
+
 
   // Matrix-driven operational tools
   for (const key of visibleOrder) {
