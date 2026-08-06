@@ -26,7 +26,7 @@ function bookingRouteFor(type: SiteviralType | null | undefined): string {
     case 'beauty':                 return '/admin/beauty/orders';
     case 'artisans_home_services': return '/admin/home/orders';
     case 'tutors_home_teachers':   return '/admin/learn/orders';
-    case 'church':                 return '/admin/church/appointments';
+    // church → uses the standard dashboard, no vertical booking page
     case 'instrumentists':
     case 'services':
     case 'sport':
@@ -134,22 +134,23 @@ function specFor(
       id: 'giving', icon: Gift, tone: 'emerald',
       titleFr: 'Dons', titleEn: 'Giving',
       descFr: 'Campagnes et cadeaux', descEn: 'Campaigns & gifts',
-      route: type === 'church' ? '/admin/church/giving' : '/admin/campaigns',
+      route: '/admin/campaigns',
     };
     case 'ai_book_creation': return {
       id: 'write', icon: BookOpen, tone: 'primary',
-      titleFr: type === 'church' ? 'Livres & prédications' : 'Écrire un livre en 5 min',
-      titleEn: type === 'church' ? 'Books & sermons' : 'Write a book in 5 min',
-      descFr: type === 'church' ? 'Audio, livre et PDF' : "Ton livre avec l'IA",
-      descEn: type === 'church' ? 'Audio, book & PDF' : 'Your book with AI',
-      route: type === 'church' ? '/admin/church/sermons' : '/ecrire',
+      titleFr: 'Écrire un livre en 5 min',
+      titleEn: 'Write a book in 5 min',
+      descFr: "Ton livre avec l'IA",
+      descEn: 'Your book with AI',
+      route: '/ecrire',
     };
     case 'events': return {
       id: 'events', icon: Ticket, tone: 'indigo',
       titleFr: 'Événements', titleEn: 'Events',
       descFr: 'Billets et invitations', descEn: 'Tickets & invites',
-      route: type === 'church' ? '/admin/church/events' : '/admin/events',
+      route: '/admin/events',
     };
+
     case 'ai_formation_creation': return {
       id: 'create-course', icon: GraduationCap, tone: 'violet',
       titleFr: 'Créer une formation', titleEn: 'Create a course',
@@ -232,9 +233,12 @@ export function buildFeatureNavItems(
     // gated by enabled_features). Events & donations are hidden here even
     // if legacy flags exist, because they belong to church/other workspaces.
     digital_products: ['digital_products', 'ai_book_creation', 'ai_formation_creation'],
-    church: ['digital_products', 'donation_gifts', 'events', 'ai_book_creation'],
+    // Church platforms use the SAME dashboard as any other SiteViral
+    // platform — only Giving is added on top. No vertical-specific pages.
+    church: ['digital_products', 'ai_book_creation', 'ai_formation_creation', 'donation_gifts'],
   };
   const visibleOrder = navKeysForType[type] ?? ORDER;
+
 
   // Matrix-driven operational tools
   for (const key of visibleOrder) {
@@ -247,8 +251,11 @@ export function buildFeatureNavItems(
   // They now appear in the same blue dashboard sidebar.
   switch (type) {
     case 'digital_products':
-      // "Create a course" is a first-class flow for digital sellers, always
-      // available regardless of feature-flag detail (route resolves at click).
+    case 'church':
+      // Same dashboard for every platform type: "Create a course" is a
+      // first-class flow (route resolves at click). Church platforms get
+      // Giving from the matrix above — no vertical-specific pages, and Team
+      // lives in Settings.
       pushUnique({
         id: 'create-course', icon: GraduationCap, tone: 'violet',
         titleFr: 'Créer une formation', titleEn: 'Create a course',
@@ -256,13 +263,7 @@ export function buildFeatureNavItems(
         route: '/admin/programs',
       });
       break;
-    case 'church':
-      // Primary church modules ONLY. Optional modules (CRM, Prayer, Campaigns,
-      // Appointments, Announcements) are activated by the user from
-      // Settings → Modules and surface via the matrix flow above.
-      pushUnique({ id: 'sermons', icon: BookOpen, tone: 'primary', titleFr: 'Livres & prédications', titleEn: 'Books & sermons', descFr: 'Audio, livre et PDF', descEn: 'Audio, book & PDF', route: '/admin/church/sermons' });
-      pushUnique({ id: 'team', icon: Users, tone: 'teal', titleFr: 'Équipe', titleEn: 'Team', descFr: 'Co-administrateurs', descEn: 'Co-admins', route: '/admin/church/team' });
-      break;
+
     case 'artisans_home_services':
       pushUnique({ id: 'services', icon: Store, tone: 'sky', titleFr: 'Services', titleEn: 'Services', descFr: 'Prestations et tarifs', descEn: 'Services & pricing', route: '/admin/home/services' });
       break;

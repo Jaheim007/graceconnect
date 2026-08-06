@@ -8,24 +8,48 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { toast } from 'sonner';
 
 export default function ChurchProTeam() {
   const { user, loading } = useAuth();
+  const { currentOrg, isLoadingOrgs } = useOrg();
   const { locale } = useI18n();
   const fr = locale === 'fr';
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
 
-  useEffect(() => { document.title = fr ? 'Équipe — SiteViral Church' : 'Team — SiteViral Church'; }, [fr]);
+  useEffect(() => { document.title = fr ? 'Équipe — SiteViral' : 'Team — SiteViral'; }, [fr]);
 
-  const { data: church } = useQuery({
-    enabled: !!user,
-    queryKey: ['church-owner-team', user?.id],
+  // The team container is auto-provisioned from the current workspace, so a
+  // user who created their platform through /create-org never hits a dead end.
+  const { data: church, isLoading: loadingChurch } = useQuery({
+    enabled: !!user && !isLoadingOrgs,
+    queryKey: ['church-owner-team', user?.id, currentOrg?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('church_providers').select('id, name, user_id').eq('user_id', user!.id).maybeSingle();
-      return data;
+      const { data: existing } = await supabase
+        .from('church_providers')
+        .select('id, name, user_id')
+        .eq('user_id', user!.id)
+        .maybeSingle();
+      if (existing) return existing;
+      if (!currentOrg) return null;
+
+      const base = (currentOrg.slug || 'espace').slice(0, 40);
+      let slug = base;
+      for (let i = 2; i < 8; i++) {
+        const { data: dup } = await supabase.from('church_providers').select('id').eq('slug', slug).maybeSingle();
+        if (!dup) break;
+        slug = `${base}-${i}`;
+      }
+      const { data: created, error } = await supabase
+        .from('church_providers')
+        .insert({ user_id: user!.id, slug, name: currentOrg.name, status: 'draft' } as any)
+        .select('id, name, user_id')
+        .maybeSingle();
+      if (error) throw error;
+      return created;
     },
   });
 
@@ -44,18 +68,20 @@ export default function ChurchProTeam() {
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['church-team', church?.id] });
 
-  if (loading) return <Spin />;
+  if (loading || isLoadingOrgs || loadingChurch) return <Spin />;
   if (!user) return <Navigate to="/auth?returnTo=/admin/church/team" replace />;
-  if (!church) return <Navigate to="/church/pro/onboarding" replace />;
+  if (!church) return <Navigate to="/create-org" replace />;
+
 
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-4xl px-4 py-6 space-y-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild><Link to="/dashboard"><ArrowLeft className="h-5 w-5" /></Link></Button>
+            <Button variant="ghost" size="icon" asChild><Link to="/admin/settings"><ArrowLeft className="h-5 w-5" /></Link></Button>
             <div>
-              <p className="text-xs text-muted-foreground">SiteViral Church</p>
+              <p className="text-xs text-muted-foreground">{currentOrg?.name ?? 'SiteViral'}</p>
+
               <h1 className="text-xl font-bold flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> {fr ? 'Équipe' : 'Team'}</h1>
             </div>
           </div>

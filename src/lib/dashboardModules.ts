@@ -146,11 +146,12 @@ export const isMandatoryModule = (_id: ModuleId) => false;
  * user actually needs, matching product spec.
  *
  *  - Digital seller: just sell digital products. Giving / AI / events opt-in.
- *  - Church: offerings + sermons/books + events. Booking/CRM/etc opt-in.
+ *  - Church: same core as a digital platform + giving. Events/CRM opt-in.
  *  - Everyone else: booking is the core, rest opt-in.
  */
 export const DEFAULT_MODULES_BY_PERSONA: Record<Persona, ModuleId[]> = {
-  church:      ['giving','ai_book','events_tickets'],
+  church:      ['digital_products','ai_book','giving'],
+
   digital:     ['digital_products'],
   coach:       ['booking'],
   home:        ['booking'],

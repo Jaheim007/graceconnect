@@ -97,11 +97,13 @@ export function defaultNavForWorld(world: SiteviralWorld): WorldNavItem[] {
       { id: 'messages', url: '/admin/beauty/messages',  icon: Inbox,    labelFr: 'Messages',    labelEn: 'Messages' },
     ];
     case 'church': return [
-      { id: 'sermons',   url: '/admin/church/sermons', icon: BookOpen, labelFr: 'Livres & prédications', labelEn: 'Books & sermons' },
-      { id: 'events',    url: '/admin/church/events',  icon: Ticket,   labelFr: 'Événements',            labelEn: 'Events' },
-      { id: 'team',      url: '/admin/church/team',    icon: Users,    labelFr: 'Équipe',                labelEn: 'Team' },
-      { id: 'offerings', url: '/admin/church/giving',  icon: Gift,     labelFr: 'Offrandes / Dîmes',     labelEn: 'Offerings' },
+      // Church platforms use the SAME dashboard as any other platform.
+      // Only Giving is added on top; Team lives in Settings.
+      { id: 'sell',      url: '/admin/products',   icon: Store,    labelFr: 'Vendre',                   labelEn: 'Sell' },
+      { id: 'write',     url: '/ecrire',           icon: BookOpen, labelFr: 'Écrire un livre en 5 min', labelEn: 'Write a book in 5 min' },
+      { id: 'offerings', url: '/admin/campaigns',  icon: Gift,     labelFr: 'Dons',                     labelEn: 'Giving' },
     ];
+
     case 'home': return [
       { id: 'services', url: '/admin/home/services', icon: Store,    labelFr: 'Services', labelEn: 'Services' },
       { id: 'orders',   url: '/admin/home/orders',   icon: Calendar, labelFr: 'Demandes', labelEn: 'Jobs' },
