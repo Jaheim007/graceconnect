@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import {
-  BookOpen, Store, Share2, Compass, ArrowRight, Calendar, Receipt, Gift,
-  Sparkles, MessageSquare, Ticket, Star,
+  BookOpen, Store, Share2, Compass, ArrowRight, Calendar, Gift,
+  Sparkles, Ticket,
   type LucideIcon,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -57,14 +57,8 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       border: 'border-amber-500/30 hover:border-amber-500/60',
       iconColor: 'text-amber-500', bgColor: 'bg-amber-500/10',
     };
-    case 'order_generator': return {
-      id: 'orders', icon: Receipt,
-      fr: 'Commandes & devis', en: 'Orders & quotes',
-      subFr: 'Génère et suis tes commandes', subEn: 'Track your orders',
-      route: '/admin/sales',
-      border: 'border-blue-500/30 hover:border-blue-500/60',
-      iconColor: 'text-blue-500', bgColor: 'bg-blue-500/10',
-    };
+    // Hidden in the current digital-first experience (kept for later).
+    case 'order_generator': return null;
     case 'donation_gifts': return {
       id: 'giving', icon: Gift,
       fr: 'Dons & offrandes', en: 'Donations',
@@ -89,14 +83,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       border: 'border-fuchsia-500/30 hover:border-fuchsia-500/60',
       iconColor: 'text-fuchsia-500', bgColor: 'bg-fuchsia-500/10',
     };
-    case 'product_comments': return {
-      id: 'comments', icon: MessageSquare,
-      fr: 'Commentaires', en: 'Comments',
-      subFr: 'Modère les avis produits', subEn: 'Moderate product reviews',
-      route: '/admin/crm',
-      border: 'border-cyan-500/30 hover:border-cyan-500/60',
-      iconColor: 'text-cyan-500', bgColor: 'bg-cyan-500/10',
-    };
+    case 'product_comments': return null;
     case 'events': return {
       id: 'events', icon: Ticket,
       fr: 'Événements & billets', en: 'Events & tickets',
@@ -105,14 +92,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       border: 'border-indigo-500/30 hover:border-indigo-500/60',
       iconColor: 'text-indigo-500', bgColor: 'bg-indigo-500/10',
     };
-    case 'reviews': return {
-      id: 'reviews', icon: Star,
-      fr: 'Avis clients', en: 'Client reviews',
-      subFr: 'Notes et retours', subEn: 'Ratings & feedback',
-      route: '/admin/crm',
-      border: 'border-yellow-500/30 hover:border-yellow-500/60',
-      iconColor: 'text-yellow-500', bgColor: 'bg-yellow-500/10',
-    };
+    case 'reviews': return null;
     case 'affiliation': return {
       id: 'share', icon: Share2,
       fr: 'Gagner', en: 'Earn',
@@ -134,17 +114,14 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
 // Default (no org / no vertical yet): keep the original digital creator paths.
 const DEFAULT_KEYS: SiteviralFeatureKey[] = ['ai_book_creation', 'digital_products', 'affiliation'];
 
-/** Order tiles are shown inside the dashboard.
- * Reviews & AI courses are intentionally excluded — they're optional modules
- * activated from Settings, not primary dashboard tiles. */
+/** Digital-first dashboard tiles. Legacy service-era tools (orders & quotes,
+ * product comments, reviews, bookings) are hidden from the main experience. */
 const DISPLAY_ORDER: SiteviralFeatureKey[] = [
-  'appointment',
-  'order_generator',
   'digital_products',
+  'ai_book_creation',
+  'ai_formation_creation',
   'donation_gifts',
   'events',
-  'ai_book_creation',
-  'product_comments',
   'affiliation',
 ];
 
