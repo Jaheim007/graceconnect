@@ -257,7 +257,7 @@ export function Sidebar() {
                 <Link
                   to="/superadmin"
                   aria-label="Super admin"
-                  className="flex items-center justify-center h-10 w-10 mx-auto rounded-md text-amber-400 hover:bg-sidebar-accent/50"
+                  className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-amber-400 hover:bg-sidebar-foreground/5"
                 >
                   <ShieldCheck className="h-[18px] w-[18px]" />
                 </Link>
@@ -267,7 +267,7 @@ export function Sidebar() {
           ) : (
             <Link
               to="/superadmin"
-              className="flex items-center gap-2.5 h-10 px-2.5 rounded-md text-[13px] font-semibold text-amber-400 hover:bg-sidebar-accent/50"
+              className="flex items-center gap-2.5 h-11 px-3 rounded-xl text-[13px] font-semibold text-amber-400 hover:bg-sidebar-foreground/5"
             >
               <ShieldCheck className="h-[18px] w-[18px] shrink-0" />
               <span>Super admin</span>
@@ -282,7 +282,7 @@ export function Sidebar() {
                 <Link
                   to="/admin/settings"
                   aria-label={isFr ? 'Paramètres' : 'Settings'}
-                  className="flex items-center justify-center h-10 w-10 mx-auto rounded-md text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+                  className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-foreground/5"
                 >
                   <Settings className="h-[18px] w-[18px]" />
                 </Link>
@@ -292,7 +292,7 @@ export function Sidebar() {
           ) : (
             <Link
               to="/admin/settings"
-              className="flex items-center gap-2.5 h-10 px-2.5 rounded-md text-[13px] font-medium text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+              className="flex items-center gap-2.5 h-11 px-3 rounded-xl text-[13px] font-medium text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-foreground/5"
             >
               <Settings className="h-[18px] w-[18px] shrink-0" />
               <span>{isFr ? 'Paramètres' : 'Settings'}</span>
@@ -305,7 +305,7 @@ export function Sidebar() {
               <button
                 onClick={signOut}
                 aria-label={t('sidebar.sign_out')}
-                className="flex items-center justify-center h-10 w-10 mx-auto rounded-md text-destructive hover:bg-destructive/10"
+                className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-destructive hover:bg-destructive/10"
               >
                 <LogOut className="h-[18px] w-[18px]" />
               </button>
@@ -315,7 +315,7 @@ export function Sidebar() {
         ) : (
           <button
             onClick={signOut}
-            className="flex items-center gap-2.5 h-10 w-full px-2.5 rounded-md text-[13px] font-medium text-destructive hover:bg-destructive/10"
+            className="flex items-center gap-2.5 h-11 w-full px-3 rounded-xl text-[13px] font-medium text-destructive hover:bg-destructive/10"
           >
             <LogOut className="h-[18px] w-[18px] shrink-0" />
             <span>{t('sidebar.sign_out')}</span>
@@ -325,7 +325,7 @@ export function Sidebar() {
 
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="flex items-center justify-center h-9 w-full border-t border-sidebar-foreground/10 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+        className="flex items-center justify-center h-9 w-full border-t border-sidebar-foreground/10 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-foreground/5 transition-colors"
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
