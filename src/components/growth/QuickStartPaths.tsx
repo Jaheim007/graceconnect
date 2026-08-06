@@ -92,14 +92,7 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       border: 'border-indigo-500/30 hover:border-indigo-500/60',
       iconColor: 'text-indigo-500', bgColor: 'bg-indigo-500/10',
     };
-    case 'reviews': return {
-      id: 'reviews', icon: Star,
-      fr: 'Avis clients', en: 'Client reviews',
-      subFr: 'Notes et retours', subEn: 'Ratings & feedback',
-      route: '/admin/crm',
-      border: 'border-yellow-500/30 hover:border-yellow-500/60',
-      iconColor: 'text-yellow-500', bgColor: 'bg-yellow-500/10',
-    };
+    case 'reviews': return null;
     case 'affiliation': return {
       id: 'share', icon: Share2,
       fr: 'Gagner', en: 'Earn',
@@ -121,17 +114,14 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
 // Default (no org / no vertical yet): keep the original digital creator paths.
 const DEFAULT_KEYS: SiteviralFeatureKey[] = ['ai_book_creation', 'digital_products', 'affiliation'];
 
-/** Order tiles are shown inside the dashboard.
- * Reviews & AI courses are intentionally excluded — they're optional modules
- * activated from Settings, not primary dashboard tiles. */
+/** Digital-first dashboard tiles. Legacy service-era tools (orders & quotes,
+ * product comments, reviews, bookings) are hidden from the main experience. */
 const DISPLAY_ORDER: SiteviralFeatureKey[] = [
-  'appointment',
-  'order_generator',
   'digital_products',
+  'ai_book_creation',
+  'ai_formation_creation',
   'donation_gifts',
   'events',
-  'ai_book_creation',
-  'product_comments',
   'affiliation',
 ];
 
