@@ -58,27 +58,35 @@ export default function PersonalActivityPage() {
           <h1 className="text-xl sm:text-2xl font-bold">{isFr ? 'Mon activité' : 'My activity'}</h1>
           <p className="text-xs text-muted-foreground mt-1">
             {isFr
-              ? 'Tous vos achats, réservations, billets et dons au même endroit.'
-              : 'All your purchases, bookings, tickets and giving in one place.'}
+              ? services
+                ? 'Tous vos achats, réservations, billets et dons au même endroit.'
+                : 'Tous vos achats et dons au même endroit.'
+              : services
+                ? 'All your purchases, bookings, tickets and giving in one place.'
+                : 'All your purchases and giving in one place.'}
           </p>
         </div>
       </div>
 
       <div className="container max-w-4xl px-4 py-6">
         <Tabs value={active} onValueChange={(v) => setTab(v as Tab)}>
-          <TabsList className="w-full grid grid-cols-5 h-auto">
+          <TabsList className={cn('w-full grid h-auto', services ? 'grid-cols-5' : 'grid-cols-2')}>
             <TabsTrigger value="purchases" className="text-[11px] sm:text-xs py-2">
               {isFr ? 'Achats' : 'Purchases'}
             </TabsTrigger>
-            <TabsTrigger value="orders" className="text-[11px] sm:text-xs py-2">
-              {isFr ? 'Services' : 'Services'}
-            </TabsTrigger>
-            <TabsTrigger value="bookings" className="text-[11px] sm:text-xs py-2">
-              {isFr ? 'Rendez-vous' : 'Bookings'}
-            </TabsTrigger>
-            <TabsTrigger value="tickets" className="text-[11px] sm:text-xs py-2">
-              {isFr ? 'Billets' : 'Tickets'}
-            </TabsTrigger>
+            {services && (
+              <>
+                <TabsTrigger value="orders" className="text-[11px] sm:text-xs py-2">
+                  {isFr ? 'Services' : 'Services'}
+                </TabsTrigger>
+                <TabsTrigger value="bookings" className="text-[11px] sm:text-xs py-2">
+                  {isFr ? 'Rendez-vous' : 'Bookings'}
+                </TabsTrigger>
+                <TabsTrigger value="tickets" className="text-[11px] sm:text-xs py-2">
+                  {isFr ? 'Billets' : 'Tickets'}
+                </TabsTrigger>
+              </>
+            )}
             <TabsTrigger value="giving" className="text-[11px] sm:text-xs py-2">
               {isFr ? 'Dons' : 'Giving'}
             </TabsTrigger>
@@ -87,18 +95,23 @@ export default function PersonalActivityPage() {
           <TabsContent value="purchases" className="mt-5">
             <PurchasesTab userId={user?.id} isFr={isFr} />
           </TabsContent>
-          <TabsContent value="orders" className="mt-5">
-            <ServiceOrdersTab userId={user?.id} isFr={isFr} />
-          </TabsContent>
-          <TabsContent value="bookings" className="mt-5">
-            <BookingsTab userId={user?.id} isFr={isFr} />
-          </TabsContent>
-          <TabsContent value="tickets" className="mt-5">
-            <TicketsTab userId={user?.id} isFr={isFr} />
-          </TabsContent>
+          {services && (
+            <>
+              <TabsContent value="orders" className="mt-5">
+                <ServiceOrdersTab userId={user?.id} isFr={isFr} />
+              </TabsContent>
+              <TabsContent value="bookings" className="mt-5">
+                <BookingsTab userId={user?.id} isFr={isFr} />
+              </TabsContent>
+              <TabsContent value="tickets" className="mt-5">
+                <TicketsTab userId={user?.id} isFr={isFr} />
+              </TabsContent>
+            </>
+          )}
           <TabsContent value="giving" className="mt-5">
             <GivingTab userId={user?.id} isFr={isFr} />
           </TabsContent>
+
         </Tabs>
       </div>
     </div>
