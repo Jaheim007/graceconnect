@@ -88,9 +88,11 @@ export interface WorldNavItem {
 export function defaultNavForWorld(world: SiteviralWorld): WorldNavItem[] {
   switch (world) {
     case 'digital': return [
-      { id: 'sell',     url: '/admin/products',       icon: Store,    labelFr: 'Vendre',                 labelEn: 'Sell' },
-      { id: 'write',    url: '/ecrire',               icon: BookOpen, labelFr: 'Écrire un livre en 5 min', labelEn: 'Write a book in 5 min' },
+      { id: 'sell',      url: '/admin/products',  icon: Store,    labelFr: 'Vendre',                   labelEn: 'Sell' },
+      { id: 'write',     url: '/ecrire',          icon: BookOpen, labelFr: 'Écrire un livre en 5 min', labelEn: 'Write a book in 5 min' },
+      { id: 'offerings', url: '/admin/campaigns', icon: Gift,     labelFr: 'Dons',                     labelEn: 'Giving' },
     ];
+
     case 'beauty': return [
       { id: 'bookings', url: '/admin/beauty/orders',    icon: Calendar, labelFr: 'Rendez-vous', labelEn: 'Bookings' },
       { id: 'services', url: '/admin/beauty/settings',  icon: Store,    labelFr: 'Prestations', labelEn: 'Services' },
