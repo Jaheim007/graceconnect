@@ -50,7 +50,7 @@ export default function CreateOrgPage() {
   const presetWorld: SiteviralWorld | null = worldParam && worldParam in WORLDS ? worldParam : null;
 
   const presetProfile = profileForWorld(presetWorld);
-  const [step, setStep] = useState(presetProfile ? 1 : 0); // 0=platform profile, 1=name, 2=currency, 3=first objective
+  const [step, setStep] = useState(presetProfile ? 1 : 0); // 0=platform profile, 1=name, 2=currency + create
   const [loading, setLoading] = useState(false);
   const [resuming, setResuming] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -91,7 +91,7 @@ export default function CreateOrgPage() {
       if (pending.values?.category) setValue('category', pending.values.category);
       if (pending.currency) setSelectedCurrency(pending.currency);
       if (pending.goal) setSelectedGoal(pending.goal);
-      setStep(3);
+      setStep(2);
       setResuming(true);
       setTimeout(() => { void onSubmit(); }, 50);
     } catch {}
@@ -140,13 +140,17 @@ export default function CreateOrgPage() {
         }
       } catch { /* ignore */ }
 
-      const objective = profile.objectives.find((o) => o.id === selectedGoal) ?? profile.objectives[0];
+      // Simpler UX: no "first objective" question. Every tool of the chosen
+      // profile is enabled up-front and surfaced in the dashboard instead.
+      const profileFeatures = Array.from(
+        new Set(profile.objectives.flatMap((o) => o.features)),
+      );
 
       const { orgId, org: newOrg } = await createWorkspace({
         name: data.name,
         world: selectedWorld,
         currency: selectedCurrency,
-        extraFeatures: [...extraFeatures, ...objective.features],
+        extraFeatures: [...extraFeatures, ...profileFeatures],
         providerProfile,
         partnerCode,
       });
@@ -183,7 +187,7 @@ export default function CreateOrgPage() {
     exit: { x: -60, opacity: 0 },
   };
 
-  const totalSteps = 4;
+  const totalSteps = 3;
 
   return (
     <div className="relative min-h-screen bg-background flex flex-col">
@@ -348,36 +352,6 @@ export default function CreateOrgPage() {
                       {isFr ? '💡 Détectée automatiquement, mais tu peux la changer.' : '💡 Auto-detected, but you can change it.'}
                     </p>
                   </div>
-                  <Button className="w-full h-11 gap-2" onClick={() => setStep(3)}>
-                    {isFr ? 'Continuer' : 'Continue'} <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-
-              {/* Step 3: First objective + Create */}
-              {step === 3 && (
-                <div className="space-y-5">
-                  <h2 className="text-lg font-semibold">{isFr ? 'Que veux-tu faire en premier ?' : 'What do you want to do first?'}</h2>
-                  <div className="space-y-2">
-                    {profile.objectives.map(goal => (
-                      <button
-                        key={goal.id}
-                        type="button"
-                        onClick={() => setSelectedGoal(goal.id)}
-                        className={cn(
-                          'w-full flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all',
-                          selectedGoal === goal.id
-                            ? 'border-primary bg-primary/5'
-                            : 'border-border hover:border-muted-foreground/40'
-                        )}
-                      >
-                        <span className="text-2xl">{goal.emoji}</span>
-                        <p className="text-sm font-bold">{isFr ? goal.labelFr : goal.labelEn}</p>
-                      </button>
-                    ))}
-                  </div>
-
-
                   <Button
                     className="w-full h-12 gap-2 text-base font-bold"
                     onClick={onSubmit}
@@ -393,7 +367,9 @@ export default function CreateOrgPage() {
                   </Button>
 
                   <p className="text-[10px] text-muted-foreground text-center">
-                    {isFr ? `Devise : ${selectedCurrency} • Slug auto-généré • Modifiable plus tard` : `Currency: ${selectedCurrency} • Auto-generated slug • Editable later`}
+                    {isFr
+                      ? 'Tous tes outils (vendre, écrire un livre, créer une formation, dons…) seront disponibles dans ton tableau de bord.'
+                      : 'All your tools (sell, write a book, create a course, donations…) will be available in your dashboard.'}
                   </p>
                 </div>
               )}
