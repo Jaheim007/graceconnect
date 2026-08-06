@@ -10,6 +10,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { db } from '@/lib/db';
 import { confirmSiteviralType } from '@/lib/siteviral/activation';
+import { createWorkspace, worldForSiteviralType } from '@/lib/siteviral/createWorkspace';
+
 import { resolveActivity } from '@/lib/siteviral/moduleToFeatures';
 import { setIntent } from '@/lib/intent';
 import { toast } from 'sonner';
