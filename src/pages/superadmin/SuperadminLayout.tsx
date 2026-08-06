@@ -99,9 +99,11 @@ export default function SuperadminLayout() {
     <div className="min-h-screen flex bg-background">
       {/* ═══ SIDEBAR ═══ */}
       <aside className={cn(
-        'hidden lg:flex flex-col border-r border-border/60 bg-card/80 backdrop-blur-xl transition-all duration-300 shrink-0 sticky top-0 h-screen',
-        collapsed ? 'w-[68px]' : 'w-[220px]'
+        'relative hidden lg:flex flex-col border-r border-border/60 bg-card/80 backdrop-blur-xl transition-all duration-300 shrink-0 sticky top-0 h-screen shadow-xl',
+        'before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(120%_50%_at_0%_0%,hsl(var(--primary)/0.08),transparent_60%)]',
+        collapsed ? 'w-[68px]' : 'w-[232px]'
       )}>
+
         {/* Logo header */}
         <div className={cn('p-4 border-b border-border/40 flex items-center gap-3', collapsed && 'justify-center')}>
           <div className="h-10 w-10 rounded-xl overflow-hidden shrink-0 shadow-md ring-1 ring-border/40">
@@ -130,17 +132,26 @@ export default function SuperadminLayout() {
                   {group.items.map(({ to, label, icon: Icon, end }) => {
                     const linkEl = (
                       <NavLink key={to} to={to} end={end}
+
                         className={({ isActive }) => cn(
-                          'relative flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 group',
+                          'group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all duration-200',
                           isActive
-                            ? 'bg-primary/10 text-primary before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-0.5 before:rounded-r-full before:bg-primary'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
+                            ? 'bg-primary/15 text-primary font-semibold border border-primary/25 shadow-[inset_0_1px_0_0_hsl(var(--primary)/0.12)]'
+                            : 'font-medium text-muted-foreground border border-transparent hover:text-foreground hover:bg-muted/60 hover:translate-x-0.5',
                           collapsed && 'justify-center px-2.5'
                         )}>
-                        <Icon className={cn('h-4 w-4 shrink-0')} />
-                        {!collapsed && <span>{label}</span>}
+                        {({ isActive }) => (
+                          <>
+                            <Icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
+                            {!collapsed && <span className="truncate">{label}</span>}
+                            {isActive && !collapsed && (
+                              <span aria-hidden className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-primary shadow-[0_0_10px_2px_hsl(var(--primary)/0.6)]" />
+                            )}
+                          </>
+                        )}
                       </NavLink>
                     );
+
                     if (collapsed) {
                       return (
                         <Tooltip key={to} delayDuration={0}>

@@ -210,7 +210,7 @@ export default function AdminLayout() {
 
       <div className="flex flex-1 min-h-0">
         {/* Desktop sidebar */}
-        <aside className="hidden lg:flex flex-col w-52 border-r border-border/60 p-3 gap-0.5 shrink-0 bg-card/30 overflow-y-auto">
+        <aside className="relative hidden lg:flex flex-col w-56 border-r border-border/60 p-3 gap-0.5 shrink-0 bg-card/40 overflow-y-auto before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(120%_50%_at_0%_0%,hsl(var(--primary)/0.07),transparent_60%)]">
           {['main', 'create', 'sell', 'manage', 'more'].map((group) => {
             const groupItems = adminLinks.filter(l => l.group === group && shouldShow(l.showWhen));
             const { label, icon: GroupIcon } = groupLabels[group];
@@ -240,17 +240,25 @@ export default function AdminLayout() {
                     end={end}
                     className={({ isActive }) =>
                       cn(
-                        'flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all',
+                        'group relative flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs transition-all duration-200',
                         isActive
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                          ? 'bg-primary/15 text-primary font-semibold border border-primary/25 shadow-[inset_0_1px_0_0_hsl(var(--primary)/0.12)]'
+                          : 'font-medium text-muted-foreground border border-transparent hover:bg-muted/70 hover:text-foreground hover:translate-x-0.5'
                       )
                     }
                   >
-                    <Icon className="h-3.5 w-3.5 shrink-0" />
-                    {itemLabel}
+                    {({ isActive }) => (
+                      <>
+                        <Icon className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:scale-110" />
+                        <span className="truncate">{itemLabel}</span>
+                        {isActive && (
+                          <span aria-hidden className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-primary shadow-[0_0_10px_2px_hsl(var(--primary)/0.6)]" />
+                        )}
+                      </>
+                    )}
                   </NavLink>
                 ))}
+
               </div>
             );
           })}
