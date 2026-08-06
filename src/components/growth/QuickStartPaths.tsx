@@ -77,21 +77,16 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
     };
     case 'ai_formation_creation': return {
       id: 'ai-content', icon: Sparkles,
-      fr: 'Contenu & formations IA', en: 'AI content & courses',
-      subFr: 'Posts, cours, scripts', subEn: 'Posts, courses, scripts',
+      fr: 'Créer une formation', en: 'Create a course',
+      subFr: "L'IA t'aide à créer ton cours", subEn: 'AI helps you build your course',
       route: hasManageableOrg ? '/admin/programs' : '/creer-formation',
       border: 'border-fuchsia-500/30 hover:border-fuchsia-500/60',
       iconColor: 'text-fuchsia-500', bgColor: 'bg-fuchsia-500/10',
     };
     case 'product_comments': return null;
-    case 'events': return {
-      id: 'events', icon: Ticket,
-      fr: 'Événements & billets', en: 'Events & tickets',
-      subFr: 'Crée et vends des billets', subEn: 'Create & sell tickets',
-      route: '/admin/events',
-      border: 'border-indigo-500/30 hover:border-indigo-500/60',
-      iconColor: 'text-indigo-500', bgColor: 'bg-indigo-500/10',
-    };
+    // Hidden — events & tickets are not part of the core SiteViral experience.
+    case 'events': return null;
+
     case 'reviews': return null;
     case 'affiliation': return {
       id: 'share', icon: Share2,
