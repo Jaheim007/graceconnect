@@ -468,6 +468,8 @@ const App = () => (
                 <Route path="/start" element={<Navigate to="/create-org" replace />} />
                 <Route path="/start/details" element={<Navigate to="/create-org" replace />} />
                 <Route path="/start/finish" element={showServiceSurfaces() ? <LazyStartFinishPage /> : <Navigate to="/create-org" replace />} />
+                <Route path="/start/*" element={<Navigate to="/create-org" replace />} />
+
                 <Route path="/create-org" element={<CreateOrgPage />} />
                 <Route path="/start-selling" element={<Navigate to="/create-org" replace />} />
                 {/* Buyer/provider intent chooser + interest picker: components kept,
