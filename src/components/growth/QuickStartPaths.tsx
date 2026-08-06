@@ -16,7 +16,6 @@ interface Tile {
   fr: string; en: string;
   subFr: string; subEn: string;
   route: string;
-  border: string; iconColor: string; bgColor: string;
 }
 
 /** Per-vertical bookings-list route. */
@@ -46,16 +45,12 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       fr: 'Rendez-vous', en: 'Bookings',
       subFr: 'Agenda et réservations', subEn: 'Calendar & bookings',
       route: bookingRouteFor(type),
-      border: 'border-pink-500/30 hover:border-pink-500/60',
-      iconColor: 'text-pink-500', bgColor: 'bg-pink-500/10',
     };
     case 'digital_products': return {
       id: 'sell', icon: Store,
       fr: 'Vendre', en: 'Sell',
       subFr: 'Publie et monétise', subEn: 'Publish & monetize',
       route: hasManageableOrg ? '/admin/products' : '/create-org',
-      border: 'border-amber-500/30 hover:border-amber-500/60',
-      iconColor: 'text-amber-500', bgColor: 'bg-amber-500/10',
     };
     // Hidden in the current digital-first experience (kept for later).
     case 'order_generator': return null;
@@ -64,24 +59,18 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       fr: 'Dons & offrandes', en: 'Donations',
       subFr: 'Campagnes et cadeaux', subEn: 'Campaigns & gifts',
       route: '/admin/campaigns',
-      border: 'border-emerald-500/30 hover:border-emerald-500/60',
-      iconColor: 'text-emerald-500', bgColor: 'bg-emerald-500/10',
     };
     case 'ai_book_creation': return {
       id: 'write', icon: BookOpen,
       fr: 'Écrire un livre', en: 'Write a book',
       subFr: "L'IA écrit, tu publies", subEn: 'AI writes, you publish',
       route: '/ecrire',
-      border: 'border-primary/30 hover:border-primary/60',
-      iconColor: 'text-primary', bgColor: 'bg-primary/10',
     };
     case 'ai_formation_creation': return {
       id: 'ai-content', icon: Sparkles,
       fr: 'Créer une formation', en: 'Create a course',
       subFr: "L'IA t'aide à créer ton cours", subEn: 'AI helps you build your course',
       route: hasManageableOrg ? '/admin/programs' : '/creer-formation',
-      border: 'border-fuchsia-500/30 hover:border-fuchsia-500/60',
-      iconColor: 'text-fuchsia-500', bgColor: 'bg-fuchsia-500/10',
     };
     case 'product_comments': return null;
     // Hidden — events & tickets are not part of the core SiteViral experience.
@@ -93,8 +82,6 @@ function tileFor(key: SiteviralFeatureKey, hasManageableOrg: boolean, type: Site
       fr: 'Gagner', en: 'Earn',
       subFr: 'Partage et gagne', subEn: 'Share & earn',
       route: '/admin/affiliation',
-      border: 'border-emerald-500/30 hover:border-emerald-500/60',
-      iconColor: 'text-emerald-500', bgColor: 'bg-emerald-500/10',
     };
     // Platform config — never shown as a tile
     case 'kyc':
@@ -144,8 +131,6 @@ export function QuickStartPaths() {
       fr: 'Découvrir', en: 'Discover',
       subFr: 'Livres, cours et plus', subEn: 'Books, courses & more',
       route: '/discover',
-      border: 'border-violet-500/30 hover:border-violet-500/60',
-      iconColor: 'text-violet-500', bgColor: 'bg-violet-500/10',
     });
   }
 
@@ -159,13 +144,12 @@ export function QuickStartPaths() {
           transition={{ delay: i * 0.04, duration: 0.2 }}
           onClick={() => navigate(path.route)}
           className={cn(
-            'w-full flex items-center gap-3 p-3 rounded-xl border bg-card transition-all group text-left',
-            'hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]',
-            path.border
+            'w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-card transition-all group text-left',
+            'hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] hover:border-primary/40'
           )}
         >
-          <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', path.bgColor)}>
-            <path.icon className={cn('h-4.5 w-4.5', path.iconColor)} />
+          <div className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 bg-primary/10 text-primary">
+            <path.icon className="h-4.5 w-4.5" />
           </div>
           <div className="flex-1 min-w-0">
             <span className="text-sm font-bold block">{isFr ? path.fr : path.en}</span>
