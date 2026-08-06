@@ -37,7 +37,7 @@ export function ProShell({ title, subtitle, brandIcon, brandGradient, items, foo
     <div className="min-h-[100dvh] bg-background text-foreground">
       <div className="mx-auto flex w-full max-w-[1400px]">
         {/* Sidebar — desktop only */}
-        <aside className="hidden lg:flex sticky top-14 h-[calc(100dvh-3.5rem)] w-64 shrink-0 flex-col border-r border-border/60 bg-card/40">
+        <aside className="relative hidden lg:flex sticky top-14 h-[calc(100dvh-3.5rem)] w-64 shrink-0 flex-col border-r border-border/60 bg-card/50 backdrop-blur-xl before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(120%_50%_at_0%_0%,hsl(var(--primary)/0.08),transparent_60%)]">
           <div className="flex items-center gap-3 px-5 pb-4 pt-6">
             <span
               className={cn(
