@@ -19,8 +19,8 @@ export default function StartSellingPage() {
   const fr = locale === 'fr';
 
   const go = () => {
-    setIntent('provider', '/start');
-    if (user) navigate('/start');
+    setIntent('provider', '/create-org');
+    if (user) navigate('/create-org');
     else navigate('/auth?mode=signup&returnTo=/start');
   };
 

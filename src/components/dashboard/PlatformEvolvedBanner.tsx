@@ -54,7 +54,7 @@ export function PlatformEvolvedBanner() {
         <div className="flex gap-2 mt-3">
           <Button
             size="sm"
-            onClick={() => { setIntent('provider'); navigate('/start?context=add-feature'); }}
+            onClick={() => { setIntent('provider'); navigate('/admin/features'); }}
             className="h-7 text-xs"
           >
             {isFr ? 'Ajouter des fonctionnalités' : 'Add features'}

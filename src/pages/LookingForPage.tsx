@@ -124,7 +124,7 @@ export default function LookingForPage() {
 
           <div className="pt-4 text-center">
             <button
-              onClick={() => { setIntent('provider'); navigate('/start'); }}
+              onClick={() => { setIntent('provider'); navigate('/create-org'); }}
               className="text-xs text-muted-foreground hover:text-foreground transition"
             >
               {fr ? 'Je veux plutôt proposer ou vendre →' : 'I want to offer or sell instead →'}
