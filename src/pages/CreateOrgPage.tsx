@@ -267,30 +267,35 @@ export default function CreateOrgPage() {
                             setStep(1);
                           }}
                           className={cn(
-                            'group relative p-5 rounded-2xl border text-left transition-all duration-200',
-                            'hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/10',
+                            'group relative overflow-hidden p-5 rounded-2xl border text-left backdrop-blur-xl transition-all duration-300',
+                            'hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/15',
                             active
-                              ? 'border-primary bg-primary/5 shadow-md shadow-primary/10'
-                              : 'border-border bg-card hover:border-primary/40'
+                              ? 'border-primary/60 bg-primary/10 shadow-lg shadow-primary/20'
+                              : 'border-border/60 bg-card/70 hover:border-primary/40'
                           )}
                         >
+                          <span
+                            aria-hidden
+                            className={cn(
+                              'pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/20 blur-2xl transition-opacity duration-300',
+                              active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                            )}
+                          />
                           <div className={cn(
-                            'h-10 w-10 rounded-xl flex items-center justify-center mb-3 transition-colors',
-                            active ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary'
+                            'relative h-11 w-11 rounded-xl flex items-center justify-center mb-3 ring-1 transition-colors',
+                            active
+                              ? 'bg-primary/15 text-primary ring-primary/30'
+                              : 'bg-muted/60 text-muted-foreground ring-border/60 group-hover:bg-primary/10 group-hover:text-primary group-hover:ring-primary/30'
                           )}>
                             <Icon className="h-5 w-5" />
                           </div>
-                          <span className="text-sm font-bold block mb-0.5">{isFr ? p.labelFr : p.labelEn}</span>
-                          {p.recommended && (
-                            <span className="inline-block mb-1 rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary">
-                              {isFr ? 'Recommandé' : 'Recommended'}
-                            </span>
-                          )}
-                          <span className="text-[11px] text-muted-foreground leading-snug block">{isFr ? p.descFr : p.descEn}</span>
+                          <span className="relative text-sm font-bold block mb-1">{isFr ? p.labelFr : p.labelEn}</span>
+                          <span className="relative text-[11px] text-muted-foreground leading-snug block">{isFr ? p.descFr : p.descEn}</span>
                         </button>
                       );
                     })}
                   </div>
+
                 </div>
               )}
 
