@@ -1,7 +1,7 @@
 import {
   BookOpen, Store, Package, Calendar, Gift,
   Ticket, LayoutDashboard, Inbox, Users, Megaphone, Compass, HandCoins, Wallet,
-  Settings, GraduationCap, MessageSquare,
+  Settings, GraduationCap,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';

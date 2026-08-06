@@ -3,7 +3,7 @@ import { MODULES, OPTIONAL_MODULE_IDS, ModuleId } from '@/lib/dashboardModules';
 import { useI18n } from '@/i18n/I18nContext';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { ShieldCheck, CreditCard, Star, MessageSquare, Receipt } from 'lucide-react';
+import { ShieldCheck, CreditCard } from 'lucide-react';
 import { useOrg } from '@/contexts/OrgContext';
 import { ALL_WORLDS, WORLDS, resolveWorld, type SiteviralWorld } from '@/lib/siteviral/worlds';
 import { supabase } from '@/integrations/supabase/client';
