@@ -210,7 +210,7 @@ export default function AdminLayout() {
 
       <div className="flex flex-1 min-h-0">
         {/* Desktop sidebar */}
-        <aside className="hidden lg:flex flex-col w-52 border-r border-border/60 p-3 gap-0.5 shrink-0 bg-card/30 overflow-y-auto">
+        <aside className="relative hidden lg:flex flex-col w-56 border-r border-border/60 p-3 gap-0.5 shrink-0 bg-card/40 overflow-y-auto before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(120%_50%_at_0%_0%,hsl(var(--primary)/0.07),transparent_60%)]">
           {['main', 'create', 'sell', 'manage', 'more'].map((group) => {
             const groupItems = adminLinks.filter(l => l.group === group && shouldShow(l.showWhen));
             const { label, icon: GroupIcon } = groupLabels[group];
