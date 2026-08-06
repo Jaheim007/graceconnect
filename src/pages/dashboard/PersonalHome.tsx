@@ -141,6 +141,7 @@ export default function PersonalHome() {
         </form>
 
         {/* Category shortcuts (marketplace, excludes church) */}
+        {showServiceSurfaces() && (
         <section className="space-y-3">
           <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
             {isFr ? 'Catégories' : 'Categories'}
@@ -163,6 +164,8 @@ export default function PersonalHome() {
             })}
           </div>
         </section>
+        )}
+
 
         {/* Upcoming bookings summary — service marketplace only */}
         {showServiceSurfaces() && (
