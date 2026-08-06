@@ -78,16 +78,16 @@ export function Sidebar() {
           borderClass: '', iconBg: '', iconColor: 'text-violet-400',
         },
         {
-          id: 'acc-purchases', icon: Package, emoji: '',
-          titleFr: 'Mes achats', titleEn: 'My Purchases',
-          descFr: 'Livres, PDFs et ressources', descEn: 'Books, PDFs & resources',
+          id: 'acc-purchases', icon: Library, emoji: '',
+          titleFr: 'Ma bibliothèque', titleEn: 'My library',
+          descFr: 'Livres, PDFs et ressources achetés', descEn: 'Books, PDFs & resources you bought',
           route: '/my-purchases',
           borderClass: '', iconBg: '', iconColor: 'text-primary',
         },
         {
           id: 'acc-programs', icon: GraduationCap, emoji: '',
-          titleFr: 'Mes programmes', titleEn: 'My Programs',
-          descFr: 'Cours et progression', descEn: 'Courses & progress',
+          titleFr: 'Mes cours', titleEn: 'My courses',
+          descFr: 'Formations suivies et progression', descEn: 'Courses & progress',
           route: '/my-programs',
           borderClass: '', iconBg: '', iconColor: 'text-sky-400',
         },
@@ -99,7 +99,6 @@ export function Sidebar() {
           borderClass: '', iconBg: '', iconColor: 'text-cyan-400',
         }] : []),
         {
-
           id: 'acc-earn', icon: HandCoins, emoji: '',
           titleFr: 'Gagner', titleEn: 'Earn',
           descFr: 'Affiliation et commissions', descEn: 'Affiliate commissions',
@@ -108,6 +107,7 @@ export function Sidebar() {
         },
       ]
     : [];
+
 
   const isActive = (route: string) => {
     if (route === '/') return location.pathname === '/';
