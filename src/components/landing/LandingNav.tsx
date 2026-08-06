@@ -30,38 +30,19 @@ export function LandingNav() {
   const displayName = profile?.display_name || user?.user_metadata?.display_name || user?.email?.split('@')[0] || '';
   const initials = displayName ? displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) : 'U';
 
-  const primaryLinks = [
-    { to: '/discover', label: isFr ? 'Découvrir' : 'Discover' },
-    { to: '/ecrire', label: isFr ? 'Écrire un livre' : 'Write a book' },
-    { to: '/creer-formation', label: isFr ? 'Créer une formation' : 'Create a formation' },
-    { to: '/churches', label: isFr ? 'Pour les églises' : 'For churches' },
-    { to: '/#how', label: isFr ? 'Comment ça marche' : 'How it works' },
-  ];
-
   return (
     <header className={cn(
       'sticky top-0 z-50 w-full border-b border-border/60 backdrop-blur',
       nativeApp ? 'native-landing-topbar bg-background/95' : 'bg-background/85'
     )}>
       <div className="container flex items-center justify-between h-16 sm:h-[72px] px-4 sm:px-6">
-        {/* Left cluster: logo + primary nav */}
-        <div className="flex items-center gap-6 sm:gap-8">
+        {/* Left cluster: logo only — the crowded link row was removed */}
+        <div className="flex items-center">
           <Link to="/" className="flex items-center shrink-0" aria-label="SiteViral">
             <SiteLogo size="md" animate linked={false} />
           </Link>
-
-          <nav className="hidden lg:flex items-center gap-1">
-            {primaryLinks.map(l => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className="px-3 py-2 text-sm font-semibold text-foreground/80 hover:text-foreground transition-colors rounded-md hover:bg-muted/60"
-              >
-                {l.label}
-              </Link>
-            ))}
-          </nav>
         </div>
+
 
         {/* Right cluster */}
         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -145,19 +126,14 @@ export function LandingNav() {
             className="lg:hidden border-t border-border/60 bg-background overflow-hidden"
           >
             <nav className="container px-4 py-4 space-y-1">
-              {primaryLinks.map(l => (
-                <Link key={l.to} to={l.to} onClick={() => setMenuOpen(false)}
-                  className="block px-3 py-2.5 rounded-lg text-sm font-semibold text-foreground hover:bg-muted transition-colors">
-                  {l.label}
-                </Link>
-              ))}
-              <div className="pt-3 mt-2 border-t border-border/60 flex items-center justify-between px-1">
+              <div className="flex items-center justify-between px-1">
                 <GlobalPreferencesSelector />
                 <Link to="/churches" onClick={() => setMenuOpen(false)}
                   className="text-sm font-semibold text-foreground/80 inline-flex items-center gap-1.5">
                   <Church className="h-4 w-4" /> {isFr ? 'Pour les églises' : 'For churches'}
                 </Link>
               </div>
+
               {!user && (
                 <div className="pt-3 border-t border-border/60 mt-2 space-y-2">
                   <Button variant="outline" className="w-full h-11 font-semibold" onClick={() => { navigate('/create-org'); setMenuOpen(false); }}>

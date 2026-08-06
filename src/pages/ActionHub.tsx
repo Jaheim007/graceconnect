@@ -1,5 +1,8 @@
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, BookOpen, GraduationCap, Store, Compass, HandCoins, Rocket } from 'lucide-react';
+import { ArrowRight, Sparkles, BookOpen, GraduationCap, Store, Compass, HandCoins, Rocket, Wallet } from 'lucide-react';
+
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -36,6 +39,8 @@ export default function ActionHub() {
   const { hasPurchases, hasOrgs } = useUserProfile();
   const isFr = locale === 'fr';
   const hasManageableOrg = userOrgs.some(o => canManage(o.id));
+  const [prompt, setPrompt] = useState<'revenue' | 'purchases' | null>(null);
+
 
   const displayName = user?.user_metadata?.display_name || user?.user_metadata?.full_name;
 
@@ -76,7 +81,7 @@ export default function ActionHub() {
       iconBg: 'bg-violet-500/15', iconColor: 'text-violet-500' },
   ];
 
-  const authedActions = getActionNavItems({
+  const baseAuthed = getActionNavItems({
     isAuthenticated: !!user,
     hasPurchases,
     hasManageableOrg,
@@ -84,7 +89,47 @@ export default function ActionHub() {
     isSuperadmin,
   }, resolveRoute);
 
+  /** Signed-in users always see the full menu — empty states are handled by prompts. */
+  const authedActions = (() => {
+    const items = [...baseAuthed];
+    const has = (id: string) => items.some(i => i.id === id);
+    if (!has('sell')) {
+      items.splice(2, 0, {
+        id: 'sell', icon: Store, emoji: '🛒',
+        titleFr: 'Vendre', titleEn: 'Sell',
+        descFr: 'Vends tes livres, formations et plus', descEn: 'Sell your books, courses & more',
+        route: resolveRoute('sell'),
+        borderClass: 'border-amber-500/30 hover:border-amber-500/60',
+        iconBg: 'bg-amber-500/15', iconColor: 'text-amber-500',
+      });
+    }
+    if (!has('sales')) {
+      items.push({
+        id: 'sales', icon: Wallet, emoji: '💵',
+        titleFr: 'Revenus', titleEn: 'Revenue',
+        descFr: 'Ventes, dons reçus, commissions et retraits', descEn: 'Sales, donations, commissions & payouts',
+        route: hasManageableOrg ? '/admin/sales' : '/create-org',
+        borderClass: 'border-teal-500/30 hover:border-teal-500/60',
+        iconBg: 'bg-teal-500/15', iconColor: 'text-teal-500',
+      });
+    }
+    return items;
+  })();
+
   const actions = user ? authedActions : visitorActions;
+
+  const handleAction = (action: { id: string; route: string }) => {
+    if (action.id === 'sales' && !hasManageableOrg) {
+      setPrompt('revenue');
+      return;
+    }
+    if (action.id === 'purchases' && !hasPurchases) {
+      setPrompt('purchases');
+      return;
+    }
+    navigate(action.route);
+  };
+
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background">
@@ -169,7 +214,7 @@ export default function ActionHub() {
               <motion.button
                 key={action.id}
                 variants={item}
-                onClick={() => navigate(action.route)}
+                onClick={() => handleAction(action)}
                 className={cn(
                   'w-full flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl border bg-card transition-all duration-150 group text-left',
                   'active:scale-[0.97] active:opacity-80',
@@ -203,6 +248,51 @@ export default function ActionHub() {
           </motion.div>
         </motion.div>
       </main>
+
+      {/* Empty-state prompts */}
+      <Dialog open={!!prompt} onOpenChange={(o) => !o && setPrompt(null)}>
+        <DialogContent className="max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-black">
+              {prompt === 'revenue'
+                ? (isFr ? 'Pas encore de revenus' : 'No revenue yet')
+                : (isFr ? 'Aucun achat pour l’instant' : 'No purchases yet')}
+            </DialogTitle>
+            <DialogDescription className="text-sm">
+              {prompt === 'revenue'
+                ? (isFr
+                    ? 'Commence par créer quelque chose à vendre — tes revenus apparaîtront ici.'
+                    : 'Start by creating something to sell — your revenue will show up here.')
+                : (isFr
+                    ? 'Découvre des livres, formations et ressources à acheter.'
+                    : 'Discover books, formations and resources to buy.')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2 pt-1">
+            {prompt === 'revenue' ? (
+              <>
+                <Button className="h-11 justify-start gap-2.5 rounded-xl font-semibold"
+                  onClick={() => { setPrompt(null); navigate('/ecrire'); }}>
+                  <BookOpen className="h-4 w-4" />
+                  {isFr ? 'Écrire un livre en 5 min' : 'Write a book in 5 min'}
+                </Button>
+                <Button variant="outline" className="h-11 justify-start gap-2.5 rounded-xl font-semibold"
+                  onClick={() => { setPrompt(null); navigate(resolveRoute('sell')); }}>
+                  <Store className="h-4 w-4" />
+                  {isFr ? 'Vendre du contenu' : 'Sell content'}
+                </Button>
+              </>
+            ) : (
+              <Button className="h-11 justify-start gap-2.5 rounded-xl font-semibold"
+                onClick={() => { setPrompt(null); navigate('/discover'); }}>
+                <Compass className="h-4 w-4" />
+                {isFr ? 'Découvrir des produits' : 'Discover products'}
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }
