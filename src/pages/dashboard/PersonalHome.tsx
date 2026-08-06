@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { BUYER_WORLDS, SERVICE_WORLDS } from '@/lib/siteviral/buyerWorlds';
+import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import { cn } from '@/lib/utils';
 
 /**
@@ -134,12 +135,16 @@ export default function PersonalHome() {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={isFr ? 'Rechercher services, produits, artisans…' : 'Search services, products, artisans…'}
+            placeholder={showServiceSurfaces()
+              ? (isFr ? 'Rechercher services, produits, artisans…' : 'Search services, products, artisans…')
+              : (isFr ? 'Rechercher livres, formations, produits…' : 'Search books, courses, products…')}
+
             className="pl-10 h-12 bg-card/80 rounded-2xl"
           />
         </form>
 
         {/* Category shortcuts (marketplace, excludes church) */}
+        {showServiceSurfaces() && (
         <section className="space-y-3">
           <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
             {isFr ? 'Catégories' : 'Categories'}
@@ -162,9 +167,13 @@ export default function PersonalHome() {
             })}
           </div>
         </section>
+        )}
 
-        {/* Upcoming bookings summary */}
+
+        {/* Upcoming bookings summary — service marketplace only */}
+        {showServiceSurfaces() && (
         <section className="space-y-3">
+
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
               {isFr ? 'À venir' : 'Upcoming'}
@@ -228,6 +237,8 @@ export default function PersonalHome() {
             </div>
           )}
         </section>
+        )}
+
 
         {/* Recent digital purchases */}
         <section className="space-y-3">

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 import { brandUrl } from '@/lib/storageUrl';
+import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 
 interface Props {
   onClose: () => void;
@@ -83,9 +84,11 @@ export function MobileMenuDrawer({ onClose }: Props) {
     { id: 'acc-programs', icon: GraduationCap, emoji: '', titleFr: 'Mes programmes', titleEn: 'My programs',
       descFr: '', descEn: '', route: '/my-programs',
       borderClass: '', iconBg: 'bg-sky-500/12', iconColor: 'text-sky-500' },
-    { id: 'acc-messages', icon: MessageSquare, emoji: '', titleFr: 'Messages', titleEn: 'Messages',
+    ...(showServiceSurfaces() ? [{
+      id: 'acc-messages', icon: MessageSquare, emoji: '', titleFr: 'Messages', titleEn: 'Messages',
       descFr: '', descEn: '', route: '/dashboard/messages',
-      borderClass: '', iconBg: 'bg-cyan-500/12', iconColor: 'text-cyan-500' },
+      borderClass: '', iconBg: 'bg-cyan-500/12', iconColor: 'text-cyan-500' }] : []),
+
     { id: 'acc-earn', icon: HandCoins, emoji: '', titleFr: 'Gagner', titleEn: 'Earn',
       descFr: '', descEn: '', route: '/gagner',
       borderClass: '', iconBg: 'bg-emerald-500/12', iconColor: 'text-emerald-500' },

@@ -17,6 +17,7 @@ import { buildFeatureNavItems } from '@/lib/navigation/featureNavBuilder';
 import { getActionNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
 import { useOrgFeatures } from '@/hooks/useOrgFeatures';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
+import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 
 /**
  * Unified professional signed-in sidebar — compact, low-saturation design.
@@ -90,14 +91,15 @@ export function Sidebar() {
           route: '/my-programs',
           borderClass: '', iconBg: '', iconColor: 'text-sky-400',
         },
-        {
+        ...(showServiceSurfaces() ? [{
           id: 'acc-messages', icon: MessageSquare, emoji: '',
           titleFr: 'Messages', titleEn: 'Messages',
           descFr: 'Vos conversations', descEn: 'Your conversations',
           route: '/dashboard/messages',
           borderClass: '', iconBg: '', iconColor: 'text-cyan-400',
-        },
+        }] : []),
         {
+
           id: 'acc-earn', icon: HandCoins, emoji: '',
           titleFr: 'Gagner', titleEn: 'Earn',
           descFr: 'Affiliation et commissions', descEn: 'Affiliate commissions',
