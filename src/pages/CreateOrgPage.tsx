@@ -140,13 +140,17 @@ export default function CreateOrgPage() {
         }
       } catch { /* ignore */ }
 
-      const objective = profile.objectives.find((o) => o.id === selectedGoal) ?? profile.objectives[0];
+      // Simpler UX: no "first objective" question. Every tool of the chosen
+      // profile is enabled up-front and surfaced in the dashboard instead.
+      const profileFeatures = Array.from(
+        new Set(profile.objectives.flatMap((o) => o.features)),
+      );
 
       const { orgId, org: newOrg } = await createWorkspace({
         name: data.name,
         world: selectedWorld,
         currency: selectedCurrency,
-        extraFeatures: [...extraFeatures, ...objective.features],
+        extraFeatures: [...extraFeatures, ...profileFeatures],
         providerProfile,
         partnerCode,
       });
