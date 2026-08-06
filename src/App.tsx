@@ -154,6 +154,11 @@ import { showServiceSurfaces } from "@/lib/siteviral/visibility";
 function HiddenSurface({ children }: { children: React.ReactNode }) {
   return showServiceSurfaces() ? <>{children}</> : <Navigate to="/" replace />;
 }
+/** Same guard for workspace/admin vertical panes — falls back to the unified dashboard. */
+function HiddenAdmin({ children }: { children: React.ReactNode }) {
+  return showServiceSurfaces() ? <>{children}</> : <Navigate to="/admin" replace />;
+}
+
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const ChurchesPage = lazy(() => import("@/pages/ChurchesPage"));
 const DashboardPreview = lazy(() => import("@/pages/DashboardPreview"));
