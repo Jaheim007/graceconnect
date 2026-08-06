@@ -155,7 +155,8 @@ export function MobileMenuDrawer({ onClose }: Props) {
         {accountNav.length > 0 && (
           <div className="mb-3">
             <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              {isFr ? 'COMPTE' : 'ACCOUNT'}
+              {isFr ? 'MON COMPTE · CE QUE J’AI' : 'MY ACCOUNT · WHAT I OWN'}
+
             </div>
             <ul className="space-y-0.5">
               {accountNav.map((item) => {
