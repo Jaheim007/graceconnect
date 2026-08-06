@@ -229,8 +229,33 @@ export function Sidebar() {
 
       </nav>
 
-      {/* Settings + Sign out */}
+      {/* Superadmin + Settings + Sign out */}
       <div className={cn('border-t border-sidebar-foreground/10', collapsed ? 'px-1.5 py-1.5' : 'px-2 py-1.5')}>
+        {isSuperadmin && (
+          collapsed ? (
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Link
+                  to="/superadmin"
+                  aria-label="Super admin"
+                  className="flex items-center justify-center h-10 w-10 mx-auto rounded-md text-amber-400 hover:bg-sidebar-accent/50"
+                >
+                  <ShieldCheck className="h-[18px] w-[18px]" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right"><p className="text-xs font-semibold">Super admin</p></TooltipContent>
+            </Tooltip>
+          ) : (
+            <Link
+              to="/superadmin"
+              className="flex items-center gap-2.5 h-10 px-2.5 rounded-md text-[13px] font-semibold text-amber-400 hover:bg-sidebar-accent/50"
+            >
+              <ShieldCheck className="h-[18px] w-[18px] shrink-0" />
+              <span>Super admin</span>
+            </Link>
+          )
+        )}
+
         {user && !settingsAlreadyInNav && canManageCurrentOrg && (
           collapsed ? (
             <Tooltip delayDuration={0}>
