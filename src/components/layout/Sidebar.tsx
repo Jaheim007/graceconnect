@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   ChevronLeft, ChevronRight, LogOut, Settings, ShieldCheck,
-  Compass, Library, GraduationCap, MessageSquare, HandCoins,
+  Compass, ShoppingBag, GraduationCap, MessageSquare, HandCoins,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -78,9 +78,9 @@ export function Sidebar() {
           borderClass: '', iconBg: '', iconColor: 'text-violet-400',
         },
         {
-          id: 'acc-purchases', icon: Library, emoji: '',
-          titleFr: 'Ma bibliothèque', titleEn: 'My library',
-          descFr: 'Livres, PDFs et ressources achetés', descEn: 'Books, PDFs & resources you bought',
+          id: 'acc-purchases', icon: ShoppingBag, emoji: '',
+          titleFr: 'Mes achats', titleEn: 'My purchases',
+          descFr: 'Tous vos produits achetés', descEn: 'Everything you bought',
           route: '/my-purchases',
           borderClass: '', iconBg: '', iconColor: 'text-primary',
         },
@@ -212,7 +212,7 @@ export function Sidebar() {
       <nav className={cn('flex-1 overflow-y-auto py-1 space-y-0.5 scrollbar-hide', collapsed ? 'px-1.5' : 'px-2')}>
         {accountNav.length > 0 && (
           <>
-            {renderGroupLabel(isFr ? 'MON COMPTE · CE QUE J’AI' : 'MY ACCOUNT · WHAT I OWN')}
+            {renderGroupLabel(isFr ? 'MENU' : 'MENU')}
             <div className="space-y-0.5">{accountNav.map(renderNavItem)}</div>
           </>
         )}
@@ -221,7 +221,7 @@ export function Sidebar() {
           <>
             {renderGroupLabel(
               (currentOrg?.name?.toUpperCase().slice(0, 22)) ||
-              (isFr ? 'MON ESPACE · CE QUE JE VENDS' : 'MY WORKSPACE · WHAT I SELL'),
+              (isFr ? 'ESPACE PRO' : 'WORKSPACE'),
             )}
             <div className="space-y-0.5">{workspaceNav.map(renderNavItem)}</div>
           </>

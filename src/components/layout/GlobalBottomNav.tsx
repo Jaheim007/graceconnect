@@ -3,7 +3,7 @@ import { BottomNav } from './BottomNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
-import { LayoutDashboard, Compass, Library, MessageSquare, HandCoins, Menu as MenuIcon } from 'lucide-react';
+import { LayoutDashboard, Compass, ShoppingBag, MessageSquare, HandCoins, Menu as MenuIcon } from 'lucide-react';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -57,7 +57,7 @@ export function GlobalBottomNav() {
   const items = [
     { id: 'overview', route: '/dashboard', icon: LayoutDashboard, fr: 'Accueil',  en: 'Home' },
     { id: 'explore',  route: '/dashboard/explore', icon: Compass, fr: 'Explorer', en: 'Explore' },
-    { id: 'purchases', route: '/my-purchases', icon: Library,     fr: 'Biblio.',  en: 'Library' },
+    { id: 'purchases', route: '/my-purchases', icon: ShoppingBag, fr: 'Achats',   en: 'Purchases' },
     showServiceSurfaces()
       ? { id: 'messages', route: '/dashboard/messages', icon: MessageSquare, fr: 'Messages', en: 'Messages' }
       : { id: 'earn', route: '/gagner', icon: HandCoins, fr: 'Gagner', en: 'Earn' },

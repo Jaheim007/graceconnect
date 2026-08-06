@@ -11,7 +11,7 @@ import { buildFeatureNavItems } from '@/lib/navigation/featureNavBuilder';
 import { getActionNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
 import { applyNavOverride } from '@/lib/navigation/actionNavItemOverrides';
 import {
-  Compass, Library, GraduationCap, MessageSquare, HandCoins, Settings, ShieldCheck,
+  Compass, ShoppingBag, GraduationCap, MessageSquare, HandCoins, Settings, ShieldCheck,
 } from 'lucide-react';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 import { brandUrl } from '@/lib/storageUrl';
@@ -78,7 +78,7 @@ export function MobileMenuDrawer({ onClose }: Props) {
     { id: 'acc-explore', icon: Compass, emoji: '', titleFr: 'Explorer', titleEn: 'Explore',
       descFr: '', descEn: '', route: '/dashboard/explore',
       borderClass: '', iconBg: 'bg-violet-500/12', iconColor: 'text-violet-500' },
-    { id: 'acc-purchases', icon: Library, emoji: '', titleFr: 'Ma bibliothèque', titleEn: 'My library',
+    { id: 'acc-purchases', icon: ShoppingBag, emoji: '', titleFr: 'Mes achats', titleEn: 'My purchases',
       descFr: '', descEn: '', route: '/my-purchases',
       borderClass: '', iconBg: 'bg-primary/12', iconColor: 'text-primary' },
     { id: 'acc-programs', icon: GraduationCap, emoji: '', titleFr: 'Mes cours', titleEn: 'My courses',
@@ -155,7 +155,7 @@ export function MobileMenuDrawer({ onClose }: Props) {
         {accountNav.length > 0 && (
           <div className="mb-3">
             <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              {isFr ? 'MON COMPTE · CE QUE J’AI' : 'MY ACCOUNT · WHAT I OWN'}
+              {isFr ? 'MENU' : 'MENU'}
 
             </div>
             <ul className="space-y-0.5">
@@ -189,7 +189,7 @@ export function MobileMenuDrawer({ onClose }: Props) {
         {workspaceNav.length > 0 && (
           <div className="mb-3">
             <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              {currentOrg?.name?.toUpperCase().slice(0, 22) || (isFr ? 'MON ESPACE · CE QUE JE VENDS' : 'MY WORKSPACE · WHAT I SELL')}
+              {currentOrg?.name?.toUpperCase().slice(0, 22) || (isFr ? 'ESPACE PRO' : 'WORKSPACE')}
             </div>
             <ul className="space-y-0.5">
               {workspaceNav.map((item) => {
