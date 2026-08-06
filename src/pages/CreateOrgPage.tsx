@@ -20,6 +20,8 @@ import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
 import { ALL_WORLDS, WORLDS, type SiteviralWorld } from '@/lib/siteviral/worlds';
+import { createWorkspace } from '@/lib/siteviral/createWorkspace';
+
 
 const GOALS = [
   { value: 'sell', emoji: '💰', label: 'Vendre', desc: 'Produits numériques, ebooks, formations' },
@@ -47,12 +49,18 @@ export default function CreateOrgPage() {
   const { toast } = useToast();
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
-  const [step, setStep] = useState(0); // 0=type, 1=name, 2=currency, 3=goal
+  // Preselected world from any entry point: /create-org?world=digital|church|…
+  // (also accepts the legacy ?activity= param used by the old /start flow)
+  const worldParam = (searchParams.get('world') || searchParams.get('activity') || '') as SiteviralWorld;
+  const presetWorld: SiteviralWorld | null = worldParam && worldParam in WORLDS ? worldParam : null;
+
+  const [step, setStep] = useState(presetWorld ? 1 : 0); // 0=type, 1=name, 2=currency, 3=goal
   const [loading, setLoading] = useState(false);
   const [resuming, setResuming] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<string>('both');
-  const [selectedWorld, setSelectedWorld] = useState<SiteviralWorld>('digital');
+  const [selectedWorld, setSelectedWorld] = useState<SiteviralWorld>(presetWorld ?? 'digital');
+
   const [selectedCurrency, setSelectedCurrency] = useState(() => detectCurrencyFromTimezone());
 
   const urlPartnerCode = searchParams.get('partner');
@@ -114,65 +122,41 @@ export default function CreateOrgPage() {
 
     setLoading(true);
     const data = form.getValues();
-    const slug = slugify(data.name);
-    const currency = selectedCurrency;
 
     try {
-      const { data: orgId, error } = await db.rpc('create_organization_with_owner', {
-        _name: data.name,
-        _slug: slug,
-        _category: data.category,
-        _description: null,
-        _currency: currency,
+      // Single workspace-creation engine — shared by every entry point.
+      let extraFeatures: any[] = [];
+      let hadStartConfig = false;
+      let providerProfile: Record<string, unknown> | null = null;
+      try {
+        const raw = sessionStorage.getItem('sv_start_config');
+        if (raw) {
+          const cfg = JSON.parse(raw) as { enabled_features?: string[]; specialties?: string[]; starter_services?: string[] };
+          extraFeatures = (cfg?.enabled_features ?? []) as any[];
+          providerProfile = {
+            specialties: cfg?.specialties ?? [],
+            starter_services: cfg?.starter_services ?? [],
+          };
+          hadStartConfig = true;
+          sessionStorage.removeItem('sv_start_config');
+        }
+      } catch { /* ignore */ }
+
+      const { orgId, org: newOrg } = await createWorkspace({
+        name: data.name,
+        world: selectedWorld,
+        currency: selectedCurrency,
+        extraFeatures,
+        providerProfile,
+        partnerCode,
       });
-      if (error) throw error;
-
-      // Persist chosen world + apply its default features so the dashboard is
-      // shaped right on first load.
-      const worldMeta = WORLDS[selectedWorld];
-      try {
-        await (db.from('organizations') as any).update({ primary_world: selectedWorld }).eq('id', orgId);
-      } catch {}
-      try {
-        const { confirmSiteviralType } = await import('@/lib/siteviral/activation');
-        await confirmSiteviralType(orgId as string, worldMeta.siteviralType, worldMeta.defaultFeatures, 'onboarding');
-      } catch {}
-
-      const { data: newOrg } = await db
-        .from('organizations')
-        .select('*')
-        .eq('id', orgId)
-        .maybeSingle();
 
       if (newOrg) setCurrentOrg(newOrg as any);
       refetchOrgs();
 
-      // Partner attribution
-      if (partnerCode) {
-        try {
-          await db.rpc('attribute_org_to_partner', { _org_id: orgId, _partner_code: partnerCode });
-          try { sessionStorage.removeItem(PARTNER_STORAGE_KEY); } catch {}
-        } catch {}
-      }
-
       if (user.email) {
         sendEmailNotification('org_created', user.email, { org_name: data.name }, orgId);
       }
-
-      // Apply intent-first goal config, if the user came from /start
-      let hadStartConfig = false;
-      try {
-        const raw = sessionStorage.getItem('sv_start_config');
-        if (raw) {
-          const cfg = JSON.parse(raw) as { siteviral_type?: string; enabled_features?: string[] };
-          if (cfg?.siteviral_type) {
-            const { confirmSiteviralType } = await import('@/lib/siteviral/activation');
-            await confirmSiteviralType(orgId as string, cfg.siteviral_type as any, (cfg.enabled_features ?? []) as any, 'onboarding');
-            hadStartConfig = true;
-          }
-          sessionStorage.removeItem('sv_start_config');
-        }
-      } catch {}
 
       toast({ title: isFr ? '🎉 Votre espace est prêt !' : '🎉 Your workspace is ready!', description: data.name });
       if (hadStartConfig) {
@@ -180,6 +164,7 @@ export default function CreateOrgPage() {
         return;
       }
       setShowOnboarding(true);
+
     } catch (err: any) {
       const msg = err?.message || String(err);
       if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('slug')) {
@@ -295,7 +280,13 @@ export default function CreateOrgPage() {
                             <Icon className="h-5 w-5" />
                           </div>
                           <span className="text-sm font-bold block mb-0.5">{isFr ? w.labelFr : w.labelEn}</span>
+                          {w.id === 'digital' && (
+                            <span className="inline-block mb-1 rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary">
+                              {isFr ? 'Recommandé' : 'Recommended'}
+                            </span>
+                          )}
                           <span className="text-[11px] text-muted-foreground leading-snug block">{isFr ? w.descFr : w.descEn}</span>
+
                         </button>
                       );
                     })}

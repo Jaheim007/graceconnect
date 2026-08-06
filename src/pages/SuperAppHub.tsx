@@ -120,7 +120,7 @@ export default function SuperAppHub() {
               </button>
               <button
                 type="button"
-                onClick={() => { setIntent('provider'); navigate('/start'); }}
+                onClick={() => { setIntent('provider'); navigate('/create-org'); }}
                 className="group relative overflow-hidden rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xl"
               >
                 <div className="flex items-center gap-3">

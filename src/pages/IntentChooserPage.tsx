@@ -25,7 +25,7 @@ export default function IntentChooserPage() {
   const proceed = () => {
     if (!selected) return;
     if (selected === 'provider') {
-      const route = hasWorkspace ? '/dashboard' : '/start';
+      const route = hasWorkspace ? '/dashboard' : '/create-org';
       setIntent('provider', route);
       navigate(route);
       return;
