@@ -1642,11 +1642,32 @@ export function AdminSettings() {
           </div>
         </div>
 
-        {/* ── 5. DOMAINS ── */}
+        {/* ── 5. TEAM ── */}
+        <div className="space-y-1">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pb-2">{isFr ? 'Équipe' : 'Team'}</p>
+          <button
+            type="button"
+            onClick={() => navigate('/admin/church/team')}
+            className="w-full text-left bg-card border border-border rounded-2xl p-5 flex items-center gap-3 hover:border-primary/50 transition-colors"
+          >
+            <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center shrink-0">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold text-sm">{isFr ? 'Co-administrateurs' : 'Co-admins'}</p>
+              <p className="text-xs text-muted-foreground">
+                {isFr ? 'Invite des personnes à gérer cet espace avec toi.' : 'Invite people to manage this space with you.'}
+              </p>
+            </div>
+          </button>
+        </div>
+
+        {/* ── 6. DOMAINS ── */}
         <div className="space-y-1">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pb-2">{isFr ? 'Domaines' : 'Domains'}</p>
           <DomainSettingsWidget />
         </div>
+
 
         {/* ── 6. ADVANCED: Tracking, Webhooks, Popups ── */}
         <div className="space-y-1">
