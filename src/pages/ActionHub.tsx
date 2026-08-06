@@ -227,21 +227,26 @@ export default function ActionHub() {
                 onClick={() => handleAction(action)}
                 className={cn(
                   'relative w-full flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl text-left group overflow-hidden',
-                  'border border-border/60 bg-card/70 backdrop-blur-xl',
+                  'border bg-card/70 backdrop-blur-xl',
                   'shadow-[0_1px_2px_hsl(var(--foreground)/0.04)]',
                   'transition-all duration-200 active:scale-[0.98]',
-                  'hover:-translate-y-0.5 hover:border-primary/40 hover:bg-card',
+                  'hover:-translate-y-0.5 hover:bg-card',
                   'hover:shadow-[0_18px_40px_-22px_hsl(var(--primary)/0.45)]',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40'
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
+                  action.borderClass
                 )}
               >
                 <span
                   aria-hidden
                   className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(120%_120%_at_0%_0%,hsl(var(--primary)/0.10),transparent_60%)]"
                 />
-                <div className="relative h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0 bg-primary/10 text-primary ring-1 ring-inset ring-primary/15 transition-transform duration-200 group-hover:scale-[1.04]">
+                <div className={cn(
+                  'relative h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-inset ring-current/10 transition-transform duration-200 group-hover:scale-[1.06]',
+                  action.iconBg, action.iconColor
+                )}>
                   <action.icon className="h-5 w-5" />
                 </div>
+
                 <div className="relative flex-1 min-w-0">
                   <div className="font-bold text-[13px] sm:text-sm text-foreground leading-tight">{isFr ? action.titleFr : action.titleEn}</div>
                   <div className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 leading-snug">{isFr ? action.descFr : action.descEn}</div>
