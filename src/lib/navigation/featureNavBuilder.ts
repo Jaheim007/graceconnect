@@ -26,7 +26,7 @@ function bookingRouteFor(type: SiteviralType | null | undefined): string {
     case 'beauty':                 return '/admin/beauty/orders';
     case 'artisans_home_services': return '/admin/home/orders';
     case 'tutors_home_teachers':   return '/admin/learn/orders';
-    case 'church':                 return '/admin/church/appointments';
+    // church → uses the standard dashboard, no vertical booking page
     case 'instrumentists':
     case 'services':
     case 'sport':
