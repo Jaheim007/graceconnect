@@ -264,8 +264,7 @@ export default function ActionHub() {
               className="h-9 rounded-xl border-border/60 bg-card/60 px-4 text-xs font-semibold backdrop-blur-xl hover:border-primary/40"
               onClick={() => navigate('/landing')}
             >
-
-              {isFr ? 'Voir la page de présentation' : 'See the landing page'}
+              {isFr ? 'En savoir plus sur SiteViral' : 'Learn more about SiteViral'}
               <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
             </Button>
           </motion.div>
