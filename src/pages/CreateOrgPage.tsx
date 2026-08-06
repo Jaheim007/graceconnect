@@ -20,6 +20,8 @@ import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
 import { ALL_WORLDS, WORLDS, type SiteviralWorld } from '@/lib/siteviral/worlds';
+import { createWorkspace } from '@/lib/siteviral/createWorkspace';
+
 
 const GOALS = [
   { value: 'sell', emoji: '💰', label: 'Vendre', desc: 'Produits numériques, ebooks, formations' },
