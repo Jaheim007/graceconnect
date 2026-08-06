@@ -55,28 +55,24 @@ export default function ActionHub() {
 
   /** Visitor menu — the core SiteViral actions, no marketplace surfaces. */
   const visitorActions = [
-    { id: 'write', icon: BookOpen, titleFr: 'Écrire un livre avec l\'IA', titleEn: 'Write a book with AI',
-      descFr: "De l'idée au livre prêt à vendre", descEn: 'From idea to a sellable book',
+    { id: 'write', icon: BookOpen, titleFr: 'Écrire un livre en 5 min', titleEn: 'Write a book in 5 min',
+      descFr: "Crée ton livre avec l'IA et vends-le", descEn: 'Create your book with AI and sell it',
       route: '/ecrire', borderClass: 'border-primary/30 hover:border-primary/60',
       iconBg: 'bg-primary/15', iconColor: 'text-primary' },
     { id: 'course', icon: GraduationCap, titleFr: 'Créer une formation', titleEn: 'Create a formation',
       descFr: 'Modules, leçons, quiz et certificats', descEn: 'Modules, lessons, quizzes and certificates',
       route: '/creer-formation', borderClass: 'border-indigo-500/30 hover:border-indigo-500/60',
       iconBg: 'bg-indigo-500/15', iconColor: 'text-indigo-500' },
-    { id: 'sell', icon: Store, titleFr: 'Vendre mes produits digitaux', titleEn: 'Sell my digital products',
-      descFr: 'Ebooks, PDF, formations — paiements inclus', descEn: 'Ebooks, PDFs, formations — payments included',
+    { id: 'sell', icon: Store, titleFr: 'Vendre', titleEn: 'Sell',
+      descFr: 'Vends tes livres, formations et plus', descEn: 'Sell your books, courses & more',
       route: '/vendre', borderClass: 'border-amber-500/30 hover:border-amber-500/60',
       iconBg: 'bg-amber-500/15', iconColor: 'text-amber-500' },
-    { id: 'platform', icon: Rocket, titleFr: 'Créer ma plateforme', titleEn: 'Create my platform',
-      descFr: 'Créateur, organisation, ONG, communauté ou église', descEn: 'Creator, organization, NGO, community or church',
-      route: '/create-org', borderClass: 'border-sky-500/30 hover:border-sky-500/60',
-      iconBg: 'bg-sky-500/15', iconColor: 'text-sky-500' },
-    { id: 'earn', icon: HandCoins, titleFr: 'Gagner avec l\'affiliation', titleEn: 'Earn through affiliation',
+    { id: 'earn', icon: HandCoins, titleFr: 'Gagner', titleEn: 'Earn',
       descFr: 'Partage et touche des commissions', descEn: 'Share products and earn commissions',
       route: '/gagner', borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-500' },
-    { id: 'discover', icon: Compass, titleFr: 'Découvrir des produits', titleEn: 'Discover products',
-      descFr: 'Livres, formations et ressources', descEn: 'Books, formations and resources',
+    { id: 'discover', icon: Compass, titleFr: 'Découvrir', titleEn: 'Discover',
+      descFr: 'Voir et acheter des livres, formations et plus', descEn: 'Browse & buy books, courses & more',
       route: '/discover', borderClass: 'border-violet-500/30 hover:border-violet-500/60',
       iconBg: 'bg-violet-500/15', iconColor: 'text-violet-500' },
   ];
@@ -94,7 +90,7 @@ export default function ActionHub() {
     const items = [...baseAuthed];
     const has = (id: string) => items.some(i => i.id === id);
     if (!has('sell')) {
-      items.splice(2, 0, {
+      items.push({
         id: 'sell', icon: Store, emoji: '🛒',
         titleFr: 'Vendre', titleEn: 'Sell',
         descFr: 'Vends tes livres, formations et plus', descEn: 'Sell your books, courses & more',
@@ -113,10 +109,17 @@ export default function ActionHub() {
         iconBg: 'bg-teal-500/15', iconColor: 'text-teal-500',
       });
     }
-    return items;
+    // Intent-first ordering: what do you want to DO comes before account surfaces.
+    const order = ['write', 'course', 'sell', 'claim', 'discover', 'overview', 'purchases', 'sales', 'superadmin'];
+    const rank = (id: string) => {
+      const i = order.indexOf(id);
+      return i === -1 ? order.length : i;
+    };
+    return items.sort((a, b) => rank(a.id) - rank(b.id));
   })();
 
   const actions = user ? authedActions : visitorActions;
+
 
   const handleAction = (action: { id: string; route: string }) => {
     if (action.id === 'sales' && !hasManageableOrg) {
