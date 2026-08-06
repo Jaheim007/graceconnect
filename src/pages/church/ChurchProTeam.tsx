@@ -78,9 +78,10 @@ export default function ChurchProTeam() {
       <div className="mx-auto max-w-4xl px-4 py-6 space-y-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild><Link to="/dashboard"><ArrowLeft className="h-5 w-5" /></Link></Button>
+            <Button variant="ghost" size="icon" asChild><Link to="/admin/settings"><ArrowLeft className="h-5 w-5" /></Link></Button>
             <div>
-              <p className="text-xs text-muted-foreground">SiteViral Church</p>
+              <p className="text-xs text-muted-foreground">{currentOrg?.name ?? 'SiteViral'}</p>
+
               <h1 className="text-xl font-bold flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> {fr ? 'Équipe' : 'Team'}</h1>
             </div>
           </div>
