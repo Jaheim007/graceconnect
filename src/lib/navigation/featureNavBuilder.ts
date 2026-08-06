@@ -134,22 +134,23 @@ function specFor(
       id: 'giving', icon: Gift, tone: 'emerald',
       titleFr: 'Dons', titleEn: 'Giving',
       descFr: 'Campagnes et cadeaux', descEn: 'Campaigns & gifts',
-      route: type === 'church' ? '/admin/church/giving' : '/admin/campaigns',
+      route: '/admin/campaigns',
     };
     case 'ai_book_creation': return {
       id: 'write', icon: BookOpen, tone: 'primary',
-      titleFr: type === 'church' ? 'Livres & prédications' : 'Écrire un livre en 5 min',
-      titleEn: type === 'church' ? 'Books & sermons' : 'Write a book in 5 min',
-      descFr: type === 'church' ? 'Audio, livre et PDF' : "Ton livre avec l'IA",
-      descEn: type === 'church' ? 'Audio, book & PDF' : 'Your book with AI',
-      route: type === 'church' ? '/admin/church/sermons' : '/ecrire',
+      titleFr: 'Écrire un livre en 5 min',
+      titleEn: 'Write a book in 5 min',
+      descFr: "Ton livre avec l'IA",
+      descEn: 'Your book with AI',
+      route: '/ecrire',
     };
     case 'events': return {
       id: 'events', icon: Ticket, tone: 'indigo',
       titleFr: 'Événements', titleEn: 'Events',
       descFr: 'Billets et invitations', descEn: 'Tickets & invites',
-      route: type === 'church' ? '/admin/church/events' : '/admin/events',
+      route: '/admin/events',
     };
+
     case 'ai_formation_creation': return {
       id: 'create-course', icon: GraduationCap, tone: 'violet',
       titleFr: 'Créer une formation', titleEn: 'Create a course',
