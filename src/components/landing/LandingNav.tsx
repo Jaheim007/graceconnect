@@ -16,7 +16,6 @@ import { isNativePlatform } from '@/lib/capacitor';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { EXPLORE_CATEGORIES } from '@/lib/exploreCategories';
 
 export function LandingNav() {
   const navigate = useNavigate();
@@ -32,7 +31,9 @@ export function LandingNav() {
   const initials = displayName ? displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) : 'U';
 
   const primaryLinks = [
-    { to: '/discover', label: isFr ? 'Explorer' : 'Explore' },
+    { to: '/discover', label: isFr ? 'Découvrir' : 'Discover' },
+    { to: '/ecrire', label: isFr ? 'Écrire un livre' : 'Write a book' },
+    { to: '/creer-formation', label: isFr ? 'Créer une formation' : 'Create a formation' },
     { to: '/churches', label: isFr ? 'Pour les églises' : 'For churches' },
     { to: '/#how', label: isFr ? 'Comment ça marche' : 'How it works' },
   ];
@@ -59,24 +60,6 @@ export function LandingNav() {
                 {l.label}
               </Link>
             ))}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="px-3 py-2 text-sm font-semibold text-foreground/80 hover:text-foreground transition-colors rounded-md hover:bg-muted/60">
-                  {isFr ? 'Catégories' : 'Categories'}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64">
-                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                  {isFr ? 'Marketplace' : 'Marketplace'}
-                </DropdownMenuLabel>
-                {EXPLORE_CATEGORIES.map(c => (
-                  <DropdownMenuItem key={c.slug} onClick={() => navigate(c.route)} className="text-sm gap-2">
-                    <c.icon className="h-4 w-4 text-muted-foreground" />
-                    {isFr ? c.fr : c.en}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
           </nav>
         </div>
 
@@ -111,7 +94,7 @@ export function LandingNav() {
                 <DropdownMenuItem onClick={() => navigate('/my-reviews')} className="text-sm gap-2"><MessageSquare className="h-4 w-4" /> {isFr ? 'Mes avis' : 'My reviews'}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/referrals')} className="text-sm gap-2"><Gift className="h-4 w-4" /> {isFr ? 'Parrainage' : 'Referrals'}</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/start')} className="text-sm gap-2"><Sparkles className="h-4 w-4" /> {isFr ? 'Proposer mes services' : 'Offer my services'}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/create-org')} className="text-sm gap-2"><Sparkles className="h-4 w-4" /> {isFr ? 'Créer ma plateforme' : 'Create my platform'}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/admin')} className="text-sm gap-2"><Settings className="h-4 w-4" /> {isFr ? 'Espace admin' : 'Admin panel'}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/creator/analytics')} className="text-sm gap-2"><BarChart3 className="h-4 w-4" /> Analytics</DropdownMenuItem>
                 {isSuperadmin && (<><DropdownMenuSeparator /><DropdownMenuItem onClick={() => navigate('/superadmin')} className="text-sm gap-2"><ShieldCheck className="h-4 w-4" /> Superadmin</DropdownMenuItem></>)}
@@ -123,10 +106,10 @@ export function LandingNav() {
             <>
               <Button
                 variant="ghost"
-                onClick={() => navigate('/start')}
+                onClick={() => navigate('/create-org')}
                 className="hidden md:inline-flex text-sm font-semibold h-10 px-4"
               >
-                {isFr ? 'Proposer mes services' : 'Offer your services'}
+                {isFr ? 'Créer ma plateforme' : 'Create my platform'}
               </Button>
               <Button
                 variant="ghost"
@@ -168,17 +151,6 @@ export function LandingNav() {
                   {l.label}
                 </Link>
               ))}
-              <div className="pt-3 mt-2 border-t border-border/60">
-                <div className="px-3 pb-2 text-[11px] uppercase tracking-wider text-muted-foreground font-bold">
-                  {isFr ? 'Catégories' : 'Categories'}
-                </div>
-                {EXPLORE_CATEGORIES.map(c => (
-                  <Link key={c.slug} to={c.route} onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors">
-                    <c.icon className="h-4 w-4 text-muted-foreground" /> {isFr ? c.fr : c.en}
-                  </Link>
-                ))}
-              </div>
               <div className="pt-3 mt-2 border-t border-border/60 flex items-center justify-between px-1">
                 <GlobalPreferencesSelector />
                 <Link to="/churches" onClick={() => setMenuOpen(false)}
@@ -188,8 +160,8 @@ export function LandingNav() {
               </div>
               {!user && (
                 <div className="pt-3 border-t border-border/60 mt-2 space-y-2">
-                  <Button variant="outline" className="w-full h-11 font-semibold" onClick={() => { navigate('/start'); setMenuOpen(false); }}>
-                    {isFr ? 'Proposer mes services' : 'Offer your services'}
+                  <Button variant="outline" className="w-full h-11 font-semibold" onClick={() => { navigate('/create-org'); setMenuOpen(false); }}>
+                    {isFr ? 'Créer ma plateforme' : 'Create my platform'}
                   </Button>
                   <Button variant="ghost" className="w-full h-11 font-semibold" onClick={() => { navigate('/auth?mode=signin'); setMenuOpen(false); }}>
                     {isFr ? 'Se connecter' : 'Sign in'}
