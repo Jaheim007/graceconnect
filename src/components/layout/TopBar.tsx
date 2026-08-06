@@ -162,16 +162,17 @@ export function TopBar() {
       </header>
 
       {/* DESKTOP — unchanged information-dense bar */}
-      <header className="hidden lg:flex h-14 shrink-0 z-40 glass border-b border-border items-center px-4 gap-2">
+      <header className="hidden lg:flex h-16 shrink-0 z-40 bg-background/70 backdrop-blur-xl border-b border-border/60 items-center px-5 gap-2.5">
         <GlobalSearch />
 
         <button
           onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-          className="flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border bg-muted/50 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors text-xs shrink-0"
+          className="flex items-center gap-1.5 h-8 px-3 rounded-xl border border-border/70 bg-muted/40 text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-muted/70 transition-all text-xs shrink-0"
         >
           <Search className="h-3 w-3" />
-          <span className="text-[11px]">Cmd+K</span>
+          <span className="text-[11px] font-medium">Cmd+K</span>
         </button>
+
 
         <div className="flex-1 min-w-0" />
 
