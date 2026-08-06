@@ -135,7 +135,10 @@ export default function PersonalHome() {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={isFr ? 'Rechercher services, produits, artisans…' : 'Search services, products, artisans…'}
+            placeholder={showServiceSurfaces()
+              ? (isFr ? 'Rechercher services, produits, artisans…' : 'Search services, products, artisans…')
+              : (isFr ? 'Rechercher livres, formations, produits…' : 'Search books, courses, products…')}
+
             className="pl-10 h-12 bg-card/80 rounded-2xl"
           />
         </form>
