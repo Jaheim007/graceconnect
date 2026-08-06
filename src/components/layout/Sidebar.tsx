@@ -108,6 +108,25 @@ export function Sidebar() {
       ]
     : [];
 
+  /**
+   * ONE dashboard: overview first, then what you own, then what you sell.
+   * Deduped by route so nothing appears twice.
+   */
+  const unifiedNav: ActionNavItem[] = (() => {
+    const overview = workspaceNav.filter((it) => it.route.split('?')[0] === '/admin');
+    const rest = workspaceNav.filter((it) => it.route.split('?')[0] !== '/admin');
+    const merged = [...overview, ...accountNav, ...rest];
+    const seen = new Set<string>();
+    return merged.filter((it) => {
+      const key = it.route.split('?')[0];
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  })();
+
+
+
 
   const isActive = (route: string) => {
     if (route === '/') return location.pathname === '/';
