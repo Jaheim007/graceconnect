@@ -38,6 +38,8 @@ export default function ActionHub() {
   const { hasPurchases, hasOrgs } = useUserProfile();
   const isFr = locale === 'fr';
   const hasManageableOrg = userOrgs.some(o => canManage(o.id));
+  const [prompt, setPrompt] = useState<'revenue' | 'purchases' | null>(null);
+
 
   const displayName = user?.user_metadata?.display_name || user?.user_metadata?.full_name;
 
