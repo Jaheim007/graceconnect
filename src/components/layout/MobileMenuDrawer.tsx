@@ -189,7 +189,7 @@ export function MobileMenuDrawer({ onClose }: Props) {
         {workspaceNav.length > 0 && (
           <div className="mb-3">
             <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              {isFr ? 'ESPACE DE TRAVAIL' : 'WORKSPACE'}
+              {currentOrg?.name?.toUpperCase().slice(0, 22) || (isFr ? 'MON ESPACE · CE QUE JE VENDS' : 'MY WORKSPACE · WHAT I SELL')}
             </div>
             <ul className="space-y-0.5">
               {workspaceNav.map((item) => {
