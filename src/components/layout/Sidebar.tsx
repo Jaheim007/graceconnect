@@ -151,20 +151,25 @@ export function Sidebar() {
         to={item.route}
         aria-current={active ? 'page' : undefined}
         className={cn(
-          'group relative flex items-center gap-2.5 h-10 px-2.5 rounded-md text-[13px] font-medium transition-colors',
+          'group relative flex items-center gap-3 h-11 px-3 rounded-xl text-[13px] transition-all duration-200',
           active
-            ? 'bg-sidebar-accent text-sidebar-foreground'
-            : 'text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
+            ? 'bg-primary/15 text-sidebar-foreground font-semibold border border-primary/25 shadow-[inset_0_1px_0_0_hsl(var(--sidebar-foreground)/0.08)]'
+            : 'font-medium text-sidebar-foreground/70 border border-transparent hover:text-sidebar-foreground hover:bg-sidebar-foreground/5 hover:translate-x-0.5',
         )}
       >
+        <Icon
+          className={cn(
+            'h-[18px] w-[18px] shrink-0 transition-transform duration-200 group-hover:scale-110',
+            item.iconColor || 'text-sidebar-foreground/70',
+          )}
+        />
+        <span className="truncate">{isFr ? item.titleFr : item.titleEn}</span>
         {active && (
           <span
             aria-hidden
-            className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-primary"
+            className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-primary shadow-[0_0_10px_2px_hsl(var(--primary)/0.7)]"
           />
         )}
-        <Icon className={cn('h-[18px] w-[18px] shrink-0', item.iconColor || 'text-sidebar-foreground/70')} />
-        <span className="truncate">{isFr ? item.titleFr : item.titleEn}</span>
       </Link>
     );
 
@@ -174,18 +179,16 @@ export function Sidebar() {
         aria-current={active ? 'page' : undefined}
         aria-label={isFr ? item.titleFr : item.titleEn}
         className={cn(
-          'relative flex items-center justify-center h-10 w-10 mx-auto rounded-md transition-colors',
+          'relative flex items-center justify-center h-11 w-11 mx-auto rounded-xl transition-all duration-200',
           active
-            ? 'bg-sidebar-accent'
-            : 'hover:bg-sidebar-accent/50',
+            ? 'bg-primary/15 border border-primary/25 shadow-[inset_0_1px_0_0_hsl(var(--sidebar-foreground)/0.08)]'
+            : 'border border-transparent hover:bg-sidebar-foreground/5',
         )}
       >
-        {active && (
-          <span aria-hidden className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-primary" />
-        )}
         <Icon className={cn('h-[18px] w-[18px]', item.iconColor || 'text-sidebar-foreground/80')} />
       </Link>
     );
+
 
     if (collapsed) {
       return (
