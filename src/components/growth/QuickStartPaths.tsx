@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import {
   BookOpen, Store, Share2, Compass, ArrowRight, Calendar, Gift,
-  Sparkles, Ticket,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
