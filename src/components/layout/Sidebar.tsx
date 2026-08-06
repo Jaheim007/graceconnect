@@ -151,20 +151,25 @@ export function Sidebar() {
         to={item.route}
         aria-current={active ? 'page' : undefined}
         className={cn(
-          'group relative flex items-center gap-2.5 h-10 px-2.5 rounded-md text-[13px] font-medium transition-colors',
+          'group relative flex items-center gap-3 h-11 px-3 rounded-xl text-[13px] transition-all duration-200',
           active
-            ? 'bg-sidebar-accent text-sidebar-foreground'
-            : 'text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
+            ? 'bg-primary/15 text-sidebar-foreground font-semibold border border-primary/25 shadow-[inset_0_1px_0_0_hsl(var(--sidebar-foreground)/0.08)]'
+            : 'font-medium text-sidebar-foreground/70 border border-transparent hover:text-sidebar-foreground hover:bg-sidebar-foreground/5 hover:translate-x-0.5',
         )}
       >
+        <Icon
+          className={cn(
+            'h-[18px] w-[18px] shrink-0 transition-transform duration-200 group-hover:scale-110',
+            item.iconColor || 'text-sidebar-foreground/70',
+          )}
+        />
+        <span className="truncate">{isFr ? item.titleFr : item.titleEn}</span>
         {active && (
           <span
             aria-hidden
-            className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-primary"
+            className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-primary shadow-[0_0_10px_2px_hsl(var(--primary)/0.7)]"
           />
         )}
-        <Icon className={cn('h-[18px] w-[18px] shrink-0', item.iconColor || 'text-sidebar-foreground/70')} />
-        <span className="truncate">{isFr ? item.titleFr : item.titleEn}</span>
       </Link>
     );
 
@@ -174,18 +179,16 @@ export function Sidebar() {
         aria-current={active ? 'page' : undefined}
         aria-label={isFr ? item.titleFr : item.titleEn}
         className={cn(
-          'relative flex items-center justify-center h-10 w-10 mx-auto rounded-md transition-colors',
+          'relative flex items-center justify-center h-11 w-11 mx-auto rounded-xl transition-all duration-200',
           active
-            ? 'bg-sidebar-accent'
-            : 'hover:bg-sidebar-accent/50',
+            ? 'bg-primary/15 border border-primary/25 shadow-[inset_0_1px_0_0_hsl(var(--sidebar-foreground)/0.08)]'
+            : 'border border-transparent hover:bg-sidebar-foreground/5',
         )}
       >
-        {active && (
-          <span aria-hidden className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-primary" />
-        )}
         <Icon className={cn('h-[18px] w-[18px]', item.iconColor || 'text-sidebar-foreground/80')} />
       </Link>
     );
+
 
     if (collapsed) {
       return (
@@ -212,30 +215,41 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'h-screen sticky top-0 flex flex-col border-r border-border bg-sidebar transition-all duration-300 overflow-hidden',
-        collapsed ? 'w-[68px]' : 'w-60',
+        'relative h-screen sticky top-0 flex flex-col border-r border-sidebar-foreground/10 bg-sidebar shadow-2xl transition-all duration-300 overflow-hidden',
+        collapsed ? 'w-[68px]' : 'w-[248px]',
       )}
     >
+      {/* Ambient glow — pure decoration */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_60%_at_0%_0%,hsl(var(--primary)/0.16),transparent_60%)]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-sidebar-foreground/15 to-transparent"
+      />
+
       {/* Logo */}
-      <div className={cn('flex items-center h-14 px-4 border-b border-sidebar-foreground/10', collapsed && 'justify-center px-0')}>
+      <div className={cn('relative flex items-center h-16 px-4', collapsed && 'justify-center px-0')}>
         <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
       </div>
 
       {/* Workspace switcher */}
       {user && (
-        <div className={cn(collapsed ? 'px-1.5 pt-2' : 'px-2 pt-2')}>
+        <div className={cn('relative', collapsed ? 'px-1.5 pb-1' : 'px-3 pb-2')}>
           <OrgSwitcher variant="sidebar" collapsed={collapsed} />
         </div>
       )}
 
-      <nav className={cn('flex-1 overflow-y-auto py-2 scrollbar-hide', collapsed ? 'px-1.5' : 'px-2')}>
+      <nav className={cn('relative flex-1 overflow-y-auto py-2 scrollbar-hide', collapsed ? 'px-1.5' : 'px-3')}>
         {/* ONE unified dashboard nav — no groups, no separate workspace section */}
-        <div className="space-y-0.5">{unifiedNav.map(renderNavItem)}</div>
+        <div className="space-y-1">{unifiedNav.map(renderNavItem)}</div>
       </nav>
 
 
       {/* Superadmin + Settings + Sign out */}
-      <div className={cn('border-t border-sidebar-foreground/10', collapsed ? 'px-1.5 py-1.5' : 'px-2 py-1.5')}>
+      <div className={cn('relative border-t border-sidebar-foreground/10 bg-sidebar-foreground/[0.03] backdrop-blur-sm', collapsed ? 'px-1.5 py-2' : 'px-3 py-2')}>
+
         {isSuperadmin && (
           collapsed ? (
             <Tooltip delayDuration={0}>
@@ -243,7 +257,7 @@ export function Sidebar() {
                 <Link
                   to="/superadmin"
                   aria-label="Super admin"
-                  className="flex items-center justify-center h-10 w-10 mx-auto rounded-md text-amber-400 hover:bg-sidebar-accent/50"
+                  className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-amber-400 hover:bg-sidebar-foreground/5"
                 >
                   <ShieldCheck className="h-[18px] w-[18px]" />
                 </Link>
@@ -253,7 +267,7 @@ export function Sidebar() {
           ) : (
             <Link
               to="/superadmin"
-              className="flex items-center gap-2.5 h-10 px-2.5 rounded-md text-[13px] font-semibold text-amber-400 hover:bg-sidebar-accent/50"
+              className="flex items-center gap-2.5 h-11 px-3 rounded-xl text-[13px] font-semibold text-amber-400 hover:bg-sidebar-foreground/5"
             >
               <ShieldCheck className="h-[18px] w-[18px] shrink-0" />
               <span>Super admin</span>
@@ -268,7 +282,7 @@ export function Sidebar() {
                 <Link
                   to="/admin/settings"
                   aria-label={isFr ? 'Paramètres' : 'Settings'}
-                  className="flex items-center justify-center h-10 w-10 mx-auto rounded-md text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+                  className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-foreground/5"
                 >
                   <Settings className="h-[18px] w-[18px]" />
                 </Link>
@@ -278,7 +292,7 @@ export function Sidebar() {
           ) : (
             <Link
               to="/admin/settings"
-              className="flex items-center gap-2.5 h-10 px-2.5 rounded-md text-[13px] font-medium text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+              className="flex items-center gap-2.5 h-11 px-3 rounded-xl text-[13px] font-medium text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-foreground/5"
             >
               <Settings className="h-[18px] w-[18px] shrink-0" />
               <span>{isFr ? 'Paramètres' : 'Settings'}</span>
@@ -291,7 +305,7 @@ export function Sidebar() {
               <button
                 onClick={signOut}
                 aria-label={t('sidebar.sign_out')}
-                className="flex items-center justify-center h-10 w-10 mx-auto rounded-md text-destructive hover:bg-destructive/10"
+                className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-destructive hover:bg-destructive/10"
               >
                 <LogOut className="h-[18px] w-[18px]" />
               </button>
@@ -301,7 +315,7 @@ export function Sidebar() {
         ) : (
           <button
             onClick={signOut}
-            className="flex items-center gap-2.5 h-10 w-full px-2.5 rounded-md text-[13px] font-medium text-destructive hover:bg-destructive/10"
+            className="flex items-center gap-2.5 h-11 w-full px-3 rounded-xl text-[13px] font-medium text-destructive hover:bg-destructive/10"
           >
             <LogOut className="h-[18px] w-[18px] shrink-0" />
             <span>{t('sidebar.sign_out')}</span>
@@ -311,7 +325,7 @@ export function Sidebar() {
 
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="flex items-center justify-center h-9 w-full border-t border-sidebar-foreground/10 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+        className="flex items-center justify-center h-9 w-full border-t border-sidebar-foreground/10 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-foreground/5 transition-colors"
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
