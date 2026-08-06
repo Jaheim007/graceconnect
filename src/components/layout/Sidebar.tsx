@@ -212,17 +212,21 @@ export function Sidebar() {
       <nav className={cn('flex-1 overflow-y-auto py-1 space-y-0.5 scrollbar-hide', collapsed ? 'px-1.5' : 'px-2')}>
         {accountNav.length > 0 && (
           <>
-            {renderGroupLabel(isFr ? 'COMPTE' : 'ACCOUNT')}
+            {renderGroupLabel(isFr ? 'MON COMPTE · CE QUE J’AI' : 'MY ACCOUNT · WHAT I OWN')}
             <div className="space-y-0.5">{accountNav.map(renderNavItem)}</div>
           </>
         )}
 
         {workspaceNav.length > 0 && (
           <>
-            {renderGroupLabel(isFr ? 'ESPACE' : 'WORKSPACE')}
+            {renderGroupLabel(
+              (currentOrg?.name?.toUpperCase().slice(0, 22)) ||
+              (isFr ? 'MON ESPACE · CE QUE JE VENDS' : 'MY WORKSPACE · WHAT I SELL'),
+            )}
             <div className="space-y-0.5">{workspaceNav.map(renderNavItem)}</div>
           </>
         )}
+
       </nav>
 
       {/* Settings + Sign out */}
