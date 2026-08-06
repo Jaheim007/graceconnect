@@ -66,8 +66,8 @@ export function LandingTrustShield() {
           </h2>
           <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
             {fr
-              ? "Des achats digitaux aux réservations de services et aux paiements d'église, SiteViral aide les gens à se connecter, payer, communiquer et suivre leur activité en toute confiance."
-              : 'From digital purchases to service bookings and church payments, SiteViral helps people connect, pay, communicate and manage activity with confidence.'}
+              ? "Des ventes de livres et formations aux dons et paiements d'église, SiteViral aide les gens à créer, vendre, encaisser et suivre leur activité en toute confiance."
+              : 'From book and formation sales to donations and church payments, SiteViral helps people create, sell, get paid and manage activity with confidence.'}
           </p>
         </Reveal>
 
