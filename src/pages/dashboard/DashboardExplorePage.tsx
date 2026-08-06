@@ -119,6 +119,7 @@ export default function DashboardExplorePage() {
           </div>
 
           {/* World chip row — services only (Church has its own platform) */}
+          {showServiceSurfaces() && (
           <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
             {SERVICE_WORLDS.map((w) => {
               const meta = BUYER_WORLDS[w];
@@ -139,6 +140,8 @@ export default function DashboardExplorePage() {
               );
             })}
           </div>
+          )}
+
         </div>
       </div>
 
