@@ -8,17 +8,12 @@ export function LandingFooterCompact() {
 
   const columns: { title: string; links: { to: string; label: string }[] }[] = [
     {
-      title: isFr ? 'Marketplace' : 'Marketplace',
+      title: isFr ? 'Découvrir' : 'Discover',
       links: [
         { to: '/discover',                 label: isFr ? 'Explorer'          : 'Explore' },
         { to: '/discover?type=digital',    label: isFr ? 'Produits digitaux' : 'Digital products' },
-        { to: '/home/discover',            label: isFr ? 'Artisans'          : 'Artisans' },
-        { to: '/beauty/search',            label: isFr ? 'Beauté'            : 'Beauty' },
-        { to: '/discover?type=sport',      label: isFr ? 'Coaching'          : 'Coaching' },
-        { to: '/learn/discover',           label: isFr ? 'Cours & tuteurs'   : 'Tutors' },
-        { to: '/discover?type=music',      label: isFr ? 'Musique'           : 'Music' },
-        { to: '/discover?type=influencer', label: isFr ? 'Influenceurs'      : 'Influencers' },
-        { to: '/discover',                 label: isFr ? 'Autres services'   : 'Other services' },
+        { to: '/discover?type=ebook',      label: isFr ? 'Livres'            : 'Books' },
+        { to: '/discover?type=course',     label: isFr ? 'Formations'        : 'Formations' },
       ],
     },
     {
@@ -32,13 +27,15 @@ export function LandingFooterCompact() {
       ],
     },
     {
-      title: isFr ? 'Pour les professionnels' : 'For professionals',
+      title: isFr ? 'Pour les créateurs' : 'For creators',
       links: [
-        { to: '/start',           label: isFr ? 'Proposer mes services' : 'Offer your services' },
-        { to: '/start',           label: isFr ? 'Créer un espace pro'   : 'Create a workspace' },
+        { to: '/create-org',      label: isFr ? 'Créer ma plateforme'      : 'Create my platform' },
+        { to: '/ecrire',          label: isFr ? 'Écrire un livre'          : 'Write a book' },
+        { to: '/creer-formation', label: isFr ? 'Créer une formation'      : 'Create a formation' },
         { to: '/referrals',       label: isFr ? 'Programme d\'affiliation' : 'Earn / affiliation' },
       ],
     },
+
     {
       title: isFr ? 'Pour les églises' : 'For churches',
       links: [
