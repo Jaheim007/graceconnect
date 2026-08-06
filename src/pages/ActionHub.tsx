@@ -132,8 +132,15 @@ export default function ActionHub() {
 
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-background">
+    <div className="relative min-h-[100dvh] flex flex-col bg-background overflow-hidden">
+      {/* Ambient glow — same sophisticated glass language as the dashboard shells */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-primary/12 blur-[120px]" />
+        <div className="absolute bottom-[-160px] right-[-120px] h-[380px] w-[520px] rounded-full bg-accent/10 blur-[130px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.06),transparent_60%)]" />
+      </div>
       <SEOHead
+
         title="SiteViral — Écris. Vends. Gagne."
         description="Écris ton livre en 5 minutes avec l'IA. Vends-le. Fais-le distribuer par des ambassadeurs. Mobile Money inclus. Gratuit."
         canonicalUrl="https://siteviral.com"
