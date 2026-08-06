@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, BookOpen, GraduationCap, Store, Compass, HandCoins, Rocket } from 'lucide-react';
+import { ArrowRight, Sparkles, BookOpen, GraduationCap, Store, Compass, HandCoins, Rocket, Wallet } from 'lucide-react';
+
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
