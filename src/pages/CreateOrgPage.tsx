@@ -245,24 +245,25 @@ export default function CreateOrgPage() {
               initial="enter" animate="center" exit="exit"
               transition={{ duration: 0.2 }}>
 
-              {/* Step 0: World picker */}
+              {/* Step 0: Platform profile */}
               {step === 0 && (
                 <div className="space-y-5">
                   <div className="space-y-1">
                     <h2 className="text-xl font-bold tracking-tight">{isFr ? 'Quel type de plateforme veux-tu bâtir ?' : 'What kind of platform do you want to build?'}</h2>
-                    <p className="text-sm text-muted-foreground">{isFr ? 'Choisis ton monde principal. Tu pourras en activer d\'autres plus tard depuis les paramètres.' : 'Pick your primary world. You can activate others later from settings.'}</p>
+                    <p className="text-sm text-muted-foreground">{isFr ? 'Choisis ton profil. Tu pourras activer d\'autres outils plus tard depuis les paramètres.' : 'Pick your profile. You can activate more tools later from settings.'}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    {ALL_WORLDS.map((w) => {
-                      const active = selectedWorld === w.id;
-                      const Icon = w.icon;
+                    {PLATFORM_PROFILES.map((p) => {
+                      const active = profileId === p.id;
+                      const Icon = p.icon;
                       return (
                         <button
-                          key={w.id}
+                          key={p.id}
                           type="button"
                           onClick={() => {
-                            setSelectedWorld(w.id);
-                            setValue('category', w.category as any);
+                            setProfileId(p.id);
+                            setSelectedGoal(p.objectives[0].id);
+                            setValue('category', p.category as any);
                             setStep(1);
                           }}
                           className={cn(
@@ -279,20 +280,20 @@ export default function CreateOrgPage() {
                           )}>
                             <Icon className="h-5 w-5" />
                           </div>
-                          <span className="text-sm font-bold block mb-0.5">{isFr ? w.labelFr : w.labelEn}</span>
-                          {w.id === 'digital' && (
+                          <span className="text-sm font-bold block mb-0.5">{isFr ? p.labelFr : p.labelEn}</span>
+                          {p.recommended && (
                             <span className="inline-block mb-1 rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary">
                               {isFr ? 'Recommandé' : 'Recommended'}
                             </span>
                           )}
-                          <span className="text-[11px] text-muted-foreground leading-snug block">{isFr ? w.descFr : w.descEn}</span>
-
+                          <span className="text-[11px] text-muted-foreground leading-snug block">{isFr ? p.descFr : p.descEn}</span>
                         </button>
                       );
                     })}
                   </div>
                 </div>
               )}
+
 
 
               {/* Step 1: Name only */}
