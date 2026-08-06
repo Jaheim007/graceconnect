@@ -17,6 +17,7 @@ import { buildFeatureNavItems } from '@/lib/navigation/featureNavBuilder';
 import { getActionNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
 import { useOrgFeatures } from '@/hooks/useOrgFeatures';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
+import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 
 /**
  * Unified professional signed-in sidebar — compact, low-saturation design.
