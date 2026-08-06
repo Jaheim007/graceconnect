@@ -140,11 +140,18 @@ export default function CreateOrgPage() {
         }
       } catch { /* ignore */ }
 
-      // Simpler UX: no "first objective" question. Every tool of the chosen
-      // profile is enabled up-front and surfaced in the dashboard instead.
+      // Simpler UX: no "first objective" question. Every platform (Creator,
+      // Church, NGO, Community) gets the SAME core dashboard — Sell, Write a
+      // book, Create a course, Giving — plus its own profile tools.
+      const CORE_FEATURES = [
+        'digital_products', 'payment',
+        'ai_book_creation', 'ai_formation_creation',
+        'donation_gifts',
+      ];
       const profileFeatures = Array.from(
-        new Set(profile.objectives.flatMap((o) => o.features)),
+        new Set([...CORE_FEATURES, ...profile.objectives.flatMap((o) => o.features)]),
       );
+
 
       const { orgId, org: newOrg } = await createWorkspace({
         name: data.name,
