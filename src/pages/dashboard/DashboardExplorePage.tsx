@@ -14,6 +14,7 @@ const CategoryCarousels = lazy(() => import('@/components/discover/CategoryCarou
 const RecentlyViewedProducts = lazy(() => import('@/components/discover/RecentlyViewedProducts').then(m => ({ default: m.RecentlyViewedProducts })));
 import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
 import { BUYER_WORLDS, SERVICE_WORLDS, normalizeBuyerWorld, type BuyerWorld } from '@/lib/siteviral/buyerWorlds';
+import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 
 // Per-world discover experiences — each vertical has its own real listing surface.
 // Church is intentionally NOT wired here: it is a separate platform (not a service
@@ -189,7 +190,7 @@ function InterestHub() {
     } catch { return []; }
   }, []);
 
-  if (interests.length === 0) return null;
+  if (!showServiceSurfaces() || interests.length === 0) return null;
 
   return (
     <section className="space-y-3">
