@@ -1,80 +1,129 @@
-# Correction pass — mobile, Digital Products, /dashboard, Analytics
+# Formation: Course → Lesson → Slide rebuild
 
-Four connected fixes. Preserves all data (users, workspaces, products, courses, enrollments, purchases, messages, commissions, revenue, church data, events data).
+Goal: turn the current Course → Module → Lesson (HTML blob) system into a real
+Course → Lesson → Slide system, with a slide builder, a document-to-course AI
+pipeline that produces a reviewable draft, resumable progress, shareable
+preview links, and server-issued certificates.
 
-## 1. Native mobile drawer + bottom nav
+Nothing existing is deleted. Modules stay in the database as an optional
+grouping layer so published courses keep working during the transition.
 
-**Files:** `src/components/layout/GlobalBottomNav.tsx`, new `src/components/layout/MobileMenuDrawer.tsx`, `src/components/layout/Sidebar.tsx`, `src/index.css`.
+## Phase 1 — Slide data model
 
-- Keep 5-item bottom nav (Overview, Explore, Purchases, Messages, Menu).
-- "Menu" opens a new `MobileMenuDrawer` — NOT the desktop `Sidebar` stuffed in a Sheet. Purpose-built native list:
-  - Full `100dvh` height, safe-area top/bottom padding via `env(safe-area-inset-*)`.
-  - Compact header: workspace selector (compact chip, tap-target ≥44px) + close button.
-  - Groups: ACCOUNT / WORKSPACE (small caps label).
-  - Rows: 48px min-height, icon (rounded tinted square), label only — no description, no border card per row.
-  - Body scrolls independently; header sticky.
-  - Native transitions from existing `Sheet`; press feedback `active:scale-[0.98]`.
-- `Sidebar.tsx` gains a `variant?: 'mobile' | 'desktop'` OR we ship a separate component for mobile to avoid regressing desktop. Chosen: separate component.
-- Verify at 320/360/375/390/412/430 px with Playwright.
+New table `program_slides`:
 
-## 2. Digital Products workspace overview & sidebar
+- `id`, `lesson_id`, `display_order`
+- `slide_type`: `text | image | video | quiz | flashcard | assessment`
+- `title`, `body` (short rich text), `media_url`, `caption`
+- `data` (jsonb) for type-specific payloads (quiz options, correct answer,
+  explanation, flashcard front/back)
+- `duration_seconds` (estimated), `created_at`, `updated_at`
+- RLS: public read when the parent course is published; write for org
+  owner/admin/editor. Grants for `anon` (read), `authenticated`, `service_role`.
 
-**Files:** `src/lib/navigation/featureNavBuilder.ts`, `src/components/siteviral/AdaptiveDashboard.tsx`.
+Migration also adds a one-time backfill: for every existing lesson, run the same
+splitting logic currently in `parseContentSlides.ts` server-side and insert real
+slide rows, keeping `program_lessons.content` untouched as a fallback.
 
-Sidebar for `siteviral_type === 'digital_products'` shows exactly:
-Overview, Sell (`/admin/products`), Write a book (`/ecrire`), Create a course (`/creer-formation` → routes to `/create-org` when no org, else new admin creation entry — keeping existing route), Product comments (only if `product_comments` enabled), Revenue, Settings.
+The player reads slides from the table when they exist and falls back to
+runtime HTML parsing when a lesson has none, so no published course breaks.
 
-- Add `ai_formation_creation` handling in `specFor` → "Create a course / Créer une formation" tone violet, route `/creer-formation`.
-- Add `product_comments` handling → "Product comments" route `/admin/comments` if that page exists, else keep hidden.
-- For `digital_products` type: `navKeysForType.digital_products = ['digital_products','ai_book_creation','ai_formation_creation','product_comments']`. Explicitly excludes `donation_gifts` and `events` unless the org has them enabled AND is not `digital_products` type (church keeps them).
-- `AdaptiveDashboard`: for digital_products type, filter `firstActions` and `activeKeys` to the same allow-list; hide events/donations cards unless explicitly enabled AND appropriate for the type. Remove any "Earn" quick action from the workspace overview (it isn't there today but audit and enforce).
+## Phase 2 — Course builder (from blank)
 
-## 3. `/dashboard` smart resolver
+Rework `/admin/programs/:id/edit`:
 
-**Files:** `src/pages/DashboardRouter.tsx`, `src/components/layout/TopBar.tsx` (avatar Dashboard link → `/dashboard`).
+- Left rail: the Course → Lesson → Slide tree with drag-to-reorder at both
+  levels and inline add/duplicate/delete.
+- Center: a single-slide editor that switches form by slide type (short text,
+  image upload, video URL/upload, quiz question with options + correct answer +
+  explanation).
+- Right: live phone-shaped preview of the selected slide, reusing
+  `SlideRenderer`.
+- Keep the existing lesson-level fields (title, free preview, duration) in a
+  lesson settings panel.
+- Keep `LessonEditor` reachable as "advanced / raw HTML" for legacy lessons.
 
-New resolver logic in `DashboardRouter`:
-1. Pending action (existing `pendingAction` util): resume it.
-2. `currentOrg` set AND user canManage → `Navigate to /admin`.
-3. Else if `userOrgs.length === 1` with manage rights AND nothing saved → auto-select, `Navigate to /admin`.
-4. Else if manageable orgs > 1 AND no saved → render inline `WorkspaceChooser` (list of manageable orgs, "Choose a workspace to manage" copy, "Create workspace" link).
-5. Else (zero manageable orgs) → render `PersonalHome` inside the unified shell (no rename of the file needed; UX is neutral).
+## Phase 3 — Document → AI course pipeline
 
-## 4. Analytics gating
+New edge function `course-from-document`, replacing the current
+"upload file, pass URL in a prompt" behaviour:
 
-**Files:** `src/pages/CreatorAdvancedAnalyticsPage.tsx`, `src/components/layout/TopBar.tsx`, wherever the avatar exposes Analytics.
+1. Extract text — real extraction per file type (PDF/DOCX/PPTX/TXT), page or
+   section markers preserved.
+2. Segment into topics in original document order.
+3. For each topic: a short summary broken into 3–7 slide-sized chunks.
+4. For each topic: 1–3 generated quiz questions grounded in that topic's text.
+5. Assemble topics into ordered Lessons under one Course.
 
-- If `currentOrg` null AND exactly one manageable org exists → auto-select + reload page.
-- If `currentOrg` null AND multiple → show workspace chooser inline (reusing chooser from #3).
-- If zero manageable orgs → hide Analytics entry from menus; page shows a soft "Analytics requires a workspace" with CTA to `/create-org`.
-- TopBar avatar: only render Analytics link when `managedOrgs.length > 0`.
+Output is written to a **draft**, not to live records: reuse
+`ai_content_projects` (`project_type = 'course_pack'`, structured slide tree in
+`data_json`) plus `ai_generation_jobs` for progress, so long documents stream
+status into the existing `CourseGenerationLoader`.
 
-## 5. Copy cleanup
+New review screen `/admin/programs/draft/:projectId`:
 
-- OrgSwitcher: when no org selected but orgs exist, label is `Choisir un espace` / `Choose workspace` (no truncation).
-- Remove any remaining `personal space` / `espace personnel` strings.
+- Full generated tree, editable in place (rename, reorder, rewrite, delete
+  slides, fix quiz answers).
+- Per-lesson "looks good" marks and a source excerpt next to each lesson so the
+  admin can check fidelity.
+- A single explicit **Publish as course** action, which calls an extended
+  `ai-project-to-program` that materialises real `programs` / `program_lessons`
+  / `program_slides` rows. Publishing is never automatic; the created course
+  starts as `publication_status = 'draft'` unless the admin opts in.
 
-## Out of scope (preserve current behavior)
+`ConvertDocumentDialog` and `CreateWithAIDialog` are re-pointed at this pipeline
+and stop writing courses directly from the browser.
 
-- No DB migrations.
-- No changes to PersonalHome content (still renders inside unified shell for zero-workspace case).
-- Events/donations code, church code, payments, KYC, RLS untouched.
-- Desktop sidebar visual language unchanged.
+## Phase 4 — Progress and resume
 
-## Verification
+Extend `program_enrollments`:
 
-- `tsgo --noEmit`.
-- Playwright: sign in as test user, visit `/dashboard`, `/admin`, `/my-purchases`, open mobile drawer at 360/390/430.
-- Visual screenshot check of Digital Products workspace overview.
+- `current_lesson_id`, `current_slide_id`, `last_active_at`
+- `completed_slides` (uuid[]) for slide-level completion
+- keep `progress_percent`, `assessment_score`, `total_stars`
 
-## Files changed (estimate)
+`useSaveSlideProgress` is rewritten to write slide ids and `last_active_at`, and
+to compute `progress_percent` from completed slides over total slides.
+`/my-programs` and the course page show a "Resume — Lesson 3, slide 4 of 9"
+entry point that opens the player at the exact slide.
 
-1. `src/components/layout/GlobalBottomNav.tsx`
-2. `src/components/layout/MobileMenuDrawer.tsx` (new)
-3. `src/lib/navigation/featureNavBuilder.ts`
-4. `src/components/siteviral/AdaptiveDashboard.tsx`
-5. `src/pages/DashboardRouter.tsx`
-6. `src/components/layout/TopBar.tsx`
-7. `src/pages/CreatorAdvancedAnalyticsPage.tsx`
-8. `src/components/org/OrgSwitcher.tsx` (copy only)
-9. `src/index.css` (safe-area utility if missing)
+## Phase 5 — Sharing and guest preview
+
+- Canonical share URL `\/program\/:programId` with a copy-link + share sheet on
+  the course page and in the admin list.
+- Guests can open the course page and play slides marked as preview (lesson
+  `is_free_preview`, or the first N slides of lesson 1) without an account; the
+  paywall/sign-up prompt appears at the first gated slide, preserving the intent
+  so sign-in returns to the same slide.
+- Proper `<title>`, meta description, OG tags and `Course` JSON-LD on the course
+  page so shared links render a real preview card.
+
+## Phase 6 — Completion and certificate
+
+- Server-authoritative issuance: a `issue_program_certificate(program_id)`
+  security-definer function verifies enrollment, slide completion and (when
+  `require_assessment_for_cert`) the assessment score before inserting the
+  certificate and generating the number. RLS insert policy on
+  `program_certificates` is tightened so the browser can no longer self-issue.
+- One renderer: keep `generate-certificate-pdf` as the single output, and point
+  `ProgramCertificate` / `CourseCompletionSlide` at it; the canvas image path is
+  retired.
+- Completion confirmation matches the other verticals: a confirmation screen,
+  a notification, and the existing public `\/verify\/:certNumber` check.
+
+## Technical notes
+
+- New table: `program_slides`. Altered: `program_enrollments`.
+- New edge function: `course-from-document`. Extended: `ai-project-to-program`.
+- New DB function: `issue_program_certificate`.
+- Reused as-is: `program_quizzes` / `quiz_questions` / `quiz_attempts` for
+  module- and course-level assessments; slide-level quizzes live in
+  `program_slides.data`.
+- `parseContentSlides.ts` stays as the legacy fallback and as the backfill
+  reference implementation.
+- Bilingual FR/EN via `useI18n` throughout, per project convention.
+
+## Suggested order
+
+Phase 1 → 2 (blank builder usable) → 4 (progress/resume) → 3 (document AI with
+review) → 5 (sharing) → 6 (certificate). Each phase ships independently.
