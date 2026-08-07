@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Users, ArrowRight, ShoppingBag, Heart, Play, Loader2 } from 'lucide-react';
+import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -69,9 +70,7 @@ export default function InvitePage() {
 
   if (loadingReferrer) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <RouteContentSkeleton />
     );
   }
 
