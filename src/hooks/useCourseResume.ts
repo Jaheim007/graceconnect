@@ -38,14 +38,13 @@ async function loadResume(programIds: string[], userId: string): Promise<Record<
     lessons.forEach((l: any) => lessonIds.push(l.id));
   }
 
+  const moduleIds = (modules || []).map((m: any) => m.id);
   const slideMap: Record<string, any[]> = {};
   const quizModuleIds: string[] = [];
   if (lessonIds.length) {
     const [{ data: slides }, { data: quizzes }] = await Promise.all([
       (db as any).from('program_slides').select('id, lesson_id, display_order').in('lesson_id', lessonIds),
-      db.from('program_quizzes').select('id, module_id, quiz_questions(id)').in('lesson_id', lessonIds).limit(1).then(
-        async () => await db.from('program_quizzes').select('id, module_id, quiz_questions(id)').not('module_id', 'is', null),
-      ),
+      db.from('program_quizzes').select('id, module_id, quiz_questions(id)').in('module_id', moduleIds),
     ]);
     for (const row of (slides || []).sort((a: any, b: any) => a.display_order - b.display_order)) {
       (slideMap[(row as any).lesson_id] ||= []).push(row);
