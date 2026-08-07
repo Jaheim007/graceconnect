@@ -601,7 +601,7 @@ export default function OrgPublicPage() {
               </Tabs>
         </div>
       </div>
-      <PoweredBySiteViral ownerId={(org as any)?.owner_id} />
+
 
           {/* Admin inline panel — desktop sidebar, mobile collapsible */}
           {isAdmin && org && (
