@@ -129,6 +129,30 @@ function looksLikeHeading(line: string): boolean {
   return false;
 }
 
+/** Split text into chunks of ~targetWords, on paragraph then sentence boundaries. */
+function chunkText(text: string, targetWords: number): string[] {
+  const units: string[] = [];
+  for (const para of text.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean)) {
+    if (countWords(para) <= targetWords) { units.push(para); continue; }
+    const sentences = para.match(/[^.!?\n]+[.!?]*\s*/g) || [para];
+    let buf: string[] = [];
+    for (const sentence of sentences) {
+      buf.push(sentence.trim());
+      if (countWords(buf.join(' ')) >= targetWords) { units.push(buf.join(' ')); buf = []; }
+    }
+    if (buf.length) units.push(buf.join(' '));
+  }
+
+  const chunks: string[] = [];
+  let buf: string[] = [];
+  for (const u of units) {
+    buf.push(u);
+    if (countWords(buf.join('\n\n')) >= targetWords) { chunks.push(buf.join('\n\n')); buf = []; }
+  }
+  if (buf.length) chunks.push(buf.join('\n\n'));
+  return chunks.filter((c) => c.trim());
+}
+
 function stripMarkers(text: string): string {
   return text.replace(/\[\[page \d+\]\]/g, '').trim();
 }
@@ -148,7 +172,8 @@ export function segmentIntoTopics(
   opts: { maxTopics: number; targetWords?: number } = { maxTopics: 12 },
 ): DocTopic[] {
   const targetWords = opts.targetWords ?? 700;
-  const minWords = Math.round(targetWords * 0.35);
+  const minWords = Math.round(targetWords * 0.22);   // below this, topics get merged
+  const splitAtWords = 60;                            // headings split once a block has real content
   const maxWords = targetWords * 2;
 
   const lines = text.split('\n');
@@ -164,7 +189,7 @@ export function segmentIntoTopics(
       if (current.page === null) current.page = page;
       continue;
     }
-    if (looksLikeHeading(raw) && countWords(current.lines.join(' ')) >= minWords) {
+    if (looksLikeHeading(raw) && countWords(current.lines.join(' ')) >= splitAtWords) {
       blocks.push(current);
       current = { heading: raw.trim().replace(/^#+\s*/, ''), lines: [], page };
       continue;
@@ -186,19 +211,9 @@ export function segmentIntoTopics(
     }))
     .filter((t) => countWords(t.text) > 0);
 
-  // No structure at all → window the whole document by paragraphs.
+  // No structure at all → window the whole document (paragraph, then sentence).
   if (topics.length <= 1) {
-    const paragraphs = stripMarkers(text).split(/\n{2,}/).filter((p) => p.trim());
-    const windows: string[] = [];
-    let buf: string[] = [];
-    for (const p of paragraphs) {
-      buf.push(p);
-      if (countWords(buf.join('\n\n')) >= targetWords) {
-        windows.push(buf.join('\n\n'));
-        buf = [];
-      }
-    }
-    if (buf.length) windows.push(buf.join('\n\n'));
+    const windows = chunkText(stripMarkers(text), targetWords);
     topics = windows.map((t, i) => ({ index: i, heading: null, text: t, page: null }));
   }
 
@@ -214,24 +229,13 @@ export function segmentIntoTopics(
     merged.push({ ...t });
   }
 
-  // Split oversized topics on paragraph boundaries.
+  // Split oversized topics (paragraph, then sentence boundaries).
   const sized: DocTopic[] = [];
   for (const t of merged) {
     if (countWords(t.text) <= maxWords) { sized.push(t); continue; }
-    const paragraphs = t.text.split(/\n{2,}/);
-    let buf: string[] = [];
-    let part = 1;
-    for (const p of paragraphs) {
-      buf.push(p);
-      if (countWords(buf.join('\n\n')) >= targetWords) {
-        sized.push({ ...t, heading: t.heading ? `${t.heading} (${part})` : null, text: buf.join('\n\n') });
-        buf = [];
-        part++;
-      }
-    }
-    if (buf.length) {
-      sized.push({ ...t, heading: t.heading ? `${t.heading} (${part})` : null, text: buf.join('\n\n') });
-    }
+    chunkText(t.text, targetWords).forEach((chunk, i) => {
+      sized.push({ ...t, heading: t.heading ? `${t.heading} (${i + 1})` : null, text: chunk });
+    });
   }
 
   // Cap topic count: fold the overflow into the last allowed topic so no source
