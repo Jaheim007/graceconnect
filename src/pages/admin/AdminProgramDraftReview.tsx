@@ -280,9 +280,11 @@ export default function AdminProgramDraftReview() {
             <Button variant="outline" size="sm" onClick={handleSave} disabled={!dirty || updateDraft.isPending}>
               {updateDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : (isFr ? 'Enregistrer' : 'Save')}
             </Button>
-            <Button size="sm" className="gap-1.5" onClick={handlePublish} disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid}>
+            <Button size="sm" className="gap-1.5" onClick={handlePublish} disabled={publishDraft.isPending || generating || totals.lessons === 0 || !priceValid}>
               {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
-              {isFr ? 'Publier comme cours' : 'Publish as course'}
+              {incomplete
+                ? (isFr ? 'Enregistrer comme brouillon' : 'Save as draft')
+                : (isFr ? 'Publier comme cours' : 'Publish as course')}
             </Button>
           </div>
         </div>
@@ -297,6 +299,23 @@ export default function AdminProgramDraftReview() {
             <Badge variant="outline" className="text-[10px] gap-1"><FileText className="h-3 w-3" />{project.data_json.source.file_name}</Badge>
           )}
         </div>
+
+        {incomplete && (
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-[12px] text-amber-700 dark:text-amber-300">
+            {generating
+              ? (isFr
+                  ? 'La génération est encore en cours — le cours reste en brouillon jusqu’à la fin.'
+                  : 'Generation is still running — the course stays a draft until it finishes.')
+              : emptyLessons > 0
+                ? (isFr
+                    ? `${emptyLessons} chapitre(s) sans contenu (génération interrompue). Le cours reste en brouillon : complétez ou supprimez ces chapitres avant de publier.`
+                    : `${emptyLessons} chapter(s) have no content (generation was interrupted). The course stays a draft: complete or delete them before publishing.`)
+                : (isFr
+                    ? 'Génération incomplète — le cours reste en brouillon.'
+                    : 'Incomplete generation — the course stays a draft.')}
+          </div>
+        )}
+
 
         {/* Pricing step — AI-generated courses are always paid */}
         <div className="rounded-xl border border-border bg-card p-3.5 space-y-3">
