@@ -147,6 +147,19 @@ export default function AdminContentHub() {
         </Link>
       </div>
 
+      {/* Donations — only when the module is enabled in settings */}
+      {offeringsEnabled && (
+        <Link
+          to="/admin/offerings"
+          className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-pink-500/20 bg-pink-500/5 text-pink-600 text-xs font-semibold hover:bg-pink-500/10 transition-colors"
+        >
+          <Gift className="h-3.5 w-3.5" />
+          {isFr ? 'Créer une offrande' : 'Create an offering'}
+          <ArrowRight className="h-3 w-3" />
+        </Link>
+      )}
+
+
       {/* More tools */}
       <div>
         <button
