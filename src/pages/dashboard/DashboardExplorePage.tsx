@@ -118,16 +118,27 @@ export default function DashboardExplorePage() {
           )}
 
 
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={t('discover.search')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && search.trim()) { addRecentSearch(search.trim()); setSearchFocused(false); } }}
-              className="pl-10 h-11 bg-card/80"
-            />
+          <div className="relative rounded-2xl p-[1.5px] bg-gradient-to-r from-primary/60 via-orange-500/50 to-fuchsia-500/50 shadow-[0_18px_50px_-24px_hsl(var(--primary)/0.55)]">
+            <div className="relative rounded-[calc(1rem-1px)] bg-card">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+              <Input
+                placeholder={t('discover.search')}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && search.trim()) { addRecentSearch(search.trim()); setSearchFocused(false); } }}
+                className="pl-11 h-12 sm:h-14 rounded-2xl border-0 bg-transparent text-base focus-visible:ring-0 focus-visible:ring-offset-0"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  aria-label={fr ? 'Effacer' : 'Clear'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-muted-foreground hover:bg-muted"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
             <SearchSuggestions
               query={search}
               isOpen={searchFocused}
@@ -135,6 +146,7 @@ export default function DashboardExplorePage() {
               onClose={() => setSearchFocused(false)}
             />
           </div>
+
 
           {/* World chip row — services only (Church has its own platform) */}
           {showServiceSurfaces() && (
