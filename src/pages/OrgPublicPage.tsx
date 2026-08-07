@@ -635,6 +635,11 @@ export default function OrgPublicPage() {
           )}
         </div>
       </div>
+
+      <div className="border-t border-border/60 mt-10">
+        <PoweredBySiteViral ownerId={(org as any)?.owner_id} />
+      </div>
+
       <OrgPageTour open={tourOpen} onClose={() => setTourOpen(false)} />
 
       <DonateModal campaign={donateCampaign} organizationId={org?.id ?? ''} open={!!donateCampaign} onClose={() => setDonateCampaign(null)} />
