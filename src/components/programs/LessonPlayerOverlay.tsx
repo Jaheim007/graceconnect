@@ -12,10 +12,13 @@ interface LessonPlayerOverlayProps {
   /** Resume at an exact flat index (legacy lessons without slide rows) */
   initialSlideIndex?: number | null;
   initialLessonId?: string;
+  /** 'learner' saves progress; 'preview' enforces the guest preview boundary */
+  mode?: 'learner' | 'preview';
+  onRequestAccess?: () => void;
   onClose: () => void;
 }
 
-export function LessonPlayerOverlay({ programId, initialSlideId, initialSlideIndex, initialLessonId, onClose }: LessonPlayerOverlayProps) {
+export function LessonPlayerOverlay({ programId, initialSlideId, initialSlideIndex, initialLessonId, mode = 'learner', onRequestAccess, onClose }: LessonPlayerOverlayProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -89,7 +92,8 @@ export function LessonPlayerOverlay({ programId, initialSlideId, initialSlideInd
         initialSlideIndex={initialSlideIndex}
         initialLessonId={initialLessonId}
         onClose={handleClose}
-        mode="learner"
+        mode={mode}
+        onRequestAccess={onRequestAccess}
         headerActions={
           <Button
             variant="ghost"
