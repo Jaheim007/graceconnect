@@ -12,8 +12,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
-import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
-import { queueDeferredCourseLessonImages } from '@/lib/programImageGeneration';
+import { useNavigate } from 'react-router-dom';
+import { useStartCourseDraft } from '@/hooks/useCourseDraft';
+import { draftErrorMessage } from '@/lib/courseDraftErrors';
 import { Zap, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Settings2, Globe, Target, AlertTriangle, Wand2 } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -83,9 +84,8 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const standardCost = useActionCost('ai_course_structure', 'standard');
   const premiumCost = useActionCost('ai_course_structure', 'premium');
 
-  const createProgram = useCreateProgram();
-  const createModule = useCreateModule();
-  const createLesson = useCreateLesson();
+  const navigate = useNavigate();
+  const startDraft = useStartCourseDraft();
 
   const suggestions = isFr ? SUGGESTIONS_FR : SUGGESTIONS_EN;
 
