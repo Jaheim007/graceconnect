@@ -185,26 +185,19 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
           </Select>
         </div>
 
-        {/* Image generation option */}
-        <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
-          <div className="flex items-center gap-2">
-            <ImageIcon className="h-4 w-4 text-primary" />
-            <div>
-              <p className="text-xs font-medium">{isFr ? 'Générer des images par leçon' : 'Generate images per lesson'}</p>
-              <p className="text-[10px] text-muted-foreground">
-                {isFr
-                  ? 'Images basées sur le style du document (crédits additionnels)'
-                  : 'Images based on document style (additional credits)'}
-              </p>
-            </div>
-          </div>
-          <Switch checked={generateImages} onCheckedChange={setGenerateImages} disabled={converting} />
+        <div className="p-3 rounded-lg bg-muted/30 border border-border space-y-1">
+          <p className="text-xs font-medium">{isFr ? 'Brouillon à relire' : 'Reviewable draft'}</p>
+          <p className="text-[10px] text-muted-foreground">
+            {isFr
+              ? 'Le document est extrait, découpé en leçons et en slides avec des quiz issus du texte. Vous relisez tout avant publication.'
+              : 'The document is extracted, split into lessons and slides with quizzes grounded in the text. You review everything before publishing.'}
+          </p>
         </div>
 
         <p className="text-[11px] text-muted-foreground">
           {isFr ? 'Coût estimé' : 'Estimated cost'}: <span className="font-medium text-foreground">{selectedCost ?? (tier === 'premium' ? 15 : 8)} {isFr ? 'crédits' : 'credits'}</span>
-          {generateImages && <span className="text-primary"> + {isFr ? 'images' : 'images'}</span>}
         </p>
+
 
         <input
           ref={fileRef}
