@@ -1,3 +1,4 @@
+import { Scissors } from 'lucide-react';
 import { Link } from "react-router-dom";
 import { Calendar, MessageSquare, ShieldCheck, Zap, AlertCircle, Share2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -41,7 +42,7 @@ export default function BeautyProOverview() {
       <header className="lg:hidden sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 text-white">
-            
+            <Scissors className="h-4 w-4" />
           </span>
           <div className="leading-tight flex-1 min-w-0">
             <div className="text-sm font-black truncate">{(provider as any).business_name}</div>

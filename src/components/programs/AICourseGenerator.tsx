@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
-import { Zap, Loader2, BookOpen, Users, Layers } from 'lucide-react';
+import { Zap, Loader2, BookOpen, Users, Layers, Wand2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CourseStructure {
@@ -97,7 +97,7 @@ export function AICourseGenerator({ onGenerated, onCancel }: AICourseGeneratorPr
     <div className="bg-card border border-border rounded-2xl overflow-hidden">
       <div className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border">
         <div className="flex items-center gap-2">
-          
+          <Wand2 className="h-4 w-4 text-primary shrink-0" />
           <h3 className="font-semibold text-sm">{isFr ? 'Générer avec l\'IA' : 'Generate with AI'}</h3>
         </div>
         <p className="text-[10px] text-muted-foreground mt-1">

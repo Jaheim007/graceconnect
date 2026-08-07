@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, ShieldAlert, Activity } from 'lucide-react';
+import { AlertTriangle, ShieldAlert, Activity, Zap } from 'lucide-react';
 
 export default function AiAbuseMonitor() {
   const { data: stats } = useQuery({
@@ -29,7 +29,7 @@ export default function AiAbuseMonitor() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold flex items-center gap-2"><ShieldAlert className="h-6 w-6 text-primary" /> Abus & Monitoring IA</h1>
-
+        <Zap className="h-4 w-4 text-primary shrink-0" />
       <div className="grid grid-cols-3 gap-4">
         <Card><CardContent className="pt-6 text-center">
           <Activity className="h-8 w-8 mx-auto text-primary/60 mb-2" />

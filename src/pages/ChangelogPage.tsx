@@ -1,4 +1,4 @@
-import { ArrowLeft, Zap, Shield, Bug, Palette, Loader2 } from 'lucide-react';
+import { ArrowLeft, Zap, Shield, Bug, Palette, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
@@ -80,7 +80,7 @@ export default function ChangelogPage() {
         {(changelog as any[]).map((release: any) => (
           <div key={release.version} className="relative pl-6 border-l-2 border-border">
             <div className="absolute -left-2.5 top-0 h-5 w-5 rounded-full bg-primary flex items-center justify-center">
-              
+              <Check className="h-3 w-3 text-primary-foreground" />
             </div>
             <div className="mb-4">
               <div className="flex items-center gap-2">

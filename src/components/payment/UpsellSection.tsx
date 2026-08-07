@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, ArrowRight, Zap } from 'lucide-react';
+import { ShoppingBag, ArrowRight, Zap, ThumbsUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { db } from '@/lib/db';
@@ -87,7 +87,7 @@ export function UpsellSection({ productId, orgId, currentProductId }: UpsellSect
       className="bg-card border border-border rounded-2xl p-5 space-y-4"
     >
       <div className="flex items-center gap-2">
-        
+        <ThumbsUp className="h-4 w-4 text-primary shrink-0" />
         <p className="text-sm font-bold">Vous pourriez aussi aimer</p>
       </div>
 

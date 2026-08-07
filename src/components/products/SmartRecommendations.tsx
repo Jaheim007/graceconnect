@@ -82,7 +82,7 @@ export function SmartRecommendations({
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        
+        <Zap className="h-4 w-4 text-primary shrink-0" />
         <h3 className="text-sm font-extrabold">{defaultTitle}</h3>
       </div>
 

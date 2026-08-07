@@ -80,8 +80,18 @@ export function RequireOrgManage({ children }: { children: ReactNode }) {
     return <Nav to="/create-org" replace />;
   }
 
-  const allowed = ['owner', 'admin', 'editor'].includes(currentOrgRole || '');
-  if (!allowed) return <Nav to="/feed" replace />;
+  const allowed = ['owner', 'admin', 'editor'].includes(currentOrgRole || '') || canManage(currentOrg.id);
+  if (!allowed) {
+    // The active workspace isn't manageable — switch to one that is instead of
+    // silently bouncing the user to Discover.
+    const firstManageable = userOrgs.find((o) => canManage(o.id));
+    if (firstManageable && firstManageable.id !== currentOrg.id) {
+      setCurrentOrg(firstManageable);
+      return <GuardFallback />;
+    }
+    return <Nav to="/dashboard" replace />;
+  }
+
 
   appBooted = true;
   return <>{children}</>;

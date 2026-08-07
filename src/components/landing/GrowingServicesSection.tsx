@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Zap, Bell, Search } from 'lucide-react';
+import { Zap, Bell, Search, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 
@@ -17,7 +17,7 @@ export function GrowingServicesSection() {
         <div className="grid lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-12 items-center">
           <div>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary px-3 py-1 text-[11px] font-bold uppercase tracking-wider mb-4">
-              
+              <TrendingUp className="h-3 w-3 text-primary shrink-0" />
               {fr ? 'En pleine croissance' : 'Growing'}
             </div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight">

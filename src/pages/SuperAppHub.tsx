@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Zap, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church, Home as HomeIcon, PartyPopper, GraduationCap, Search, Rocket } from 'lucide-react';
+import { ArrowRight, Zap, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church, Home as HomeIcon, PartyPopper, GraduationCap, Search, Rocket, Store } from 'lucide-react';
 import { setIntent } from '@/lib/intent';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
@@ -78,7 +78,7 @@ export default function SuperAppHub() {
           <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                
+                <Zap className="h-3 w-3 text-primary shrink-0" />
                 {t('Une app. Toute l\'Afrique.', 'One app. All of Africa.')}
               </div>
               <h1 className="mt-4 text-4xl font-black leading-[1.02] tracking-tight sm:text-6xl">
@@ -198,8 +198,9 @@ export default function SuperAppHub() {
                       className="grid h-12 w-12 place-items-center rounded-2xl text-white shadow-lg"
                       style={{ background: 'linear-gradient(135deg, hsl(340 82% 60%), hsl(28 88% 60%))' }}
                     >
-                      
+                      <Store className="h-6 w-6" />
                     </span>
+
                     <span
                       className="rounded-full bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
                       style={{ color: 'hsl(340 82% 45%)' }}

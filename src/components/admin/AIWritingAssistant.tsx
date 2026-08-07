@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Zap, Loader2, Copy, CheckCircle } from 'lucide-react';
+import { Zap, Loader2, Copy, CheckCircle, Wand2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/i18n/I18nContext';
@@ -84,7 +84,7 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            
+            <Wand2 className="h-4 w-4 text-primary shrink-0" />
             {isFr ? 'Aide à la rédaction IA' : 'AI Writing Assistant'}
           </DialogTitle>
           <DialogDescription>

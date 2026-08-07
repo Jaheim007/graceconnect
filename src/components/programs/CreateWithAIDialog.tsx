@@ -14,7 +14,7 @@ import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
 import { queueDeferredCourseLessonImages } from '@/lib/programImageGeneration';
-import { Zap, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Settings2, Globe, Target } from 'lucide-react';
+import { Zap, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Settings2, Globe, Target, AlertTriangle, Wand2 } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
@@ -356,7 +356,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         ) : generationError ? (
           <div className="flex flex-col items-center justify-center py-12 px-4 space-y-6 text-center">
             <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center">
-              
+              <AlertTriangle className="h-7 w-7 text-destructive" />
             </div>
             <div className="space-y-2">
               <p className="text-sm font-semibold">{isFr ? 'La génération a échoué' : 'Generation failed'}</p>
@@ -381,7 +381,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                
+                <Wand2 className="h-4 w-4 text-primary shrink-0" />
                 {isFr ? 'Créer avec l\'IA' : 'Create with AI'}
               </DialogTitle>
               <p className="text-sm text-muted-foreground">

@@ -162,7 +162,7 @@ export default function BeautyActionHub() {
           {/* Compact hero */}
           <motion.div variants={item} className="space-y-1.5 text-center">
             <div className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-              
+              <Zap className="h-3 w-3 text-primary shrink-0" />
               {t("Beauté vérifiée", "Verified beauty")}
             </div>
             <h1 className="text-xl font-black leading-tight tracking-tight text-foreground sm:text-2xl">

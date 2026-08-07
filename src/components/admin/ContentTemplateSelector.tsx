@@ -24,7 +24,7 @@ export function ContentTemplateSelector({ type, open, onClose, onSelect }: Props
       <DialogContent className="max-w-lg max-h-[85vh] p-0">
         <DialogHeader className="p-6 pb-3">
           <DialogTitle className="flex items-center gap-2">
-            
+            <Zap className="h-4 w-4 text-primary shrink-0" />
             {type === 'product' ? 'Choisir un modèle de produit' : 'Choisir un modèle de campagne'}
           </DialogTitle>
           <DialogDescription>

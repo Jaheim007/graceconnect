@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Zap, Loader2, BookOpen, GraduationCap, Dumbbell, Lightbulb, Baby, FileText, ListChecks, Undo2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Zap, Loader2, BookOpen, GraduationCap, Dumbbell, Lightbulb, Baby, FileText, ListChecks, Undo2, ChevronDown, ChevronUp, Wand2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type EnrichAction = 'expand' | 'case_study' | 'exercise' | 'advanced' | 'simplify' | 'summary' | 'key_takeaways';
@@ -185,7 +185,7 @@ export function LessonEnrichmentToolbar({
       >
         <div className="flex items-center gap-2">
           <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-            
+            <Wand2 className="h-3.5 w-3.5 text-white" />
           </div>
           <div className="text-left">
             <span className="text-xs font-semibold">

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { PartyPopper, ArrowRight, Download, CheckCircle, Zap, Users, Star } from 'lucide-react';
+import { PartyPopper, ArrowRight, Download, CheckCircle, Zap, Users, Star, BookOpen } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { PostPurchaseRecommendations } from './PostPurchaseRecommendations';
@@ -104,7 +104,7 @@ export function PostPurchaseCelebration({
                       <img src={coverImageUrl} alt="" className="h-14 w-14 rounded-lg object-cover shadow-sm" />
                     ) : (
                       <div className="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center">
-                        
+                        <BookOpen className="h-6 w-6 text-primary" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">

@@ -797,7 +797,7 @@ export function ProductForm() {
         {isEdit && !isFree && (
           <div className="space-y-3 border border-amber-500/20 bg-amber-500/5 rounded-xl p-4">
             <p className="text-sm font-semibold flex items-center gap-2">🚀 Upsell & Order Bump</p>
-            
+              <Zap className="h-4 w-4 text-primary shrink-0" />
             {/* Order Bump */}
             <div className="space-y-2">
               <Label className="text-xs font-medium">{isFr ? 'Order Bump (ajout au panier)' : 'Order Bump (add to cart)'}</Label>

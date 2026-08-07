@@ -117,7 +117,7 @@ export function AmbassadorOnlyDashboard() {
         {affiliateLinks.length === 0 ? (
           <div className="bg-card border border-border rounded-2xl p-8 text-center space-y-4">
             <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-              
+              <Share2 className="h-7 w-7 text-primary" />
             </div>
             <div>
               <h3 className="font-bold text-lg">Commencez à gagner !</h3>

@@ -2,7 +2,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useNavigate } from 'react-router-dom';
-import { Check, Circle, ArrowRight, Zap, BookOpen, Share2, DollarSign, Users } from 'lucide-react';
+import { Check, Circle, ArrowRight, Zap, BookOpen, Share2, DollarSign, Users, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -109,7 +109,7 @@ export function TTFSProgressTracker() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-bold text-sm flex items-center gap-2">
-            
+            <Target className="h-4 w-4 text-primary shrink-0" />
             Objectif : Première vente
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
