@@ -450,30 +450,27 @@ export default function UserDashboard() {
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold px-1">{isFr ? 'Accès rapide' : 'Quick access'}</p>
 
           {hasOrgs && (
-            <PremiumCard variant="default" noPadding animate={false} className="p-0">
-              <button
-                onClick={() => navigate('/admin')}
-                className="w-full flex items-center gap-3 p-3.5 text-left group"
-              >
-                <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <Building2 className="h-4 w-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold">
-                    {userProfile === 'org-religious'
-                      ? (isFr ? 'Notre espace' : 'Our space')
-                      : (isFr ? 'Ma boutique' : 'My store')}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {userProfile === 'org-religious'
-                      ? (isFr ? 'Ressources, contributions, membres' : 'Resources, contributions, members')
-                      : (isFr ? 'Produits, ventes, ambassadeurs' : 'Products, sales, ambassadors')}
-                  </p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-              </button>
-            </PremiumCard>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {quickActions.map((a) => (
+                <PremiumCard key={a.to} variant="default" noPadding animate={false} className="p-0">
+                  <button
+                    onClick={() => navigate(a.to)}
+                    className="w-full flex items-center gap-3 p-3.5 text-left group"
+                  >
+                    <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <a.icon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold">{isFr ? a.labelFr : a.labelEn}</p>
+                      <p className="text-[10px] text-muted-foreground">{isFr ? a.descFr : a.descEn}</p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </PremiumCard>
+              ))}
+            </div>
           )}
+
 
           {!hasOrgs && !isBuyer && (
             <PremiumCard variant="default" noPadding animate={false} className="p-0">
