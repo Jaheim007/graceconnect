@@ -57,6 +57,10 @@ export function ProgramForm() {
   const { data: existingProgram } = useProgram(id);
   const { data: modules = [] } = useProgramModules(id);
 
+  // Migrate legacy HTML lessons into real slide rows (idempotent, admin-only)
+  useEnsureProgramSlides(id, isEdit);
+
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
