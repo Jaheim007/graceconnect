@@ -75,9 +75,26 @@ export default function DashboardExplorePage() {
     <div className="bg-background native-page-screen">
       <SEOHead title={title} description={t('discover.seo_desc')} />
 
-      <div className="border-b border-border py-5 px-4">
-        <div className="container max-w-4xl space-y-3">
-          <h1 className="text-xl sm:text-2xl font-bold">{title}</h1>
+      <div className="relative overflow-hidden border-b border-border py-8 px-4">
+        {/* Ambient "fire" glow — bold, alive header */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-24 left-1/2 h-64 w-[42rem] -translate-x-1/2 rounded-full bg-primary/25 blur-[90px]" />
+          <div className="absolute -bottom-28 left-[12%] h-56 w-56 rounded-full bg-orange-500/20 blur-[80px]" />
+          <div className="absolute -top-10 right-[8%] h-52 w-52 rounded-full bg-fuchsia-500/20 blur-[80px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
+        </div>
+
+        <div className="container max-w-4xl space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
+            <Flame className="h-3.5 w-3.5" />
+            {fr ? 'Ça bouge en ce moment' : 'Hot right now'}
+          </div>
+
+          <h1 className="font-heading text-3xl sm:text-5xl font-extrabold tracking-tight leading-[1.05]">
+            <span className="bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
+              {title}
+            </span>
+          </h1>
 
           {worldMeta ? (
             <div className="flex items-center gap-2 flex-wrap">
@@ -97,8 +114,9 @@ export default function DashboardExplorePage() {
               </span>
             </div>
           ) : (
-            <p className="text-muted-foreground text-sm">{t('discover.subtitle')}</p>
+            <p className="text-muted-foreground text-sm sm:text-base max-w-xl">{t('discover.subtitle')}</p>
           )}
+
 
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
