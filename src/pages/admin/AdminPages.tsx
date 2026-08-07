@@ -1469,7 +1469,7 @@ export function AdminSettings() {
                   onClick={async () => {
                     try {
                       await navigator.clipboard.writeText(getPublicUrl(`/org/${orgSlug}`));
-                      toast.success(isFr ? 'Lien copié' : 'Link copied');
+                      sonnerToast.success(isFr ? 'Lien copié' : 'Link copied');
                     } catch { /* ignore */ }
                   }}
                 >
