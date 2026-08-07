@@ -158,9 +158,11 @@
     min-width: 0;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    @apply font-heading font-semibold tracking-tight;
     overflow-wrap: break-word;
+    font-feature-settings: "ss01";
   }
+
   p, span, a, li, td, th, label, div {
     overflow-wrap: break-word;
   }
