@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { db } from '@/lib/db';
+import { supabase } from '@/integrations/supabase/client';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Award, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -14,33 +14,27 @@ export default function CertificateVerifyPage() {
   const isFr = locale === 'fr';
   const dateLoc = isFr ? fr : enUS;
 
+  // Public verification runs through the read-only RPC: the certificates table
+  // itself is not readable by anonymous visitors.
   const { data: certData, isLoading } = useQuery({
     queryKey: ['verify-certificate', certNumber],
     queryFn: async () => {
       if (!certNumber) return null;
-      const { data: cert, error } = await db.from('program_certificates')
-        .select('*, programs(title, organization_id, organizations(name, logo_url))')
-        .eq('certificate_number', certNumber)
-        .maybeSingle();
+      const { data, error } = await supabase.rpc('verify_program_certificate', {
+        _certificate_number: certNumber,
+      });
       if (error) throw error;
-      if (!cert) return null;
-
-      // Fetch profile separately (no FK from program_certificates to profiles)
-      const { data: profile } = await db.from('profiles')
-        .select('display_name')
-        .eq('id', cert.user_id)
-        .maybeSingle();
-
-      return { ...cert, profile };
+      const row = Array.isArray(data) ? data[0] : data;
+      return row ?? null;
     },
     enabled: !!certNumber,
   });
 
   const isValid = !!certData;
-  const recipientName = certData?.profile?.display_name || (isFr ? 'Apprenant' : 'Learner');
-  const programTitle = (certData?.programs as any)?.title || '';
-  const orgName = (certData?.programs as any)?.organizations?.name || '';
-  const orgLogo = (certData?.programs as any)?.organizations?.logo_url;
+  const recipientName = certData?.learner_name || (isFr ? 'Apprenant' : 'Learner');
+  const programTitle = certData?.course_title || '';
+  const orgName = certData?.organization_name || '';
+  const orgLogo = certData?.organization_logo_url;
   const issuedAt = certData?.issued_at ? format(new Date(certData.issued_at), 'dd MMMM yyyy', { locale: dateLoc }) : '';
 
   return (
