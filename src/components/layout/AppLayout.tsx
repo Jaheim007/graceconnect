@@ -53,9 +53,10 @@ export function AppLayout() {
   useRealtimeNotifications(userOrgs.map(o => o.id));
   useNewUserRedirect();
 
-  if (!hideNav && isLoadingOrgs) {
-    return <FullPageLoader />;
-  }
+  // No full-page loader here: RequireAuth already waits for the first workspace
+  // hydration. Later workspace changes keep the shell mounted and only the
+  // content area shows its own in-place skeleton.
+
 
   return (
     <CompareProvider>
