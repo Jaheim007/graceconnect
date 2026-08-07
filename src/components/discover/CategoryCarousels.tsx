@@ -160,26 +160,39 @@ export function CategoryCarousels() {
 
   return (
     <div className="space-y-4 py-4">
-      {/* Category pills */}
+      {/* Category rail — glass segmented control with a sliding gradient pill */}
       <ScrollArea className="w-full">
-        <div className="flex gap-2 pb-2 px-1">
-          {CATEGORY_META.map((cat) => (
-            <button
-              key={cat.value}
-              onClick={() => setActiveCategory(cat.value)}
-              className={cn(
-                'shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all border',
-                activeCategory === cat.value
-                  ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                  : 'bg-card border-border text-muted-foreground hover:bg-muted hover:text-foreground'
-              )}
-            >
-              {cat.emoji} {labels[cat.value]}
-            </button>
-          ))}
+        <div className="flex w-max gap-1 rounded-full border border-border/60 bg-card/60 p-1 backdrop-blur-md shadow-[0_10px_30px_-22px_hsl(var(--primary)/0.6)]">
+          {CATEGORY_META.map((cat) => {
+            const active = activeCategory === cat.value;
+            return (
+              <button
+                key={cat.value}
+                onClick={() => setActiveCategory(cat.value)}
+                aria-pressed={active}
+                className={cn(
+                  'relative shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-colors',
+                  active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="explore-cat-pill"
+                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                    className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-primary via-primary to-fuchsia-500 shadow-[0_6px_18px_-6px_hsl(var(--primary)/0.85)]"
+                  />
+                )}
+                <span className="relative flex items-center gap-1.5 whitespace-nowrap">
+                  {cat.emoji && <span className={cn('transition-transform', active && 'scale-110')}>{cat.emoji}</span>}
+                  {labels[cat.value]}
+                </span>
+              </button>
+            );
+          })}
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
+
 
       {/* Content */}
       {isLoading ? (
