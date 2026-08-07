@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Search, Package, Calendar, Ticket, ArrowRight, ShoppingBag, Sparkles } from 'lucide-react';
+import { Search, Package, Calendar, Ticket, ArrowRight, ShoppingBag, Compass, GraduationCap, HandCoins } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
 import { Input } from '@/components/ui/input';
