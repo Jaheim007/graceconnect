@@ -317,6 +317,42 @@ export default function ProgramDetailPage() {
 
   const orgName = org?.name || '';
   const priceDisplay = formatPrice(program.price || 0, program.is_free, program.currency);
+  const shareUrl = buildCourseShareUrl(programId!);
+  const plainDescription = (program.description || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const courseMetaDescription = plainDescription.slice(0, 155)
+    || `${isFr ? 'Cours en ligne par' : 'Online course by'} ${orgName} — ${program.is_free ? (isFr ? 'Gratuit' : 'Free') : priceDisplay}`;
+
+  // Course structured data so a shared link renders a real card / rich result
+  const courseJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name: program.title,
+    description: courseMetaDescription,
+    url: shareUrl,
+    ...(program.cover_image_url ? { image: program.cover_image_url } : {}),
+    inLanguage: (program as any).content_language || (isFr ? 'fr' : 'en'),
+    provider: {
+      '@type': 'Organization',
+      name: orgName || 'Siteviral',
+      ...(orgSlug ? { url: `https://siteviral.com/org/${orgSlug}` } : {}),
+    },
+    ...((program.enrollment_count || 0) > 0
+      ? { numberOfCredits: undefined, audience: { '@type': 'Audience', audienceType: 'Learners' } }
+      : {}),
+    hasCourseInstance: [{
+      '@type': 'CourseInstance',
+      courseMode: 'online',
+      courseWorkload: `PT${Math.max(1, Math.round(totalLessons * 0.25))}H`,
+    }],
+    offers: {
+      '@type': 'Offer',
+      url: shareUrl,
+      price: program.is_free ? 0 : (program.price ?? 0),
+      priceCurrency: program.currency || 'XOF',
+      availability: 'https://schema.org/InStock',
+      category: program.is_free ? 'Free' : 'Paid',
+    },
+  };
 
   if (playerOpen && programId) {
     return (
@@ -772,8 +808,26 @@ export default function ProgramDetailPage() {
                 </Button>
               )}
 
+              {/* Free preview — no account required */}
+              {!hasAccess && totalLessons > 0 && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full gap-2 font-medium"
+                  onClick={() => setPreviewOpen(true)}
+                >
+                  <Eye className="h-4 w-4" />
+                  {isFr ? 'Aperçu gratuit' : 'Free preview'}
+                </Button>
+              )}
+
               {/* Share & actions */}
               <div className="pt-2 border-t border-border/40 flex items-center gap-2">
+                <ShareCourseMenu
+                  programId={programId!}
+                  title={program.title}
+                  description={plainDescription}
+                />
                 <div className="flex-1">
                   <ShareButtons
                     url={buildShareUrl()}
