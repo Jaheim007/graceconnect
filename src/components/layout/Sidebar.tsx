@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   ChevronLeft, ChevronRight, LogOut, Settings, ShieldCheck,
-  Compass, ShoppingBag, GraduationCap, MessageSquare, HandCoins,
+  Compass, ShoppingBag, GraduationCap, MessageSquare, HandCoins, LayoutDashboard,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
