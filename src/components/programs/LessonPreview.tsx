@@ -21,6 +21,9 @@ import { Switch } from '@/components/ui/switch';
 import { db } from '@/lib/db';
 import { useProgramSlideMap } from '@/hooks/useProgramSlides';
 import { rowToContentSlide } from './lesson-preview/slideAdapters';
+import { PreviewPaywallSlide } from './lesson-preview/PreviewPaywallSlide';
+import { buildPreviewLessonIds, isSlidePreviewable } from '@/lib/coursePreview';
+import { formatPrice } from '@/lib/currency';
 
 
 interface LessonPreviewProps {
@@ -32,8 +35,14 @@ interface LessonPreviewProps {
   initialSlideIndex?: number | null;
   onClose?: () => void;
   headerActions?: ReactNode;
-  /** 'creator' shows customization/device tools; 'learner' shows clean player */
-  mode?: 'creator' | 'learner';
+  /**
+   * 'creator' shows customization/device tools, 'learner' shows the clean player
+   * with progress saving, 'preview' shows the clean player for guests/non-buyers
+   * with the preview boundary enforced and NO progress saving.
+   */
+  mode?: 'creator' | 'learner' | 'preview';
+  /** Called when a visitor asks for full access from the paywall slide */
+  onRequestAccess?: () => void;
 }
 
 type DeviceMode = 'mobile' | 'tablet' | 'desktop';
@@ -79,14 +88,17 @@ interface FlatSlide {
   moduleQuiz?: any; // populated for module-quiz slides
 }
 
-export function LessonPreview({ programId, initialLessonId, initialSlideId, initialSlideIndex, onClose, headerActions, mode = 'creator' }: LessonPreviewProps) {
+export function LessonPreview({ programId, initialLessonId, initialSlideId, initialSlideIndex, onClose, headerActions, mode = 'creator', onRequestAccess }: LessonPreviewProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { toast } = useToast();
   const { data: program } = useProgram(programId);
   const { data: modules = [] } = useProgramModules(programId);
   const { data: slideMap = {} } = useProgramSlideMap(programId);
-  const isLearner = mode === 'learner';
+  const isPreview = mode === 'preview';
+  // Preview mode reuses the clean learner chrome, but never writes progress.
+  const isLearner = mode === 'learner' || isPreview;
+  const tracksProgress = mode === 'learner';
 
   /**
    * Slides for a lesson: persisted `program_slides` rows win; legacy lessons
@@ -138,12 +150,12 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
   // Progress saving hooks (only active for learners)
   const saveProgress = useSaveSlideProgress(programId);
   const saveLessonCompletion = useSaveLessonCompletion();
-  const { data: enrollmentProgress } = useEnrollmentProgress(isLearner ? programId : undefined);
+  const { data: enrollmentProgress } = useEnrollmentProgress(tracksProgress ? programId : undefined);
 
   // Restore stars from DB on mount (slide position is restored after allSlides is built)
   const restoredRef = useRef(false);
   useEffect(() => {
-    if (isLearner && enrollmentProgress?.total_stars) setStarsEarned(enrollmentProgress.total_stars);
+    if (tracksProgress && enrollmentProgress?.total_stars) setStarsEarned(enrollmentProgress.total_stars);
   }, [isLearner, enrollmentProgress?.total_stars]);
 
   // Debounced progress save - refs only, effect is after allSlides
@@ -416,7 +428,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
 
   // Save progress as learner navigates (debounced)
   useEffect(() => {
-    if (!isLearner || currentIndex === lastSavedRef.current) return;
+    if (!tracksProgress || currentIndex === lastSavedRef.current) return;
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
       lastSavedRef.current = currentIndex;
@@ -441,13 +453,41 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
     return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
   }, [isLearner, currentIndex, starsEarned, total, allSlides, maxReachedIndex, countableSlides.length]);
 
+  /** Lessons the creator flagged as free preview */
+  const previewLessonIds = useMemo(() => buildPreviewLessonIds(modules as any[]), [modules]);
+
+  /** Indexes a guest / non-buyer is allowed to actually see */
+  const previewAllowed = useMemo(() => {
+    if (!isPreview) return null;
+    const set = new Set<number>();
+    allSlides.forEach((s, i) => {
+      if (isSlidePreviewable({ lessonId: s.lessonId, lessonIndex: s.lessonIndex, slideInLesson: s.slideInLesson }, previewLessonIds)) {
+        set.add(i);
+      }
+    });
+    return set;
+  }, [isPreview, allSlides, previewLessonIds]);
+
+  /** First slide a preview visitor is not allowed to see — the paywall lands here */
+  const firstLockedIndex = useMemo(() => {
+    if (!previewAllowed) return -1;
+    for (let i = 0; i < allSlides.length; i++) if (!previewAllowed.has(i)) return i;
+    return -1;
+  }, [previewAllowed, allSlides.length]);
+
+  const isPaywalled = isPreview && !!previewAllowed && !previewAllowed.has(currentIndex);
+
   const canGoTo = (idx: number) => {
+    if (isPreview && previewAllowed) {
+      // Reachable: any preview slide, plus the first locked slide (shows paywall).
+      return previewAllowed.has(idx) || idx === firstLockedIndex;
+    }
     if (!isLearner) return true;
     return idx <= maxReachedIndex + 1;
   };
 
   const goNext = () => {
-    if (currentIndex < total - 1) {
+    if (currentIndex < total - 1 && canGoTo(currentIndex + 1)) {
       const nextIdx = currentIndex + 1;
       setCurrentIndex(nextIdx);
       setMaxReachedIndex(prev => Math.max(prev, nextIdx));
@@ -511,6 +551,24 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
     if (!current) return null;
     const theme = getSlideTheme(currentIndex);
 
+    // Preview boundary: render the paywall instead of the locked slide's content.
+    if (isPaywalled) {
+      return (
+        <PreviewPaywallSlide
+          programId={programId}
+          courseTitle={program?.title || ''}
+          priceLabel={program && !(program as any).is_free && ((program as any).price ?? 0) > 0
+            ? formatPrice((program as any).price ?? 0, (program as any).is_free, (program as any).currency)
+            : undefined}
+          lockedSlideId={current.slideId}
+          lockedSlideIndex={currentIndex}
+          lessonTitle={current.lessonTitle}
+          previewedSlides={previewAllowed ? previewAllowed.size : 0}
+          onRequestAccess={onRequestAccess}
+        />
+      );
+    }
+
     // Module quiz
     if ((current.slide.type as string) === 'module-quiz' && current.moduleQuiz) {
       return (
@@ -569,7 +627,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
           deviceMode={deviceMode}
           lessonImageUrl={current.lessonImageUrl}
           gamificationEnabled={gamificationEnabled}
-          mode={mode}
+          mode={mode === 'preview' ? 'creator' : mode}
         />
       );
     }
@@ -771,7 +829,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
                   {group.lessons.map((lesson: any) => {
                     const isActive = current?.lessonId === lesson.id;
                     const lessonSlideIdx = allSlides.findIndex(s => s.lessonId === lesson.id && s.slideInLesson === 0);
-                    const isLocked = isLearner && !canGoTo(lessonSlideIdx);
+                    const isLocked = (isLearner || isPreview) && !canGoTo(lessonSlideIdx);
                     const lastSlideOfLesson = [...allSlides].reverse().find(s => s.lessonId === lesson.id);
                     const lastSlideIdx = lastSlideOfLesson ? allSlides.indexOf(lastSlideOfLesson) : -1;
                     const isCompleted = isLearner && lastSlideIdx >= 0 && maxReachedIndex >= lastSlideIdx;
@@ -866,7 +924,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
               <ChevronLeft className="h-5 w-5" />
             </button>
           )}
-          {currentIndex < total - 1 && (
+          {currentIndex < total - 1 && canGoTo(currentIndex + 1) && (
             <button
               onClick={goNext}
               className={cn(
@@ -928,7 +986,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
               <Button
                 size="sm"
                 onClick={goNext}
-                disabled={currentIndex >= total - 1}
+                disabled={currentIndex >= total - 1 || !canGoTo(currentIndex + 1)}
                 className={cn('gap-1.5 shrink-0', isCompactCreatorPreview ? 'h-9 px-3 text-xs' : 'text-xs')}
               >
                 {currentIndex >= total - 1
