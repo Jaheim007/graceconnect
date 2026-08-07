@@ -160,7 +160,7 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
               type: 'donation',
               organization_id: organizationId,
             });
-            window.location.href = `/payment/success?${params.toString()}`;
+            navigate(`/payment/success?${params.toString()}`);
           }
         },
       });
