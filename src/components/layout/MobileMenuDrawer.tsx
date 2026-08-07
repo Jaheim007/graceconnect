@@ -35,6 +35,9 @@ export function MobileMenuDrawer({ onClose }: Props) {
   const { hasPurchases, hasOrgs } = useUserProfile();
   const location = useLocation();
   const navigate = useNavigate();
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+
+
 
   const { has, org: featureOrg, type: siteviralType } = useOrgFeatures();
   const typeConfirmed = !!featureOrg?.type_confirmed_at;
