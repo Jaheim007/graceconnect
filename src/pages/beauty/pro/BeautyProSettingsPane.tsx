@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Zap, Share2, User, Bell, Copy, ExternalLink } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Scissors, Zap, Share2, User, Bell, Copy, ExternalLink } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
