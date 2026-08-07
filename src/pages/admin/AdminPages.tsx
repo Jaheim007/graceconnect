@@ -1510,7 +1510,7 @@ export function AdminSettings() {
 
           <div className="p-5 space-y-4">
             {/* Banner upload */}
-            <div id="settings-banner" className="space-y-2 scroll-mt-24 rounded-xl target:ring-2">
+            <div id="settings-banner" className="space-y-2 scroll-mt-24 rounded-xl transition-shadow">
               <Label className="text-xs font-medium">{isFr ? 'Image de bannière' : 'Banner image'}</Label>
               <div
                 className="relative h-32 rounded-xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer group"
