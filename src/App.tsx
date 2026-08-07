@@ -426,6 +426,8 @@ const App = () => (
             <ErrorBoundary>
             <Toaster />
             <Sonner />
+            <ConfirmDialogHost />
+
             <BrowserRouter>
               
               <SkipLink />
