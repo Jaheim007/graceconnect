@@ -26,6 +26,8 @@ import { ImageUploader } from '@/components/ui/ImageUploader';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useI18n } from '@/i18n/I18nContext';
 import { LessonEditor } from '@/components/programs/LessonEditor';
+import { CourseBuilder } from '@/components/programs/builder/CourseBuilder';
+
 import { AICourseGenerator } from '@/components/programs/AICourseGenerator';
 import { ModuleQuizEditor } from '@/components/programs/ModuleQuizEditor';
 import { cn } from '@/lib/utils';
