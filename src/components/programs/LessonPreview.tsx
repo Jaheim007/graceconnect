@@ -217,7 +217,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           lessonImageUrl,
         });
 
-        const contentSlides = parseContentIntoSlides(cleanedHtml);
+        const contentSlides = getLessonSlides(lesson, cleanedHtml);
         contentSlides.forEach((cs, si) => {
           slides.push({
             lessonId: lesson.id,
