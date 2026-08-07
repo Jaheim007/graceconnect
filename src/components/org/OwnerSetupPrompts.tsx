@@ -34,7 +34,7 @@ export function OwnerSetupPrompts({ presentation, org, readiness, onNavigate }: 
   if (items.length === 0) return null;
 
   return (
-    <div className="container max-w-5xl px-4 mb-6">
+    <div className="container max-w-5xl px-4 mt-6 mb-2">
       <div className="rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/5 via-card to-card p-4">
         <div className="flex items-center gap-2 mb-3">
           <AlertCircle className="h-4 w-4 text-primary" />

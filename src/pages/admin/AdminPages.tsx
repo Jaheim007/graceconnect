@@ -1016,6 +1016,26 @@ export function AdminSettings() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const section = searchParams.get('s');
+  const focusTarget = searchParams.get('focus');
+
+  useEffect(() => {
+    if (!focusTarget || section !== 'profile') return;
+    const id =
+      focusTarget === 'banner' ? 'settings-banner'
+      : focusTarget === 'logo' ? 'settings-logo'
+      : focusTarget === 'description' ? 'settings-description'
+      : null;
+    if (!id) return;
+    const timer = window.setTimeout(() => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-background');
+      window.setTimeout(() => el.classList.remove('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-background'), 2400);
+      if (focusTarget === 'description') (document.getElementById('org-desc') as HTMLTextAreaElement | null)?.focus();
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [focusTarget, section]);
   const qc = useQueryClient();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -1490,7 +1510,7 @@ export function AdminSettings() {
 
           <div className="p-5 space-y-4">
             {/* Banner upload */}
-            <div className="space-y-2">
+            <div id="settings-banner" className="space-y-2 scroll-mt-24 rounded-xl transition-shadow">
               <Label className="text-xs font-medium">{isFr ? 'Image de bannière' : 'Banner image'}</Label>
               <div
                 className="relative h-32 rounded-xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer group"
@@ -1512,7 +1532,7 @@ export function AdminSettings() {
             </div>
 
             {/* Logo upload */}
-            <div className="space-y-2">
+            <div id="settings-logo" className="space-y-2 scroll-mt-24">
               <Label className="text-xs font-medium">{isFr ? 'Logo / Photo de profil' : 'Logo / Profile photo'}</Label>
               <div className="flex items-center gap-4">
                 <div
@@ -1536,7 +1556,7 @@ export function AdminSettings() {
                 <Label htmlFor="org-name" className="text-xs font-medium">{isFr ? 'Nom de l\'organisation' : 'Organization name'}</Label>
                 <Input id="org-name" value={orgName} onChange={e => setOrgName(e.target.value)} className="h-9 text-sm" />
               </div>
-              <div className="space-y-1.5">
+              <div id="settings-description" className="space-y-1.5 scroll-mt-24">
                 <Label htmlFor="org-desc" className="text-xs font-medium">Description</Label>
                 <textarea
                   id="org-desc"

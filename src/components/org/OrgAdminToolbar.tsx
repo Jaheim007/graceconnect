@@ -12,6 +12,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { OrgPageSettings, useUpsertOrgPageSettings } from '@/hooks/useOrgPageSettings';
 import { useToast } from '@/hooks/use-toast';
 import { useOrg } from '@/contexts/OrgContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface OrgAdminToolbarProps {
   orgId: string;
@@ -71,7 +72,8 @@ export function OrgAdminToolbar({
   const { locale } = useI18n();
   const { toast } = useToast();
   const upsert = useUpsertOrgPageSettings();
-  const { currentOrg, userOrgs, setCurrentOrg } = useOrg();
+  const { currentOrg, userOrgs, setCurrentOrg, refetchOrgs } = useOrg();
+  const [savingAffiliation, setSavingAffiliation] = useState(false);
   const [draggedSection, setDraggedSection] = useState<string | null>(null);
   const [dragOverSection, setDragOverSection] = useState<string | null>(null);
   const [colorsOpen, setColorsOpen] = useState(false);
@@ -125,13 +127,33 @@ export function OrgAdminToolbar({
     await upsert.mutateAsync({ orgId, updates: { hidden_sections: hidden } });
   };
 
+  const handleToggleAffiliation = async (next: boolean) => {
+    setSavingAffiliation(true);
+    const { error } = await supabase
+      .from('organizations')
+      .update({ affiliation_enabled: next } as any)
+      .eq('id', orgId);
+    setSavingAffiliation(false);
+    if (error) {
+      toast({ title: isFr ? 'Erreur' : 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+    refetchOrgs?.();
+    onToggleAffiliation?.();
+    toast({
+      title: next
+        ? (isFr ? 'Programme ambassadeur activé ✓' : 'Ambassador program enabled ✓')
+        : (isFr ? 'Programme ambassadeur désactivé' : 'Ambassador program disabled'),
+    });
+  };
+
   const setThemeColor = async (field: 'theme_primary_color' | 'theme_accent_color', value: string) => {
     await upsert.mutateAsync({ orgId, updates: { [field]: value } });
     toast({ title: isFr ? 'Couleur mise à jour ✓' : 'Color updated ✓' });
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-7">
       {/* Gestion complète — TOP */}
       <Button className="w-full gap-2" onClick={() => adminNavigate('/admin')}>
         <Settings className="h-4 w-4" />
@@ -140,13 +162,13 @@ export function OrgAdminToolbar({
 
       {/* Quick Actions */}
       <section>
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3.5">
           {isFr ? 'Actions rapides' : 'Quick Actions'}
         </h3>
-        <div className="grid grid-cols-2 gap-2">
-          <QuickAction icon={Image} label={isFr ? 'Modifier bannière' : 'Edit banner'} onClick={() => adminNavigate(`/admin/settings`)} />
-          <QuickAction icon={Image} label={isFr ? 'Modifier logo' : 'Edit logo'} onClick={() => adminNavigate(`/admin/settings`)} />
-          <QuickAction icon={FileText} label={isFr ? 'Modifier description' : 'Edit description'} onClick={() => adminNavigate(`/admin/settings`)} />
+        <div className="grid grid-cols-2 gap-2.5">
+          <QuickAction icon={Image} label={isFr ? 'Modifier bannière' : 'Edit banner'} onClick={() => adminNavigate(`/admin/settings?s=profile&focus=banner`)} />
+          <QuickAction icon={Image} label={isFr ? 'Modifier logo' : 'Edit logo'} onClick={() => adminNavigate(`/admin/settings?s=profile&focus=logo`)} />
+          <QuickAction icon={FileText} label={isFr ? 'Modifier description' : 'Edit description'} onClick={() => adminNavigate(`/admin/settings?s=profile&focus=description`)} />
           <QuickAction icon={ShoppingBag} label={isFr ? 'Ajouter produit' : 'Add product'} onClick={() => adminNavigate(`/admin/products/new`)} />
           <QuickAction icon={HandHeart} label={isFr ? 'Ajouter don' : 'Add donation'} onClick={() => adminNavigate(`/admin/offerings`)} />
           <QuickAction icon={Play} label={isFr ? 'Ajouter contenu' : 'Add content'} onClick={() => adminNavigate(`/admin/media/new`)} />
@@ -220,7 +242,7 @@ export function OrgAdminToolbar({
                 {isFr ? 'Programme ambassadeur activé' : 'Ambassador program enabled'}
               </span>
             </div>
-            <Switch checked={affiliationEnabled} onCheckedChange={onToggleAffiliation} />
+            <Switch checked={affiliationEnabled} disabled={savingAffiliation} onCheckedChange={handleToggleAffiliation} />
           </div>
         </section>
       )}
