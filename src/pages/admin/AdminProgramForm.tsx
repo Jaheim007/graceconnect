@@ -4,9 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate, useParams } from 'react-router-dom';
 import { onContentPublished, onContentUnpublished } from '@/lib/notifications';
 import { useOrg } from '@/contexts/OrgContext';
+import { useEnsureProgramSlides } from '@/hooks/useProgramSlides';
 import { useAuth } from '@/contexts/AuthContext';
 import {
-import { useEnsureProgramSlides } from '@/hooks/useProgramSlides';
   useProgram, useProgramModules, useUpdateProgram,
   useCreateModule, useUpdateModule, useDeleteModule,
   useCreateLesson, useUpdateLesson, useDeleteLesson,
