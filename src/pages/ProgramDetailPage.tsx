@@ -1,4 +1,4 @@
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useProgram, useProgramModules, useEnrollment, useLessonProgress, useEnrollInProgram, useToggleLessonComplete } from '@/hooks/usePrograms';
@@ -40,6 +40,8 @@ import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
 import type { DigitalProduct } from '@/types/database';
 import { useProgramResume } from '@/hooks/useCourseResume';
 import { LessonPlayerOverlay } from '@/components/programs/LessonPlayerOverlay';
+import { ShareCourseMenu } from '@/components/programs/ShareCourseMenu';
+import { buildCourseShareUrl } from '@/lib/coursePreview';
 
 const CONTENT_ICONS: Record<string, typeof FileText> = {
   text: FileText,
@@ -64,6 +66,14 @@ export default function ProgramDetailPage() {
   const enrollMutation = useEnrollInProgram();
   const resumeInfo = useProgramResume(programId);
   const [playerOpen, setPlayerOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  // Deep link back to an exact slide (used by the guest paywall → sign-in flow)
+  const deepSlideId = searchParams.get('slideId');
+  const deepSlideParam = searchParams.get('slide');
+  const deepSlideIndex = deepSlideParam !== null && /^\d+$/.test(deepSlideParam) ? Number(deepSlideParam) : null;
+  const wantsPlay = searchParams.get('play') === '1';
   const toggleLesson = useToggleLessonComplete();
 
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
@@ -198,6 +208,14 @@ export default function ProgramDetailPage() {
 
   const hasAccess = isEnrolled || !!existingPurchase;
 
+  // After sign-in (or on a shared deep link) reopen the exact slide the visitor
+  // was on: the real player when they have access, the preview player otherwise.
+  useEffect(() => {
+    if (!wantsPlay || !program) return;
+    if (hasAccess) setPlayerOpen(true);
+    else setPreviewOpen(true);
+  }, [wantsPlay, program?.id, hasAccess]);
+
   const handleEnroll = async () => {
     if (!programId) return;
     if (!user) { navigate(`/auth?returnTo=/program/${programId}`); return; }
@@ -299,14 +317,63 @@ export default function ProgramDetailPage() {
 
   const orgName = org?.name || '';
   const priceDisplay = formatPrice(program.price || 0, program.is_free, program.currency);
+  const shareUrl = buildCourseShareUrl(programId!);
+  const plainDescription = (program.description || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const courseMetaDescription = plainDescription.slice(0, 155)
+    || `${isFr ? 'Cours en ligne par' : 'Online course by'} ${orgName} — ${program.is_free ? (isFr ? 'Gratuit' : 'Free') : priceDisplay}`;
+
+  // Course structured data so a shared link renders a real card / rich result
+  const courseJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name: program.title,
+    description: courseMetaDescription,
+    url: shareUrl,
+    ...(program.cover_image_url ? { image: program.cover_image_url } : {}),
+    inLanguage: (program as any).content_language || (isFr ? 'fr' : 'en'),
+    provider: {
+      '@type': 'Organization',
+      name: orgName || 'Siteviral',
+      ...(orgSlug ? { url: `https://siteviral.com/org/${orgSlug}` } : {}),
+    },
+    ...((program.enrollment_count || 0) > 0
+      ? { numberOfCredits: undefined, audience: { '@type': 'Audience', audienceType: 'Learners' } }
+      : {}),
+    hasCourseInstance: [{
+      '@type': 'CourseInstance',
+      courseMode: 'online',
+      courseWorkload: `PT${Math.max(1, Math.round(totalLessons * 0.25))}H`,
+    }],
+    offers: {
+      '@type': 'Offer',
+      url: shareUrl,
+      price: program.is_free ? 0 : (program.price ?? 0),
+      priceCurrency: program.currency || 'XOF',
+      availability: 'https://schema.org/InStock',
+      category: program.is_free ? 'Free' : 'Paid',
+    },
+  };
 
   if (playerOpen && programId) {
     return (
       <LessonPlayerOverlay
         programId={programId}
-        initialSlideId={resumeInfo?.resume?.slideId ?? null}
-        initialSlideIndex={resumeInfo?.resume?.flatIndex ?? null}
+        initialSlideId={deepSlideId ?? resumeInfo?.resume?.slideId ?? null}
+        initialSlideIndex={deepSlideIndex ?? resumeInfo?.resume?.flatIndex ?? null}
         onClose={() => setPlayerOpen(false)}
+      />
+    );
+  }
+
+  if (previewOpen && programId) {
+    return (
+      <LessonPlayerOverlay
+        programId={programId}
+        mode="preview"
+        initialSlideId={deepSlideId}
+        initialSlideIndex={deepSlideIndex}
+        onRequestAccess={() => { setPreviewOpen(false); handleEnroll(); }}
+        onClose={() => setPreviewOpen(false)}
       />
     );
   }
@@ -318,9 +385,11 @@ export default function ProgramDetailPage() {
       <ReadingProgressBar />
       <SEOHead
         title={`${program.title} — ${orgName || 'Siteviral'}`}
-        description={program.description?.slice(0, 155) || `${isFr ? 'Cours par' : 'Course by'} ${orgName} — ${program.is_free ? (isFr ? 'Gratuit' : 'Free') : priceDisplay}`}
+        description={courseMetaDescription}
         ogImage={program.cover_image_url || undefined}
-        canonicalUrl={`https://siteviral.com/program/${programId}`}
+        ogType="article"
+        canonicalUrl={buildCourseShareUrl(programId!)}
+        jsonLd={courseJsonLd}
       />
 
       {/* Draft banner for admins */}
@@ -739,8 +808,26 @@ export default function ProgramDetailPage() {
                 </Button>
               )}
 
+              {/* Free preview — no account required */}
+              {!hasAccess && totalLessons > 0 && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full gap-2 font-medium"
+                  onClick={() => setPreviewOpen(true)}
+                >
+                  <Eye className="h-4 w-4" />
+                  {isFr ? 'Aperçu gratuit' : 'Free preview'}
+                </Button>
+              )}
+
               {/* Share & actions */}
               <div className="pt-2 border-t border-border/40 flex items-center gap-2">
+                <ShareCourseMenu
+                  programId={programId!}
+                  title={program.title}
+                  description={plainDescription}
+                />
                 <div className="flex-1">
                   <ShareButtons
                     url={buildShareUrl()}

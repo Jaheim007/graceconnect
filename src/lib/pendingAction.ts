@@ -17,6 +17,7 @@ export type PendingActionType =
   | 'save_item'
   | 'offer_services'
   | 'create_organization'
+  | 'resume_course'
   | 'generic';
 
 export interface PendingAction {

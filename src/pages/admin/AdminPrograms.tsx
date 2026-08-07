@@ -15,6 +15,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { CreateWithAIDialog } from '@/components/programs/CreateWithAIDialog';
 import { CreateBlankDialog } from '@/components/programs/CreateBlankDialog';
 import { ConvertDocumentDialog } from '@/components/programs/ConvertDocumentDialog';
+import { ShareCourseMenu } from '@/components/programs/ShareCourseMenu';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
@@ -189,6 +190,16 @@ export default function AdminPrograms() {
                       <span className="flex items-center gap-0.5"><Layers className="h-3 w-3" /> {prog.module_count} module{prog.module_count !== 1 ? 's' : ''}</span>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {prog.is_published && (
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <ShareCourseMenu
+                            programId={prog.id}
+                            title={prog.title}
+                            description={prog.description?.replace(/<[^>]*>/g, '') || ''}
+                            variant="icon"
+                          />
+                        </div>
+                      )}
                       <Button variant="ghost" size="icon" className="h-7 w-7" title={isFr ? 'Dupliquer' : 'Duplicate'} onClick={(e) => {
                         e.stopPropagation();
                         if (!currentOrg || !user) return;
