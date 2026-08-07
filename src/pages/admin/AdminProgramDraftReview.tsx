@@ -35,6 +35,12 @@ import { useSetCoursePricing } from '@/hooks/useCourseCommerce';
 import { SUPPORTED_CURRENCIES } from '@/lib/currency';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+/** AI-generated courses can never be free — minimum price per currency. */
+const MIN_AI_COURSE_PRICE: Record<string, number> = {
+  XOF: 1000, XAF: 1000, NGN: 1500, GHS: 20, KES: 200, ZAR: 40,
+  MAD: 20, TND: 5, USD: 2, EUR: 2, GBP: 2,
+};
+
 export default function AdminProgramDraftReview() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
@@ -159,8 +165,8 @@ export default function AdminProgramDraftReview() {
         title: draft.title,
         description: project?.data_json?.source?.prompt || null,
         cover_image_url: null,
-        is_free: !isPaid,
-        price: isPaid ? Number(price) || 0 : 0,
+        is_free: false,
+        price: priceValue,
         currency,
       });
 
@@ -248,7 +254,7 @@ export default function AdminProgramDraftReview() {
             <Button variant="outline" size="sm" onClick={handleSave} disabled={!dirty || updateDraft.isPending}>
               {updateDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : (isFr ? 'Enregistrer' : 'Save')}
             </Button>
-            <Button size="sm" className="gap-1.5" onClick={handlePublish} disabled={publishDraft.isPending || totals.lessons === 0}>
+            <Button size="sm" className="gap-1.5" onClick={handlePublish} disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid}>
               {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
               {isFr ? 'Publier comme cours' : 'Publish as course'}
             </Button>
@@ -532,9 +538,9 @@ export default function AdminProgramDraftReview() {
       {buyerPreview && draft && (
         <DraftBuyerPreview
           draft={draft}
-          price={isPaid ? Number(price) || 0 : 0}
+          price={priceValue}
           currency={currency}
-          isFree={!isPaid}
+          isFree={false}
           onClose={() => setBuyerPreview(false)}
         />
       )}
