@@ -599,7 +599,9 @@ export default function AdminProgramDraftReview() {
           price={priceValue}
           currency={currency}
           isFree={false}
+          initialUnlocked={previewFull}
           onClose={() => setBuyerPreview(false)}
+
         />
       )}
     </AdminPageShell>
