@@ -49,6 +49,15 @@ export default function AdminContentHub() {
 
   return (
     <div className="space-y-5">
+      {/* Back to settings */}
+      <Link
+        to="/admin/settings"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        {isFr ? 'Paramètres' : 'Settings'}
+      </Link>
+
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
