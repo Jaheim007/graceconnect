@@ -68,8 +68,17 @@ export function Sidebar() {
         })()
       : [];
 
+  const hasWorkspaceHome = workspaceNav.some((it) => it.route.split('?')[0] === '/admin');
+
   const accountNav: ActionNavItem[] = user
     ? [
+        ...(hasWorkspaceHome ? [] : [{
+          id: 'acc-home', icon: LayoutDashboard, emoji: '',
+          titleFr: 'Accueil', titleEn: 'Home',
+          descFr: 'Tableau de bord', descEn: 'Dashboard',
+          route: '/dashboard',
+          borderClass: '', iconBg: '', iconColor: 'text-primary',
+        } as ActionNavItem]),
         {
           id: 'acc-explore', icon: Compass, emoji: '',
           titleFr: 'Explorer', titleEn: 'Explore',
