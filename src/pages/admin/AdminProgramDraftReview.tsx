@@ -35,6 +35,12 @@ import { useSetCoursePricing } from '@/hooks/useCourseCommerce';
 import { SUPPORTED_CURRENCIES } from '@/lib/currency';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+/** AI-generated courses can never be free — minimum price per currency. */
+const MIN_AI_COURSE_PRICE: Record<string, number> = {
+  XOF: 1000, XAF: 1000, NGN: 1500, GHS: 20, KES: 200, ZAR: 40,
+  MAD: 20, TND: 5, USD: 2, EUR: 2, GBP: 2,
+};
+
 export default function AdminProgramDraftReview() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
@@ -70,11 +76,18 @@ export default function AdminProgramDraftReview() {
   const [publishNow, setPublishNow] = useState(false);
   const [dirty, setDirty] = useState(false);
 
-  // Pricing step — reuses the digital-product checkout (see useCourseCommerce)
-  const [isPaid, setIsPaid] = useState(false);
+  // Pricing step — reuses the digital-product checkout (see useCourseCommerce).
+  // AI-generated courses can never be free: a minimum price is enforced.
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState(currentOrg?.currency || 'XOF');
   const [buyerPreview, setBuyerPreview] = useState(false);
+  const minPrice = MIN_AI_COURSE_PRICE[currency] ?? MIN_AI_COURSE_PRICE.USD;
+  const priceValue = Number(price) || 0;
+  const priceValid = priceValue >= minPrice;
+
+  // Seed the price with the currency minimum
+  useEffect(() => { setPrice((p) => (p ? p : String(minPrice))); }, [minPrice]);
+
 
   const remoteCourse = project?.data_json?.course;
   const generating = job?.status === 'running' || job?.status === 'queued';
@@ -141,6 +154,17 @@ export default function AdminProgramDraftReview() {
     if (!draft || !projectId) return;
     const orgId = project?.organization_id || currentOrg?.id;
     if (!orgId) return;
+    if (!priceValid) {
+      toast({
+        title: isFr ? 'Prix requis' : 'Price required',
+        description: isFr
+          ? `Un cours généré par l’IA ne peut pas être gratuit. Minimum ${minPrice} ${currency}.`
+          : `An AI-generated course cannot be free. Minimum ${minPrice} ${currency}.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       if (dirty) await updateDraft.mutateAsync(draft);
       const result = await publishDraft.mutateAsync({ org_id: orgId, project_id: projectId, publish_now: publishNow });
@@ -152,8 +176,8 @@ export default function AdminProgramDraftReview() {
         title: draft.title,
         description: project?.data_json?.source?.prompt || null,
         cover_image_url: null,
-        is_free: !isPaid,
-        price: isPaid ? Number(price) || 0 : 0,
+        is_free: false,
+        price: priceValue,
         currency,
       });
 
@@ -241,7 +265,7 @@ export default function AdminProgramDraftReview() {
             <Button variant="outline" size="sm" onClick={handleSave} disabled={!dirty || updateDraft.isPending}>
               {updateDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : (isFr ? 'Enregistrer' : 'Save')}
             </Button>
-            <Button size="sm" className="gap-1.5" onClick={handlePublish} disabled={publishDraft.isPending || totals.lessons === 0}>
+            <Button size="sm" className="gap-1.5" onClick={handlePublish} disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid}>
               {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
               {isFr ? 'Publier comme cours' : 'Publish as course'}
             </Button>
@@ -259,41 +283,43 @@ export default function AdminProgramDraftReview() {
           )}
         </div>
 
-        {/* Pricing step */}
+        {/* Pricing step — AI-generated courses are always paid */}
         <div className="rounded-xl border border-border bg-card p-3.5 space-y-3">
           <div className="flex items-center gap-2">
             <Tag className="h-4 w-4 text-primary" />
             <p className="text-sm font-semibold">{isFr ? 'Prix du cours' : 'Course price'}</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Switch id="course-paid" checked={isPaid} onCheckedChange={setIsPaid} />
-              <Label htmlFor="course-paid" className="text-xs">
-                {isPaid ? (isFr ? 'Payant' : 'Paid') : (isFr ? 'Gratuit' : 'Free')}
-              </Label>
-            </div>
+          <div className="flex items-center gap-3 p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5">
+            <p className="text-[11px] text-muted-foreground">
+              {isFr
+                ? `Les cours générés par l’IA ne peuvent pas être gratuits. Prix minimum : ${minPrice} ${currency}.`
+                : `AI-generated courses cannot be free. Minimum price: ${minPrice} ${currency}.`}
+            </p>
+          </div>
 
-            {isPaid && (
-              <>
-                <Input
-                  type="number"
-                  min={0}
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="5000"
-                  className="h-9 w-32"
-                  aria-label={isFr ? 'Prix' : 'Price'}
-                />
-                <Select value={currency} onValueChange={setCurrency}>
-                  <SelectTrigger className="h-9 w-28"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {SUPPORTED_CURRENCIES.map((c) => (
-                      <SelectItem key={c.code} value={c.code}>{c.code}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </>
+          <div className="flex flex-wrap items-center gap-3">
+            <Input
+              type="number"
+              min={minPrice}
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder={String(minPrice)}
+              className="h-9 w-32"
+              aria-label={isFr ? 'Prix' : 'Price'}
+            />
+            <Select value={currency} onValueChange={setCurrency}>
+              <SelectTrigger className="h-9 w-28"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {SUPPORTED_CURRENCIES.map((c) => (
+                  <SelectItem key={c.code} value={c.code}>{c.code}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {!priceValid && (
+              <span className="text-[11px] text-destructive">
+                {isFr ? `Minimum ${minPrice} ${currency}` : `Minimum ${minPrice} ${currency}`}
+              </span>
             )}
           </div>
 
@@ -303,6 +329,7 @@ export default function AdminProgramDraftReview() {
               : 'A paid course uses the exact same checkout as your digital products (Mobile Money, card, promo codes, affiliates).'}
           </p>
         </div>
+
 
         <p className="text-[11px] text-muted-foreground">
           {isFr
@@ -522,9 +549,9 @@ export default function AdminProgramDraftReview() {
       {buyerPreview && draft && (
         <DraftBuyerPreview
           draft={draft}
-          price={isPaid ? Number(price) || 0 : 0}
+          price={priceValue}
           currency={currency}
-          isFree={!isPaid}
+          isFree={false}
           onClose={() => setBuyerPreview(false)}
         />
       )}
