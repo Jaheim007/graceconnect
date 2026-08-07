@@ -6,12 +6,12 @@ import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { useI18n } from '@/i18n/I18nContext';
-import { useSaveCertificate, useSaveSlideProgress, useCertificate } from '@/hooks/useLearnerProgress';
+import { useIssueCertificate, useCertificate } from '@/hooks/useLearnerProgress';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Button } from '@/components/ui/button';
 import { LessonImageBackdrop } from './LessonImageBackdrop';
-import { supabase } from '@/integrations/supabase/client';
+import { certificateErrorMessage, certificateFilename, downloadCertificatePdf } from '@/lib/certificates';
 import { toast } from 'sonner';
 interface CourseCompletionSlideProps {
   theme: SlideTheme;
@@ -80,11 +80,11 @@ export function CourseCompletionSlide({
   const [showShare, setShowShare] = useState(false);
   const { user } = useAuth();
   const { currentOrg } = useOrg();
-  const saveCertificate = useSaveCertificate();
-  const [certificateSaved, setCertificateSaved] = useState(false);
+  const issueCertificate = useIssueCertificate();
+  const [certIssueError, setCertIssueError] = useState<string | null>(null);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
-  const { data: existingCert } = useCertificate(mode === 'learner' ? programId : undefined);
-  
+  const { data: existingCert, refetch: refetchCert } = useCertificate(mode === 'learner' ? programId : undefined);
+
   const hasAssessment = assessmentScore !== undefined && assessmentTotal !== undefined;
   const assessmentPct = hasAssessment ? Math.round((assessmentScore! / assessmentTotal!) * 100) : 0;
   const overallStarRating = hasAssessment 
@@ -93,20 +93,23 @@ export function CourseCompletionSlide({
       ? Math.min(5, Math.round((starsEarned / totalQuizzes) * 5))
       : 5;
 
-  // Auto-save certificate for learners
+  const certNumber = existingCert?.certificate_number || issueCertificate.data?.certificate_number;
+  const certId = existingCert?.id || issueCertificate.data?.certificate_id;
+  const certReady = !!certId;
+
+  // Learners: ask the server to issue the certificate on completion.
+  // All eligibility checks happen inside issue_program_certificate().
   useEffect(() => {
-    if (mode !== 'learner' || !user || !programId || !currentOrg || certificateSaved) return;
-    saveCertificate.mutate({
-      programId,
-      organizationId: currentOrg.id,
-      learnerName: (user as any).user_metadata?.display_name || user.email || 'Learner',
-      courseTitle,
-      starsEarned,
-      assessmentScore,
-      assessmentTotal,
-    });
-    setCertificateSaved(true);
-  }, [mode, user, programId, currentOrg]);
+    if (mode !== 'learner' || !user || !programId) return;
+    if (existingCert || issueCertificate.isPending || issueCertificate.isSuccess || certIssueError) return;
+    issueCertificate.mutate(
+      { programId },
+      {
+        onSuccess: () => { refetchCert(); },
+        onError: (err: any) => setCertIssueError(err?.code || 'unknown'),
+      }
+    );
+  }, [mode, user, programId, existingCert]);
 
   const shareUrl = programId ? `/program/${programId}` : '/my-programs';
   const shareDescription = isFr
@@ -229,34 +232,17 @@ export function CourseCompletionSlide({
               transition={{ delay: 1.8 }}
               className="flex items-center gap-3"
             >
-              {mode === 'learner' && (certificateSaved || existingCert) && (
+              {mode === 'learner' && certReady && (
                 <button
                   onClick={async () => {
-                    const certId = existingCert?.id || saveCertificate.data?.id;
                     if (!certId) return;
                     setDownloadingPdf(true);
                     try {
-                      const { data: { session } } = await supabase.auth.getSession();
-                      const res = await fetch(
-                        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-certificate-pdf`,
-                        {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${session?.access_token}`,
-                          },
-                          body: JSON.stringify({ certificateId: certId }),
-                        }
-                      );
-                      if (!res.ok) throw new Error('Failed to generate PDF');
-                      const blob = await res.blob();
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `certificate-${courseTitle.replace(/\s+/g, '-').toLowerCase()}.pdf`;
-                      a.click();
-                      URL.revokeObjectURL(url);
-                    } catch (err) {
+                      await downloadCertificatePdf({
+                        certificateId: certId,
+                        filename: certificateFilename(courseTitle, certNumber),
+                      });
+                    } catch {
                       toast.error(isFr ? 'Erreur lors du téléchargement' : 'Download failed');
                     } finally {
                       setDownloadingPdf(false);
@@ -275,6 +261,14 @@ export function CourseCompletionSlide({
                   </span>
                 </button>
               )}
+              {mode === 'learner' && !certReady && issueCertificate.isPending && (
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-5 py-2.5 border border-white/15">
+                  <Loader2 className="h-4 w-4 animate-spin text-yellow-300" />
+                  <span className="text-sm font-medium text-white/80">
+                    {isFr ? 'Émission du certificat…' : 'Issuing certificate…'}
+                  </span>
+                </div>
+              )}
               <button
                 onClick={() => setShowShare(true)}
                 className="flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full px-5 py-2.5 border border-white/20 transition-all hover:scale-105 active:scale-95"
@@ -283,6 +277,38 @@ export function CourseCompletionSlide({
                 <span className="text-sm font-medium">{isFr ? 'Partager' : 'Share'}</span>
               </button>
             </motion.div>
+
+            {/* Certificate confirmation */}
+            {mode === 'learner' && certReady && certNumber && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center gap-1 rounded-2xl bg-emerald-500/15 border border-emerald-400/25 px-5 py-3 backdrop-blur-sm"
+              >
+                <div className="flex items-center gap-2">
+                  <Award className="h-4 w-4 text-emerald-300" />
+                  <span className="text-xs font-semibold text-emerald-100">
+                    {isFr ? 'Certificat émis et enregistré' : 'Certificate issued and recorded'}
+                  </span>
+                </div>
+                <a
+                  href={`/verify/${certNumber}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-mono text-[10px] text-white/60 underline decoration-dotted hover:text-white/90"
+                >
+                  N° {certNumber}
+                </a>
+              </motion.div>
+            )}
+
+            {mode === 'learner' && !certReady && certIssueError && (
+              <p className="max-w-xs text-center text-[11px] text-amber-200/80">
+                {certificateErrorMessage(certIssueError, isFr)}
+              </p>
+            )}
+
+
 
             <motion.p
               initial={{ opacity: 0 }}
