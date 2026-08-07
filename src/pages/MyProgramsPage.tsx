@@ -106,8 +106,11 @@ export default function MyProgramsPage() {
               <motion.div
                 key={enrollment.id}
                 variants={fadeUp}
+                role="button"
+                tabIndex={0}
                 onClick={() => navigate(`/program/${program.id}`)}
-                className="w-full flex items-center gap-4 bg-card border border-border rounded-2xl p-4 hover:border-primary/30 hover:shadow-sm transition-all text-left group"
+                onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/program/${program.id}`); }}
+                className="w-full cursor-pointer flex items-center gap-4 bg-card border border-border rounded-2xl p-4 hover:border-primary/30 hover:shadow-sm transition-all text-left group"
               >
                 <div className="h-20 w-28 rounded-xl bg-muted overflow-hidden shrink-0">
                   {program.cover_image_url ? (
