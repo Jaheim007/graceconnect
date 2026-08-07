@@ -3,11 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { RefreshCw, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
-import { askConfirm } from '@/components/ui/confirm-dialog';
 
 /**
  * PWAUpdateToast — Listens for SW update events and shows a non-blocking
- * toast with an update button. Replaces the ugly(await askConfirm()) dialog.
+ * toast with an update button. Replaces the ugly browser confirm dialog.
  */
 export function PWAUpdateToast() {
   const [updateFn, setUpdateFn] = useState<(() => void) | null>(null);
