@@ -121,6 +121,16 @@ export function useCourseDraftProject(projectId: string | undefined) {
   return useQuery({
     queryKey: ['course-draft', projectId],
     enabled: !!projectId,
+    // The pipeline writes lessons incrementally in the background, so keep
+    // polling while the project is still generating / has no lessons yet.
+    refetchInterval: (query) => {
+      const p = query.state.data as DraftProject | undefined;
+      if (!p) return 2000;
+      const lessons = p.data_json?.course?.lessons?.length || 0;
+      if (p.status === 'generating' || lessons === 0) return 2500;
+      return false;
+    },
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('ai_content_projects')
@@ -132,6 +142,7 @@ export function useCourseDraftProject(projectId: string | undefined) {
     },
   });
 }
+
 
 /** Persist edits to the draft tree (title, lesson order, slide content, quiz fixes). */
 export function useUpdateCourseDraft(projectId: string | undefined) {
