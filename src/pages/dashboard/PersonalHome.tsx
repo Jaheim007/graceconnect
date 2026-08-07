@@ -130,18 +130,23 @@ export default function PersonalHome() {
         </div>
 
         {/* Search */}
-        <form onSubmit={onSearch} className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={showServiceSurfaces()
-              ? (isFr ? 'Rechercher services, produits, artisans…' : 'Search services, products, artisans…')
-              : (isFr ? 'Rechercher livres, formations, produits…' : 'Search books, courses, products…')}
-
-            className="pl-10 h-12 bg-card/80 rounded-2xl"
-          />
+        <form onSubmit={onSearch} className="relative flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={showServiceSurfaces()
+                ? (isFr ? 'Rechercher services, produits, artisans…' : 'Search services, products, artisans…')
+                : (isFr ? 'Rechercher livres, formations, produits…' : 'Search books, courses, products…')}
+              className="pl-10 h-12 bg-card/80 rounded-2xl"
+            />
+          </div>
+          <Button type="submit" className="h-12 rounded-2xl px-5 shrink-0">
+            {isFr ? 'Rechercher' : 'Search'}
+          </Button>
         </form>
+
 
         {/* Category shortcuts (marketplace, excludes church) */}
         {showServiceSurfaces() && (
