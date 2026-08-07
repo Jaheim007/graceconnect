@@ -424,6 +424,16 @@ export default function AdminProgramDraftReview() {
           {lesson ? (
             <div className="space-y-4 min-w-0">
               <div className="rounded-xl border border-border bg-card p-3.5 space-y-3">
+                {lesson.image_url && (
+                  <div className="relative rounded-lg overflow-hidden aspect-[16/7]">
+                    <img src={lesson.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                    <span className="absolute bottom-2 left-2 text-[10px] font-medium text-white/90">
+                      {isFr ? 'Illustration générée (fond des slides)' : 'Generated illustration (slide backdrop)'}
+                    </span>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-2">
                   <Input
                     value={lesson.title}
