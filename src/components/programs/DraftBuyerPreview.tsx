@@ -138,7 +138,7 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
               <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
                 {isFr ? 'Aucune diapositive à prévisualiser.' : 'No slides to preview.'}
               </div>
-            ) : current.previewable ? (
+            ) : (unlocked || current.previewable) ? (
               <SlideRenderer
                 slide={current.slide}
                 slideIndex={index}
