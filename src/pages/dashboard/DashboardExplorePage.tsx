@@ -12,6 +12,7 @@ const FeaturedSection = lazy(() => import('@/components/discover/FeaturedSection
 const ForYouFeed = lazy(() => import('@/components/discover/ForYouFeed').then(m => ({ default: m.ForYouFeed })));
 const CategoryCarousels = lazy(() => import('@/components/discover/CategoryCarousels').then(m => ({ default: m.CategoryCarousels })));
 const RecentlyViewedProducts = lazy(() => import('@/components/discover/RecentlyViewedProducts').then(m => ({ default: m.RecentlyViewedProducts })));
+const ExploreSearchResults = lazy(() => import('@/components/discover/ExploreSearchResults').then(m => ({ default: m.ExploreSearchResults })));
 import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
 import { BUYER_WORLDS, SERVICE_WORLDS, normalizeBuyerWorld, type BuyerWorld } from '@/lib/siteviral/buyerWorlds';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
