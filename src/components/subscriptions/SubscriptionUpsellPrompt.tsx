@@ -130,7 +130,7 @@ export function SubscriptionUpsellPrompt({ organizationId, organizationSlug, org
 
             <div className="bg-primary/5 border border-primary/15 rounded-xl p-3 space-y-1.5">
               <div className="flex items-center gap-2 text-xs font-medium text-primary">
-                
+                <Zap className="h-4 w-4 text-primary shrink-0" />
                 {isFr ? 'Avantages abonné' : 'Subscriber benefits'}
               </div>
               <ul className="text-[11px] text-muted-foreground space-y-1">

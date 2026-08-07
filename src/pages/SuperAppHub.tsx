@@ -78,7 +78,7 @@ export default function SuperAppHub() {
           <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                
+                <Zap className="h-4 w-4 text-primary shrink-0" />
                 {t('Une app. Toute l\'Afrique.', 'One app. All of Africa.')}
               </div>
               <h1 className="mt-4 text-4xl font-black leading-[1.02] tracking-tight sm:text-6xl">

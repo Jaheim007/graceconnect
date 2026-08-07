@@ -203,7 +203,7 @@ export default function ActionHub() {
           {/* Hero */}
           <motion.div variants={item} className="text-center space-y-2">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary shadow-[0_0_24px_-8px_hsl(var(--primary)/0.6)] mb-1">
-              
+              <Zap className="h-4 w-4 text-primary shrink-0" />
               {isFr ? 'Gratuit pour commencer' : 'Free to start'}
             </div>
             <h1 className="text-[26px] sm:text-4xl font-black tracking-tight text-foreground leading-[1.1]">

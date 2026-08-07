@@ -270,7 +270,7 @@ export default function SuperadminAIChat() {
       {/* Input bar */}
       <div className="relative mt-2">
         <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl px-4 py-2 shadow-sm focus-within:border-primary/30 focus-within:shadow-md focus-within:shadow-primary/5 transition-all">
-          
+          <Zap className="h-4 w-4 text-primary shrink-0" />
           <input
             ref={inputRef}
             value={input}

@@ -14,7 +14,7 @@ import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
 import { queueDeferredCourseLessonImages } from '@/lib/programImageGeneration';
-import { Zap, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Settings2, Globe, Target, AlertTriangle } from 'lucide-react';
+import { Zap, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Settings2, Globe, Target, AlertTriangle, Wand2 } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
@@ -381,7 +381,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                
+                <Wand2 className="h-4 w-4 text-primary shrink-0" />
                 {isFr ? 'Créer avec l\'IA' : 'Create with AI'}
               </DialogTitle>
               <p className="text-sm text-muted-foreground">

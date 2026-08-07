@@ -135,7 +135,7 @@ export default function BillingUsagePage() {
           <div className="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
           <div className="relative">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-3">
-              
+              <Zap className="h-4 w-4 text-primary shrink-0" />
               {isEn ? 'This month' : 'Ce mois-ci'}
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">{t.title}</h1>

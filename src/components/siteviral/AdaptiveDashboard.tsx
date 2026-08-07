@@ -88,7 +88,7 @@ export function AdaptiveDashboard() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-            
+            <Zap className="h-4 w-4 text-primary shrink-0" />
             {isFr ? 'Votre espace SiteViral' : 'Your SiteViral workspace'}
           </div>
           <h2 className="mt-1 text-xl font-bold leading-tight sm:text-2xl">

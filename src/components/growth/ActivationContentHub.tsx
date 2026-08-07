@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { BookOpen, Share2, DollarSign, Zap, ArrowRight, Lightbulb, PenTool, GraduationCap, Church, Users, Briefcase } from 'lucide-react';
+import { BookOpen, Share2, DollarSign, Zap, ArrowRight, Lightbulb, PenTool, GraduationCap, Church, Users, Briefcase, HandCoins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
@@ -49,7 +49,7 @@ export function ActivationContentHub() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        
+        <HandCoins className="h-4 w-4 text-primary shrink-0" />
         <h2 className="text-lg font-extrabold">{isFr ? 'Comment gagner sur SiteViral' : 'How to earn on SiteViral'}</h2>
       </div>
 

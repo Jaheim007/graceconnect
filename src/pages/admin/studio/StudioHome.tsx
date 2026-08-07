@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Zap, BookOpen, Baby, Palette, GraduationCap, Church, Megaphone, FolderOpen, Cpu, Image, Clock, ArrowRight, Plus, Layers } from 'lucide-react';
+import { Zap, BookOpen, Baby, Palette, GraduationCap, Church, Megaphone, FolderOpen, Cpu, Image, Clock, ArrowRight, Plus, Layers, Wand2 } from 'lucide-react';
 
 const PROJECT_TYPE_META: Record<string, { label: string; icon: typeof BookOpen; color: string }> = {
   ebook: { label: 'Ebook', icon: BookOpen, color: 'text-blue-500' },
@@ -81,7 +81,7 @@ export default function StudioHome() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            
+            <Wand2 className="h-4 w-4 text-primary shrink-0" />
             Studio IA
           </h1>
           <p className="text-sm text-muted-foreground mt-1">

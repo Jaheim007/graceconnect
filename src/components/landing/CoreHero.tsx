@@ -39,7 +39,7 @@ export function CoreHero() {
       />
       <div className="container relative max-w-4xl px-4 sm:px-6 py-20 sm:py-28 text-center">
         <motion.div {...rise(0)} className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider">
-          
+          <Zap className="h-4 w-4 text-primary shrink-0" />
           {fr ? 'Gratuit pour commencer' : 'Free to start'}
         </motion.div>
 

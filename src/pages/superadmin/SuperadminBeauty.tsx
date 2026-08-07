@@ -1,3 +1,4 @@
+import { Zap } from 'lucide-react';
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -22,7 +23,7 @@ export default function SuperadminBeauty() {
       <header className="flex items-start justify-between gap-4">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-black tracking-tight">
-            
+            <Zap className="h-4 w-4 text-primary shrink-0" />
             Beauty console
           </h1>
           <p className="text-sm text-muted-foreground">

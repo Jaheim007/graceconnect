@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatPrice, getProductPriceLabel } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { ShoppingBag, ArrowRight, Zap } from 'lucide-react';
+import { ShoppingBag, ArrowRight, Zap, ThumbsUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface PostPurchaseRecommendationsProps {
@@ -67,7 +67,7 @@ export function PostPurchaseRecommendations({ organizationId, productId, product
       className="space-y-3"
     >
       <div className="flex items-center gap-2">
-        
+        <ThumbsUp className="h-4 w-4 text-primary shrink-0" />
         <p className="text-xs font-semibold">
           {isFr ? 'Vous pourriez aussi aimer' : 'You might also like'}
         </p>

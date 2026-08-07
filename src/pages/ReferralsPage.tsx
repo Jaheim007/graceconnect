@@ -1,4 +1,4 @@
-import { Users } from 'lucide-react';
+import { Users, Zap } from 'lucide-react';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -84,7 +84,7 @@ export default function ReferralsPage() {
           <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-amber-500/20 blur-3xl" />
           <div className="relative">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-3">
-              
+              <Zap className="h-4 w-4 text-primary shrink-0" />
               {isFr ? "Cadeau illimité" : "Unlimited gift"}
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-center gap-3">
@@ -203,7 +203,7 @@ export default function ReferralsPage() {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardDescription className="flex items-center gap-1.5">
-                      
+                      <Zap className="h-4 w-4 text-primary shrink-0" />
                       {isFr ? "Filleuls actifs" : "Active referrals"}
                     </CardDescription>
                     <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">

@@ -60,7 +60,7 @@ export function ViralShareMessages() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        
+        <Share2 className="h-4 w-4 text-primary shrink-0" />
         <h2 className="text-lg font-extrabold">{isFr ? 'Messages prêts à partager' : 'Ready-to-share messages'}</h2>
       </div>
       <p className="text-xs text-muted-foreground">

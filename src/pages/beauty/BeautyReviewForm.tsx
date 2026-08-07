@@ -1,3 +1,4 @@
+import { Zap } from 'lucide-react';
 import { useState } from "react";
 import { Star, Zap, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -88,7 +89,7 @@ export default function BeautyReviewForm({ bookingId, providerId, clientId, curr
   return (
     <div className="beauty-scope rounded-2xl border border-border/60 bg-card p-5">
       <div className="mb-4 flex items-center gap-2">
-        
+        <Zap className="h-4 w-4 text-primary shrink-0" />
         <h3 className="text-lg font-black">
           {isProviderReview
             ? t("Évaluer ce client", "Rate this client")
