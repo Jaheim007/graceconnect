@@ -271,12 +271,23 @@ export default function AdminProgramDraftReview() {
               variant="outline"
               size="sm"
               className="gap-1.5"
-              onClick={() => setBuyerPreview(true)}
+              onClick={() => { setPreviewFull(true); setBuyerPreview(true); }}
+              disabled={totals.slides === 0}
+            >
+              <Eye className="h-3.5 w-3.5" />
+              {isFr ? 'Aperçu complet' : 'Full preview'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => { setPreviewFull(false); setBuyerPreview(true); }}
               disabled={totals.slides === 0}
             >
               <Eye className="h-3.5 w-3.5" />
               {isFr ? 'Vue acheteur' : 'Preview as buyer'}
             </Button>
+
             <Button variant="outline" size="sm" onClick={handleSave} disabled={!dirty || updateDraft.isPending}>
               {updateDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : (isFr ? 'Enregistrer' : 'Save')}
             </Button>
