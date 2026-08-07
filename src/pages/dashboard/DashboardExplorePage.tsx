@@ -76,9 +76,11 @@ export default function DashboardExplorePage() {
     <div className="bg-background native-page-screen">
       <SEOHead title={title} description={t('discover.seo_desc')} />
 
-      <div className="relative overflow-hidden border-b border-border py-8 px-4">
-        {/* Ambient "fire" glow — bold, alive header */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+      <div className="relative border-b border-border py-8 px-4">
+        {/* Ambient "fire" glow — bold, alive header (clipped separately so the
+            search dropdown can overflow the header without being cut off) */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+
           <div className="absolute -top-24 left-1/2 h-64 w-[42rem] -translate-x-1/2 rounded-full bg-primary/25 blur-[90px]" />
           <div className="absolute -bottom-28 left-[12%] h-56 w-56 rounded-full bg-orange-500/20 blur-[80px]" />
           <div className="absolute -top-10 right-[8%] h-52 w-52 rounded-full bg-fuchsia-500/20 blur-[80px]" />
