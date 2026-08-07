@@ -103,7 +103,7 @@ export function TopBar() {
             <Plus className="h-3.5 w-3.5 mr-2" />
             {managedOrgs.length === 0
               ? (isFr ? 'Créer une plateforme' : 'Create a platform')
-              : (isFr ? 'Créer un espace/page' : 'Create a workspace/page')}
+              : (isFr ? 'Créer une plateforme' : 'Create a platform')}
           </DropdownMenuItem>
         )}
         {(isSuperadmin || managedOrgs.length >= 2) && (

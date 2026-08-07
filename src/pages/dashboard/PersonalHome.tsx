@@ -251,7 +251,7 @@ export default function PersonalHome() {
             <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
               {isFr ? 'Achats récents' : 'Recent purchases'}
             </h2>
-            <Link to="/dashboard/activity?tab=purchases" className="text-xs text-primary font-medium hover:underline">
+            <Link to="/my-purchases" className="text-xs text-primary font-medium hover:underline">
               {isFr ? 'Mes achats' : 'My purchases'}
             </Link>
           </div>
@@ -266,7 +266,7 @@ export default function PersonalHome() {
               {purchases.map((p: any) => (
                 <Link
                   key={p.id}
-                  to="/my-programs"
+                  to="/my-purchases"
                   className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 hover:border-primary/40 transition"
                 >
                   <div className="h-12 w-12 rounded-xl bg-primary/10 grid place-items-center overflow-hidden shrink-0">

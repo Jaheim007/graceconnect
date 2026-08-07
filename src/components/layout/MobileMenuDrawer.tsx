@@ -254,7 +254,7 @@ export function MobileMenuDrawer({ onClose }: Props) {
                   <Plus className="h-4 w-4" />
                 </div>
                 <span className="text-[14px] font-semibold">
-                  {isFr ? 'Créer un espace' : 'Create a workspace'}
+                  {isFr ? 'Créer une plateforme' : 'Create a platform'}
                 </span>
               </button>
             </li>
