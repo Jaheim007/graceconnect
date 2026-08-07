@@ -43,6 +43,32 @@ export default function UserDashboard() {
   const primaryCurrency = currentOrg?.currency || userOrgs[0]?.currency || DEFAULT_CURRENCY;
   const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency || primaryCurrency, locale);
 
+  // Quick actions — the shortcuts that aren't already surfaced at the top.
+  const offeringsEnabled = !!((currentOrg?.settings as any)?.offerings_enabled);
+  const quickActions = [
+    { to: '/admin/settings?s=profile', icon: Palette,
+      labelFr: 'Personnaliser ma plateforme', labelEn: 'Customize my platform',
+      descFr: 'Nom, logo, bannière, lien public', descEn: 'Name, logo, banner, public link' },
+    { to: '/admin/products', icon: Package,
+      labelFr: 'Ajouter un produit', labelEn: 'Add a product',
+      descFr: 'Ebooks, templates et plus', descEn: 'Ebooks, templates & more' },
+    { to: '/admin/promo-codes', icon: Percent,
+      labelFr: 'Ajouter un code promo', labelEn: 'Add a promo code',
+      descFr: 'Réductions pour tes produits', descEn: 'Discounts for your products' },
+    { to: '/admin/events', icon: CalendarCheck2,
+      labelFr: 'Créer un événement', labelEn: 'Create an event',
+      descFr: 'En ligne ou en personne', descEn: 'Online or in person' },
+    { to: '/admin/popups', icon: LayoutPanelTop,
+      labelFr: 'Créer un pop-up', labelEn: 'Create a pop-up',
+      descFr: 'Messages ciblés sur ta page', descEn: 'Targeted messages on your page' },
+    ...(offeringsEnabled
+      ? [{ to: '/admin/offerings', icon: Gift,
+          labelFr: 'Créer une offrande', labelEn: 'Create an offering',
+          descFr: 'Dons, dîmes et contributions', descEn: 'Donations, tithes & contributions' }]
+      : []),
+  ];
+
+
   // ── Purchases ──
   const { data: purchases = [] } = useQuery({
     queryKey: ['user-purchases', user?.id],
