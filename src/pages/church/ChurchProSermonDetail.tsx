@@ -215,7 +215,7 @@ export default function ChurchProSermonDetail() {
         <Tabs defaultValue="transcript">
           <TabsList>
             <TabsTrigger value="transcript"><FileText className="h-3.5 w-3.5 mr-1.5" /> {fr ? 'Transcription' : 'Transcript'}</TabsTrigger>
-            <TabsTrigger value="ai"><Zap className="h-3.5 w-3.5 mr-1.5" /> {fr ? 'Contenus IA' : 'AI Content'}</TabsTrigger>
+            <TabsTrigger value="ai"> {fr ? 'Contenus IA' : 'AI Content'}</TabsTrigger>
             <TabsTrigger value="pdfs"><FileDown className="h-3.5 w-3.5 mr-1.5" /> {fr ? 'PDFs' : 'PDFs'}{pdfs.length > 0 ? ` (${pdfs.length})` : ''}</TabsTrigger>
           </TabsList>
 
@@ -264,7 +264,7 @@ export default function ChurchProSermonDetail() {
           <TabsContent value="ai" className="space-y-4">
             {!transcriptReady ? (
               <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
-                <Zap className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+                
                 <p className="text-sm font-medium">{fr ? 'Transcrivez d\'abord la prédication' : 'Transcribe the sermon first'}</p>
                 <p className="text-xs text-muted-foreground mt-1">{fr ? 'Une transcription d\'au moins 200 caractères est requise.' : 'A transcript of at least 200 characters is required.'}</p>
               </div>

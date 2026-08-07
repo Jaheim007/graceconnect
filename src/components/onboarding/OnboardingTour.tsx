@@ -232,7 +232,7 @@ export function OnboardingTour() {
               >
                 {step === STEPS.length - 1 ? (
                   <>
-                    <Zap className="h-3.5 w-3.5" />
+                    
                     {isFr ? 'C\'est parti !' : 'Let\'s go!'}
                   </>
                 ) : (

@@ -63,7 +63,7 @@ export function LandingHeroManifesto() {
           <motion.div variants={fadeUp}
             className="inline-flex items-center gap-1.5 bg-white/5 text-white/80 border border-white/10 rounded-full px-4 py-2 text-xs font-semibold backdrop-blur-sm"
           >
-            <Zap className="h-3.5 w-3.5 animate-[pulse_2s_ease-in-out_infinite] text-accent" />
+            
             {badgeText}
           </motion.div>
 

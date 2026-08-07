@@ -74,7 +74,7 @@ export default function BillingSuccessPage() {
             </>
           ) : tier === 'free' ? (
             <>
-              <Zap className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              
               <h1 className="text-2xl font-bold mb-2">
                 {isFr ? 'Paiement en cours de traitement' : 'Payment is being processed'}
               </h1>

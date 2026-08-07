@@ -50,7 +50,7 @@ export function CreateSimilarCTA({ productType, productTitle }: CreateSimilarCTA
       className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 space-y-2"
     >
       <div className="flex items-center gap-2">
-        <Zap className="h-4 w-4 text-primary" />
+        
         <p className="text-sm font-bold">{isFr ? 'Inspiré ?' : 'Inspired?'}</p>
       </div>
       <p className="text-xs text-muted-foreground">
@@ -64,7 +64,7 @@ export function CreateSimilarCTA({ productType, productTitle }: CreateSimilarCTA
         className="w-full gap-2"
         onClick={handleClick}
       >
-        <Zap className="h-3.5 w-3.5" />
+        
         {isFr ? `Créer ${label}` : `Create ${label}`}
       </Button>
     </motion.div>

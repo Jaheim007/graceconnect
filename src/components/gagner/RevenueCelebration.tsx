@@ -54,7 +54,7 @@ export function RevenueCelebration({ amount, milestone, onDismiss }: RevenueCele
             </motion.div>
             <div>
               <p className="text-xs font-bold text-accent uppercase tracking-wider flex items-center justify-center gap-1">
-                <Zap className="h-3.5 w-3.5" /> {milestone}
+                 {milestone}
               </p>
               <p className="text-3xl font-black text-accent mt-2">
                 {formatCurrency(amount, DEFAULT_CURRENCY)}

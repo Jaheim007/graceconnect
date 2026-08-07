@@ -256,7 +256,7 @@ function UploadDialog({ open, onOpenChange, churchId, onCreated }: {
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={uploading}>{fr ? 'Annuler' : 'Cancel'}</Button>
           <Button onClick={submit} disabled={uploading || !title.trim() || !file || !rights}>
-            {uploading ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Zap className="mr-1.5 h-4 w-4" />}
+            {uploading ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : }
             {fr ? 'Uploader et transcrire' : 'Upload & transcribe'}
           </Button>
         </DialogFooter>

@@ -24,7 +24,7 @@ export function LandingAIStudioSection() {
       <div className="container max-w-4xl">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
           <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full gap-1">
-            <Zap className="h-3 w-3" /> Nouveau
+             Nouveau
           </Badge>
           <h2 className="text-2xl sm:text-3xl font-extrabold mb-3">
             Créez avec l'<span className="text-primary">IA</span>, vendez en automatique

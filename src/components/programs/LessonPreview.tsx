@@ -566,7 +566,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
             {!isLearner && (
               <>
                 <div className="hidden sm:flex items-center gap-1.5 mr-1">
-                  <Zap className="h-3.5 w-3.5 text-muted-foreground" />
+                  
                   <span className="text-[10px] text-muted-foreground hidden sm:inline">
                     {isFr ? 'Étoiles' : 'Stars'}
                   </span>

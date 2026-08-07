@@ -141,7 +141,7 @@ export function SlideCustomizationPanel({ customization, onChange, onApplyToAll,
             onClick={onGenerateImage}
             disabled={isGenerating}
           >
-            <Zap className="h-3.5 w-3.5" />
+            
             {isGenerating
               ? (isFr ? 'Génération…' : 'Generating…')
               : (isFr ? 'Générer avec l\'IA' : 'Generate with AI')}

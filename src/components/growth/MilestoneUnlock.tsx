@@ -71,7 +71,7 @@ export function MilestoneUnlock({ type, onDismiss, onShare }: MilestoneUnlockPro
                 animate={{ opacity: [0, 1, 0], scale: [0, 1, 0] }}
                 transition={{ duration: 2, delay: i * 0.15, repeat: Infinity }}
               >
-                <Zap className="h-3 w-3 text-white/50" />
+                
               </motion.div>
             ))}
 

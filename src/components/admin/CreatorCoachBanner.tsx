@@ -179,7 +179,7 @@ export function CreatorCoachBanner() {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <Zap className="h-3.5 w-3.5 text-primary" />
+            
             <span className="text-[10px] font-semibold uppercase tracking-widest text-primary">
               {isFr ? 'Coach IA' : 'AI Coach'}
             </span>

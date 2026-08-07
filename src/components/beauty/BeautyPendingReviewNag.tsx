@@ -89,7 +89,7 @@ export function BeautyPendingReviewNag() {
 
         <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1">
-            <Zap className="h-3 w-3" /> {t("Rappel obligatoire", "Required reminder")}
+             {t("Rappel obligatoire", "Required reminder")}
           </span>
           <Button
             variant="ghost"

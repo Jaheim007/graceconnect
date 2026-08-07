@@ -95,7 +95,7 @@ export default function FoundersPage() {
         {remaining !== null && remaining > 0 && (
           <Link to="/pricing#founder">
             <Button size="lg" className="gap-2">
-              <Zap className="h-4 w-4" />
+              
               {isFr ? `Réserver ma place (${remaining} restantes)` : `Claim my spot (${remaining} left)`}
             </Button>
           </Link>

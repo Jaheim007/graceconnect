@@ -81,7 +81,7 @@ export default function StudioHome() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Zap className="h-6 w-6 text-primary" />
+            
             Studio IA
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -184,7 +184,7 @@ export default function StudioHome() {
         {!recentProjects?.length ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <Zap className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+              
               <p className="text-muted-foreground font-medium">Aucun projet encore</p>
               <p className="text-sm text-muted-foreground mt-1">
                 Lancez votre premier projet IA pour créer du contenu professionnel

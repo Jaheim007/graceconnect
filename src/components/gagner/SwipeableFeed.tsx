@@ -60,7 +60,7 @@ export function SwipeableFeed() {
       <div className="space-y-3">
         <div>
           <h2 className="text-xl font-extrabold flex items-center gap-2">
-            <Zap className="h-5 w-5 text-accent" />
+            
             {isFr ? 'Produits à partager' : 'Products to share'}
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">

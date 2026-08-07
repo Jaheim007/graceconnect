@@ -97,7 +97,7 @@ const ICONS = [
   <Users className="h-3.5 w-3.5 text-indigo-500" />,
   <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />,
   <Award className="h-3.5 w-3.5 text-amber-600" />,
-  <Zap className="h-3.5 w-3.5 text-purple-500" />,
+  ,
   <BookOpen className="h-3.5 w-3.5 text-sky-500" />,
   <Gift className="h-3.5 w-3.5 text-pink-500" />,
   <Zap className="h-3.5 w-3.5 text-yellow-500" />,

@@ -264,7 +264,7 @@ export default function ProjectWizard() {
             onClick={() => setTemplateId(null)}
           >
             <CardContent className="py-4 flex items-center gap-3">
-              <Zap className="h-5 w-5 text-primary" />
+              
               <div>
                 <p className="font-medium text-sm">Sans template</p>
                 <p className="text-xs text-muted-foreground">Partir de zéro avec vos paramètres</p>

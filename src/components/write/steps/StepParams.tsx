@@ -216,7 +216,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
             {suggestingTitles ? (
               <Loader2 className="h-3 w-3 animate-spin" />
             ) : (
-              <Zap className="h-3 w-3" />
+              
             )}
             {t('write.suggest_titles') || 'Suggérer des titres'}
           </Button>
@@ -261,7 +261,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
             {suggestingSubtitles ? (
               <Loader2 className="h-3 w-3 animate-spin" />
             ) : (
-              <Zap className="h-3 w-3" />
+              
             )}
             {t('write.suggest_subtitles') || 'Suggest subtitles'}
           </Button>

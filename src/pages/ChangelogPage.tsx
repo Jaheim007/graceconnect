@@ -63,7 +63,7 @@ export default function ChangelogPage() {
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <Zap className="h-4 w-4 text-primary" />
+        
         <span className="font-semibold text-sm">{isFr ? 'Nouveautés' : 'What\'s new'}</span>
       </div>
 
@@ -80,7 +80,7 @@ export default function ChangelogPage() {
         {(changelog as any[]).map((release: any) => (
           <div key={release.version} className="relative pl-6 border-l-2 border-border">
             <div className="absolute -left-2.5 top-0 h-5 w-5 rounded-full bg-primary flex items-center justify-center">
-              <Zap className="h-3 w-3 text-primary-foreground" />
+              
             </div>
             <div className="mb-4">
               <div className="flex items-center gap-2">

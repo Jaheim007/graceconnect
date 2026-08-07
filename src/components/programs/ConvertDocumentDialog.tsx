@@ -243,7 +243,7 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
             className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-all text-center"
           >
             <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Zap className="h-6 w-6 text-primary" />
+              
             </div>
             <div>
               <p className="text-sm font-semibold">{isFr ? 'Conversion IA' : 'AI conversion'}</p>
@@ -347,7 +347,7 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
               <p className="text-[10px] text-muted-foreground">{(file.size / 1024).toFixed(0)} KB</p>
             </div>
             <Button size="sm" onClick={handleConvert} disabled={converting} className="gap-1.5">
-              {converting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
+              {converting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : }
               {converting ? (isFr ? 'Conversion...' : 'Converting...') : (isFr ? 'Convertir' : 'Convert')}
             </Button>
           </div>

@@ -356,7 +356,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         ) : generationError ? (
           <div className="flex flex-col items-center justify-center py-12 px-4 space-y-6 text-center">
             <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center">
-              <Zap className="h-8 w-8 text-destructive" />
+              
             </div>
             <div className="space-y-2">
               <p className="text-sm font-semibold">{isFr ? 'La génération a échoué' : 'Generation failed'}</p>
@@ -367,7 +367,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 {isFr ? 'Fermer' : 'Close'}
               </Button>
               <Button onClick={() => { setGenerationError(null); handleCreate(); }} className="gap-1.5">
-                <Zap className="h-3.5 w-3.5" />
+                
                 {isFr ? 'Réessayer' : 'Retry'}
               </Button>
               {generateImages && (
@@ -381,7 +381,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-primary" />
+                
                 {isFr ? 'Créer avec l\'IA' : 'Create with AI'}
               </DialogTitle>
               <p className="text-sm text-muted-foreground">
@@ -649,7 +649,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                   {isFr ? 'Annuler' : 'Cancel'}
                 </Button>
                 <Button onClick={() => void handleCreate()} disabled={!prompt.trim()} className="gap-1.5">
-                  <Zap className="h-3.5 w-3.5" />
+                  
                   {isFr ? 'Créer' : 'Create'}
                 </Button>
               </div>

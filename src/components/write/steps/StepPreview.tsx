@@ -316,7 +316,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
             <div className="bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 p-6 flex justify-center">
               <div className="w-[140px] aspect-[3/4] rounded-lg bg-gradient-to-br from-primary to-accent flex flex-col items-center justify-center p-3 shadow-xl">
-                <Zap className="h-6 w-6 text-primary-foreground/80 mb-2 shrink-0" />
+                
                 <h3 className="text-primary-foreground font-extrabold text-[10px] leading-tight text-center line-clamp-3 break-words">
                   {titleDraft || t('write.my_book')}
                 </h3>
@@ -493,7 +493,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
                       onClick={() => handleAiChapterAction('custom', aiInstruction)}
                       className="gap-1"
                     >
-                      {aiLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
+                      {aiLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : }
                       {t('write.ai_apply')}
                     </Button>
                   </div>

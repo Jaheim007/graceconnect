@@ -88,7 +88,7 @@ export function PlatformPlanWaitlistDialog({ open, onOpenChange, plan, source = 
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-primary" />
+                
                 {isFr ? `Rejoindre la liste ${planLabel}` : `Join ${planLabel} waitlist`}
               </DialogTitle>
               <DialogDescription>

@@ -58,7 +58,7 @@ export function RewardToast({ points, badge, onDone }: RewardToastProps) {
                   animate={{ rotate: [0, 15, -15, 0] }}
                   transition={{ repeat: 2, duration: 0.4, delay: 0.3 }}
                 >
-                  <Zap className="h-4 w-4 text-primary" />
+                  
                 </motion.div>
               </>
             ) : points ? (

@@ -159,7 +159,7 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
                     : 'border-transparent hover:scale-105'
                 )}
               >
-                <Zap className="h-4 w-4 text-white/80 mb-1" />
+                
                 <p className="text-white font-bold text-[8px] leading-tight text-center line-clamp-2">
                   {state.title || t('write.my_book')}
                 </p>

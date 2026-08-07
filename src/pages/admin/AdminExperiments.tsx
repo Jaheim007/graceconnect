@@ -262,7 +262,7 @@ export default function AdminExperiments() {
                           onClick={() => applySuggestion(s)}
                           className="w-full flex items-center gap-2 p-2.5 rounded-lg border border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
                         >
-                          <Zap className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                          
                           <div>
                             <p className="text-xs font-medium">{s.name}</p>
                             <p className="text-[10px] text-muted-foreground">{s.hypothesis}</p>

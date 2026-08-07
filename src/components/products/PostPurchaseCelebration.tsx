@@ -104,7 +104,7 @@ export function PostPurchaseCelebration({
                       <img src={coverImageUrl} alt="" className="h-14 w-14 rounded-lg object-cover shadow-sm" />
                     ) : (
                       <div className="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Zap className="h-6 w-6 text-primary" />
+                        
                       </div>
                     )}
                     <div className="flex-1 min-w-0">

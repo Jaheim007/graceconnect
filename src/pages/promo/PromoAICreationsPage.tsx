@@ -58,7 +58,7 @@ export default function PromoAICreationsPage() {
 
       {data && data.length === 0 && (
         <div className="text-center py-16 space-y-4">
-          <Zap className="h-12 w-12 mx-auto text-muted-foreground/30" />
+          
           <p className="text-lg font-medium text-muted-foreground">
             {isFr ? 'Les premières créations arrivent bientôt !' : 'First creations coming soon!'}
           </p>

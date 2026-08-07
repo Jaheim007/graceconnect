@@ -276,7 +276,7 @@ export default function CreditsPage() {
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <div className="flex items-center gap-2 text-sm font-medium">
-              <Zap className="h-4 w-4 text-primary shrink-0" />
+              
               {isFr ? 'Comment ça marche ?' : 'How it works?'}
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">

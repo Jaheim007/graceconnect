@@ -91,7 +91,7 @@ function PaywallCard({
       <ul className="text-sm text-left max-w-sm mx-auto space-y-1.5 pt-2">
         {benefits.map((b) => (
           <li key={b} className="flex items-start gap-2">
-            <Zap className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+            
             <span>{b}</span>
           </li>
         ))}
@@ -100,7 +100,7 @@ function PaywallCard({
       <div className="flex flex-col sm:flex-row gap-2 justify-center pt-2">
         <Button asChild size="lg">
           <Link to="/pricing">
-            <Zap className="h-4 w-4 mr-2" />
+            
             {isOrg ? 'Voir le plan Organisation' : 'Passer Pro'}
           </Link>
         </Button>

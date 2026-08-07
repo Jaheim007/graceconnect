@@ -126,7 +126,7 @@ export function SearchSuggestions({ query, isOpen, onSelect, onClose }: SearchSu
                 onClick={() => onSelect(title)}
                 className="w-full text-left px-2 py-1.5 text-sm hover:bg-accent/50 rounded-lg transition-colors flex items-center gap-2"
               >
-                <Zap className="h-3 w-3 text-amber-500 shrink-0" />
+                
                 <span className="truncate">{title}</span>
               </button>
             ))}

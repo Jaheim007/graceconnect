@@ -87,7 +87,7 @@ export function UpsellSection({ productId, orgId, currentProductId }: UpsellSect
       className="bg-card border border-border rounded-2xl p-5 space-y-4"
     >
       <div className="flex items-center gap-2">
-        <Zap className="h-4 w-4 text-primary" />
+        
         <p className="text-sm font-bold">Vous pourriez aussi aimer</p>
       </div>
 

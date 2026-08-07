@@ -101,7 +101,7 @@ export default function ChurchProPrayer() {
                     <p className="text-xs text-muted-foreground">{fr ? 'Contact' : 'Contact'}: {r.requester_contact}</p>
                   )}
                   <div className="flex flex-wrap gap-2 pt-1">
-                    {status !== 'praying' && <Button size="sm" variant="outline" onClick={() => setStatus(r.id, 'praying')}><Zap className="mr-1.5 h-3.5 w-3.5" /> {fr ? 'En prière' : 'Praying'}</Button>}
+                    {status !== 'praying' && <Button size="sm" variant="outline" onClick={() => setStatus(r.id, 'praying')}> {fr ? 'En prière' : 'Praying'}</Button>}
                     {status !== 'answered' && <Button size="sm" variant="outline" onClick={() => setStatus(r.id, 'answered')}><Check className="mr-1.5 h-3.5 w-3.5" /> {fr ? 'Exaucée' : 'Answered'}</Button>}
                     {status !== 'archived' && <Button size="sm" variant="ghost" onClick={() => setStatus(r.id, 'archived')}><Archive className="mr-1.5 h-3.5 w-3.5" /> {fr ? 'Archiver' : 'Archive'}</Button>}
                   </div>

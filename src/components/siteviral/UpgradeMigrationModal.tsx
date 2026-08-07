@@ -82,7 +82,7 @@ export function UpgradeMigrationModal() {
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <div className="mb-2 inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-1 text-[11px] font-semibold text-primary">
-            <Zap className="h-3 w-3" />
+            
             {isFr ? 'Nouvelle version de SiteViral' : 'New version of SiteViral'}
           </div>
 

@@ -110,7 +110,7 @@ export default function StudioProjectsList() {
       ) : !filtered.length ? (
         <Card>
           <CardContent className="py-16 text-center">
-            <Zap className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+            
             <p className="text-muted-foreground font-medium">
               {search || typeFilter !== 'all' || statusFilter !== 'all'
                 ? 'Aucun projet ne correspond aux filtres'

@@ -185,7 +185,7 @@ export function LessonEnrichmentToolbar({
       >
         <div className="flex items-center gap-2">
           <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-            <Zap className="h-3.5 w-3.5 text-primary" />
+            
           </div>
           <div className="text-left">
             <span className="text-xs font-semibold">

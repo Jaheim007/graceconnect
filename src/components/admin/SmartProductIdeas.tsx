@@ -92,7 +92,7 @@ export function SmartProductIdeas() {
           </div>
         </div>
         <Badge variant="secondary" className="text-[10px]">
-          <Zap className="h-2.5 w-2.5 mr-1" />
+          
           {ideas.length} idées
         </Badge>
       </div>

@@ -232,7 +232,7 @@ export default function CreatorAdvancedAnalyticsPage() {
                 </p>
               </div>
               <Badge variant="secondary" className="gap-1">
-                <Zap className="w-3 h-3" />
+                
                 {fmt(totalRevenue, currency)}
               </Badge>
             </CardHeader>

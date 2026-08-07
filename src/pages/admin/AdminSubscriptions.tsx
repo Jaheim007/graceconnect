@@ -125,7 +125,7 @@ export default function AdminSubscriptions() {
             </Card>
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-1">
-                <Zap className="h-4 w-4 text-purple-500" />
+                
                 <span className="text-xs text-muted-foreground">{t.grand}</span>
               </div>
               <div className="text-2xl font-bold">{m.grandfather_active}</div>

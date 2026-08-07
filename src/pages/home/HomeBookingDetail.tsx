@@ -229,7 +229,7 @@ export default function HomeBookingDetail() {
         {review && (
           <div className="rounded-2xl border border-border bg-card p-5">
             <div className="text-sm font-bold flex items-center gap-2">
-              <Zap className="h-4 w-4 text-sky-500" />{t("Ton avis", "Your review")}
+              {t("Ton avis", "Your review")}
               <span className="ml-auto font-black">{review.rating}/5 ★</span>
             </div>
             {review.comment && <p className="mt-1 text-sm text-muted-foreground">{review.comment}</p>}

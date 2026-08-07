@@ -108,7 +108,7 @@ export function LandingInteractiveDemo() {
           >
             <div className="rounded-2xl overflow-hidden border border-border/60 bg-card p-10 text-center shadow-[var(--shadow-elevated)]">
               <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-8 w-8 text-primary" />
+                
               </div>
               <p className="text-lg font-bold mb-2">{isFr ? 'Studio IA Viral' : 'Viral AI Studio'}</p>
               <p className="text-sm text-muted-foreground">{isFr ? 'Créez votre livre en quelques clics avec l\'intelligence artificielle' : 'Create your book in a few clicks with artificial intelligence'}</p>

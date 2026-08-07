@@ -162,7 +162,7 @@ export default function AdminCreateHub() {
       {/* Empty state */}
       {(!recentProjects || recentProjects.length === 0) && (
         <div className="text-center py-8 rounded-2xl border border-dashed border-border">
-          <Zap className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+          
           <p className="text-sm font-medium text-muted-foreground">
             {isFr ? 'Aucune création encore' : 'No creations yet'}
           </p>

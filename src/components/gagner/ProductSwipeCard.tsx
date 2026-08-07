@@ -305,7 +305,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
               className="w-full gap-2 text-sm font-bold"
               onClick={() => navigate(`/auth?mode=signup&next=${encodeURIComponent('/gagner')}&intent=ambassador`)}
             >
-              <Zap className="h-4 w-4" />
+              
               {isFr ? 'Créer mon compte gratuit' : 'Create my free account'}
               <ArrowRight className="h-4 w-4" />
             </Button>

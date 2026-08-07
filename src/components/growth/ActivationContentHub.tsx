@@ -49,7 +49,7 @@ export function ActivationContentHub() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Zap className="h-5 w-5 text-primary" />
+        
         <h2 className="text-lg font-extrabold">{isFr ? 'Comment gagner sur SiteViral' : 'How to earn on SiteViral'}</h2>
       </div>
 

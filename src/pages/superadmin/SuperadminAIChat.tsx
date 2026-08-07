@@ -136,7 +136,7 @@ export default function SuperadminAIChat() {
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/20">
-              <Zap className="h-5 w-5 text-primary-foreground" />
+              
             </div>
             <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 border-2 border-background" />
           </div>
@@ -218,7 +218,7 @@ export default function SuperadminAIChat() {
                 >
                   {m.role === 'assistant' && (
                     <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shrink-0 mt-1 shadow-sm">
-                      <Zap className="h-4 w-4 text-primary-foreground" />
+                      
                     </div>
                   )}
                   <div
@@ -270,7 +270,7 @@ export default function SuperadminAIChat() {
       {/* Input bar */}
       <div className="relative mt-2">
         <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl px-4 py-2 shadow-sm focus-within:border-primary/30 focus-within:shadow-md focus-within:shadow-primary/5 transition-all">
-          <Zap className="h-4 w-4 text-muted-foreground shrink-0" />
+          
           <input
             ref={inputRef}
             value={input}

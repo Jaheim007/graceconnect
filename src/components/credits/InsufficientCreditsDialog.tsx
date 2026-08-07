@@ -137,7 +137,7 @@ export function InsufficientCreditsDialog({ open, onOpenChange, message }: Insuf
               </p>
             </div>
             <Badge variant="secondary" className="text-[10px] shrink-0">
-              <Zap className="h-3 w-3 mr-0.5" />
+              
               +38{isFr ? ',5' : '.5'}
             </Badge>
           </div>

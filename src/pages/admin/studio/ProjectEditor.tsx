@@ -706,7 +706,7 @@ export default function ProjectEditor() {
                   onClick={generateChapter}
                   disabled={!!isGenerating || !activeChapter}
                 >
-                  <Zap className="h-3.5 w-3.5 text-primary" /> Générer ce chapitre
+                   Générer ce chapitre
                 </Button>
               </div>
             </div>
@@ -815,7 +815,7 @@ export default function ProjectEditor() {
         </div>
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="outline" size="sm" onClick={generateAndPreviewPdf} disabled={generatingPdf}>
-            {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Zap className="h-3.5 w-3.5 mr-1" />}
+            {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : }
             Regénérer le PDF
           </Button>
         </div>

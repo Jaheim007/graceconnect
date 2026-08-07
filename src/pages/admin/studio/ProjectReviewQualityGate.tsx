@@ -313,7 +313,7 @@ export default function ProjectReviewQualityGate() {
             onClick={runQualityCheck}
             disabled={checkingQuality}
           >
-            {checkingQuality ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Zap className="h-4 w-4 mr-1" />}
+            {checkingQuality ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : }
             {score != null ? 'Relancer l\'analyse' : 'Analyser la qualité'}
           </Button>
         </div>
@@ -338,7 +338,7 @@ export default function ProjectReviewQualityGate() {
             </div>
           ) : (
             <div className="text-center py-4">
-              <Zap className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
+              
               <p className="text-muted-foreground text-sm">
                 Aucune vérification effectuée. Cliquez sur "Analyser la qualité" pour obtenir un score.
               </p>
@@ -620,7 +620,7 @@ export default function ProjectReviewQualityGate() {
         </div>
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="outline" size="sm" onClick={generateAndPreviewPdf} disabled={generatingPdf}>
-            {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Zap className="h-3.5 w-3.5 mr-1" />}
+            {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : }
             Regénérer le PDF
           </Button>
         </div>

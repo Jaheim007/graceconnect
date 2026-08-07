@@ -110,7 +110,7 @@ export function CommissionSavingsCard() {
       <Card className="p-5 border-primary/30 bg-gradient-to-br from-primary/10 via-background to-background">
         <div className="flex items-start gap-3">
           <div className="h-10 w-10 rounded-full bg-primary/15 text-primary flex items-center justify-center shrink-0">
-            <Zap className="h-5 w-5" />
+            
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-base">

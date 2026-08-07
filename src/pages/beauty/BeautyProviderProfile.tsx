@@ -381,7 +381,7 @@ function ServiceRow({
       className="group flex items-center gap-3 rounded-2xl border border-border/60 bg-card p-4"
     >
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-        <Zap className="h-5 w-5" />
+        
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">

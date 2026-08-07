@@ -681,7 +681,7 @@ function SendOfferSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" size="icon" className="h-11 w-11 shrink-0" title={t("Envoyer une offre", "Send offer")}>
-          <Zap className="h-4 w-4" />
+          
         </Button>
       </SheetTrigger>
       <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">

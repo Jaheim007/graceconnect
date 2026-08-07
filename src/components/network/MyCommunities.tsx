@@ -64,7 +64,7 @@ export function MyCommunities() {
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
-              <Zap className="h-5 w-5 text-primary-foreground" />
+              
             </div>
             <div className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary animate-pulse" />
           </div>

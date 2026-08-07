@@ -15,7 +15,7 @@ export function AmbassadorBanner({ orgSlug, orgName }: AmbassadorBannerProps) {
   return (
     <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 space-y-3">
       <div className="flex items-center gap-2">
-        <Zap className="h-4 w-4 text-primary" />
+        
         <h3 className="font-bold text-sm">{isFr ? 'Devenez ambassadeur et gagnez de l\'argent' : 'Become an ambassador and earn money'}</h3>
       </div>
       <p className="text-xs text-muted-foreground leading-relaxed">

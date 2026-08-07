@@ -50,7 +50,7 @@ export function StepPricing({ state, update, onNext, onBack, orgCurrency }: Prop
 
       {/* AI-generated products cannot be free — info banner */}
       <div className="flex items-center gap-3 p-4 rounded-xl border border-amber-500/30 bg-amber-500/5">
-        <Zap className="h-5 w-5 text-amber-500 shrink-0" />
+        
         <p className="text-xs text-muted-foreground">
           {t('write.ai_no_free') || 'Les contenus générés par IA ne peuvent pas être gratuits. Un prix minimum est requis.'}
         </p>

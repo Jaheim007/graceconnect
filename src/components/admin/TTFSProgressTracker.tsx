@@ -109,7 +109,7 @@ export function TTFSProgressTracker() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-bold text-sm flex items-center gap-2">
-            <Zap className="h-4 w-4 text-primary" />
+            
             Objectif : Première vente
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">

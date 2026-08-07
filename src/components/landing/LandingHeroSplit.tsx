@@ -43,7 +43,7 @@ export function LandingHeroSplit() {
         >
           {/* Badge */}
           <motion.div variants={fadeUp} className="inline-flex items-center gap-1.5 bg-accent/10 text-accent border border-accent/20 rounded-full px-3 py-1 text-xs font-semibold">
-            <Zap className="h-3 w-3 animate-[pulse_2s_ease-in-out_infinite]" /> La plateforme où tout le monde gagne
+             La plateforme où tout le monde gagne
           </motion.div>
 
           {/* Main headline with rotating words */}

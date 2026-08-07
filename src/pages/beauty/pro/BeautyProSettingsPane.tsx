@@ -75,7 +75,7 @@ export default function BeautyProSettingsPane() {
           cta={kycDone ? t("Voir", "View") : t("Faire le KYC", "Verify now")} to="/admin/beauty/kyc"
           badge={kycDone ? { label: t("Vérifié", "Verified"), cls: "bg-emerald-500/15 text-emerald-700" } : { label: t("Requis", "Required"), cls: "bg-amber-500/15 text-amber-700" }} />
 
-        <Row icon={<Zap className="h-4 w-4" />} iconBg="bg-pink-500/15 text-pink-600"
+        <Row icon={} iconBg="bg-pink-500/15 text-pink-600"
           title={t("Mes prestations & tarifs", "My services & pricing")}
           desc={t("Prestations, durées, tarifs et disponibilités.", "Services, durations, prices and availability.")}
           cta={t("Gérer", "Manage")} to="/dashboard" />

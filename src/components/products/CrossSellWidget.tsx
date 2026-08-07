@@ -149,7 +149,7 @@ export function CrossSellWidget({ productId, organizationId, productType }: Cros
     >
       <div className="flex items-center gap-2 mb-4">
         <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Zap className="h-4 w-4 text-primary" />
+          
         </div>
         <h3 className="text-base font-bold">{title}</h3>
       </div>

@@ -134,7 +134,7 @@ export default function AdminViralTools() {
         transition={{ delay: 0.5 }}
         className="flex items-center justify-center gap-2 pt-6 text-xs text-muted-foreground/50"
       >
-        <Zap className="h-3 w-3" />
+        
         <span>{isFr ? 'Plus d\'outils bientôt' : 'More tools coming soon'}</span>
       </motion.div>
     </AdminPageShell>

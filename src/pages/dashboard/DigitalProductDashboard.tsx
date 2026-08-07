@@ -200,7 +200,7 @@ export default function DigitalProductDashboard() {
               <Plus className="h-4 w-4" /> {isFr ? 'Nouveau produit' : 'New product'}
             </Button>
             <Button variant="outline" onClick={() => navigate('/ecrire')} className="gap-2">
-              <Zap className="h-4 w-4" /> {isFr ? 'Écrire avec IA' : 'Write with AI'}
+               {isFr ? 'Écrire avec IA' : 'Write with AI'}
             </Button>
           </div>
         </section>

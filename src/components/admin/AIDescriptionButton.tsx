@@ -77,7 +77,7 @@ export function AIDescriptionButton({ title, productType, price, currency = 'XOF
       {loading ? (
         <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {isFr ? 'Génération...' : 'Generating...'}</>
       ) : (
-        <><Zap className="h-3.5 w-3.5" /> {isFr ? 'Écris ma description IA' : 'Write my AI description'}</>
+        <> {isFr ? 'Écris ma description IA' : 'Write my AI description'}</>
       )}
     </Button>
   );

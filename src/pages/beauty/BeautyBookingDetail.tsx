@@ -351,7 +351,7 @@ export default function BeautyBookingDetail() {
         {[clientReview, providerReview].filter(Boolean).map((r: any) => (
           <div key={r.id} className="rounded-2xl border border-border/60 bg-card p-5">
             <div className="mb-2 flex items-center gap-2">
-              <Zap className="h-4 w-4 text-primary" />
+              
               <span className="text-sm font-semibold">
                 {r.reviewer_role === "provider"
                   ? t("Avis du prestataire sur le client", "Provider's review of the client")

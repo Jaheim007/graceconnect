@@ -497,7 +497,7 @@ export function ProgramForm() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => setShowAIGenerator(!showAIGenerator)}>
-                        <Zap className="h-3.5 w-3.5 mr-2" /> {isFr ? 'Générer avec IA' : 'Generate with AI'}
+                         {isFr ? 'Générer avec IA' : 'Generate with AI'}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -660,7 +660,7 @@ export function ProgramForm() {
                         <Plus className="h-3 w-3" /> {isFr ? 'Ajouter un module' : 'Add module'}
                       </Button>
                       <Button size="sm" variant="outline" className="gap-1.5 text-xs w-full" onClick={() => setShowAIGenerator(true)}>
-                        <Zap className="h-3 w-3" /> {isFr ? 'Générer avec IA' : 'Generate with AI'}
+                         {isFr ? 'Générer avec IA' : 'Generate with AI'}
                       </Button>
                     </div>
                   </div>

@@ -352,7 +352,7 @@ export function RichTextEditor({
               onClick={onAIAssist}
               className="h-7 gap-1 text-[10px] px-2 border-primary/30 text-primary hover:bg-primary/10"
             >
-              <Zap className="h-3 w-3" /> {document.documentElement.lang === 'fr' ? 'Aide IA' : 'AI Help'}
+               {document.documentElement.lang === 'fr' ? 'Aide IA' : 'AI Help'}
             </Button>
           </>
         )}

@@ -95,7 +95,7 @@ export default function AdminPrograms() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem onClick={() => setShowAI(true)} className="gap-2.5 py-2.5">
-              <Zap className="h-4 w-4 text-primary" />
+              
               <div>
                 <p className="text-sm font-medium">{isFr ? 'Créer avec l\'IA' : 'Create with AI'}</p>
                 <p className="text-[10px] text-muted-foreground">{isFr ? 'L\'IA génère la structure' : 'AI generates the structure'}</p>
@@ -145,7 +145,7 @@ export default function AdminPrograms() {
             </div>
             <div className="flex items-center justify-center gap-3 pt-2">
               <Button variant="outline" onClick={() => setShowAI(true)} className="gap-1.5">
-                <Zap className="h-3.5 w-3.5" /> {isFr ? 'Créer avec l\'IA' : 'Create with AI'}
+                 {isFr ? 'Créer avec l\'IA' : 'Create with AI'}
               </Button>
               <Button onClick={() => setShowBlank(true)} className="gap-1.5">
                 <Plus className="h-3.5 w-3.5" /> {isFr ? 'Créer vide' : 'Create blank'}

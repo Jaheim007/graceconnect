@@ -91,7 +91,7 @@ export default function OnboardingGoalsPage() {
 
       <header className="space-y-2">
         <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-          <Zap className="h-3.5 w-3.5" />
+          
           {meta.emoji} {isFr ? meta.labelFr : meta.labelEn}
         </div>
         <h1 className="text-2xl font-bold">

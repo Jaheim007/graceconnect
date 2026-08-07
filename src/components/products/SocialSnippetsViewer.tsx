@@ -63,11 +63,11 @@ export function SocialSnippetsViewer({ productId, orgId }: Props) {
   if (!snippets || snippets.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card p-4 text-center space-y-3">
-        <Zap className="h-5 w-5 mx-auto text-primary" />
+        
         <p className="text-sm font-semibold">Posts sociaux IA</p>
         <p className="text-xs text-muted-foreground">Générez des posts prêts à copier pour promouvoir ce produit.</p>
         <Button size="sm" className="gap-2" onClick={handleGenerate} disabled={generating}>
-          {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
+          {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : }
           {generating ? 'Génération…' : 'Générer les posts'}
         </Button>
       </div>

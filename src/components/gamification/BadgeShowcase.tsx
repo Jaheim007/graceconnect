@@ -77,7 +77,7 @@ export function BadgeShowcase({ allBadges, earnedBadgeIds }: BadgeShowcaseProps)
                       animate={{ opacity: 1 }}
                       className="absolute -top-1 -right-1"
                     >
-                      <Zap className="h-3 w-3 text-primary" />
+                      
                     </motion.div>
                   )}
                 </motion.div>

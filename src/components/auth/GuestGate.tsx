@@ -67,7 +67,7 @@ export function GuestGate({ icon: Icon, iconBg = 'bg-primary/10', iconColor = 't
               className="w-full gap-2 text-sm font-bold"
               onClick={() => goAuth('signup')}
             >
-              <Zap className="h-4 w-4" />
+              
               {isFr ? 'Créer mon compte gratuit' : 'Create my free account'}
               <ArrowRight className="h-4 w-4" />
             </Button>

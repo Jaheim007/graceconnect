@@ -101,7 +101,7 @@ export function PageTour({ pageId, steps }: PageTourProps) {
             </Button>
             <Button size="sm" onClick={next} className="h-7 text-[11px] gap-1 px-3">
               {step === steps.length - 1 ? (
-                <><Zap className="h-3 w-3" /> {t('tour.done')}</>
+                <> {t('tour.done')}</>
               ) : (
                 <>{t('tour.next')} <ChevronRight className="h-3 w-3" /></>
               )}
