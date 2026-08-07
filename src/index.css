@@ -166,7 +166,7 @@
   /* Display-size text on non-heading elements (stat numbers, hero sub-labels)
      should use the heading font. :where() keeps specificity at 0 so any
      explicit font-sans / font-mono utility still wins. */
-  :where(.text-3xl, .text-4xl, .text-5xl, .text-6xl, .text-7xl, .text-8xl, .text-9xl) {
+  :where([class*="text-3xl"], [class*="text-4xl"], [class*="text-5xl"], [class*="text-6xl"], [class*="text-7xl"], [class*="text-8xl"], [class*="text-9xl"]) {
     @apply font-heading tracking-tight;
     font-feature-settings: "ss01";
   }
