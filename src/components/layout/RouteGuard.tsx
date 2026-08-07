@@ -31,7 +31,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     }
   })();
 
-  if (loading || oauthPending) return <FullPageLoader />;
+  if (loading || oauthPending) return <GuardFallback />;
 
   if (!user) {
     // Preserve current URL (including search params like ?partner=CODE) so user returns after auth
@@ -44,17 +44,19 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     return <Nav to={authUrl} replace />;
   }
 
-  if (!workspaceReady) return <FullPageLoader />;
+  if (!workspaceReady) return <GuardFallback />;
 
+  appBooted = true;
   return <>{children}</>;
 }
 
 // Require superadmin
 export function RequireSuperadmin({ children }: { children: ReactNode }) {
   const { user, loading, isSuperadmin, platformRoleLoading } = useAuth();
-  if (loading || platformRoleLoading) return <FullPageLoader />;
+  if (loading || platformRoleLoading) return <GuardFallback />;
   if (!user) return <Nav to="/auth" replace />;
   if (!isSuperadmin) return <Nav to="/feed" replace />;
+  appBooted = true;
   return <>{children}</>;
 }
 
@@ -65,15 +67,15 @@ export function RequireOrgManage({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const { currentOrg, currentOrgRole, isLoadingOrgs, userOrgs, canManage, setCurrentOrg } = useOrg();
 
-  if (loading) return <FullPageLoader />;
+  if (loading) return <GuardFallback />;
   if (!user) return <Nav to="/auth" replace />;
-  if (isLoadingOrgs) return <FullPageLoader />;
+  if (isLoadingOrgs) return <GuardFallback />;
 
   if (!currentOrg) {
     const firstManageable = userOrgs.find((o) => canManage(o.id));
     if (firstManageable) {
       setCurrentOrg(firstManageable);
-      return <FullPageLoader />;
+      return <GuardFallback />;
     }
     return <Nav to="/create-org" replace />;
   }
@@ -81,6 +83,7 @@ export function RequireOrgManage({ children }: { children: ReactNode }) {
   const allowed = ['owner', 'admin', 'editor'].includes(currentOrgRole || '');
   if (!allowed) return <Nav to="/feed" replace />;
 
+  appBooted = true;
   return <>{children}</>;
 }
 
