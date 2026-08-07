@@ -96,13 +96,22 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
           <div className="min-w-0">
             <p className="text-sm font-semibold truncate">{draft.title}</p>
             <p className="text-[11px] text-muted-foreground truncate">
-              {isFr ? 'Vue acheteur' : 'Buyer view'} · {current?.lessonTitle || ''} · {priceLabel}
+              {unlocked
+                ? (isFr ? 'Aperçu complet (créateur)' : 'Full preview (creator)')
+                : (isFr ? 'Vue acheteur' : 'Buyer view')} · {current?.lessonTitle || ''} · {priceLabel}
             </p>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose} aria-label={isFr ? 'Fermer' : 'Close'}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Button variant="outline" size="sm" className="h-8 text-[11px]" onClick={() => setUnlocked((v) => !v)}>
+              {unlocked
+                ? (isFr ? 'Vue acheteur' : 'Buyer view')
+                : (isFr ? 'Aperçu complet' : 'Full preview')}
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose} aria-label={isFr ? 'Fermer' : 'Close'}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+
         <div className="px-3 pb-2">
           <SlideSegmentBar
             count={lessonSegments.count}
