@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Search, Package, Calendar, Ticket, ArrowRight, ShoppingBag, Sparkles } from 'lucide-react';
+import { Search, Package, Calendar, Ticket, ArrowRight, ShoppingBag, Compass, GraduationCap, HandCoins } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
 import { Input } from '@/components/ui/input';
@@ -130,18 +130,23 @@ export default function PersonalHome() {
         </div>
 
         {/* Search */}
-        <form onSubmit={onSearch} className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={showServiceSurfaces()
-              ? (isFr ? 'Rechercher services, produits, artisans…' : 'Search services, products, artisans…')
-              : (isFr ? 'Rechercher livres, formations, produits…' : 'Search books, courses, products…')}
-
-            className="pl-10 h-12 bg-card/80 rounded-2xl"
-          />
+        <form onSubmit={onSearch} className="relative flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={showServiceSurfaces()
+                ? (isFr ? 'Rechercher services, produits, artisans…' : 'Search services, products, artisans…')
+                : (isFr ? 'Rechercher livres, formations, produits…' : 'Search books, courses, products…')}
+              className="pl-10 h-12 bg-card/80 rounded-2xl"
+            />
+          </div>
+          <Button type="submit" className="h-12 rounded-2xl px-5 shrink-0">
+            {isFr ? 'Rechercher' : 'Search'}
+          </Button>
         </form>
+
 
         {/* Category shortcuts (marketplace, excludes church) */}
         {showServiceSurfaces() && (
@@ -246,7 +251,7 @@ export default function PersonalHome() {
             <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
               {isFr ? 'Achats récents' : 'Recent purchases'}
             </h2>
-            <Link to="/dashboard/activity?tab=purchases" className="text-xs text-primary font-medium hover:underline">
+            <Link to="/my-purchases" className="text-xs text-primary font-medium hover:underline">
               {isFr ? 'Mes achats' : 'My purchases'}
             </Link>
           </div>
@@ -261,7 +266,7 @@ export default function PersonalHome() {
               {purchases.map((p: any) => (
                 <Link
                   key={p.id}
-                  to="/my-programs"
+                  to="/my-purchases"
                   className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 hover:border-primary/40 transition"
                 >
                   <div className="h-12 w-12 rounded-xl bg-primary/10 grid place-items-center overflow-hidden shrink-0">
@@ -290,26 +295,56 @@ export default function PersonalHome() {
           )}
         </section>
 
-        {/* Discover CTA */}
-        <section>
+        {/* Explore CTA — icon matches the "Explorer" item in the sidebar */}
+        <section className="space-y-2">
           <Link
             to="/dashboard/explore"
-            className="flex items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 hover:bg-primary/10 transition"
+            className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 hover:border-primary/40 transition"
           >
-            <div className="h-10 w-10 rounded-xl bg-primary/15 grid place-items-center">
-              <Sparkles className="h-5 w-5 text-primary" />
+            <div className="h-10 w-10 rounded-xl bg-violet-500/10 grid place-items-center shrink-0">
+              <Compass className="h-5 w-5 text-violet-500" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-sm">
-                {isFr ? 'Explorer la marketplace' : 'Explore the marketplace'}
+                {isFr ? 'Explorer' : 'Explore'}
               </div>
               <div className="text-xs text-muted-foreground">
-                {isFr ? 'Produits, services, artisans, formations, événements' : 'Products, services, artisans, courses, events'}
+                {isFr ? 'Livres, formations et produits digitaux' : 'Books, courses and digital products'}
               </div>
             </div>
-            <ArrowRight className="h-4 w-4 text-primary" />
+            <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
           </Link>
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Link
+              to="/my-programs"
+              className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 hover:border-primary/40 transition"
+            >
+              <div className="h-10 w-10 rounded-xl bg-sky-500/10 grid place-items-center shrink-0">
+                <GraduationCap className="h-5 w-5 text-sky-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-sm">{isFr ? 'Mes cours' : 'My courses'}</div>
+                <div className="text-xs text-muted-foreground">{isFr ? 'Formations et progression' : 'Courses & progress'}</div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+            </Link>
+            <Link
+              to="/gagner"
+              className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 hover:border-primary/40 transition"
+            >
+              <div className="h-10 w-10 rounded-xl bg-emerald-500/10 grid place-items-center shrink-0">
+                <HandCoins className="h-5 w-5 text-emerald-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-sm">{isFr ? 'Gagner' : 'Earn'}</div>
+                <div className="text-xs text-muted-foreground">{isFr ? 'Affiliation et commissions' : 'Affiliate commissions'}</div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+            </Link>
+          </div>
         </section>
+
       </div>
     </div>
   );

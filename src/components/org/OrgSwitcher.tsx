@@ -155,7 +155,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
           onClick={() => navigate('/create-org')}
         >
           <Plus className="h-3 w-3" />
-          <span>{isFr ? 'Créer un espace' : 'Create workspace'}</span>
+          <span>{isFr ? 'Créer une plateforme' : 'Create a platform'}</span>
         </Button>
       );
     }
@@ -164,7 +164,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
         <button
           onClick={() => navigate('/create-org')}
           className="w-full flex items-center justify-center p-1.5 rounded-lg hover:bg-primary/10 transition-colors"
-          title={isFr ? 'Créer un espace' : 'Create workspace'}
+          title={isFr ? 'Créer une plateforme' : 'Create a platform'}
         >
           <Plus className="h-4 w-4 text-primary" />
         </button>
@@ -179,8 +179,8 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
           <Plus className="h-4 w-4 text-primary" />
         </div>
         <div className="min-w-0">
-          <p className="text-xs font-bold text-primary">{isFr ? 'Créer un espace' : 'Create workspace'}</p>
-          <p className="text-[10px] text-muted-foreground truncate">{isFr ? 'Gérer une activité' : 'Manage a business'}</p>
+          <p className="text-xs font-bold text-primary">{isFr ? 'Créer une plateforme' : 'Create a platform'}</p>
+          <p className="text-[10px] text-muted-foreground truncate">{isFr ? 'Optionnel — pour vendre' : 'Optional — to sell'}</p>
         </div>
       </button>
     );
@@ -189,7 +189,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
   // Trigger button — after root hydration this should be currentOrg. The
   // fallback prevents a stale "Choose workspace" label during rare repair ticks.
   const displayOrg = currentOrg && canManage(currentOrg.id) ? currentOrg : managedOrgs[0] ?? null;
-  const triggerLabel = displayOrg?.name ?? (isFr ? 'Créer un espace' : 'Create workspace');
+  const triggerLabel = displayOrg?.name ?? (isFr ? 'Créer une plateforme' : 'Create a platform');
   const triggerAvatar = displayOrg ? brandUrl(displayOrg.logo_url) : null;
 
   const TriggerButton =
