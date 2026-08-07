@@ -232,34 +232,17 @@ export function CourseCompletionSlide({
               transition={{ delay: 1.8 }}
               className="flex items-center gap-3"
             >
-              {mode === 'learner' && (certificateSaved || existingCert) && (
+              {mode === 'learner' && certReady && (
                 <button
                   onClick={async () => {
-                    const certId = existingCert?.id || saveCertificate.data?.id;
                     if (!certId) return;
                     setDownloadingPdf(true);
                     try {
-                      const { data: { session } } = await supabase.auth.getSession();
-                      const res = await fetch(
-                        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-certificate-pdf`,
-                        {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${session?.access_token}`,
-                          },
-                          body: JSON.stringify({ certificateId: certId }),
-                        }
-                      );
-                      if (!res.ok) throw new Error('Failed to generate PDF');
-                      const blob = await res.blob();
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `certificate-${courseTitle.replace(/\s+/g, '-').toLowerCase()}.pdf`;
-                      a.click();
-                      URL.revokeObjectURL(url);
-                    } catch (err) {
+                      await downloadCertificatePdf({
+                        certificateId: certId,
+                        filename: certificateFilename(courseTitle, certNumber),
+                      });
+                    } catch {
                       toast.error(isFr ? 'Erreur lors du téléchargement' : 'Download failed');
                     } finally {
                       setDownloadingPdf(false);
@@ -277,6 +260,14 @@ export function CourseCompletionSlide({
                     {isFr ? 'Télécharger PDF' : 'Download PDF'}
                   </span>
                 </button>
+              )}
+              {mode === 'learner' && !certReady && issueCertificate.isPending && (
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-5 py-2.5 border border-white/15">
+                  <Loader2 className="h-4 w-4 animate-spin text-yellow-300" />
+                  <span className="text-sm font-medium text-white/80">
+                    {isFr ? 'Émission du certificat…' : 'Issuing certificate…'}
+                  </span>
+                </div>
               )}
               <button
                 onClick={() => setShowShare(true)}
