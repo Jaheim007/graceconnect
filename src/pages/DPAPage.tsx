@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import LegalPageShell from '@/components/layout/LegalPageShell';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
@@ -60,7 +61,7 @@ export default function DPAPage() {
             </tbody>
           </table>
         </div>
-        <p className="font-medium mt-3">{isFr ? <>Voir la liste complète de nos <a href="/subprocessors" className="text-primary underline">sous-traitants ultérieurs</a>.</> : <>See the full list of our <a href="/subprocessors" className="text-primary underline">sub-processors</a>.</>}</p>
+        <p className="font-medium mt-3">{isFr ? <>Voir la liste complète de nos <Link to="/subprocessors" className="text-primary underline">sous-traitants ultérieurs</Link>.</> : <>See the full list of our <Link to="/subprocessors" className="text-primary underline">sub-processors</Link>.</>}</p>
 
         <h2 className="text-xl font-extrabold mt-8 mb-3">{isFr ? '5. Mesures de sécurité' : '5. Security Measures'}</h2>
         <ul className="list-disc pl-5 space-y-1 font-medium">
