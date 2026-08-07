@@ -78,7 +78,19 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   const { toast } = useToast();
   const { data: program } = useProgram(programId);
   const { data: modules = [] } = useProgramModules(programId);
+  const { data: slideMap = {} } = useProgramSlideMap(programId);
   const isLearner = mode === 'learner';
+
+  /**
+   * Slides for a lesson: persisted `program_slides` rows win; legacy lessons
+   * fall back to parsing the single HTML blob at render time.
+   */
+  const getLessonSlides = useCallback((lesson: any, cleanedHtml: string): ContentSlide[] => {
+    const rows = (slideMap as Record<string, any[]>)[lesson?.id];
+    if (rows && rows.length > 0) return rows.map(rowToContentSlide);
+    return parseContentIntoSlides(cleanedHtml);
+  }, [slideMap]);
+
 
   // Fetch all module quizzes for this program
   const moduleIds = useMemo(() => modules.map((m: any) => m.id), [modules]);
