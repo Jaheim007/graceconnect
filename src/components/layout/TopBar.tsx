@@ -258,7 +258,7 @@ export function TopBar() {
               onClick={() => { setSwitchDialogOpen(false); navigate('/create-org'); }}
             >
               <Plus className="h-3.5 w-3.5" />
-              {isFr ? 'Créer un nouvel espace/page' : 'Create a new workspace/page'}
+              {isFr ? 'Créer une plateforme' : 'Create a platform'}
             </Button>
           </div>
         </DialogContent>

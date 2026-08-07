@@ -215,7 +215,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
               )}
             </div>
             <p className="text-[10px] text-muted-foreground truncate">
-              {isFr ? 'Gérer un espace' : 'Manage workspace'}
+              {isFr ? 'Gérer ma plateforme' : 'Manage my platform'}
             </p>
           </div>
           <ChevronDown className="h-3.5 w-3.5 text-primary/60 shrink-0 group-hover:text-primary transition-colors" />
@@ -236,10 +236,10 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
           <DialogHeader className="relative">
             <DialogTitle className="text-base font-bold flex items-center gap-2">
               <Building2 className="h-4 w-4 text-primary" />
-              {isFr ? 'Choisir un espace à gérer' : 'Choose a workspace to manage'}
+              {isFr ? 'Choisir une plateforme à gérer' : 'Choose a platform to manage'}
             </DialogTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              {managedOrgs.length} {isFr ? 'espace(s)' : 'workspace(s)'}
+              {managedOrgs.length} {isFr ? 'plateforme(s)' : 'platform(s)'}
             </p>
           </DialogHeader>
         </div>
@@ -262,7 +262,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
             onClick={() => { setOpen(false); navigate('/create-org'); }}
           >
             <Plus className="h-3.5 w-3.5" />
-            {isFr ? 'Créer un nouvel espace' : 'Create a new workspace'}
+            {isFr ? 'Créer une plateforme' : 'Create a platform'}
           </Button>
         </div>
       </DialogContent>
