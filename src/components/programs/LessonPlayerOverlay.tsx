@@ -7,10 +7,15 @@ import { useI18n } from '@/i18n/I18nContext';
 
 interface LessonPlayerOverlayProps {
   programId: string;
+  /** Resume at an exact slide row */
+  initialSlideId?: string | null;
+  /** Resume at an exact flat index (legacy lessons without slide rows) */
+  initialSlideIndex?: number | null;
+  initialLessonId?: string;
   onClose: () => void;
 }
 
-export function LessonPlayerOverlay({ programId, onClose }: LessonPlayerOverlayProps) {
+export function LessonPlayerOverlay({ programId, initialSlideId, initialSlideIndex, initialLessonId, onClose }: LessonPlayerOverlayProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -80,6 +85,9 @@ export function LessonPlayerOverlay({ programId, onClose }: LessonPlayerOverlayP
     <div ref={rootRef} className="fixed inset-0 z-[120] bg-background">
       <LessonPreview
         programId={programId}
+        initialSlideId={initialSlideId}
+        initialSlideIndex={initialSlideIndex}
+        initialLessonId={initialLessonId}
         onClose={handleClose}
         mode="learner"
         headerActions={

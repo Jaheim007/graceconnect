@@ -3,7 +3,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, CheckCircle2, Clock, ChevronRight, GraduationCap } from 'lucide-react';
+import { BookOpen, CheckCircle2, Clock, ChevronRight, GraduationCap, Play } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { useCourseResume } from '@/hooks/useCourseResume';
+import { LessonPlayerOverlay } from '@/components/programs/LessonPlayerOverlay';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -38,42 +42,30 @@ export default function MyProgramsPage() {
   });
 
   const programIds = enrollments.map((e: any) => e.program_id);
-  const { data: progressData = [] } = useQuery({
-    queryKey: ['my-lesson-progress', user?.id, programIds],
-    queryFn: async () => {
-      if (!user?.id || programIds.length === 0) return [];
-      const { data: modules } = await db
-        .from('program_modules')
-        .select('id, program_id, program_lessons(id)')
-        .in('program_id', programIds);
-      
-      const { data: progress } = await db
-        .from('lesson_progress')
-        .select('lesson_id, completed')
-        .eq('user_id', user.id)
-        .eq('completed', true);
-
-      const completedSet = new Set((progress || []).map((p: any) => p.lesson_id));
-
-      const programProgress: Record<string, { total: number; completed: number }> = {};
-      (modules || []).forEach((mod: any) => {
-        const pid = mod.program_id;
-        if (!programProgress[pid]) programProgress[pid] = { total: 0, completed: 0 };
-        (mod.program_lessons || []).forEach((l: any) => {
-          programProgress[pid].total++;
-          if (completedSet.has(l.id)) programProgress[pid].completed++;
-        });
-      });
-      return programProgress;
-    },
-    enabled: !!user?.id && programIds.length > 0,
-  });
+  const { data: resumeMap = {} } = useCourseResume(programIds);
+  const [activeCourse, setActiveCourse] = useState<{ programId: string; slideId: string | null; slideIndex: number } | null>(null);
 
   const getProgress = (programId: string) => {
-    const p = (progressData as any)[programId];
-    if (!p || p.total === 0) return { percent: 0, total: 0, completed: 0 };
-    return { percent: Math.round((p.completed / p.total) * 100), ...p };
+    const info = (resumeMap as any)[programId];
+    if (!info) return { percent: 0, total: 0, completed: 0, resume: null as any };
+    return {
+      percent: info.progressPercent || 0,
+      total: info.totalCountableSlides,
+      completed: info.completedSlideCount,
+      resume: info.resume,
+    };
   };
+
+  if (activeCourse) {
+    return (
+      <LessonPlayerOverlay
+        programId={activeCourse.programId}
+        initialSlideId={activeCourse.slideId}
+        initialSlideIndex={activeCourse.slideIndex}
+        onClose={() => setActiveCourse(null)}
+      />
+    );
+  }
 
   return (
     <div className="container max-w-4xl py-6 space-y-6">
@@ -111,11 +103,14 @@ export default function MyProgramsPage() {
             const isComplete = progress.percent === 100 && progress.total > 0;
 
             return (
-              <motion.button
+              <motion.div
                 key={enrollment.id}
                 variants={fadeUp}
+                role="button"
+                tabIndex={0}
                 onClick={() => navigate(`/program/${program.id}`)}
-                className="w-full flex items-center gap-4 bg-card border border-border rounded-2xl p-4 hover:border-primary/30 hover:shadow-sm transition-all text-left group"
+                onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/program/${program.id}`); }}
+                className="w-full cursor-pointer flex items-center gap-4 bg-card border border-border rounded-2xl p-4 hover:border-primary/30 hover:shadow-sm transition-all text-left group"
               >
                 <div className="h-20 w-28 rounded-xl bg-muted overflow-hidden shrink-0">
                   {program.cover_image_url ? (
@@ -145,17 +140,37 @@ export default function MyProgramsPage() {
                   <div className="flex items-center gap-3">
                     <Progress value={progress.percent} className="h-1.5 flex-1" />
                     <span className="text-[10px] font-medium text-muted-foreground shrink-0">
-                      {progress.completed}/{progress.total} {isFr ? 'leçons' : 'lessons'}
+                      {progress.completed}/{progress.total} {isFr ? 'diapos' : 'slides'}
                     </span>
                   </div>
                   <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                     <Clock className="h-2.5 w-2.5" />
                     {isFr ? 'Inscrit le' : 'Enrolled on'} {new Date(enrollment.created_at).toLocaleDateString(isFr ? 'fr-FR' : 'en-US')}
                   </div>
+
+                  {progress.resume && !isComplete && (
+                    <Button
+                      size="sm"
+                      className="h-7 gap-1.5 text-[11px] mt-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveCourse({
+                          programId: program.id,
+                          slideId: progress.resume.slideId,
+                          slideIndex: progress.resume.flatIndex,
+                        });
+                      }}
+                    >
+                      <Play className="h-3 w-3" />
+                      {isFr
+                        ? `Reprendre — Leçon ${progress.resume.lessonNumber}, diapo ${progress.resume.slideNumber} sur ${progress.resume.slidesInLesson}`
+                        : `Resume — Lesson ${progress.resume.lessonNumber}, slide ${progress.resume.slideNumber} of ${progress.resume.slidesInLesson}`}
+                    </Button>
+                  )}
                 </div>
 
                 <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-              </motion.button>
+              </motion.div>
             );
           })}
         </motion.div>

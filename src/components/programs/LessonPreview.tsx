@@ -26,6 +26,10 @@ import { rowToContentSlide } from './lesson-preview/slideAdapters';
 interface LessonPreviewProps {
   programId: string;
   initialLessonId?: string;
+  /** Resume directly at this `program_slides.id` when it exists in the course */
+  initialSlideId?: string | null;
+  /** Resume at this flat player index (legacy HTML lessons with no slide rows) */
+  initialSlideIndex?: number | null;
   onClose?: () => void;
   headerActions?: ReactNode;
   /** 'creator' shows customization/device tools; 'learner' shows clean player */
@@ -68,11 +72,14 @@ interface FlatSlide {
   slide: ContentSlide;
   lessonIndex: number;
   slideInLesson: number;
+  /** real `program_slides.id`, or null for legacy/synthetic slides */
+  slideId: string | null;
+  countsForProgress: boolean;
   lessonImageUrl?: string;
   moduleQuiz?: any; // populated for module-quiz slides
 }
 
-export function LessonPreview({ programId, initialLessonId, onClose, headerActions, mode = 'creator' }: LessonPreviewProps) {
+export function LessonPreview({ programId, initialLessonId, initialSlideId, initialSlideIndex, onClose, headerActions, mode = 'creator' }: LessonPreviewProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { toast } = useToast();
@@ -85,10 +92,11 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
    * Slides for a lesson: persisted `program_slides` rows win; legacy lessons
    * fall back to parsing the single HTML blob at render time.
    */
-  const getLessonSlides = useCallback((lesson: any, cleanedHtml: string): ContentSlide[] => {
+  const getLessonSlides = useCallback((lesson: any, cleanedHtml: string): { slide: ContentSlide; slideId: string | null }[] => {
     const rows = (slideMap as Record<string, any[]>)[lesson?.id];
-    if (rows && rows.length > 0) return rows.map(rowToContentSlide);
-    return parseContentIntoSlides(cleanedHtml);
+    if (rows && rows.length > 0) return rows.map((row) => ({ slide: rowToContentSlide(row), slideId: row.id as string }));
+    // Legacy HTML lesson (not yet backfilled): parsed at render time, no slide ids.
+    return parseContentIntoSlides(cleanedHtml).map((slide) => ({ slide, slideId: null }));
   }, [slideMap]);
 
 
@@ -132,14 +140,11 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   const saveLessonCompletion = useSaveLessonCompletion();
   const { data: enrollmentProgress } = useEnrollmentProgress(isLearner ? programId : undefined);
 
-  // Restore progress from DB on mount
+  // Restore stars from DB on mount (slide position is restored after allSlides is built)
+  const restoredRef = useRef(false);
   useEffect(() => {
-    if (isLearner && enrollmentProgress?.last_slide_index && enrollmentProgress.last_slide_index > 0) {
-      setMaxReachedIndex(enrollmentProgress.last_slide_index);
-      setCurrentIndex(enrollmentProgress.last_slide_index);
-      if (enrollmentProgress.total_stars) setStarsEarned(enrollmentProgress.total_stars);
-    }
-  }, [isLearner, enrollmentProgress?.last_slide_index]);
+    if (isLearner && enrollmentProgress?.total_stars) setStarsEarned(enrollmentProgress.total_stars);
+  }, [isLearner, enrollmentProgress?.total_stars]);
 
   // Debounced progress save - refs only, effect is after allSlides
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -182,7 +187,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     for (const mod of modules) {
       for (const lesson of (mod as any).lessons || []) {
         const contentSlides = getLessonSlides(lesson, lesson.content || '');
-        for (const cs of contentSlides) {
+        for (const { slide: cs } of contentSlides) {
           if (cs.type === 'quiz' && cs.quiz) {
             quizzes.push(cs.quiz);
           }
@@ -214,11 +219,13 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           slide: { type: 'title-card', bodyHtml: lesson.description || '' },
           lessonIndex: lessonIdx,
           slideInLesson: 0,
+          slideId: null,
+          countsForProgress: true,
           lessonImageUrl,
         });
 
         const contentSlides = getLessonSlides(lesson, cleanedHtml);
-        contentSlides.forEach((cs, si) => {
+        contentSlides.forEach(({ slide: cs, slideId }, si) => {
           slides.push({
             lessonId: lesson.id,
             lessonTitle: lesson.title,
@@ -227,6 +234,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
             slide: cs,
             lessonIndex: lessonIdx,
             slideInLesson: si + 1,
+            slideId,
+            countsForProgress: true,
             lessonImageUrl,
           });
         });
@@ -245,6 +254,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           slide: { type: 'module-quiz' as any, bodyHtml: '' },
           lessonIndex: lessonIdx,
           slideInLesson: 0,
+          slideId: null,
+          countsForProgress: true,
           lessonImageUrl: lastLessonImageUrl,
           moduleQuiz: modQuiz,
         });
@@ -261,6 +272,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
         slide: { type: 'final-assessment', bodyHtml: '' },
         lessonIndex: lessonIdx,
         slideInLesson: 0,
+        slideId: null,
+        countsForProgress: true,
         lessonImageUrl: lastLessonImageUrl,
       });
     }
@@ -274,18 +287,50 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
       slide: { type: 'course-completion', bodyHtml: '' },
       lessonIndex: lessonIdx + 1,
       slideInLesson: 0,
+      slideId: null,
+      countsForProgress: false,
       lessonImageUrl: lastLessonImageUrl,
     });
 
     return slides;
   }, [modules, allQuizQuestions.length, isFr, moduleQuizzes, getLessonSlides]);
 
+  /**
+   * Resume resolution (runs once the flat slide list exists):
+   *  1. explicit `initialSlideId` / enrollment `current_slide_id` → exact slide
+   *     (only possible for lessons backed by real `program_slides` rows)
+   *  2. explicit `initialSlideIndex` / enrollment `last_slide_index` inside the
+   *     stored `current_lesson_id` → exact position for legacy HTML lessons
+   *  3. first slide of `current_lesson_id` → start of the last-opened lesson
+   *  4. `initialLessonId` → start of that lesson
+   */
   useEffect(() => {
-    if (initialLessonId && allSlides.length > 0) {
-      const idx = allSlides.findIndex(s => s.lessonId === initialLessonId && s.slideInLesson === 0);
-      if (idx >= 0) setCurrentIndex(idx);
+    if (allSlides.length === 0 || restoredRef.current) return;
+
+    const targetSlideId = initialSlideId ?? (isLearner ? enrollmentProgress?.current_slide_id : null);
+    const targetLessonId = (isLearner ? enrollmentProgress?.current_lesson_id : null) || initialLessonId;
+    const targetIndex = initialSlideIndex ?? (isLearner ? enrollmentProgress?.last_slide_index ?? -1 : -1);
+
+    let idx = -1;
+    if (targetSlideId) idx = allSlides.findIndex(s => s.slideId === targetSlideId);
+    if (idx < 0 && targetLessonId && targetIndex >= 0 && targetIndex < allSlides.length
+        && allSlides[targetIndex].lessonId === targetLessonId) {
+      idx = targetIndex;
     }
-  }, [initialLessonId, allSlides.length]);
+    if (idx < 0 && targetLessonId) {
+      idx = allSlides.findIndex(s => s.lessonId === targetLessonId && s.slideInLesson === 0);
+    }
+    if (idx < 0 && isLearner && targetIndex > 0 && targetIndex < allSlides.length) idx = targetIndex;
+
+    if (idx >= 0) {
+      restoredRef.current = true;
+      setCurrentIndex(idx);
+      setMaxReachedIndex(prev => Math.max(prev, Math.max(idx, isLearner ? (enrollmentProgress?.last_slide_index ?? 0) : 0)));
+    } else if (isLearner && (enrollmentProgress || initialSlideIndex != null)) {
+      restoredRef.current = true;
+    }
+  }, [allSlides.length, initialLessonId, initialSlideId, initialSlideIndex, isLearner,
+      enrollmentProgress?.current_slide_id, enrollmentProgress?.current_lesson_id, enrollmentProgress?.last_slide_index]);
 
   const current = allSlides[currentIndex];
   const total = allSlides.length;
@@ -366,20 +411,35 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     [allSlides]
   );
 
+  // Total slides that count toward progress (everything except the completion slide)
+  const countableSlides = useMemo(() => allSlides.filter(s => s.countsForProgress), [allSlides]);
+
   // Save progress as learner navigates (debounced)
   useEffect(() => {
     if (!isLearner || currentIndex === lastSavedRef.current) return;
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
       lastSavedRef.current = currentIndex;
+      const cur = allSlides[currentIndex];
+      const reached = Math.max(currentIndex, maxReachedIndex);
+      // Legacy/synthetic slides have no uuid, so they are counted positionally.
+      const legacyCompletedCount = allSlides
+        .slice(0, reached + 1)
+        .filter(s => s.countsForProgress && !s.slideId).length;
+
       saveProgress.mutate({
         slideIndex: currentIndex,
         totalSlides: total,
+        slideId: cur?.slideId ?? null,
+        lessonId: cur?.lessonId ?? null,
+        totalCountableSlides: countableSlides.length,
+        legacyCompletedCount,
         starsEarned,
+        completed: cur?.slide.type === 'course-completion',
       });
     }, 1500);
     return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
-  }, [isLearner, currentIndex, starsEarned, total]);
+  }, [isLearner, currentIndex, starsEarned, total, allSlides, maxReachedIndex, countableSlides.length]);
 
   const canGoTo = (idx: number) => {
     if (!isLearner) return true;
