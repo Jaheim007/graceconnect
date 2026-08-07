@@ -7,15 +7,22 @@ import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useI18n } from '@/i18n/I18nContext';
 
 const DISMISS_KEY = 'sv_install_banner_dismissed';
-const DISMISS_DAYS = 7;
+const SHOWN_KEY = 'sv_install_banner_shown_count';
+const DISMISS_DAYS = 30;
+const MAX_SHOWS = 2;
+const AUTO_HIDE_MS = 12000;
 
 export function InstallBanner() {
   const { isInstalled, isIOS, canInstall, promptInstall } = usePWAInstall();
   const [visible, setVisible] = useState(false);
   const { t } = useI18n();
 
+  // Only actual iOS/iPadOS gets the manual "Share → Add to Home Screen" hint.
+  // Everywhere else we need a real install prompt, otherwise we stay silent.
+  const showable = isIOS ? true : !!canInstall;
+
   useEffect(() => {
-    if (isInstalled || !canInstall) return;
+    if (isInstalled || !showable) return;
 
     const dismissed = localStorage.getItem(DISMISS_KEY);
     if (dismissed) {
@@ -23,9 +30,22 @@ export function InstallBanner() {
       if (Date.now() - dismissedAt < DISMISS_DAYS * 24 * 60 * 60 * 1000) return;
     }
 
-    const timer = setTimeout(() => setVisible(true), 5000);
+    const shown = parseInt(localStorage.getItem(SHOWN_KEY) || '0', 10);
+    if (shown >= MAX_SHOWS) return;
+
+    const timer = setTimeout(() => {
+      setVisible(true);
+      localStorage.setItem(SHOWN_KEY, String(shown + 1));
+    }, 20000);
     return () => clearTimeout(timer);
-  }, [isInstalled, canInstall]);
+  }, [isInstalled, showable]);
+
+  // Auto-dismiss so it never lingers in the way.
+  useEffect(() => {
+    if (!visible) return;
+    const timer = setTimeout(() => setVisible(false), AUTO_HIDE_MS);
+    return () => clearTimeout(timer);
+  }, [visible]);
 
   const handleDismiss = () => {
     setVisible(false);
@@ -44,6 +64,7 @@ export function InstallBanner() {
   };
 
   if (isInstalled || !visible || isNativePlatform()) return null;
+
 
   return (
     <AnimatePresence>
