@@ -26,6 +26,10 @@ import { rowToContentSlide } from './lesson-preview/slideAdapters';
 interface LessonPreviewProps {
   programId: string;
   initialLessonId?: string;
+  /** Resume directly at this `program_slides.id` when it exists in the course */
+  initialSlideId?: string | null;
+  /** Resume at this flat player index (legacy HTML lessons with no slide rows) */
+  initialSlideIndex?: number | null;
   onClose?: () => void;
   headerActions?: ReactNode;
   /** 'creator' shows customization/device tools; 'learner' shows clean player */
@@ -68,11 +72,14 @@ interface FlatSlide {
   slide: ContentSlide;
   lessonIndex: number;
   slideInLesson: number;
+  /** real `program_slides.id`, or null for legacy/synthetic slides */
+  slideId: string | null;
+  countsForProgress: boolean;
   lessonImageUrl?: string;
   moduleQuiz?: any; // populated for module-quiz slides
 }
 
-export function LessonPreview({ programId, initialLessonId, onClose, headerActions, mode = 'creator' }: LessonPreviewProps) {
+export function LessonPreview({ programId, initialLessonId, initialSlideId, initialSlideIndex, onClose, headerActions, mode = 'creator' }: LessonPreviewProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { toast } = useToast();
@@ -85,10 +92,11 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
    * Slides for a lesson: persisted `program_slides` rows win; legacy lessons
    * fall back to parsing the single HTML blob at render time.
    */
-  const getLessonSlides = useCallback((lesson: any, cleanedHtml: string): ContentSlide[] => {
+  const getLessonSlides = useCallback((lesson: any, cleanedHtml: string): { slide: ContentSlide; slideId: string | null }[] => {
     const rows = (slideMap as Record<string, any[]>)[lesson?.id];
-    if (rows && rows.length > 0) return rows.map(rowToContentSlide);
-    return parseContentIntoSlides(cleanedHtml);
+    if (rows && rows.length > 0) return rows.map((row) => ({ slide: rowToContentSlide(row), slideId: row.id as string }));
+    // Legacy HTML lesson (not yet backfilled): parsed at render time, no slide ids.
+    return parseContentIntoSlides(cleanedHtml).map((slide) => ({ slide, slideId: null }));
   }, [slideMap]);
 
 
@@ -182,7 +190,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     for (const mod of modules) {
       for (const lesson of (mod as any).lessons || []) {
         const contentSlides = getLessonSlides(lesson, lesson.content || '');
-        for (const cs of contentSlides) {
+        for (const { slide: cs } of contentSlides) {
           if (cs.type === 'quiz' && cs.quiz) {
             quizzes.push(cs.quiz);
           }
@@ -214,11 +222,13 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           slide: { type: 'title-card', bodyHtml: lesson.description || '' },
           lessonIndex: lessonIdx,
           slideInLesson: 0,
+          slideId: null,
+          countsForProgress: true,
           lessonImageUrl,
         });
 
         const contentSlides = getLessonSlides(lesson, cleanedHtml);
-        contentSlides.forEach((cs, si) => {
+        contentSlides.forEach(({ slide: cs, slideId }, si) => {
           slides.push({
             lessonId: lesson.id,
             lessonTitle: lesson.title,
@@ -227,6 +237,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
             slide: cs,
             lessonIndex: lessonIdx,
             slideInLesson: si + 1,
+            slideId,
+            countsForProgress: true,
             lessonImageUrl,
           });
         });
@@ -245,6 +257,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           slide: { type: 'module-quiz' as any, bodyHtml: '' },
           lessonIndex: lessonIdx,
           slideInLesson: 0,
+          slideId: null,
+          countsForProgress: true,
           lessonImageUrl: lastLessonImageUrl,
           moduleQuiz: modQuiz,
         });
@@ -261,6 +275,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
         slide: { type: 'final-assessment', bodyHtml: '' },
         lessonIndex: lessonIdx,
         slideInLesson: 0,
+        slideId: null,
+        countsForProgress: true,
         lessonImageUrl: lastLessonImageUrl,
       });
     }
@@ -274,6 +290,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
       slide: { type: 'course-completion', bodyHtml: '' },
       lessonIndex: lessonIdx + 1,
       slideInLesson: 0,
+      slideId: null,
+      countsForProgress: false,
       lessonImageUrl: lastLessonImageUrl,
     });
 
