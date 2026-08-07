@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   ChevronLeft, ChevronRight, LogOut, Settings, ShieldCheck,
-  Compass, ShoppingBag, GraduationCap, MessageSquare, HandCoins,
+  Compass, ShoppingBag, GraduationCap, MessageSquare, HandCoins, LayoutDashboard,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -68,8 +68,17 @@ export function Sidebar() {
         })()
       : [];
 
+  const hasWorkspaceHome = workspaceNav.some((it) => it.route.split('?')[0] === '/admin');
+
   const accountNav: ActionNavItem[] = user
     ? [
+        ...(hasWorkspaceHome ? [] : [{
+          id: 'acc-home', icon: LayoutDashboard, emoji: '',
+          titleFr: 'Accueil', titleEn: 'Home',
+          descFr: 'Tableau de bord', descEn: 'Dashboard',
+          route: '/dashboard',
+          borderClass: '', iconBg: '', iconColor: 'text-primary',
+        } as ActionNavItem]),
         {
           id: 'acc-explore', icon: Compass, emoji: '',
           titleFr: 'Explorer', titleEn: 'Explore',

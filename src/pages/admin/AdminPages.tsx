@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, Eye, EyeOff, Megaphone, CalendarDays, PackageOpen, Building2, Save, HandHeart, User } from 'lucide-react';
+import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, ChevronRight, Eye, EyeOff, Megaphone, CalendarDays, PackageOpen, Building2, Save, HandHeart, User, FolderOpen, Globe, SlidersHorizontal } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -27,7 +27,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
 } from '@/components/ui/alert-dialog';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { db } from '@/lib/db';
@@ -1011,6 +1011,8 @@ export function AdminSettings() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const section = searchParams.get('s');
   const qc = useQueryClient();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -1332,8 +1334,55 @@ export function AdminSettings() {
     enabled: currencyWizardOpen && !!currentOrg?.id,
   });
 
+  type SettingsCard = {
+    key: string;
+    icon: typeof Building2;
+    tone: string;
+    titleFr: string; titleEn: string;
+    descFr: string; descEn: string;
+    to?: string;
+  };
+
+  const settingsCards: SettingsCard[] = [
+    { key: 'profile', icon: Building2, tone: 'text-primary bg-primary/10',
+      titleFr: 'Profil de la plateforme', titleEn: 'Platform profile',
+      descFr: 'Nom, logo, bannière, lien public, devise', descEn: 'Name, logo, banner, public link, currency' },
+    { key: 'content', icon: FolderOpen, tone: 'text-amber-500 bg-amber-500/10',
+      titleFr: 'Mes contenus', titleEn: 'My content',
+      descFr: 'Produits, formations, médias, événements, campagnes, codes promo, pop-ups',
+      descEn: 'Products, courses, media, events, campaigns, promo codes, pop-ups',
+      to: '/admin/content' },
+    { key: 'affiliation', icon: Users, tone: 'text-emerald-600 bg-emerald-500/10',
+      titleFr: 'Programme d\'affiliation', titleEn: 'Affiliate program',
+      descFr: 'Commissions sur les ventes via liens de parrainage', descEn: 'Commissions on sales via referral links' },
+    { key: 'donations', icon: HandHeart, tone: 'text-amber-600 bg-amber-500/10',
+      titleFr: 'Module Dons', titleEn: 'Donations module',
+      descFr: 'Dîmes, offrandes et contributions libres', descEn: 'Tithes, offerings & free contributions' },
+    { key: 'leader', icon: User, tone: 'text-violet-600 bg-violet-500/10',
+      titleFr: 'Biographie du leader', titleEn: 'Leader biography',
+      descFr: 'Présentez le leader sur votre page publique', descEn: 'Present the leader on your public page' },
+    { key: 'team', icon: UserPlus, tone: 'text-sky-600 bg-sky-500/10',
+      titleFr: 'Équipe & co-administrateurs', titleEn: 'Team & co-admins',
+      descFr: 'Invitez des personnes à gérer cette plateforme', descEn: 'Invite people to manage this platform',
+      to: '/admin/church/team' },
+    { key: 'domains', icon: Globe, tone: 'text-cyan-600 bg-cyan-500/10',
+      titleFr: 'Domaines', titleEn: 'Domains',
+      descFr: 'Connectez votre nom de domaine personnalisé', descEn: 'Connect your custom domain name' },
+    { key: 'advanced', icon: SlidersHorizontal, tone: 'text-slate-600 bg-slate-500/10',
+      titleFr: 'Avancé', titleEn: 'Advanced',
+      descFr: 'Pixels de suivi, webhooks et pop-ups', descEn: 'Tracking pixels, webhooks and pop-ups' },
+    ...(currentOrg?.owner_id === user?.id
+      ? [{ key: 'danger', icon: AlertTriangle, tone: 'text-destructive bg-destructive/10',
+          titleFr: 'Zone dangereuse', titleEn: 'Danger zone',
+          descFr: 'Supprimer définitivement cette plateforme', descEn: 'Permanently delete this platform' } as SettingsCard]
+      : []),
+  ];
+
+  const active = settingsCards.find((c) => c.key === section && !c.to) ?? null;
+  const shellTitle = active ? (isFr ? active.titleFr : active.titleEn) : (isFr ? 'Paramètres' : 'Settings');
+
   return (
-    <AdminPageShell title={isFr ? 'Paramètres' : 'Settings'} backRoute="/admin">
+    <AdminPageShell title={shellTitle} backRoute={active ? '/admin/settings' : '/admin'}>
       <CurrencyChangeWizard
         open={currencyWizardOpen}
         fromCurrency={orgCurrency}
@@ -1342,10 +1391,45 @@ export function AdminSettings() {
         onConfirm={handleCurrencyWizardConfirm}
         onCancel={() => { setCurrencyWizardOpen(false); setPendingCurrency(null); }}
       />
+
+      {/* ── HUB: pick a settings area ── */}
+      {!active && (
+        <div className="space-y-2.5">
+          <p className="text-sm text-muted-foreground px-1">
+            {isFr ? 'Choisissez ce que vous voulez configurer.' : 'Choose what you want to configure.'}
+          </p>
+          {settingsCards.map((c, i) => {
+            const [textColor, bgColor] = c.tone.split(' ');
+            return (
+              <motion.button
+                key={c.key}
+                type="button"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.03 }}
+                onClick={() => (c.to ? navigate(c.to) : navigate(`/admin/settings?s=${c.key}`))}
+                className="w-full text-left bg-card border border-border rounded-2xl p-4 flex items-center gap-3 hover:border-primary/50 hover:shadow-sm transition-all"
+              >
+                <div className={cn('h-10 w-10 rounded-xl grid place-items-center shrink-0', bgColor)}>
+                  <c.icon className={cn('h-5 w-5', textColor)} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-sm">{isFr ? c.titleFr : c.titleEn}</p>
+                  <p className="text-xs text-muted-foreground line-clamp-2">{isFr ? c.descFr : c.descEn}</p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              </motion.button>
+            );
+          })}
+        </div>
+      )}
+
       <div className="space-y-5">
         {/* ── 1. PROFILE ── */}
 
+        {active?.key === 'profile' && (
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
+
           <div className="px-5 pt-5 pb-3 flex items-center gap-2.5 border-b border-border/60">
             <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
               <Building2 className="h-4 w-4 text-primary" />
@@ -1481,9 +1565,12 @@ export function AdminSettings() {
             </Button>
           </div>
         </div>
+        )}
 
-        {/* ── 2. AFFILIATION (moved up — essential) ── */}
+        {/* ── 2. AFFILIATION ── */}
+        {active?.key === 'affiliation' && (
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
+
           <div className="px-5 pt-5 pb-3 flex items-center gap-2.5 border-b border-border/60">
             <div className="h-8 w-8 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
               <Users className="h-4 w-4 text-emerald-600" />
@@ -1531,9 +1618,12 @@ export function AdminSettings() {
             </Button>
           </div>
         </div>
+        )}
 
-        {/* ── 3. DONATIONS MODULE (moved up — essential) ── */}
+        {/* ── 3. DONATIONS MODULE ── */}
+        {active?.key === 'donations' && (
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
+
           <div className="px-5 pt-5 pb-3 flex items-center gap-2.5 border-b border-border/60">
             <div className="h-8 w-8 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
               <HandHeart className="h-4 w-4 text-amber-600" />
@@ -1562,9 +1652,12 @@ export function AdminSettings() {
             </Button>
           </div>
         </div>
+        )}
 
         {/* ── 4. LEADER BIOGRAPHY ── */}
+        {active?.key === 'leader' && (
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
+
           <div className="px-5 pt-5 pb-3 flex items-center gap-2.5 border-b border-border/60">
             <div className="h-8 w-8 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
               <User className="h-4 w-4 text-violet-600" />
@@ -1625,44 +1718,23 @@ export function AdminSettings() {
             </Button>
           </div>
         </div>
+        )}
 
-        {/* ── 5. TEAM ── */}
-        <div className="space-y-1">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pb-2">{isFr ? 'Équipe' : 'Team'}</p>
-          <button
-            type="button"
-            onClick={() => navigate('/admin/church/team')}
-            className="w-full text-left bg-card border border-border rounded-2xl p-5 flex items-center gap-3 hover:border-primary/50 transition-colors"
-          >
-            <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center shrink-0">
-              <Users className="h-5 w-5 text-primary" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-semibold text-sm">{isFr ? 'Co-administrateurs' : 'Co-admins'}</p>
-              <p className="text-xs text-muted-foreground">
-                {isFr ? 'Invite des personnes à gérer cet espace avec toi.' : 'Invite people to manage this space with you.'}
-              </p>
-            </div>
-          </button>
-        </div>
-
-        {/* ── 6. DOMAINS ── */}
-        <div className="space-y-1">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pb-2">{isFr ? 'Domaines' : 'Domains'}</p>
-          <DomainSettingsWidget />
-        </div>
-
+        {/* ── 5. DOMAINS ── */}
+        {active?.key === 'domains' && <DomainSettingsWidget />}
 
         {/* ── 6. ADVANCED: Tracking, Webhooks, Popups ── */}
-        <div className="space-y-1">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pb-2">{isFr ? 'Avancé' : 'Advanced'}</p>
-          <PixelSettings orgId={currentOrg?.id} />
-          <WebhookSettings orgId={currentOrg?.id} />
-          <PopupSettings orgId={currentOrg?.id} />
-        </div>
+        {active?.key === 'advanced' && (
+          <div className="space-y-3">
+            <PixelSettings orgId={currentOrg?.id} />
+            <WebhookSettings orgId={currentOrg?.id} />
+            <PopupSettings orgId={currentOrg?.id} />
+          </div>
+        )}
 
-        {/* ── 6. DANGER ZONE ── */}
-        {currentOrg?.owner_id === user?.id && (
+        {/* ── 7. DANGER ZONE ── */}
+        {active?.key === 'danger' && currentOrg?.owner_id === user?.id && (
+
           <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-5 space-y-3">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-destructive" />
@@ -1710,7 +1782,9 @@ export function AdminSettings() {
           </div>
         )}
 
-        <p className="text-[11px] text-muted-foreground text-center pb-4">{isFr ? 'Contactez le support pour modifier le plan.' : 'Contact support to change your plan.'}</p>
+        {active?.key === 'profile' && (
+          <p className="text-[11px] text-muted-foreground text-center pb-4">{isFr ? 'Contactez le support pour modifier le plan.' : 'Contact support to change your plan.'}</p>
+        )}
       </div>
 
       {/* Crop Dialog */}

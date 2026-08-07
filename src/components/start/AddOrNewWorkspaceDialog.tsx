@@ -51,7 +51,7 @@ export function AddOrNewWorkspaceDialog({ open, onOpenChange, currentOrgName, on
           >
             <div className="flex items-center gap-2 font-semibold text-sm">
               <Plus className="h-4 w-4 text-primary" />
-              {fr ? 'Créer un nouvel espace/page' : 'Create a new workspace/page'}
+              {fr ? 'Créer une plateforme' : 'Create a platform'}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {fr
