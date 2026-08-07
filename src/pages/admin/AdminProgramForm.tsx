@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate, useParams } from 'react-router-dom';
 import { onContentPublished, onContentUnpublished } from '@/lib/notifications';
 import { useOrg } from '@/contexts/OrgContext';
+import { useEnsureProgramSlides } from '@/hooks/useProgramSlides';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   useProgram, useProgramModules, useUpdateProgram,
@@ -56,6 +57,10 @@ export function ProgramForm() {
 
   const { data: existingProgram } = useProgram(id);
   const { data: modules = [] } = useProgramModules(id);
+
+  // Migrate legacy HTML lessons into real slide rows (idempotent, admin-only)
+  useEnsureProgramSlides(id, isEdit);
+
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
