@@ -19,10 +19,14 @@ export function usePWAInstall() {
       document.referrer.includes('android-app://');
     setIsInstalled(isStandalone);
 
-    // Detect iOS
+    // Detect iOS / iPadOS (iPadOS 13+ reports as "Macintosh" but is touch-capable).
+    // Desktop Safari/Chrome on macOS must NOT be treated as iOS.
     const ua = navigator.userAgent;
-    const isiOS = /iPad|iPhone|iPod/.test(ua) && !(window as any).MSStream;
+    const isTouch = (navigator.maxTouchPoints || 0) > 1;
+    const isIPadOS = /Macintosh/.test(ua) && isTouch;
+    const isiOS = (/iPad|iPhone|iPod/.test(ua) && !(window as any).MSStream) || isIPadOS;
     setIsIOS(isiOS);
+
 
     // Listen for the install prompt
     const handler = (e: Event) => {
