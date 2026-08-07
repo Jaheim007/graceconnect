@@ -107,6 +107,18 @@ export default function AdminProgramDraftReview() {
     approved: draft?.lessons.filter((l) => l.approved).length || 0,
   }), [draft]);
 
+  // A generation can be cut short (network loss, failed job): in that case the
+  // course must stay a DRAFT — never auto-publish an incomplete course.
+  const emptyLessons = useMemo(
+    () => (draft?.lessons || []).filter((l) => !(l.slides?.length)).length,
+    [draft],
+  );
+  const incomplete = generating || job?.status === 'failed' || emptyLessons > 0 || totals.lessons === 0;
+
+  // Force "draft" whenever the draft is incomplete
+  useEffect(() => { if (incomplete && publishNow) setPublishNow(false); }, [incomplete, publishNow]);
+
+
   const mutate = (fn: (d: CourseDraft) => CourseDraft) => {
     setDraft((prev) => (prev ? fn(structuredClone(prev)) : prev));
     setDirty(true);
