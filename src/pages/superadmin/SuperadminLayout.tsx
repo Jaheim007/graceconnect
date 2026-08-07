@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
 import {
   Shield, Users, FileCheck, BarChart3, Megaphone, Sparkles, LayoutDashboard, Activity, Settings, Download,
   UserCircle, Target, ShieldAlert, Mail, ChevronLeft, ChevronRight, ArrowLeft, Bell, HelpCircle, Wallet, Handshake, ShieldCheck, Brain, Menu, Sun, Moon, Church, Home, PartyPopper, GraduationCap
@@ -266,11 +267,11 @@ export default function SuperadminLayout() {
       <main className="flex-1 min-w-0 lg:max-h-screen lg:overflow-y-auto">
         <div className="pt-14 lg:pt-0">
           <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 tabular-nums">
-            <AnimatePresence mode="wait">
-              <motion.div key={location.pathname} {...pageTransition}>
+            <motion.div key={location.pathname} {...pageTransition}>
+              <Suspense fallback={<RouteContentSkeleton />}>
                 <Outlet />
-              </motion.div>
-            </AnimatePresence>
+              </Suspense>
+            </motion.div>
           </div>
         </div>
       </main>

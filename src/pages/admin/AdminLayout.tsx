@@ -1,4 +1,6 @@
+import { Suspense } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
 import { useOrg } from '@/contexts/OrgContext';
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -265,7 +267,9 @@ export default function AdminLayout() {
         </aside>
 
         <main className="flex-1 min-w-0 p-3 sm:p-4 lg:p-6 overflow-y-auto">
-          <Outlet />
+          <Suspense fallback={<RouteContentSkeleton />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
       <OnboardingTour />

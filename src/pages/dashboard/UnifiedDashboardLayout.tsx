@@ -1,4 +1,6 @@
+import { Suspense } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger,
@@ -277,7 +279,9 @@ export default function UnifiedDashboardLayout() {
             </Button>
           </header>
           <main className="flex-1 min-w-0">
-            <Outlet />
+            <Suspense fallback={<RouteContentSkeleton />}>
+              <Outlet />
+            </Suspense>
           </main>
         </div>
       </div>
