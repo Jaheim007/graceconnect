@@ -378,7 +378,13 @@ export function SlideRenderer({
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
       {hasBgImage && <img src={backgroundImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} loading="lazy" decoding="async" />}
-      {hasBgImage && <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20 z-[1]" />}
+      {hasBgImage && (
+        <>
+          {/* Readability scrim: the photo stays visible, but never competes with the text block */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/65 to-black/35 z-[1]" />
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px] z-[1]" />
+        </>
+      )}
       <SlideDecoration theme={theme} />
       <div className="relative z-20"><Header /></div>
 
