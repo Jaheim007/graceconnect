@@ -1394,35 +1394,54 @@ export function AdminSettings() {
 
       {/* ── HUB: pick a settings area ── */}
       {!active && (
-        <div className="space-y-2.5">
-          <p className="text-sm text-muted-foreground px-1">
-            {isFr ? 'Choisissez ce que vous voulez configurer.' : 'Choose what you want to configure.'}
-          </p>
-          {settingsCards.map((c, i) => {
-            const [textColor, bgColor] = c.tone.split(' ');
-            return (
-              <motion.button
-                key={c.key}
-                type="button"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.03 }}
-                onClick={() => (c.to ? navigate(c.to) : navigate(`/admin/settings?s=${c.key}`))}
-                className="w-full text-left bg-card border border-border rounded-2xl p-4 flex items-center gap-3 hover:border-primary/50 hover:shadow-sm transition-all"
-              >
-                <div className={cn('h-10 w-10 rounded-xl grid place-items-center shrink-0', bgColor)}>
-                  <c.icon className={cn('h-5 w-5', textColor)} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-sm">{isFr ? c.titleFr : c.titleEn}</p>
-                  <p className="text-xs text-muted-foreground line-clamp-2">{isFr ? c.descFr : c.descEn}</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-              </motion.button>
-            );
-          })}
+        <div className="relative">
+          {/* ambient glow */}
+          <div aria-hidden className="pointer-events-none absolute -top-24 left-1/4 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute top-32 right-0 h-56 w-56 rounded-full bg-violet-500/10 blur-3xl" />
+
+          <div className="relative">
+            <p className="text-sm text-muted-foreground px-1 mb-4">
+              {isFr ? 'Choisissez ce que vous voulez configurer.' : 'Choose what you want to configure.'}
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {settingsCards.map((c, i) => {
+                const [textColor, bgColor] = c.tone.split(' ');
+                return (
+                  <motion.button
+                    key={c.key}
+                    type="button"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.035, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    onClick={() => (c.to ? navigate(c.to) : navigate(`/admin/settings?s=${c.key}`))}
+                    className={cn(
+                      'group relative w-full text-left overflow-hidden rounded-2xl p-4 flex items-center gap-3.5',
+                      'border border-border/60 bg-card/70 backdrop-blur-xl',
+                      'shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-300',
+                      'hover:border-primary/40 hover:shadow-[0_12px_32px_-16px_hsl(var(--primary)/0.45)] hover:-translate-y-0.5',
+                      'active:scale-[0.99]',
+                    )}
+                  >
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-primary/[0.06] via-transparent to-transparent"
+                    />
+                    <div className={cn('relative h-11 w-11 rounded-xl grid place-items-center shrink-0 ring-1 ring-inset ring-border/50 transition-transform duration-300 group-hover:scale-105', bgColor)}>
+                      <c.icon className={cn('h-5 w-5', textColor)} />
+                    </div>
+                    <div className="relative min-w-0 flex-1">
+                      <p className="font-semibold text-sm tracking-tight">{isFr ? c.titleFr : c.titleEn}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{isFr ? c.descFr : c.descEn}</p>
+                    </div>
+                    <ChevronRight className="relative h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-primary" />
+                  </motion.button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
+
 
       <div className="space-y-5">
         {/* ── 1. PROFILE ── */}
