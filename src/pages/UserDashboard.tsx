@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Package, Store, Share2, ArrowRight, BookOpen, Rocket, Zap, GraduationCap, Heart, Shield, Building2, Compass } from 'lucide-react';
+import { Package, Store, Share2, ArrowRight, BookOpen, Rocket, Zap, GraduationCap, Heart, Shield, Building2, Compass, Palette, Percent, CalendarCheck2, LayoutPanelTop, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
