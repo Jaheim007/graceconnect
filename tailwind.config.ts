@@ -72,8 +72,9 @@ export default {
       },
       fontFamily: {
         sans: [
+          "Bricolage Grotesque",
+          "Bricolage Grotesque Variable",
           "Inter",
-          "Inter var",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",
