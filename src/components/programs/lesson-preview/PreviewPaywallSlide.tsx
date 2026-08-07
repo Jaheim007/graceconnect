@@ -41,7 +41,7 @@ export function PreviewPaywallSlide({
   const returnTo = buildCourseSlideLink(programId, { slideId: lockedSlideId, slideIndex: lockedSlideIndex });
 
   const handleSignIn = () => {
-    setPendingAction('resume_course' as any, returnTo, {
+    setPendingAction('resume_course', returnTo, {
       programId,
       slideId: lockedSlideId,
       slideIndex: lockedSlideIndex,
