@@ -34,12 +34,13 @@ interface PostPurchaseCelebrationProps {
 }
 
 export function PostPurchaseCelebration({
-  const navigate = useNavigate();
   open, onClose, productTitle, organizationId, orgName, orgSlug,
   productSlug, productId, coverImageUrl, isFreePurchase, productType,
   price = 0, commissionRate = 20, onGoToResources, onDownload,
 }: PostPurchaseCelebrationProps) {
+  const navigate = useNavigate();
   const { user } = useAuth();
+
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { fmt } = useDisplayCurrency();
