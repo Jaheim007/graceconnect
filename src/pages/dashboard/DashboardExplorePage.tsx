@@ -121,7 +121,7 @@ export default function DashboardExplorePage() {
           )}
 
 
-          <div className="relative rounded-2xl p-[1.5px] bg-gradient-to-r from-primary/60 via-orange-500/50 to-fuchsia-500/50 shadow-[0_18px_50px_-24px_hsl(var(--primary)/0.55)]">
+          <div className="relative z-50 rounded-2xl p-[1.5px] bg-gradient-to-r from-primary/60 via-orange-500/50 to-fuchsia-500/50 shadow-[0_18px_50px_-24px_hsl(var(--primary)/0.55)]">
             <div className="relative rounded-[calc(1rem-1px)] bg-card">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
               <Input
