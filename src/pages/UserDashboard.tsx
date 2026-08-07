@@ -44,7 +44,7 @@ export default function UserDashboard() {
   const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency || primaryCurrency, locale);
 
   // Quick actions — the shortcuts that aren't already surfaced at the top.
-  const offeringsEnabled = !!((currentOrg?.settings as any)?.offerings_enabled);
+  const offeringsEnabled = !!((currentOrg as any)?.settings?.offerings_enabled);
   const quickActions = [
     { to: '/admin/settings?s=profile', icon: Palette,
       labelFr: 'Personnaliser ma plateforme', labelEn: 'Customize my platform',
