@@ -179,7 +179,7 @@ export default function AdminProgramDraftReview() {
 
     try {
       if (dirty) await updateDraft.mutateAsync(draft);
-      const result = await publishDraft.mutateAsync({ org_id: orgId, project_id: projectId, publish_now: publishNow });
+      const result = await publishDraft.mutateAsync({ org_id: orgId, project_id: projectId, publish_now: publishNow && !incomplete });
 
       // Apply pricing + keep the checkout product in sync (same flow as products)
       await setPricing.mutateAsync({
