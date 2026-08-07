@@ -175,7 +175,17 @@ export default function DashboardExplorePage() {
         </div>
       </div>
 
-      {WorldComponent ? (
+      {isSearching ? (
+        <div className="container max-w-6xl px-4 py-6">
+          <Suspense fallback={
+            <div className="flex items-center justify-center py-16 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin" />
+            </div>
+          }>
+            <ExploreSearchResults query={debouncedSearch} />
+          </Suspense>
+        </div>
+      ) : WorldComponent ? (
         <div className="container max-w-6xl px-4 py-6">
           <Suspense fallback={
             <div className="flex items-center justify-center py-16 text-muted-foreground">
@@ -189,17 +199,16 @@ export default function DashboardExplorePage() {
         <div className="container max-w-6xl px-4 py-6 space-y-8">
           <InterestHub />
           <Suspense fallback={null}>
-            {!isSearching && <RecentlyViewedProducts />}
-            {!isSearching && <CategoryCarousels />}
-            {!isSearching && <FeaturedSection />}
-            {!isSearching && (
-              <div>
-                <ForYouFeed />
-              </div>
-            )}
+            <RecentlyViewedProducts />
+            <CategoryCarousels />
+            <FeaturedSection />
+            <div>
+              <ForYouFeed />
+            </div>
           </Suspense>
         </div>
       )}
+
     </div>
   );
 }
