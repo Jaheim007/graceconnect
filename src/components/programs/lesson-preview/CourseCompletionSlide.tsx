@@ -6,12 +6,12 @@ import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { useI18n } from '@/i18n/I18nContext';
-import { useSaveCertificate, useSaveSlideProgress, useCertificate } from '@/hooks/useLearnerProgress';
+import { useIssueCertificate, useCertificate } from '@/hooks/useLearnerProgress';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Button } from '@/components/ui/button';
 import { LessonImageBackdrop } from './LessonImageBackdrop';
-import { supabase } from '@/integrations/supabase/client';
+import { certificateErrorMessage, certificateFilename, downloadCertificatePdf } from '@/lib/certificates';
 import { toast } from 'sonner';
 interface CourseCompletionSlideProps {
   theme: SlideTheme;
