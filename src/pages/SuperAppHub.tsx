@@ -195,11 +195,12 @@ export default function SuperAppHub() {
                 <div className="relative">
                   <div className="mb-6 flex items-center justify-between">
                     <span
-                      <Store className="h-5 w-5" />
+                      className="grid h-12 w-12 place-items-center rounded-2xl text-white shadow-lg"
                       style={{ background: 'linear-gradient(135deg, hsl(340 82% 60%), hsl(28 88% 60%))' }}
                     >
-                      
+                      <Store className="h-6 w-6" />
                     </span>
+
                     <span
                       className="rounded-full bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
                       style={{ color: 'hsl(340 82% 45%)' }}
