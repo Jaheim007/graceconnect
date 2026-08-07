@@ -20,6 +20,7 @@ const shortcuts = [
  * Shows all available keyboard shortcuts.
  */
 export function KeyboardShortcutsModal() {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const { locale } = useI18n();
   const isFr = locale === 'fr';

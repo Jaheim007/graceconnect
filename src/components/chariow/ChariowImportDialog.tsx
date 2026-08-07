@@ -39,6 +39,7 @@ interface ChariowProduct {
 type Step = 'intro' | 'loading' | 'select' | 'importing' | 'done';
 
 export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const navigate = useNavigate();
   const [step, setStep] = useState<Step>('intro');
   const [apiKey, setApiKey] = useState('');
   const [products, setProducts] = useState<ChariowProduct[]>([]);

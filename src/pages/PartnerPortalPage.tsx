@@ -39,6 +39,7 @@ const STATUS_MAP_EN: Record<string, { label: string; variant: 'default' | 'secon
 };
 
 export default function PartnerPortalPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
