@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, Loader2, Copy, CheckCircle } from 'lucide-react';
+import { Zap, Loader2, Copy, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/i18n/I18nContext';
@@ -84,7 +84,7 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
+            <Zap className="h-5 w-5 text-primary" />
             {isFr ? 'Aide à la rédaction IA' : 'AI Writing Assistant'}
           </DialogTitle>
           <DialogDescription>
@@ -122,7 +122,7 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
           </div>
 
           <Button onClick={handleGenerate} disabled={loading || !prompt.trim()} className="w-full gap-2">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
             {loading
               ? (isFr ? 'Rédaction en cours…' : 'Writing in progress…')
               : (isFr ? 'Générer le texte' : 'Generate text')}

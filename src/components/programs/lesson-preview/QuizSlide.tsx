@@ -108,7 +108,7 @@ export function QuizSlide({
           >
             <div className="flex items-center gap-2 bg-yellow-500/20 backdrop-blur-sm border border-yellow-400/30 rounded-full px-4 py-2">
               <Star className="h-6 w-6 text-yellow-400 fill-yellow-400 drop-shadow-lg" />
-              <span className="text-sm text-yellow-300 font-bold">+1 ⭐</span>
+              <span className="text-sm text-yellow-300 font-bold">+1</span>
             </div>
           </motion.div>
         )}

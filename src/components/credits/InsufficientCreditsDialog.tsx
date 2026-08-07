@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Clock, ShoppingCart, Sparkles, Gift, TrendingUp, Share2, BookOpen, ChevronRight } from 'lucide-react';
+import { AlertTriangle, Clock, ShoppingCart, Zap, Gift, TrendingUp, Share2, BookOpen, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCreditsBalance } from '@/hooks/useCredits';
 import { useI18n } from '@/i18n/I18nContext';
@@ -137,7 +137,7 @@ export function InsufficientCreditsDialog({ open, onOpenChange, message }: Insuf
               </p>
             </div>
             <Badge variant="secondary" className="text-[10px] shrink-0">
-              <Sparkles className="h-3 w-3 mr-0.5" />
+              <Zap className="h-3 w-3 mr-0.5" />
               +38{isFr ? ',5' : '.5'}
             </Badge>
           </div>

@@ -77,7 +77,7 @@ export function SmartNudge() {
     // Buyer with purchases but no org → push to create content with AI Studio
     if (state.hasPurchases && !state.hasOrg) {
       all.push({
-        id: 'buyer-to-creator', emoji: '✨', priority: 2, bg: 'bg-violet-500/5 border-violet-500/20',
+        id: 'buyer-to-creator', emoji: '', priority: 2, bg: 'bg-violet-500/5 border-violet-500/20',
         text: t('nudge.buyer_creator'), cta: t('nudge.buyer_creator_cta'), action: () => navigate('/ecrire'),
       });
     }

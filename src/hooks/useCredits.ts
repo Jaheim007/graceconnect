@@ -204,7 +204,7 @@ export function useGrantDailyCredits() {
       }
       if (res.monthly?.ok && res.monthly.granted) {
         const tierLabel = res.monthly.tier === 'pro' ? 'Pro' : res.monthly.tier === 'org' ? 'Org' : res.monthly.tier === 'founder' ? 'Founder' : 'Free';
-        toast.success(`+${res.monthly.granted} crédits mensuels (${tierLabel}) ✨`, { duration: 6000 });
+        toast.success(`+${res.monthly.granted} crédits mensuels (${tierLabel})`, { duration: 6000 });
       }
     },
   });

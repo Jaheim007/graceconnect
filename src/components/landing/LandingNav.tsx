@@ -1,9 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import {
-  Menu, X, ArrowRight, User, LogOut, CreditCard, Sparkles, Gift,
-  BarChart3, Package, Settings, ShieldCheck, MessageSquare, Church,
-} from 'lucide-react';
+import { Menu, X, ArrowRight, User, LogOut, CreditCard, Zap, Gift, BarChart3, Package, Settings, ShieldCheck, MessageSquare, Church } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -75,7 +72,7 @@ export function LandingNav() {
                 <DropdownMenuItem onClick={() => navigate('/my-reviews')} className="text-sm gap-2"><MessageSquare className="h-4 w-4" /> {isFr ? 'Mes avis' : 'My reviews'}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/referrals')} className="text-sm gap-2"><Gift className="h-4 w-4" /> {isFr ? 'Parrainage' : 'Referrals'}</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/create-org')} className="text-sm gap-2"><Sparkles className="h-4 w-4" /> {isFr ? 'Créer ma plateforme' : 'Create my platform'}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/create-org')} className="text-sm gap-2"><Zap className="h-4 w-4" /> {isFr ? 'Créer ma plateforme' : 'Create my platform'}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/admin')} className="text-sm gap-2"><Settings className="h-4 w-4" /> {isFr ? 'Espace admin' : 'Admin panel'}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/creator/analytics')} className="text-sm gap-2"><BarChart3 className="h-4 w-4" /> Analytics</DropdownMenuItem>
                 {isSuperadmin && (<><DropdownMenuSeparator /><DropdownMenuItem onClick={() => navigate('/superadmin')} className="text-sm gap-2"><ShieldCheck className="h-4 w-4" /> Superadmin</DropdownMenuItem></>)}

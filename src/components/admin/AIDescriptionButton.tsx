@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Zap, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/i18n/I18nContext';
@@ -52,7 +52,7 @@ export function AIDescriptionButton({ title, productType, price, currency = 'XOF
 
       if (data?.description) {
         onGenerated(data.description);
-        toast({ title: isFr ? '✨ Description générée !' : '✨ Description generated!' });
+        toast({ title: isFr ? 'Description générée !' : 'Description generated!' });
       }
     } catch (err: any) {
       toast({
@@ -77,7 +77,7 @@ export function AIDescriptionButton({ title, productType, price, currency = 'XOF
       {loading ? (
         <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {isFr ? 'Génération...' : 'Generating...'}</>
       ) : (
-        <><Sparkles className="h-3.5 w-3.5" /> {isFr ? 'Écris ma description IA' : 'Write my AI description'}</>
+        <><Zap className="h-3.5 w-3.5" /> {isFr ? 'Écris ma description IA' : 'Write my AI description'}</>
       )}
     </Button>
   );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen, Brush, Cross, Moon, Flame, BookHeart, Megaphone, ScrollText, Swords, HandHeart } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Zap, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen, Brush, Cross, Moon, Flame, BookHeart, Megaphone, ScrollText, Swords, HandHeart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -216,9 +216,9 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
             {suggestingTitles ? (
               <Loader2 className="h-3 w-3 animate-spin" />
             ) : (
-              <Sparkles className="h-3 w-3" />
+              <Zap className="h-3 w-3" />
             )}
-            {t('write.suggest_titles') || '✨ Suggérer des titres'}
+            {t('write.suggest_titles') || 'Suggérer des titres'}
           </Button>
         </div>
         <Input
@@ -261,9 +261,9 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
             {suggestingSubtitles ? (
               <Loader2 className="h-3 w-3 animate-spin" />
             ) : (
-              <Sparkles className="h-3 w-3" />
+              <Zap className="h-3 w-3" />
             )}
-            {t('write.suggest_subtitles') || '✨ Suggest subtitles'}
+            {t('write.suggest_subtitles') || 'Suggest subtitles'}
           </Button>
         </div>
         <Input

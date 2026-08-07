@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
-import { Layout, Plus, Edit3, Trash2, Loader2, Sparkles } from 'lucide-react';
+import { Layout, Plus, Edit3, Trash2, Loader2, Zap } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 
 export default function OrgTemplates() {
@@ -162,7 +162,7 @@ export default function OrgTemplates() {
       ) : !templates?.length ? (
         <Card>
           <CardContent className="py-16 text-center">
-            <Sparkles className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+            <Zap className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
             <p className="text-muted-foreground font-medium">{isFr ? 'Aucun template' : 'No templates'}</p>
             <p className="text-sm text-muted-foreground mt-1">
               {isFr ? 'Créez des templates réutilisables pour accélérer vos créations' : 'Create reusable templates to speed up your creations'}

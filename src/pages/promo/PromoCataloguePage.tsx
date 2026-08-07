@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 
 const CATEGORIES = [
-  { key: 'all', labelFr: 'Tout', labelEn: 'All', emoji: '✨' },
+  { key: 'all', labelFr: 'Tout', labelEn: 'All', emoji: '' },
   { key: 'spirituality', labelFr: 'Spiritualité', labelEn: 'Spirituality', emoji: '🙏', regex: /bible|church|église|pray|spirit|god|dieu|faith|worship|sermon|psaume|gospel|christ|pasteur|pastor|prophè/i },
   { key: 'tech', labelFr: 'Technologie & IA', labelEn: 'Tech & AI', emoji: '💻', regex: /\b(tech|coding|code|dev|software|data\s?scien|machine.?learn|prompt|chatgpt|gpt|saas|programm|python|javascript|cybersec|blockchain|crypto)\b/i },
   { key: 'business', labelFr: 'Business & Marketing', labelEn: 'Business & Marketing', emoji: '📈', regex: /\b(business|market|vend|sell|money|argent|entrep|freelan|profit|revenue|copywrite|brand|commerce|prospect|funnel|startup|stratégi)\b/i },

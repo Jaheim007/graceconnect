@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Share2, Building2, Sparkles } from 'lucide-react';
+import { ArrowRight, Share2, Building2, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { RotatingWords } from './RotatingWords';
@@ -43,7 +43,7 @@ export function LandingHeroSplit() {
         >
           {/* Badge */}
           <motion.div variants={fadeUp} className="inline-flex items-center gap-1.5 bg-accent/10 text-accent border border-accent/20 rounded-full px-3 py-1 text-xs font-semibold">
-            <Sparkles className="h-3 w-3 animate-[pulse_2s_ease-in-out_infinite]" /> La plateforme où tout le monde gagne
+            <Zap className="h-3 w-3 animate-[pulse_2s_ease-in-out_infinite]" /> La plateforme où tout le monde gagne
           </motion.div>
 
           {/* Main headline with rotating words */}

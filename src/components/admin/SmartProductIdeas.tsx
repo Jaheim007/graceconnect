@@ -4,11 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Lightbulb, ArrowRight, ChevronDown, ChevronUp, Sparkles,
-  BookOpen, Video, Mic, FileText, Gift, GraduationCap, Heart,
-  Music, Camera, Palette, Calculator, Globe, Star
-} from 'lucide-react';
+import { Lightbulb, ArrowRight, ChevronDown, ChevronUp, Zap, BookOpen, Video, Mic, FileText, Gift, GraduationCap, Heart, Music, Camera, Palette, Calculator, Globe, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ProductIdea {
@@ -96,7 +92,7 @@ export function SmartProductIdeas() {
           </div>
         </div>
         <Badge variant="secondary" className="text-[10px]">
-          <Sparkles className="h-2.5 w-2.5 mr-1" />
+          <Zap className="h-2.5 w-2.5 mr-1" />
           {ideas.length} idées
         </Badge>
       </div>

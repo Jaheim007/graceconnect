@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, Sparkles, X, Rocket, Image, Megaphone, ShoppingBag, Heart, Link2, Users, HandHeart } from 'lucide-react';
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, Zap, X, Rocket, Image, Megaphone, ShoppingBag, Heart, Link2, Users, HandHeart } from 'lucide-react';
 import { ConfettiCelebration } from '@/components/gamification/ConfettiCelebration';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -128,7 +128,7 @@ export function OnboardingChecklist() {
       {/* Header */}
       <div className="p-4 flex items-center gap-3">
         <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-          {progress === 100 ? <Sparkles className="h-5 w-5 text-primary" /> : <Rocket className="h-5 w-5 text-primary" />}
+          {progress === 100 ? <Zap className="h-5 w-5 text-primary" /> : <Rocket className="h-5 w-5 text-primary" />}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">

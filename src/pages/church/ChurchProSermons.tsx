@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  ArrowLeft, Mic, Upload, Loader2, Sparkles, CheckCircle2, AlertTriangle, Clock, Plus, FileAudio,
-} from 'lucide-react';
+import { ArrowLeft, Mic, Upload, Loader2, Zap, CheckCircle2, AlertTriangle, Clock, Plus, FileAudio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -258,7 +256,7 @@ function UploadDialog({ open, onOpenChange, churchId, onCreated }: {
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={uploading}>{fr ? 'Annuler' : 'Cancel'}</Button>
           <Button onClick={submit} disabled={uploading || !title.trim() || !file || !rights}>
-            {uploading ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Sparkles className="mr-1.5 h-4 w-4" />}
+            {uploading ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Zap className="mr-1.5 h-4 w-4" />}
             {fr ? 'Uploader et transcrire' : 'Upload & transcribe'}
           </Button>
         </DialogFooter>

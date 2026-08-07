@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Sparkles, TrendingDown, ArrowRight } from 'lucide-react';
+import { Zap, TrendingDown, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { db } from '@/lib/db';
@@ -110,7 +110,7 @@ export function CommissionSavingsCard() {
       <Card className="p-5 border-primary/30 bg-gradient-to-br from-primary/10 via-background to-background">
         <div className="flex items-start gap-3">
           <div className="h-10 w-10 rounded-full bg-primary/15 text-primary flex items-center justify-center shrink-0">
-            <Sparkles className="h-5 w-5" />
+            <Zap className="h-5 w-5" />
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-base">

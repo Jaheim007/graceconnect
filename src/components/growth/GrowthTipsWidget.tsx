@@ -23,7 +23,7 @@ const ALL_TIPS: Tip[] = [
   { emoji: '💰', title: { fr: 'Choisis les top commissions', en: 'Pick top commissions' }, desc: { fr: 'Filtre par commission élevée dans la marketplace pour maximiser tes gains.', en: 'Filter by high commission in the marketplace to maximize your earnings.' }, category: 'ambassador' },
   { emoji: '📱', title: { fr: 'Utilise les stories', en: 'Use stories' }, desc: { fr: 'Partage tes gains et découvertes en story WhatsApp/Instagram pour inspirer ton réseau.', en: 'Share your earnings and discoveries on WhatsApp/Instagram stories to inspire your network.' }, category: 'ambassador' },
   { emoji: '🎯', title: { fr: 'Complète ton profil', en: 'Complete your profile' }, desc: { fr: 'Un profil complet avec photo inspire confiance et améliore tes conversions.', en: 'A complete profile with photo builds trust and improves your conversions.' }, category: 'general' },
-  { emoji: '⭐', title: { fr: 'Laisse des avis', en: 'Leave reviews' }, desc: { fr: 'Les avis aident les autres acheteurs et renforcent la communauté.', en: 'Reviews help other buyers and strengthen the community.' }, category: 'general' },
+  { emoji: '', title: { fr: 'Laisse des avis', en: 'Leave reviews' }, desc: { fr: 'Les avis aident les autres acheteurs et renforcent la communauté.', en: 'Reviews help other buyers and strengthen the community.' }, category: 'general' },
   { emoji: '🤝', title: { fr: 'Invite tes amis', en: 'Invite your friends' }, desc: { fr: 'Chaque ami invité qui achète te rapporte des récompenses. Partage ton lien !', en: 'Every invited friend who buys earns you rewards. Share your link!' }, category: 'general' },
 ];
 

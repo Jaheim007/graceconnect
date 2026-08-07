@@ -28,7 +28,7 @@ const INTERESTS: Interest[] = [
   { key: 'home',      emoji: '🛠️', fr: 'Artisans',             en: 'Artisans' },
   { key: 'events',    emoji: '🎉', fr: 'Événements',           en: 'Events' },
   { key: 'education', emoji: '🎓', fr: 'Éducation & Coachs',   en: 'Education & Coaches' },
-  { key: 'other',     emoji: '✨', fr: 'Autres services',      en: 'Other services' },
+  { key: 'other',     emoji: '', fr: 'Autres services',      en: 'Other services' },
 ];
 
 export default function LookingForPage() {

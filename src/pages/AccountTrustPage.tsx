@@ -118,7 +118,7 @@ export default function AccountTrustPage() {
         <CardContent className="space-y-2">
           {(!notifications || notifications.length === 0) && (
             <p className="text-sm text-muted-foreground text-center py-6">
-              Aucune notification. Votre compte est en règle ✨
+              Aucune notification. Votre compte est en règle
             </p>
           )}
           {notifications?.map((n: any) => (

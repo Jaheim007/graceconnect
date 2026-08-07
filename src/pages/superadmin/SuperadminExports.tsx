@@ -2,11 +2,7 @@ import { useState } from 'react';
 import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Download, FileText, Users, Building2, CreditCard, Heart,
-  ShoppingBag, Shield, Loader2, Sparkles, TrendingUp, UserCheck,
-  BarChart3, Zap, Globe
-} from 'lucide-react';
+import { Download, FileText, Users, Building2, CreditCard, Heart, ShoppingBag, Shield, Loader2, Zap, TrendingUp, UserCheck, BarChart3, Globe } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -420,7 +416,7 @@ export default function SuperadminExports() {
   // ═══════════════════════════════════════════════════════
 
   const advancedReports: ExportItem[] = [
-    { label: 'Mapping Créateurs Complet', desc: 'Email → Orgs → Produits → Ventes réelles → Statut KYC — tout croisé', icon: Sparkles, action: exportCreatorMapping, gradient: 'from-amber-500/20 via-orange-500/10 to-red-500/20', badge: 'CEO' },
+    { label: 'Mapping Créateurs Complet', desc: 'Email → Orgs → Produits → Ventes réelles → Statut KYC — tout croisé', icon: Zap, action: exportCreatorMapping, gradient: 'from-amber-500/20 via-orange-500/10 to-red-500/20', badge: 'CEO' },
     { label: 'Créateurs KYC Vérifiés', desc: 'Seuls les créateurs ayant soumis leur KYC, avec produits et revenus', icon: UserCheck, action: exportKYCVerified, gradient: 'from-emerald-500/20 via-teal-500/10 to-cyan-500/20', badge: 'COMPLIANCE' },
     { label: 'Revenus par Organisation', desc: 'Classement par revenu total (ventes + dons) avec nb produits et KYC', icon: TrendingUp, action: exportRevenueByOrg, gradient: 'from-violet-500/20 via-purple-500/10 to-pink-500/20', badge: 'FINANCE' },
     { label: 'Vue Plateforme Globale', desc: 'KPIs clés : users, orgs, GMV, KYC, payouts, affiliés — en 1 fichier', icon: Globe, action: exportPlatformOverview, gradient: 'from-blue-500/20 via-indigo-500/10 to-violet-500/20', badge: 'OVERVIEW' },

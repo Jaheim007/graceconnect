@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, TrendingUp, Flame, DollarSign, Clock, Sparkles } from 'lucide-react';
+import { Search, TrendingUp, Flame, DollarSign, Clock, Zap } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAffiliateMarketplace } from '@/hooks/useAffiliateMarketplace';
 import { ProductSwipeCard } from './ProductSwipeCard';
@@ -60,7 +60,7 @@ export function SwipeableFeed() {
       <div className="space-y-3">
         <div>
           <h2 className="text-xl font-extrabold flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-accent" />
+            <Zap className="h-5 w-5 text-accent" />
             {isFr ? 'Produits à partager' : 'Products to share'}
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">

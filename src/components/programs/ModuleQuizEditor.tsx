@@ -13,10 +13,7 @@ import {
   useModuleFlashcards, useAddFlashcard, useUpdateFlashcard, useDeleteFlashcard,
 } from '@/hooks/useModuleQuiz';
 import { supabase } from '@/integrations/supabase/client';
-import {
-  Plus, Trash2, Save, Sparkles, HelpCircle, Loader2, GripVertical,
-  CheckCircle2, XCircle, ChevronDown, ChevronRight, RotateCcw, Lightbulb
-} from 'lucide-react';
+import { Plus, Trash2, Save, Zap, HelpCircle, Loader2, GripVertical, CheckCircle2, XCircle, ChevronDown, ChevronRight, RotateCcw, Lightbulb } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -315,7 +312,7 @@ export function ModuleQuizEditor({ moduleId, moduleTitle, programId, courseTitle
                       </SelectContent>
                     </Select>
                     <Button size="sm" variant="outline" className="text-xs gap-1.5 h-7" onClick={handleAIGenerate} disabled={generating}>
-                      {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                      {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
                       {isFr ? 'Générer IA' : 'AI Generate'}
                     </Button>
                     <Button size="sm" className="text-xs gap-1.5 h-7" onClick={() => setEditingQuestion(emptyQuestion())}>
@@ -552,7 +549,7 @@ export function ModuleQuizEditor({ moduleId, moduleTitle, programId, courseTitle
           <div className="bg-card border border-dashed border-border rounded-lg p-3 space-y-2">
             <div className="flex items-center gap-2">
               <Button size="sm" variant="outline" className="text-xs gap-1.5 flex-1" onClick={handleAIGenerateFlashcards} disabled={generatingFlashcards}>
-                {generatingFlashcards ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                {generatingFlashcards ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
                 {isFr ? 'Générer avec IA' : 'Generate with AI'}
               </Button>
             </div>

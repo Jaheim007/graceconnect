@@ -7,10 +7,7 @@ import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import {
-  Target, Share2, Image, Tag, MessageSquare, Users,
-  Sparkles, Gift, ChevronRight, CheckCircle2, Clock
-} from 'lucide-react';
+import { Target, Share2, Image, Tag, MessageSquare, Users, Zap, Gift, ChevronRight, CheckCircle2, Clock } from 'lucide-react';
 
 interface Mission {
   id: string;
@@ -100,7 +97,7 @@ export function WeeklyMissions() {
       id: 'publish-content',
       label: 'Publiez un contenu cette semaine',
       description: 'Vidéo, audio ou reel — gardez votre audience engagée.',
-      icon: Sparkles,
+      icon: Zap,
       check: () => weekMedia > 0,
       route: '/admin/media/new',
     },

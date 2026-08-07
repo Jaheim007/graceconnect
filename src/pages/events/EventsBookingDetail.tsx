@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Calendar, MapPin, ShieldCheck, MessageCircle, CheckCircle2, XCircle, Loader2, AlertTriangle, Sparkles, Users } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, ShieldCheck, MessageCircle, CheckCircle2, XCircle, Loader2, AlertTriangle, Zap, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,7 +17,7 @@ const STATUS: Record<string, { fr: string; en: string; color: string; icon: any 
   pending: { fr: "En attente", en: "Pending", color: "amber", icon: Loader2 },
   confirmed: { fr: "Confirmé", en: "Confirmed", color: "fuchsia", icon: CheckCircle2 },
   deposit_paid: { fr: "Acompte payé", en: "Deposit paid", color: "fuchsia", icon: CheckCircle2 },
-  in_progress: { fr: "En cours", en: "In progress", color: "fuchsia", icon: Sparkles },
+  in_progress: { fr: "En cours", en: "In progress", color: "fuchsia", icon: Zap },
   completed: { fr: "Terminé", en: "Completed", color: "emerald", icon: CheckCircle2 },
   cancelled: { fr: "Annulé", en: "Cancelled", color: "rose", icon: XCircle },
   disputed: { fr: "Litige", en: "Disputed", color: "rose", icon: AlertTriangle },
@@ -236,7 +236,7 @@ export default function EventsBookingDetail() {
         {review && (
           <div className="rounded-2xl border border-border bg-card p-5">
             <div className="text-sm font-bold flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-fuchsia-500" />{t("Ton avis", "Your review")}
+              <Zap className="h-4 w-4 text-fuchsia-500" />{t("Ton avis", "Your review")}
               <span className="ml-auto font-black">{review.rating}/5 ★</span>
             </div>
             {review.comment && <p className="mt-1 text-sm text-muted-foreground">{review.comment}</p>}

@@ -1,9 +1,5 @@
 // Shared Events categories — used in onboarding, packages editor, discovery filters.
-import {
-  Camera, Video, Music, Mic2, UtensilsCrossed, Sparkles,
-  Building2, Speaker, Shield, ChefHat, CalendarHeart, Armchair,
-  type LucideIcon,
-} from "lucide-react";
+import { Camera, Video, Music, Mic2, UtensilsCrossed, Zap, Building2, Speaker, Shield, ChefHat, CalendarHeart, Armchair, type LucideIcon } from "lucide-react";
 
 export interface EventsCategory {
   id: string;
@@ -18,7 +14,7 @@ export const EVENTS_CATEGORIES: EventsCategory[] = [
   { id: "dj", fr: "DJ", en: "DJ", icon: Music },
   { id: "mc", fr: "Animateur / MC", en: "MC / Host", icon: Mic2 },
   { id: "caterer", fr: "Traiteur", en: "Caterer", icon: ChefHat },
-  { id: "decorator", fr: "Décoration", en: "Decorator", icon: Sparkles },
+  { id: "decorator", fr: "Décoration", en: "Decorator", icon: Zap },
   { id: "venue", fr: "Salle / Lieu", en: "Venue", icon: Building2 },
   { id: "sound_light", fr: "Son & Lumière", en: "Sound & Light", icon: Speaker },
   { id: "security", fr: "Sécurité", en: "Security", icon: Shield },

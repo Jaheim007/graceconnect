@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { Zap } from 'lucide-react';
 
 import { ResultsShowcaseCard } from '@/components/landing/ResultsShowcaseCard';
 import { RESULT_SLIDES } from '@/components/landing/resultsShowcaseData';
@@ -35,7 +35,7 @@ export function LandingResultsShowcase() {
           transition={{ duration: 0.7 }}
         >
           <motion.span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary/5 text-primary text-xs font-bold uppercase tracking-[0.2em] mb-6 border border-primary/10">
-            <Sparkles className="h-3.5 w-3.5" />
+            <Zap className="h-3.5 w-3.5" />
             Résultats vérifiés
           </motion.span>
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">

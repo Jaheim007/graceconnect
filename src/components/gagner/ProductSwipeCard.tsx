@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getEffectivePrice } from '@/lib/effectivePrice';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Check, Zap, Eye, ChevronDown, ChevronUp, Flame, BadgeCheck, Sparkles, ArrowRight } from 'lucide-react';
+import { Copy, Check, Zap, Eye, ChevronDown, ChevronUp, Flame, BadgeCheck, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -305,7 +305,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
               className="w-full gap-2 text-sm font-bold"
               onClick={() => navigate(`/auth?mode=signup&next=${encodeURIComponent('/gagner')}&intent=ambassador`)}
             >
-              <Sparkles className="h-4 w-4" />
+              <Zap className="h-4 w-4" />
               {isFr ? 'Créer mon compte gratuit' : 'Create my free account'}
               <ArrowRight className="h-4 w-4" />
             </Button>

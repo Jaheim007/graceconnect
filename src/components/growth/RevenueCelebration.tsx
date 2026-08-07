@@ -3,7 +3,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { motion } from 'framer-motion';
-import { Trophy, Share2, Sparkles, X } from 'lucide-react';
+import { Trophy, Share2, Zap, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { useI18n } from '@/i18n/I18nContext';

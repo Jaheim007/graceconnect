@@ -1,4 +1,4 @@
-import { ArrowLeft, Bell, Mail, ShoppingBag, Heart, Megaphone, Calendar, MessageSquare, Users, BookOpen, Sparkles } from 'lucide-react';
+import { ArrowLeft, Bell, Mail, ShoppingBag, Heart, Megaphone, Calendar, MessageSquare, Users, BookOpen, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +16,7 @@ const PREFS: Array<{ key: keyof NotifPrefs; icon: typeof Bell; labelFr: string; 
   { key: 'comments', icon: MessageSquare, labelFr: 'Commentaires', labelEn: 'Comments', descFr: 'Réponses à vos commentaires', descEn: 'Replies to your comments' },
   { key: 'affiliate', icon: Users, labelFr: 'Ambassadeur', labelEn: 'Ambassador', descFr: 'Commissions et ventes', descEn: 'Commissions and sales' },
   { key: 'programs', icon: BookOpen, labelFr: 'Programmes', labelEn: 'Programs', descFr: 'Nouveautés des plateformes', descEn: 'Platform updates' },
-  { key: 'marketing', icon: Sparkles, labelFr: 'Marketing', labelEn: 'Marketing', descFr: 'Promotions et nouveautés', descEn: 'Promotions and news' },
+  { key: 'marketing', icon: Zap, labelFr: 'Marketing', labelEn: 'Marketing', descFr: 'Promotions et nouveautés', descEn: 'Promotions and news' },
 ];
 
 export default function NotificationPreferencesPage() {

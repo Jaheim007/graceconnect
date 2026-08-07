@@ -16,7 +16,7 @@ import { OfferingModal } from '@/components/offerings/OfferingModal';
 import { Offering } from '@/hooks/useOfferings';
 
 const CATEGORY_META = [
-  { value: '', emoji: '✨' },
+  { value: '', emoji: '' },
   { value: 'pdf', emoji: '📄' },
   { value: 'ebook', emoji: '📚' },
   { value: 'audio', emoji: '🎵' },

@@ -4,7 +4,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Crown, Sparkles } from 'lucide-react';
+import { Crown, Zap } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface FounderRow {
@@ -95,7 +95,7 @@ export default function FoundersPage() {
         {remaining !== null && remaining > 0 && (
           <Link to="/pricing#founder">
             <Button size="lg" className="gap-2">
-              <Sparkles className="h-4 w-4" />
+              <Zap className="h-4 w-4" />
               {isFr ? `Réserver ma place (${remaining} restantes)` : `Claim my spot (${remaining} left)`}
             </Button>
           </Link>

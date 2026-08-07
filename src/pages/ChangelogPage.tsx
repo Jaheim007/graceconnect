@@ -1,4 +1,4 @@
-import { ArrowLeft, Sparkles, Zap, Shield, Bug, Palette, Loader2 } from 'lucide-react';
+import { ArrowLeft, Zap, Shield, Bug, Palette, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
@@ -26,8 +26,8 @@ export default function ChangelogPage() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
-  const typeConfig: Record<string, { icon: typeof Sparkles; label: string; color: string }> = {
-    feature: { icon: Sparkles, label: isFr ? 'Nouveau' : 'New', color: 'bg-primary/10 text-primary border-primary/20' },
+  const typeConfig: Record<string, { icon: typeof Zap; label: string; color: string }> = {
+    feature: { icon: Zap, label: isFr ? 'Nouveau' : 'New', color: 'bg-primary/10 text-primary border-primary/20' },
     improvement: { icon: Zap, label: isFr ? 'Amélioration' : 'Improvement', color: 'bg-accent/10 text-accent-foreground border-accent/20' },
     security: { icon: Shield, label: isFr ? 'Sécurité' : 'Security', color: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' },
     fix: { icon: Bug, label: isFr ? 'Correction' : 'Fix', color: 'bg-muted text-muted-foreground border-border' },
@@ -63,7 +63,7 @@ export default function ChangelogPage() {
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <Sparkles className="h-4 w-4 text-primary" />
+        <Zap className="h-4 w-4 text-primary" />
         <span className="font-semibold text-sm">{isFr ? 'Nouveautés' : 'What\'s new'}</span>
       </div>
 
@@ -80,7 +80,7 @@ export default function ChangelogPage() {
         {(changelog as any[]).map((release: any) => (
           <div key={release.version} className="relative pl-6 border-l-2 border-border">
             <div className="absolute -left-2.5 top-0 h-5 w-5 rounded-full bg-primary flex items-center justify-center">
-              <Sparkles className="h-3 w-3 text-primary-foreground" />
+              <Zap className="h-3 w-3 text-primary-foreground" />
             </div>
             <div className="mb-4">
               <div className="flex items-center gap-2">

@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { useI18n } from '@/i18n/I18nContext';
-import { Sparkles, Image as ImageIcon, Type, Palette, ChevronDown, ChevronUp, ArrowLeft, CheckCheck } from 'lucide-react';
+import { Zap, Image as ImageIcon, Type, Palette, ChevronDown, ChevronUp, ArrowLeft, CheckCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type CaptionStyle = 'light' | 'dark';
@@ -141,7 +141,7 @@ export function SlideCustomizationPanel({ customization, onChange, onApplyToAll,
             onClick={onGenerateImage}
             disabled={isGenerating}
           >
-            <Sparkles className="h-3.5 w-3.5" />
+            <Zap className="h-3.5 w-3.5" />
             {isGenerating
               ? (isFr ? 'Génération…' : 'Generating…')
               : (isFr ? 'Générer avec l\'IA' : 'Generate with AI')}

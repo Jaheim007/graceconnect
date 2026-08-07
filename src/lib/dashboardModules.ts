@@ -10,10 +10,7 @@
  * and are used at signup to pre-enable the right modules for the vertical the
  * user came in through.
  */
-import {
-  Calendar, Package, Gift, BookOpen, Sparkles,
-  MapPin, Ticket, Users2, LucideIcon,
-} from 'lucide-react';
+import { Calendar, Package, Gift, BookOpen, Zap, MapPin, Ticket, Users2, LucideIcon } from 'lucide-react';
 
 /**
  * Only *true add-on modules* live here — things a provider can choose to
@@ -90,7 +87,7 @@ export const MODULES: Record<ModuleId, DashboardModule> = {
     descEn: 'Generate coloring and kids books.',
   },
   ai_content: {
-    id: 'ai_content', icon: Sparkles, route: '/dashboard/ai-content', color: 'bg-fuchsia-500/10 text-fuchsia-600',
+    id: 'ai_content', icon: Zap, route: '/dashboard/ai-content', color: 'bg-fuchsia-500/10 text-fuchsia-600',
     labelFr: 'Contenu & formations IA', labelEn: 'AI content & courses',
     descFr: 'Sermons, articles, posts, scripts, cours.',
     descEn: 'Sermons, articles, posts, scripts, courses.',

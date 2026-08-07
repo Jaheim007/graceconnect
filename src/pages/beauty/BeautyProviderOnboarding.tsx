@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Sparkles, ArrowLeft, ArrowRight, ShieldCheck, Check, Loader2,
-  Scissors, MapPin, Wallet, Plus, X, Locate,
-} from "lucide-react";
+import { Zap, ArrowLeft, ArrowRight, ShieldCheck, Check, Loader2, Scissors, MapPin, Wallet, Plus, X, Locate } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,7 +27,7 @@ function gatewayFor(currency: string) {
 type StepKey = "identity" | "location" | "services" | "payout";
 
 const STEPS: { key: StepKey; label: string; icon: any }[] = [
-  { key: "identity", label: "Identité", icon: Sparkles },
+  { key: "identity", label: "Identité", icon: Zap },
   { key: "location", label: "Zone & lieu", icon: MapPin },
   { key: "services", label: "Spécialités & services", icon: Scissors },
   { key: "payout", label: "Encaissement", icon: Wallet },

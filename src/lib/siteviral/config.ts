@@ -170,7 +170,7 @@ export const SITEVIRAL_TYPES: Record<SiteviralType, SiteviralTypeMeta> = {
     defaultFeatures: ['appointment','order_generator','payment','reviews','location','kyc','affiliation'],
   },
   influencers: {
-    key: 'influencers', emoji: '⭐', available: false,
+    key: 'influencers', emoji: '', available: false,
     labelFr: 'SiteViral Influenceurs', labelEn: 'SiteViral Influencers',
     descFr: 'Influenceurs, créateurs, personnalités publiques',
     descEn: 'Influencers, creators, public personalities',

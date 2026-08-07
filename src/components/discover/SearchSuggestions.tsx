@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, TrendingUp, Clock, Sparkles } from 'lucide-react';
+import { Search, TrendingUp, Clock, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
 
@@ -126,7 +126,7 @@ export function SearchSuggestions({ query, isOpen, onSelect, onClose }: SearchSu
                 onClick={() => onSelect(title)}
                 className="w-full text-left px-2 py-1.5 text-sm hover:bg-accent/50 rounded-lg transition-colors flex items-center gap-2"
               >
-                <Sparkles className="h-3 w-3 text-amber-500 shrink-0" />
+                <Zap className="h-3 w-3 text-amber-500 shrink-0" />
                 <span className="truncate">{title}</span>
               </button>
             ))}

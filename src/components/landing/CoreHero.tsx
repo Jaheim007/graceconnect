@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles, Compass } from 'lucide-react';
+import { ArrowRight, Zap, Compass } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
@@ -39,7 +39,7 @@ export function CoreHero() {
       />
       <div className="container relative max-w-4xl px-4 sm:px-6 py-20 sm:py-28 text-center">
         <motion.div {...rise(0)} className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider">
-          <Sparkles className="h-3.5 w-3.5 text-accent" />
+          <Zap className="h-3.5 w-3.5 text-accent" />
           {fr ? 'Gratuit pour commencer' : 'Free to start'}
         </motion.div>
 

@@ -59,7 +59,7 @@ export default function TemoignagesPage() {
 
       <section className="pt-14">
         <div className="container max-w-4xl px-4 pt-24 pb-16 sm:pt-32 text-center space-y-5">
-          <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full border border-border">{isFr ? '⭐ Témoignages' : '⭐ Testimonials'}</Badge>
+          <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full border border-border">{isFr ? 'Témoignages' : 'Testimonials'}</Badge>
           <h1 className="text-3xl sm:text-5xl font-extrabold leading-tight">
             {isFr ? <>Ils ont <span className="text-primary">transformé leur impact</span> avec Siteviral</> : <>They <span className="text-primary">transformed their impact</span> with Siteviral</>}
           </h1>

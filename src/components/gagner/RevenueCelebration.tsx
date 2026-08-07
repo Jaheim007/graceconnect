@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Share2, X, Sparkles } from 'lucide-react';
+import { Trophy, Share2, X, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
@@ -54,7 +54,7 @@ export function RevenueCelebration({ amount, milestone, onDismiss }: RevenueCele
             </motion.div>
             <div>
               <p className="text-xs font-bold text-accent uppercase tracking-wider flex items-center justify-center gap-1">
-                <Sparkles className="h-3.5 w-3.5" /> {milestone}
+                <Zap className="h-3.5 w-3.5" /> {milestone}
               </p>
               <p className="text-3xl font-black text-accent mt-2">
                 {formatCurrency(amount, DEFAULT_CURRENCY)}

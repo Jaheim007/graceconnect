@@ -1,21 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import {
-  ArrowRight,
-  BookOpen,
-  CheckCircle2,
-  FileCheck,
-  GraduationCap,
-  Package,
-  Plus,
-  Receipt,
-  Share2,
-  ShoppingBag,
-  Sparkles,
-  TrendingUp,
-  Wallet,
-} from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle2, FileCheck, GraduationCap, Package, Plus, Receipt, Share2, ShoppingBag, Zap, TrendingUp, Wallet } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -214,7 +200,7 @@ export default function DigitalProductDashboard() {
               <Plus className="h-4 w-4" /> {isFr ? 'Nouveau produit' : 'New product'}
             </Button>
             <Button variant="outline" onClick={() => navigate('/ecrire')} className="gap-2">
-              <Sparkles className="h-4 w-4" /> {isFr ? 'Écrire avec IA' : 'Write with AI'}
+              <Zap className="h-4 w-4" /> {isFr ? 'Écrire avec IA' : 'Write with AI'}
             </Button>
           </div>
         </section>

@@ -6,10 +6,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import {
-  ChevronLeft, ChevronRight,
-  Monitor, Tablet, Smartphone, X, List, Settings2, Star, Trophy, Sparkles, HelpCircle
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Monitor, Tablet, Smartphone, X, List, Settings2, Star, Trophy, Zap, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parseContentIntoSlides, ContentSlide, type QuizData } from './lesson-preview/parseContentSlides';
 import { SlideRenderer } from './lesson-preview/SlideRenderer';
@@ -569,7 +566,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
             {!isLearner && (
               <>
                 <div className="hidden sm:flex items-center gap-1.5 mr-1">
-                  <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
+                  <Zap className="h-3.5 w-3.5 text-muted-foreground" />
                   <span className="text-[10px] text-muted-foreground hidden sm:inline">
                     {isFr ? 'Étoiles' : 'Stars'}
                   </span>

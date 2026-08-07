@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, ImagePlus, Loader2, SkipForward, Sparkles, RefreshCw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ImagePlus, Loader2, SkipForward, Zap, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
@@ -207,7 +207,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
         {generatingAll ? (
           <><Loader2 className="h-4 w-4 animate-spin" /> {t('write.illust_generating_all') || 'Génération en cours...'}</>
         ) : (
-          <><Sparkles className="h-4 w-4" /> {t('write.illust_generate_all') || `Générer toutes les illustrations (${Math.max(0, chapters.length - illustratedCount)} restantes)`}</>
+          <><Zap className="h-4 w-4" /> {t('write.illust_generate_all') || `Générer toutes les illustrations (${Math.max(0, chapters.length - illustratedCount)} restantes)`}</>
         )}
       </Button>
 
@@ -249,7 +249,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
                     ) : illustrations[chapter.id] ? (
                       <RefreshCw className="h-3 w-3" />
                     ) : (
-                      <Sparkles className="h-3 w-3" />
+                      <Zap className="h-3 w-3" />
                     )}
                     {illustrations[chapter.id]
                       ? (t('write.illust_regenerate') || 'Régénérer')

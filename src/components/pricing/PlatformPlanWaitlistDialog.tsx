@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { toast } from 'sonner';
-import { CheckCircle2, Sparkles, Loader2 } from 'lucide-react';
+import { CheckCircle2, Zap, Loader2 } from 'lucide-react';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 
 interface Props {
@@ -88,7 +88,7 @@ export function PlatformPlanWaitlistDialog({ open, onOpenChange, plan, source = 
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
+                <Zap className="h-5 w-5 text-primary" />
                 {isFr ? `Rejoindre la liste ${planLabel}` : `Join ${planLabel} waitlist`}
               </DialogTitle>
               <DialogDescription>

@@ -164,7 +164,7 @@ export function ModuleQuizPlayer({ quiz, moduleTitle, onComplete, gamificationEn
             {Array.from({ length: result.starsEarned }).map((_, i) => (
               <Star key={i} className="h-6 w-6 fill-yellow-400 text-yellow-400" />
             ))}
-            <span className="text-sm font-medium ml-1">+{result.starsEarned} ⭐</span>
+            <span className="text-sm font-medium ml-1">+{result.starsEarned}</span>
           </motion.div>
         )}
 
@@ -324,7 +324,7 @@ export function ModuleQuizPlayer({ quiz, moduleTitle, onComplete, gamificationEn
               >
                 <div className="flex items-center gap-2 font-semibold mb-1">
                   {isCorrect(currentQ) ? (
-                    <><CheckCircle2 className="h-4 w-4" /> {isFr ? 'Correct ! ⭐' : 'Correct! ⭐'}</>
+                    <><CheckCircle2 className="h-4 w-4" /> {isFr ? 'Correct !' : 'Correct!'}</>
                   ) : (
                     <><XCircle className="h-4 w-4" /> {isFr ? 'Incorrect' : 'Incorrect'}</>
                   )}

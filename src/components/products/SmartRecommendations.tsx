@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, ArrowRight, Sparkles } from 'lucide-react';
+import { ShoppingBag, ArrowRight, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
@@ -82,7 +82,7 @@ export function SmartRecommendations({
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-accent" />
+        <Zap className="h-4 w-4 text-accent" />
         <h3 className="text-sm font-extrabold">{defaultTitle}</h3>
       </div>
 

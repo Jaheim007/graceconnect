@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  ArrowLeft, TrendingDown, TrendingUp, Users, AlertTriangle, Crown, BarChart3,
-  Sparkles, ShoppingBag, Activity, Download,
-} from 'lucide-react';
+import { ArrowLeft, TrendingDown, TrendingUp, Users, AlertTriangle, Crown, BarChart3, Zap, ShoppingBag, Activity, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
 import {
@@ -235,7 +232,7 @@ export default function CreatorAdvancedAnalyticsPage() {
                 </p>
               </div>
               <Badge variant="secondary" className="gap-1">
-                <Sparkles className="w-3 h-3" />
+                <Zap className="w-3 h-3" />
                 {fmt(totalRevenue, currency)}
               </Badge>
             </CardHeader>

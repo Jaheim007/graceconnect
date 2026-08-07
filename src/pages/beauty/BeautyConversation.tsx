@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ArrowLeft, Send, ShieldAlert, Info, Sparkles, Calendar,
-  Home, Store, Check, X, Loader2, FileText,
-} from "lucide-react";
+import { ArrowLeft, Send, ShieldAlert, Info, Zap, Calendar, Home, Store, Check, X, Loader2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -684,7 +681,7 @@ function SendOfferSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" size="icon" className="h-11 w-11 shrink-0" title={t("Envoyer une offre", "Send offer")}>
-          <Sparkles className="h-4 w-4" />
+          <Zap className="h-4 w-4" />
         </Button>
       </SheetTrigger>
       <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">

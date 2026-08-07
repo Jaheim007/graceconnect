@@ -15,11 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useCallback, useEffect, useRef } from 'react';
-import {
-  ArrowLeft, Plus, Trash2, GripVertical, Save, FileText,
-  Sparkles, Loader2, ChevronLeft, ChevronRight, ListTree,
-  FileCheck, BookOpen, Eye, ImagePlus, Upload, Star, StarOff, Palette
-} from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, GripVertical, Save, FileText, Zap, Loader2, ChevronLeft, ChevronRight, ListTree, FileCheck, BookOpen, Eye, ImagePlus, Upload, Star, StarOff, Palette } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { usePdfPreviewBlobUrl } from '@/hooks/usePdfPreviewBlobUrl';
 import { cn } from '@/lib/utils';
@@ -710,7 +706,7 @@ export default function ProjectEditor() {
                   onClick={generateChapter}
                   disabled={!!isGenerating || !activeChapter}
                 >
-                  <Sparkles className="h-3.5 w-3.5 text-primary" /> Générer ce chapitre
+                  <Zap className="h-3.5 w-3.5 text-primary" /> Générer ce chapitre
                 </Button>
               </div>
             </div>
@@ -819,7 +815,7 @@ export default function ProjectEditor() {
         </div>
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="outline" size="sm" onClick={generateAndPreviewPdf} disabled={generatingPdf}>
-            {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
+            {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Zap className="h-3.5 w-3.5 mr-1" />}
             Regénérer le PDF
           </Button>
         </div>

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { PromoLayout } from './PromoLayout';
 import { ProductCard } from '@/components/products/ProductCard';
-import { Loader2, Sparkles, Zap, BookOpen, GraduationCap } from 'lucide-react';
+import { Loader2, Zap, BookOpen, GraduationCap } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
@@ -58,7 +58,7 @@ export default function PromoAICreationsPage() {
 
       {data && data.length === 0 && (
         <div className="text-center py-16 space-y-4">
-          <Sparkles className="h-12 w-12 mx-auto text-muted-foreground/30" />
+          <Zap className="h-12 w-12 mx-auto text-muted-foreground/30" />
           <p className="text-lg font-medium text-muted-foreground">
             {isFr ? 'Les premières créations arrivent bientôt !' : 'First creations coming soon!'}
           </p>

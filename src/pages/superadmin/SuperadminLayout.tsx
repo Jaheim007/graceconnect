@@ -2,10 +2,7 @@ import { useState, Suspense } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
-import {
-  Shield, Users, FileCheck, BarChart3, Megaphone, Sparkles, LayoutDashboard, Activity, Settings, Download,
-  UserCircle, Target, ShieldAlert, Mail, ChevronLeft, ChevronRight, ArrowLeft, Bell, HelpCircle, Wallet, Handshake, ShieldCheck, Brain, Menu, Sun, Moon, Church, Home, PartyPopper, GraduationCap
-} from 'lucide-react';
+import { Shield, Users, FileCheck, BarChart3, Megaphone, Zap, LayoutDashboard, Activity, Settings, Download, UserCircle, Target, ShieldAlert, Mail, ChevronLeft, ChevronRight, ArrowLeft, Bell, HelpCircle, Wallet, Handshake, ShieldCheck, Brain, Menu, Sun, Moon, Church, Home, PartyPopper, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -63,7 +60,7 @@ const linkGroups = [
   {
     label: 'Verticals',
     items: [
-      { to: '/superadmin/beauty', label: 'Beauty', icon: Sparkles },
+      { to: '/superadmin/beauty', label: 'Beauty', icon: Zap },
       { to: '/superadmin/church', label: 'Church', icon: Church },
       { to: '/superadmin/home', label: 'Home', icon: Home },
       { to: '/superadmin/events', label: 'Events', icon: PartyPopper },
@@ -77,7 +74,7 @@ const linkGroups = [
       { to: '/superadmin/exports', label: 'Exports', icon: Download },
       { to: '/superadmin/support', label: 'Support', icon: HelpCircle },
       { to: '/superadmin/settings', label: 'Settings', icon: Settings },
-      { to: '/superadmin/ai', label: 'AI Insights', icon: Sparkles },
+      { to: '/superadmin/ai', label: 'AI Insights', icon: Zap },
     ],
   },
 ];

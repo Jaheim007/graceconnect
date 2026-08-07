@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Copy, MessageCircle, Share2, Check, Sparkles } from 'lucide-react';
+import { Copy, MessageCircle, Share2, Check, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
@@ -28,7 +28,7 @@ export function ViralShareMessages() {
     { emoji: '🚀', text: 'Je ne croyais pas que c\'était possible… Maintenant je gagne de l\'argent juste en partageant des liens. Rejoinds-moi → siteviral.com', category: 'beginner' },
     { emoji: '📚', text: 'J\'ai écrit un livre en 5 minutes avec l\'IA de SiteViral et il se vend déjà ! Essaie toi aussi → siteviral.com/ecrire', category: 'education' },
     { emoji: '💪', text: 'Tu veux gagner de l\'argent en ligne sans rien créer ? Partage des produits et touche des commissions → siteviral.com/gagner', category: 'education' },
-    { emoji: '⭐', text: 'Mon produit commence à bien marcher sur SiteViral ! Prochain objectif : doubler mes ventes ce mois. Tu peux aussi → siteviral.com', category: 'progress' },
+    { emoji: '', text: 'Mon produit commence à bien marcher sur SiteViral ! Prochain objectif : doubler mes ventes ce mois. Tu peux aussi → siteviral.com', category: 'progress' },
     { emoji: '🎯', text: 'Voici ce que j\'ai gagné en 1 semaine en partageant sur WhatsApp. C\'est gratuit et ça marche → siteviral.com', category: 'proof' },
     { emoji: '🤝', text: 'Rejoins l\'armée qui gagne en partageant. Pas besoin de créer, juste de partager → siteviral.com/gagner', category: 'beginner' },
     { emoji: '✍️', text: 'Les mamans, vous avez tant de choses à écrire : votre vie, vos enfants, votre expérience. Écrivez et vendez → siteviral.com/ecrire', category: 'education' },
@@ -39,7 +39,7 @@ export function ViralShareMessages() {
     { emoji: '🚀', text: 'I didn\'t believe it was possible… Now I earn money just by sharing links. Join me → siteviral.com', category: 'beginner' },
     { emoji: '📚', text: 'I wrote a book in 5 minutes with SiteViral\'s AI and it\'s already selling! Try it → siteviral.com/ecrire', category: 'education' },
     { emoji: '💪', text: 'Want to earn money online without creating anything? Share products and earn commissions → siteviral.com/gagner', category: 'education' },
-    { emoji: '⭐', text: 'My product is doing well on SiteViral! Next goal: double my sales. You can too → siteviral.com', category: 'progress' },
+    { emoji: '', text: 'My product is doing well on SiteViral! Next goal: double my sales. You can too → siteviral.com', category: 'progress' },
     { emoji: '🎯', text: 'Here\'s what I earned in 1 week sharing on WhatsApp. It\'s free and it works → siteviral.com', category: 'proof' },
     { emoji: '🤝', text: 'Join the army that earns by sharing. No need to create, just share → siteviral.com/gagner', category: 'beginner' },
     { emoji: '✍️', text: 'Moms, you have so much to write: your life, your kids, your experience. Write and sell → siteviral.com/ecrire', category: 'education' },
@@ -60,7 +60,7 @@ export function ViralShareMessages() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-primary" />
+        <Zap className="h-5 w-5 text-primary" />
         <h2 className="text-lg font-extrabold">{isFr ? 'Messages prêts à partager' : 'Ready-to-share messages'}</h2>
       </div>
       <p className="text-xs text-muted-foreground">

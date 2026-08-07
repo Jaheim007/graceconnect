@@ -8,10 +8,7 @@
  * offers a pro — but from the buyer angle.
  */
 import type { LucideIcon } from 'lucide-react';
-import {
-  Package, Sparkles, Church, Wrench, Ticket, GraduationCap,
-  BookOpen, Heart, Calendar, Store, Gift, Users, Search,
-} from 'lucide-react';
+import { Package, Zap, Church, Wrench, Ticket, GraduationCap, BookOpen, Heart, Calendar, Store, Gift, Users, Search } from 'lucide-react';
 
 export type BuyerWorld = 'digital' | 'beauty' | 'church' | 'home' | 'events' | 'education' | 'other';
 
@@ -25,12 +22,12 @@ export interface BuyerWorldMeta {
 
 export const BUYER_WORLDS: Record<BuyerWorld, BuyerWorldMeta> = {
   digital:   { id: 'digital',   icon: Package,         emoji: '📦', labelFr: 'Produits digitaux', labelEn: 'Digital products', discoverRoute: '/discover?type=digital' },
-  beauty:    { id: 'beauty',    icon: Sparkles,        emoji: '💅', labelFr: 'Beauté',            labelEn: 'Beauty',           discoverRoute: '/beauty' },
+  beauty:    { id: 'beauty',    icon: Zap,        emoji: '💅', labelFr: 'Beauté',            labelEn: 'Beauty',           discoverRoute: '/beauty' },
   church:    { id: 'church',    icon: Church,          emoji: '⛪', labelFr: 'Église',            labelEn: 'Church',           discoverRoute: '/church' },
   home:      { id: 'home',      icon: Wrench,          emoji: '🛠️', labelFr: 'Artisans',          labelEn: 'Artisans',         discoverRoute: '/home' },
   events:    { id: 'events',    icon: Ticket,          emoji: '🎉', labelFr: 'Événements',        labelEn: 'Events',           discoverRoute: '/events' },
   education: { id: 'education', icon: GraduationCap,   emoji: '📚', labelFr: 'Éducation',         labelEn: 'Education',        discoverRoute: '/education' },
-  other:     { id: 'other',     icon: Store,           emoji: '✨', labelFr: 'Autres services',   labelEn: 'Other services',   discoverRoute: '/dashboard/explore' },
+  other:     { id: 'other',     icon: Store,           emoji: '', labelFr: 'Autres services',   labelEn: 'Other services',   discoverRoute: '/dashboard/explore' },
 };
 
 /**

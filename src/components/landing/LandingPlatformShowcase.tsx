@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Store, BarChart3, Sparkles, Users } from 'lucide-react';
+import { Store, BarChart3, Zap, Users } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 
 const fadeUp = {
@@ -14,12 +14,12 @@ export function LandingPlatformShowcase() {
   const features = isFr ? [
     { icon: Store, label: 'Boutique personnalisée', desc: 'Votre vitrine à votre image, prête en quelques clics.' },
     { icon: BarChart3, label: 'Ventes en temps réel', desc: 'Suivez chaque transaction, chaque ambassadeur.' },
-    { icon: Sparkles, label: 'IA intégrée', desc: 'Créez des livres, ebooks et contenus automatiquement.' },
+    { icon: Zap, label: 'IA intégrée', desc: 'Créez des livres, ebooks et contenus automatiquement.' },
     { icon: Users, label: 'Programme ambassadeur', desc: 'Vos lecteurs deviennent vos vendeurs.' },
   ] : [
     { icon: Store, label: 'Custom storefront', desc: 'Your branded store, ready in clicks.' },
     { icon: BarChart3, label: 'Real-time sales', desc: 'Track every transaction, every ambassador.' },
-    { icon: Sparkles, label: 'Built-in AI', desc: 'Create books, ebooks and content automatically.' },
+    { icon: Zap, label: 'Built-in AI', desc: 'Create books, ebooks and content automatically.' },
     { icon: Users, label: 'Ambassador program', desc: 'Your readers become your sellers.' },
   ];
 

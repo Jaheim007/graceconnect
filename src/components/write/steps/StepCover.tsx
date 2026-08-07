@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, Sparkles, Loader2, Wand2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Zap, Loader2, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
@@ -105,7 +105,7 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
       if (data?.cover_url) {
         update({ coverUrl: data.cover_url, coverFile: null, coverTemplate: -1 });
         refreshCredits();
-        toast({ title: '✨ Couverture générée avec succès !' });
+        toast({ title: 'Couverture générée avec succès !' });
       }
     } catch (err: any) {
       if (!handleAiError(err)) {
@@ -159,7 +159,7 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
                     : 'border-transparent hover:scale-105'
                 )}
               >
-                <Sparkles className="h-4 w-4 text-white/80 mb-1" />
+                <Zap className="h-4 w-4 text-white/80 mb-1" />
                 <p className="text-white font-bold text-[8px] leading-tight text-center line-clamp-2">
                   {state.title || t('write.my_book')}
                 </p>

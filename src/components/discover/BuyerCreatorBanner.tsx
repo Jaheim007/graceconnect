@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Sparkles, ArrowRight, X } from 'lucide-react';
+import { Zap, ArrowRight, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
@@ -38,7 +38,7 @@ export function BuyerCreatorBanner() {
 
       <div className="flex items-start gap-4">
         <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-          <Sparkles className="h-5 w-5 text-primary" />
+          <Zap className="h-5 w-5 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-bold text-sm mb-1">
@@ -60,7 +60,7 @@ export function BuyerCreatorBanner() {
             className="gap-2"
             onClick={() => navigate('/ecrire')}
           >
-            <Sparkles className="h-3.5 w-3.5" />
+            <Zap className="h-3.5 w-3.5" />
             {isFr ? 'Créer mon livre avec l\'IA' : 'Create my book with AI'}
             <ArrowRight className="h-3.5 w-3.5" />
           </Button>

@@ -7,10 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useReferrals } from "@/hooks/useReferrals";
 import { useI18n } from "@/i18n/I18nContext";
-import {
-  Copy, Check, Gift, Users, Sparkles, Share2, ArrowLeft, Trophy,
-  Mail, MessageCircle, Twitter, Facebook, Linkedin, Send,
-} from "lucide-react";
+import { Copy, Check, Gift, Users, Zap, Share2, ArrowLeft, Trophy, Mail, MessageCircle, Twitter, Facebook, Linkedin, Send } from "lucide-react";
 import { toast } from "sonner";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { LandingNav } from "@/components/landing/LandingNav";
@@ -86,7 +83,7 @@ export default function ReferralsPage() {
           <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-amber-500/20 blur-3xl" />
           <div className="relative">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-3">
-              <Sparkles className="h-3 w-3" />
+              <Zap className="h-3 w-3" />
               {isFr ? "Cadeau illimité" : "Unlimited gift"}
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-center gap-3">
@@ -205,11 +202,11 @@ export default function ReferralsPage() {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardDescription className="flex items-center gap-1.5">
-                      <Sparkles className="h-3.5 w-3.5" />
+                      <Zap className="h-3.5 w-3.5" />
                       {isFr ? "Filleuls actifs" : "Active referrals"}
                     </CardDescription>
                     <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Sparkles className="h-4 w-4 text-primary" />
+                      <Zap className="h-4 w-4 text-primary" />
                     </div>
                   </div>
                   <CardTitle className="text-3xl tabular-nums text-primary">{activeCount}</CardTitle>

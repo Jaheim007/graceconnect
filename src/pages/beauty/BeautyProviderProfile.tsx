@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import {
-  ArrowLeft, Star, MapPin, ShieldCheck, Clock, Home, Store, Sparkles,
-  MessageCircle, Calendar, ChevronRight, Eye,
-} from "lucide-react";
+import { ArrowLeft, Star, MapPin, ShieldCheck, Clock, Home, Store, Zap, MessageCircle, Calendar, ChevronRight, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -384,7 +381,7 @@ function ServiceRow({
       className="group flex items-center gap-3 rounded-2xl border border-border/60 bg-card p-4"
     >
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-        <Sparkles className="h-5 w-5" />
+        <Zap className="h-5 w-5" />
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">

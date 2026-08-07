@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, Check, Settings2 } from 'lucide-react';
+import { ArrowRight, Zap, Check, Settings2 } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useOrgFeatures } from '@/hooks/useOrgFeatures';
@@ -88,7 +88,7 @@ export function AdaptiveDashboard() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-            <Sparkles className="h-3.5 w-3.5" />
+            <Zap className="h-3.5 w-3.5" />
             {isFr ? 'Votre espace SiteViral' : 'Your SiteViral workspace'}
           </div>
           <h2 className="mt-1 text-xl font-bold leading-tight sm:text-2xl">
@@ -114,7 +114,7 @@ export function AdaptiveDashboard() {
             {firstActions.map((key, i) => {
               const meta = FEATURE_META[key];
               const route = FEATURE_ROUTES[key];
-              const Icon = (Icons as any)[meta.icon] ?? Sparkles;
+              const Icon = (Icons as any)[meta.icon] ?? Zap;
               return (
                 <motion.button
                   key={key}
@@ -158,7 +158,7 @@ export function AdaptiveDashboard() {
             {activeKeys.map((key) => {
               const meta = FEATURE_META[key];
               const route = FEATURE_ROUTES[key];
-              const Icon = (Icons as any)[meta.icon] ?? Sparkles;
+              const Icon = (Icons as any)[meta.icon] ?? Zap;
               return (
                 <button
                   key={key}

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { productTemplates, campaignTemplates, type ProductTemplate, type CampaignTemplate } from '@/lib/contentTemplates';
-import { FileText, Heart, Sparkles } from 'lucide-react';
+import { FileText, Heart, Zap } from 'lucide-react';
 
 type TemplateType = 'product' | 'campaign';
 
@@ -24,7 +24,7 @@ export function ContentTemplateSelector({ type, open, onClose, onSelect }: Props
       <DialogContent className="max-w-lg max-h-[85vh] p-0">
         <DialogHeader className="p-6 pb-3">
           <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
+            <Zap className="h-5 w-5 text-primary" />
             {type === 'product' ? 'Choisir un modèle de produit' : 'Choisir un modèle de campagne'}
           </DialogTitle>
           <DialogDescription>

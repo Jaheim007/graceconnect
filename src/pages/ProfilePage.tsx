@@ -240,7 +240,7 @@ export default function ProfilePage() {
         {/* Completion hints */}
         {completionPercent < 100 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="bg-primary/5 border border-primary/15 rounded-2xl p-3.5">
-            <p className="text-xs font-semibold mb-2">{locale === 'fr' ? '✨ Complétez votre profil' : '✨ Complete your profile'}</p>
+            <p className="text-xs font-semibold mb-2">{locale === 'fr' ? 'Complétez votre profil' : 'Complete your profile'}</p>
             <div className="flex flex-wrap gap-1.5">
               {completionSteps.filter(s => !s.done).map(s => (
                 <button

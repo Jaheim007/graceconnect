@@ -64,7 +64,7 @@ export const PLATFORM_PROFILES: PlatformProfile[] = [
       { id: 'campaigns', emoji: '🚀', labelFr: 'Créer des campagnes de financement', labelEn: 'Create fundraising campaigns', features: ['donation_gifts', 'payment', 'kyc'] },
       { id: 'events', emoji: '📅', labelFr: 'Publier des événements', labelEn: 'Publish events', features: ['events', 'payment'] },
       { id: 'formations', emoji: '🎓', labelFr: 'Créer des formations', labelEn: 'Create formations', features: [...SELL, 'ai_formation_creation'] },
-      { id: 'all', emoji: '✨', labelFr: 'Utiliser plusieurs outils ensemble', labelEn: 'Use several tools together', features: [...SELL, 'donation_gifts', 'events', 'ai_book_creation', 'kyc'] },
+      { id: 'all', emoji: '', labelFr: 'Utiliser plusieurs outils ensemble', labelEn: 'Use several tools together', features: [...SELL, 'donation_gifts', 'events', 'ai_book_creation', 'kyc'] },
     ],
   },
   {

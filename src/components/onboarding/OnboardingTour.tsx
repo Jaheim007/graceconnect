@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, Sparkles, BarChart3, ShoppingBag, GraduationCap, Users, Megaphone, Palette } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Zap, BarChart3, ShoppingBag, GraduationCap, Users, Megaphone, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -232,7 +232,7 @@ export function OnboardingTour() {
               >
                 {step === STEPS.length - 1 ? (
                   <>
-                    <Sparkles className="h-3.5 w-3.5" />
+                    <Zap className="h-3.5 w-3.5" />
                     {isFr ? 'C\'est parti !' : 'Let\'s go!'}
                   </>
                 ) : (

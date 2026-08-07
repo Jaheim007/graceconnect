@@ -1,8 +1,5 @@
 import { Link } from "react-router-dom";
-import {
-  Sparkles, ShieldCheck, MessageCircle, Star, Scissors, Brush, Hand,
-  Flower2, HeartHandshake, Clock, MapPin, ArrowRight, Wallet,
-} from "lucide-react";
+import { Zap, ShieldCheck, MessageCircle, Star, Scissors, Brush, Hand, Flower2, HeartHandshake, Clock, MapPin, ArrowRight, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,12 +9,12 @@ const CATEGORIES = [
   { icon: Hand, label: "Ongles", tint: "from-fuchsia-500/20 to-pink-400/20" },
   { icon: Brush, label: "Maquillage", tint: "from-amber-500/20 to-rose-400/20" },
   { icon: Flower2, label: "Soins visage", tint: "from-emerald-500/20 to-teal-400/20" },
-  { icon: Sparkles, label: "Extensions & cils", tint: "from-violet-500/20 to-pink-400/20" },
+  { icon: Zap, label: "Extensions & cils", tint: "from-violet-500/20 to-pink-400/20" },
   { icon: HeartHandshake, label: "Massage & spa", tint: "from-cyan-500/20 to-sky-400/20" },
 ];
 
 const STEPS = [
-  { icon: Sparkles, title: "Choisis ton service", body: "Parcours les experts vérifiés près de toi et repère ton favori en un scroll." },
+  { icon: Zap, title: "Choisis ton service", body: "Parcours les experts vérifiés près de toi et repère ton favori en un scroll." },
   { icon: Wallet, title: "Réserve en confiance", body: "Paiement 100% sécurisé ou acompte 20% — les fonds sont bloqués jusqu’à la prestation." },
   { icon: MessageCircle, title: "Discute avec ton expert(e)", body: "Chat intégré, contacts protégés jusqu’à confirmation. Aucun no-show impuni." },
   { icon: Star, title: "Confirme & note", body: "Tu confirmes après le service, l'expert(e) est payé(e), tu laisses un avis (et un pourboire si tu veux)." },

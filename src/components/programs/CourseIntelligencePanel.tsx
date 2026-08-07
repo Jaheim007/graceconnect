@@ -7,11 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Sparkles, Loader2, AlertTriangle, CheckCircle2, TrendingUp,
-  BookOpen, Zap, Brain, Target, BarChart3, ChevronDown, ChevronUp,
-  ArrowRight, RefreshCw
-} from 'lucide-react';
+import { Zap, Loader2, AlertTriangle, CheckCircle2, TrendingUp, BookOpen, Brain, Target, BarChart3, ChevronDown, ChevronUp, ArrowRight, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // ─── Analysis engine (pure client-side) ───
@@ -286,7 +282,7 @@ export function CourseIntelligencePanel({
 
       onRefresh();
       toast({
-        title: isFr ? '✨ Cours amélioré' : '✨ Course enhanced',
+        title: isFr ? 'Cours amélioré' : 'Course enhanced',
         description: isFr
           ? `${completed}/${actions.length} leçons enrichies`
           : `${completed}/${actions.length} lessons enriched`,
@@ -462,7 +458,7 @@ export function CourseIntelligencePanel({
                     {enhancing ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
                     ) : (
-                      <Sparkles className="h-3 w-3" />
+                      <Zap className="h-3 w-3" />
                     )}
                     {enhancing
                       ? `${enhanceProgress}%`

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, Sparkles, Loader2, Send } from "lucide-react";
+import { Star, Zap, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -68,7 +68,7 @@ export default function BeautyReviewForm({ bookingId, providerId, clientId, curr
       } as any);
       if (error) throw error;
       toast({
-        title: t("Merci pour ton avis ✨", "Thanks for your review ✨"),
+        title: t("Merci pour ton avis", "Thanks for your review"),
         description: tipAmount > 0
           ? t("Ton pourboire sera versé avec la prestation.", "Your tip will be paid out with the service.")
           : undefined,
@@ -88,7 +88,7 @@ export default function BeautyReviewForm({ bookingId, providerId, clientId, curr
   return (
     <div className="beauty-scope rounded-2xl border border-border/60 bg-card p-5">
       <div className="mb-4 flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-primary" />
+        <Zap className="h-5 w-5 text-primary" />
         <h3 className="text-lg font-black">
           {isProviderReview
             ? t("Évaluer ce client", "Rate this client")

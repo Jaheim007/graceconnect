@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Check, Sparkles, Crown, Building2, Star, CreditCard, Smartphone, Loader2, Trophy, Clock, Gift } from 'lucide-react';
+import { ArrowRight, Check, Zap, Crown, Building2, Star, CreditCard, Smartphone, Loader2, Trophy, Clock, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { LandingNav } from '@/components/landing/LandingNav';
@@ -76,7 +76,7 @@ export default function PricingPage() {
       tagline: isFr ? 'Pour démarrer et tester' : 'To start and test',
       price: fmt(0),
       priceSuffix: isFr ? '/mois' : '/month',
-      icon: Sparkles,
+      icon: Zap,
       iconColor: 'text-muted-foreground',
       borderColor: 'border-border',
       cta: plan.isFree ? (isFr ? 'Plan actuel ✓' : 'Current plan ✓') : (isFr ? 'Commencer gratuitement' : 'Start for free'),
@@ -418,8 +418,8 @@ export default function PricingPage() {
               </Button>
               <p className="text-xs text-muted-foreground mt-4">
                 {isFr
-                  ? '✨ Badge "Founder #X" affiché publiquement • Accès Pro à vie • Aucune commission • Support direct fondateur'
-                  : '✨ Public "Founder #X" badge • Lifetime Pro access • Zero commission • Direct founder support'}
+                  ? 'Badge "Founder #X" affiché publiquement • Accès Pro à vie • Aucune commission • Support direct fondateur'
+                  : 'Public "Founder #X" badge • Lifetime Pro access • Zero commission • Direct founder support'}
               </p>
             </motion.div>
           </section>

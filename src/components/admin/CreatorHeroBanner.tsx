@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { PenLine, Store, Share2, Sparkles, ArrowRight } from 'lucide-react';
+import { PenLine, Store, Share2, Zap, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -38,7 +38,7 @@ export function CreatorHeroBanner() {
 
       <div className="flex items-center gap-2 mb-4">
         <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center">
-          <Sparkles className="h-4 w-4 text-primary" />
+          <Zap className="h-4 w-4 text-primary" />
         </div>
         <div>
           <h2 className="text-sm font-bold tracking-tight">{t('hero.tagline')}</h2>

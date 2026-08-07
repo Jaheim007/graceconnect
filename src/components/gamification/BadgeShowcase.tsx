@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Award, Lock, Sparkles } from 'lucide-react';
+import { Award, Lock, Zap } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -77,7 +77,7 @@ export function BadgeShowcase({ allBadges, earnedBadgeIds }: BadgeShowcaseProps)
                       animate={{ opacity: 1 }}
                       className="absolute -top-1 -right-1"
                     >
-                      <Sparkles className="h-3 w-3 text-primary" />
+                      <Zap className="h-3 w-3 text-primary" />
                     </motion.div>
                   )}
                 </motion.div>

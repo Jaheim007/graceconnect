@@ -3,10 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  ShoppingBag, Heart, BookOpen, Users, Check, ArrowRight, ArrowLeft,
-  X, Image, FileText, Megaphone, Sparkles, Rocket, Zap, Loader2, Play,
-} from 'lucide-react';
+import { ShoppingBag, Heart, BookOpen, Users, Check, ArrowRight, ArrowLeft, X, Image, FileText, Megaphone, Zap, Rocket, Loader2, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';

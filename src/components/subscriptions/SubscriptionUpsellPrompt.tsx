@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CreditCard, Sparkles, ArrowRight, Repeat } from 'lucide-react';
+import { X, CreditCard, Zap, ArrowRight, Repeat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
@@ -130,7 +130,7 @@ export function SubscriptionUpsellPrompt({ organizationId, organizationSlug, org
 
             <div className="bg-primary/5 border border-primary/15 rounded-xl p-3 space-y-1.5">
               <div className="flex items-center gap-2 text-xs font-medium text-primary">
-                <Sparkles className="h-3.5 w-3.5" />
+                <Zap className="h-3.5 w-3.5" />
                 {isFr ? 'Avantages abonné' : 'Subscriber benefits'}
               </div>
               <ul className="text-[11px] text-muted-foreground space-y-1">

@@ -1,10 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ArrowLeft, Calendar as CalIcon, Clock, MapPin, ShieldCheck, MessageCircle,
-  CheckCircle2, XCircle, Loader2, Sparkles, AlertTriangle,
-} from "lucide-react";
+import { ArrowLeft, Calendar as CalIcon, Clock, MapPin, ShieldCheck, MessageCircle, CheckCircle2, XCircle, Loader2, Zap, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,7 +21,7 @@ const STATUS_LABELS: Record<
 > = {
   pending_payment: { fr: "Paiement en attente", en: "Payment pending", color: "amber", icon: Loader2 },
   confirmed: { fr: "Confirmé", en: "Confirmed", color: "emerald", icon: CheckCircle2 },
-  in_progress: { fr: "En cours", en: "In progress", color: "blue", icon: Sparkles },
+  in_progress: { fr: "En cours", en: "In progress", color: "blue", icon: Zap },
   completed: { fr: "Terminé", en: "Completed", color: "primary", icon: CheckCircle2 },
   cancelled: { fr: "Annulé", en: "Cancelled", color: "rose", icon: XCircle },
   no_show: { fr: "No-show", en: "No-show", color: "rose", icon: AlertTriangle },
@@ -354,7 +351,7 @@ export default function BeautyBookingDetail() {
         {[clientReview, providerReview].filter(Boolean).map((r: any) => (
           <div key={r.id} className="rounded-2xl border border-border/60 bg-card p-5">
             <div className="mb-2 flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" />
+              <Zap className="h-4 w-4 text-primary" />
               <span className="text-sm font-semibold">
                 {r.reviewer_role === "provider"
                   ? t("Avis du prestataire sur le client", "Provider's review of the client")

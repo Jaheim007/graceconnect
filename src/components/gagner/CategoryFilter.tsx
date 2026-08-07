@@ -1,11 +1,11 @@
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
-import { BookOpen, Church, Briefcase, Heart, GraduationCap, DollarSign, Users, Sparkles } from 'lucide-react';
+import { BookOpen, Church, Briefcase, Heart, GraduationCap, DollarSign, Users, Zap } from 'lucide-react';
 
 export type ProductCategory = 'all' | 'business' | 'spirituality' | 'education' | 'motivation' | 'finance' | 'family' | 'other';
 
 const CATEGORIES: { key: ProductCategory; icon: React.ElementType; labelFr: string; labelEn: string }[] = [
-  { key: 'all', icon: Sparkles, labelFr: 'Tout', labelEn: 'All' },
+  { key: 'all', icon: Zap, labelFr: 'Tout', labelEn: 'All' },
   { key: 'business', icon: Briefcase, labelFr: 'Business', labelEn: 'Business' },
   { key: 'spirituality', icon: Church, labelFr: 'Spiritualité', labelEn: 'Spirituality' },
   { key: 'education', icon: GraduationCap, labelFr: 'Éducation', labelEn: 'Education' },

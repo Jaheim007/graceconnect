@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, UserPlus, Download, Heart, Star, Globe, Flame, Users, TrendingUp, Award, X, Sparkles, BookOpen, Gift, Zap, Music, Camera, Laptop, GraduationCap, Church, Building2, Megaphone } from 'lucide-react';
+import { ShoppingBag, UserPlus, Download, Heart, Star, Globe, Flame, Users, TrendingUp, Award, X, Zap, BookOpen, Gift, Music, Camera, Laptop, GraduationCap, Church, Building2, Megaphone } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 import { useQuery } from '@tanstack/react-query';
@@ -97,7 +97,7 @@ const ICONS = [
   <Users className="h-3.5 w-3.5 text-indigo-500" />,
   <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />,
   <Award className="h-3.5 w-3.5 text-amber-600" />,
-  <Sparkles className="h-3.5 w-3.5 text-purple-500" />,
+  <Zap className="h-3.5 w-3.5 text-purple-500" />,
   <BookOpen className="h-3.5 w-3.5 text-sky-500" />,
   <Gift className="h-3.5 w-3.5 text-pink-500" />,
   <Zap className="h-3.5 w-3.5 text-yellow-500" />,
@@ -137,7 +137,7 @@ function generateActivities(isFr: boolean, count: number): Activity[] {
     (n, p) => ({ icon: ICONS[1], text: `${n} a téléchargé « ${p} »` }),
     (n, _, o) => ({ icon: ICONS[2], text: `${n} a rejoint ${o}` }),
     (_, _2, o) => ({ icon: ICONS[3], text: `Don anonyme pour ${o}` }),
-    (n, p) => ({ icon: ICONS[4], text: `${n} a noté 5⭐ « ${p} »` }),
+    (n, p) => ({ icon: ICONS[4], text: `${n} a noté 5« ${p} »` }),
     (_, _2, o) => ({ icon: ICONS[5], text: `${o} a publié une nouvelle ressource` }),
     (_, p) => ({ icon: ICONS[6], text: `${randInt(5, 38)} personnes consultent « ${p} »`, link: '/explorer' }),
     (_, _2) => ({ icon: ICONS[7], text: `${randInt(8, 45)} nouveaux membres aujourd'hui` }),
@@ -158,7 +158,7 @@ function generateActivities(isFr: boolean, count: number): Activity[] {
     (n, p) => ({ icon: ICONS[0], text: `${n} vient d'acquérir « ${p} »` }),
     (_, p) => ({ icon: ICONS[8], text: `+${randInt(50, 300)}% de vues pour « ${p} » cette semaine` }),
     (n) => ({ icon: ICONS[9], text: `${n} a gagné sa première commission 💰` }),
-    (n, p) => ({ icon: ICONS[4], text: `${n} : "Excellent !" — ⭐⭐⭐⭐⭐ sur « ${p} »` }),
+    (n, p) => ({ icon: ICONS[4], text: `${n} : "Excellent !" —sur « ${p} »` }),
     (_, _2, o) => ({ icon: ICONS[3], text: `Objectif de don atteint pour ${o} 🎉` }),
     (n, p) => ({ icon: ICONS[1], text: `${n} a terminé « ${p} » avec succès ✅` }),
     (_, _2, o) => ({ icon: ICONS[5], text: `Nouvelle annonce de ${o}` }),
@@ -168,7 +168,7 @@ function generateActivities(isFr: boolean, count: number): Activity[] {
     (n, p) => ({ icon: ICONS[1], text: `${n} downloaded "${p}"` }),
     (n, _, o) => ({ icon: ICONS[2], text: `${n} joined ${o}` }),
     (_, _2, o) => ({ icon: ICONS[3], text: `Anonymous donation to ${o}` }),
-    (n, p) => ({ icon: ICONS[4], text: `${n} rated 5⭐ "${p}"` }),
+    (n, p) => ({ icon: ICONS[4], text: `${n} rated 5"${p}"` }),
     (_, _2, o) => ({ icon: ICONS[5], text: `${o} published a new resource` }),
     (_, p) => ({ icon: ICONS[6], text: `${randInt(5, 38)} people viewing "${p}"`, link: '/explorer' }),
     (_, _2) => ({ icon: ICONS[7], text: `${randInt(8, 45)} new members today` }),
@@ -189,7 +189,7 @@ function generateActivities(isFr: boolean, count: number): Activity[] {
     (n, p) => ({ icon: ICONS[0], text: `${n} just acquired "${p}"` }),
     (_, p) => ({ icon: ICONS[8], text: `+${randInt(50, 300)}% views for "${p}" this week` }),
     (n) => ({ icon: ICONS[9], text: `${n} earned their first commission 💰` }),
-    (n, p) => ({ icon: ICONS[4], text: `${n}: "Excellent!" — ⭐⭐⭐⭐⭐ on "${p}"` }),
+    (n, p) => ({ icon: ICONS[4], text: `${n}: "Excellent!" —on "${p}"` }),
     (_, _2, o) => ({ icon: ICONS[3], text: `Donation goal reached for ${o} 🎉` }),
     (n, p) => ({ icon: ICONS[1], text: `${n} completed "${p}" successfully ✅` }),
     (_, _2, o) => ({ icon: ICONS[5], text: `New announcement from ${o}` }),

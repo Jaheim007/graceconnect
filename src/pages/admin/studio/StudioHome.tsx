@@ -6,11 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Sparkles, BookOpen, Baby, Palette, GraduationCap, Church,
-  Megaphone, FolderOpen, Cpu, Image, Clock, ArrowRight,
-  Plus, Layers
-} from 'lucide-react';
+import { Zap, BookOpen, Baby, Palette, GraduationCap, Church, Megaphone, FolderOpen, Cpu, Image, Clock, ArrowRight, Plus, Layers } from 'lucide-react';
 
 const PROJECT_TYPE_META: Record<string, { label: string; icon: typeof BookOpen; color: string }> = {
   ebook: { label: 'Ebook', icon: BookOpen, color: 'text-blue-500' },
@@ -85,7 +81,7 @@ export default function StudioHome() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-primary" />
+            <Zap className="h-6 w-6 text-primary" />
             Studio IA
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -188,7 +184,7 @@ export default function StudioHome() {
         {!recentProjects?.length ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <Sparkles className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+              <Zap className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
               <p className="text-muted-foreground font-medium">Aucun projet encore</p>
               <p className="text-sm text-muted-foreground mt-1">
                 Lancez votre premier projet IA pour créer du contenu professionnel

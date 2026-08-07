@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, Loader2, Crown, Trophy, Sparkles } from 'lucide-react';
+import { CheckCircle2, Loader2, Crown, Trophy, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -74,7 +74,7 @@ export default function BillingSuccessPage() {
             </>
           ) : tier === 'free' ? (
             <>
-              <Sparkles className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <Zap className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h1 className="text-2xl font-bold mb-2">
                 {isFr ? 'Paiement en cours de traitement' : 'Payment is being processed'}
               </h1>
@@ -106,7 +106,7 @@ export default function BillingSuccessPage() {
               </p>
               {!isLifetime && (
                 <p className="text-sm text-primary font-medium mb-6">
-                  {isFr ? '✨ 14 jours gratuits — aucun débit avant la fin de l\'essai.' : '✨ 14 days free — no charge before trial ends.'}
+                  {isFr ? '14 jours gratuits — aucun débit avant la fin de l\'essai.' : '14 days free — no charge before trial ends.'}
                 </p>
               )}
               <div className="flex flex-wrap justify-center gap-3 mt-6">

@@ -2,7 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProductCard } from '@/components/products/ProductCard';
-import { Loader2, Sparkles, BookOpen, Video, ShoppingBag } from 'lucide-react';
+import { Loader2, Zap, BookOpen, Video, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCallback, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -140,7 +140,7 @@ export function ForYouFeed() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-primary" />
+        <Zap className="h-4 w-4 text-primary" />
         <h2 className="text-base font-bold">{isFr ? 'Pour vous' : 'For you'}</h2>
       </div>
 

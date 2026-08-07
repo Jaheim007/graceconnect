@@ -1,10 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  Church as ChurchIcon, LayoutDashboard,
-  ArrowRight, Sparkles, Info,
-} from "lucide-react";
+import { Church as ChurchIcon, LayoutDashboard, ArrowRight, Zap, Info } from "lucide-react";
 
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -129,7 +126,7 @@ export default function ChurchActionHub() {
           {/* Compact hero */}
           <motion.div variants={item} className="space-y-1.5 text-center">
             <div className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-              <Sparkles className="h-3 w-3" />
+              <Zap className="h-3 w-3" />
               {t("Église connectée", "Connected church")}
             </div>
             <h1 className="text-xl font-black leading-tight tracking-tight text-foreground sm:text-2xl">

@@ -12,7 +12,7 @@ export default function PourInfluenceursPage() {
         description: isFr ? 'Transformez vos followers en clients. Vendez vos produits digitaux, merch et contenus exclusifs par Mobile Money.' : 'Turn your followers into customers. Sell your digital products, merch, and exclusive content via Mobile Money.',
         url: 'https://siteviral.com/pour/influenceurs',
       }}
-      badge={isFr ? '⭐ Pour les Influenceurs' : '⭐ For Influencers'}
+      badge={isFr ? 'Pour les Influenceurs' : 'For Influencers'}
       headline={isFr
         ? <>Transformez vos <span className="text-primary">followers</span> en revenus réels</>
         : <>Turn your <span className="text-primary">followers</span> into real revenue</>}

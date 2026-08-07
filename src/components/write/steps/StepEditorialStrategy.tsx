@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader2, Target, Lightbulb, BookOpen, Sparkles, RefreshCw, CheckCircle, ChevronDown, ChevronUp, Pencil, ArrowRight } from 'lucide-react';
+import { Loader2, Target, Lightbulb, BookOpen, Zap, RefreshCw, CheckCircle, ChevronDown, ChevronUp, Pencil, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useI18n } from '@/i18n/I18nContext';
@@ -154,7 +154,7 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
 
   const fields: { key: keyof EditorialStrategy; icon: typeof Target; label: string; color: string }[] = [
     { key: 'reader_problem', icon: Target, label: t('write.strategy_problem'), color: 'text-red-500' },
-    { key: 'book_promise', icon: Sparkles, label: t('write.strategy_promise'), color: 'text-amber-500' },
+    { key: 'book_promise', icon: Zap, label: t('write.strategy_promise'), color: 'text-amber-500' },
     { key: 'unique_angle', icon: Lightbulb, label: t('write.strategy_angle'), color: 'text-blue-500' },
     { key: 'central_thesis', icon: BookOpen, label: t('write.strategy_thesis'), color: 'text-primary' },
     { key: 'narrative_arc', icon: BookOpen, label: t('write.strategy_arc'), color: 'text-emerald-500' },
