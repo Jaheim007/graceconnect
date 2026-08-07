@@ -1449,15 +1449,42 @@ export function AdminSettings() {
         {active?.key === 'profile' && (
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
 
-          <div className="px-5 pt-5 pb-3 flex items-center gap-2.5 border-b border-border/60">
+          <div className="px-5 pt-5 pb-3 flex flex-wrap items-center gap-2.5 border-b border-border/60">
             <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
               <Building2 className="h-4 w-4 text-primary" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h2 className="font-semibold text-sm">{isFr ? 'Profil de l\'organisation' : 'Organization profile'}</h2>
               <p className="text-[11px] text-muted-foreground">{isFr ? 'Identité visuelle et informations publiques' : 'Visual identity & public information'}</p>
             </div>
+            {orgSlug && (
+              <div className="ml-auto flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-1.5 text-xs"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(getPublicUrl(`/org/${orgSlug}`));
+                      toast.success(isFr ? 'Lien copié' : 'Link copied');
+                    } catch { /* ignore */ }
+                  }}
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                  {isFr ? 'Copier le lien' : 'Copy link'}
+                </Button>
+                <Button
+                  size="sm"
+                  className="h-8 gap-1.5 text-xs"
+                  onClick={() => window.open(getPublicUrl(`/org/${orgSlug}`), '_blank', 'noopener')}
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  {isFr ? 'Voir ma page publique' : 'View public page'}
+                </Button>
+              </div>
+            )}
           </div>
+
           <div className="p-5 space-y-4">
             {/* Banner upload */}
             <div className="space-y-2">
