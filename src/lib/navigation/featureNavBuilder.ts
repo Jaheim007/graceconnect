@@ -219,7 +219,7 @@ export function buildFeatureNavItems(
 
   pushUnique({
     id: 'dashboard', icon: LayoutDashboard, tone: 'primary',
-    titleFr: 'Aperçu', titleEn: 'Overview',
+    titleFr: 'Accueil', titleEn: 'Home',
     descFr: 'Tableau de bord', descEn: 'Dashboard',
     route: '/admin',
   });
