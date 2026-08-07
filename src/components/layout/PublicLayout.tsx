@@ -25,7 +25,10 @@ export function PublicLayout() {
           nativeApp && 'native-main-scroll no-bottom-nav overflow-y-auto overflow-x-hidden overscroll-contain'
         )}
       >
-        <Outlet />
+        <Suspense fallback={<RouteContentSkeleton />}>
+          <Outlet />
+        </Suspense>
+
       </main>
       {!nativeApp && <LandingFooterCompact />}
     </div>
