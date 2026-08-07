@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { useMediaById, useTrackView } from '@/hooks/useMedia';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
 
 /** Detect social media / YouTube / Vimeo URLs and return embeddable iframe src */
 function getEmbedUrl(url: string): string | null {
@@ -85,9 +86,7 @@ export default function WatchPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <RouteContentSkeleton />
     );
   }
 

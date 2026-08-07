@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import LegalPageShell from '@/components/layout/LegalPageShell';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
@@ -57,8 +58,8 @@ export default function SubprocessorsPage() {
 
       <p className="text-foreground text-[15px] sm:text-base font-semibold leading-relaxed mb-6">
         {isFr
-          ? <>Siteviral, opéré par Hacktualiz Inc., fait appel aux sous-traitants tiers suivants pour fournir les services de la plateforme. Chaque sous-traitant est contractuellement tenu de protéger vos données conformément à notre <a href="/dpa" className="text-primary underline">Accord de traitement des données</a>.</>
-          : <>Siteviral, operated by Hacktualiz Inc., uses the following third-party subprocessors to provide platform services. Each subprocessor is contractually required to protect your data in accordance with our <a href="/dpa" className="text-primary underline">Data Processing Agreement</a>.</>
+          ? <>Siteviral, opéré par Hacktualiz Inc., fait appel aux sous-traitants tiers suivants pour fournir les services de la plateforme. Chaque sous-traitant est contractuellement tenu de protéger vos données conformément à notre <Link to="/dpa" className="text-primary underline">Accord de traitement des données</Link>.</>
+          : <>Siteviral, operated by Hacktualiz Inc., uses the following third-party subprocessors to provide platform services. Each subprocessor is contractually required to protect your data in accordance with our <Link to="/dpa" className="text-primary underline">Data Processing Agreement</Link>.</>
         }
       </p>
 

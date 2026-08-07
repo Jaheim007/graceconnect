@@ -4,6 +4,7 @@ import {
   Sparkles, ShoppingBag, Activity, Download,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
   LineChart, Line, AreaChart, Area, PieChart, Pie, Cell, Legend,
@@ -116,10 +117,10 @@ export default function CreatorAdvancedAnalyticsPage() {
 
   if (!currentOrg) {
     if (isLoadingOrgs) {
-      return <div className="min-h-screen flex items-center justify-center"><BarChart3 className="w-6 h-6 animate-pulse text-muted-foreground" /></div>;
+      return <RouteContentSkeleton />;
     }
     if (manageableOrgs.length > 0) {
-      return <div className="min-h-screen flex items-center justify-center"><BarChart3 className="w-6 h-6 animate-pulse text-muted-foreground" /></div>;
+      return <RouteContentSkeleton />;
     }
     return (
       <div className="min-h-screen flex items-center justify-center p-4">

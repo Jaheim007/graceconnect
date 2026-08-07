@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import LegalPageShell, { proseClasses } from '@/components/layout/LegalPageShell';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
@@ -127,8 +128,8 @@ export default function PrivacyPage() {
           </ul>
           <p>
             {isFr
-              ? <>Nous ne vendons jamais vos données personnelles. Consultez notre <a href="/subprocessors" className="text-primary underline">liste complète des sous-traitants</a>.</>
-              : <>We never sell your personal data. See our <a href="/subprocessors" className="text-primary underline">full list of sub-processors</a>.</>}
+              ? <>Nous ne vendons jamais vos données personnelles. Consultez notre <Link to="/subprocessors" className="text-primary underline">liste complète des sous-traitants</Link>.</>
+              : <>We never sell your personal data. See our <Link to="/subprocessors" className="text-primary underline">full list of sub-processors</Link>.</>}
           </p>
         </section>
 
@@ -194,8 +195,8 @@ export default function PrivacyPage() {
             <li>{isFr ? 'Audit logs permanents sur les actions sensibles' : 'Permanent audit logs on sensitive actions'}</li>
             <li>{isFr ? 'Chiffrement SSL/TLS sur toutes les communications' : 'SSL/TLS encryption on all communications'}</li>
             <li>{isFr
-              ? <a href="/security" className="text-primary underline">Consultez notre page Sécurité pour plus de détails</a>
-              : <a href="/security" className="text-primary underline">See our Security page for more details</a>}</li>
+              ? <Link to="/security" className="text-primary underline">Consultez notre page Sécurité pour plus de détails</Link>
+              : <Link to="/security" className="text-primary underline">See our Security page for more details</Link>}</li>
           </ul>
         </section>
 
