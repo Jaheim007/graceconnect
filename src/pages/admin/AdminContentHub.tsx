@@ -28,6 +28,8 @@ export default function AdminContentHub() {
   const { locale } = useI18n();
   const { fmt } = useDisplayCurrency();
   const [showMore, setShowMore] = useState(false);
+  const offeringsEnabled = !!((currentOrg as any)?.settings?.offerings_enabled);
+
   const isFr = locale === 'fr';
 
   const { data: counts } = useQuery({
