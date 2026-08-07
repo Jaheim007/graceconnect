@@ -81,6 +81,8 @@ export default function AdminProgramDraftReview() {
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState(currentOrg?.currency || 'XOF');
   const [buyerPreview, setBuyerPreview] = useState(false);
+  const [previewFull, setPreviewFull] = useState(false);
+
   const minPrice = MIN_AI_COURSE_PRICE[currency] ?? MIN_AI_COURSE_PRICE.USD;
   const priceValue = Number(price) || 0;
   const priceValid = priceValue >= minPrice;
