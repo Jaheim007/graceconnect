@@ -140,14 +140,11 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
   const saveLessonCompletion = useSaveLessonCompletion();
   const { data: enrollmentProgress } = useEnrollmentProgress(isLearner ? programId : undefined);
 
-  // Restore progress from DB on mount
+  // Restore stars from DB on mount (slide position is restored after allSlides is built)
+  const restoredRef = useRef(false);
   useEffect(() => {
-    if (isLearner && enrollmentProgress?.last_slide_index && enrollmentProgress.last_slide_index > 0) {
-      setMaxReachedIndex(enrollmentProgress.last_slide_index);
-      setCurrentIndex(enrollmentProgress.last_slide_index);
-      if (enrollmentProgress.total_stars) setStarsEarned(enrollmentProgress.total_stars);
-    }
-  }, [isLearner, enrollmentProgress?.last_slide_index]);
+    if (isLearner && enrollmentProgress?.total_stars) setStarsEarned(enrollmentProgress.total_stars);
+  }, [isLearner, enrollmentProgress?.total_stars]);
 
   // Debounced progress save - refs only, effect is after allSlides
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -298,12 +295,42 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
     return slides;
   }, [modules, allQuizQuestions.length, isFr, moduleQuizzes, getLessonSlides]);
 
+  /**
+   * Resume resolution (runs once the flat slide list exists):
+   *  1. explicit `initialSlideId` / enrollment `current_slide_id` → exact slide
+   *     (only possible for lessons backed by real `program_slides` rows)
+   *  2. explicit `initialSlideIndex` / enrollment `last_slide_index` inside the
+   *     stored `current_lesson_id` → exact position for legacy HTML lessons
+   *  3. first slide of `current_lesson_id` → start of the last-opened lesson
+   *  4. `initialLessonId` → start of that lesson
+   */
   useEffect(() => {
-    if (initialLessonId && allSlides.length > 0) {
-      const idx = allSlides.findIndex(s => s.lessonId === initialLessonId && s.slideInLesson === 0);
-      if (idx >= 0) setCurrentIndex(idx);
+    if (allSlides.length === 0 || restoredRef.current) return;
+
+    const targetSlideId = initialSlideId ?? (isLearner ? enrollmentProgress?.current_slide_id : null);
+    const targetLessonId = (isLearner ? enrollmentProgress?.current_lesson_id : null) || initialLessonId;
+    const targetIndex = initialSlideIndex ?? (isLearner ? enrollmentProgress?.last_slide_index ?? -1 : -1);
+
+    let idx = -1;
+    if (targetSlideId) idx = allSlides.findIndex(s => s.slideId === targetSlideId);
+    if (idx < 0 && targetLessonId && targetIndex >= 0 && targetIndex < allSlides.length
+        && allSlides[targetIndex].lessonId === targetLessonId) {
+      idx = targetIndex;
     }
-  }, [initialLessonId, allSlides.length]);
+    if (idx < 0 && targetLessonId) {
+      idx = allSlides.findIndex(s => s.lessonId === targetLessonId && s.slideInLesson === 0);
+    }
+    if (idx < 0 && isLearner && targetIndex > 0 && targetIndex < allSlides.length) idx = targetIndex;
+
+    if (idx >= 0) {
+      restoredRef.current = true;
+      setCurrentIndex(idx);
+      setMaxReachedIndex(prev => Math.max(prev, Math.max(idx, isLearner ? (enrollmentProgress?.last_slide_index ?? 0) : 0)));
+    } else if (isLearner && (enrollmentProgress || initialSlideIndex != null)) {
+      restoredRef.current = true;
+    }
+  }, [allSlides.length, initialLessonId, initialSlideId, initialSlideIndex, isLearner,
+      enrollmentProgress?.current_slide_id, enrollmentProgress?.current_lesson_id, enrollmentProgress?.last_slide_index]);
 
   const current = allSlides[currentIndex];
   const total = allSlides.length;
@@ -384,20 +411,35 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
     [allSlides]
   );
 
+  // Total slides that count toward progress (everything except the completion slide)
+  const countableSlides = useMemo(() => allSlides.filter(s => s.countsForProgress), [allSlides]);
+
   // Save progress as learner navigates (debounced)
   useEffect(() => {
     if (!isLearner || currentIndex === lastSavedRef.current) return;
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
       lastSavedRef.current = currentIndex;
+      const cur = allSlides[currentIndex];
+      const reached = Math.max(currentIndex, maxReachedIndex);
+      // Legacy/synthetic slides have no uuid, so they are counted positionally.
+      const legacyCompletedCount = allSlides
+        .slice(0, reached + 1)
+        .filter(s => s.countsForProgress && !s.slideId).length;
+
       saveProgress.mutate({
         slideIndex: currentIndex,
         totalSlides: total,
+        slideId: cur?.slideId ?? null,
+        lessonId: cur?.lessonId ?? null,
+        totalCountableSlides: countableSlides.length,
+        legacyCompletedCount,
         starsEarned,
+        completed: cur?.slide.type === 'course-completion',
       });
     }, 1500);
     return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
-  }, [isLearner, currentIndex, starsEarned, total]);
+  }, [isLearner, currentIndex, starsEarned, total, allSlides, maxReachedIndex, countableSlides.length]);
 
   const canGoTo = (idx: number) => {
     if (!isLearner) return true;
