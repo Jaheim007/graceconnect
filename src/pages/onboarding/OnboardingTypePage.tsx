@@ -75,7 +75,7 @@ export default function OnboardingTypePage() {
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
       <header className="space-y-2">
         <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-          <Zap className="h-4 w-4 text-primary shrink-0" />
+          <Zap className="h-3 w-3 text-primary shrink-0" />
           {isFr ? 'Bienvenue sur SiteViral' : 'Welcome to SiteViral'}
         </div>
         <h1 className="text-2xl font-bold">

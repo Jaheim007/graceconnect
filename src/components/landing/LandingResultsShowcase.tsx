@@ -35,7 +35,7 @@ export function LandingResultsShowcase() {
           transition={{ duration: 0.7 }}
         >
           <motion.span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary/5 text-primary text-xs font-bold uppercase tracking-[0.2em] mb-6 border border-primary/10">
-            <Zap className="h-4 w-4 text-primary shrink-0" />
+            <Zap className="h-3 w-3 text-primary shrink-0" />
             Résultats vérifiés
           </motion.span>
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
