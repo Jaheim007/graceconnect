@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Search, X, Loader2 } from 'lucide-react';
+import { Search, X, Loader2, Flame } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ const FeaturedSection = lazy(() => import('@/components/discover/FeaturedSection
 const ForYouFeed = lazy(() => import('@/components/discover/ForYouFeed').then(m => ({ default: m.ForYouFeed })));
 const CategoryCarousels = lazy(() => import('@/components/discover/CategoryCarousels').then(m => ({ default: m.CategoryCarousels })));
 const RecentlyViewedProducts = lazy(() => import('@/components/discover/RecentlyViewedProducts').then(m => ({ default: m.RecentlyViewedProducts })));
+const ExploreSearchResults = lazy(() => import('@/components/discover/ExploreSearchResults').then(m => ({ default: m.ExploreSearchResults })));
 import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
 import { BUYER_WORLDS, SERVICE_WORLDS, normalizeBuyerWorld, type BuyerWorld } from '@/lib/siteviral/buyerWorlds';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
@@ -75,9 +76,26 @@ export default function DashboardExplorePage() {
     <div className="bg-background native-page-screen">
       <SEOHead title={title} description={t('discover.seo_desc')} />
 
-      <div className="border-b border-border py-5 px-4">
-        <div className="container max-w-4xl space-y-3">
-          <h1 className="text-xl sm:text-2xl font-bold">{title}</h1>
+      <div className="relative overflow-hidden border-b border-border py-8 px-4">
+        {/* Ambient "fire" glow — bold, alive header */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-24 left-1/2 h-64 w-[42rem] -translate-x-1/2 rounded-full bg-primary/25 blur-[90px]" />
+          <div className="absolute -bottom-28 left-[12%] h-56 w-56 rounded-full bg-orange-500/20 blur-[80px]" />
+          <div className="absolute -top-10 right-[8%] h-52 w-52 rounded-full bg-fuchsia-500/20 blur-[80px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
+        </div>
+
+        <div className="container max-w-4xl space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
+            <Flame className="h-3.5 w-3.5" />
+            {fr ? 'Ça bouge en ce moment' : 'Hot right now'}
+          </div>
+
+          <h1 className="font-heading text-3xl sm:text-5xl font-extrabold tracking-tight leading-[1.05]">
+            <span className="bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
+              {title}
+            </span>
+          </h1>
 
           {worldMeta ? (
             <div className="flex items-center gap-2 flex-wrap">
@@ -97,19 +115,31 @@ export default function DashboardExplorePage() {
               </span>
             </div>
           ) : (
-            <p className="text-muted-foreground text-sm">{t('discover.subtitle')}</p>
+            <p className="text-muted-foreground text-sm sm:text-base max-w-xl">{t('discover.subtitle')}</p>
           )}
 
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={t('discover.search')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && search.trim()) { addRecentSearch(search.trim()); setSearchFocused(false); } }}
-              className="pl-10 h-11 bg-card/80"
-            />
+
+          <div className="relative rounded-2xl p-[1.5px] bg-gradient-to-r from-primary/60 via-orange-500/50 to-fuchsia-500/50 shadow-[0_18px_50px_-24px_hsl(var(--primary)/0.55)]">
+            <div className="relative rounded-[calc(1rem-1px)] bg-card">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+              <Input
+                placeholder={t('discover.search')}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && search.trim()) { addRecentSearch(search.trim()); setSearchFocused(false); } }}
+                className="pl-11 h-12 sm:h-14 rounded-2xl border-0 bg-transparent text-base focus-visible:ring-0 focus-visible:ring-offset-0"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  aria-label={fr ? 'Effacer' : 'Clear'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-muted-foreground hover:bg-muted"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
             <SearchSuggestions
               query={search}
               isOpen={searchFocused}
@@ -117,6 +147,7 @@ export default function DashboardExplorePage() {
               onClose={() => setSearchFocused(false)}
             />
           </div>
+
 
           {/* World chip row — services only (Church has its own platform) */}
           {showServiceSurfaces() && (
@@ -145,7 +176,17 @@ export default function DashboardExplorePage() {
         </div>
       </div>
 
-      {WorldComponent ? (
+      {isSearching ? (
+        <div className="container max-w-6xl px-4 py-6">
+          <Suspense fallback={
+            <div className="flex items-center justify-center py-16 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin" />
+            </div>
+          }>
+            <ExploreSearchResults query={debouncedSearch} />
+          </Suspense>
+        </div>
+      ) : WorldComponent ? (
         <div className="container max-w-6xl px-4 py-6">
           <Suspense fallback={
             <div className="flex items-center justify-center py-16 text-muted-foreground">
@@ -159,17 +200,16 @@ export default function DashboardExplorePage() {
         <div className="container max-w-6xl px-4 py-6 space-y-8">
           <InterestHub />
           <Suspense fallback={null}>
-            {!isSearching && <RecentlyViewedProducts />}
-            {!isSearching && <CategoryCarousels />}
-            {!isSearching && <FeaturedSection />}
-            {!isSearching && (
-              <div>
-                <ForYouFeed />
-              </div>
-            )}
+            <RecentlyViewedProducts />
+            <CategoryCarousels />
+            <FeaturedSection />
+            <div>
+              <ForYouFeed />
+            </div>
           </Suspense>
         </div>
       )}
+
     </div>
   );
 }
