@@ -2,7 +2,18 @@ import { ReactNode } from 'react';
 import { Navigate as Nav, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
+import { RouteContentSkeleton } from './RouteFallback';
 import { Loader2 } from 'lucide-react';
+
+// True once the app has successfully rendered a guarded screen. After that,
+// guards must never show a full-page loader again — internal navigation only
+// ever swaps content, using an in-place skeleton when data is still hydrating.
+let appBooted = false;
+
+function GuardFallback() {
+  return appBooted ? <RouteContentSkeleton /> : <FullPageLoader />;
+}
+
 
 // Require auth and globally hydrate workspace before signed-in shells render.
 export function RequireAuth({ children }: { children: ReactNode }) {
