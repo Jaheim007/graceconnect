@@ -7,7 +7,7 @@ import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import {
   PackageCheck, BookOpen, MonitorPlay, Megaphone, CalendarCheck2,
   HeartHandshake, Percent, ArrowRight, Gift, LayoutPanelTop, GraduationCap,
-  FolderOpen, ChevronDown, TrendingUp
+  FolderOpen, ChevronDown, TrendingUp, ArrowLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
