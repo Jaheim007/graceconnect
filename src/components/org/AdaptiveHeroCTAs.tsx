@@ -44,8 +44,8 @@ export function AdaptiveHeroCTAs({ presentation, org, readiness, isAdmin, onNavi
   const isReady = (f?: SiteviralFeatureKey) => !f || readiness[f] !== false;
 
   return (
-    <div className="container max-w-5xl px-4 mt-4">
-      <div className="flex flex-wrap gap-2">
+    <div className="container max-w-5xl px-4 mt-6 sm:mt-8">
+      <div className="flex flex-wrap gap-2.5 sm:gap-3">
         {visible.map((cta: HeroCta) => {
           const Icon = cta.icon ? ICONS[cta.icon] : null;
           const notReadyForOwner = isAdmin && cta.requiresFeature && !isReady(cta.requiresFeature);

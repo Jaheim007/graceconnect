@@ -224,7 +224,7 @@ export function OrgPublicHeader({
         />
 
         <div className="container max-w-5xl relative">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-16 sm:-mt-12 pb-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end gap-5 sm:gap-6 -mt-16 sm:-mt-12 pb-5 sm:pb-6">
             {/* Logo */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
@@ -261,12 +261,12 @@ export function OrgPublicHeader({
 
             <div className="flex-1 min-w-0 sm:pb-1">
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                <div className="flex flex-wrap items-center gap-2 mb-1">
+                <div className="flex flex-wrap items-center gap-2.5 mb-2">
                   <InlineEditableText value={org.name} onSave={(v) => saveOrgField('name', v)} canEdit={isAdmin} tag="h1" className="text-2xl sm:text-3xl font-bold truncate" />
                   {isOrgVerifiedOrKyc(org.is_verified, orgAny.kyc_status) && <VerifiedBadge size="lg" label={getVerifiedLabel(org.category, locale)} />}
                 </div>
-                <OrgBadges isSuspended={orgAny.is_suspended} size="sm" className="mt-1" />
-                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                <OrgBadges isSuspended={orgAny.is_suspended} size="sm" className="mt-2" />
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
                   <Badge variant="secondary" className="text-xs">{getOrgCategoryLabel(org.category, locale)}</Badge>
                   <span className="flex items-center gap-1">
                     <Users className="h-3.5 w-3.5" /> {memberCount} {memberCount !== 1 ? t('org_public.members_plural') : t('org_public.members')}
@@ -280,7 +280,7 @@ export function OrgPublicHeader({
           </div>
 
           {/* Stats & actions */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 pt-6 pb-6 border-t border-border/50">
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-wrap gap-2">
               {products.length > 0 && (
                 <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card shadow-card">
@@ -365,7 +365,7 @@ export function OrgPublicHeader({
           </div>
 
           {/* Description */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="max-w-3xl mb-2 overflow-hidden">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="max-w-3xl mt-1 mb-4 overflow-hidden">
             {isAdmin ? (
               <InlineEditableText value={org.description || ''} onSave={(v) => saveOrgField('description', v)} canEdit multiline className="text-sm text-muted-foreground break-words leading-relaxed" placeholder={locale === 'fr' ? 'Ajoutez une description...' : 'Add a description...'} />
             ) : org.description ? (
@@ -373,7 +373,7 @@ export function OrgPublicHeader({
             ) : null}
           </motion.div>
 
-          <div className="flex flex-wrap items-center gap-4 mb-4">
+          <div className="flex flex-wrap items-center gap-4 mb-6">
             {org.website && (
               <a href={org.website} className="flex items-center gap-1.5 text-xs text-primary hover:underline" target="_blank" rel="noreferrer">
                 <Globe className="h-3.5 w-3.5" /> {org.website.replace(/https?:\/\//, '').replace(/\/$/, '')}
@@ -386,7 +386,7 @@ export function OrgPublicHeader({
       {/* Leader biography */}
       {(orgAny.leader_name || isAdmin) && (
         <div className="container max-w-5xl">
-          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="mb-8 p-5 sm:p-6 rounded-2xl border border-border bg-card shadow-card">
+          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="mt-2 mb-8 p-5 sm:p-6 rounded-2xl border border-border bg-card shadow-card">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-primary mb-4">{t('org_public.leader_bio')}</h2>
             <div className="flex flex-col sm:flex-row gap-5">
               {orgAny.leader_image_url && (
