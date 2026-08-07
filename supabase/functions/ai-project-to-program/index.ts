@@ -66,13 +66,18 @@ Deno.serve(async (req) => {
       }
     }
 
-    // --- Parse chapters ---
+    // --- Parse draft ---
+    // Two shapes are supported:
+    //  - `course.lessons[].slides[]`  → new slide-native pipeline (course-from-document)
+    //  - `chapters[]`                 → legacy chapter/HTML projects
     const dataJson = (project.data_json || project.structure_json || {}) as any;
-    const chapters = dataJson.chapters || [];
+    const courseLessons: any[] = Array.isArray(dataJson?.course?.lessons) ? dataJson.course.lessons : [];
+    const chapters = courseLessons.length === 0 ? (dataJson.chapters || []) : [];
 
-    if (chapters.length === 0) {
-      return jsonError('No chapters found in project', 400);
+    if (courseLessons.length === 0 && chapters.length === 0) {
+      return jsonError('No lessons or chapters found in project', 400);
     }
+
 
     // --- Get cover ---
     const { data: coverAsset } = await admin
@@ -120,24 +125,86 @@ Deno.serve(async (req) => {
       return jsonError('Failed to create module', 500);
     }
 
-    // --- Create Lessons from chapters ---
-    const lessons = chapters.map((ch: any, i: number) => ({
-      module_id: mod.id,
-      title: ch.title || `Leçon ${i + 1}`,
-      content: ch.content || '',
-      display_order: i,
-      is_published: publish_now ?? false,
-      publication_status: publish_now ? 'published' : 'draft',
-    }));
+    // --- Create Lessons (+ real slides for the slide-native pipeline) ---
+    let lessonsCount = 0;
+    let slidesCount = 0;
 
-    const { error: lessonsErr } = await admin
-      .from('program_lessons')
-      .insert(lessons);
+    if (courseLessons.length > 0) {
+      const lessonRows = courseLessons.map((l: any, i: number) => ({
+        module_id: mod.id,
+        title: l.title || `Leçon ${i + 1}`,
+        // legacy HTML fallback so older players keep working
+        content: (Array.isArray(l.slides) ? l.slides : [])
+          .filter((s: any) => s.slide_type !== 'quiz')
+          .map((s: any) => `${s.title ? `<h2>${escapeHtml(s.title)}</h2>` : ''}<p>${escapeHtml(s.body || '')}</p>`)
+          .join('\n'),
+        display_order: i,
+        is_published: publish_now ?? false,
+        publication_status: publish_now ? 'published' : 'draft',
+      }));
 
-    if (lessonsErr) {
-      console.error('Lessons creation error:', lessonsErr);
-      return jsonError('Failed to create lessons', 500);
+      const { data: insertedLessons, error: lessonsErr } = await admin
+        .from('program_lessons')
+        .insert(lessonRows)
+        .select('id, display_order');
+
+      if (lessonsErr || !insertedLessons) {
+        console.error('Lessons creation error:', lessonsErr);
+        return jsonError('Failed to create lessons', 500);
+      }
+      lessonsCount = insertedLessons.length;
+
+      const byOrder = new Map<number, string>();
+      insertedLessons.forEach((l: any) => byOrder.set(l.display_order, l.id));
+
+      const slideRows: any[] = [];
+      courseLessons.forEach((l: any, i: number) => {
+        const lessonId = byOrder.get(i);
+        if (!lessonId) return;
+        (Array.isArray(l.slides) ? l.slides : []).forEach((s: any, j: number) => {
+          slideRows.push({
+            lesson_id: lessonId,
+            display_order: j,
+            slide_type: s.slide_type === 'quiz' ? 'quiz' : (s.slide_type || 'text'),
+            title: s.title || null,
+            body: s.slide_type === 'quiz' ? null : `<p>${escapeHtml(s.body || '')}</p>`,
+            media_url: s.media_url || null,
+            caption: s.caption || null,
+            data: s.data || {},
+            duration_seconds: s.duration_seconds ?? 30,
+          });
+        });
+      });
+
+      if (slideRows.length > 0) {
+        const { error: slidesErr } = await admin.from('program_slides').insert(slideRows);
+        if (slidesErr) {
+          console.error('Slides creation error:', slidesErr);
+          return jsonError('Failed to create slides', 500);
+        }
+        slidesCount = slideRows.length;
+      }
+    } else {
+      const lessons = chapters.map((ch: any, i: number) => ({
+        module_id: mod.id,
+        title: ch.title || `Leçon ${i + 1}`,
+        content: ch.content || '',
+        display_order: i,
+        is_published: publish_now ?? false,
+        publication_status: publish_now ? 'published' : 'draft',
+      }));
+
+      const { error: lessonsErr } = await admin
+        .from('program_lessons')
+        .insert(lessons);
+
+      if (lessonsErr) {
+        console.error('Lessons creation error:', lessonsErr);
+        return jsonError('Failed to create lessons', 500);
+      }
+      lessonsCount = lessons.length;
     }
+
 
     // --- Link project ---
     await admin.from('ai_content_projects').update({
@@ -156,7 +223,8 @@ Deno.serve(async (req) => {
       organization_id: org_id,
       metadata: {
         program_id: program.id,
-        lessons_count: lessons.length,
+        lessons_count: lessonsCount,
+        slides_count: slidesCount,
         publish_now,
       },
     });
@@ -164,7 +232,8 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({
       ok: true,
       program_id: program.id,
-      lessons_count: lessons.length,
+      lessons_count: lessonsCount,
+      slides_count: slidesCount,
       published: publish_now ?? false,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -176,8 +245,16 @@ Deno.serve(async (req) => {
   }
 });
 
+function escapeHtml(text: string): string {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 function jsonError(message: string, status: number) {
   return new Response(JSON.stringify({ error: message }), {
     status, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 }
+

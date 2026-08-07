@@ -11,8 +11,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
-import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
-import { queueDeferredCourseLessonImages } from '@/lib/programImageGeneration';
+import { useNavigate } from 'react-router-dom';
+import { useStartCourseDraft } from '@/hooks/useCourseDraft';
+import { draftErrorMessage } from '@/lib/courseDraftErrors';
 import { Zap, ArrowRight, Loader2, FileText, ImageIcon, Globe } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
 
@@ -44,9 +45,8 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
   const standardCost = useActionCost('ai_course_structure', 'standard');
   const premiumCost = useActionCost('ai_course_structure', 'premium');
 
-  const createProgram = useCreateProgram();
-  const createModule = useCreateModule();
-  const createLesson = useCreateLesson();
+  const navigate = useNavigate();
+  const startDraft = useStartCourseDraft();
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -70,153 +70,28 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
       const path = `doc-convert/${currentOrg.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage.from('media').upload(path, file);
       if (upErr) throw upErr;
-
       const { data: urlData } = supabase.storage.from('media').getPublicUrl(path);
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        throw new Error(isFr ? 'Session expirée. Reconnectez-vous puis réessayez.' : 'Session expired. Please log in again and retry.');
-      }
-
-      const { data, error } = await supabase.functions.invoke('ai-generate-course', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-        body: {
-          title: file.name.replace(/\.[^.]+$/, ''),
-          description: `Convert this ${ext.toUpperCase()} document into a structured course with modules, lessons, and FULL lesson content. Document URL: ${urlData.publicUrl}`,
-          language: contentLanguage,
-          tier,
-          module_count: 5,
-          generate_images: generateImages,
-        },
+      // The pipeline writes a REVIEWABLE DRAFT — never a live course.
+      const result = await startDraft.mutateAsync({
+        org_id: currentOrg.id,
+        source: 'document',
+        file_url: urlData.publicUrl,
+        file_name: file.name,
+        mime: file.type,
+        title: file.name.replace(/\.[^.]+$/, ''),
+        language: contentLanguage,
+        tier,
       });
-
-      if (error) throw error;
-      if (data?.error) {
-        const err = new Error(data.error);
-        (err as any).status = data.status;
-        throw err;
-      }
 
       refreshCredits();
-      const deferredImageJobs: Array<{ id: string; title: string; imagePrompt: string }> = [];
-
-      const result = await createProgram.mutateAsync({
-        organization_id: currentOrg.id,
-        title: file.name.replace(/\.[^.]+$/, ''),
-        created_by: user.id,
-        content_language: contentLanguage,
-      } as any);
-
-      if (data?.modules) {
-        for (let mi = 0; mi < data.modules.length; mi++) {
-          const mod = data.modules[mi];
-          const modResult = await createModule.mutateAsync({
-            program_id: result.id,
-            title: mod.title,
-            description: mod.description,
-            display_order: mi,
-          });
-          for (let li = 0; li < (mod.lessons || []).length; li++) {
-            const lesson = mod.lessons[li];
-            const lessonResult = await createLesson.mutateAsync({
-              module_id: modResult.id,
-              title: lesson.title,
-              content_type: lesson.content_type || 'text',
-              content: lesson.content || '',
-              duration_minutes: lesson.duration_minutes,
-              display_order: li,
-              programId: result.id,
-            });
-
-            if (generateImages && lesson?.image_prompt && lessonResult?.data?.id) {
-              deferredImageJobs.push({
-                id: lessonResult.data.id,
-                title: lesson.title,
-                imagePrompt: lesson.image_prompt,
-              });
-            }
-          }
-        }
-      }
-
-      if (generateImages && deferredImageJobs.length > 0) {
-        void queueDeferredCourseLessonImages({
-          programId: result.id,
-          lessonJobs: deferredImageJobs,
-          sessionToken: session.access_token,
-          tier,
-        }).then(async ({ error: imageError, data: imageData }) => {
-          const generatedLessonIds = Array.isArray(imageData?.generated_lesson_ids)
-            ? imageData.generated_lesson_ids
-            : [];
-
-          if (imageData?.images_generated > 0) {
-            await Promise.all([
-              queryClient.invalidateQueries({ queryKey: ['program', result.id] }),
-              queryClient.invalidateQueries({ queryKey: ['program-modules', result.id] }),
-              ...generatedLessonIds.map((lessonId: string) =>
-                queryClient.invalidateQueries({ queryKey: ['lesson', lessonId] })
-              ),
-            ]);
-          }
-
-          if (imageError || imageData?.error) {
-            toast({
-              title: isFr ? 'Document converti, mais les images ont échoué' : 'Document converted, but images failed',
-              description: isFr ? 'Le cours est prêt. Les visuels peuvent être relancés plus tard.' : 'The course is ready. The visuals can be retried later.',
-              variant: 'destructive',
-            });
-            return;
-          }
-
-          if (imageData?.images_generated > 0 && !imageData?.failed) {
-            toast({
-              title: isFr ? 'Images de leçon générées' : 'Lesson images generated',
-              description: isFr
-                ? `${imageData.images_generated} visuel(x) ont été ajoutés au cours.`
-                : `${imageData.images_generated} visual(s) were added to the course.`,
-            });
-            return;
-          }
-
-          if (imageData?.images_generated > 0) {
-            toast({
-              title: isFr ? 'Images partiellement générées' : 'Images partially generated',
-              description: isFr
-                ? `${imageData.images_generated} visuel(x) ajoutés, ${imageData.failed || 0} échec(s).`
-                : `${imageData.images_generated} visual(s) added, ${imageData.failed || 0} failed.`,
-              variant: 'destructive',
-            });
-            return;
-          }
-
-          toast({
-            title: isFr ? 'Document converti, mais aucune image n’a été ajoutée' : 'Document converted, but no images were added',
-            description: isFr ? 'Le contenu est prêt, mais les visuels devront être relancés.' : 'The content is ready, but the visuals will need to be retried.',
-            variant: 'destructive',
-          });
-        }).catch(() => {
-          toast({
-            title: isFr ? 'Document converti, mais les images n’ont pas pu être finalisées' : 'Document converted, but images could not be finalized',
-            description: isFr ? 'Le cours a bien été créé. Les visuels pourront être régénérés plus tard.' : 'The course was created successfully. Visuals can be regenerated later.',
-            variant: 'destructive',
-          });
-        });
-      }
-
-      toast({
-        title: isFr ? '✅ Document converti en cours !' : '✅ Document converted to course!',
-        description: generateImages
-          ? (isFr ? 'Les images des leçons se génèrent maintenant en arrière-plan.' : 'Lesson images are now generating in the background.')
-          : undefined,
-      });
       onOpenChange(false);
       setFile(null);
-      onCreated(result.id);
+      navigate(`/admin/programs/draft/${result.project_id}`);
     } catch (err: any) {
       const isCreditError = handleAiError(err);
       if (!isCreditError) {
-        toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' });
+        toast({ title: isFr ? 'Erreur' : 'Error', description: draftErrorMessage(err, isFr), variant: 'destructive' });
       }
     } finally {
       setConverting(false);
