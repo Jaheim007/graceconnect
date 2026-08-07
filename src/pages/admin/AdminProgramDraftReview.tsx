@@ -259,41 +259,43 @@ export default function AdminProgramDraftReview() {
           )}
         </div>
 
-        {/* Pricing step */}
+        {/* Pricing step — AI-generated courses are always paid */}
         <div className="rounded-xl border border-border bg-card p-3.5 space-y-3">
           <div className="flex items-center gap-2">
             <Tag className="h-4 w-4 text-primary" />
             <p className="text-sm font-semibold">{isFr ? 'Prix du cours' : 'Course price'}</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Switch id="course-paid" checked={isPaid} onCheckedChange={setIsPaid} />
-              <Label htmlFor="course-paid" className="text-xs">
-                {isPaid ? (isFr ? 'Payant' : 'Paid') : (isFr ? 'Gratuit' : 'Free')}
-              </Label>
-            </div>
+          <div className="flex items-center gap-3 p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5">
+            <p className="text-[11px] text-muted-foreground">
+              {isFr
+                ? `Les cours générés par l’IA ne peuvent pas être gratuits. Prix minimum : ${minPrice} ${currency}.`
+                : `AI-generated courses cannot be free. Minimum price: ${minPrice} ${currency}.`}
+            </p>
+          </div>
 
-            {isPaid && (
-              <>
-                <Input
-                  type="number"
-                  min={0}
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="5000"
-                  className="h-9 w-32"
-                  aria-label={isFr ? 'Prix' : 'Price'}
-                />
-                <Select value={currency} onValueChange={setCurrency}>
-                  <SelectTrigger className="h-9 w-28"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {SUPPORTED_CURRENCIES.map((c) => (
-                      <SelectItem key={c.code} value={c.code}>{c.code}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </>
+          <div className="flex flex-wrap items-center gap-3">
+            <Input
+              type="number"
+              min={minPrice}
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder={String(minPrice)}
+              className="h-9 w-32"
+              aria-label={isFr ? 'Prix' : 'Price'}
+            />
+            <Select value={currency} onValueChange={setCurrency}>
+              <SelectTrigger className="h-9 w-28"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {SUPPORTED_CURRENCIES.map((c) => (
+                  <SelectItem key={c.code} value={c.code}>{c.code}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {!priceValid && (
+              <span className="text-[11px] text-destructive">
+                {isFr ? `Minimum ${minPrice} ${currency}` : `Minimum ${minPrice} ${currency}`}
+              </span>
             )}
           </div>
 
@@ -303,6 +305,7 @@ export default function AdminProgramDraftReview() {
               : 'A paid course uses the exact same checkout as your digital products (Mobile Money, card, promo codes, affiliates).'}
           </p>
         </div>
+
 
         <p className="text-[11px] text-muted-foreground">
           {isFr
