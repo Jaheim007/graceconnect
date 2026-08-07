@@ -12,8 +12,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
-import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
-import { queueDeferredCourseLessonImages } from '@/lib/programImageGeneration';
+import { useNavigate } from 'react-router-dom';
+import { useStartCourseDraft } from '@/hooks/useCourseDraft';
+import { draftErrorMessage } from '@/lib/courseDraftErrors';
 import { Zap, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Settings2, Globe, Target, AlertTriangle, Wand2 } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -83,9 +84,8 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const standardCost = useActionCost('ai_course_structure', 'standard');
   const premiumCost = useActionCost('ai_course_structure', 'premium');
 
-  const createProgram = useCreateProgram();
-  const createModule = useCreateModule();
-  const createLesson = useCreateLesson();
+  const navigate = useNavigate();
+  const startDraft = useStartCourseDraft();
 
   const suggestions = isFr ? SUGGESTIONS_FR : SUGGESTIONS_EN;
 
@@ -99,245 +99,42 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
     }
   };
 
-  const handleCreate = async (generateImagesOverride?: boolean) => {
+  const handleCreate = async (_generateImagesOverride?: boolean) => {
     if (!prompt.trim() || !currentOrg || !user) return;
-    const shouldGenerateImages = generateImagesOverride ?? generateImages;
     setGenerating(true);
     setGenerationPhase('generating');
     setGenerationError(null);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        throw new Error(isFr ? 'Session expirée. Reconnectez-vous.' : 'Session expired. Please log in again.');
-      }
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 300_000);
-
-      let data: any;
-      let error: any;
-      try {
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-        const resp = await fetch(`${supabaseUrl}/functions/v1/ai-generate-course`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-            'apikey': supabaseKey,
-          },
-          body: JSON.stringify({
-            title: prompt.trim(),
-            language: contentLanguage,
-            tier,
-            module_count: depthLevel === 'masterclass' ? 7 : depthLevel === 'detailed' ? 6 : 5,
-            generate_images: shouldGenerateImages,
-            course_goal: courseGoal,
-            audience,
-            audience_level: level,
-            worldview: contentOrientation,
-            pedagogical_style: teachingStyle,
-            tone,
-            depth_level: depthLevel,
-            interactivity_level: interactivityLevel,
-          }),
-          signal: controller.signal,
-        });
-        clearTimeout(timeoutId);
-
-        data = await resp.json();
-        if (!resp.ok) {
-          error = new Error(data?.error || `HTTP ${resp.status}`);
-          (error as any).status = resp.status;
-        }
-      } catch (fetchErr: any) {
-        clearTimeout(timeoutId);
-        if (fetchErr.name === 'AbortError') {
-          throw new Error(isFr ? 'La génération a pris trop de temps. Réessayez.' : 'Generation timed out. Please try again.');
-        }
-        const msg = fetchErr?.message || '';
-        if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('Load failed')) {
-          throw new Error(
-            isFr
-              ? 'La connexion au serveur a échoué. Réessayez.'
-              : 'Server connection failed. Please retry.'
-          );
-        }
-        throw fetchErr;
-      }
-
-      if (error) throw error;
-      if (data?.error) {
-        const err = new Error(data.error);
-        (err as any).status = data.status;
-        throw err;
-      }
-
-      refreshCredits();
-
-      // Phase 2: Save to database
-      setGenerationPhase('saving');
-
-      const courseTitle = data?.course_title || prompt.trim().slice(0, 100);
-      const courseDescription = data?.course_description || prompt.trim();
-      const deferredImageJobs: Array<{ id: string; title: string; imagePrompt: string }> = [];
-
-      if (!data?.modules?.length) {
-        throw new Error(isFr ? 'L\'IA n\'a généré aucun module. Réessayez.' : 'AI generated no modules. Please retry.');
-      }
-
-      const result = await createProgram.mutateAsync({
-        organization_id: currentOrg.id,
-        title: courseTitle,
-        description: courseDescription,
-        created_by: user.id,
-        content_language: contentLanguage,
-        is_free: false,
-        ai_generated: true,
-      } as any);
-
-      if (data?.modules) {
-        for (let mi = 0; mi < data.modules.length; mi++) {
-          const mod = data.modules[mi];
-          const modResult = await createModule.mutateAsync({
-            program_id: result.id,
-            title: mod.title,
-            description: mod.description,
-            display_order: mi,
-          });
-          for (let li = 0; li < (mod.lessons || []).length; li++) {
-            const lesson = mod.lessons[li];
-            const lessonResult = await createLesson.mutateAsync({
-              module_id: modResult.id,
-              title: lesson.title,
-              content_type: lesson.content_type || 'text',
-              content: lesson.content || '',
-              duration_minutes: lesson.duration_minutes,
-              display_order: li,
-              programId: result.id,
-            });
-
-            if (shouldGenerateImages && lesson?.image_prompt && lessonResult?.data?.id) {
-              deferredImageJobs.push({
-                id: lessonResult.data.id,
-                title: lesson.title,
-                imagePrompt: lesson.image_prompt,
-              });
-            }
-          }
-        }
-
-        if (data?.final_assessment?.questions?.length > 0) {
-          const assessmentModule = await createModule.mutateAsync({
-            program_id: result.id,
-            title: data.final_assessment.title || (isFr ? 'Évaluation finale' : 'Final Assessment'),
-            description: data.final_assessment.description || '',
-            display_order: data.modules.length,
-          });
-
-          const quizComments = data.final_assessment.questions
-            .map((q: any) => `<!-- QUIZ:${JSON.stringify(q)} -->`)
-            .join('\n');
-
-          await createLesson.mutateAsync({
-            module_id: assessmentModule.id,
-            title: isFr ? 'Évaluation finale' : 'Final Assessment',
-            content_type: 'text',
-            content: `<h2>${isFr ? '🏆 Évaluation finale' : '🏆 Final Assessment'}</h2><p>${isFr ? 'Testez vos connaissances sur le cours complet.' : 'Test your knowledge of the entire course.'}</p>${quizComments}`,
-            duration_minutes: 15,
-            display_order: 0,
-            programId: result.id,
-          });
-        }
-      }
-
-      if (shouldGenerateImages && deferredImageJobs.length > 0) {
-        void queueDeferredCourseLessonImages({
-          programId: result.id,
-          lessonJobs: deferredImageJobs,
-          sessionToken: session.access_token,
-          tier,
-        }).then(async ({ error: imageError, data: imageData }) => {
-          const generatedLessonIds = Array.isArray(imageData?.generated_lesson_ids)
-            ? imageData.generated_lesson_ids
-            : [];
-
-          if (imageData?.images_generated > 0) {
-            await Promise.all([
-              queryClient.invalidateQueries({ queryKey: ['program', result.id] }),
-              queryClient.invalidateQueries({ queryKey: ['program-modules', result.id] }),
-              ...generatedLessonIds.map((lessonId: string) =>
-                queryClient.invalidateQueries({ queryKey: ['lesson', lessonId] })
-              ),
-            ]);
-          }
-
-          if (imageError || imageData?.error) {
-            toast({
-              title: isFr ? 'Cours créé, mais les images de leçon ont échoué' : 'Course created, but lesson images failed',
-              description: isFr ? 'Le contenu du cours est prêt. Vous pouvez relancer les visuels plus tard.' : 'The course content is ready. You can retry the visuals later.',
-              variant: 'destructive',
-            });
-            return;
-          }
-
-          if (imageData?.images_generated > 0 && !imageData?.failed) {
-            toast({
-              title: isFr ? 'Images de leçon générées' : 'Lesson images generated',
-              description: isFr
-                ? `${imageData.images_generated} visuel(x) ont été ajoutés au cours.`
-                : `${imageData.images_generated} visual(s) were added to the course.`,
-            });
-            return;
-          }
-
-          if (imageData?.images_generated > 0) {
-            toast({
-              title: isFr ? 'Images partiellement générées' : 'Images partially generated',
-              description: isFr
-                ? `${imageData.images_generated} visuel(x) ajoutés, ${imageData.failed || 0} échec(s).`
-                : `${imageData.images_generated} visual(s) added, ${imageData.failed || 0} failed.`,
-              variant: 'destructive',
-            });
-            return;
-          }
-
-          toast({
-            title: isFr ? 'Cours créé, mais aucune image n’a été ajoutée' : 'Course created, but no images were added',
-            description: isFr ? 'Le contenu du cours est prêt, mais les visuels devront être relancés.' : 'The course content is ready, but the visuals will need to be retried.',
-            variant: 'destructive',
-          });
-        }).catch(() => {
-          toast({
-            title: isFr ? 'Cours créé, mais les images n’ont pas pu être finalisées' : 'Course created, but images could not be finalized',
-            description: isFr ? 'Le cours a bien été créé. Les visuels pourront être régénérés plus tard.' : 'The course was created successfully. Visuals can be regenerated later.',
-            variant: 'destructive',
-          });
-        });
-      }
-
-      // Phase 3: Done
-      setGenerationPhase('done');
-
-      toast({
-        title: isFr ? '✅ Cours créé avec l\'IA !' : '✅ Course created with AI!',
-        description: shouldGenerateImages
-          ? (isFr ? 'Les images des leçons se génèrent maintenant en arrière-plan.' : 'Lesson images are now generating in the background.')
-          : undefined,
+      // The pipeline produces a REVIEWABLE DRAFT; nothing is written to the
+      // live course tables until the admin publishes it from the review screen.
+      const result = await startDraft.mutateAsync({
+        org_id: currentOrg.id,
+        source: 'prompt',
+        prompt: [
+          prompt.trim(),
+          courseGoal ? `Goal: ${courseGoal}` : '',
+          audience ? `Audience: ${audience}` : '',
+          level ? `Level: ${level}` : '',
+          teachingStyle ? `Teaching style: ${teachingStyle}` : '',
+          tone ? `Tone: ${tone}` : '',
+          depthLevel ? `Depth: ${depthLevel}` : '',
+          contentOrientation ? `Worldview: ${contentOrientation}` : '',
+        ].filter(Boolean).join('\n'),
+        title: prompt.trim().slice(0, 100),
+        language: contentLanguage,
+        tier,
       });
 
-      // Brief delay to show success state
-      await new Promise(resolve => setTimeout(resolve, 1200));
-
+      refreshCredits();
       onOpenChange(false);
       setPrompt('');
       setGenerating(false);
-      onCreated(result.id);
-      return; // skip the finally block's setGenerating
+      navigate(`/admin/programs/draft/${result.project_id}`);
+      return;
     } catch (err: any) {
       const isCreditError = handleAiError(err);
       if (!isCreditError) {
-        const errorMsg = err.message || (isFr ? 'Erreur inconnue' : 'Unknown error');
+        const errorMsg = draftErrorMessage(err, isFr);
         setGenerationError(errorMsg);
         toast({ title: isFr ? 'Erreur' : 'Error', description: errorMsg, variant: 'destructive' });
       }
