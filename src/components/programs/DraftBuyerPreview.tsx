@@ -25,6 +25,8 @@ interface DraftBuyerPreviewProps {
   price?: number;
   currency?: string;
   isFree?: boolean;
+  /** Start in full (creator) mode where nothing is locked. */
+  initialUnlocked?: boolean;
   onClose: () => void;
 }
 
@@ -36,10 +38,12 @@ interface FlatDraftSlide {
   previewable: boolean;
 }
 
-export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, onClose }: DraftBuyerPreviewProps) {
+export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, initialUnlocked, onClose }: DraftBuyerPreviewProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [index, setIndex] = useState(0);
+  const [unlocked, setUnlocked] = useState(!!initialUnlocked);
+
 
   const slides = useMemo<FlatDraftSlide[]>(() => {
     const flat: FlatDraftSlide[] = [];
