@@ -81,6 +81,8 @@ export default function AdminProgramDraftReview() {
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState(currentOrg?.currency || 'XOF');
   const [buyerPreview, setBuyerPreview] = useState(false);
+  const [previewFull, setPreviewFull] = useState(false);
+
   const minPrice = MIN_AI_COURSE_PRICE[currency] ?? MIN_AI_COURSE_PRICE.USD;
   const priceValue = Number(price) || 0;
   const priceValid = priceValue >= minPrice;
@@ -271,12 +273,23 @@ export default function AdminProgramDraftReview() {
               variant="outline"
               size="sm"
               className="gap-1.5"
-              onClick={() => setBuyerPreview(true)}
+              onClick={() => { setPreviewFull(true); setBuyerPreview(true); }}
+              disabled={totals.slides === 0}
+            >
+              <Eye className="h-3.5 w-3.5" />
+              {isFr ? 'Aperçu complet' : 'Full preview'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => { setPreviewFull(false); setBuyerPreview(true); }}
               disabled={totals.slides === 0}
             >
               <Eye className="h-3.5 w-3.5" />
               {isFr ? 'Vue acheteur' : 'Preview as buyer'}
             </Button>
+
             <Button variant="outline" size="sm" onClick={handleSave} disabled={!dirty || updateDraft.isPending}>
               {updateDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : (isFr ? 'Enregistrer' : 'Save')}
             </Button>
@@ -586,7 +599,9 @@ export default function AdminProgramDraftReview() {
           price={priceValue}
           currency={currency}
           isFree={false}
+          initialUnlocked={previewFull}
           onClose={() => setBuyerPreview(false)}
+
         />
       )}
     </AdminPageShell>

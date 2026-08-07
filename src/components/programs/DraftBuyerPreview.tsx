@@ -25,6 +25,8 @@ interface DraftBuyerPreviewProps {
   price?: number;
   currency?: string;
   isFree?: boolean;
+  /** Start in full (creator) mode where nothing is locked. */
+  initialUnlocked?: boolean;
   onClose: () => void;
 }
 
@@ -36,10 +38,12 @@ interface FlatDraftSlide {
   previewable: boolean;
 }
 
-export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, onClose }: DraftBuyerPreviewProps) {
+export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, initialUnlocked, onClose }: DraftBuyerPreviewProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [index, setIndex] = useState(0);
+  const [unlocked, setUnlocked] = useState(!!initialUnlocked);
+
 
   const slides = useMemo<FlatDraftSlide[]>(() => {
     const flat: FlatDraftSlide[] = [];
@@ -92,13 +96,24 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
           <div className="min-w-0">
             <p className="text-sm font-semibold truncate">{draft.title}</p>
             <p className="text-[11px] text-muted-foreground truncate">
-              {isFr ? 'Vue acheteur' : 'Buyer view'} · {current?.lessonTitle || ''} · {priceLabel}
+              {unlocked
+                ? (isFr ? 'Aperçu complet (créateur)' : 'Full preview (creator)')
+                : (isFr ? 'Vue acheteur' : 'Buyer view')} · {current?.lessonTitle || ''} · {priceLabel}
             </p>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose} aria-label={isFr ? 'Fermer' : 'Close'}>
-            <X className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Button variant="outline" size="sm" className="h-8 text-[11px]" onClick={() => setUnlocked((v) => !v)}>
+              {unlocked
+                ? (isFr ? 'Vue acheteur' : 'Buyer view')
+                : (isFr ? 'Aperçu complet' : 'Full preview')}
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose} aria-label={isFr ? 'Fermer' : 'Close'}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
+
+
         <div className="px-3 pb-2">
           <SlideSegmentBar
             count={lessonSegments.count}
@@ -123,7 +138,7 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
               <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
                 {isFr ? 'Aucune diapositive à prévisualiser.' : 'No slides to preview.'}
               </div>
-            ) : current.previewable ? (
+            ) : (unlocked || current.previewable) ? (
               <SlideRenderer
                 slide={current.slide}
                 slideIndex={index}
