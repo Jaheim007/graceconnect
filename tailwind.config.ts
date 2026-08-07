@@ -73,12 +73,23 @@ export default {
       fontFamily: {
         sans: [
           "Inter",
+          "Inter var",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "sans-serif",
+        ],
+        heading: [
+          "Switzer",
+          "Switzer-Variable",
+          "Inter",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",
           "sans-serif",
         ],
       },
+
       keyframes: {
         "accordion-down": {
           from: { height: "0", opacity: "0" },
