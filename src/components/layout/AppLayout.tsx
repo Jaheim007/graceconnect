@@ -1,8 +1,11 @@
+import { Suspense } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { FullPageLoader } from './RouteGuard';
+import { RouteContentSkeleton } from './RouteFallback';
+
 
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useOrg } from '@/contexts/OrgContext';
