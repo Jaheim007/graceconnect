@@ -148,7 +148,7 @@ export function ExploreSearchResults({ query }: Props) {
             {data.programs.map((p: any) => (
               <Link
                 key={p.id}
-                to={`/programs/${p.id}`}
+                to={`/program/${p.id}`}
                 className="group rounded-xl border border-border bg-card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all"
               >
                 <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
