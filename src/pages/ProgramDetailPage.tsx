@@ -168,13 +168,22 @@ export default function ProgramDetailPage() {
   const isPaidCourse = !program?.is_free && (program?.price ?? 0) > 0;
 
   const { data: linkedProduct } = useQuery({
-    queryKey: ['course-linked-product', program?.organization_id, programId],
+    queryKey: ['course-linked-product', program?.organization_id, programId, (program as any)?.linked_product_id],
     queryFn: async () => {
       if (!program?.organization_id || !programId) return null;
 
+      // Preferred path: the course points at its checkout product explicitly.
+      if ((program as any).linked_product_id) {
+        const { data: linked } = await db.from('digital_products')
+          .select('*')
+          .eq('id', (program as any).linked_product_id)
+          .maybeSingle();
+        if (linked) return linked as DigitalProduct;
+      }
+
       const normalizedTitle = program.title.trim();
 
-      // Find the published course product that mirrors this program pricing.
+      // Legacy fallback: match the mirrored product by title + price.
       const { data } = await db.from('digital_products')
         .select('*')
         .eq('organization_id', program.organization_id)

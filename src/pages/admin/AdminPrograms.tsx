@@ -12,6 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, BookOpen, Edit, Trash2, Eye, EyeOff, Layers, ChevronRight, Zap, FileUp, PenLine, ChevronDown, Copy } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
+import { useOrgCourseStats } from '@/hooks/useCourseCommerce';
+import { formatPrice } from '@/lib/currency';
 import { CreateWithAIDialog } from '@/components/programs/CreateWithAIDialog';
 import { CreateBlankDialog } from '@/components/programs/CreateBlankDialog';
 import { ConvertDocumentDialog } from '@/components/programs/ConvertDocumentDialog';
@@ -41,6 +43,7 @@ export default function AdminPrograms() {
   const deleteProgram = useDeleteProgram();
   const createProgram = useCreateProgram();
   const cloneProgram = useCloneProgram();
+  const { data: courseStats } = useOrgCourseStats(currentOrg?.id, programs);
 
   const [showAI, setShowAI] = useState(false);
   const [showBlank, setShowBlank] = useState(false);
@@ -185,9 +188,38 @@ export default function AdminPrograms() {
                     <p className="text-[11px] text-muted-foreground line-clamp-2">{prog.description?.replace(/<[^>]*>/g, '')}</p>
                   )}
 
+                  {/* Creator metrics */}
+                  {(() => {
+                    const stat = courseStats?.[prog.id];
+                    const isPaid = !prog.is_free && (prog.price ?? 0) > 0;
+                    return (
+                      <div className="grid grid-cols-3 gap-1.5 pt-1">
+                        <div className="rounded-lg bg-muted/50 px-2 py-1.5">
+                          <p className="text-[9px] uppercase tracking-wide text-muted-foreground">{isFr ? 'Inscrits' : 'Enrolled'}</p>
+                          <p className="text-xs font-semibold">{stat?.enrollments ?? 0}</p>
+                        </div>
+                        <div className="rounded-lg bg-muted/50 px-2 py-1.5">
+                          <p className="text-[9px] uppercase tracking-wide text-muted-foreground">{isFr ? 'Terminé' : 'Completed'}</p>
+                          <p className="text-xs font-semibold">{stat?.completion_rate ?? 0}%</p>
+                        </div>
+                        <div className="rounded-lg bg-muted/50 px-2 py-1.5">
+                          <p className="text-[9px] uppercase tracking-wide text-muted-foreground">{isFr ? 'Revenu' : 'Revenue'}</p>
+                          <p className="text-xs font-semibold truncate">
+                            {isPaid
+                              ? formatPrice(stat?.revenue ?? 0, false, stat?.currency || prog.currency || 'XOF')
+                              : (isFr ? 'Gratuit' : 'Free')}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   <div className="flex items-center justify-between pt-1">
                     <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
                       <span className="flex items-center gap-0.5"><Layers className="h-3 w-3" /> {prog.module_count} module{prog.module_count !== 1 ? 's' : ''}</span>
+                      {!prog.is_free && (prog.price ?? 0) > 0 && (
+                        <span className="font-medium text-foreground">{formatPrice(prog.price, false, prog.currency || 'XOF')}</span>
+                      )}
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       {prog.is_published && (
