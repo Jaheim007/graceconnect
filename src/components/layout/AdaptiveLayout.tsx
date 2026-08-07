@@ -63,11 +63,8 @@ export function AdaptiveLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  if (isLoadingOrgs) {
-    return <FullPageLoader />;
-  }
-
-  // Authenticated: full app shell
+  // Authenticated: full app shell. Never a full-page loader — the shell stays
+  // mounted and only the content area shows a skeleton while data hydrates.
   return (
     <div className="native-app-shell h-[100dvh] flex w-full bg-background overflow-hidden">
       <nav className="hidden lg:flex shrink-0" aria-label="Navigation principale">
@@ -77,19 +74,19 @@ export function AdaptiveLayout({ children }: { children: ReactNode }) {
       <div className="flex flex-col flex-1 min-w-0 h-full">
         <TopBar />
         <main className="native-main-scroll flex-1 overflow-y-auto overflow-x-hidden pb-24 lg:pb-0">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+          <motion.div
+            key={location.pathname}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+          >
+            <Suspense fallback={<RouteContentSkeleton />}>
+              {isLoadingOrgs ? <RouteContentSkeleton /> : children}
+            </Suspense>
+          </motion.div>
         </main>
       </div>
+
 
       {/* BottomNav is now rendered globally by GlobalBottomNav */}
       <CommandPalette />
