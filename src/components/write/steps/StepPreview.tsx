@@ -493,7 +493,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
                       onClick={() => handleAiChapterAction('custom', aiInstruction)}
                       className="gap-1"
                     >
-                      {aiLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : }
+                      {aiLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                       {t('write.ai_apply')}
                     </Button>
                   </div>

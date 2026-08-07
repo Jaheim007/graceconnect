@@ -347,7 +347,7 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
               <p className="text-[10px] text-muted-foreground">{(file.size / 1024).toFixed(0)} KB</p>
             </div>
             <Button size="sm" onClick={handleConvert} disabled={converting} className="gap-1.5">
-              {converting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : }
+              {converting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
               {converting ? (isFr ? 'Conversion...' : 'Converting...') : (isFr ? 'Convertir' : 'Convert')}
             </Button>
           </div>

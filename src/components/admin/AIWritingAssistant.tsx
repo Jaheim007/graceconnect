@@ -122,7 +122,7 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
           </div>
 
           <Button onClick={handleGenerate} disabled={loading || !prompt.trim()} className="w-full gap-2">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : }
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {loading
               ? (isFr ? 'Rédaction en cours…' : 'Writing in progress…')
               : (isFr ? 'Générer le texte' : 'Generate text')}

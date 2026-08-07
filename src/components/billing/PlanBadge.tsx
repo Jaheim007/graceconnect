@@ -16,7 +16,7 @@ export function PlanBadge({ compact = false }: { compact?: boolean }) {
     : null;
 
   let label = 'Free';
-  let icon = ;
+  let icon = null;
   let cls = 'bg-muted text-muted-foreground';
 
   if (isFounder) {

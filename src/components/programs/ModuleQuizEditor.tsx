@@ -312,7 +312,7 @@ export function ModuleQuizEditor({ moduleId, moduleTitle, programId, courseTitle
                       </SelectContent>
                     </Select>
                     <Button size="sm" variant="outline" className="text-xs gap-1.5 h-7" onClick={handleAIGenerate} disabled={generating}>
-                      {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : }
+                      {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                       {isFr ? 'Générer IA' : 'AI Generate'}
                     </Button>
                     <Button size="sm" className="text-xs gap-1.5 h-7" onClick={() => setEditingQuestion(emptyQuestion())}>
@@ -549,7 +549,7 @@ export function ModuleQuizEditor({ moduleId, moduleTitle, programId, courseTitle
           <div className="bg-card border border-dashed border-border rounded-lg p-3 space-y-2">
             <div className="flex items-center gap-2">
               <Button size="sm" variant="outline" className="text-xs gap-1.5 flex-1" onClick={handleAIGenerateFlashcards} disabled={generatingFlashcards}>
-                {generatingFlashcards ? <Loader2 className="h-3 w-3 animate-spin" /> : }
+                {generatingFlashcards ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                 {isFr ? 'Générer avec IA' : 'Generate with AI'}
               </Button>
             </div>
