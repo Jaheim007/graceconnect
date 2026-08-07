@@ -38,6 +38,8 @@ import { ProductImageGallery } from '@/components/products/ProductImageGallery';
 import { ProductPurchaseModal } from '@/components/products/ProductPurchaseModal';
 import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
 import type { DigitalProduct } from '@/types/database';
+import { useProgramResume } from '@/hooks/useCourseResume';
+import { LessonPlayerOverlay } from '@/components/programs/LessonPlayerOverlay';
 
 const CONTENT_ICONS: Record<string, typeof FileText> = {
   text: FileText,
@@ -60,6 +62,8 @@ export default function ProgramDetailPage() {
   const { data: enrollment } = useEnrollment(programId);
   const { data: progress = {} } = useLessonProgress(programId);
   const enrollMutation = useEnrollInProgram();
+  const resumeInfo = useProgramResume(programId);
+  const [playerOpen, setPlayerOpen] = useState(false);
   const toggleLesson = useToggleLessonComplete();
 
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
@@ -68,7 +72,10 @@ export default function ProgramDetailPage() {
 
   const totalLessons = useMemo(() => modules.reduce((sum: number, m: any) => sum + (m.lessons?.length || 0), 0), [modules]);
   const completedLessons = useMemo(() => Object.values(progress).filter((p: any) => p.completed).length, [progress]);
-  const progressPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+  // Slide-level progress (falls back to lesson-level while resume data loads)
+  const progressPercent = resumeInfo
+    ? resumeInfo.progressPercent
+    : totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
   const isEnrolled = !!enrollment;
 
   const org = (program as any)?.organizations;
@@ -690,10 +697,14 @@ export default function ProgramDetailPage() {
                   <Button
                     size="lg"
                     className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-lg"
-                    onClick={() => navigate('/resources')}
+                    onClick={() => setPlayerOpen(true)}
                   >
                     <Play className="h-4 w-4" />
-                    {isFr ? 'Continuer le cours' : 'Continue course'}
+                    {resumeInfo?.resume
+                      ? (isFr
+                          ? `Reprendre — Leçon ${resumeInfo.resume.lessonNumber}, diapo ${resumeInfo.resume.slideNumber} sur ${resumeInfo.resume.slidesInLesson}`
+                          : `Resume — Lesson ${resumeInfo.resume.lessonNumber}, slide ${resumeInfo.resume.slideNumber} of ${resumeInfo.resume.slidesInLesson}`)
+                      : (isFr ? 'Continuer le cours' : 'Continue course')}
                   </Button>
                 </div>
               ) : (
