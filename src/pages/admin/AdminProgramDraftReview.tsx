@@ -259,11 +259,14 @@ export default function AdminProgramDraftReview() {
               </Badge>
             )}
             <div className="flex items-center gap-1.5 mr-1">
-              <Switch id="publish-now" checked={publishNow} onCheckedChange={setPublishNow} />
+              <Switch id="publish-now" checked={publishNow} onCheckedChange={setPublishNow} disabled={incomplete} />
               <Label htmlFor="publish-now" className="text-[11px] text-muted-foreground">
-                {isFr ? 'Publier tout de suite' : 'Publish immediately'}
+                {incomplete
+                  ? (isFr ? 'Reste en brouillon' : 'Stays a draft')
+                  : (isFr ? 'Publier tout de suite' : 'Publish immediately')}
               </Label>
             </div>
+
             <Button
               variant="outline"
               size="sm"
