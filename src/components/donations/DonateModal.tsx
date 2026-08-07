@@ -158,7 +158,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               organization_id: organizationId,
               ...(campaign.id ? { campaign_id: campaign.id } : {}),
             });
-            window.location.href = `/payment/success?${params.toString()}`;
+            navigate(`/payment/success?${params.toString()}`);
           }
         },
       });
