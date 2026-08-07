@@ -241,39 +241,8 @@ export function MobileMenuDrawer({ onClose }: Props) {
           })}
         </ul>
 
-        {/* Workspace switcher (only when >1) */}
-        {manageableOrgs.length > 1 && (
-          <div className="mb-3">
-            <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              {isFr ? 'CHANGER D’ESPACE' : 'SWITCH WORKSPACE'}
-            </div>
-            <ul className="space-y-0.5">
-              {manageableOrgs.map((org) => {
-                const active = currentOrg?.id === org.id;
-                const logo = brandUrl(org.logo_url);
-                const initials = org.name.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
-                return (
-                  <li key={org.id}>
-                    <button
-                      onClick={() => { setCurrentOrg(org); onClose(); navigate('/admin'); }}
-                      className={cn(
-                        'w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left active:scale-[0.98] transition',
-                        active ? 'bg-primary/10' : 'hover:bg-muted/50',
-                      )}
-                    >
-                      <div className="h-8 w-8 rounded-lg overflow-hidden bg-primary/10 grid place-items-center shrink-0">
-                        {logo ? <img src={logo} alt="" className="h-full w-full object-cover" />
-                          : <span className="text-[10px] font-bold text-primary">{initials}</span>}
-                      </div>
-                      <span className="text-[14px] font-medium truncate flex-1">{org.name}</span>
-                      {active && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        )}
+
+
 
         <div className="mb-3">
           <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
