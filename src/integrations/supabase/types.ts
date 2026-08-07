@@ -10352,8 +10352,12 @@ export type Database = {
           completed_at: string | null
           completed_lessons: string[] | null
           completed_modules: string[] | null
+          completed_slides: string[]
           created_at: string
+          current_lesson_id: string | null
+          current_slide_id: string | null
           id: string
+          last_active_at: string | null
           last_slide_index: number
           program_id: string
           progress_percent: number
@@ -10368,8 +10372,12 @@ export type Database = {
           completed_at?: string | null
           completed_lessons?: string[] | null
           completed_modules?: string[] | null
+          completed_slides?: string[]
           created_at?: string
+          current_lesson_id?: string | null
+          current_slide_id?: string | null
           id?: string
+          last_active_at?: string | null
           last_slide_index?: number
           program_id: string
           progress_percent?: number
@@ -10384,8 +10392,12 @@ export type Database = {
           completed_at?: string | null
           completed_lessons?: string[] | null
           completed_modules?: string[] | null
+          completed_slides?: string[]
           created_at?: string
+          current_lesson_id?: string | null
+          current_slide_id?: string | null
           id?: string
+          last_active_at?: string | null
           last_slide_index?: number
           program_id?: string
           progress_percent?: number
@@ -10557,6 +10569,59 @@ export type Database = {
             columns: ["module_id"]
             isOneToOne: false
             referencedRelation: "program_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_slides: {
+        Row: {
+          body: string | null
+          caption: string | null
+          created_at: string
+          data: Json
+          display_order: number
+          duration_seconds: number | null
+          id: string
+          lesson_id: string
+          media_url: string | null
+          slide_type: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          caption?: string | null
+          created_at?: string
+          data?: Json
+          display_order?: number
+          duration_seconds?: number | null
+          id?: string
+          lesson_id: string
+          media_url?: string | null
+          slide_type?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          caption?: string | null
+          created_at?: string
+          data?: Json
+          display_order?: number
+          duration_seconds?: number | null
+          id?: string
+          lesson_id?: string
+          media_url?: string | null
+          slide_type?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_slides_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "program_lessons"
             referencedColumns: ["id"]
           },
         ]
@@ -12493,6 +12558,23 @@ export type Database = {
       }
       is_partner_owner: { Args: { _partner_id: string }; Returns: boolean }
       is_superadmin: { Args: { _user_id: string }; Returns: boolean }
+      issue_program_certificate: {
+        Args: { _program_id: string }
+        Returns: {
+          certificate_number: string
+          id: string
+          issued_at: string
+          organization_id: string
+          program_id: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "program_certificates"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       issue_waitlist_coupon: {
         Args: {
           _discount_percent?: number
@@ -12595,6 +12677,8 @@ export type Database = {
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      slide_lesson_org: { Args: { _lesson_id: string }; Returns: string }
+      slide_lesson_published: { Args: { _lesson_id: string }; Returns: boolean }
       smart_search: {
         Args: { p_filter?: string; p_limit?: number; p_query: string }
         Returns: {
