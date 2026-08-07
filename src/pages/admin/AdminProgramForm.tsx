@@ -6,6 +6,7 @@ import { onContentPublished, onContentUnpublished } from '@/lib/notifications';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
+import { useEnsureProgramSlides } from '@/hooks/useProgramSlides';
   useProgram, useProgramModules, useUpdateProgram,
   useCreateModule, useUpdateModule, useDeleteModule,
   useCreateLesson, useUpdateLesson, useDeleteLesson,
