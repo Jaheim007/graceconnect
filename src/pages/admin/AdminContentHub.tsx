@@ -19,15 +19,17 @@ const secondaryItems = [
   { to: '/admin/events', icon: CalendarCheck2, labelFr: 'Créer un événement', labelEn: 'Create an event', descFr: 'Événements en personne ou en ligne', descEn: 'In-person or online events', color: 'text-purple-500 bg-purple-500/10 border-purple-500/20' },
   { to: '/admin/announcements', icon: Megaphone, labelFr: 'Créer une annonce', labelEn: 'Create an announcement', descFr: 'Nouvelles et actualités', descEn: 'News and updates for your community', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
   { to: '/admin/promo-codes', icon: Percent, labelFr: 'Créer un code promo', labelEn: 'Create a promo code', descFr: 'Réductions pour vos produits', descEn: 'Discounts for your products', color: 'text-teal-500 bg-teal-500/10 border-teal-500/20' },
-  { to: '/admin/offerings', icon: Gift, labelFr: 'Créer un don', labelEn: 'Create a donation', descFr: 'Recevoir des soutiens', descEn: 'Receive donations from supporters', color: 'text-pink-500 bg-pink-500/10 border-pink-500/20' },
   { to: '/admin/popups', icon: LayoutPanelTop, labelFr: 'Créer un pop-up', labelEn: 'Create a pop-up banner', descFr: 'Pop-ups ciblés', descEn: 'Engage visitors with targeted pop-ups', color: 'text-orange-500 bg-orange-500/10 border-orange-500/20' },
 ];
+
 
 export default function AdminContentHub() {
   const { currentOrg } = useOrg();
   const { locale } = useI18n();
   const { fmt } = useDisplayCurrency();
   const [showMore, setShowMore] = useState(false);
+  const offeringsEnabled = !!((currentOrg as any)?.settings?.offerings_enabled);
+
   const isFr = locale === 'fr';
 
   const { data: counts } = useQuery({
@@ -146,6 +148,19 @@ export default function AdminContentHub() {
           <ArrowRight className="h-3 w-3" />
         </Link>
       </div>
+
+      {/* Donations — only when the module is enabled in settings */}
+      {offeringsEnabled && (
+        <Link
+          to="/admin/offerings"
+          className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-pink-500/20 bg-pink-500/5 text-pink-600 text-xs font-semibold hover:bg-pink-500/10 transition-colors"
+        >
+          <Gift className="h-3.5 w-3.5" />
+          {isFr ? 'Créer une offrande' : 'Create an offering'}
+          <ArrowRight className="h-3 w-3" />
+        </Link>
+      )}
+
 
       {/* More tools */}
       <div>

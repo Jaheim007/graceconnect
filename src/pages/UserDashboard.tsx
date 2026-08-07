@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Package, Store, Share2, ArrowRight, BookOpen, Rocket, Zap, GraduationCap, Heart, Shield, Building2, Compass } from 'lucide-react';
+import { Package, Store, Share2, ArrowRight, BookOpen, Rocket, Zap, GraduationCap, Heart, Shield, Building2, Compass, Palette, Percent, CalendarCheck2, LayoutPanelTop, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -42,6 +42,32 @@ export default function UserDashboard() {
   const activeOrgId = currentOrg?.id ?? null;
   const primaryCurrency = currentOrg?.currency || userOrgs[0]?.currency || DEFAULT_CURRENCY;
   const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency || primaryCurrency, locale);
+
+  // Quick actions — the shortcuts that aren't already surfaced at the top.
+  const offeringsEnabled = !!((currentOrg as any)?.settings?.offerings_enabled);
+  const quickActions = [
+    { to: '/admin/settings?s=profile', icon: Palette,
+      labelFr: 'Personnaliser ma plateforme', labelEn: 'Customize my platform',
+      descFr: 'Nom, logo, bannière, lien public', descEn: 'Name, logo, banner, public link' },
+    { to: '/admin/products', icon: Package,
+      labelFr: 'Ajouter un produit', labelEn: 'Add a product',
+      descFr: 'Ebooks, templates et plus', descEn: 'Ebooks, templates & more' },
+    { to: '/admin/promo-codes', icon: Percent,
+      labelFr: 'Ajouter un code promo', labelEn: 'Add a promo code',
+      descFr: 'Réductions pour tes produits', descEn: 'Discounts for your products' },
+    { to: '/admin/events', icon: CalendarCheck2,
+      labelFr: 'Créer un événement', labelEn: 'Create an event',
+      descFr: 'En ligne ou en personne', descEn: 'Online or in person' },
+    { to: '/admin/popups', icon: LayoutPanelTop,
+      labelFr: 'Créer un pop-up', labelEn: 'Create a pop-up',
+      descFr: 'Messages ciblés sur ta page', descEn: 'Targeted messages on your page' },
+    ...(offeringsEnabled
+      ? [{ to: '/admin/offerings', icon: Gift,
+          labelFr: 'Créer une offrande', labelEn: 'Create an offering',
+          descFr: 'Dons, dîmes et contributions', descEn: 'Donations, tithes & contributions' }]
+      : []),
+  ];
+
 
   // ── Purchases ──
   const { data: purchases = [] } = useQuery({
@@ -450,30 +476,27 @@ export default function UserDashboard() {
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold px-1">{isFr ? 'Accès rapide' : 'Quick access'}</p>
 
           {hasOrgs && (
-            <PremiumCard variant="default" noPadding animate={false} className="p-0">
-              <button
-                onClick={() => navigate('/admin')}
-                className="w-full flex items-center gap-3 p-3.5 text-left group"
-              >
-                <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <Building2 className="h-4 w-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold">
-                    {userProfile === 'org-religious'
-                      ? (isFr ? 'Notre espace' : 'Our space')
-                      : (isFr ? 'Ma boutique' : 'My store')}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {userProfile === 'org-religious'
-                      ? (isFr ? 'Ressources, contributions, membres' : 'Resources, contributions, members')
-                      : (isFr ? 'Produits, ventes, ambassadeurs' : 'Products, sales, ambassadors')}
-                  </p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-              </button>
-            </PremiumCard>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {quickActions.map((a) => (
+                <PremiumCard key={a.to} variant="default" noPadding animate={false} className="p-0">
+                  <button
+                    onClick={() => navigate(a.to)}
+                    className="w-full flex items-center gap-3 p-3.5 text-left group"
+                  >
+                    <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <a.icon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold">{isFr ? a.labelFr : a.labelEn}</p>
+                      <p className="text-[10px] text-muted-foreground">{isFr ? a.descFr : a.descEn}</p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </PremiumCard>
+              ))}
+            </div>
           )}
+
 
           {!hasOrgs && !isBuyer && (
             <PremiumCard variant="default" noPadding animate={false} className="p-0">
