@@ -16,6 +16,7 @@ import { Loader2, Handshake, CheckCircle, XCircle, Pause, Play, Percent, Wallet,
 import { db } from '@/lib/db';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 const LEVEL_LABELS: Record<number, string> = { 1: 'Bronze', 2: 'Argent', 3: 'Or', 4: 'Platine', 5: 'Diamant' };
 
@@ -196,8 +197,8 @@ export default function SuperadminPartners() {
                           <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setRateDialog(p); setNewRate(String(p.custom_rate_override ?? p.rate_percent)); }} title="Taux">
                             <Percent className="h-4 w-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => {
-                            if (confirm(`Permanently delete ${p.full_name}? This action is irreversible.`)) {
+                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={async () => {
+                            if ((await askConfirm(`Permanently delete ${p.full_name}? This action is irreversible.`))) {
                               deletePartner.mutate(p.id);
                             }
                           }} title="Delete">

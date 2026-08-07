@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { toast } from 'sonner';
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 const VARIANT_META = [
   { type: 'summary', icon: FileText, fr: 'Résumé', en: 'Summary' },
@@ -164,7 +165,7 @@ export default function ChurchProSermonDetail() {
   };
 
   const deletePdf = async (pdfId: string) => {
-    if (!confirm(fr ? 'Supprimer ce PDF ?' : 'Delete this PDF?')) return;
+    if (!(await askConfirm(fr ? 'Supprimer ce PDF ?' : 'Delete this PDF?'))) return;
     const { error } = await supabase.from('church_sermon_pdfs').delete().eq('id', pdfId);
     if (error) return toast.error(error.message);
     toast.success(fr ? 'PDF supprimé' : 'PDF deleted');

@@ -12,6 +12,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { toast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 interface Props {
   bookingId: string;
@@ -175,7 +176,7 @@ function ExtraChargeRow({ charge, isClient, isProvider, onChanged }: { charge: a
   }
 
   async function decline() {
-    if (!confirm(t("Refuser ce supplément ?", "Decline this extra?"))) return;
+    if (!(await askConfirm(t("Refuser ce supplément ?", "Decline this extra?")))) return;
     setBusy("decline");
     try {
       const { data, error } = await supabase.functions.invoke("beauty-extra-charge", {

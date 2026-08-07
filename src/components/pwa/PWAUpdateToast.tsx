@@ -6,7 +6,7 @@ import { useI18n } from '@/i18n/I18nContext';
 
 /**
  * PWAUpdateToast — Listens for SW update events and shows a non-blocking
- * toast with an update button. Replaces the ugly confirm() dialog.
+ * toast with an update button. Replaces the ugly browser confirm dialog.
  */
 export function PWAUpdateToast() {
   const [updateFn, setUpdateFn] = useState<(() => void) | null>(null);

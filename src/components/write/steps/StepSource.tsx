@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState, SourceType, SavedWriteDraftSummary } from '../WriteWizard';
+import { askAlert } from '@/components/ui/confirm-dialog';
 
 const SUGGESTION_KEYS = [
   'write.sug_prayers', 'write.sug_business', 'write.sug_cooking', 'write.sug_health',
@@ -402,7 +403,7 @@ function SourceInput({ state, update, t, transcribing }: {
                 if (file) {
                   if (file.size > 18 * 1024 * 1024) {
                     // File size limit for AI processing
-                    alert(t('write.file_too_large') || 'File too large (max 18 MB)');
+                    void askAlert(t('write.file_too_large') || 'File too large (max 18 MB)');
                     return;
                   }
                   update({ uploadedFile: file, title: file.name.replace(/\.[^.]+$/, '') });
@@ -461,7 +462,7 @@ function SourceInput({ state, update, t, transcribing }: {
                 const file = e.target.files?.[0];
                 if (file) {
                   if (file.size > 18 * 1024 * 1024) {
-                    alert(t('write.file_too_large') || 'File too large (max 18 MB)');
+                    void askAlert(t('write.file_too_large') || 'File too large (max 18 MB)');
                     return;
                   }
                   update({ uploadedFile: file, title: file.name.replace(/\.[^.]+$/, '') });

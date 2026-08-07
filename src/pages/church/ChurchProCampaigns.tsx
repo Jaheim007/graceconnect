@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { toast } from 'sonner';
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 export default function ChurchProCampaigns() {
   const { user, loading } = useAuth();
@@ -81,7 +82,7 @@ export default function ChurchProCampaigns() {
                       <span className="text-[10px] rounded-full bg-muted text-muted-foreground px-2 py-0.5 mt-1 inline-block">{c.status}</span>
                     </div>
                     <Button variant="ghost" size="icon" onClick={async () => {
-                      if (!confirm(fr ? 'Supprimer cette campagne ?' : 'Delete this campaign?')) return;
+                      if (!(await askConfirm(fr ? 'Supprimer cette campagne ?' : 'Delete this campaign?'))) return;
                       await supabase.from('church_campaigns').delete().eq('id', c.id);
                       qc.invalidateQueries({ queryKey: ['church-campaigns', church.id] });
                     }}><Trash2 className="h-4 w-4 text-muted-foreground" /></Button>

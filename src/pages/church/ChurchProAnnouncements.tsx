@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { toast } from 'sonner';
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 export default function ChurchProAnnouncements() {
   const { user, loading } = useAuth();
@@ -103,7 +104,7 @@ export default function ChurchProAnnouncements() {
                     {a.pinned ? <><PinOff className="mr-1.5 h-3.5 w-3.5" /> {fr ? 'Détacher' : 'Unpin'}</> : <><Pin className="mr-1.5 h-3.5 w-3.5" /> {fr ? 'Épingler' : 'Pin'}</>}
                   </Button>
                   <Button size="sm" variant="ghost" onClick={async () => {
-                    if (!confirm(fr ? 'Supprimer cette annonce ?' : 'Delete this announcement?')) return;
+                    if (!(await askConfirm(fr ? 'Supprimer cette annonce ?' : 'Delete this announcement?'))) return;
                     await supabase.from('church_announcements').delete().eq('id', a.id);
                     invalidate();
                   }}><Trash2 className="h-3.5 w-3.5 text-muted-foreground" /></Button>

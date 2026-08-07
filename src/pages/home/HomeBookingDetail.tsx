@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import HomeOtpPanel from "@/components/home/HomeOtpPanel";
 import HomeExtraCharges from "@/components/home/HomeExtraCharges";
 import HomeReviewForm from "@/components/home/HomeReviewForm";
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 const STATUS: Record<string, { fr: string; en: string; color: string; icon: any }> = {
   pending_payment: { fr: "Paiement en attente", en: "Payment pending", color: "amber", icon: Loader2 },
@@ -95,7 +96,7 @@ export default function HomeBookingDetail() {
   const StatusIcon = status.icon;
 
   const cancel = async () => {
-    if (!confirm(t("Annuler cette réservation ?", "Cancel this booking?"))) return;
+    if (!(await askConfirm(t("Annuler cette réservation ?", "Cancel this booking?")))) return;
     const { error } = await supabase.from("home_bookings").update({
       status: "cancelled", cancelled_at: new Date().toISOString(),
     }).eq("id", booking.id);

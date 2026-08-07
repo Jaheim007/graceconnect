@@ -16,6 +16,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format, startOfDay, startOfWeek, startOfMonth, startOfYear, subDays, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 export function SuperadminDashboard() {
   const { data: stats } = useQuery({
@@ -199,7 +200,7 @@ export function SuperadminKYC() {
   };
 
   const triggerLevel2 = async (orgId: string) => {
-    if (!confirm("Déclencher la vérification externe (Niveau 2) pour cette organisation ? L'utilisateur sera redirigé vers Stripe/Paystack pour une vérification approfondie.")) return;
+    if (!(await askConfirm("Déclencher la vérification externe (Niveau 2) pour cette organisation ? L'utilisateur sera redirigé vers Stripe/Paystack pour une vérification approfondie."))) return;
     await db.from('organizations').update({ kyc_status: 'level2_required' as any }).eq('id', orgId);
     toast({ title: 'Vérification externe déclenchée' }); refetch();
   };
@@ -785,8 +786,8 @@ export function SuperadminReports() {
                           size="sm"
                           variant="destructive"
                           className="h-8 text-xs gap-1.5"
-                          onClick={() => {
-                            if (window.confirm('Supprimer définitivement ce signalement ?')) {
+                          onClick={async () => {
+                            if ((await askConfirm('Supprimer définitivement ce signalement ?'))) {
                               deleteReport(r.id);
                             }
                           }}

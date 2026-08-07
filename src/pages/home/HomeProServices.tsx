@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { HOME_CATEGORIES, homeCategoryLabel } from "@/lib/homeCategories";
 import { cn } from "@/lib/utils";
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 export default function HomeProServices() {
   const { user } = useAuth();
@@ -146,7 +147,7 @@ export default function HomeProServices() {
                 <Button size="sm" variant="outline" onClick={() => toggleActive.mutate(s)}>
                   {s.active ? t("Désactiver", "Deactivate") : t("Activer", "Activate")}
                 </Button>
-                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => { if (confirm(t("Supprimer ce service ?", "Delete this service?"))) delMut.mutate(s.id); }}>
+                <Button size="sm" variant="ghost" className="text-destructive" onClick={async () => { if ((await askConfirm(t("Supprimer ce service ?", "Delete this service?")))) delMut.mutate(s.id); }}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
                 {!s.active && <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">{t("Inactif", "Inactive")}</span>}

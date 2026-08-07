@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import BeautyReviewForm from "./BeautyReviewForm";
 import BeautyOtpPanel from "@/components/beauty/BeautyOtpPanel";
 import BeautyExtraCharges from "@/components/beauty/BeautyExtraCharges";
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 const STATUS_LABELS: Record<
   string,
@@ -122,7 +123,7 @@ export default function BeautyBookingDetail() {
 
   async function handleCancel() {
     if (!id) return;
-    if (!confirm(t("Annuler cette réservation ?", "Cancel this booking?"))) return;
+    if (!(await askConfirm(t("Annuler cette réservation ?", "Cancel this booking?")))) return;
     const { error } = await supabase
       .from("beauty_bookings")
       .update({
