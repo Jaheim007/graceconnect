@@ -68,19 +68,19 @@ export function AppLayout() {
       <div className="flex flex-col flex-1 min-w-0 h-full">
         {!hideNav && <TopBar />}
         <main id="main-content" role="main" className={`native-main-scroll flex-1 overflow-y-auto overflow-x-hidden overscroll-contain ${!hideNav ? 'pb-24 lg:pb-0' : 'no-bottom-nav'}`}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
+          <motion.div
+            key={location.pathname}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+          >
+            <Suspense fallback={<RouteContentSkeleton />}>
               <Outlet />
-            </motion.div>
-          </AnimatePresence>
+            </Suspense>
+          </motion.div>
         </main>
       </div>
+
 
       {/* BottomNav is now rendered globally by GlobalBottomNav */}
 
