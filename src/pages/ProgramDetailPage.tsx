@@ -300,6 +300,19 @@ export default function ProgramDetailPage() {
   const orgName = org?.name || '';
   const priceDisplay = formatPrice(program.price || 0, program.is_free, program.currency);
 
+  if (playerOpen && programId) {
+    return (
+      <LessonPlayerOverlay
+        programId={programId}
+        initialSlideId={resumeInfo?.resume?.slideId ?? null}
+        initialSlideIndex={resumeInfo?.resume?.flatIndex ?? null}
+        onClose={() => setPlayerOpen(false)}
+      />
+    );
+  }
+
+
+
   return (
     <div className="min-h-screen bg-background" style={orgThemeStyle}>
       <ReadingProgressBar />
