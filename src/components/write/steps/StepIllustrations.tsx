@@ -248,9 +248,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
                       <Loader2 className="h-3 w-3 animate-spin" />
                     ) : illustrations[chapter.id] ? (
                       <RefreshCw className="h-3 w-3" />
-                    ) : (
-                      
-                    )}
+                    ) : null}
                     {illustrations[chapter.id]
                       ? (t('write.illust_regenerate') || 'Régénérer')
                       : (t('write.illust_generate') || 'Générer')}

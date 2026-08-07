@@ -457,9 +457,7 @@ export function CourseIntelligencePanel({
                   >
                     {enhancing ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      
-                    )}
+                    ) : null}
                     {enhancing
                       ? `${enhanceProgress}%`
                       : isFr ? 'Améliorer tout' : 'Enhance All'}
