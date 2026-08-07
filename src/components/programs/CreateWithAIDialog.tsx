@@ -245,14 +245,30 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">{isFr ? 'Type de génération IA' : 'AI generation type'}</p>
                 <div className="grid grid-cols-2 gap-2">
-                  <Button type="button" variant={tier === 'standard' ? 'default' : 'outline'} onClick={() => setTier('standard')} className="text-xs">
-                    Standard
-                    <span className="ml-1 text-[10px] opacity-90">({standardCost ?? 8} {isFr ? 'crédits' : 'credits'})</span>
-                  </Button>
-                  <Button type="button" variant={tier === 'premium' ? 'default' : 'outline'} onClick={() => setTier('premium')} className="text-xs">
-                    Premium
-                    <span className="ml-1 text-[10px] opacity-90">({premiumCost ?? 15} {isFr ? 'crédits' : 'credits'})</span>
-                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => setTier('standard')}
+                    className={`rounded-xl border p-3 text-left transition ${tier === 'standard' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}
+                  >
+                    <p className="text-xs font-semibold">Standard <span className="font-normal text-muted-foreground">· {standardCost ?? 8} {isFr ? 'crédits' : 'credits'}</span></p>
+                    <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">
+                      {isFr
+                        ? 'Jusqu’à 10 leçons · 4 à 7 slides · 2 quiz · images sur les 4 premières leçons'
+                        : 'Up to 10 lessons · 4-7 slides · 2 quizzes · images on the first 4 lessons'}
+                    </p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTier('premium')}
+                    className={`rounded-xl border p-3 text-left transition ${tier === 'premium' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}
+                  >
+                    <p className="text-xs font-semibold">Premium <span className="font-normal text-muted-foreground">· {premiumCost ?? 15} {isFr ? 'crédits' : 'credits'}</span></p>
+                    <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">
+                      {isFr
+                        ? 'Jusqu’à 16 leçons · 7 à 10 slides · textes 2x plus développés · 4 quiz · une image par leçon · modèle IA avancé'
+                        : 'Up to 16 lessons · 7-10 slides · 2x longer bodies · 4 quizzes · an image per lesson · advanced AI model'}
+                    </p>
+                  </button>
                 </div>
               </div>
 

@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
         created_by: user.id,
         title: project.title,
         description: project.objective || project.description || '',
-        cover_image_url: coverAsset?.file_url || null,
+        cover_image_url: coverAsset?.file_url || courseLessons.find((l: any) => l?.image_url)?.image_url || null,
         is_published: publish_now ?? false,
         publication_status: publish_now ? 'published' : 'draft',
         is_free: false,
@@ -133,15 +133,22 @@ Deno.serve(async (req) => {
       const lessonRows = courseLessons.map((l: any, i: number) => ({
         module_id: mod.id,
         title: l.title || `Leçon ${i + 1}`,
-        // legacy HTML fallback so older players keep working
-        content: (Array.isArray(l.slides) ? l.slides : [])
-          .filter((s: any) => s.slide_type !== 'quiz')
-          .map((s: any) => `${s.title ? `<h2>${escapeHtml(s.title)}</h2>` : ''}<p>${escapeHtml(s.body || '')}</p>`)
-          .join('\n'),
+        // legacy HTML fallback so older players keep working.
+        // The lesson illustration is emitted as a `lesson-hero-image` block:
+        // the player lifts it out and uses it as the slide backdrop.
+        content: [
+          l.image_url
+            ? `<div class="lesson-hero-image"><img src="${escapeAttr(l.image_url)}" alt="${escapeAttr(l.title || '')}" /></div>`
+            : '',
+          ...(Array.isArray(l.slides) ? l.slides : [])
+            .filter((s: any) => s.slide_type !== 'quiz')
+            .map((s: any) => `${s.title ? `<h2>${escapeHtml(s.title)}</h2>` : ''}<p>${escapeHtml(s.body || '')}</p>`),
+        ].filter(Boolean).join('\n'),
         display_order: i,
         is_published: publish_now ?? false,
         publication_status: publish_now ? 'published' : 'draft',
       }));
+
 
       const { data: insertedLessons, error: lessonsErr } = await admin
         .from('program_lessons')
@@ -251,6 +258,11 @@ function escapeHtml(text: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 }
+
+function escapeAttr(text: string): string {
+  return escapeHtml(text).replace(/"/g, '&quot;');
+}
+
 
 function jsonError(message: string, status: number) {
   return new Response(JSON.stringify({ error: message }), {

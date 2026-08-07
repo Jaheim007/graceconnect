@@ -35,6 +35,7 @@ interface FlatDraftSlide {
   lessonTitle: string;
   slideInLesson: number;
   slide: ReturnType<typeof rowToContentSlide>;
+  lessonImageUrl?: string;
   previewable: boolean;
 }
 
@@ -66,6 +67,7 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
           lessonTitle: lesson.title,
           slideInLesson,
           slide: rowToContentSlide(row),
+          lessonImageUrl: lesson.image_url || undefined,
           // Same rule as published courses, minus creator-set free lessons
           // (a draft has no per-lesson free-preview flag yet).
           previewable: lessonIndex === 0 && slideInLesson <= PREVIEW_SLIDES_IN_FIRST_LESSON
@@ -145,6 +147,7 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
                 totalSlides={slides.length}
                 lessonTitle={current.lessonTitle}
                 moduleTitle={draft.title}
+                lessonImageUrl={current.lessonImageUrl}
                 deviceMode="desktop"
               />
             ) : (

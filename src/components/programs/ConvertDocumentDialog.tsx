@@ -146,24 +146,32 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
         <div className="space-y-2 pt-2">
           <p className="text-xs text-muted-foreground">{isFr ? 'Type de génération IA' : 'AI generation type'}</p>
           <div className="grid grid-cols-2 gap-2">
-            <Button
+            <button
               type="button"
-              variant={tier === 'standard' ? 'default' : 'outline'}
               onClick={() => setTier('standard')}
               disabled={converting}
+              className={`rounded-xl border p-3 text-left transition ${tier === 'standard' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}
             >
-              Standard
-              <span className="ml-1 text-xs opacity-90">({standardCost ?? 8} {isFr ? 'crédits' : 'credits'})</span>
-            </Button>
-            <Button
+              <p className="text-sm font-semibold">Standard <span className="font-normal text-muted-foreground">· {standardCost ?? 8} {isFr ? 'crédits' : 'credits'}</span></p>
+              <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+                {isFr
+                  ? 'Jusqu’à 10 leçons · 4 à 7 slides par leçon · 2 quiz · images sur les 4 premières leçons'
+                  : 'Up to 10 lessons · 4-7 slides each · 2 quizzes · images on the first 4 lessons'}
+              </p>
+            </button>
+            <button
               type="button"
-              variant={tier === 'premium' ? 'default' : 'outline'}
               onClick={() => setTier('premium')}
               disabled={converting}
+              className={`rounded-xl border p-3 text-left transition ${tier === 'premium' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}
             >
-              Premium
-              <span className="ml-1 text-xs opacity-90">({premiumCost ?? 15} {isFr ? 'crédits' : 'credits'})</span>
-            </Button>
+              <p className="text-sm font-semibold">Premium <span className="font-normal text-muted-foreground">· {premiumCost ?? 15} {isFr ? 'crédits' : 'credits'}</span></p>
+              <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+                {isFr
+                  ? 'Jusqu’à 16 leçons · 7 à 10 slides par leçon · textes 2x plus développés (exemples + « à retenir ») · 4 quiz · une image par leçon · modèle IA avancé'
+                  : 'Up to 16 lessons · 7-10 slides each · 2x longer bodies (examples + key takeaway) · 4 quizzes · an image on every lesson · advanced AI model'}
+              </p>
+            </button>
           </div>
         </div>
 

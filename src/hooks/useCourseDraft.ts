@@ -26,8 +26,12 @@ export interface DraftLesson {
   source_excerpt?: string;
   source_page?: number | null;
   approved?: boolean;
+  /** AI-generated lesson illustration, used as the slide backdrop. */
+  image_url?: string | null;
+  image_prompt?: string | null;
   slides: DraftSlide[];
 }
+
 
 export interface CourseDraft {
   title: string;
