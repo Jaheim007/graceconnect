@@ -468,295 +468,73 @@ export function ProgramForm() {
         </div>
       </div>
 
-      {/* ─── MAIN LAYOUT — stacked on mobile, side-by-side on desktop ─── */}
+      {/* ─── MAIN LAYOUT — three-pane course builder ─── */}
       {activeTab === 'edit' && (
-        <div className="flex flex-col md:flex-row flex-1 min-h-0">
-          {/* LEFT: Lessons sidebar — on mobile: show only when no lesson selected */}
-          {(!isMobileViewport || !selectedLessonId) && (
-            <div className={cn(
-              'border-b md:border-b-0 md:border-r border-border bg-card flex flex-col shrink-0',
-              isMobileViewport ? 'flex-1 overflow-y-auto' : 'overflow-hidden md:w-64 lg:w-72',
-            )}>
-              {/* Mobile course overview header */}
-              {isMobileViewport && (
-                <div className="p-3 border-b border-border bg-muted/30">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Layers className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-semibold">{isFr ? 'Structure de la formation' : 'Formation structure'}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span>{modules.length} module{modules.length !== 1 ? 's' : ''}</span>
-                    <span>•</span>
-                    <span>{totalLessons} {isFr ? 'leçon' : 'lesson'}{totalLessons !== 1 ? 's' : ''}</span>
-                  </div>
-                </div>
-              )}
-              <div className="flex items-center justify-between p-3 border-b border-border">
-                <span className="text-sm font-semibold">{isFr ? 'Leçons' : 'Lessons'}</span>
-                <div className="flex items-center gap-1">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
-                        <MoreVertical className="h-3.5 w-3.5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setShowAIGenerator(!showAIGenerator)}>
-                         {isFr ? 'Générer avec IA' : 'Generate with AI'}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <Button size="icon" className="h-7 w-7" onClick={handleAddModule}>
-                    <Plus className="h-3.5 w-3.5" />
+        <div className="flex flex-1 min-h-0 flex-col">
+          {/* Secondary toolbar: AI generator + module-level quiz */}
+          <div className="flex items-center gap-1.5 border-b border-border bg-card px-3 py-1.5 overflow-x-auto shrink-0">
+            <Button
+              variant={showAIGenerator ? 'default' : 'ghost'} size="sm"
+              className="h-7 gap-1.5 text-[11px] shrink-0"
+              onClick={() => { setShowAIGenerator(v => !v); setEditingQuizModuleId(null); }}
+            >
+              <Wand2 className="h-3 w-3" /> {isFr ? 'Générer avec IA' : 'Generate with AI'}
+            </Button>
+            {modules.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-[11px] shrink-0">
+                    <HelpCircle className="h-3 w-3" /> {isFr ? 'Quiz & Flashcards' : 'Quiz & Flashcards'}
                   </Button>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                {modules.map((mod: any, mi: number) => (
-                  <div key={mod.id}>
-                    {/* Module header */}
-                    <div
-                      className="flex items-center gap-1.5 px-2 py-1.5 group cursor-pointer hover:bg-muted/30 rounded-md"
-                      onClick={() => {
-                        if (editingModuleId === mod.id) return;
-                        setCollapsedModules(prev => {
-                          const next = new Set(prev);
-                          if (next.has(mod.id)) next.delete(mod.id);
-                          else next.add(mod.id);
-                          return next;
-                        });
-                      }}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {modules.map((mod: any) => (
+                    <DropdownMenuItem
+                      key={mod.id}
+                      onClick={() => { setEditingQuizModuleId(mod.id); setShowAIGenerator(false); }}
                     >
-                      {collapsedModules.has(mod.id) ? (
-                        <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
-                      ) : (
-                        <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" />
-                      )}
-                      <BookOpen className="h-3 w-3 text-muted-foreground shrink-0" />
+                      {mod.title}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-[11px] shrink-0" onClick={handleAddModule}>
+              <Plus className="h-3 w-3" /> {isFr ? 'Module' : 'Module'}
+            </Button>
+          </div>
 
-                      {editingModuleId === mod.id ? (
-                        <Input
-                          autoFocus
-                          value={editingModuleTitle}
-                          onChange={e => setEditingModuleTitle(e.target.value)}
-                          onBlur={() => handleRenameModule(mod.id)}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') handleRenameModule(mod.id);
-                            if (e.key === 'Escape') setEditingModuleId(null);
-                          }}
-                          onClick={e => e.stopPropagation()}
-                          className="h-5 text-[11px] font-semibold uppercase tracking-wide px-1 py-0 border-primary"
-                        />
-                      ) : (
-                        <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide flex-1 truncate">
-                          {mod.title}
-                        </span>
-                      )}
-
-                      <span className="text-[9px] text-muted-foreground/60">{(mod.lessons || []).length}</span>
-                      <Button
-                        variant="ghost" size="icon"
-                        className="h-5 w-5 opacity-0 group-hover:opacity-100 text-primary"
-                        title={isFr ? 'Renommer' : 'Rename'}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingModuleId(mod.id);
-                          setEditingModuleTitle(mod.title);
-                        }}
-                      >
-                        <PenLine className="h-2.5 w-2.5" />
-                      </Button>
-                      <Button
-                        variant="ghost" size="icon"
-                        className="h-5 w-5 opacity-0 group-hover:opacity-100 text-destructive"
-                        onClick={(e) => { e.stopPropagation(); handleDeleteModule(mod.id); }}
-                      >
-                        <Trash2 className="h-2.5 w-2.5" />
-                      </Button>
-                    </div>
-
-                    {/* Lessons — collapsible */}
-                    {!collapsedModules.has(mod.id) && (
-                      <>
-                        {(mod.lessons || []).map((lesson: any, li: number) => (
-                          <button
-                            key={lesson.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedLessonId(lesson.id);
-                              setSelectedModuleId(mod.id);
-                              setEditingQuizModuleId(null);
-                            }}
-                            className={cn(
-                              'w-full flex items-center gap-2 px-3 rounded-lg text-left transition-colors group/lesson',
-                              isMobileViewport ? 'py-3 min-h-[48px]' : 'py-2',
-                              selectedLessonId === lesson.id
-                                ? 'bg-primary/10 text-primary'
-                                : 'hover:bg-muted/50 text-foreground'
-                            )}
-                          >
-                            <span className="text-[10px] text-muted-foreground font-mono w-4 shrink-0">{li + 1}</span>
-                            <span className="text-xs flex-1 truncate">{lesson.title}</span>
-                            {lesson.duration_minutes && (
-                              <span className="text-[9px] text-muted-foreground">{lesson.duration_minutes}m</span>
-                            )}
-                            <Button
-                              variant="ghost" size="icon"
-                              className="h-5 w-5 opacity-0 group-hover/lesson:opacity-100 text-destructive shrink-0"
-                              onClick={(e) => handleDeleteLesson(lesson.id, e)}
-                            >
-                              <Trash2 className="h-2.5 w-2.5" />
-                            </Button>
-                          </button>
-                        ))}
-
-                        {/* Add slide/lesson button */}
-                        <div className="px-3 py-1">
-                          <div className="flex items-center gap-1">
-                            <Input
-                              value={selectedModuleId === mod.id ? newLessonTitle : ''}
-                              onChange={e => {
-                                setSelectedModuleId(mod.id);
-                                setNewLessonTitle(e.target.value);
-                              }}
-                              onFocus={() => setSelectedModuleId(mod.id)}
-                              onKeyDown={e => e.key === 'Enter' && handleAddLesson(mod.id)}
-                              placeholder={isFr ? '+ Nouvelle leçon' : '+ New lesson'}
-                              className="h-7 text-[11px] border-none bg-transparent hover:bg-muted/30 focus:bg-muted/50 px-2"
-                            />
-                            {selectedModuleId === mod.id && newLessonTitle.trim() && (
-                              <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => handleAddLesson(mod.id)}>
-                                <Plus className="h-3 w-3" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Module quiz button */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingQuizModuleId(mod.id);
-                            setSelectedLessonId(null);
-                            setSelectedModuleId(mod.id);
-                          }}
-                          className={cn(
-                            'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors text-[11px]',
-                            editingQuizModuleId === mod.id
-                              ? 'bg-primary/10 text-primary font-medium'
-                              : 'hover:bg-muted/50 text-muted-foreground'
-                          )}
-                        >
-                          <HelpCircle className="h-3 w-3 shrink-0" />
-                          <span className="flex-1">{isFr ? 'Quiz & Flashcards' : 'Quiz & Flashcards'}</span>
-                        </button>
-                      </>
-                    )}
-                  </div>
-                ))}
-
-                {modules.length === 0 && (
-                  <div className="text-center py-8 space-y-3">
-                    <Layers className="h-8 w-8 mx-auto text-muted-foreground/30" />
-                    <p className="text-xs text-muted-foreground">{isFr ? 'Aucun module' : 'No modules'}</p>
-                    <div className="space-y-1.5">
-                      <Button size="sm" variant="outline" className="gap-1.5 text-xs w-full" onClick={handleAddModule}>
-                        <Plus className="h-3 w-3" /> {isFr ? 'Ajouter un module' : 'Add module'}
-                      </Button>
-                      <Button size="sm" variant="outline" className="gap-1.5 text-xs w-full" onClick={() => setShowAIGenerator(true)}>
-                         {isFr ? 'Générer avec IA' : 'Generate with AI'}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Course Intelligence Panel */}
-                {modules.length > 0 && (
-                  <div className="px-2 pb-2">
-                    <CourseIntelligencePanel
-                      modules={modules}
-                      courseTitle={title}
-                      programId={id!}
-                      onLessonSelect={(lessonId) => {
-                        setSelectedLessonId(lessonId);
-                        const mod = modules.find((m: any) => m.lessons?.some((l: any) => l.id === lessonId));
-                        if (mod) setSelectedModuleId(mod.id);
-                      }}
-                      onRefresh={() => {
-                        queryClient.invalidateQueries({ queryKey: ['program-modules', id] });
-                      }}
-                    />
-                  </div>
-                )}
+          {showAIGenerator ? (
+            <div className="flex-1 min-h-0 overflow-y-auto bg-muted/30">
+              <div className="p-4 sm:p-6 max-w-2xl mx-auto">
+                <AICourseGenerator onGenerated={handleAIGenerated} onCancel={() => setShowAIGenerator(false)} />
               </div>
             </div>
-          )}
-
-          {/* CENTER: Lesson content editor — on mobile: show only when lesson selected */}
-          {(!isMobileViewport || selectedLessonId) && (
-            <div className="flex-1 min-w-0 overflow-y-auto bg-muted/30">
-              {/* Mobile: back to lessons list button */}
-              {selectedLessonId && isMobileViewport && (
-                <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-card">
-                  <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => {
-                    setSelectedLessonId(null);
-                    setSelectedModuleId(null);
-                  }}>
-                    <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Toutes les leçons' : 'All lessons'}
-                  </Button>
-                  <span className="text-xs text-muted-foreground truncate flex-1">
-                    {modules.find((m: any) => m.id === selectedModuleId)?.title}
-                  </span>
-                </div>
-              )}
-              {showAIGenerator ? (
-                <div className="p-4 sm:p-6 max-w-2xl mx-auto">
-                  <AICourseGenerator onGenerated={handleAIGenerated} onCancel={() => setShowAIGenerator(false)} />
-                </div>
-              ) : editingQuizModuleId ? (
-                <div className="p-4 sm:p-6 max-w-2xl mx-auto">
-                  {isMobileViewport && (
-                    <div className="mb-3">
-                      <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => {
-                        setEditingQuizModuleId(null);
-                      }}>
-                        <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Retour' : 'Back'}
-                      </Button>
-                    </div>
-                  )}
-                  <ModuleQuizEditor
-                    moduleId={editingQuizModuleId}
-                    moduleTitle={modules.find((m: any) => m.id === editingQuizModuleId)?.title || ''}
-                    programId={id!}
-                    courseTitle={title}
-                  />
-                </div>
-              ) : selectedLessonId ? (
-                <LessonEditor
-                  lessonId={selectedLessonId}
+          ) : editingQuizModuleId ? (
+            <div className="flex-1 min-h-0 overflow-y-auto bg-muted/30">
+              <div className="p-4 sm:p-6 max-w-2xl mx-auto space-y-3">
+                <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => setEditingQuizModuleId(null)}>
+                  <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Retour au builder' : 'Back to builder'}
+                </Button>
+                <ModuleQuizEditor
+                  moduleId={editingQuizModuleId}
+                  moduleTitle={modules.find((m: any) => m.id === editingQuizModuleId)?.title || ''}
                   programId={id!}
                   courseTitle={title}
-                  onBack={() => {
-                    setSelectedLessonId(null);
-                    setSelectedModuleId(null);
-                  }}
-                  embedded
                 />
-              ) : (
-                <div className="flex items-center justify-center h-full text-center p-6">
-                  <div className="space-y-3">
-                    <BookOpen className="h-12 w-12 mx-auto text-muted-foreground/20" />
-                    <p className="text-sm text-muted-foreground">
-                      {isFr ? 'Sélectionnez une leçon pour l\'éditer' : 'Select a lesson to edit'}
-                    </p>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
+          ) : (
+            <CourseBuilder
+              programId={id!}
+              modules={modules as any}
+              courseTitle={title}
+              orgLogoUrl={(currentOrg as any)?.logo_url}
+            />
           )}
         </div>
       )}
+
 
       {/* ─── PREVIEW TAB ─── */}
       {activeTab === 'preview' && id && !showMobilePreviewOverlay && (
