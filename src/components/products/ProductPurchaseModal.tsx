@@ -340,7 +340,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               organization_id: organizationId,
               product_id: product.id,
             });
-            window.location.href = `/payment/success?${params.toString()}`;
+            navigate(`/payment/success?${params.toString()}`);
           }
         },
       });

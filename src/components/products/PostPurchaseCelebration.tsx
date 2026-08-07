@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,9 @@ export function PostPurchaseCelebration({
   productSlug, productId, coverImageUrl, isFreePurchase, productType,
   price = 0, commissionRate = 20, onGoToResources, onDownload,
 }: PostPurchaseCelebrationProps) {
+  const navigate = useNavigate();
   const { user } = useAuth();
+
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { fmt } = useDisplayCurrency();
@@ -153,7 +156,7 @@ export function PostPurchaseCelebration({
                       const reviewUrl = productSlug
                         ? `/org/${orgSlug}/p/${productSlug}#reviews`
                         : `/org/${orgSlug}/product/${productId}#reviews`;
-                      window.location.href = reviewUrl;
+                      navigate(reviewUrl);
                     }}
                   >
                     <Star className="h-3.5 w-3.5" /> {isFr ? 'Laisser un avis sur ce produit' : 'Leave a review'}

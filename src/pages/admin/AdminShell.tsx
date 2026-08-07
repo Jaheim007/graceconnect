@@ -3,22 +3,20 @@
  * Handles org check only. Navigation is handled by the Sidebar.
  * Replaces the old AdminLayout which had its own sidebar + header.
  */
+import { Suspense } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useOrg } from '@/contexts/OrgContext';
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Loader2 } from 'lucide-react';
+import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
+
 
 export default function AdminShell() {
   const { currentOrg, isLoadingOrgs } = useOrg();
   const navigate = useNavigate();
 
   if (isLoadingOrgs && !currentOrg) {
-    return (
-      <div className="min-h-[40dvh] flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-      </div>
-    );
+    return <RouteContentSkeleton />;
   }
 
   if (!currentOrg) {
@@ -35,9 +33,12 @@ export default function AdminShell() {
   return (
     <div className="min-h-full flex flex-col p-3 sm:p-4 lg:p-6">
       <div className="flex-1">
-        <Outlet />
+        <Suspense fallback={<RouteContentSkeleton />}>
+          <Outlet />
+        </Suspense>
       </div>
       <OnboardingTour />
     </div>
   );
 }
+

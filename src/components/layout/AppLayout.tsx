@@ -1,8 +1,10 @@
+import { Suspense } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
-import { FullPageLoader } from './RouteGuard';
+import { RouteContentSkeleton } from './RouteFallback';
+
 
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useOrg } from '@/contexts/OrgContext';
@@ -50,9 +52,10 @@ export function AppLayout() {
   useRealtimeNotifications(userOrgs.map(o => o.id));
   useNewUserRedirect();
 
-  if (!hideNav && isLoadingOrgs) {
-    return <FullPageLoader />;
-  }
+  // No full-page loader here: RequireAuth already waits for the first workspace
+  // hydration. Later workspace changes keep the shell mounted and only the
+  // content area shows its own in-place skeleton.
+
 
   return (
     <CompareProvider>
@@ -68,19 +71,19 @@ export function AppLayout() {
       <div className="flex flex-col flex-1 min-w-0 h-full">
         {!hideNav && <TopBar />}
         <main id="main-content" role="main" className={`native-main-scroll flex-1 overflow-y-auto overflow-x-hidden overscroll-contain ${!hideNav ? 'pb-24 lg:pb-0' : 'no-bottom-nav'}`}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
+          <motion.div
+            key={location.pathname}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+          >
+            <Suspense fallback={<RouteContentSkeleton />}>
               <Outlet />
-            </motion.div>
-          </AnimatePresence>
+            </Suspense>
+          </motion.div>
         </main>
       </div>
+
 
       {/* BottomNav is now rendered globally by GlobalBottomNav */}
 

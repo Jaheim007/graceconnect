@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Download, Mail, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
+import { useNavigate } from 'react-router-dom';
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 
 export default function PressePage() {
+  const navigate = useNavigate();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
@@ -118,7 +120,7 @@ export default function PressePage() {
         <div className="container max-w-3xl text-center space-y-6">
           <h2 className="text-2xl sm:text-3xl font-extrabold">{isFr ? 'Contact Presse' : 'Press Contact'}</h2>
           <p className="text-primary-foreground/80">{isFr ? 'Pour toute demande d\'interview, de partenariat ou d\'information complémentaire.' : 'For any interview, partnership or additional information requests.'}</p>
-          <Button size="lg" variant="secondary" className="px-8 h-13 text-base gap-2 group" onClick={() => window.location.href = '/contact'}>
+          <Button size="lg" variant="secondary" className="px-8 h-13 text-base gap-2 group" onClick={() => navigate('/contact')}>
             <Mail className="h-4 w-4" /> {isFr ? 'Nous contacter' : 'Contact us'} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>

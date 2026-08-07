@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,6 +39,7 @@ interface ChariowProduct {
 type Step = 'intro' | 'loading' | 'select' | 'importing' | 'done';
 
 export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const navigate = useNavigate();
   const [step, setStep] = useState<Step>('intro');
   const [apiKey, setApiKey] = useState('');
   const [products, setProducts] = useState<ChariowProduct[]>([]);
@@ -475,7 +477,7 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
                 <Button variant="outline" onClick={() => handleClose(false)} className="flex-1">
                   {isFr ? 'Fermer' : 'Close'}
                 </Button>
-                <Button onClick={() => { handleClose(false); window.location.href = '/admin/products'; }} className="flex-1 gap-2">
+                <Button onClick={() => { handleClose(false); navigate('/admin/products'); }} className="flex-1 gap-2">
                   {isFr ? 'Voir mes produits' : 'View products'}
                   <ArrowRight className="h-4 w-4" />
                 </Button>

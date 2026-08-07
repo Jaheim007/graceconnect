@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -31,6 +31,7 @@ function inferUniverse(personas: string[]): BlogUniverse {
 }
 
 export default function BlogIndexPage() {
+  const navigate = useNavigate();
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
   const [activeCategory, setActiveCategory] = useState('Tous');
@@ -164,7 +165,7 @@ export default function BlogIndexPage() {
             {isFr ? 'Créez votre plateforme gratuitement et commencez à vendre ou partager dès aujourd\'hui.' : 'Create your platform for free and start selling or sharing today.'}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button size="lg" variant="secondary" className="px-8 h-13 text-base gap-2 group" onClick={() => window.location.href = '/auth?mode=signup'}>
+            <Button size="lg" variant="secondary" className="px-8 h-13 text-base gap-2 group" onClick={() => navigate('/auth?mode=signup')}>
               {isFr ? 'Commencer gratuitement' : 'Get started for free'} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>

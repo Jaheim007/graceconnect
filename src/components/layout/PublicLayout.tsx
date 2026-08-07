@@ -1,8 +1,11 @@
+import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { PublicTopBar } from './PublicTopBar';
 import { LandingFooterCompact } from '@/components/landing/LandingFooterCompact';
+import { RouteContentSkeleton } from './RouteFallback';
 import { cn } from '@/lib/utils';
 import { isNativePlatform } from '@/lib/capacitor';
+
 
 /**
  * PublicLayout — Universe 1: Buyer / Public
@@ -22,7 +25,10 @@ export function PublicLayout() {
           nativeApp && 'native-main-scroll no-bottom-nav overflow-y-auto overflow-x-hidden overscroll-contain'
         )}
       >
-        <Outlet />
+        <Suspense fallback={<RouteContentSkeleton />}>
+          <Outlet />
+        </Suspense>
+
       </main>
       {!nativeApp && <LandingFooterCompact />}
     </div>

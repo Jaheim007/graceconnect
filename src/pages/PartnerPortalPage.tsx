@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMyPartner, usePartnerReferrals, usePartnerCommissions, usePartnerPayouts, usePartnerStats, useRequestPartnerPayout } from '@/hooks/usePartner';
 import { formatCurrency } from '@/lib/currency';
@@ -38,6 +39,7 @@ const STATUS_MAP_EN: Record<string, { label: string; variant: 'default' | 'secon
 };
 
 export default function PartnerPortalPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -67,7 +69,7 @@ export default function PartnerPortalPage() {
         <Handshake className="h-12 w-12 mx-auto text-muted-foreground" />
         <h1 className="text-2xl font-bold">{isFr ? 'Programme Partenaires' : 'Partner Program'}</h1>
         <p className="text-muted-foreground">{isFr ? 'Vous n\'êtes pas encore inscrit au Programme Partenaires.' : 'You are not yet enrolled in the Partner Program.'}</p>
-        <Button variant="outline" onClick={() => window.location.href = '/devenir-partenaire'}>{isFr ? 'Postuler' : 'Apply'}</Button>
+        <Button variant="outline" onClick={() => navigate('/devenir-partenaire')}>{isFr ? 'Postuler' : 'Apply'}</Button>
       </div>
     );
   }
