@@ -111,6 +111,8 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
               <X className="h-4 w-4" />
             </Button>
           </div>
+        </div>
+
 
         <div className="px-3 pb-2">
           <SlideSegmentBar
