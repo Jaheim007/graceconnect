@@ -278,6 +278,38 @@ export function CourseCompletionSlide({
               </button>
             </motion.div>
 
+            {/* Certificate confirmation */}
+            {mode === 'learner' && certReady && certNumber && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center gap-1 rounded-2xl bg-emerald-500/15 border border-emerald-400/25 px-5 py-3 backdrop-blur-sm"
+              >
+                <div className="flex items-center gap-2">
+                  <Award className="h-4 w-4 text-emerald-300" />
+                  <span className="text-xs font-semibold text-emerald-100">
+                    {isFr ? 'Certificat émis et enregistré' : 'Certificate issued and recorded'}
+                  </span>
+                </div>
+                <a
+                  href={`/verify/${certNumber}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-mono text-[10px] text-white/60 underline decoration-dotted hover:text-white/90"
+                >
+                  N° {certNumber}
+                </a>
+              </motion.div>
+            )}
+
+            {mode === 'learner' && !certReady && certIssueError && (
+              <p className="max-w-xs text-center text-[11px] text-amber-200/80">
+                {certificateErrorMessage(certIssueError, isFr)}
+              </p>
+            )}
+
+
+
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
