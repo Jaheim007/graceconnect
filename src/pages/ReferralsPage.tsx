@@ -1,3 +1,4 @@
+import { Users } from 'lucide-react';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -206,7 +207,7 @@ export default function ReferralsPage() {
                       {isFr ? "Filleuls actifs" : "Active referrals"}
                     </CardDescription>
                     <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                      
+                      <Users className="h-4 w-4 text-primary" />
                     </div>
                   </div>
                   <CardTitle className="text-3xl tabular-nums text-primary">{activeCount}</CardTitle>

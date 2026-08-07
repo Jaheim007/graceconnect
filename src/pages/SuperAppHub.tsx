@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Zap, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church, Home as HomeIcon, PartyPopper, GraduationCap, Search, Rocket } from 'lucide-react';
+import { ArrowRight, Zap, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church, Home as HomeIcon, PartyPopper, GraduationCap, Search, Rocket, Store } from 'lucide-react';
 import { setIntent } from '@/lib/intent';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
@@ -195,7 +195,7 @@ export default function SuperAppHub() {
                 <div className="relative">
                   <div className="mb-6 flex items-center justify-between">
                     <span
-                      className="grid h-12 w-12 place-items-center rounded-2xl text-white shadow-lg"
+                      <Store className="h-5 w-5" />
                       style={{ background: 'linear-gradient(135deg, hsl(340 82% 60%), hsl(28 88% 60%))' }}
                     >
                       

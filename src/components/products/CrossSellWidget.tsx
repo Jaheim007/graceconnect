@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { motion } from 'framer-motion';
 import { ProductCard } from '@/components/products/ProductCard';
-import { Zap, ShoppingBag } from 'lucide-react';
+import { Zap, ShoppingBag, Layers } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 
 const fadeUp = {
@@ -149,7 +149,7 @@ export function CrossSellWidget({ productId, organizationId, productType }: Cros
     >
       <div className="flex items-center gap-2 mb-4">
         <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
-          
+          <Layers className="h-4 w-4 text-primary" />
         </div>
         <h3 className="text-base font-bold">{title}</h3>
       </div>

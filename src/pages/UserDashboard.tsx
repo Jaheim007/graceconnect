@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Package, Store, Share2, ArrowRight, BookOpen, Rocket, Zap, GraduationCap, Heart, Shield, Building2 } from 'lucide-react';
+import { Package, Store, Share2, ArrowRight, BookOpen, Rocket, Zap, GraduationCap, Heart, Shield, Building2, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -396,7 +396,7 @@ export default function UserDashboard() {
           <PremiumCard variant="glass" delay={0.12} className="space-y-3">
             <div className="flex items-center gap-2">
               <div className="h-9 w-9 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                
+                <Compass className="h-4 w-4 text-amber-500" />
               </div>
               <div>
                 <h3 className="font-bold text-sm">{isFr ? 'Découvrir' : 'Discover'}</h3>

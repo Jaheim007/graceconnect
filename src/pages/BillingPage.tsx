@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Crown, Trophy, ArrowLeft, AlertTriangle, Zap, Calendar, CreditCard, Smartphone, Ticket, Copy, Check } from 'lucide-react';
+import { Crown, Trophy, ArrowLeft, AlertTriangle, Zap, Calendar, CreditCard, Smartphone, Ticket, Copy, Check, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -83,7 +83,7 @@ export default function BillingPage() {
             className="group flex items-center gap-3 rounded-xl border bg-card p-4 text-left transition-all hover:border-primary/40 hover:shadow-md"
           >
             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              
+              <BarChart3 className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-sm">{isFr ? 'Mon usage du mois' : 'My monthly usage'}</div>

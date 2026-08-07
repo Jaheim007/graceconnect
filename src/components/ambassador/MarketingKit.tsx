@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Copy, Check, MessageCircle, Share2, Zap, ArrowRight } from 'lucide-react';
+import { Copy, Check, MessageCircle, Share2, Zap, ArrowRight, Megaphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -109,7 +109,7 @@ export function MarketingKit({
     <div className={cn('space-y-4', className)}>
       <div className="flex items-center gap-2">
         <div className="h-8 w-8 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-          
+          <Megaphone className="h-4 w-4 text-emerald-500" />
         </div>
         <div>
           <h3 className="text-sm font-bold">{isFr ? 'Kit Marketing' : 'Marketing Kit'}</h3>
