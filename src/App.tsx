@@ -335,6 +335,7 @@ const AdminCreateHub = lazy(() => import("@/pages/admin/AdminCreateHub"));
 const AdminContentHub = lazy(() => import("@/pages/admin/AdminContentHub"));
 const AdminPeople = lazy(() => import("@/pages/admin/AdminPeople"));
 const ProgramDetailPage = lazy(() => import("@/pages/ProgramDetailPage"));
+const CourseCatalogPage = lazy(() => import("@/pages/CourseCatalogPage"));
 const AdminAnnouncementForm = lazy(() => import("@/pages/admin/AdminAnnouncementForm").then(m => ({ default: m.AnnouncementForm })));
 const AdminEventForm = lazy(() => import("@/pages/admin/AdminEventForm").then(m => ({ default: m.EventForm })));
 const AdminCampaignForm = lazy(() => import("@/pages/admin/AdminCampaignForm").then(m => ({ default: m.CampaignForm })));
@@ -750,6 +751,8 @@ const App = () => (
                   <Route path="/announcement/:announcementId" element={<AnnouncementDetailPage />} />
                   <Route path="/event/:eventId" element={<EventDetailPage />} />
                   <Route path="/program/:programId" element={<ProgramDetailPage />} />
+                  <Route path="/courses" element={<CourseCatalogPage />} />
+
                 </Route>
 
                 {/* /welcome now redirects to home — unified ActionHub */}

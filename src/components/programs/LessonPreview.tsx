@@ -21,6 +21,7 @@ import { Switch } from '@/components/ui/switch';
 import { db } from '@/lib/db';
 import { useProgramSlideMap } from '@/hooks/useProgramSlides';
 import { rowToContentSlide } from './lesson-preview/slideAdapters';
+import { SlideSegmentBar } from './lesson-preview/SlideSegmentBar';
 import { PreviewPaywallSlide } from './lesson-preview/PreviewPaywallSlide';
 import { buildPreviewLessonIds, isSlidePreviewable } from '@/lib/coursePreview';
 import { formatPrice } from '@/lib/currency';
@@ -348,6 +349,21 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
   const total = allSlides.length;
   const progressPercent = total ? ((currentIndex + 1) / total) * 100 : 0;
 
+  /**
+   * Story-style segments: one per slide of the CURRENT lesson, so the learner
+   * always sees their position inside the lesson rather than the whole course.
+   */
+  const lessonSegments = useMemo(() => {
+    if (!current) return { count: 0, activeIndex: 0, startIndex: 0 };
+    const indexes: number[] = [];
+    allSlides.forEach((s, i) => { if (s.lessonId === current.lessonId) indexes.push(i); });
+    return {
+      count: indexes.length,
+      activeIndex: Math.max(0, indexes.indexOf(currentIndex)),
+      startIndex: indexes[0] ?? 0,
+    };
+  }, [allSlides, current?.lessonId, currentIndex]);
+
   const applyCustomizationToAll = useCallback((partial: Partial<SlideCustomization>) => {
     setSlideCustomizations((prev) => {
       const next = { ...prev };
@@ -494,6 +510,23 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
     }
   };
   const goPrev = () => { if (currentIndex > 0) setCurrentIndex(i => i - 1); };
+
+  // Tap / swipe navigation for the full-screen story player
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStartRef.current = { x: t.clientX, y: t.clientY };
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy)) return;
+    if (dx < 0) goNext(); else goPrev();
+  };
 
   const goToSlide = (idx: number) => {
     if (canGoTo(idx)) {
@@ -759,7 +792,17 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
           </div>
         </div>
 
-        {isCompactCreatorPreview && (
+        {(isLearner || isPreview) && (
+          <div className="px-3 pb-2">
+            <SlideSegmentBar
+              count={lessonSegments.count}
+              activeIndex={lessonSegments.activeIndex}
+              onSelect={(i) => goToSlide(lessonSegments.startIndex + i)}
+            />
+          </div>
+        )}
+
+        {isCompactCreatorPreview && !isLearner && !isPreview && (
           <div className="px-3 pb-2">
             <div className="h-1.5 bg-muted rounded-full overflow-hidden">
               <motion.div
@@ -909,10 +952,14 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
         )}
 
         {/* Viewport */}
-          <div className={cn(
-            'relative flex-1 min-h-0 overflow-hidden',
-          isLearner || isCompactCreatorPreview ? 'flex items-stretch justify-stretch p-0' : 'flex items-center justify-center p-4'
-        )}>
+          <div
+            className={cn(
+              'relative flex-1 min-h-0 overflow-hidden',
+              isLearner || isCompactCreatorPreview ? 'flex items-stretch justify-stretch p-0' : 'flex items-center justify-center p-4'
+            )}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
           {currentIndex > 0 && (
             <button
               onClick={goPrev}

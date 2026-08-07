@@ -23,13 +23,17 @@ import { useOrg } from '@/contexts/OrgContext';
 import { cn } from '@/lib/utils';
 import {
   ArrowLeft, ArrowUp, ArrowDown, Trash2, Plus, CheckCircle2, FileText,
-  HelpCircle, Loader2, Rocket, Quote,
+  HelpCircle, Loader2, Rocket, Quote, Eye, Tag,
 } from 'lucide-react';
 import {
   useCourseDraftProject, useUpdateCourseDraft, usePublishCourseDraft,
   useGenerationJob, type CourseDraft, type DraftLesson, type DraftSlide,
 } from '@/hooks/useCourseDraft';
 import { CourseGenerationLoader } from '@/components/programs/CourseGenerationLoader';
+import { DraftBuyerPreview } from '@/components/programs/DraftBuyerPreview';
+import { useSetCoursePricing } from '@/hooks/useCourseCommerce';
+import { SUPPORTED_CURRENCIES } from '@/lib/currency';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function AdminProgramDraftReview() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -42,6 +46,7 @@ export default function AdminProgramDraftReview() {
   const { data: project, isLoading } = useCourseDraftProject(projectId);
   const updateDraft = useUpdateCourseDraft(projectId);
   const publishDraft = usePublishCourseDraft();
+  const setPricing = useSetCoursePricing();
 
   // latest job for this project (to show progress while generation runs)
   const { data: latestJob } = useQuery({
@@ -64,6 +69,12 @@ export default function AdminProgramDraftReview() {
   const [selected, setSelected] = useState(0);
   const [publishNow, setPublishNow] = useState(false);
   const [dirty, setDirty] = useState(false);
+
+  // Pricing step — reuses the digital-product checkout (see useCourseCommerce)
+  const [isPaid, setIsPaid] = useState(false);
+  const [price, setPrice] = useState('');
+  const [currency, setCurrency] = useState(currentOrg?.currency || 'XOF');
+  const [buyerPreview, setBuyerPreview] = useState(false);
 
   const remoteCourse = project?.data_json?.course;
   const generating = job?.status === 'running' || job?.status === 'queued';
@@ -133,6 +144,19 @@ export default function AdminProgramDraftReview() {
     try {
       if (dirty) await updateDraft.mutateAsync(draft);
       const result = await publishDraft.mutateAsync({ org_id: orgId, project_id: projectId, publish_now: publishNow });
+
+      // Apply pricing + keep the checkout product in sync (same flow as products)
+      await setPricing.mutateAsync({
+        program_id: result.program_id,
+        organization_id: orgId,
+        title: draft.title,
+        description: project?.data_json?.source?.prompt || null,
+        cover_image_url: null,
+        is_free: !isPaid,
+        price: isPaid ? Number(price) || 0 : 0,
+        currency,
+      });
+
       setDirty(false);
       toast({
         title: isFr ? 'Cours créé' : 'Course created',
@@ -204,6 +228,16 @@ export default function AdminProgramDraftReview() {
                 {isFr ? 'Publier tout de suite' : 'Publish immediately'}
               </Label>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setBuyerPreview(true)}
+              disabled={totals.slides === 0}
+            >
+              <Eye className="h-3.5 w-3.5" />
+              {isFr ? 'Vue acheteur' : 'Preview as buyer'}
+            </Button>
             <Button variant="outline" size="sm" onClick={handleSave} disabled={!dirty || updateDraft.isPending}>
               {updateDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : (isFr ? 'Enregistrer' : 'Save')}
             </Button>
@@ -223,6 +257,51 @@ export default function AdminProgramDraftReview() {
           {project?.data_json?.source?.file_name && (
             <Badge variant="outline" className="text-[10px] gap-1"><FileText className="h-3 w-3" />{project.data_json.source.file_name}</Badge>
           )}
+        </div>
+
+        {/* Pricing step */}
+        <div className="rounded-xl border border-border bg-card p-3.5 space-y-3">
+          <div className="flex items-center gap-2">
+            <Tag className="h-4 w-4 text-primary" />
+            <p className="text-sm font-semibold">{isFr ? 'Prix du cours' : 'Course price'}</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Switch id="course-paid" checked={isPaid} onCheckedChange={setIsPaid} />
+              <Label htmlFor="course-paid" className="text-xs">
+                {isPaid ? (isFr ? 'Payant' : 'Paid') : (isFr ? 'Gratuit' : 'Free')}
+              </Label>
+            </div>
+
+            {isPaid && (
+              <>
+                <Input
+                  type="number"
+                  min={0}
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="5000"
+                  className="h-9 w-32"
+                  aria-label={isFr ? 'Prix' : 'Price'}
+                />
+                <Select value={currency} onValueChange={setCurrency}>
+                  <SelectTrigger className="h-9 w-28"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {SUPPORTED_CURRENCIES.map((c) => (
+                      <SelectItem key={c.code} value={c.code}>{c.code}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </>
+            )}
+          </div>
+
+          <p className="text-[11px] text-muted-foreground">
+            {isFr
+              ? 'Un cours payant utilise exactement le même paiement que vos produits numériques (Mobile Money, carte, codes promo, affiliation).'
+              : 'A paid course uses the exact same checkout as your digital products (Mobile Money, card, promo codes, affiliates).'}
+          </p>
         </div>
 
         <p className="text-[11px] text-muted-foreground">
@@ -439,6 +518,16 @@ export default function AdminProgramDraftReview() {
           )}
         </div>
       </div>
+
+      {buyerPreview && draft && (
+        <DraftBuyerPreview
+          draft={draft}
+          price={isPaid ? Number(price) || 0 : 0}
+          currency={currency}
+          isFree={!isPaid}
+          onClose={() => setBuyerPreview(false)}
+        />
+      )}
     </AdminPageShell>
   );
 }

@@ -219,7 +219,7 @@ export function SlideRenderer({
   const Header = () => (
     <div className="flex items-center gap-2.5 px-5 py-3 relative z-20">
       {orgLogoUrl ? (
-        <img src={orgLogoUrl} alt="" className="h-7 w-7 rounded-full object-cover ring-2 ring-white/20" />
+        <img src={orgLogoUrl} alt="" className="h-7 w-7 rounded-full object-cover ring-2 ring-white/20" loading="lazy" decoding="async" />
       ) : (
         <div className="h-7 w-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold text-white">
           {moduleTitle?.[0] || 'C'}
@@ -288,7 +288,7 @@ export function SlideRenderer({
 
     return (
       <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
-        {hasTitleBg && <img src={titleBgImage} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />}
+        {hasTitleBg && <img src={titleBgImage} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} loading="lazy" decoding="async" />}
         {hasTitleBg && <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30 z-[1]" />}
         <SlideDecoration theme={theme} />
         <div className="relative z-20"><Header /></div>
@@ -316,7 +316,7 @@ export function SlideRenderer({
   if (layout === 'image-cover' && hasBgImage) {
     return (
       <div className="h-full flex flex-col text-white relative overflow-hidden" style={bgStyle}>
-        <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />
+        <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} loading="lazy" decoding="async" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20 z-[1]" />
         <SlideDecoration theme={theme} />
         <Header />
@@ -340,7 +340,7 @@ export function SlideRenderer({
         <Header />
         <div className={cn('flex-1 flex relative z-10 min-h-0', isMobile ? 'flex-col' : imgFirst ? 'flex-row' : 'flex-row-reverse')}>
           <div className={cn('relative', isMobile ? 'h-1/3' : 'w-1/2')}>
-            <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover', imagePositionClasses[imgPos])} />
+            <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover', imagePositionClasses[imgPos])} loading="lazy" decoding="async" />
           </div>
           <div className={cn('flex flex-col p-5', isMobile ? 'flex-1' : 'w-1/2', captionPositionClasses[captionPos])}>
             <div className={cn('rounded-xl px-4 py-5 border border-white/10', captionClasses[captionStyle])}>
@@ -361,7 +361,7 @@ export function SlideRenderer({
         <SlideDecoration theme={theme} />
         <Header />
         <div className="relative h-2/5 shrink-0 z-10">
-          <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover', imagePositionClasses[imgPos])} />
+          <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover', imagePositionClasses[imgPos])} loading="lazy" decoding="async" />
         </div>
         <div className={cn('flex-1 flex flex-col relative z-10 px-5 py-4', captionPositionClasses[captionPos])}>
           <div className={cn('rounded-xl px-5 py-5 border border-white/10', captionClasses[captionStyle])}>
@@ -377,7 +377,7 @@ export function SlideRenderer({
   // Default: Text-only
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
-      {hasBgImage && <img src={backgroundImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />}
+      {hasBgImage && <img src={backgroundImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} loading="lazy" decoding="async" />}
       {hasBgImage && <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20 z-[1]" />}
       <SlideDecoration theme={theme} />
       <div className="relative z-20"><Header /></div>

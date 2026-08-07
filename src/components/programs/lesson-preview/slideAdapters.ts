@@ -44,7 +44,7 @@ function mediaHtml(row: ProgramSlideRow): string {
         .replace('watch?v=', 'embed/');
       return `<iframe src="${escapeAttr(src)}" allowfullscreen title="${alt}"></iframe>`;
     }
-    return `<video src="${escapeAttr(url)}" controls playsinline></video>`;
+    return `<video src="${escapeAttr(url)}" controls playsinline preload="none"></video>`;
   }
   return `<img src="${escapeAttr(row.media_url)}" alt="${alt}" loading="lazy" />`;
 }

@@ -10662,6 +10662,7 @@ export type Database = {
           is_featured: boolean | null
           is_free: boolean | null
           is_published: boolean | null
+          linked_product_id: string | null
           organization_id: string
           passing_score: number | null
           price: number | null
@@ -10693,6 +10694,7 @@ export type Database = {
           is_featured?: boolean | null
           is_free?: boolean | null
           is_published?: boolean | null
+          linked_product_id?: string | null
           organization_id: string
           passing_score?: number | null
           price?: number | null
@@ -10724,6 +10726,7 @@ export type Database = {
           is_featured?: boolean | null
           is_free?: boolean | null
           is_published?: boolean | null
+          linked_product_id?: string | null
           organization_id?: string
           passing_score?: number | null
           price?: number | null
@@ -10739,6 +10742,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "programs_linked_product_id_fkey"
+            columns: ["linked_product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "programs_organization_id_fkey"
             columns: ["organization_id"]
