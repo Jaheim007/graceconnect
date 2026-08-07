@@ -10298,27 +10298,45 @@ export type Database = {
       }
       program_certificates: {
         Row: {
+          assessment_score: number | null
+          assessment_total: number | null
           certificate_number: string
+          course_title: string | null
+          created_at: string
           id: string
           issued_at: string
+          learner_name: string | null
           organization_id: string
           program_id: string
+          stars_earned: number
           user_id: string
         }
         Insert: {
+          assessment_score?: number | null
+          assessment_total?: number | null
           certificate_number: string
+          course_title?: string | null
+          created_at?: string
           id?: string
           issued_at?: string
+          learner_name?: string | null
           organization_id: string
           program_id: string
+          stars_earned?: number
           user_id: string
         }
         Update: {
+          assessment_score?: number | null
+          assessment_total?: number | null
           certificate_number?: string
+          course_title?: string | null
+          created_at?: string
           id?: string
           issued_at?: string
+          learner_name?: string | null
           organization_id?: string
           program_id?: string
+          stars_earned?: number
           user_id?: string
         }
         Relationships: [
@@ -12366,6 +12384,7 @@ export type Database = {
         Returns: Json
       }
       founders_remaining: { Args: never; Returns: number }
+      generate_certificate_number: { Args: never; Returns: string }
       get_billing_usage_stats: {
         Args: { _user_id: string }
         Returns: {
@@ -12560,20 +12579,7 @@ export type Database = {
       is_superadmin: { Args: { _user_id: string }; Returns: boolean }
       issue_program_certificate: {
         Args: { _program_id: string }
-        Returns: {
-          certificate_number: string
-          id: string
-          issued_at: string
-          organization_id: string
-          program_id: string
-          user_id: string
-        }
-        SetofOptions: {
-          from: "*"
-          to: "program_certificates"
-          isOneToOne: true
-          isSetofReturn: false
-        }
+        Returns: Json
       }
       issue_waitlist_coupon: {
         Args: {
@@ -12832,6 +12838,19 @@ export type Database = {
           is_valid: boolean
           org_id: string
           scopes: Json
+        }[]
+      }
+      verify_program_certificate: {
+        Args: { _certificate_number: string }
+        Returns: {
+          assessment_score: number
+          assessment_total: number
+          certificate_number: string
+          course_title: string
+          issued_at: string
+          learner_name: string
+          organization_logo_url: string
+          organization_name: string
         }[]
       }
     }
