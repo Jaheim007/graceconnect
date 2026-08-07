@@ -278,7 +278,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     });
 
     return slides;
-  }, [modules, allQuizQuestions.length, isFr, moduleQuizzes]);
+  }, [modules, allQuizQuestions.length, isFr, moduleQuizzes, getLessonSlides]);
 
   useEffect(() => {
     if (initialLessonId && allSlides.length > 0) {
