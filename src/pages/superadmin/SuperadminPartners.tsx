@@ -197,7 +197,7 @@ export default function SuperadminPartners() {
                           <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setRateDialog(p); setNewRate(String(p.custom_rate_override ?? p.rate_percent)); }} title="Taux">
                             <Percent className="h-4 w-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => {
+                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={async () => {
                             if ((await askConfirm(`Permanently delete ${p.full_name}? This action is irreversible.`))) {
                               deletePartner.mutate(p.id);
                             }

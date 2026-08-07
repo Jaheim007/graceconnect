@@ -786,7 +786,7 @@ export function SuperadminReports() {
                           size="sm"
                           variant="destructive"
                           className="h-8 text-xs gap-1.5"
-                          onClick={() => {
+                          onClick={async () => {
                             if ((await askConfirm('Supprimer définitivement ce signalement ?'))) {
                               deleteReport(r.id);
                             }

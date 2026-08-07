@@ -149,7 +149,7 @@ export default function BeautyOtpPanel({ booking, isClient, isProvider, onChange
                   variant="outline"
                   size="sm"
                   disabled={busy !== null}
-                  onClick={() => {
+                  onClick={async () => {
                     if (!(await askConfirm(t("Marquer le client comme absent ?", "Mark client as no-show?")))) return;
                     callRpc("beauty_mark_no_show", { _booking_id: booking.id, _who: "client" }, "noshow-c");
                   }}
@@ -164,7 +164,7 @@ export default function BeautyOtpPanel({ booking, isClient, isProvider, onChange
                   variant="outline"
                   size="sm"
                   disabled={busy !== null}
-                  onClick={() => {
+                  onClick={async () => {
                     if (!(await askConfirm(t("Signaler l'absence du prestataire ?", "Report provider no-show?")))) return;
                     callRpc("beauty_mark_no_show", { _booking_id: booking.id, _who: "provider" }, "noshow-p");
                   }}
@@ -197,7 +197,7 @@ export default function BeautyOtpPanel({ booking, isClient, isProvider, onChange
               </div>
               <Button
                 disabled={busy !== null}
-                onClick={() => {
+                onClick={async () => {
                   if (!(await askConfirm(t("Confirmer que la prestation est bien terminée ?", "Confirm the service is completed?")))) return;
                   callRpc("beauty_complete_service", { _booking_id: booking.id }, "complete");
                 }}
