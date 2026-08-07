@@ -18,6 +18,7 @@ import { BuilderTree, type TreeModule } from './BuilderTree';
 import { SlideFormEditor, useSlideDraft } from './SlideFormEditor';
 import { SlidePhonePreview } from './SlidePhonePreview';
 import { LessonSettingsPanel } from './LessonSettingsPanel';
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 type CenterMode = 'slide' | 'lesson-settings' | 'raw-html' | 'empty';
 
@@ -121,7 +122,7 @@ export function CourseBuilder({ programId, modules, courseTitle, orgLogoUrl }: C
   };
 
   const handleDeleteSlide = async (slideId: string) => {
-    if (!window.confirm(isFr ? 'Supprimer cette diapositive ?' : 'Delete this slide?')) return;
+    if (!(await askConfirm(isFr ? 'Supprimer cette diapositive ?' : 'Delete this slide?'))) return;
     try {
       await deleteSlide.mutateAsync(slideId);
       if (selectedSlideId === slideId) setSelectedSlideId(null);
@@ -195,7 +196,7 @@ export function CourseBuilder({ programId, modules, courseTitle, orgLogoUrl }: C
   };
 
   const handleDeleteLesson = async (lessonId: string) => {
-    if (!window.confirm(isFr ? 'Supprimer cette leçon ?' : 'Delete this lesson?')) return;
+    if (!(await askConfirm(isFr ? 'Supprimer cette leçon ?' : 'Delete this lesson?'))) return;
     try {
       await deleteLesson.mutateAsync({ lessonId, programId });
       if (selectedLessonId === lessonId) {

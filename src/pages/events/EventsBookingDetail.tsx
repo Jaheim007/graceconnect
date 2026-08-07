@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import EventsOtpPanel from "@/components/events/EventsOtpPanel";
 import EventsExtraCharges from "@/components/events/EventsExtraCharges";
 import EventsReviewForm from "@/components/events/EventsReviewForm";
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 const STATUS: Record<string, { fr: string; en: string; color: string; icon: any }> = {
   pending_payment: { fr: "Paiement en attente", en: "Payment pending", color: "amber", icon: Loader2 },
@@ -94,7 +95,7 @@ export default function EventsBookingDetail() {
   const StatusIcon = status.icon;
 
   const cancel = async () => {
-    if (!confirm(t("Annuler cette réservation ?", "Cancel this booking?"))) return;
+    if (!(await askConfirm(t("Annuler cette réservation ?", "Cancel this booking?")))) return;
     const { error } = await supabase.from("events_bookings").update({
       status: "cancelled", cancelled_at: new Date().toISOString(),
     }).eq("id", booking.id);

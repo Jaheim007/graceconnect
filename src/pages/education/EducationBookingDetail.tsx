@@ -12,6 +12,7 @@ import { educationCategoryLabel } from "@/lib/educationCategories";
 import EducationOtpPanel from "@/components/education/EducationOtpPanel";
 import EducationExtraCharges from "@/components/education/EducationExtraCharges";
 import EducationReviewForm from "@/components/education/EducationReviewForm";
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 const STATUS: Record<string, { fr: string; en: string; color: string; icon: any }> = {
   awaiting_payment: { fr: "Paiement en attente", en: "Payment pending", color: "amber", icon: Loader2 },
@@ -92,7 +93,7 @@ export default function EducationBookingDetail() {
   const StatusIcon = status.icon;
 
   const cancel = async () => {
-    if (!confirm(t("Annuler cette séance ?", "Cancel this session?"))) return;
+    if (!(await askConfirm(t("Annuler cette séance ?", "Cancel this session?")))) return;
     const { error } = await supabase.from("education_bookings").update({
       status: "cancelled",
     }).eq("id", booking.id);

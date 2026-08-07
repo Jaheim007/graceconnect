@@ -38,6 +38,7 @@ import { LessonPreview } from '@/components/programs/LessonPreview';
 import { CourseIntelligencePanel } from '@/components/programs/CourseIntelligencePanel';
 import { MobilePreviewOverlay } from '@/components/programs/MobilePreviewOverlay';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 const CONTENT_TYPES = [
   { value: 'text', label: 'Text', labelFr: 'Texte', icon: FileText },
@@ -244,7 +245,7 @@ export function ProgramForm() {
   };
 
   const handleDeleteModule = async (moduleId: string) => {
-    if (!id || !confirm(isFr ? 'Supprimer ce module et ses leçons ?' : 'Delete this module and its lessons?')) return;
+    if (!id || !(await askConfirm(isFr ? 'Supprimer ce module et ses leçons ?' : 'Delete this module and its lessons?'))) return;
     try {
       if (selectedModuleId === moduleId) {
         setSelectedLessonId(null);
@@ -273,7 +274,7 @@ export function ProgramForm() {
 
   const handleDeleteLesson = async (lessonId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    if (!id || !confirm(isFr ? 'Supprimer cette leçon ?' : 'Delete this lesson?')) return;
+    if (!id || !(await askConfirm(isFr ? 'Supprimer cette leçon ?' : 'Delete this lesson?'))) return;
     try {
       if (selectedLessonId === lessonId) setSelectedLessonId(null);
       await deleteLesson.mutateAsync({ lessonId, programId: id });

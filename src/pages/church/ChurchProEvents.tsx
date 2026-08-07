@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { toast } from 'sonner';
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 export default function ChurchProEvents() {
   const { user, loading } = useAuth();
@@ -123,7 +124,7 @@ export default function ChurchProEvents() {
                         {e.status === 'published' ? <><EyeOff className="mr-1.5 h-3.5 w-3.5" /> {fr ? 'Dépublier' : 'Unpublish'}</> : <><Eye className="mr-1.5 h-3.5 w-3.5" /> {fr ? 'Publier' : 'Publish'}</>}
                       </Button>
                       <Button size="sm" variant="ghost" onClick={async () => {
-                        if (!confirm(fr ? 'Supprimer cet événement ?' : 'Delete this event?')) return;
+                        if (!(await askConfirm(fr ? 'Supprimer cet événement ?' : 'Delete this event?'))) return;
                         await supabase.from('church_events').delete().eq('id', e.id);
                         invalidate();
                       }}><Trash2 className="h-3.5 w-3.5 text-muted-foreground" /></Button>

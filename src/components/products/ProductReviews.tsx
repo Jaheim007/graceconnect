@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { AnimatedStarRating } from './AnimatedStarRating';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 interface Props {
   productId: string;
@@ -402,7 +403,7 @@ export function ProductReviews({ productId, organizationId, isPurchased, isOrgOw
 
   const handleDeleteReview = async () => {
     if (!myReview) return;
-    const confirmed = window.confirm(isFr ? 'Supprimer définitivement votre avis ? Cette action est irréversible.' : 'Permanently delete your review? This action is irreversible.');
+    const confirmed =(await askConfirm(isFr ? 'Supprimer définitivement votre avis ? Cette action est irréversible.' : 'Permanently delete your review? This action is irreversible.'));
     if (!confirmed) return;
     try {
       await deleteReview.mutateAsync({ reviewId: myReview.id, productId });

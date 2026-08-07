@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/i18n/I18nContext";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 interface Props {
   booking: any;
@@ -149,7 +150,7 @@ export default function BeautyOtpPanel({ booking, isClient, isProvider, onChange
                   size="sm"
                   disabled={busy !== null}
                   onClick={() => {
-                    if (!confirm(t("Marquer le client comme absent ?", "Mark client as no-show?"))) return;
+                    if (!(await askConfirm(t("Marquer le client comme absent ?", "Mark client as no-show?")))) return;
                     callRpc("beauty_mark_no_show", { _booking_id: booking.id, _who: "client" }, "noshow-c");
                   }}
                   className="gap-1.5 text-rose-700"
@@ -164,7 +165,7 @@ export default function BeautyOtpPanel({ booking, isClient, isProvider, onChange
                   size="sm"
                   disabled={busy !== null}
                   onClick={() => {
-                    if (!confirm(t("Signaler l'absence du prestataire ?", "Report provider no-show?"))) return;
+                    if (!(await askConfirm(t("Signaler l'absence du prestataire ?", "Report provider no-show?")))) return;
                     callRpc("beauty_mark_no_show", { _booking_id: booking.id, _who: "provider" }, "noshow-p");
                   }}
                   className="gap-1.5 text-rose-700"
@@ -197,7 +198,7 @@ export default function BeautyOtpPanel({ booking, isClient, isProvider, onChange
               <Button
                 disabled={busy !== null}
                 onClick={() => {
-                  if (!confirm(t("Confirmer que la prestation est bien terminée ?", "Confirm the service is completed?"))) return;
+                  if (!(await askConfirm(t("Confirmer que la prestation est bien terminée ?", "Confirm the service is completed?")))) return;
                   callRpc("beauty_complete_service", { _booking_id: booking.id }, "complete");
                 }}
                 className="w-full gap-1.5 beauty-gradient text-white"

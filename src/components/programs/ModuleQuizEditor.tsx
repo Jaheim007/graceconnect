@@ -17,6 +17,7 @@ import { Plus, Trash2, Save, Zap, HelpCircle, Loader2, GripVertical, CheckCircle
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 interface ModuleQuizEditorProps {
   moduleId: string;
@@ -140,7 +141,7 @@ export function ModuleQuizEditor({ moduleId, moduleTitle, programId, courseTitle
   };
 
   const handleDeleteQuestion = async (qId: string) => {
-    if (!confirm(isFr ? 'Supprimer cette question ?' : 'Delete this question?')) return;
+    if (!(await askConfirm(isFr ? 'Supprimer cette question ?' : 'Delete this question?'))) return;
     try {
       await deleteQuestion.mutateAsync(qId);
     } catch (e: any) {

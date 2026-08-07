@@ -21,6 +21,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { formatCurrency } from '@/lib/currency';
 import { toast } from 'sonner';
+import { askAlert } from '@/components/ui/confirm-dialog';
 
 interface TransactionDetails {
   type: 'product' | 'donation';
@@ -267,7 +268,7 @@ export default function PaymentSuccessPage() {
       triggerBrowserDownload(file);
     } catch (err) {
       console.error('[PaymentSuccess] download error:', err);
-      alert(isFr ? 'Erreur lors du téléchargement. Veuillez réessayer depuis "Mes Ressources".' : 'Download error. Please retry from "My Resources".');
+      void askAlert(isFr ? 'Erreur lors du téléchargement. Veuillez réessayer depuis "Mes Ressources".' : 'Download error. Please retry from "My Resources".');
     } finally { setDownloading(false); }
   };
 
@@ -279,7 +280,7 @@ export default function PaymentSuccessPage() {
       openFileInline(file);
     } catch (err) {
       console.error('[PaymentSuccess] read error:', err);
-      alert(isFr ? 'Erreur lors de l\'ouverture. La lecture directe est disponible uniquement pour les PDF.' : 'Error opening file. Direct reading is only available for PDFs.');
+      void askAlert(isFr ? 'Erreur lors de l\'ouverture. La lecture directe est disponible uniquement pour les PDF.' : 'Error opening file. Direct reading is only available for PDFs.');
     } finally { setReading(false); }
   };
 

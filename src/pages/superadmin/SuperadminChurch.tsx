@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 export default function SuperadminChurch() {
   return (
@@ -127,7 +128,7 @@ function ChurchesPanel() {
                   <ShieldCheck className="mr-1.5 h-3.5 w-3.5" /> {c.payout_verified ? 'Revoke payout' : 'Verify payout'}
                 </Button>
                 {c.status !== 'suspended' ? (
-                  <Button size="sm" variant="outline" className="text-red-600" onClick={() => { if (confirm('Suspend?')) patch(c.id, { status: 'suspended' }, 'Suspended'); }}>
+                  <Button size="sm" variant="outline" className="text-red-600" onClick={() => { if ((await askConfirm('Suspend?'))) patch(c.id, { status: 'suspended' }, 'Suspended'); }}>
                     <Ban className="mr-1.5 h-3.5 w-3.5" /> Suspend
                   </Button>
                 ) : (

@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { Globe, Star, Trash2, Plus, CheckCircle, Clock, AlertCircle, Copy, ExternalLink } from 'lucide-react';
 import { ProBadge } from '@/components/pricing/ProBadge';
 import { RequirePro } from '@/components/billing/PaywallGate';
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 export function DomainSettings() {
   const { currentOrg } = useOrg();
@@ -107,7 +108,7 @@ export function DomainSettings() {
   };
 
   const handleDelete = async (domainId: string, domainName: string) => {
-    if (!confirm(isFr ? `Supprimer ${domainName} ?` : `Delete ${domainName}?`)) return;
+    if (!(await askConfirm(isFr ? `Supprimer ${domainName} ?` : `Delete ${domainName}?`))) return;
     try {
       await deleteDomain.mutateAsync({ orgId, domainId });
       toast.success(isFr ? 'Domaine supprimé' : 'Domain removed');

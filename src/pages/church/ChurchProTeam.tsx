@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { toast } from 'sonner';
+import { askConfirm } from '@/components/ui/confirm-dialog';
 
 export default function ChurchProTeam() {
   const { user, loading } = useAuth();
@@ -129,7 +130,7 @@ export default function ChurchProTeam() {
                     </p>
                   </div>
                   <Button size="icon" variant="ghost" onClick={async () => {
-                    if (!confirm(fr ? 'Retirer ce membre ?' : 'Remove this member?')) return;
+                    if (!(await askConfirm(fr ? 'Retirer ce membre ?' : 'Remove this member?'))) return;
                     await supabase.from('church_team_members').delete().eq('id', m.id);
                     invalidate();
                   }}><Trash2 className="h-4 w-4 text-muted-foreground" /></Button>
