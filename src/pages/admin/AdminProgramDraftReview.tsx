@@ -154,6 +154,17 @@ export default function AdminProgramDraftReview() {
     if (!draft || !projectId) return;
     const orgId = project?.organization_id || currentOrg?.id;
     if (!orgId) return;
+    if (!priceValid) {
+      toast({
+        title: isFr ? 'Prix requis' : 'Price required',
+        description: isFr
+          ? `Un cours généré par l’IA ne peut pas être gratuit. Minimum ${minPrice} ${currency}.`
+          : `An AI-generated course cannot be free. Minimum ${minPrice} ${currency}.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       if (dirty) await updateDraft.mutateAsync(draft);
       const result = await publishDraft.mutateAsync({ org_id: orgId, project_id: projectId, publish_now: publishNow });
