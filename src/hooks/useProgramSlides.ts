@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import {
@@ -132,3 +133,54 @@ export function useBackfillLessonSlides() {
 }
 
 export type { ProgramSlideRow, NewSlideInput, SlideType };
+
+/**
+ * One-time, idempotent migration of a program's legacy HTML lessons into
+ * `program_slides` rows. Runs once per program per session for users who can
+ * manage the org (RLS enforces that server-side).
+ */
+export function useEnsureProgramSlides(programId: string | undefined, enabled = true) {
+  const qc = useQueryClient();
+  const doneRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!programId || !enabled || doneRef.current.has(programId)) return;
+    doneRef.current.add(programId);
+
+    let cancelled = false;
+
+    (async () => {
+      const { data: modules } = await db
+        .from('program_modules')
+        .select('id, program_lessons(id, content)')
+        .eq('program_id', programId);
+
+      const lessons = (modules || []).flatMap((m: any) => m.program_lessons || []);
+      const withContent = lessons.filter((l: any) => (l.content || '').trim().length > 0);
+      if (withContent.length === 0 || cancelled) return;
+
+      const lessonIds = withContent.map((l: any) => l.id);
+      const { data: existing } = await table().select('lesson_id').in('lesson_id', lessonIds);
+      const alreadyMigrated = new Set((existing || []).map((r: any) => r.lesson_id));
+
+      const rows: NewSlideInput[] = [];
+      for (const lesson of withContent) {
+        if (alreadyMigrated.has(lesson.id)) continue;
+        const parsed = parseContentIntoSlides(lesson.content || '');
+        parsed.forEach((slide, i) => rows.push(contentSlideToRow(slide, lesson.id, i)));
+      }
+
+      if (rows.length === 0 || cancelled) return;
+
+      const { error } = await table().insert(rows);
+      if (error) {
+        // Not an admin (RLS) or transient failure: legacy runtime parsing still works.
+        doneRef.current.delete(programId);
+        return;
+      }
+      if (!cancelled) qc.invalidateQueries({ queryKey: ['program-slides'] });
+    })();
+
+    return () => { cancelled = true; };
+  }, [programId, enabled, qc]);
+}
