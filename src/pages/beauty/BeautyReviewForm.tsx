@@ -1,4 +1,3 @@
-import { Zap } from 'lucide-react';
 import { useState } from "react";
 import { Star, Zap, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";

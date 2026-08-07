@@ -1,4 +1,3 @@
-import { Users, Zap } from 'lucide-react';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
