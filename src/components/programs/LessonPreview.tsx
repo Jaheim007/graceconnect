@@ -19,6 +19,9 @@ import { useModuleQuiz } from '@/hooks/useModuleQuiz';
 import { getSlideTheme } from './lesson-preview/slideThemes';
 import { Switch } from '@/components/ui/switch';
 import { db } from '@/lib/db';
+import { useProgramSlideMap } from '@/hooks/useProgramSlides';
+import { rowToContentSlide } from './lesson-preview/slideAdapters';
+
 
 interface LessonPreviewProps {
   programId: string;
@@ -75,7 +78,19 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   const { toast } = useToast();
   const { data: program } = useProgram(programId);
   const { data: modules = [] } = useProgramModules(programId);
+  const { data: slideMap = {} } = useProgramSlideMap(programId);
   const isLearner = mode === 'learner';
+
+  /**
+   * Slides for a lesson: persisted `program_slides` rows win; legacy lessons
+   * fall back to parsing the single HTML blob at render time.
+   */
+  const getLessonSlides = useCallback((lesson: any, cleanedHtml: string): ContentSlide[] => {
+    const rows = (slideMap as Record<string, any[]>)[lesson?.id];
+    if (rows && rows.length > 0) return rows.map(rowToContentSlide);
+    return parseContentIntoSlides(cleanedHtml);
+  }, [slideMap]);
+
 
   // Fetch all module quizzes for this program
   const moduleIds = useMemo(() => modules.map((m: any) => m.id), [modules]);
@@ -166,7 +181,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     const quizzes: QuizData[] = [];
     for (const mod of modules) {
       for (const lesson of (mod as any).lessons || []) {
-        const contentSlides = parseContentIntoSlides(lesson.content || '');
+        const contentSlides = getLessonSlides(lesson, lesson.content || '');
         for (const cs of contentSlides) {
           if (cs.type === 'quiz' && cs.quiz) {
             quizzes.push(cs.quiz);
@@ -175,7 +190,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
       }
     }
     return quizzes;
-  }, [modules]);
+  }, [modules, getLessonSlides]);
+
 
   // Build flat slide array
   const allSlides: FlatSlide[] = useMemo(() => {
@@ -201,7 +217,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           lessonImageUrl,
         });
 
-        const contentSlides = parseContentIntoSlides(cleanedHtml);
+        const contentSlides = getLessonSlides(lesson, cleanedHtml);
         contentSlides.forEach((cs, si) => {
           slides.push({
             lessonId: lesson.id,
@@ -262,7 +278,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     });
 
     return slides;
-  }, [modules, allQuizQuestions.length, isFr, moduleQuizzes]);
+  }, [modules, allQuizQuestions.length, isFr, moduleQuizzes, getLessonSlides]);
 
   useEffect(() => {
     if (initialLessonId && allSlides.length > 0) {
