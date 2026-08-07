@@ -19,6 +19,9 @@ import { useModuleQuiz } from '@/hooks/useModuleQuiz';
 import { getSlideTheme } from './lesson-preview/slideThemes';
 import { Switch } from '@/components/ui/switch';
 import { db } from '@/lib/db';
+import { useProgramSlideMap } from '@/hooks/useProgramSlides';
+import { rowToContentSlide } from './lesson-preview/slideAdapters';
+
 
 interface LessonPreviewProps {
   programId: string;
