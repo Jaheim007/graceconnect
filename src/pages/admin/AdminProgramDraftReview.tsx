@@ -70,11 +70,18 @@ export default function AdminProgramDraftReview() {
   const [publishNow, setPublishNow] = useState(false);
   const [dirty, setDirty] = useState(false);
 
-  // Pricing step — reuses the digital-product checkout (see useCourseCommerce)
-  const [isPaid, setIsPaid] = useState(false);
+  // Pricing step — reuses the digital-product checkout (see useCourseCommerce).
+  // AI-generated courses can never be free: a minimum price is enforced.
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState(currentOrg?.currency || 'XOF');
   const [buyerPreview, setBuyerPreview] = useState(false);
+  const minPrice = MIN_AI_COURSE_PRICE[currency] ?? MIN_AI_COURSE_PRICE.USD;
+  const priceValue = Number(price) || 0;
+  const priceValid = priceValue >= minPrice;
+
+  // Seed the price with the currency minimum
+  useEffect(() => { setPrice((p) => (p ? p : String(minPrice))); }, [minPrice]);
+
 
   const remoteCourse = project?.data_json?.course;
   const generating = job?.status === 'running' || job?.status === 'queued';
