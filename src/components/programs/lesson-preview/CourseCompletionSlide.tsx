@@ -80,11 +80,11 @@ export function CourseCompletionSlide({
   const [showShare, setShowShare] = useState(false);
   const { user } = useAuth();
   const { currentOrg } = useOrg();
-  const saveCertificate = useSaveCertificate();
-  const [certificateSaved, setCertificateSaved] = useState(false);
+  const issueCertificate = useIssueCertificate();
+  const [certIssueError, setCertIssueError] = useState<string | null>(null);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
-  const { data: existingCert } = useCertificate(mode === 'learner' ? programId : undefined);
-  
+  const { data: existingCert, refetch: refetchCert } = useCertificate(mode === 'learner' ? programId : undefined);
+
   const hasAssessment = assessmentScore !== undefined && assessmentTotal !== undefined;
   const assessmentPct = hasAssessment ? Math.round((assessmentScore! / assessmentTotal!) * 100) : 0;
   const overallStarRating = hasAssessment 
@@ -93,20 +93,23 @@ export function CourseCompletionSlide({
       ? Math.min(5, Math.round((starsEarned / totalQuizzes) * 5))
       : 5;
 
-  // Auto-save certificate for learners
+  const certNumber = existingCert?.certificate_number || issueCertificate.data?.certificate_number;
+  const certId = existingCert?.id || issueCertificate.data?.certificate_id;
+  const certReady = !!certId;
+
+  // Learners: ask the server to issue the certificate on completion.
+  // All eligibility checks happen inside issue_program_certificate().
   useEffect(() => {
-    if (mode !== 'learner' || !user || !programId || !currentOrg || certificateSaved) return;
-    saveCertificate.mutate({
-      programId,
-      organizationId: currentOrg.id,
-      learnerName: (user as any).user_metadata?.display_name || user.email || 'Learner',
-      courseTitle,
-      starsEarned,
-      assessmentScore,
-      assessmentTotal,
-    });
-    setCertificateSaved(true);
-  }, [mode, user, programId, currentOrg]);
+    if (mode !== 'learner' || !user || !programId) return;
+    if (existingCert || issueCertificate.isPending || issueCertificate.isSuccess || certIssueError) return;
+    issueCertificate.mutate(
+      { programId },
+      {
+        onSuccess: () => { refetchCert(); },
+        onError: (err: any) => setCertIssueError(err?.code || 'unknown'),
+      }
+    );
+  }, [mode, user, programId, existingCert]);
 
   const shareUrl = programId ? `/program/${programId}` : '/my-programs';
   const shareDescription = isFr
