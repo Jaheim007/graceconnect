@@ -194,49 +194,36 @@ export function useOrgEnrollmentStats(orgId: string | undefined) {
   });
 }
 
-/** Save certificate */
-export function useSaveCertificate() {
+/**
+ * Issue the certificate for a course.
+ *
+ * Server-authoritative: the browser has no INSERT grant or policy on
+ * program_certificates. All eligibility checks (enrollment, every slide
+ * completed, and the course-level assessment threshold when required) run
+ * inside public.issue_program_certificate(). Practice slide quizzes never
+ * count toward eligibility.
+ */
+export function useIssueCertificate() {
   const { user } = useAuth();
+  const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: {
-      programId: string;
-      organizationId: string;
-      learnerName: string;
-      courseTitle: string;
-      starsEarned: number;
-      assessmentScore?: number;
-      assessmentTotal?: number;
-    }) => {
+    mutationFn: async (payload: { programId: string }) => {
       if (!user) throw new Error('Not authenticated');
-
-      // Check if certificate already exists
-      const { data: existing } = await supabase
-        .from('program_certificates')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('program_id', payload.programId)
-        .maybeSingle();
-
-      if (existing) return existing;
-
-      const { data, error } = await supabase
-        .from('program_certificates')
-        .insert({
-          user_id: user.id,
-          program_id: payload.programId,
-          organization_id: payload.organizationId,
-          learner_name: payload.learnerName,
-          course_title: payload.courseTitle,
-          stars_earned: payload.starsEarned,
-          assessment_score: payload.assessmentScore,
-          assessment_total: payload.assessmentTotal,
-        } as any)
-        .select('id, certificate_number')
-        .single();
-
-      if (error) throw error;
-      return data;
+      const result = await issueProgramCertificate(payload.programId);
+      if (!result.ok) {
+        const err = new Error(result.error || 'issue_failed');
+        (err as any).code = result.error;
+        (err as any).details = result;
+        throw err;
+      }
+      return result;
+    },
+    onSuccess: (_r, vars) => {
+      qc.invalidateQueries({ queryKey: ['certificate', vars.programId] });
+      qc.invalidateQueries({ queryKey: ['program-certificate', vars.programId] });
+      qc.invalidateQueries({ queryKey: ['enrollment', vars.programId] });
+      qc.invalidateQueries({ queryKey: ['my-enrollments'] });
     },
   });
 }
