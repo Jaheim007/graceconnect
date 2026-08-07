@@ -181,7 +181,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     const quizzes: QuizData[] = [];
     for (const mod of modules) {
       for (const lesson of (mod as any).lessons || []) {
-        const contentSlides = parseContentIntoSlides(lesson.content || '');
+        const contentSlides = getLessonSlides(lesson, lesson.content || '');
         for (const cs of contentSlides) {
           if (cs.type === 'quiz' && cs.quiz) {
             quizzes.push(cs.quiz);
@@ -190,7 +190,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
       }
     }
     return quizzes;
-  }, [modules]);
+  }, [modules, getLessonSlides]);
+
 
   // Build flat slide array
   const allSlides: FlatSlide[] = useMemo(() => {
