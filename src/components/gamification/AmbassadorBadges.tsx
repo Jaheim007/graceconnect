@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Trophy, Star, Flame, Diamond, Crown, Sparkles } from 'lucide-react';
+import { Trophy, Star, Flame, Diamond, Crown, Zap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
@@ -17,9 +17,9 @@ interface BadgeConfig {
 }
 
 const BADGES: BadgeConfig[] = [
-  { threshold: 1, icon: Sparkles, emoji: '🌱', title: 'Première vente !', desc: 'Tu as fait ta première vente. Le voyage commence !', color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+  { threshold: 1, icon: Zap, emoji: '🌱', title: 'Première vente !', desc: 'Tu as fait ta première vente. Le voyage commence !', color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
   { threshold: 10, icon: Flame, emoji: '🔥', title: '10 ventes !', desc: 'Tu es en feu ! 10 personnes t\'ont fait confiance.', color: 'text-orange-500', bg: 'bg-orange-500/10', border: 'border-orange-500/20' },
-  { threshold: 50, icon: Star, emoji: '⭐', title: '50 ventes !', desc: 'Tu es une star ambassadrice. Continue comme ça !', color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
+  { threshold: 50, icon: Star, emoji: '', title: '50 ventes !', desc: 'Tu es une star ambassadrice. Continue comme ça !', color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
   { threshold: 100, icon: Diamond, emoji: '💎', title: '100 ventes !', desc: 'Légende ! Tu fais partie du Top ambassadeurs.', color: 'text-violet-500', bg: 'bg-violet-500/10', border: 'border-violet-500/20' },
   { threshold: 500, icon: Crown, emoji: '👑', title: '500 ventes !', desc: 'Roi/Reine des ambassadeurs. Inarrêtable.', color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
 ];

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, ArrowRight } from "lucide-react";
+import { Zap, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BeautyLandingBody } from "./BeautyLandingBody";
 
@@ -31,7 +31,7 @@ export default function BeautyLanding() {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <Link to="/beauty" className="flex items-center gap-2">
             <span className="grid h-9 w-9 place-items-center rounded-xl beauty-gradient text-white shadow-lg">
-              <Sparkles className="h-5 w-5" />
+              
             </span>
             <div className="leading-tight">
               <div className="text-sm font-black tracking-tight">SiteViral</div>

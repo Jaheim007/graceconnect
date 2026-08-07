@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
-import { Sparkles, Loader2, BookOpen, Users, Layers } from 'lucide-react';
+import { Zap, Loader2, BookOpen, Users, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CourseStructure {
@@ -97,7 +97,7 @@ export function AICourseGenerator({ onGenerated, onCancel }: AICourseGeneratorPr
     <div className="bg-card border border-border rounded-2xl overflow-hidden">
       <div className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
+          
           <h3 className="font-semibold text-sm">{isFr ? 'Générer avec l\'IA' : 'Generate with AI'}</h3>
         </div>
         <p className="text-[10px] text-muted-foreground mt-1">
@@ -145,7 +145,7 @@ export function AICourseGenerator({ onGenerated, onCancel }: AICourseGeneratorPr
             </div>
             <div className="flex items-center gap-2 pt-2">
               <Button onClick={handleGenerate} disabled={!title.trim() || generating} className="gap-1.5 flex-1">
-                <Sparkles className="h-3.5 w-3.5" /> {isFr ? 'Générer la structure' : 'Generate structure'}
+                 {isFr ? 'Générer la structure' : 'Generate structure'}
               </Button>
               <Button variant="outline" onClick={onCancel}>{isFr ? 'Annuler' : 'Cancel'}</Button>
             </div>
@@ -188,7 +188,7 @@ export function AICourseGenerator({ onGenerated, onCancel }: AICourseGeneratorPr
             </div>
             <div className="flex items-center gap-2 pt-2">
               <Button onClick={handleAccept} className="gap-1.5 flex-1">
-                <Sparkles className="h-3.5 w-3.5" /> {isFr ? 'Appliquer cette structure' : 'Apply this structure'}
+                 {isFr ? 'Appliquer cette structure' : 'Apply this structure'}
               </Button>
               <Button variant="outline" onClick={() => setStep('form')}>{isFr ? 'Régénérer' : 'Regenerate'}</Button>
               <Button variant="ghost" onClick={onCancel}>{isFr ? 'Annuler' : 'Cancel'}</Button>

@@ -1,11 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Home, Play, Bell, User, Store, Settings, BarChart3, Users, ShoppingBag,
-  Heart, Link2, Megaphone, CalendarDays, Camera, FileCheck, Wallet,
-  CreditCard, Clock, GraduationCap, Shield, Sparkles, BookOpen, Search,
-  Building2, Package, UserPlus,
-} from 'lucide-react';
+import { Home, Play, Bell, User, Store, Settings, BarChart3, Users, ShoppingBag, Heart, Link2, Megaphone, CalendarDays, Camera, FileCheck, Wallet, CreditCard, Clock, GraduationCap, Shield, Zap, BookOpen, Search, Building2, Package, UserPlus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -61,7 +56,7 @@ export function CommandPalette() {
     if (hasOrgs && canManageOrg) {
       list.push(
         { label: t('cmd.admin_overview'), to: '/admin', icon: BarChart3, group: t('cmd.my_platform'), keywords: 'overview admin' },
-        { label: t('cmd.ai_studio'), to: '/admin/studio', icon: Sparkles, group: t('cmd.my_platform'), keywords: 'ai studio content viral' },
+        { label: t('cmd.ai_studio'), to: '/admin/studio', icon: Zap, group: t('cmd.my_platform'), keywords: 'ai studio content viral' },
         { label: t('cmd.media'), to: '/admin/media', icon: Play, group: t('cmd.my_platform'), keywords: 'media video audio' },
         { label: t('cmd.photos'), to: '/admin/photos', icon: Camera, group: t('cmd.my_platform') },
         { label: t('cmd.announcements'), to: '/admin/announcements', icon: Megaphone, group: t('cmd.my_platform'), keywords: 'announcements annonces' },

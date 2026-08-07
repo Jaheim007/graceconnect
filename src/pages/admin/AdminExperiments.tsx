@@ -14,10 +14,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { ExperimentResultsPanel } from '@/components/admin/ExperimentResultsPanel';
 import { ExperimentEventInspector } from '@/components/experiments/ExperimentEventInspector';
-import {
-  Plus, FlaskConical, Trash2, Edit, Pause, Play, Trophy, ChevronDown, ChevronUp,
-  Type, MessageSquare, MousePointerClick, DollarSign, Sparkles, Globe, ShoppingCart, Users, Link2, Lightbulb, Copy, ExternalLink, CheckCircle
-} from 'lucide-react';
+import { Plus, FlaskConical, Trash2, Edit, Pause, Play, Trophy, ChevronDown, ChevronUp, Type, MessageSquare, MousePointerClick, DollarSign, Zap, Globe, ShoppingCart, Users, Link2, Lightbulb, Copy, ExternalLink, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { AdminPageShell } from './AdminPageShell';
 import { useI18n } from '@/i18n/I18nContext';
@@ -31,7 +28,7 @@ const TEST_TYPES = [
   { value: 'description', label: 'Description', icon: MessageSquare, desc: 'Test different product descriptions' },
   { value: 'price', label: 'Pricing Display', icon: DollarSign, desc: 'Test different price presentations' },
   { value: 'ambassador', label: 'Ambassador Message', icon: Users, desc: 'Test different share messages' },
-  { value: 'custom', label: 'Custom', icon: Sparkles, desc: 'Create a custom experiment' },
+  { value: 'custom', label: 'Custom', icon: Zap, desc: 'Create a custom experiment' },
 ];
 
 const LOCATIONS = [
@@ -265,7 +262,7 @@ export default function AdminExperiments() {
                           onClick={() => applySuggestion(s)}
                           className="w-full flex items-center gap-2 p-2.5 rounded-lg border border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
                         >
-                          <Sparkles className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                          
                           <div>
                             <p className="text-xs font-medium">{s.name}</p>
                             <p className="text-[10px] text-muted-foreground">{s.hypothesis}</p>

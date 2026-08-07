@@ -8,10 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Sparkles, Plus, Search, BookOpen, Baby, Palette,
-  GraduationCap, Church, Megaphone, Clock, FolderOpen
-} from 'lucide-react';
+import { Zap, Plus, Search, BookOpen, Baby, Palette, GraduationCap, Church, Megaphone, Clock, FolderOpen } from 'lucide-react';
 
 const TYPE_META: Record<string, { label: string; icon: typeof BookOpen; color: string }> = {
   ebook: { label: 'Ebook', icon: BookOpen, color: 'text-blue-500' },
@@ -113,7 +110,7 @@ export default function StudioProjectsList() {
       ) : !filtered.length ? (
         <Card>
           <CardContent className="py-16 text-center">
-            <Sparkles className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+            
             <p className="text-muted-foreground font-medium">
               {search || typeFilter !== 'all' || statusFilter !== 'all'
                 ? 'Aucun projet ne correspond aux filtres'

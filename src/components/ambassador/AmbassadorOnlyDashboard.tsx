@@ -7,10 +7,7 @@ import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import {
-  Search, Link2, TrendingUp, DollarSign, ExternalLink,
-  Copy, ArrowRight, Sparkles, Eye, MousePointerClick, Share2,
-} from 'lucide-react';
+import { Search, Link2, TrendingUp, DollarSign, ExternalLink, Copy, ArrowRight, Zap, Eye, MousePointerClick, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/currency';
 import { AmbassadorGoalTracker } from './AmbassadorGoalTracker';
@@ -120,7 +117,7 @@ export function AmbassadorOnlyDashboard() {
         {affiliateLinks.length === 0 ? (
           <div className="bg-card border border-border rounded-2xl p-8 text-center space-y-4">
             <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-              <Sparkles className="h-8 w-8 text-primary" />
+              
             </div>
             <div>
               <h3 className="font-bold text-lg">Commencez à gagner !</h3>

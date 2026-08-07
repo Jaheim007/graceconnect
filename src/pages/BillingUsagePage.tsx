@@ -9,16 +9,7 @@
  * Route: /billing/usage
  */
 import { Link } from 'react-router-dom';
-import {
-  Sparkles,
-  ShoppingBag,
-  TrendingUp,
-  PiggyBank,
-  Package,
-  Building2,
-  ArrowLeft,
-  Crown,
-} from 'lucide-react';
+import { Zap, ShoppingBag, TrendingUp, PiggyBank, Package, Building2, ArrowLeft, Crown } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -144,7 +135,7 @@ export default function BillingUsagePage() {
           <div className="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
           <div className="relative">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-3">
-              <Sparkles className="h-3 w-3" />
+              
               {isEn ? 'This month' : 'Ce mois-ci'}
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">{t.title}</h1>
@@ -161,7 +152,7 @@ export default function BillingUsagePage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <StatCard
-              icon={Sparkles}
+              icon={Zap}
               label={t.aiCredits}
               value={fmt(data.ai_credits_used_month)}
               hint={t.aiCreditsHint}

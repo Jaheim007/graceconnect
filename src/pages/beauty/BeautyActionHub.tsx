@@ -1,10 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  Search, Calendar, Scissors, LayoutDashboard,
-  ArrowRight, Sparkles, Clock,
-} from "lucide-react";
+import { Search, Calendar, Scissors, LayoutDashboard, ArrowRight, Zap, Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -165,7 +162,7 @@ export default function BeautyActionHub() {
           {/* Compact hero */}
           <motion.div variants={item} className="space-y-1.5 text-center">
             <div className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-              <Sparkles className="h-3 w-3" />
+              
               {t("Beauté vérifiée", "Verified beauty")}
             </div>
             <h1 className="text-xl font-black leading-tight tracking-tight text-foreground sm:text-2xl">

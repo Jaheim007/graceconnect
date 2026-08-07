@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Loader2, Building2, BookMarked, FileCheck2, Sparkles } from 'lucide-react';
+import { Loader2, Building2, BookMarked, FileCheck2, Zap } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
@@ -13,7 +13,7 @@ export function StepPublishing({ stage, willCreateOrg }: Props) {
   const { t } = useI18n();
 
   const stages: { key: PublishingStage; icon: typeof Loader2; label: string }[] = [
-    { key: 'preparing', icon: Sparkles, label: t('write.publish_stage_preparing') },
+    { key: 'preparing', icon: Zap, label: t('write.publish_stage_preparing') },
     { key: 'org', icon: Building2, label: willCreateOrg ? t('write.publish_stage_org_create') : t('write.publish_stage_org_check') },
     { key: 'book', icon: BookMarked, label: t('write.publish_stage_book') },
     { key: 'pdf', icon: FileCheck2, label: t('write.publish_stage_pdf') },

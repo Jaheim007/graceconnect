@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Church, HandHeart, Mic, Sparkles, Globe, ArrowRight, Users, PlayCircle } from 'lucide-react';
+import { Church, HandHeart, Mic, Zap, Globe, ArrowRight, Users, PlayCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 
@@ -21,7 +21,7 @@ export default function ChurchLanding() {
 
   const pillars = [
     { icon: Mic, title: fr ? 'Bibliothèque de prédications' : 'Sermon library', desc: fr ? 'Uploadez vos audios chaque dimanche. Transcription automatique.' : 'Upload your audio every Sunday. Auto transcription.' },
-    { icon: Sparkles, title: fr ? 'Audio → Livre, article, reel' : 'Audio → book, article, reel', desc: fr ? "Une prédication devient un chapitre d'ebook, un article, un devotional WhatsApp." : 'One sermon becomes an ebook chapter, a blog article, a WhatsApp devotional.' },
+    { icon: Zap, title: fr ? 'Audio → Livre, article, reel' : 'Audio → book, article, reel', desc: fr ? "Une prédication devient un chapitre d'ebook, un article, un devotional WhatsApp." : 'One sermon becomes an ebook chapter, a blog article, a WhatsApp devotional.' },
     { icon: HandHeart, title: fr ? 'Dîmes & offrandes' : 'Tithes & offerings', desc: fr ? 'Mobile Money local, carte pour la diaspora. Reçus automatiques.' : 'Local Mobile Money, card for the diaspora. Automatic receipts.' },
     { icon: Users, title: fr ? 'Communauté & prière' : 'Community & prayer', desc: fr ? 'Événements, live, boîte de prière privée pour le pasteur.' : 'Events, live streaming, private prayer inbox for the pastor.' },
   ];

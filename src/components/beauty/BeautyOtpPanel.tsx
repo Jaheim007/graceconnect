@@ -50,7 +50,7 @@ export default function BeautyOtpPanel({ booking, isClient, isProvider, onChange
           variant: "destructive",
         });
       } else {
-        toast({ title: t("C'est fait ✨", "Done ✨") });
+        toast({ title: t("C'est fait", "Done") });
         onChanged();
       }
     } catch (e: any) {

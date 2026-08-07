@@ -116,7 +116,7 @@ export default function SuperadminTrust() {
             <ScrollArea className="h-[70vh]">
               {isLoading && <p className="p-4 text-sm text-muted-foreground">Chargement…</p>}
               {violations?.length === 0 && (
-                <p className="p-4 text-sm text-muted-foreground">Rien à examiner ✨</p>
+                <p className="p-4 text-sm text-muted-foreground">Rien à examiner</p>
               )}
               {violations?.map((v: any) => (
                 <button

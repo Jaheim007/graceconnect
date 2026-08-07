@@ -34,7 +34,7 @@ const MESSAGES_FR: Record<ShareContext, (opts: Omit<WhatsAppShareProps, 'context
   'post-purchase': ({ productTitle, orgName, url }) =>
     `📚 Je viens de découvrir « ${productTitle || 'un produit incroyable'} »${orgName ? ` sur ${orgName}` : ''} ! Je te le recommande fortement 👉\n${url}`,
   'post-publish': ({ productTitle, url }) =>
-    `🎉 Mon livre « ${productTitle} » est enfin publié ! 📖✨\nÇa m'a pris seulement 5 minutes avec l'IA.\nDécouvre-le ici 👉\n${url}`,
+    `🎉 Mon livre « ${productTitle} » est enfin publié ! 📖\nÇa m'a pris seulement 5 minutes avec l'IA.\nDécouvre-le ici 👉\n${url}`,
   'ambassador-share': ({ productTitle, commissionPercent, url }) =>
     `📖 ${productTitle}${commissionPercent ? ` — gagne ${commissionPercent}% de commission en le partageant !` : ''}\nDécouvre-le 👉\n${url}`,
   'earnings-brag': ({ earnings, currency }) =>
@@ -51,7 +51,7 @@ const MESSAGES_EN: Record<ShareContext, (opts: Omit<WhatsAppShareProps, 'context
   'post-purchase': ({ productTitle, orgName, url }) =>
     `📚 I just discovered "${productTitle || 'an amazing product'}"${orgName ? ` on ${orgName}` : ''}! Highly recommend it 👉\n${url}`,
   'post-publish': ({ productTitle, url }) =>
-    `🎉 My book "${productTitle}" is finally published! 📖✨\nIt only took 5 minutes with AI.\nCheck it out 👉\n${url}`,
+    `🎉 My book "${productTitle}" is finally published! 📖\nIt only took 5 minutes with AI.\nCheck it out 👉\n${url}`,
   'ambassador-share': ({ productTitle, commissionPercent, url }) =>
     `📖 ${productTitle}${commissionPercent ? ` — earn ${commissionPercent}% commission by sharing!` : ''}\nCheck it out 👉\n${url}`,
   'earnings-brag': ({ earnings, currency }) =>

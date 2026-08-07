@@ -3,7 +3,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { ArrowRight, GraduationCap, PenLine, Zap, Sparkles, Clock, BookOpen, Baby, Palette } from 'lucide-react';
+import { ArrowRight, GraduationCap, PenLine, Zap, Clock, BookOpen, Baby, Palette } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
@@ -162,7 +162,7 @@ export default function AdminCreateHub() {
       {/* Empty state */}
       {(!recentProjects || recentProjects.length === 0) && (
         <div className="text-center py-8 rounded-2xl border border-dashed border-border">
-          <Sparkles className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+          
           <p className="text-sm font-medium text-muted-foreground">
             {isFr ? 'Aucune création encore' : 'No creations yet'}
           </p>

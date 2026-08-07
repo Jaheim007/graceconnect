@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProductCard } from '@/components/products/ProductCard';
-import { Sparkles } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 /**
@@ -73,7 +73,7 @@ export function PersonalizedRecommendations() {
       className="space-y-4"
     >
       <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-primary" />
+        
         <h2 className="font-semibold text-sm">Recommandé pour vous</h2>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">

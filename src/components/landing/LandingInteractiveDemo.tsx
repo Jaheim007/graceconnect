@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PenLine, Sparkles, ArrowRight, BookOpen } from 'lucide-react';
+import { PenLine, Zap, ArrowRight, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
@@ -13,7 +13,7 @@ export function LandingInteractiveDemo() {
 
   const DEMO_STEPS = [
     { label: t('demo.step1'), preview: t('demo.step1_preview'), icon: PenLine },
-    { label: t('demo.step2'), preview: t('demo.step2_preview'), icon: Sparkles },
+    { label: t('demo.step2'), preview: t('demo.step2_preview'), icon: Zap },
     { label: t('demo.step3'), preview: t('demo.step3_preview'), icon: BookOpen },
   ];
 
@@ -108,7 +108,7 @@ export function LandingInteractiveDemo() {
           >
             <div className="rounded-2xl overflow-hidden border border-border/60 bg-card p-10 text-center shadow-[var(--shadow-elevated)]">
               <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="h-8 w-8 text-primary" />
+                
               </div>
               <p className="text-lg font-bold mb-2">{isFr ? 'Studio IA Viral' : 'Viral AI Studio'}</p>
               <p className="text-sm text-muted-foreground">{isFr ? 'Créez votre livre en quelques clics avec l\'intelligence artificielle' : 'Create your book in a few clicks with artificial intelligence'}</p>

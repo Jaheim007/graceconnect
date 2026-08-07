@@ -66,7 +66,7 @@ export default function PromoStarsPage() {
       description={isFr ? 'Les produits les plus vendus et les plus prometteurs de la plateforme' : 'The best-selling and most promising products on the platform'}
       seoTitle={isFr ? 'Produits stars & best-sellers - SiteViral' : 'Star products & best-sellers - SiteViral'}
       seoDesc={isFr ? 'Découvre les produits les plus achetés et les mieux notés' : 'Discover the most purchased and top-rated products'}
-      emoji="⭐"
+      emoji=""
     >
       {isLoading && <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
 

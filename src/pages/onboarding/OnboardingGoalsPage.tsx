@@ -11,7 +11,7 @@ import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Check, Loader2, Sparkles, ArrowLeft } from 'lucide-react';
+import { Check, Loader2, Zap, ArrowLeft } from 'lucide-react';
 
 /**
  * Step 2 of new-user onboarding: pick what you want to do first.
@@ -91,7 +91,7 @@ export default function OnboardingGoalsPage() {
 
       <header className="space-y-2">
         <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-          <Sparkles className="h-3.5 w-3.5" />
+          
           {meta.emoji} {isFr ? meta.labelFr : meta.labelEn}
         </div>
         <h1 className="text-2xl font-bold">

@@ -80,8 +80,8 @@ export default {
           "sans-serif",
         ],
         heading: [
-          "Switzer",
-          "Switzer-Variable",
+          "Bricolage Grotesque",
+          "Bricolage Grotesque Variable",
           "Inter",
           "-apple-system",
           "BlinkMacSystemFont",

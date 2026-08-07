@@ -33,7 +33,7 @@ function updateStreak(): number {
 const MILESTONES = [
   { days: 3, label: '3 jours', reward: '🎯 Consistant', icon: Zap },
   { days: 7, label: '7 jours', reward: '🔥 En feu', icon: Flame },
-  { days: 14, label: '14 jours', reward: '⭐ Fidèle', icon: Star },
+  { days: 14, label: '14 jours', reward: 'Fidèle', icon: Star },
   { days: 30, label: '30 jours', reward: '🎁 Légende', icon: Gift },
 ];
 

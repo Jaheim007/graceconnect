@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Zap, Award, Sparkles } from 'lucide-react';
+import { Zap, Award } from 'lucide-react';
 
 interface RewardToastProps {
   points?: number;
@@ -58,7 +58,7 @@ export function RewardToast({ points, badge, onDone }: RewardToastProps) {
                   animate={{ rotate: [0, 15, -15, 0] }}
                   transition={{ repeat: 2, duration: 0.4, delay: 0.3 }}
                 >
-                  <Sparkles className="h-4 w-4 text-primary" />
+                  
                 </motion.div>
               </>
             ) : points ? (

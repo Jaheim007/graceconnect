@@ -7,7 +7,7 @@ import { getPublicUrl } from '@/lib/publicUrl';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Sparkles, ImageIcon, AlertTriangle, RefreshCw, Loader2, CalendarIcon } from 'lucide-react';
+import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Zap, ImageIcon, AlertTriangle, RefreshCw, Loader2, CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -368,7 +368,7 @@ export function ProductForm() {
   return (
     <AdminPageShell title={isEdit ? (isFr ? 'Modifier le produit' : 'Edit product') : (isFr ? 'Nouveau produit' : 'New product')} backRoute="/admin/products">
       {!isEdit && (<ContentTemplateSelector type="product" open={showTemplates} onClose={() => setShowTemplates(false)} onSelect={(tpl) => applyProductTemplate(tpl as ProductTemplate)} />)}
-      {!isEdit && !showTemplates && (<div className="mb-4"><Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs"><Sparkles className="h-3.5 w-3.5" /> {isFr ? 'Utiliser un modèle' : 'Use a template'}</Button></div>)}
+      {!isEdit && !showTemplates && (<div className="mb-4"><Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs"> {isFr ? 'Utiliser un modèle' : 'Use a template'}</Button></div>)}
       {productUrl && (
         <div className="mb-4 p-3 rounded-xl bg-muted/50 border border-border space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
@@ -634,7 +634,7 @@ export function ProductForm() {
         {isEdit && (item?.ai_generated || item?.ai_project_id) && currentOrg?.id && (
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2">
             <p className="text-sm font-semibold flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" /> {isFr ? 'Produit généré par IA' : 'AI-generated product'}
+               {isFr ? 'Produit généré par IA' : 'AI-generated product'}
             </p>
             <p className="text-xs text-muted-foreground">
               {isFr

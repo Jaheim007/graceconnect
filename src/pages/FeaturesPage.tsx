@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  Play, Heart, ShoppingBag, Users, BarChart3, Zap, Shield,
-  Smartphone, Globe, Mail, Link2, Palette, Search, BookOpen,
-  FileText, Share2, Award, Bell, Download, Bot, ArrowRight,
-  CheckCircle, Layers, Settings, Church, GraduationCap, Briefcase, HandHeart,
-  Sparkles, Eye, Star, Bookmark, Languages, FlaskConical, Image,
-} from 'lucide-react';
+import { Play, Heart, ShoppingBag, Users, BarChart3, Zap, Shield, Smartphone, Globe, Mail, Link2, Palette, Search, BookOpen, FileText, Share2, Award, Bell, Download, Bot, ArrowRight, CheckCircle, Layers, Settings, Church, GraduationCap, Briefcase, HandHeart, Eye, Star, Bookmark, Languages, FlaskConical, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -52,7 +46,7 @@ const features: Feature[] = [
   { icon: Search, title: 'SEO intégré', titleEn: 'Built-in SEO', desc: 'Balises meta, slugs personnalisés, pages optimisées pour Google.', descEn: 'Meta tags, custom slugs, Google-optimized pages.', persona: ['org'] },
   { icon: Award, title: 'Badges de confiance', titleEn: 'Trust badges', desc: 'Badges organisation vérifiée, featured, certifiée.', descEn: 'Verified, featured, certified organization badges.', persona: ['org'] },
   { icon: FileText, title: 'Export de données', titleEn: 'Data export', desc: 'Exportez membres, transactions, affiliés en CSV.', descEn: 'Export members, transactions, affiliates to CSV.', persona: ['org'] },
-  { icon: Sparkles, title: 'AI Studio', titleEn: 'AI Studio', desc: 'Générez des livres, cahiers de coloriage, couvertures et audio grâce à l\'IA.', descEn: 'Generate books, coloring books, covers and audio with AI.', persona: ['org'] },
+  { icon: Zap, title: 'AI Studio', titleEn: 'AI Studio', desc: 'Générez des livres, cahiers de coloriage, couvertures et audio grâce à l\'IA.', descEn: 'Generate books, coloring books, covers and audio with AI.', persona: ['org'] },
   { icon: Eye, title: 'Prévisualisation PDF sécurisée', titleEn: 'Secure PDF preview', desc: 'Vos acheteurs voient un aperçu flou (20%) avant d\'acheter.', descEn: 'Buyers see a blurred preview (20%) before purchasing.', persona: ['org', 'buyer'] },
   { icon: Star, title: 'Avis vérifiés', titleEn: 'Verified reviews', desc: 'Seuls les vrais acheteurs peuvent laisser un avis.', descEn: 'Only real buyers can leave a review.', persona: ['org', 'buyer'] },
   { icon: Bookmark, title: 'Wishlist & Favoris', titleEn: 'Wishlist & Favorites', desc: 'Sauvegardez les produits qui vous intéressent.', descEn: 'Save products you\'re interested in.', persona: ['buyer'] },

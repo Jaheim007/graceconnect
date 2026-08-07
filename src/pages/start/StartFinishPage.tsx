@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, Loader2, Rocket, Sparkles } from 'lucide-react';
+import { Check, Loader2, Rocket, Zap } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { StartShell } from '@/components/start/StartShell';
 import { Button } from '@/components/ui/button';
@@ -171,7 +171,7 @@ export default function StartFinishPage() {
                 <span className={`h-8 w-8 grid place-items-center rounded-lg ${
                   done ? 'bg-primary text-primary-foreground' : active ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
                 }`}>
-                  {done ? <Check className="h-4 w-4" /> : active ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                  {done ? <Check className="h-4 w-4" /> : active ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 </span>
                 <span className="text-sm font-medium">{item.label}</span>
               </motion.li>

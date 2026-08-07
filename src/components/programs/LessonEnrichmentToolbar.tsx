@@ -5,10 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Sparkles, Loader2, BookOpen, GraduationCap, Dumbbell,
-  Lightbulb, Baby, FileText, ListChecks, Undo2, ChevronDown, ChevronUp
-} from 'lucide-react';
+import { Zap, Loader2, BookOpen, GraduationCap, Dumbbell, Lightbulb, Baby, FileText, ListChecks, Undo2, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type EnrichAction = 'expand' | 'case_study' | 'exercise' | 'advanced' | 'simplify' | 'summary' | 'key_takeaways';
@@ -26,7 +23,7 @@ interface ActionDef {
   labelEn: string;
   descFr: string;
   descEn: string;
-  icon: typeof Sparkles;
+  icon: typeof Zap;
   color: string;
 }
 
@@ -149,7 +146,7 @@ export function LessonEnrichmentToolbar({
         onContentUpdate(data.enriched_content, data.is_replacement);
         const actionDef = ACTIONS.find(a => a.key === action);
         toast({
-          title: isFr ? '✨ Leçon enrichie' : '✨ Lesson enriched',
+          title: isFr ? 'Leçon enrichie' : 'Lesson enriched',
           description: isFr
             ? `"${actionDef?.labelFr}" appliqué avec succès`
             : `"${actionDef?.labelEn}" applied successfully`,
@@ -188,7 +185,7 @@ export function LessonEnrichmentToolbar({
       >
         <div className="flex items-center gap-2">
           <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            
           </div>
           <div className="text-left">
             <span className="text-xs font-semibold">

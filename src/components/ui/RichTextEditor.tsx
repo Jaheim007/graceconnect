@@ -14,12 +14,7 @@ import { TableHeader } from '@tiptap/extension-table-header';
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { Iframe } from '@/extensions/IframeExtension';
-import {
-  Bold, Italic, Underline as UnderlineIcon, Strikethrough,
-  Link as LinkIcon, Image as ImageIcon, List, ListOrdered,
-  AlignLeft, AlignCenter, AlignRight, Heading2, Heading3,
-  Quote, Palette, Undo, Redo, Sparkles, Video, Loader2, Code
-} from 'lucide-react';
+import { Bold, Italic, Underline as UnderlineIcon, Strikethrough, Link as LinkIcon, Image as ImageIcon, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, Heading2, Heading3, Quote, Palette, Undo, Redo, Zap, Video, Loader2, Code } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -357,7 +352,7 @@ export function RichTextEditor({
               onClick={onAIAssist}
               className="h-7 gap-1 text-[10px] px-2 border-primary/30 text-primary hover:bg-primary/10"
             >
-              <Sparkles className="h-3 w-3" /> {document.documentElement.lang === 'fr' ? 'Aide IA' : 'AI Help'}
+               {document.documentElement.lang === 'fr' ? 'Aide IA' : 'AI Help'}
             </Button>
           </>
         )}

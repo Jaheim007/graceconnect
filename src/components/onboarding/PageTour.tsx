@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronRight, Sparkles } from 'lucide-react';
+import { X, ChevronRight, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
@@ -101,7 +101,7 @@ export function PageTour({ pageId, steps }: PageTourProps) {
             </Button>
             <Button size="sm" onClick={next} className="h-7 text-[11px] gap-1 px-3">
               {step === steps.length - 1 ? (
-                <><Sparkles className="h-3 w-3" /> {t('tour.done')}</>
+                <> {t('tour.done')}</>
               ) : (
                 <>{t('tour.next')} <ChevronRight className="h-3 w-3" /></>
               )}

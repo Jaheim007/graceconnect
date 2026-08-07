@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, X } from 'lucide-react';
+import { Zap, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
@@ -40,7 +40,7 @@ export function PlatformEvolvedBanner() {
   return (
     <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-4 flex items-start gap-3">
       <div className="h-9 w-9 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-        <Sparkles className="h-4 w-4 text-primary" />
+        
       </div>
       <div className="flex-1 min-w-0">
         <h3 className="text-sm font-bold">

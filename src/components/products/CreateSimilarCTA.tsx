@@ -1,7 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Sparkles } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
 
@@ -50,7 +50,7 @@ export function CreateSimilarCTA({ productType, productTitle }: CreateSimilarCTA
       className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4 space-y-2"
     >
       <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-primary" />
+        
         <p className="text-sm font-bold">{isFr ? 'Inspiré ?' : 'Inspired?'}</p>
       </div>
       <p className="text-xs text-muted-foreground">
@@ -64,7 +64,7 @@ export function CreateSimilarCTA({ productType, productTitle }: CreateSimilarCTA
         className="w-full gap-2"
         onClick={handleClick}
       >
-        <Sparkles className="h-3.5 w-3.5" />
+        
         {isFr ? `Créer ${label}` : `Create ${label}`}
       </Button>
     </motion.div>

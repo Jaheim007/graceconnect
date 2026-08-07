@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, UserPlus, Download, Heart, Star, Flame, Users, TrendingUp, Award, Sparkles, BookOpen, Gift, Zap, GraduationCap, X } from 'lucide-react';
+import { ShoppingBag, UserPlus, Download, Heart, Star, Flame, Users, TrendingUp, Award, Zap, BookOpen, Gift, GraduationCap, X } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 import { GLOBAL_NAMES, GLOBAL_CITIES, PRODUCT_TITLES, ORG_NAMES } from '@/lib/global-names';
@@ -41,12 +41,12 @@ function generateNotification(isFr: boolean): Notification {
     () => ({ id, icon: <Download className="h-4 w-4 text-blue-500" />, text: `${name} a téléchargé « ${prod} »`, subtext: `${cityLabel} · ${time}` }),
     () => ({ id, icon: <UserPlus className="h-4 w-4 text-violet-500" />, text: `${name} a rejoint ${org}`, subtext: `${cityLabel} · ${time}` }),
     () => ({ id, icon: <Heart className="h-4 w-4 text-rose-500" />, text: `Don anonyme pour ${org}`, subtext: `${cityLabel} · ${time}` }),
-    () => ({ id, icon: <Star className="h-4 w-4 text-amber-500" />, text: `${name} a noté 5⭐ « ${prod} »`, subtext: `${cityLabel} · ${time}` }),
+    () => ({ id, icon: <Star className="h-4 w-4 text-amber-500" />, text: `${name} a noté 5« ${prod} »`, subtext: `${cityLabel} · ${time}` }),
     () => ({ id, icon: <Flame className="h-4 w-4 text-orange-500" />, text: `${org} a publié une nouvelle ressource`, subtext: `${cityLabel} · ${time}` }),
     () => ({ id, icon: <Users className="h-4 w-4 text-indigo-500" />, text: `${viewers} personnes consultent la plateforme`, subtext: 'en ce moment' }),
     () => ({ id, icon: <TrendingUp className="h-4 w-4 text-emerald-500" />, text: `« ${prod} » est en tendance 🔥`, subtext: `+${pctGrowth}% cette semaine`, link: '/explorer' }),
     () => ({ id, icon: <Award className="h-4 w-4 text-amber-500" />, text: `${name} est devenu ambassadeur`, subtext: `${cityLabel} · ${time}` }),
-    () => ({ id, icon: <Sparkles className="h-4 w-4 text-purple-500" />, text: `${name} recommande « ${prod} »`, subtext: `${cityLabel} · ${time}` }),
+    () => ({ id, icon: null , text: `${name} recommande « ${prod} »`, subtext: `${cityLabel} · ${time}` }),
     () => ({ id, icon: <Gift className="h-4 w-4 text-pink-500" />, text: `${org} offre une ressource gratuite 🎁`, subtext: time, link: '/explorer' }),
     () => ({ id, icon: <Zap className="h-4 w-4 text-yellow-500" />, text: `${name} a généré sa 1ère commission 💰`, subtext: `${cityLabel} · ${time}` }),
     () => ({ id, icon: <BookOpen className="h-4 w-4 text-sky-500" />, text: `${name} a commencé « ${prod} »`, subtext: `${cityLabel} · ${time}` }),
@@ -58,12 +58,12 @@ function generateNotification(isFr: boolean): Notification {
     () => ({ id, icon: <Download className="h-4 w-4 text-blue-500" />, text: `${name} downloaded "${prod}"`, subtext: `${cityLabel} · ${time}` }),
     () => ({ id, icon: <UserPlus className="h-4 w-4 text-violet-500" />, text: `${name} joined ${org}`, subtext: `${cityLabel} · ${time}` }),
     () => ({ id, icon: <Heart className="h-4 w-4 text-rose-500" />, text: `Anonymous donation to ${org}`, subtext: `${cityLabel} · ${time}` }),
-    () => ({ id, icon: <Star className="h-4 w-4 text-amber-500" />, text: `${name} rated 5⭐ "${prod}"`, subtext: `${cityLabel} · ${time}` }),
+    () => ({ id, icon: <Star className="h-4 w-4 text-amber-500" />, text: `${name} rated 5"${prod}"`, subtext: `${cityLabel} · ${time}` }),
     () => ({ id, icon: <Flame className="h-4 w-4 text-orange-500" />, text: `${org} published a new resource`, subtext: `${cityLabel} · ${time}` }),
     () => ({ id, icon: <Users className="h-4 w-4 text-indigo-500" />, text: `${viewers} people browsing the platform`, subtext: 'right now' }),
     () => ({ id, icon: <TrendingUp className="h-4 w-4 text-emerald-500" />, text: `"${prod}" is trending 🔥`, subtext: `+${pctGrowth}% this week`, link: '/explorer' }),
     () => ({ id, icon: <Award className="h-4 w-4 text-amber-500" />, text: `${name} became an ambassador`, subtext: `${cityLabel} · ${time}` }),
-    () => ({ id, icon: <Sparkles className="h-4 w-4 text-purple-500" />, text: `${name} recommends "${prod}"`, subtext: `${cityLabel} · ${time}` }),
+    () => ({ id, icon: null , text: `${name} recommends "${prod}"`, subtext: `${cityLabel} · ${time}` }),
     () => ({ id, icon: <Gift className="h-4 w-4 text-pink-500" />, text: `${org} offers a free resource 🎁`, subtext: time, link: '/explorer' }),
     () => ({ id, icon: <Zap className="h-4 w-4 text-yellow-500" />, text: `${name} earned their 1st commission 💰`, subtext: `${cityLabel} · ${time}` }),
     () => ({ id, icon: <BookOpen className="h-4 w-4 text-sky-500" />, text: `${name} started "${prod}"`, subtext: `${cityLabel} · ${time}` }),

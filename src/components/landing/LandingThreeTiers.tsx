@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Sparkles, Crown, Building2, ArrowRight, Check } from 'lucide-react';
+import { Zap, Crown, Building2, ArrowRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useI18n } from '@/i18n/I18nContext';
@@ -28,7 +28,7 @@ export function LandingThreeTiers() {
   const tiers = [
     {
       id: 'free',
-      icon: Sparkles,
+      icon: Zap,
       name: isFr ? 'Gratuit' : 'Free',
       price: fmt(0),
       tagline: isFr ? 'Démarre, vends, encaisse' : 'Start, sell, earn',

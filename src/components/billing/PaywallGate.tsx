@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Lock, Sparkles, Crown, Users } from 'lucide-react';
+import { Lock, Zap, Crown, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { usePlatformPlan, type PlatformPlanTier } from '@/hooks/usePlatformPlan';
@@ -91,7 +91,7 @@ function PaywallCard({
       <ul className="text-sm text-left max-w-sm mx-auto space-y-1.5 pt-2">
         {benefits.map((b) => (
           <li key={b} className="flex items-start gap-2">
-            <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+            
             <span>{b}</span>
           </li>
         ))}
@@ -100,7 +100,7 @@ function PaywallCard({
       <div className="flex flex-col sm:flex-row gap-2 justify-center pt-2">
         <Button asChild size="lg">
           <Link to="/pricing">
-            <Sparkles className="h-4 w-4 mr-2" />
+            
             {isOrg ? 'Voir le plan Organisation' : 'Passer Pro'}
           </Link>
         </Button>

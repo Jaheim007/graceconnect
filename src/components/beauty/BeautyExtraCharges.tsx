@@ -93,7 +93,7 @@ function RequestButton({ bookingId, currency, onCreated }: { bookingId: string; 
         body: { action: "create", booking_id: bookingId, amount: amt, description: description.trim() },
       });
       if (error || (data as any)?.error) throw new Error((data as any)?.error ?? error?.message);
-      toast({ title: t("Supplément envoyé ✨", "Extra charge sent ✨") });
+      toast({ title: t("Supplément envoyé", "Extra charge sent") });
       setOpen(false); setAmount(""); setDescription("");
       onCreated();
     } catch (e: any) {

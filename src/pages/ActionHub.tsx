@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet } from 'lucide-react';
+import { ArrowRight, Zap, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -203,7 +203,7 @@ export default function ActionHub() {
           {/* Hero */}
           <motion.div variants={item} className="text-center space-y-2">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary shadow-[0_0_24px_-8px_hsl(var(--primary)/0.6)] mb-1">
-              <Sparkles className="h-3 w-3" />
+              
               {isFr ? 'Gratuit pour commencer' : 'Free to start'}
             </div>
             <h1 className="text-[26px] sm:text-4xl font-black tracking-tight text-foreground leading-[1.1]">

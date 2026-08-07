@@ -10,7 +10,7 @@ import { confirmSiteviralType } from '@/lib/siteviral/activation';
 import { supabase } from '@/integrations/supabase/client';
 import type { SiteviralType } from '@/types/database';
 import { toast } from 'sonner';
-import { Check, Loader2, Sparkles, ArrowLeft } from 'lucide-react';
+import { Check, Loader2, Zap, ArrowLeft } from 'lucide-react';
 
 /**
  * NON-blocking welcome modal for existing orgs after the July 2026 upgrade.
@@ -82,7 +82,7 @@ export function UpgradeMigrationModal() {
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <div className="mb-2 inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-1 text-[11px] font-semibold text-primary">
-            <Sparkles className="h-3 w-3" />
+            
             {isFr ? 'Nouvelle version de SiteViral' : 'New version of SiteViral'}
           </div>
 

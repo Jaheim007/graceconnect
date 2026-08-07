@@ -7,7 +7,7 @@
  * (c) mapping to legacy SiteviralType for existing per-vertical pages.
  */
 import type { LucideIcon } from 'lucide-react';
-import { Package, Sparkles, Church, Wrench, Ticket, GraduationCap, Store, Calendar, Gift, BookOpen, Users, Inbox, MapPin } from 'lucide-react';
+import { Package, Zap, Church, Wrench, Ticket, GraduationCap, Store, Calendar, Gift, BookOpen, Users, Inbox, MapPin } from 'lucide-react';
 import type { SiteviralType, SiteviralFeatureKey } from '@/types/database';
 
 export type SiteviralWorld = 'digital' | 'beauty' | 'church' | 'home' | 'events' | 'education';
@@ -34,7 +34,7 @@ export const WORLDS: Record<SiteviralWorld, WorldMeta> = {
     defaultFeatures: ['digital_products', 'ai_book_creation', 'payment', 'kyc'],
   },
   beauty: {
-    id: 'beauty', icon: Sparkles, emoji: '💅',
+    id: 'beauty', icon: Zap, emoji: '💅',
     labelFr: 'Beauté', labelEn: 'Beauty',
     descFr: 'Salons, barbiers, maquilleurs', descEn: 'Salons, barbers, makeup artists',
     siteviralType: 'beauty', category: 'leader',

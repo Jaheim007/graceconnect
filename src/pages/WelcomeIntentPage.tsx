@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Package, Upload, Share2, Sparkles, ArrowRight, SkipForward } from 'lucide-react';
+import { Package, Upload, Share2, Zap, ArrowRight, SkipForward } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -33,8 +33,8 @@ export default function WelcomeIntentPage() {
     }] : []),
     {
       key: 'create',
-      icon: Sparkles,
-      emoji: '✨',
+      icon: Zap,
+      emoji: '',
       title: isFr ? 'Créer ou publier du contenu' : 'Create or publish content',
       desc: isFr ? 'Écris un livre avec l\'IA ou publie ton propre contenu numérique' : 'Write a book with AI or publish your own digital content',
       color: 'border-purple-500/30 hover:border-purple-500',

@@ -1,10 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Search, MapPin, Star, Filter, Scissors, Hand, Brush,
-  Flower2, Sparkles, HeartHandshake, ShieldCheck, Home, Store,
-} from "lucide-react";
+import { Search, MapPin, Star, Filter, Scissors, Hand, Brush, Flower2, Zap, HeartHandshake, ShieldCheck, Home, Store } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +20,7 @@ const CATEGORIES = [
   { id: "Ongles", icon: Hand, labelFr: "Ongles", labelEn: "Nails" },
   { id: "Maquillage", icon: Brush, labelFr: "Maquillage", labelEn: "Makeup" },
   { id: "Soins visage", icon: Flower2, labelFr: "Soins visage", labelEn: "Facials" },
-  { id: "Extensions & cils", icon: Sparkles, labelFr: "Extensions", labelEn: "Lashes" },
+  { id: "Extensions & cils", icon: Zap, labelFr: "Extensions", labelEn: "Lashes" },
   { id: "Massage & spa", icon: HeartHandshake, labelFr: "Spa", labelEn: "Spa" },
 ];
 

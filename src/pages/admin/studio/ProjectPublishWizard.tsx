@@ -12,10 +12,7 @@ import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  ArrowLeft, Upload, ShoppingBag, GraduationCap, Radio,
-  Loader2, Check, Image as ImageIcon, FileText, Sparkles, Eye, RefreshCw, AlertTriangle
-} from 'lucide-react';
+import { ArrowLeft, Upload, ShoppingBag, GraduationCap, Radio, Loader2, Check, Image as ImageIcon, FileText, Zap, Eye, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { usePdfPreviewBlobUrl } from '@/hooks/usePdfPreviewBlobUrl';
 
@@ -368,7 +365,7 @@ export default function ProjectPublishWizard() {
                 <Label>Description</Label>
                 {generatingDesc && (
                   <span className="text-xs text-primary flex items-center gap-1">
-                    <Sparkles className="h-3 w-3 animate-pulse" /> Génération en cours...
+                     Génération en cours...
                   </span>
                 )}
               </div>
@@ -386,7 +383,7 @@ export default function ProjectPublishWizard() {
               )}
               {!generatingDesc && !description && (
                 <Button variant="ghost" size="sm" className="mt-1 text-xs h-7" onClick={generateDescription}>
-                  <Sparkles className="h-3 w-3 mr-1" /> Générer avec l'IA
+                   Générer avec l'IA
                 </Button>
               )}
             </div>

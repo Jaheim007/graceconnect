@@ -244,7 +244,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
             )}
             {!isPurchased && product.created_at && (Date.now() - new Date(product.created_at).getTime()) < 7 * 86400000 && (
               <Badge className="bg-blue-500/90 text-white border-0 text-[10px] font-semibold w-fit">
-                ✨ {isFr ? 'Nouveau' : 'New'}
+                {isFr ? 'Nouveau' : 'New'}
               </Badge>
             )}
             {!isPurchased && (product.sales_count || 0) >= 10 && (

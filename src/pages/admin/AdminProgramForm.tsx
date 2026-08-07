@@ -20,12 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import {
-  Plus, Save, Loader2, BookOpen, Layers, FileText, Video, Music,
-  Link2, Trash2, GripVertical, ChevronDown, ChevronRight, Clock,
-  Settings, Eye, Sparkles, DollarSign, Award, ArrowLeft,
-  MoreVertical, Lock, PenLine, ImageIcon, Wand2, Users, Share2, HelpCircle
-} from 'lucide-react';
+import { Plus, Save, Loader2, BookOpen, Layers, FileText, Video, Music, Link2, Trash2, GripVertical, ChevronDown, ChevronRight, Clock, Settings, Eye, Zap, DollarSign, Award, ArrowLeft, MoreVertical, Lock, PenLine, ImageIcon, Wand2, Users, Share2, HelpCircle } from 'lucide-react';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useI18n } from '@/i18n/I18nContext';
@@ -381,7 +376,7 @@ export function ProgramForm() {
       if (data?.result) {
         if (type === 'title') setTitle(data.result);
         else setDescription(data.result);
-        toast({ title: isFr ? '✨ Généré par l\'IA' : '✨ AI generated' });
+        toast({ title: isFr ? 'Généré par l\'IA' : 'AI generated' });
       }
     } catch (e: any) {
       toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
@@ -402,7 +397,7 @@ export function ProgramForm() {
       if (error) throw error;
       if (data?.url) {
         setCoverUrl(data.url);
-        toast({ title: isFr ? '✨ Couverture générée !' : '✨ Cover generated!' });
+        toast({ title: isFr ? 'Couverture générée !' : 'Cover generated!' });
       }
     } catch (e: any) {
       toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
@@ -502,7 +497,7 @@ export function ProgramForm() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => setShowAIGenerator(!showAIGenerator)}>
-                        <Sparkles className="h-3.5 w-3.5 mr-2" /> {isFr ? 'Générer avec IA' : 'Generate with AI'}
+                         {isFr ? 'Générer avec IA' : 'Generate with AI'}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -665,7 +660,7 @@ export function ProgramForm() {
                         <Plus className="h-3 w-3" /> {isFr ? 'Ajouter un module' : 'Add module'}
                       </Button>
                       <Button size="sm" variant="outline" className="gap-1.5 text-xs w-full" onClick={() => setShowAIGenerator(true)}>
-                        <Sparkles className="h-3 w-3" /> {isFr ? 'Générer avec IA' : 'Generate with AI'}
+                         {isFr ? 'Générer avec IA' : 'Generate with AI'}
                       </Button>
                     </div>
                   </div>

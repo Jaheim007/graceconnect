@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, PenLine, Share2, Sparkles } from 'lucide-react';
+import { ArrowRight, PenLine, Share2, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { trackEvent } from '@/hooks/useClientAnalytics';
@@ -63,7 +63,7 @@ export function LandingHeroManifesto() {
           <motion.div variants={fadeUp}
             className="inline-flex items-center gap-1.5 bg-white/5 text-white/80 border border-white/10 rounded-full px-4 py-2 text-xs font-semibold backdrop-blur-sm"
           >
-            <Sparkles className="h-3.5 w-3.5 animate-[pulse_2s_ease-in-out_infinite] text-accent" />
+            
             {badgeText}
           </motion.div>
 

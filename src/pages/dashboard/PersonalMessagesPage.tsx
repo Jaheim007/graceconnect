@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { MessageSquare, ArrowLeft, Loader2, Sparkles, Home as HomeIcon, GraduationCap, PartyPopper } from "lucide-react";
+import { MessageSquare, ArrowLeft, Loader2, Zap, Home as HomeIcon, GraduationCap, PartyPopper } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/i18n/I18nContext";
@@ -32,7 +32,7 @@ type Row = {
 };
 
 const VERTICAL_META: Record<Vertical, { fr: string; en: string; icon: any; color: string }> = {
-  beauty:    { fr: "Beauté",    en: "Beauty",    icon: Sparkles,     color: "bg-pink-500/10 text-pink-600 dark:text-pink-300" },
+  beauty:    { fr: "Beauté",    en: "Beauty",    icon: Zap,     color: "bg-pink-500/10 text-pink-600 dark:text-pink-300" },
   home:      { fr: "Artisan",   en: "Home",      icon: HomeIcon,     color: "bg-sky-500/10 text-sky-600 dark:text-sky-300" },
   education: { fr: "Cours",     en: "Tutoring",  icon: GraduationCap,color: "bg-teal-500/10 text-teal-600 dark:text-teal-300" },
   events:    { fr: "Événements",en: "Events",    icon: PartyPopper,  color: "bg-amber-500/10 text-amber-600 dark:text-amber-300" },

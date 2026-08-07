@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Crown, Sparkles, Clock, Users } from 'lucide-react';
+import { Crown, Zap, Clock, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { usePlatformPlan } from '@/hooks/usePlatformPlan';
 
@@ -16,7 +16,7 @@ export function PlanBadge({ compact = false }: { compact?: boolean }) {
     : null;
 
   let label = 'Free';
-  let icon = <Sparkles className="h-3 w-3" />;
+  let icon = null;
   let cls = 'bg-muted text-muted-foreground';
 
   if (isFounder) {

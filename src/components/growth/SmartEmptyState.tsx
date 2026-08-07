@@ -24,7 +24,7 @@ export function SmartEmptyState({
   onAction,
   secondaryLabel,
   onSecondary,
-  emoji = '✨',
+  emoji = '',
   accentColor = 'text-primary',
   className,
 }: SmartEmptyStateProps) {

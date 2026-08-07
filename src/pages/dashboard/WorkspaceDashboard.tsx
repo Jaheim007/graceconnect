@@ -1,14 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Icons from 'lucide-react';
-import {
-  ArrowRight,
-  Building2,
-  ExternalLink,
-  Plus,
-  ShieldCheck,
-  Sparkles,
-} from 'lucide-react';
+import { ArrowRight, Building2, ExternalLink, Plus, ShieldCheck, Zap } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -188,7 +181,7 @@ export default function WorkspaceDashboard() {
               {primaryFeatures.map((key) => {
                 const meta = FEATURE_META[key];
                 const route = FEATURE_ROUTES[key];
-                const Icon = (Icons as any)[meta.icon] ?? Sparkles;
+                const Icon = (Icons as any)[meta.icon] ?? Zap;
                 return (
                   <button
                     key={key}
@@ -236,7 +229,7 @@ export default function WorkspaceDashboard() {
               {additionalFeatures.map((key) => {
                 const meta = FEATURE_META[key];
                 const route = FEATURE_ROUTES[key];
-                const Icon = (Icons as any)[meta.icon] ?? Sparkles;
+                const Icon = (Icons as any)[meta.icon] ?? Zap;
                 return (
                   <button
                     key={key}

@@ -14,7 +14,7 @@ import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
 import { queueDeferredCourseLessonImages } from '@/lib/programImageGeneration';
-import { Sparkles, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Zap, Settings2, Globe, Target } from 'lucide-react';
+import { Zap, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Settings2, Globe, Target } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
@@ -356,7 +356,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         ) : generationError ? (
           <div className="flex flex-col items-center justify-center py-12 px-4 space-y-6 text-center">
             <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center">
-              <Sparkles className="h-8 w-8 text-destructive" />
+              
             </div>
             <div className="space-y-2">
               <p className="text-sm font-semibold">{isFr ? 'La génération a échoué' : 'Generation failed'}</p>
@@ -367,7 +367,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 {isFr ? 'Fermer' : 'Close'}
               </Button>
               <Button onClick={() => { setGenerationError(null); handleCreate(); }} className="gap-1.5">
-                <Sparkles className="h-3.5 w-3.5" />
+                
                 {isFr ? 'Réessayer' : 'Retry'}
               </Button>
               {generateImages && (
@@ -381,7 +381,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
+                
                 {isFr ? 'Créer avec l\'IA' : 'Create with AI'}
               </DialogTitle>
               <p className="text-sm text-muted-foreground">
@@ -472,7 +472,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                     <SelectItem value="professionals">{isFr ? '💼 Professionnels' : '💼 Professionals'}</SelectItem>
                     <SelectItem value="entrepreneurs">{isFr ? '🚀 Entrepreneurs' : '🚀 Entrepreneurs'}</SelectItem>
                     <SelectItem value="teams">{isFr ? '👥 Équipes / Employés' : '👥 Teams / Employees'}</SelectItem>
-                    <SelectItem value="creators">{isFr ? '✨ Créateurs' : '✨ Creators'}</SelectItem>
+                    <SelectItem value="creators">{isFr ? 'Créateurs' : 'Creators'}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -649,7 +649,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                   {isFr ? 'Annuler' : 'Cancel'}
                 </Button>
                 <Button onClick={() => void handleCreate()} disabled={!prompt.trim()} className="gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5" />
+                  
                   {isFr ? 'Créer' : 'Create'}
                 </Button>
               </div>

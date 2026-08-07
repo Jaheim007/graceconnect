@@ -13,10 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useCallback } from 'react';
-import {
-  ArrowLeft, Image, Download, Star, Upload, Loader2, Trash2, Eye, StarOff,
-  Link2, Plus, Info, Play, ExternalLink, ImagePlus, Sparkles
-} from 'lucide-react';
+import { ArrowLeft, Image, Download, Star, Upload, Loader2, Trash2, Eye, StarOff, Link2, Plus, Info, Play, ExternalLink, ImagePlus, Zap } from 'lucide-react';
 
 /** Extract YouTube video ID from URL */
 function getYouTubeId(url: string): string | null {

@@ -1,10 +1,7 @@
 import { useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Church, Mic, HandHeart, Calendar, Heart, Users, Settings, ShieldCheck, ShieldAlert,
-  ExternalLink, Loader2, Sparkles, ArrowUpRight, CalendarClock, Ticket,
-} from 'lucide-react';
+import { Church, Mic, HandHeart, Calendar, Heart, Users, Settings, ShieldCheck, ShieldAlert, ExternalLink, Loader2, Zap, ArrowUpRight, CalendarClock, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -69,7 +66,7 @@ export default function ChurchProDashboard() {
   ];
 
   const quickLinks = [
-    { to: '/admin/church/sermons', icon: Mic, title: fr ? 'Prédications → Livre' : 'Sermons → Book', desc: fr ? 'Uploader audio, transcrire, transformer en livre/PDF' : 'Upload audio, transcribe, transform to book/PDF', badge: <Sparkles className="h-3 w-3" /> },
+    { to: '/admin/church/sermons', icon: Mic, title: fr ? 'Prédications → Livre' : 'Sermons → Book', desc: fr ? 'Uploader audio, transcrire, transformer en livre/PDF' : 'Upload audio, transcribe, transform to book/PDF', badge: null},
     { to: '/admin/church/giving', icon: HandHeart, title: fr ? 'Dîmes & offrandes' : 'Tithes & offerings', desc: fr ? 'Dons, campagnes, reçus' : 'Gifts, campaigns, receipts' },
     { to: '/admin/church/campaigns', icon: HandHeart, title: fr ? 'Campagnes' : 'Campaigns', desc: fr ? 'Collectes ciblées avec objectif' : 'Targeted fundraisers with a goal' },
     { to: '/admin/church/events', icon: Ticket, title: fr ? 'Événements & billets' : 'Events & tickets', desc: fr ? 'Cultes, conférences, billetterie' : 'Services, conferences, ticketing' },

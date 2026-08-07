@@ -1,10 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 import { AdminPageShell } from './AdminPageShell';
-import {
-  MailCheck, Bell, CreditCard, Clock, Webhook, FlaskConical,
-  ArrowRight, Sparkles
-} from 'lucide-react';
+import { MailCheck, Bell, CreditCard, Clock, Webhook, FlaskConical, ArrowRight, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
@@ -137,7 +134,7 @@ export default function AdminViralTools() {
         transition={{ delay: 0.5 }}
         className="flex items-center justify-center gap-2 pt-6 text-xs text-muted-foreground/50"
       >
-        <Sparkles className="h-3 w-3" />
+        
         <span>{isFr ? 'Plus d\'outils bientôt' : 'More tools coming soon'}</span>
       </motion.div>
     </AdminPageShell>

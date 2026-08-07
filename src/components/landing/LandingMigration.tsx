@@ -121,7 +121,7 @@ export function LandingMigration() {
                         <span className="text-primary font-extrabold text-lg">SiteViral</span>
                       </div>
                       <span className="text-[10px] bg-primary/10 text-primary font-semibold px-3 py-0.5 rounded-full">
-                        {isFr ? '⭐ Recommandé' : '⭐ Recommended'}
+                        {isFr ? 'Recommandé' : 'Recommended'}
                       </span>
                     </div>
                   </th>
@@ -168,7 +168,7 @@ export function LandingMigration() {
               <div className="flex flex-col items-center gap-1">
                 <Crown className="h-3.5 w-3.5 text-accent" />
                 <span className="text-primary font-extrabold text-[11px] leading-tight text-center">SiteViral</span>
-                <span className="text-[8px] bg-primary/10 text-primary font-semibold px-1.5 py-0.5 rounded-full">⭐</span>
+                <span className="text-[8px] bg-primary/10 text-primary font-semibold px-1.5 py-0.5 rounded-full"></span>
               </div>
               <div className="flex items-center justify-center">
                 <span className="font-semibold text-muted-foreground text-[11px]">Chariow</span>

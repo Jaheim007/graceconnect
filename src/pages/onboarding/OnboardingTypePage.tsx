@@ -9,7 +9,7 @@ import type { SiteviralType } from '@/types/database';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Check, Loader2, Sparkles } from 'lucide-react';
+import { Check, Loader2, Zap } from 'lucide-react';
 
 /**
  * New-org onboarding: pick a SiteViral type.
@@ -75,7 +75,7 @@ export default function OnboardingTypePage() {
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
       <header className="space-y-2">
         <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-          <Sparkles className="h-3.5 w-3.5" />
+          
           {isFr ? 'Bienvenue sur SiteViral' : 'Welcome to SiteViral'}
         </div>
         <h1 className="text-2xl font-bold">

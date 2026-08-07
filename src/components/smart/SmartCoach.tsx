@@ -3,7 +3,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { motion } from 'framer-motion';
-import { Sparkles, ArrowRight, TrendingUp, Share2, ImageIcon } from 'lucide-react';
+import { Zap, ArrowRight, TrendingUp, Share2, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
@@ -109,7 +109,7 @@ export function SmartCoach() {
     >
       <div className="flex items-start gap-3">
         <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-          <Sparkles className="h-4 w-4 text-primary" />
+          
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-xs font-bold text-primary mb-1">{isFr ? '💡 Conseil du coach' : '💡 Coach tip'}</p>

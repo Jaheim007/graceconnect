@@ -1,14 +1,14 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
 import { useEffect, useState, useMemo } from 'react';
-import { BookOpen, Brain, Sparkles, Layers, Lightbulb, PenTool, Save, CheckCircle, GraduationCap, Zap } from 'lucide-react';
+import { BookOpen, Brain, Zap, Layers, Lightbulb, PenTool, Save, CheckCircle, GraduationCap } from 'lucide-react';
 
 const STEPS_FR = [
   { icon: Brain, text: 'Analyse du contenu…', emoji: '🧠' },
   { icon: Layers, text: 'Structuration des modules…', emoji: '📐' },
   { icon: PenTool, text: 'Rédaction des leçons…', emoji: '✍️' },
   { icon: Lightbulb, text: 'Création des quiz…', emoji: '💡' },
-  { icon: Sparkles, text: 'Finalisation du cours…', emoji: '✨' },
+  { icon: Zap, text: 'Finalisation du cours…', emoji: '' },
   { icon: Save, text: 'Enregistrement…', emoji: '💾' },
 ];
 
@@ -17,7 +17,7 @@ const STEPS_EN = [
   { icon: Layers, text: 'Structuring modules…', emoji: '📐' },
   { icon: PenTool, text: 'Writing lessons…', emoji: '✍️' },
   { icon: Lightbulb, text: 'Creating quizzes…', emoji: '💡' },
-  { icon: Sparkles, text: 'Finalizing course…', emoji: '✨' },
+  { icon: Zap, text: 'Finalizing course…', emoji: '' },
   { icon: Save, text: 'Saving…', emoji: '💾' },
 ];
 

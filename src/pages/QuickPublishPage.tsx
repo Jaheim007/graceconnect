@@ -7,10 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Upload, FileText, CheckCircle, ArrowRight, ArrowLeft,
-  Loader2, Sparkles, DollarSign, Rocket, Image as ImageIcon,
-} from 'lucide-react';
+import { Upload, FileText, CheckCircle, ArrowRight, ArrowLeft, Loader2, Zap, DollarSign, Rocket, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -162,7 +159,7 @@ export default function QuickPublishPage() {
       <div className="container max-w-lg px-4 py-8 space-y-6">
         <div className="text-center">
           <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-            <Sparkles className="h-6 w-6 text-primary" />
+            
           </div>
           <h1 className="text-xl font-extrabold">{isFr ? 'Publier en 3 étapes' : 'Publish in 3 steps'}</h1>
           <p className="text-sm text-muted-foreground mt-1">

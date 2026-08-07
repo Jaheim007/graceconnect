@@ -2,10 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import {
-  Image, Megaphone, ShoppingBag, Heart, Link2, HandHeart,
-  ArrowRight, ArrowLeft, CheckCircle, Sparkles, X, Rocket
-} from 'lucide-react';
+import { Image, Megaphone, ShoppingBag, Heart, Link2, HandHeart, ArrowRight, ArrowLeft, CheckCircle, Zap, X, Rocket } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
 

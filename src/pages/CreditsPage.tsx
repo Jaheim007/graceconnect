@@ -1,9 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import {
-  Coins, Zap, Gift, ShoppingBag, Clock, TrendingUp, TrendingDown,
-  ArrowRight, Sparkles, History, BookOpen, Image,
-  HelpCircle, CheckCircle, Loader2, Shield, Infinity, RefreshCw
-} from 'lucide-react';
+import { Coins, Zap, Gift, ShoppingBag, Clock, TrendingUp, TrendingDown, ArrowRight, History, BookOpen, Image, HelpCircle, CheckCircle, Loader2, Shield, Infinity, RefreshCw } from 'lucide-react';
 import { useCreditsBalance, useCreditPacks, useCreditHistory, useGrantDailyCredits } from '@/hooks/useCredits';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePaymentGateway, PaymentMethod } from '@/hooks/usePaymentGateway';
@@ -280,7 +276,7 @@ export default function CreditsPage() {
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <div className="flex items-center gap-2 text-sm font-medium">
-              <Sparkles className="h-4 w-4 text-primary shrink-0" />
+              
               {isFr ? 'Comment ça marche ?' : 'How it works?'}
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
@@ -346,7 +342,7 @@ export default function CreditsPage() {
                 >
                   {pack.is_popular && (
                     <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-bl-lg">
-                      ⭐ {isFr ? 'POPULAIRE' : 'POPULAR'}
+                      {isFr ? 'POPULAIRE' : 'POPULAR'}
                     </div>
                   )}
                   <CardContent className="p-5 space-y-3">

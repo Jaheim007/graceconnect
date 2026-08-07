@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church, Home as HomeIcon, PartyPopper, GraduationCap, Search, Rocket } from 'lucide-react';
+import { ArrowRight, Zap, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church, Home as HomeIcon, PartyPopper, GraduationCap, Search, Rocket } from 'lucide-react';
 import { setIntent } from '@/lib/intent';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
@@ -78,7 +78,7 @@ export default function SuperAppHub() {
           <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                <Sparkles className="h-3 w-3 text-primary" />
+                
                 {t('Une app. Toute l\'Afrique.', 'One app. All of Africa.')}
               </div>
               <h1 className="mt-4 text-4xl font-black leading-[1.02] tracking-tight sm:text-6xl">
@@ -198,7 +198,7 @@ export default function SuperAppHub() {
                       className="grid h-12 w-12 place-items-center rounded-2xl text-white shadow-lg"
                       style={{ background: 'linear-gradient(135deg, hsl(340 82% 60%), hsl(28 88% 60%))' }}
                     >
-                      <Sparkles className="h-6 w-6" />
+                      
                     </span>
                     <span
                       className="rounded-full bg-background/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
@@ -477,7 +477,7 @@ export default function SuperAppHub() {
               {[
                 { icon: Wallet, label: t('Mobile Money', 'Mobile Money'), sub: t('Wave, Orange, MTN, Moov', 'Wave, Orange, MTN, Moov') },
                 { icon: ShieldCheck, label: t('Paiement sécurisé', 'Secure payment'), sub: t('Fonds bloqués', 'Funds held safe') },
-                { icon: Sparkles, label: t('Un seul compte', 'One account'), sub: t('Digital + Beauty + Learn + Church', 'Digital + Beauty + Learn + Church') },
+                { icon: Zap, label: t('Un seul compte', 'One account'), sub: t('Digital + Beauty + Learn + Church', 'Digital + Beauty + Learn + Church') },
               ].map(({ icon: Icon, label, sub }) => (
                 <div
                   key={label}

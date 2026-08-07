@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useOrg } from '@/contexts/OrgContext';
 import { useOrgMedia } from '@/hooks/useMedia';
 import { useOrgProducts } from '@/hooks/useMonetization';
-import { Lightbulb, ArrowRight, Sparkles, Video, FileText, Mic, Image } from 'lucide-react';
+import { Lightbulb, ArrowRight, Zap, Video, FileText, Mic, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
@@ -53,7 +53,7 @@ export function ContentSuggestionEngine() {
         id: 'free-lead-magnet',
         title: 'Ajoutez un produit gratuit (Lead Magnet)',
         description: 'Un échantillon gratuit convertit 3x mieux qu\'un catalogue payant seul.',
-        icon: Sparkles,
+        icon: Zap,
         action: 'Créer un gratuit',
         route: '/admin/products/new',
         priority: 'high',

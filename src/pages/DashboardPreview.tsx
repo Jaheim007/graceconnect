@@ -1,9 +1,5 @@
 import { motion } from 'framer-motion';
-import {
-  TrendingUp, ShoppingBag, Users, Package, ArrowUpRight,
-  Sparkles, BookOpen, Palette, Share2, BarChart3, Zap,
-  CheckCircle2, Clock, FileText, PenLine
-} from 'lucide-react';
+import { TrendingUp, ShoppingBag, Users, Package, ArrowUpRight, Zap, BookOpen, Palette, Share2, BarChart3, CheckCircle2, Clock, FileText, PenLine } from 'lucide-react';
 import { PremiumCard } from '@/components/ui/PremiumCard';
 import { DashboardSection } from '@/components/ui/DashboardSection';
 import { Progress } from '@/components/ui/progress';
@@ -34,7 +30,7 @@ const fadeUp = (delay = 0) => ({
 
 const typeIcon: Record<string, typeof BookOpen> = {
   ebook: BookOpen,
-  course: Sparkles,
+  course: Zap,
   coloring_book: Palette,
 };
 
@@ -108,7 +104,7 @@ export default function DashboardPreview() {
   const tabs: { key: Tab; label: string; icon: typeof BarChart3 }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { key: 'sales', label: 'My Sales', icon: ShoppingBag },
-    { key: 'ai-studio', label: 'AI Studio', icon: Sparkles },
+    { key: 'ai-studio', label: 'AI Studio', icon: Zap },
     { key: 'viral-tools', label: 'Viral Tools', icon: Zap },
   ];
 

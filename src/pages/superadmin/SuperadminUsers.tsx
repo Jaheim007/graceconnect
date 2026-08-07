@@ -7,11 +7,7 @@ import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useMemo } from 'react';
-import {
-  Search, Users, Download, ShoppingBag, Heart, Link2,
-  UserPlus, TrendingUp, Crown, Mail, Phone, Globe, Calendar,
-  Building2, Shield, ArrowUpDown, Sparkles,
-} from 'lucide-react';
+import { Search, Users, Download, ShoppingBag, Heart, Link2, UserPlus, TrendingUp, Crown, Mail, Phone, Globe, Calendar, Building2, Shield, ArrowUpDown, Zap } from 'lucide-react';
 import { format, subDays, isAfter } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { motion } from 'framer-motion';
@@ -188,7 +184,7 @@ export default function SuperadminUsers() {
 
   const tabs: { key: FilterTab; label: string; count: number; icon: any }[] = [
     { key: 'all', label: isFr ? 'Tous' : 'All', count: stats.total, icon: Users },
-    { key: 'new', label: isFr ? 'Nouveaux' : 'New', count: stats.newThisWeek, icon: Sparkles },
+    { key: 'new', label: isFr ? 'Nouveaux' : 'New', count: stats.newThisWeek, icon: Zap },
     { key: 'creators', label: isFr ? 'Créateurs' : 'Creators', count: stats.creators, icon: Crown },
     { key: 'affiliates', label: isFr ? 'Ambassadeurs' : 'Ambassadors', count: stats.affiliates, icon: TrendingUp },
     { key: 'active', label: isFr ? 'Acheteurs' : 'Buyers', count: stats.buyers, icon: ShoppingBag },

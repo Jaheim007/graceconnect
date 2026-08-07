@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Copy, Check, Share2, Sparkles, Loader2, RefreshCw } from 'lucide-react';
+import { Copy, Check, Share2, Zap, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -63,11 +63,11 @@ export function SocialSnippetsViewer({ productId, orgId }: Props) {
   if (!snippets || snippets.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card p-4 text-center space-y-3">
-        <Sparkles className="h-5 w-5 mx-auto text-primary" />
+        
         <p className="text-sm font-semibold">Posts sociaux IA</p>
         <p className="text-xs text-muted-foreground">Générez des posts prêts à copier pour promouvoir ce produit.</p>
         <Button size="sm" className="gap-2" onClick={handleGenerate} disabled={generating}>
-          {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+          {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
           {generating ? 'Génération…' : 'Générer les posts'}
         </Button>
       </div>

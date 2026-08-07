@@ -5,10 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import {
-  CreditCard, TrendingUp, Users, Clock, AlertTriangle,
-  Sparkles, Crown, RefreshCw,
-} from 'lucide-react';
+import { CreditCard, TrendingUp, Users, Clock, AlertTriangle, Zap, Crown, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Metrics {
@@ -128,7 +125,7 @@ export default function AdminSubscriptions() {
             </Card>
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="h-4 w-4 text-purple-500" />
+                
                 <span className="text-xs text-muted-foreground">{t.grand}</span>
               </div>
               <div className="text-2xl font-bold">{m.grandfather_active}</div>

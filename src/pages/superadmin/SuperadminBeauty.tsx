@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import {
-  Sparkles, Users, Calendar, AlertTriangle, CheckCircle2, XCircle, Loader2,
-  ExternalLink, ShieldCheck, Ban, Search,
-} from "lucide-react";
+import { Zap, Users, Calendar, AlertTriangle, CheckCircle2, XCircle, Loader2, ExternalLink, ShieldCheck, Ban, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +22,7 @@ export default function SuperadminBeauty() {
       <header className="flex items-start justify-between gap-4">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-black tracking-tight">
-            <Sparkles className="h-6 w-6 text-primary" />
+            
             Beauty console
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -38,7 +35,7 @@ export default function SuperadminBeauty() {
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
         <TabsList>
-          <TabsTrigger value="overview"><Sparkles className="mr-1.5 h-3.5 w-3.5" />Overview</TabsTrigger>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="providers"><Users className="mr-1.5 h-3.5 w-3.5" />Pros</TabsTrigger>
           <TabsTrigger value="bookings"><Calendar className="mr-1.5 h-3.5 w-3.5" />Bookings</TabsTrigger>
           <TabsTrigger value="disputes"><AlertTriangle className="mr-1.5 h-3.5 w-3.5" />Litiges</TabsTrigger>
@@ -90,7 +87,7 @@ function StatsRow() {
     { label: "En attente", value: data?.pending ?? 0, icon: Loader2, color: "text-amber-600" },
     { label: "Bookings actifs", value: data?.activeBookings ?? 0, icon: Calendar, color: "text-emerald-600" },
     { label: "Litiges ouverts", value: data?.openDisputes ?? 0, icon: AlertTriangle, color: "text-rose-600" },
-    { label: "GMV (XOF)", value: data ? formatCurrency(data.gmv, "XOF" as any) : "—", icon: Sparkles, color: "text-primary" },
+    { label: "GMV (XOF)", value: data ? formatCurrency(data.gmv, "XOF" as any) : "—", icon: Zap, color: "text-primary" },
   ];
 
   return (

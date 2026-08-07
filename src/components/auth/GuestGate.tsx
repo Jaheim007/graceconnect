@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Zap } from 'lucide-react';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -67,7 +67,7 @@ export function GuestGate({ icon: Icon, iconBg = 'bg-primary/10', iconColor = 't
               className="w-full gap-2 text-sm font-bold"
               onClick={() => goAuth('signup')}
             >
-              <Sparkles className="h-4 w-4" />
+              
               {isFr ? 'Créer mon compte gratuit' : 'Create my free account'}
               <ArrowRight className="h-4 w-4" />
             </Button>

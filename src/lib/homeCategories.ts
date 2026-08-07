@@ -1,8 +1,5 @@
 // Shared Home Services categories — used in onboarding, services editor, discovery filters.
-import {
-  Wrench, Zap, Sparkles, Truck, Paintbrush, Snowflake,
-  Hammer, Sprout, Bug, Cog, type LucideIcon,
-} from "lucide-react";
+import { Wrench, Zap, Truck, Paintbrush, Snowflake, Hammer, Sprout, Bug, Cog, type LucideIcon } from "lucide-react";
 
 export interface HomeCategory {
   id: string;
@@ -14,7 +11,7 @@ export interface HomeCategory {
 export const HOME_CATEGORIES: HomeCategory[] = [
   { id: "plumber", fr: "Plombier", en: "Plumber", icon: Wrench },
   { id: "electrician", fr: "Électricien", en: "Electrician", icon: Zap },
-  { id: "cleaner", fr: "Ménage", en: "Cleaning", icon: Sparkles },
+  { id: "cleaner", fr: "Ménage", en: "Cleaning", icon: Zap },
   { id: "mover", fr: "Déménagement", en: "Movers", icon: Truck },
   { id: "painter", fr: "Peinture", en: "Painter", icon: Paintbrush },
   { id: "ac_repair", fr: "Climatisation", en: "AC Repair", icon: Snowflake },

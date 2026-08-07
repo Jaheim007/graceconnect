@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { PenLine, Sparkles, Rocket, CheckCircle } from 'lucide-react';
+import { PenLine, Zap, Rocket, CheckCircle } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 
 const fadeUp = {
@@ -13,11 +13,11 @@ export function LandingHowItWorksSimple() {
 
   const steps = isFr ? [
     { icon: PenLine, title: 'Dis-nous ton sujet', desc: 'Une idée, un document, une vidéo — on accepte tout.', num: '01' },
-    { icon: Sparkles, title: "L'IA écrit ton livre", desc: 'Sommaire, chapitres, couverture — en quelques minutes.', num: '02' },
+    { icon: Zap, title: "L'IA écrit ton livre", desc: 'Sommaire, chapitres, couverture — en quelques minutes.', num: '02' },
     { icon: Rocket, title: 'Publie et vends', desc: 'Ton livre est en vente. Tes ambassadeurs le partagent.', num: '03' },
   ] : [
     { icon: PenLine, title: 'Tell us your topic', desc: 'An idea, a document, a video — we accept anything.', num: '01' },
-    { icon: Sparkles, title: 'AI writes your book', desc: 'Outline, chapters, cover — in minutes.', num: '02' },
+    { icon: Zap, title: 'AI writes your book', desc: 'Outline, chapters, cover — in minutes.', num: '02' },
     { icon: Rocket, title: 'Publish & sell', desc: 'Your book is live. Your ambassadors share it.', num: '03' },
   ];
 

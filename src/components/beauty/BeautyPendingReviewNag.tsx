@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Sparkles, Star } from "lucide-react";
+import { Zap, Star } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -69,7 +69,7 @@ export function BeautyPendingReviewNag() {
               <Star className="h-4 w-4" />
             </div>
             <DialogTitle className="text-base font-black">
-              {t("Un avis à laisser ✨", "One review to leave ✨")}
+              {t("Un avis à laisser", "One review to leave")}
             </DialogTitle>
           </div>
           <DialogDescription className="text-left">
@@ -89,7 +89,7 @@ export function BeautyPendingReviewNag() {
 
         <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1">
-            <Sparkles className="h-3 w-3" /> {t("Rappel obligatoire", "Required reminder")}
+             {t("Rappel obligatoire", "Required reminder")}
           </span>
           <Button
             variant="ghost"

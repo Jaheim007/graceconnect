@@ -12,10 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import {
-  Sparkles, BookOpen, Baby, Palette, GraduationCap, Church,
-  Megaphone, ArrowRight, ArrowLeft, Check, Loader2, Wand2
-} from 'lucide-react';
+import { Zap, BookOpen, Baby, Palette, GraduationCap, Church, Megaphone, ArrowRight, ArrowLeft, Check, Loader2, Wand2 } from 'lucide-react';
 
 type ProjectType = 'ebook' | 'kids_book' | 'coloring_book' | 'course_pack' | 'sermon_pack' | 'bible_pack' | 'marketing_pack';
 
@@ -267,7 +264,7 @@ export default function ProjectWizard() {
             onClick={() => setTemplateId(null)}
           >
             <CardContent className="py-4 flex items-center gap-3">
-              <Sparkles className="h-5 w-5 text-primary" />
+              
               <div>
                 <p className="font-medium text-sm">Sans template</p>
                 <p className="text-xs text-muted-foreground">Partir de zéro avec vos paramètres</p>

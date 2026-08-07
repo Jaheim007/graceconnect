@@ -34,7 +34,7 @@ function AdSelectionsTab() {
   if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   const sections = [
-    { title: '⭐ Produits Stars (Pub Conversion)', items: data?.stars, color: 'text-yellow-500', link: '/promo/stars' },
+    { title: 'Produits Stars (Pub Conversion)', items: data?.stars, color: 'text-yellow-500', link: '/promo/stars' },
     { title: '🎁 Produits Gratuits (Pub Leads)', items: data?.gratuits, color: 'text-green-500', link: '/promo/gratuits' },
     { title: '📚 Catalogue (Pub Trafic)', items: data?.catalogue?.slice(0, 10), color: 'text-blue-500', link: '/promo/catalogue' },
     { title: '⚡ Créations Viral AI Studio', items: data?.catalogue?.filter((p: any) => p.ai_generated)?.slice(0, 10), color: 'text-purple-500', link: '/promo/ai-creations' },
@@ -96,7 +96,7 @@ function AdSelectionsTab() {
           <div className="p-3 bg-muted/50 rounded-lg">
             <p className="font-medium mb-1">Pub 3 — Stars</p>
             <p className="text-muted-foreground">
-              "⭐ Les produits les plus achetés sur SiteViral.
+              "Les produits les plus achetés sur SiteViral.
               {data?.stars?.[0] && ` "${data.stars[0].title}"`} et plus encore → siteviral.com/promo/stars"
             </p>
           </div>
