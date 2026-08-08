@@ -144,28 +144,105 @@ export function ProgramForm() {
   }, [isMobileViewport, modules, selectedLessonId]);
 
   const currency = currentOrg?.currency || 'XOF';
+  const minAiPrice = minAiCoursePrice(currency);
+
+  // ── Completion rules ────────────────────────────────────────────────────────
+  // Quiz slides are the source of truth for scores/retries (the learner player
+  // reads them), so the panel is derived from them and written back on save.
+  const { data: slideMap = {} } = useProgramSlideMap(id);
+  const flatLessons = modules.flatMap((m: any) =>
+    (m.lessons || []).map((l: any) => ({ id: l.id as string, title: l.title as string })));
+  const [rules, setRules] = useState<CourseRules>({ score_mode: 'none', passing_score: 70, max_quiz_attempts: 0, certificate_enabled: true });
+  const [rulesLoaded, setRulesLoaded] = useState(false);
+
+  useEffect(() => {
+    if (rulesLoaded || !existingProgram || flatLessons.length === 0 || Object.keys(slideMap).length === 0) return;
+    const perLesson: Record<string, { passing_score?: number; max_attempts?: number }> = {};
+    let anyScored = false;
+    const seen: { pass: number; tries: number }[] = [];
+    flatLessons.forEach((l, i) => {
+      const quizzes = (slideMap[l.id] || []).filter((s: any) => s.slide_type === 'quiz');
+      if (quizzes.length === 0) return;
+      const pass = Number((quizzes[0].data as any)?.passingScore || 0);
+      const tries = Number((quizzes[0].data as any)?.maxAttempts ?? 0);
+      seen.push({ pass, tries });
+      if (pass > 0) {
+        anyScored = true;
+        perLesson[String(i)] = { passing_score: pass, max_attempts: tries };
+      }
+    });
+    const uniform = seen.length > 0 && seen.every(s => s.pass === seen[0].pass && s.tries === seen[0].tries);
+    const mode = !anyScored ? 'none' : uniform ? 'global' : 'per_lesson';
+    setRules({
+      score_mode: mode,
+      require_score: mode !== 'none',
+      passing_score: (existingProgram as any).passing_score || seen[0]?.pass || 70,
+      max_quiz_attempts: seen[0]?.tries ?? 0,
+      certificate_enabled: (existingProgram as any).certificate_enabled !== false,
+      lesson_rules: mode === 'per_lesson' ? perLesson : undefined,
+    });
+    setRulesLoaded(true);
+  }, [rulesLoaded, existingProgram, flatLessons.length, slideMap]);
+
+  /** Write the chosen rules onto every quiz slide of the course. */
+  const stampQuizRules = async () => {
+    const mode = rules.score_mode ?? 'none';
+    const defaultPass = rules.passing_score ?? 70;
+    const defaultTries = rules.max_quiz_attempts ?? 0;
+    const updates: Promise<any>[] = [];
+    flatLessons.forEach((l, i) => {
+      const rule = mode === 'per_lesson' ? rules.lesson_rules?.[String(i)] : undefined;
+      const pass = mode === 'per_lesson' ? (rule?.passing_score ?? 0) : mode === 'global' ? defaultPass : 0;
+      const tries = rule?.max_attempts ?? defaultTries;
+      (slideMap[l.id] || []).forEach((s: any) => {
+        if (s.slide_type !== 'quiz') return;
+        updates.push(
+          supabase.from('program_slides')
+            .update({ data: { ...(s.data || {}), passingScore: pass, maxAttempts: tries, revealAnswers: false } as any })
+            .eq('id', s.id),
+        );
+      });
+    });
+    await Promise.all(updates);
+    queryClient.invalidateQueries({ queryKey: ['program-slides'] });
+  };
 
   const handleSave = async () => {
     if (!currentOrg || !user || !title.trim() || !id) return;
+    if (isAiGenerated && price < minAiPrice) {
+      toast({
+        title: isFr ? 'Prix requis' : 'Price required',
+        description: isFr
+          ? `Un cours généré par l’IA ne peut pas être gratuit. Minimum ${minAiPrice} ${currency}.`
+          : `An AI-generated course cannot be free. Minimum ${minAiPrice} ${currency}.`,
+        variant: 'destructive',
+      });
+      return;
+    }
     setSaving(true);
     try {
       const wasPublished = existingProgram?.is_published;
+      const scored = (rules.score_mode ?? 'none') !== 'none';
+      const effectiveFree = isAiGenerated ? false : isFree;
       await updateProgram.mutateAsync({
         id,
         title: title.trim(),
         description: description.trim() || undefined,
         cover_image_url: coverUrl || undefined,
         is_published: isPublished,
-        is_free: isFree,
-        price: isFree ? 0 : price,
+        is_free: effectiveFree,
+        price: effectiveFree ? 0 : price,
         currency,
-        certificate_enabled: certificateEnabled,
-        passing_score: passingScore,
-        require_sequential_lessons: requireSequential,
-        require_assessment_for_cert: requireAssessmentForCert,
+        certificate_enabled: rules.certificate_enabled !== false,
+        passing_score: scored ? (rules.passing_score ?? 70) : 0,
+        max_quiz_attempts: (rules.max_quiz_attempts ?? 0) === 0 ? 10 : rules.max_quiz_attempts,
+        require_sequential_lessons: true,
+        require_assessment_for_cert: scored,
         assessment_enabled: assessmentEnabled,
-        gamification_enabled: gamificationEnabledSetting,
+        gamification_enabled: false,
       } as any);
+      await stampQuizRules();
+
 
       // Auto-create/update linked digital product for paid courses (enables affiliate system)
       if (!isFree && price > 0 && isPublished) {
