@@ -84,7 +84,22 @@ export default function MyProgramsPage() {
         </div>
       </div>
 
+      <Tabs defaultValue="courses" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="courses" className="text-xs">{isFr ? 'Mes cours' : 'My courses'}</TabsTrigger>
+          <TabsTrigger value="achievements" className="text-xs gap-1.5">
+            <Award className="h-3 w-3" />
+            {isFr ? 'Réussites' : 'Achievements'}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="achievements" className="mt-0">
+          <AchievementsSection onExplore={() => navigate('/discover')} />
+        </TabsContent>
+
+        <TabsContent value="courses" className="mt-0 space-y-3">
       {isLoading ? (
+
         <div className="space-y-3">
           {[1, 2, 3].map(i => (
             <div key={i} className="h-28 bg-muted rounded-2xl animate-pulse" />
