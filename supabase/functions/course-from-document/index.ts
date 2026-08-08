@@ -581,7 +581,13 @@ async function generateLesson(opts: {
 }): Promise<DraftLesson> {
   const { isFr, profile } = opts;
   const levelRule = LEVEL_RULES[opts.level] || LEVEL_RULES.intermediate;
-  const quizCount = Math.max(2, Math.min(profile.maxQuiz, profile.maxQuiz + levelRule.quizBonus));
+  // Quiz count never drops below the tier floor: threshold gating (e.g. 70%)
+  // needs at least 5 questions to be expressible in score increments.
+  const quizCount = Math.min(
+    profile.maxQuiz,
+    Math.max(profile.minQuiz, profile.minQuiz + Math.max(0, levelRule.quizBonus)),
+  );
+  const cardCount = profile.minFlashcards;
   const system = isFr
     ? 'Tu es concepteur pédagogique. Tu transformes un extrait de document en leçon complète et riche. Tu ne dois JAMAIS inventer de faits absents de l\'extrait, mais tu dois développer, expliquer et illustrer chaque idée présente. Réponds uniquement en JSON valide.'
     : 'You are an instructional designer turning a document excerpt into a complete, rich lesson. NEVER invent facts absent from the excerpt, but do develop, explain and illustrate every idea present. Reply with valid JSON only.';
