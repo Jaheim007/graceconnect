@@ -143,7 +143,9 @@ export function CertificateTemplateEditor({
                 loading="lazy"
               />
             )}
+            <div className="h-px w-28 bg-border" />
             <p className="text-[11px] font-medium">{design.signature_label || t('Signé par', 'Signed by')}</p>
+
             <p className="text-[11px] text-muted-foreground">{footerText}</p>
           </div>
         </div>
