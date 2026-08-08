@@ -21,6 +21,8 @@ import { useOrg } from '@/contexts/OrgContext';
 import { cn } from '@/lib/utils';
 import {
   ArrowLeft, ArrowRight, FileText, HelpCircle, Loader2, Rocket, Quote, Eye, Tag, Layers, Image as ImageIcon,
+  CheckCircle2, Circle,
+
 } from 'lucide-react';
 import {
   useCourseDraftProject, useUpdateCourseDraft, usePublishCourseDraft, useUpdateCourseRules,
@@ -110,8 +112,15 @@ export default function AdminProgramDraftReview() {
   const priceValue = Number(price) || 0;
   const priceValid = priceValue >= minPrice;
 
-  // Seed the price with the currency minimum
-  useEffect(() => { setPrice((p) => (p ? p : String(minPrice))); }, [minPrice]);
+  // Seed the price with the currency minimum, and lift it whenever the chosen
+  // currency has a higher floor (so the creator never stares at a red error).
+  useEffect(() => {
+    setPrice((p) => {
+      const n = Number(p) || 0;
+      return n >= minPrice ? p : String(minPrice);
+    });
+  }, [minPrice]);
+
 
   const remoteCourse = project?.data_json?.course;
   const jobRunning = job?.status === 'running' || job?.status === 'queued';
@@ -160,6 +169,11 @@ export default function AdminProgramDraftReview() {
   );
   const incomplete = generating || job?.status === 'failed' || emptyLessons > 0 || totals.lessons === 0;
 
+  // A course with no cover looks unfinished in the catalogue: required to go
+  // live, but never blocks keeping the course as a draft.
+  const coverMissing = !rules.cover_image_url;
+
+
   // Title edits are saved to the cloud draft shortly after typing stops.
   useEffect(() => {
     if (!titleDirty || !draft || generating) return;
@@ -183,6 +197,18 @@ export default function AdminProgramDraftReview() {
       });
       return;
     }
+    if (coverMissing && !incomplete) {
+      toast({
+        title: isFr ? 'Image de couverture requise' : 'Cover image required',
+        description: isFr
+          ? 'Téléversez une image ou générez-la avec l’IA avant de mettre le cours en ligne.'
+          : 'Upload an image or generate one with AI before putting the course live.',
+        variant: 'destructive',
+      });
+      setStep(2);
+      return;
+    }
+
 
     try {
       // Per-lesson rules travel with the quiz slides so the learner player
@@ -318,7 +344,8 @@ export default function AdminProgramDraftReview() {
             ) : (
               <Button
                 size="sm" className="gap-1.5" onClick={handlePublish}
-                disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid}
+                disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid || (coverMissing && !incomplete)}
+
               >
                 {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
                 {incomplete
@@ -538,13 +565,27 @@ export default function AdminProgramDraftReview() {
               </p>
             </div>
 
+            {/* Ready-to-publish checklist — plain language, no jargon */}
+            <div className="rounded-xl border border-border bg-card p-3.5 space-y-2">
+              <p className="text-sm font-semibold">{isFr ? 'Prêt à publier ?' : 'Ready to publish?'}</p>
+              <ChecklistRow
+                ok={totals.lessons > 0 && !incomplete}
+                label={isFr ? `Contenu du cours (${totals.lessons} leçons)` : `Course content (${totals.lessons} lessons)`}
+              />
+              <ChecklistRow ok={!coverMissing} label={isFr ? 'Image de couverture' : 'Cover image'} />
+              <ChecklistRow
+                ok={priceValid}
+                label={isFr ? `Prix (${priceValue} ${currency})` : `Price (${priceValue} ${currency})`}
+              />
+            </div>
+
             <div className="flex justify-between gap-2">
               <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setStep(1)}>
                 <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Revoir le contenu' : 'Back to content'}
               </Button>
               <Button
                 size="sm" className="gap-1.5" onClick={handlePublish}
-                disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid}
+                disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid || (coverMissing && !incomplete)}
               >
                 {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
                 {incomplete
@@ -552,6 +593,7 @@ export default function AdminProgramDraftReview() {
                   : (isFr ? 'Mettre le cours en ligne' : 'Put the course live')}
               </Button>
             </div>
+
           </div>
         )}
       </div>
@@ -570,6 +612,18 @@ export default function AdminProgramDraftReview() {
     </AdminPageShell>
   );
 }
+
+function ChecklistRow({ ok, label }: { ok: boolean; label: string }) {
+  return (
+    <div className="flex items-center gap-2 text-[12px]">
+      {ok
+        ? <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+        : <Circle className="h-4 w-4 text-muted-foreground shrink-0" />}
+      <span className={ok ? '' : 'text-muted-foreground'}>{label}</span>
+    </div>
+  );
+}
+
 
 function StepChip({ active, done, label }: { active?: boolean; done?: boolean; label: string }) {
   return (
