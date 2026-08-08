@@ -456,11 +456,31 @@ export default function AdminProgramDraftReview() {
         </div>
 
 
+        {/* Course rules — cover + completion settings */}
+        <CourseRulesCard
+          orgId={project?.organization_id || currentOrg?.id}
+          title={draft?.title || ''}
+          tier={((job?.result_summary as any)?.tier === 'premium' ? 'premium' : 'standard')}
+          rules={rules}
+          onChange={patchRules}
+        />
+
         <p className="text-[11px] text-muted-foreground">
           {isFr
-            ? 'Les quiz générés ici sont des entraînements : ils ne comptent pas pour le certificat, qui dépend uniquement de l’évaluation finale du cours.'
-            : 'Quizzes generated here are practice only: they do not count towards the certificate, which depends solely on the course-level assessment.'}
+            ? 'Chaque leçon se termine par son quiz ; les cartes mémo intercalées servent à réviser et affichent leur réponse. Les quiz de leçon ne comptent pas pour le certificat, qui dépend de l’évaluation finale du cours.'
+            : 'Each lesson ends with its quiz; the flashcards in between are for revision and do show their answer. Lesson quizzes do not count towards the certificate, which depends on the course-level assessment.'}
         </p>
+
+        {(totals.lessons > EDITABLE_LESSONS) && (
+          <div className="rounded-xl border border-border bg-muted/40 p-3 text-[12px] text-muted-foreground flex items-start gap-2">
+            <Layers className="h-4 w-4 mt-0.5 shrink-0" />
+            <span>
+              {isFr
+                ? `Vous relisez et ajustez les ${EDITABLE_LESSONS} premières leçons ici. Les leçons suivantes sont livrées telles que générées et s’ouvriront dans l’éditeur complet après publication.`
+                : `You review and fine-tune the first ${EDITABLE_LESSONS} lessons here. The following lessons ship as generated and open in the full editor after publishing.`}
+            </span>
+          </div>
+        )}
 
         <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
           {/* Lesson list */}
@@ -476,7 +496,9 @@ export default function AdminProgramDraftReview() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-[12px] font-medium leading-tight line-clamp-2">{i + 1}. {l.title}</p>
-                  {l.approved && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
+                  {i >= EDITABLE_LESSONS
+                    ? <Lock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    : l.approved && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-0.5">
                   {l.slides?.length || 0} slides
@@ -512,20 +534,33 @@ export default function AdminProgramDraftReview() {
                   </div>
                 )}
 
+                {lessonLocked && (
+                  <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-2.5 py-2">
+                    <Lock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <p className="text-[11px] text-muted-foreground">
+                      {isFr
+                        ? 'Leçon verrouillée dans cette relecture — modifiable dans l’éditeur complet après publication.'
+                        : 'Lesson locked in this review — editable in the full editor after publishing.'}
+                    </p>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-2">
                   <Input
                     value={lesson.title}
                     onChange={(e) => patchLesson(selected, { title: e.target.value })}
                     className="h-9 font-medium"
+                    readOnly={lessonLocked}
                   />
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => moveLesson(selected, -1)} disabled={selected === 0}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => moveLesson(selected, -1)} disabled={lessonLocked || selected === 0}>
                     <ArrowUp className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => moveLesson(selected, 1)} disabled={selected === (draft?.lessons.length || 1) - 1}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => moveLesson(selected, 1)} disabled={lessonLocked || selected === (draft?.lessons.length || 1) - 1}>
                     <ArrowDown className="h-3.5 w-3.5" />
                   </Button>
                   <Button
                     variant="ghost" size="icon" className="h-8 w-8 text-destructive"
+                    disabled={lessonLocked}
                     onClick={() => {
                       mutate((d) => { d.lessons.splice(selected, 1); return d; });
                       setSelected((s) => Math.max(0, s - 1));
@@ -538,6 +573,7 @@ export default function AdminProgramDraftReview() {
                 <div className="flex items-center justify-between gap-2">
                   <Button
                     variant={lesson.approved ? 'default' : 'outline'} size="sm" className="gap-1.5"
+                    disabled={lessonLocked}
                     onClick={() => patchLesson(selected, { approved: !lesson.approved })}
                   >
                     <CheckCircle2 className="h-3.5 w-3.5" />
@@ -565,18 +601,23 @@ export default function AdminProgramDraftReview() {
                   <div key={si} className="rounded-xl border border-border bg-card p-3 space-y-2">
                     <div className="flex items-center justify-between gap-2">
                       <Badge variant="secondary" className="text-[10px] gap-1">
-                        {s.slide_type === 'quiz' ? <HelpCircle className="h-3 w-3" /> : <FileText className="h-3 w-3" />}
-                        {s.slide_type === 'quiz' ? 'Quiz' : (isFr ? 'Texte' : 'Text')} · {si + 1}
+                        {s.slide_type === 'quiz' ? <HelpCircle className="h-3 w-3" />
+                          : s.slide_type === 'flashcard' ? <Layers className="h-3 w-3" />
+                          : <FileText className="h-3 w-3" />}
+                        {s.slide_type === 'quiz' ? 'Quiz'
+                          : s.slide_type === 'flashcard' ? (isFr ? 'Carte mémo' : 'Flashcard')
+                          : (isFr ? 'Texte' : 'Text')} · {si + 1}
                       </Badge>
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => moveSlide(selected, si, -1)} disabled={si === 0}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => moveSlide(selected, si, -1)} disabled={lessonLocked || si === 0}>
                           <ArrowUp className="h-3 w-3" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => moveSlide(selected, si, 1)} disabled={si === lesson.slides.length - 1}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => moveSlide(selected, si, 1)} disabled={lessonLocked || si === lesson.slides.length - 1}>
                           <ArrowDown className="h-3 w-3" />
                         </Button>
                         <Button
                           variant="ghost" size="icon" className="h-7 w-7 text-destructive"
+                          disabled={lessonLocked}
                           onClick={() => mutate((d) => { d.lessons[selected].slides.splice(si, 1); return d; })}
                         >
                           <Trash2 className="h-3 w-3" />
@@ -591,12 +632,14 @@ export default function AdminProgramDraftReview() {
                           onChange={(e) => patchSlide(selected, si, { title: e.target.value, data: { ...s.data, question: e.target.value } })}
                           placeholder={isFr ? 'Question' : 'Question'}
                           className="h-9"
+                          readOnly={lessonLocked}
                         />
                         <div className="space-y-1.5">
                           {(s.data?.options || []).map((opt: string, oi: number) => (
                             <div key={oi} className="flex items-center gap-2">
                               <button
                                 type="button"
+                                disabled={lessonLocked}
                                 onClick={() => patchSlide(selected, si, { data: { ...s.data, correctIndex: oi } })}
                                 className={cn(
                                   'h-5 w-5 rounded-full border shrink-0 flex items-center justify-center',
@@ -614,6 +657,7 @@ export default function AdminProgramDraftReview() {
                                   patchSlide(selected, si, { data: { ...s.data, options } });
                                 }}
                                 className="h-8 text-[12px]"
+                                readOnly={lessonLocked}
                               />
                             </div>
                           ))}
@@ -624,6 +668,7 @@ export default function AdminProgramDraftReview() {
                           placeholder={isFr ? 'Explication' : 'Explanation'}
                           rows={2}
                           className="text-[12px]"
+                          readOnly={lessonLocked}
                         />
                       </div>
                     ) : (
@@ -633,19 +678,21 @@ export default function AdminProgramDraftReview() {
                           onChange={(e) => patchSlide(selected, si, { title: e.target.value })}
                           placeholder={isFr ? 'Titre de la slide' : 'Slide title'}
                           className="h-9"
+                          readOnly={lessonLocked}
                         />
                         <Textarea
                           value={s.body || ''}
                           onChange={(e) => patchSlide(selected, si, { body: e.target.value })}
                           rows={4}
                           className="text-[12px]"
+                          readOnly={lessonLocked}
                         />
                       </div>
                     )}
                   </div>
                 ))}
 
-                <div className="flex gap-2">
+                <div className={cn('flex gap-2', lessonLocked && 'hidden')}>
                   <Button
                     variant="outline" size="sm" className="gap-1.5"
                     onClick={() => mutate((d) => {
@@ -662,7 +709,7 @@ export default function AdminProgramDraftReview() {
                     onClick={() => mutate((d) => {
                       d.lessons[selected].slides.push({
                         slide_type: 'quiz', title: '', body: null,
-                        data: { kind: 'mcq', question: '', options: ['', '', '', ''], correctIndex: 0, scored: false, source: 'manual' },
+                        data: { kind: 'mcq', question: '', options: ['', '', '', ''], correctIndex: 0, scored: false, revealAnswers: false, source: 'manual' },
                         duration_seconds: 45,
                       });
                       return d;
