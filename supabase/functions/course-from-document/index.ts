@@ -303,8 +303,41 @@ async function runPipeline(ctx: {
       sourceText = outline;
     }
 
-    const topics = segmentIntoTopics(sourceText, { maxTopics: profile.maxTopics });
+    let topics = segmentIntoTopics(sourceText, { maxTopics: profile.maxTopics });
+
+    // The tier promise is a LESSON COUNT. A short/merged outline used to leave a
+    // premium course with 5 lessons. If segmentation under-delivers in prompt
+    // mode, ask for a titles-only plan and build one topic per title.
+    if (ctx.source !== 'document' && topics.length < profile.minTopics) {
+      try {
+        const planRaw = await aiGenerateText({
+          geminiKey: ctx.geminiKey, openaiKey: ctx.openaiKey,
+          model: profile.model,
+          system: isFr
+            ? 'Tu es concepteur pédagogique. Réponds uniquement en JSON valide.'
+            : 'You are an instructional designer. Reply with valid JSON only.',
+          prompt: isFr
+            ? `Plan de cours sur "${ctx.prompt}". Renvoie exactement ${profile.maxTopics} titres de leçons progressifs, sans doublon : {"lessons":["titre 1", ...]}`
+            : `Course plan about "${ctx.prompt}". Return exactly ${profile.maxTopics} progressive, non-duplicate lesson titles: {"lessons":["title 1", ...]}`,
+          temperature: 0.6, maxOutputTokens: 1200, jsonMode: true,
+        });
+        const titles: string[] = ((extractJson(planRaw) as any)?.lessons || [])
+          .map((t: any) => String(t).slice(0, 120)).filter(Boolean).slice(0, profile.maxTopics);
+        if (titles.length > topics.length) {
+          topics = titles.map((heading, i) => ({
+            index: i,
+            heading,
+            page: null,
+            text: `${isFr ? 'SUJET DU COURS' : 'COURSE SUBJECT'}: ${ctx.prompt}\n\n${isFr ? 'LEÇON' : 'LESSON'} ${i + 1}: ${heading}\n\n${sourceText.slice(0, 4000)}`,
+          })) as typeof topics;
+        }
+      } catch (e) {
+        console.warn('[course-from-document] titles-only plan failed', e);
+      }
+    }
+
     await setProgress(admin, ctx.jobId, 15, 'segmenting', { topics: topics.length, tier: ctx.tier });
+
 
     const startedAt = Date.now();
     const remainingMs = () => PIPELINE_SOFT_DEADLINE_MS - (Date.now() - startedAt);
