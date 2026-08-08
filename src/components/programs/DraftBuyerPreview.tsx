@@ -43,7 +43,10 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [index, setIndex] = useState(0);
-  const [unlocked, setUnlocked] = useState(!!initialUnlocked);
+  // Teaser-only by design: AI-generated drafts are previewed exactly as a
+  // visitor sees them (first slides free, rest locked). There is no creator
+  // "unlock everything" mode — the full course is only readable in the editor.
+  const unlocked = false;
 
 
   const slides = useMemo<FlatDraftSlide[]>(() => {
@@ -98,17 +101,10 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
           <div className="min-w-0">
             <p className="text-sm font-semibold truncate">{draft.title}</p>
             <p className="text-[11px] text-muted-foreground truncate">
-              {unlocked
-                ? (isFr ? 'Aperçu complet (créateur)' : 'Full preview (creator)')
-                : (isFr ? 'Vue acheteur' : 'Buyer view')} · {current?.lessonTitle || ''} · {priceLabel}
+              {isFr ? 'Vue acheteur (aperçu limité)' : 'Buyer view (limited preview)'} · {current?.lessonTitle || ''} · {priceLabel}
             </p>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <Button variant="outline" size="sm" className="h-8 text-[11px]" onClick={() => setUnlocked((v) => !v)}>
-              {unlocked
-                ? (isFr ? 'Vue acheteur' : 'Buyer view')
-                : (isFr ? 'Aperçu complet' : 'Full preview')}
-            </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose} aria-label={isFr ? 'Fermer' : 'Close'}>
               <X className="h-4 w-4" />
             </Button>
