@@ -116,12 +116,6 @@ export function CourseCoverCard({ orgId, title, tier = 'standard', coverUrl, onC
               {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
               {isFr ? 'Générer avec l’IA' : 'Generate with AI'}
             </Button>
-            <Button size="sm" variant="outline" className="gap-1.5" asChild>
-              <a href={CANVA_NEW_DESIGN} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-3.5 w-3.5" />
-                {isFr ? 'Créer sur Canva' : 'Design on Canva'}
-              </a>
-            </Button>
             {coverUrl && (
               <Button size="sm" variant="ghost" className="gap-1.5 text-destructive" onClick={() => onChange(null)}>
                 <Trash2 className="h-3.5 w-3.5" />
@@ -130,17 +124,12 @@ export function CourseCoverCard({ orgId, title, tier = 'standard', coverUrl, onC
             )}
           </div>
 
-          <Input
-            value={coverUrl || ''}
-            onChange={(e) => onChange(e.target.value || null)}
-            placeholder={isFr ? 'ou collez le lien de votre image' : 'or paste your image link'}
-            className="h-9 text-[12px]"
-          />
           <p className="text-[11px] text-muted-foreground">
             {isFr
-              ? 'La génération IA utilise des crédits. Le téléversement et le lien sont gratuits.'
-              : 'AI generation uses credits. Uploading or pasting a link is free.'}
+              ? 'Le téléversement est gratuit. La génération par l’IA utilise des crédits.'
+              : 'Uploading is free. AI generation uses credits.'}
           </p>
+
         </div>
       </div>
     </div>
