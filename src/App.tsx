@@ -444,6 +444,8 @@ const App = () => (
               <FloatingProofToast />
               <DomainRouter />
               <TrialBillingBanner />
+              <CreditAlertWatcher />
+
               
               <Suspense fallback={<PageLoader />}>
               <Routes>
