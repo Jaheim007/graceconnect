@@ -15,8 +15,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -753,6 +751,7 @@ export default function AdminProgramDraftReview() {
           currency={currency}
           isFree={false}
           orgLogoUrl={(currentOrg as any)?.logo_url || null}
+          fallbackImageUrl={rules.cover_image_url || null}
           onClose={() => setBuyerPreview(false)}
 
         />

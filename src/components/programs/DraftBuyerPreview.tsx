@@ -91,7 +91,7 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
       });
     });
     return flat;
-  }, [draft]);
+  }, [draft, fallbackImageUrl]);
 
   const current = slides[index];
   const lessonSegments = useMemo(() => {
