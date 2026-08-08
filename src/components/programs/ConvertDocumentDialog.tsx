@@ -73,23 +73,26 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
       const { data: urlData } = supabase.storage.from('media').getPublicUrl(path);
 
       // The pipeline writes a REVIEWABLE DRAFT — never a live course.
-      const result = await startDraft.mutateAsync({
-        org_id: currentOrg.id,
-        source: 'document',
-        file_url: urlData.publicUrl,
-        file_name: file.name,
-        mime: file.type,
-        title: file.name.replace(/\.[^.]+$/, ''),
-        language: contentLanguage,
-        tier,
-        generate_images: generateImages,
-
-      });
-
-      refreshCredits();
+      // The dialog closes immediately: the generation animation lives on a
+      // single page (/admin/programs/generating), so there is no double loader.
       onOpenChange(false);
       setFile(null);
-      navigate(`/admin/programs/draft/${result.project_id}`);
+      navigate('/admin/programs/generating', {
+        state: {
+          mode: 'convert',
+          input: {
+            org_id: currentOrg.id,
+            source: 'document',
+            file_url: urlData.publicUrl,
+            file_name: file.name,
+            mime: file.type,
+            title: file.name.replace(/\.[^.]+$/, ''),
+            language: contentLanguage,
+            tier,
+            generate_images: generateImages,
+          },
+        },
+      });
     } catch (err: any) {
       const isCreditError = handleAiError(err);
       if (!isCreditError) {

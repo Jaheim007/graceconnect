@@ -10,7 +10,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
-import { useActionCost } from '@/hooks/useCredits';
+import { useActionCost, useCreditsBalance } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useStartCourseDraft } from '@/hooks/useCourseDraft';
@@ -18,6 +18,7 @@ import { draftErrorMessage } from '@/lib/courseDraftErrors';
 import { Zap, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Settings2, Globe, Target, AlertTriangle, Wand2 } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 
 const SUGGESTIONS_FR = [
   { icon: BookOpen, text: 'Créer un cours de 10 minutes pour former le personnel au service client' },
@@ -60,7 +61,10 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const { currentOrg } = useOrg();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { handleAiError, refreshCredits } = useCreditGuard();
+  const { handleAiError, refreshCredits, showCreditDialog, setShowCreditDialog, creditErrorMessage } = useCreditGuard();
+  const { data: creditSummary } = useCreditsBalance();
+  const balance = creditSummary?.balance;
+
   const queryClient = useQueryClient();
 
   const [prompt, setPrompt] = useState('');
@@ -99,54 +103,49 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
     }
   };
 
-  const handleCreate = async (_generateImagesOverride?: boolean) => {
+  const handleCreate = (_generateImagesOverride?: boolean) => {
     if (!prompt.trim() || !currentOrg || !user) return;
-    setGenerating(true);
-    setGenerationPhase('generating');
-    setGenerationError(null);
-    try {
-      // The pipeline produces a REVIEWABLE DRAFT; nothing is written to the
-      // live course tables until the admin publishes it from the review screen.
-      const result = await startDraft.mutateAsync({
-        org_id: currentOrg.id,
-        source: 'prompt',
-        prompt: [
-          prompt.trim(),
-          courseGoal ? `Goal: ${courseGoal}` : '',
-          audience ? `Audience: ${audience}` : '',
-          level ? `Level: ${level}` : '',
-          teachingStyle ? `Teaching style: ${teachingStyle}` : '',
-          tone ? `Tone: ${tone}` : '',
-          depthLevel ? `Depth: ${depthLevel}` : '',
-          contentOrientation ? `Worldview: ${contentOrientation}` : '',
-        ].filter(Boolean).join('\n'),
-        title: prompt.trim().slice(0, 100),
-        language: contentLanguage,
-        tier,
-        level: level as 'beginner' | 'intermediate' | 'advanced',
-        generate_images: _generateImagesOverride ?? generateImages,
+    const images = _generateImagesOverride ?? generateImages;
 
-      });
-
-      refreshCredits();
-      onOpenChange(false);
-      setPrompt('');
-      setGenerating(false);
-      navigate(`/admin/programs/draft/${result.project_id}`);
+    // Not enough credits → tell the creator BEFORE leaving the dialog.
+    if (typeof balance === 'number' && typeof selectedCost === 'number' && balance < selectedCost) {
+      setShowCreditDialog(true);
       return;
-    } catch (err: any) {
-      const isCreditError = handleAiError(err);
-      if (!isCreditError) {
-        const errorMsg = draftErrorMessage(err, isFr);
-        setGenerationError(errorMsg);
-        toast({ title: isFr ? 'Erreur' : 'Error', description: errorMsg, variant: 'destructive' });
-      }
-    } finally {
-      setGenerating(false);
     }
+
+    // No in-dialog loader: the dialog closes instantly and the generation
+    // animation lives on a single page (/admin/programs/generating).
+    onOpenChange(false);
+    setPrompt('');
+    navigate('/admin/programs/generating', {
+      state: {
+        mode: 'ai',
+        input: {
+          org_id: currentOrg.id,
+          source: 'prompt',
+          prompt: [
+            prompt.trim(),
+            courseGoal ? `Goal: ${courseGoal}` : '',
+            audience ? `Audience: ${audience}` : '',
+            level ? `Level: ${level}` : '',
+            teachingStyle ? `Teaching style: ${teachingStyle}` : '',
+            tone ? `Tone: ${tone}` : '',
+            depthLevel ? `Depth: ${depthLevel}` : '',
+            contentOrientation ? `Worldview: ${contentOrientation}` : '',
+          ].filter(Boolean).join('\n'),
+          title: prompt.trim().slice(0, 100),
+          language: contentLanguage,
+          tier,
+          level: level as 'beginner' | 'intermediate' | 'advanced',
+          generate_images: images,
+        },
+      },
+    });
   };
 
+
   const selectedCost = tier === 'premium' ? premiumCost : standardCost;
+  const notEnoughCredits = typeof balance === 'number' && typeof selectedCost === 'number' && balance < selectedCost;
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!generating) onOpenChange(v); }}>
@@ -460,20 +459,33 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
               <p className="text-[11px] text-muted-foreground">
                 {isFr ? 'Coût estimé' : 'Estimated cost'}: <span className="font-medium text-foreground">{selectedCost ?? (tier === 'premium' ? 15 : 8)} {isFr ? 'crédits' : 'credits'}</span>
                 {generateImages && <span className="text-primary"> + {isFr ? 'images' : 'images'}</span>}
+                {typeof balance === 'number' && (
+                  <span className={notEnoughCredits ? 'block text-destructive' : 'block'}>
+                    {isFr ? 'Votre solde' : 'Your balance'}: {balance}
+                    {notEnoughCredits && (isFr ? ' — insuffisant' : ' — not enough')}
+                  </span>
+                )}
               </p>
               <div className="flex items-center gap-2">
                 <Button variant="outline" onClick={() => onOpenChange(false)}>
                   {isFr ? 'Annuler' : 'Cancel'}
                 </Button>
-                <Button onClick={() => void handleCreate()} disabled={!prompt.trim()} className="gap-1.5">
-                  
-                  {isFr ? 'Créer' : 'Create'}
-                </Button>
+                {notEnoughCredits ? (
+                  <Button onClick={() => setShowCreditDialog(true)}>
+                    {isFr ? 'Obtenir des crédits' : 'Get credits'}
+                  </Button>
+                ) : (
+                  <Button onClick={() => handleCreate()} disabled={!prompt.trim()} className="gap-1.5">
+                    {isFr ? 'Créer' : 'Create'}
+                  </Button>
+                )}
               </div>
             </div>
           </>
         )}
       </DialogContent>
+      <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
     </Dialog>
   );
+
 }

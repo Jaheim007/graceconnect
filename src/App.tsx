@@ -329,6 +329,8 @@ const SuperadminMarketplaceModeration = lazy(() => import("@/pages/superadmin/Su
 const AdminOfferings = lazy(() => import("@/pages/admin/AdminOfferings"));
 const AdminPrograms = lazy(() => import("@/pages/admin/AdminPrograms"));
 const AdminProgramDraftReview = lazy(() => import("@/pages/admin/AdminProgramDraftReview"));
+const AdminProgramGenerating = lazy(() => import("@/pages/admin/AdminProgramGenerating"));
+
 const AdminProgramForm = lazy(() => import("@/pages/admin/AdminProgramForm").then(m => ({ default: m.ProgramForm })));
 const AdminLearnerProgress = lazy(() => import("@/pages/admin/AdminLearnerProgress"));
 const AdminCreateHub = lazy(() => import("@/pages/admin/AdminCreateHub"));
@@ -918,7 +920,9 @@ const App = () => (
                   <Route path="offerings" element={<AdminOfferings />} />
                   <Route path="programs" element={<AdminPrograms />} />
                   <Route path="programs/new" element={<AdminPrograms />} />
+                  <Route path="programs/generating" element={<AdminProgramGenerating />} />
                   <Route path="programs/draft/:projectId" element={<AdminProgramDraftReview />} />
+
                   <Route path="programs/:id/edit" element={<AdminProgramForm />} />
                   <Route path="learner-progress" element={<AdminLearnerProgress />} />
                   {/* AI Studio */}
