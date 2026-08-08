@@ -30,9 +30,22 @@ export default function CertificateVerifyPage() {
   const dateLoc = isFr ? fr : enUS;
   const [copied, setCopied] = useState(false);
 
+  // Preview mode: /verify/preview renders a sample certificate from the design
+  // the creator is currently editing (stored in sessionStorage). No DB read.
+  const isPreview = certNumber === 'preview';
+  const previewData = (() => {
+    if (!isPreview || typeof window === 'undefined') return null;
+    try {
+      const raw = sessionStorage.getItem('certificate-preview');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  })();
+
   // Public verification runs through the read-only RPC: the certificates table
   // itself is not readable by anonymous visitors.
-  const { data: certData, isLoading } = useQuery({
+  const { data: fetched, isLoading: fetching } = useQuery({
     queryKey: ['verify-certificate', certNumber],
     queryFn: async () => {
       if (!certNumber) return null;
@@ -43,8 +56,12 @@ export default function CertificateVerifyPage() {
       const row = Array.isArray(data) ? data[0] : data;
       return (row ?? null) as any;
     },
-    enabled: !!certNumber,
+    enabled: !!certNumber && !isPreview,
   });
+
+  const certData = isPreview ? previewData : fetched;
+  const isLoading = isPreview ? false : fetching;
+
 
   const isValid = !!certData;
   const recipientName = certData?.learner_name || (isFr ? 'Apprenant' : 'Learner');
