@@ -143,12 +143,16 @@ serve(async (req) => {
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+    // Engraved display faces — a serif spine is what makes a certificate read as official
+    const fontDisplay = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+    const fontDisplayItalic = await pdfDoc.embedFont(StandardFonts.TimesRomanItalic);
 
-    const gold = rgb(0.76, 0.56, 0.11);
-    const goldSoft = rgb(0.87, 0.75, 0.42);
-    const ink = rgb(0.06, 0.07, 0.14);
-    const dark = rgb(0.12, 0.13, 0.2);
+    const gold = rgb(0.72, 0.55, 0.16);
+    const goldSoft = rgb(0.85, 0.73, 0.44);
+    const ink = rgb(0.05, 0.07, 0.14);
+    const dark = rgb(0.1, 0.12, 0.2);
     const muted = rgb(0.45, 0.46, 0.52);
+
 
     const center = (text: string, font: any, size: number) => (width - font.widthOfTextAtSize(text, size)) / 2;
 
