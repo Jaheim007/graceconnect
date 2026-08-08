@@ -230,7 +230,7 @@ export function CourseCompletionSlide({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.8 }}
-              className="flex items-center gap-3"
+              className="flex flex-wrap items-center justify-center gap-3"
             >
               {mode === 'learner' && certReady && (
                 <button
@@ -249,14 +249,14 @@ export function CourseCompletionSlide({
                     }
                   }}
                   disabled={downloadingPdf}
-                  className="flex items-center gap-2 bg-yellow-500/20 hover:bg-yellow-500/30 backdrop-blur-sm rounded-full px-5 py-2.5 border border-yellow-400/30 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                  className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-neutral-900 font-semibold rounded-full px-6 py-3 shadow-[0_10px_30px_-8px_rgba(250,204,21,0.8)] ring-1 ring-yellow-200/60 transition-all hover:scale-105 active:scale-95 disabled:opacity-60"
                 >
                   {downloadingPdf ? (
-                    <Loader2 className="h-4 w-4 text-yellow-400 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <Download className="h-4 w-4 text-yellow-400" />
+                    <Download className="h-4 w-4" />
                   )}
-                  <span className="text-sm font-medium text-yellow-200">
+                  <span className="text-sm">
                     {isFr ? 'Télécharger PDF' : 'Download PDF'}
                   </span>
                 </button>
@@ -271,12 +271,13 @@ export function CourseCompletionSlide({
               )}
               <button
                 onClick={() => setShowShare(true)}
-                className="flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full px-5 py-2.5 border border-white/20 transition-all hover:scale-105 active:scale-95"
+                className="flex items-center gap-2 bg-white text-neutral-900 font-semibold rounded-full px-6 py-3 shadow-[0_10px_30px_-8px_rgba(255,255,255,0.55)] ring-1 ring-white/70 hover:bg-white/90 transition-all hover:scale-105 active:scale-95"
               >
                 <Share2 className="h-4 w-4" />
-                <span className="text-sm font-medium">{isFr ? 'Partager' : 'Share'}</span>
+                <span className="text-sm">{isFr ? 'Partager' : 'Share'}</span>
               </button>
             </motion.div>
+
 
             {/* Certificate confirmation */}
             {mode === 'learner' && certReady && certNumber && (
