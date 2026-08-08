@@ -21,6 +21,8 @@ import { useOrg } from '@/contexts/OrgContext';
 import { cn } from '@/lib/utils';
 import {
   ArrowLeft, ArrowRight, FileText, HelpCircle, Loader2, Rocket, Quote, Eye, Tag, Layers, Image as ImageIcon,
+  CheckCircle2, Circle,
+
 } from 'lucide-react';
 import {
   useCourseDraftProject, useUpdateCourseDraft, usePublishCourseDraft, useUpdateCourseRules,
