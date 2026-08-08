@@ -193,6 +193,9 @@ export default function MyProgramsPage() {
           })}
         </motion.div>
       )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
+
