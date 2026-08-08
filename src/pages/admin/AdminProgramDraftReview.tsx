@@ -189,11 +189,13 @@ export default function AdminProgramDraftReview() {
     return () => clearTimeout(t);
   }, [titleDirty, draft, generating]);
 
-  const handlePublish = async () => {
+  const handlePublish = async (asDraft = false) => {
     if (!draft || !projectId) return;
     const orgId = project?.organization_id || currentOrg?.id;
     if (!orgId) return;
-    if (!priceValid) {
+    // Saving as a draft never blocks on price or cover: those are only
+    // required to actually put the course on sale.
+    if (!asDraft && !priceValid) {
       toast({
         title: isFr ? 'Prix requis' : 'Price required',
         description: isFr
@@ -203,7 +205,7 @@ export default function AdminProgramDraftReview() {
       });
       return;
     }
-    if (coverMissing && !incomplete) {
+    if (!asDraft && coverMissing && !incomplete) {
       toast({
         title: isFr ? 'Image de couverture requise' : 'Cover image required',
         description: isFr
