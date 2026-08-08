@@ -433,6 +433,47 @@ async function runPipeline(ctx: {
       }).eq('id', ctx.projectId);
     }
 
+    // ── Image tail pass: illustrate every lesson still missing a backdrop ──
+    if (imagesEnabled) {
+      const tailStart = Date.now();
+      const tailRemaining = () => IMAGE_TAIL_DEADLINE_MS - (Date.now() - startedAt);
+      const missing = lessons
+        .map((lesson, index) => ({ lesson, index }))
+        .filter(({ lesson }) => !lesson.image_url);
+
+      for (let start = 0; start < missing.length; start += IMAGE_TAIL_BATCH) {
+        if (!imagesEnabled) break;
+        if (imagesGenerated >= profile.maxImages) break;
+        if (tailRemaining() <= IMAGE_MIN_REMAINING_MS) {
+          console.warn('[course-from-document] image tail budget exhausted', { imagesGenerated, missing: missing.length });
+          break;
+        }
+
+        const batch = missing
+          .slice(start, start + IMAGE_TAIL_BATCH)
+          .filter((_, k) => imagesGenerated + k < profile.maxImages);
+        if (!batch.length) break;
+
+        const results = await Promise.all(batch.map(({ lesson, index }) =>
+          generateLessonImage({ admin, ctx, lesson, index, profile })
+            .catch((e) => { console.warn('[course-from-document] tail image failed', index, e); return { url: null, stop: false }; }),
+        ));
+
+        results.forEach((result, k) => {
+          if (result.url) { batch[k].lesson.image_url = result.url; imagesGenerated += 1; }
+          if (result.stop) imagesEnabled = false;
+        });
+
+        await admin.from('ai_content_projects').update({
+          data_json: await mergeCourse(admin, ctx.projectId, { title: ctx.projectTitle, lessons }),
+          updated_at: new Date().toISOString(),
+        }).eq('id', ctx.projectId);
+      }
+      console.log('[course-from-document] image tail done', { imagesGenerated, ms: Date.now() - tailStart });
+    }
+
+
+
 
 
     await admin.from('ai_content_projects').update({
