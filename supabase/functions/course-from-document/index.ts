@@ -36,7 +36,7 @@ const TOPIC_SOURCE_CHARS = 9000;  // per-call prompt ceiling
  */
 const PIPELINE_SOFT_DEADLINE_MS = 260_000;
 /** Below this remaining budget we stop spending time (and credits) on images. */
-const IMAGE_MIN_REMAINING_MS = 120_000;
+const IMAGE_MIN_REMAINING_MS = 45_000;
 
 
 /**
@@ -48,6 +48,8 @@ const IMAGE_MIN_REMAINING_MS = 120_000;
  */
 interface TierProfile {
   maxTopics: number;
+  /** Never deliver fewer lessons than this when the source allows it. */
+  minTopics: number;
   minSlides: number;
   maxSlides: number;
   maxQuiz: number;
@@ -63,6 +65,7 @@ interface TierProfile {
 const TIER_PROFILES: Record<'standard' | 'premium', TierProfile> = {
   standard: {
     maxTopics: 12,
+    minTopics: 8,
     minSlides: 5,
     maxSlides: 8,
     maxQuiz: 3,
@@ -76,6 +79,7 @@ const TIER_PROFILES: Record<'standard' | 'premium', TierProfile> = {
   },
   premium: {
     maxTopics: 18,
+    minTopics: 14,
     minSlides: 8,
     maxSlides: 12,
     maxQuiz: 4,
