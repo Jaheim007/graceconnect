@@ -255,8 +255,8 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                     <p className="text-xs font-semibold">Standard <span className="font-normal text-muted-foreground">· {standardCost ?? 8} {isFr ? 'crédits' : 'credits'}</span></p>
                     <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">
                       {isFr
-                        ? '8 à 12 leçons · 5 à 8 slides · 180 à 260 mots avec exemple · évaluation finale de 15 questions'
-                        : '8-12 lessons · 5-8 slides · 180-260 word bodies with an example · 15-question final assessment'}
+                        ? '8 à 12 leçons · 12 à 20 slides · textes courts de 40 à 80 mots · 5 à 6 quiz par leçon · évaluation finale de 15 questions'
+                        : '8-12 lessons · 12-20 slides · short 40-80 word slides · 5-6 quizzes per lesson · 15-question final assessment'}
                     </p>
                   </button>
                   <button
