@@ -169,9 +169,10 @@ function stripMarkers(text: string): string {
  */
 export function segmentIntoTopics(
   text: string,
-  opts: { maxTopics: number; targetWords?: number } = { maxTopics: 12 },
+  opts: { maxTopics: number; minTopics?: number; targetWords?: number } = { maxTopics: 12 },
 ): DocTopic[] {
   const targetWords = opts.targetWords ?? 700;
+  const minTopics = Math.min(opts.minTopics ?? 1, opts.maxTopics);
   const minWords = Math.round(targetWords * 0.22);   // below this, topics get merged
   const splitAtWords = 60;                            // headings split once a block has real content
   const maxWords = targetWords * 2;
@@ -217,17 +218,23 @@ export function segmentIntoTopics(
     topics = windows.map((t, i) => ({ index: i, heading: null, text: t, page: null }));
   }
 
-  // Merge undersized neighbours (keeps order).
+  // Merge undersized neighbours (keeps order) — but never merge away a distinct
+  // sub-topic when doing so would drop the count below the requested minimum.
+  // This is what used to turn a 9-sub-topic document into 6 lessons: each
+  // sub-topic was shorter than `minWords` (154) and got folded into its
+  // neighbour, and nothing later split them back apart.
   const merged: DocTopic[] = [];
-  for (const t of topics) {
+  topics.forEach((t, i) => {
+    const remaining = topics.length - i;               // t included
+    const projected = merged.length + remaining;       // count if we DON'T merge
     const prev = merged[merged.length - 1];
-    if (prev && countWords(prev.text) < minWords) {
+    if (prev && countWords(prev.text) < minWords && projected - 1 >= minTopics) {
       prev.text = `${prev.text}\n\n${t.text}`.trim();
       if (!prev.heading) prev.heading = t.heading;
-      continue;
+      return;
     }
     merged.push({ ...t });
-  }
+  });
 
   // Split oversized topics (paragraph, then sentence boundaries).
   const sized: DocTopic[] = [];
@@ -246,6 +253,28 @@ export function segmentIntoTopics(
     const tail = sized.slice(opts.maxTopics).map((t) => t.text).join('\n\n');
     const last = capped[capped.length - 1];
     last.text = `${last.text}\n\n${tail}`;
+  }
+
+  // Still short of the tier's lesson floor? Split the longest topics in half
+  // (paragraph/sentence boundaries) until we reach it. Guarded so we never
+  // produce topics too thin to teach from.
+  const MIN_SPLITTABLE_WORDS = 220;
+  while (capped.length < minTopics) {
+    let bestIdx = -1;
+    let bestWords = 0;
+    capped.forEach((t, i) => {
+      const w = countWords(t.text);
+      if (w > bestWords) { bestWords = w; bestIdx = i; }
+    });
+    if (bestIdx < 0 || bestWords < MIN_SPLITTABLE_WORDS) break;
+    const target = capped[bestIdx];
+    const parts = chunkText(target.text, Math.ceil(bestWords / 2));
+    if (parts.length < 2) break;
+    capped.splice(bestIdx, 1, ...parts.map((chunk, i) => ({
+      ...target,
+      heading: target.heading ? `${target.heading} (${i + 1})` : null,
+      text: chunk,
+    })));
   }
 
   return capped.map((t, i) => ({ ...t, index: i }));

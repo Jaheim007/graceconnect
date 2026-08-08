@@ -61,11 +61,16 @@ interface TierProfile {
   minTopics: number;
   minSlides: number;
   maxSlides: number;
+  minQuiz: number;
   maxQuiz: number;
   /** Practice flashcards inserted between the teaching slides. */
+  minFlashcards: number;
   maxFlashcards: number;
   sentencesFr: string;
   sentencesEn: string;
+  /** Target words per teaching slide (microlearning: one idea, no scrolling). */
+  slideWordsMin: number;
+  slideWordsMax: number;
   model: string;
   maxOutputTokens: number;
   outlineSections: string;
@@ -77,32 +82,40 @@ const TIER_PROFILES: Record<'standard' | 'premium', TierProfile> = {
   standard: {
     maxTopics: 12,
     minTopics: 8,
-    minSlides: 5,
-    maxSlides: 8,
-    maxQuiz: 3,
-    maxFlashcards: 2,
-    sentencesFr: '7 à 10 phrases complètes (180 à 260 mots), avec au moins un exemple concret',
-    sentencesEn: '7-10 full sentences (180-260 words), including at least one concrete example',
+    minSlides: 12,
+    maxSlides: 20,
+    minQuiz: 5,
+    maxQuiz: 6,
+    minFlashcards: 3,
+    maxFlashcards: 4,
+    sentencesFr: '2 à 4 phrases courtes (40 à 80 mots maximum), une seule idée par slide',
+    sentencesEn: '2-4 short sentences (40-80 words max), one single idea per slide',
+    slideWordsMin: 40,
+    slideWordsMax: 80,
     model: 'gemini-2.5-flash',
-    maxOutputTokens: 9000,
+    maxOutputTokens: 12000,
     outlineSections: '10-12',
     maxImages: 12,
-    bodyChars: 3200,
+    bodyChars: 900,
   },
   premium: {
     maxTopics: 18,
     minTopics: 14,
-    minSlides: 8,
-    maxSlides: 12,
-    maxQuiz: 5,
-    maxFlashcards: 4,
-    sentencesFr: '12 à 18 phrases complètes (320 à 450 mots), avec deux exemples concrets, des chiffres ou cas pratiques, et un « À retenir » final',
-    sentencesEn: '12-18 full sentences (320-450 words), including two concrete examples, figures or practical cases, and a closing "Key takeaway"',
+    minSlides: 18,
+    maxSlides: 28,
+    minQuiz: 8,
+    maxQuiz: 10,
+    minFlashcards: 5,
+    maxFlashcards: 6,
+    sentencesFr: '3 à 5 phrases courtes (60 à 100 mots maximum), une seule idée par slide, avec un exemple concret quand c\'est utile',
+    sentencesEn: '3-5 short sentences (60-100 words max), one single idea per slide, with a concrete example where useful',
+    slideWordsMin: 60,
+    slideWordsMax: 100,
     model: 'gemini-2.5-pro',
-    maxOutputTokens: 16000,
+    maxOutputTokens: 20000,
     outlineSections: '14-18',
     maxImages: 18,
-    bodyChars: 6000,
+    bodyChars: 1200,
   },
 };
 
@@ -324,7 +337,10 @@ async function runPipeline(ctx: {
       sourceText = outline;
     }
 
-    let topics = segmentIntoTopics(sourceText, { maxTopics: profile.maxTopics });
+    let topics = segmentIntoTopics(sourceText, {
+      maxTopics: profile.maxTopics,
+      minTopics: profile.minTopics,
+    });
 
     // The tier promise is a LESSON COUNT. A short/merged outline used to leave a
     // premium course with 5 lessons. If segmentation under-delivers in prompt
@@ -568,7 +584,13 @@ async function generateLesson(opts: {
 }): Promise<DraftLesson> {
   const { isFr, profile } = opts;
   const levelRule = LEVEL_RULES[opts.level] || LEVEL_RULES.intermediate;
-  const quizCount = Math.max(2, Math.min(profile.maxQuiz, profile.maxQuiz + levelRule.quizBonus));
+  // Quiz count never drops below the tier floor: threshold gating (e.g. 70%)
+  // needs at least 5 questions to be expressible in score increments.
+  const quizCount = Math.min(
+    profile.maxQuiz,
+    Math.max(profile.minQuiz, profile.minQuiz + Math.max(0, levelRule.quizBonus)),
+  );
+  const cardCount = profile.minFlashcards;
   const system = isFr
     ? 'Tu es concepteur pédagogique. Tu transformes un extrait de document en leçon complète et riche. Tu ne dois JAMAIS inventer de faits absents de l\'extrait, mais tu dois développer, expliquer et illustrer chaque idée présente. Réponds uniquement en JSON valide.'
     : 'You are an instructional designer turning a document excerpt into a complete, rich lesson. NEVER invent facts absent from the excerpt, but do develop, explain and illustrate every idea present. Reply with valid JSON only.';
@@ -595,8 +617,8 @@ ${isFr ? `Produis un JSON strict :` : `Produce strict JSON:`}
 }
 
 ${isFr
-  ? `Règles : entre ${profile.minSlides} et ${profile.maxSlides} slides, chacune développant une idée de l'extrait dans l'ordre du document. Chaque "body" doit faire ${profile.sentencesFr} — jamais une seule phrase, jamais un simple titre reformulé. Explique, définis les termes, donne des exemples issus de l'extrait. Exactement ${profile.maxFlashcards} cartes mémo (flashcards) qui font réviser les notions clés de la leçon. Exactement ${quizCount} questions de quiz dont la réponse est explicitement contenue dans l'extrait, 4 options par question. ${levelRule.fr} Français.`
-  : `Rules: between ${profile.minSlides} and ${profile.maxSlides} slides, each developing one idea from the excerpt in document order. Each "body" must be ${profile.sentencesEn} — never a single sentence, never a restated title. Explain, define terms, give examples drawn from the excerpt. Exactly ${profile.maxFlashcards} flashcards revising the lesson's key notions. Exactly ${quizCount} quiz questions whose answer is explicitly present in the excerpt, 4 options each. ${levelRule.en} English.`}`;
+  ? `Règles : entre ${profile.minSlides} et ${profile.maxSlides} slides. FORMAT MICRO-APPRENTISSAGE : une seule idée par slide, ${profile.slideWordsMin} à ${profile.slideWordsMax} mots maximum par "body" (${profile.sentencesFr}) — le texte doit tenir sur un écran de téléphone sans défilement. Ne condense pas : couvre tout l'extrait en découpant en PLUS de slides courtes plutôt qu'en slides longues. Explique, définis les termes, donne des exemples issus de l'extrait. Entre ${profile.minFlashcards} et ${profile.maxFlashcards} cartes mémo (flashcards) qui font réviser les notions clés (au moins ${cardCount}). Exactement ${quizCount} questions de quiz dont la réponse est explicitement contenue dans l'extrait, 4 options par question. ${levelRule.fr} Français.`
+  : `Rules: between ${profile.minSlides} and ${profile.maxSlides} slides. MICROLEARNING FORMAT: one single idea per slide, ${profile.slideWordsMin}-${profile.slideWordsMax} words max per "body" (${profile.sentencesEn}) — the text must fit one phone screen with no scrolling. Do not condense: cover the whole excerpt by splitting into MORE short slides rather than fewer long ones. Explain, define terms, give examples drawn from the excerpt. Between ${profile.minFlashcards} and ${profile.maxFlashcards} flashcards revising the lesson's key notions (at least ${cardCount}). Exactly ${quizCount} quiz questions whose answer is explicitly present in the excerpt, 4 options each. ${levelRule.en} English.`}`;
 
   const raw = await aiGenerateText({
     geminiKey: opts.geminiKey, openaiKey: opts.openaiKey,
@@ -760,7 +782,7 @@ function fallbackLesson(
   let buf: string[] = [];
   for (const p of paragraphs) {
     buf.push(p);
-    if (countWords(buf.join(' ')) > 90) { chunks.push(buf.join('\n\n')); buf = []; }
+    if (countWords(buf.join(' ')) >= profile.slideWordsMax) { chunks.push(buf.join('\n\n')); buf = []; }
     if (chunks.length >= profile.maxSlides) break;
   }
   if (buf.length && chunks.length < profile.maxSlides) chunks.push(buf.join('\n\n'));

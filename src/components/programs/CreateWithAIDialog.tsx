@@ -255,8 +255,8 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                     <p className="text-xs font-semibold">Standard <span className="font-normal text-muted-foreground">· {standardCost ?? 8} {isFr ? 'crédits' : 'credits'}</span></p>
                     <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">
                       {isFr
-                        ? '8 à 12 leçons · 5 à 8 slides · 180 à 260 mots avec exemple · évaluation finale de 15 questions'
-                        : '8-12 lessons · 5-8 slides · 180-260 word bodies with an example · 15-question final assessment'}
+                        ? '8 à 12 leçons · 12 à 20 slides · textes courts de 40 à 80 mots · 5 à 6 quiz par leçon · évaluation finale de 15 questions'
+                        : '8-12 lessons · 12-20 slides · short 40-80 word slides · 5-6 quizzes per lesson · 15-question final assessment'}
                     </p>
                   </button>
                   <button
@@ -267,8 +267,8 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                     <p className="text-xs font-semibold">Premium <span className="font-normal text-muted-foreground">· {premiumCost ?? 15} {isFr ? 'crédits' : 'credits'}</span></p>
                     <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">
                       {isFr
-                        ? '14 à 18 leçons · 8 à 12 slides · 320 à 450 mots (2 exemples + « à retenir ») · évaluation finale de 20 à 25 questions · modèle avancé'
-                        : '14-18 lessons · 8-12 slides · 320-450 word bodies (2 examples + key takeaway) · 20-25 question final assessment · advanced model'}
+                        ? '14 à 18 leçons · 18 à 28 slides · textes courts de 60 à 100 mots · 8 à 10 quiz par leçon · évaluation finale de 20 à 25 questions · modèle avancé'
+                        : '14-18 lessons · 18-28 slides · short 60-100 word slides · 8-10 quizzes per lesson · 20-25 question final assessment · advanced model'}
                     </p>
 
                   </button>
