@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
     const { data: { user }, error: authErr } = await userClient.auth.getUser();
     if (authErr || !user) return jsonError('Unauthorized', 401);
 
-    const { org_id, project_id, publish_now, settings } = await req.json();
+    const { org_id, project_id, publish_now, settings, price, currency } = await req.json();
     if (!org_id || !project_id) return jsonError('org_id and project_id required', 400);
 
     const admin = createClient(supabaseUrl, serviceKey);
@@ -86,6 +86,19 @@ Deno.serve(async (req) => {
       return jsonError('No lessons or chapters found in project', 400);
     }
 
+    // AI-generated courses are always paid. Enforce this on the server so a
+    // client interruption can never leave a published, zero-price course.
+    const courseCurrency = typeof currency === 'string' && currency.trim() ? currency.trim().toUpperCase() : 'XOF';
+    const minimums: Record<string, number> = {
+      XOF: 1000, XAF: 1000, NGN: 1500, GHS: 20, KES: 200, ZAR: 40,
+      MAD: 20, TND: 5, USD: 2, EUR: 2, GBP: 2,
+    };
+    const minimumPrice = minimums[courseCurrency] ?? minimums.USD;
+    const coursePrice = Number(price);
+    if (!Number.isFinite(coursePrice) || coursePrice < minimumPrice) {
+      return jsonError(`AI course price must be at least ${minimumPrice} ${courseCurrency}`, 400);
+    }
+
 
     // --- Get cover ---
     const { data: coverAsset } = await admin
@@ -109,9 +122,13 @@ Deno.serve(async (req) => {
         require_sequential_lessons: rules.require_sequential_lessons !== false,
         gamification_enabled: rules.gamification_enabled !== false,
         certificate_enabled: rules.certificate_enabled !== false,
-        is_published: publish_now ?? false,
-        publication_status: publish_now ? 'published' : 'draft',
+        // Materialise privately first. It is made visible only after every
+        // module, lesson, slide and checkout product has been created.
+        is_published: false,
+        publication_status: 'draft',
         is_free: false,
+        price: coursePrice,
+        currency: courseCurrency,
         ai_generated: true,
       })
       .select('id')
@@ -135,6 +152,7 @@ Deno.serve(async (req) => {
 
     if (modErr || !mod) {
       console.error('Module creation error:', modErr);
+      await cleanupProgram(admin, program.id);
       return jsonError('Failed to create module', 500);
     }
 
@@ -158,7 +176,6 @@ Deno.serve(async (req) => {
             .map((s: any) => `${s.title ? `<h2>${escapeHtml(s.title)}</h2>` : ''}<p>${escapeHtml(s.body || '')}</p>`),
         ].filter(Boolean).join('\n'),
         display_order: i,
-        is_published: publish_now ?? false,
         publication_status: publish_now ? 'published' : 'draft',
       }));
 
@@ -170,6 +187,7 @@ Deno.serve(async (req) => {
 
       if (lessonsErr || !insertedLessons) {
         console.error('Lessons creation error:', lessonsErr);
+        await cleanupProgram(admin, program.id);
         return jsonError('Failed to create lessons', 500);
       }
       lessonsCount = insertedLessons.length;
@@ -204,6 +222,7 @@ Deno.serve(async (req) => {
         const { error: slidesErr } = await admin.from('program_slides').insert(slideRows);
         if (slidesErr) {
           console.error('Slides creation error:', slidesErr);
+          await cleanupProgram(admin, program.id);
           return jsonError('Failed to create slides', 500);
         }
         slidesCount = slideRows.length;
@@ -214,7 +233,6 @@ Deno.serve(async (req) => {
         title: ch.title || `Leçon ${i + 1}`,
         content: ch.content || '',
         display_order: i,
-        is_published: publish_now ?? false,
         publication_status: publish_now ? 'published' : 'draft',
       }));
 
@@ -224,19 +242,64 @@ Deno.serve(async (req) => {
 
       if (lessonsErr) {
         console.error('Lessons creation error:', lessonsErr);
+        await cleanupProgram(admin, program.id);
         return jsonError('Failed to create lessons', 500);
       }
       lessonsCount = lessons.length;
     }
 
 
+    // --- Create the mirrored checkout product before making the course live ---
+    const { data: product, error: productErr } = await admin
+      .from('digital_products')
+      .insert({
+        organization_id: org_id,
+        created_by: user.id,
+        title: project.title,
+        description: rules.description || project.objective || project.description || '',
+        cover_image_url: rules.cover_image_url || coverAsset?.file_url || courseLessons.find((l: any) => l?.image_url)?.image_url || null,
+        product_type: 'course',
+        price: coursePrice,
+        currency: courseCurrency,
+        is_free: false,
+        ai_generated: true,
+        ai_project_id: project_id,
+        is_published: publish_now ?? false,
+        publication_status: publish_now ? 'published' : 'draft',
+        external_link: `/program/${program.id}`,
+      })
+      .select('id')
+      .single();
+
+    if (productErr || !product) {
+      console.error('Course product creation error:', productErr);
+      await cleanupProgram(admin, program.id);
+      return jsonError('Failed to create paid course checkout', 500);
+    }
+
+    const { error: finalizeErr } = await admin.from('programs').update({
+      linked_product_id: product.id,
+      is_published: publish_now ?? false,
+      publication_status: publish_now ? 'published' : 'draft',
+    }).eq('id', program.id);
+    if (finalizeErr) {
+      console.error('Program finalization error:', finalizeErr);
+      await admin.from('digital_products').delete().eq('id', product.id);
+      await cleanupProgram(admin, program.id);
+      return jsonError('Failed to finalize course', 500);
+    }
+
     // --- Link project ---
-    await admin.from('ai_content_projects').update({
+    const { error: linkErr } = await admin.from('ai_content_projects').update({
       linked_program_id: program.id,
       status: publish_now ? 'published' : project.status,
       published_at: publish_now ? new Date().toISOString() : null,
       updated_at: new Date().toISOString(),
     }).eq('id', project_id);
+    if (linkErr) {
+      console.error('Project link error:', linkErr);
+      return jsonError('Course created but project link failed', 500);
+    }
 
     // --- Audit ---
     await admin.from('audit_logs').insert({
@@ -278,6 +341,19 @@ function escapeHtml(text: string): string {
 
 function escapeAttr(text: string): string {
   return escapeHtml(text).replace(/"/g, '&quot;');
+}
+
+async function cleanupProgram(admin: ReturnType<typeof createClient>, programId: string) {
+  const { data: modules } = await admin.from('program_modules').select('id').eq('program_id', programId);
+  const moduleIds = (modules || []).map((module: any) => module.id);
+  if (moduleIds.length > 0) {
+    const { data: lessons } = await admin.from('program_lessons').select('id').in('module_id', moduleIds);
+    const lessonIds = (lessons || []).map((lesson: any) => lesson.id);
+    if (lessonIds.length > 0) await admin.from('program_slides').delete().in('lesson_id', lessonIds);
+    await admin.from('program_lessons').delete().in('module_id', moduleIds);
+    await admin.from('program_modules').delete().eq('program_id', programId);
+  }
+  await admin.from('programs').delete().eq('id', programId);
 }
 
 
