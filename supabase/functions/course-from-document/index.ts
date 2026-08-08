@@ -29,6 +29,17 @@ const IMAGE_ACTION_KEY = 'generate_illustration';
 const TOPIC_SOURCE_CHARS = 9000;  // per-call prompt ceiling
 
 /**
+ * Wall-clock safety net. Background isolates are killed without warning, which
+ * used to leave a job frozen at "82%" forever and a draft the creator could
+ * never finish. We now stop generating BEFORE the kill and finalise the draft
+ * with whatever lessons exist, so nothing is ever lost.
+ */
+const PIPELINE_SOFT_DEADLINE_MS = 260_000;
+/** Below this remaining budget we stop spending time (and credits) on images. */
+const IMAGE_MIN_REMAINING_MS = 120_000;
+
+
+/**
  * Tier profiles — this is what actually makes Standard ≠ Premium.
  * Standard: solid course, flash model, fewer/leaner lessons, images on the
  * first lessons only. Premium: deeper lessons (more slides, longer bodies,
