@@ -293,9 +293,11 @@ export function SlideRenderer({
 
     return (
       <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
-        {hasTitleBg && <img src={titleBgImage} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} loading="lazy" decoding="async" />}
-        {hasTitleBg && <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30 z-[1]" />}
-        <SlideDecoration theme={theme} />
+        {hasTitleBg ? (
+          <LessonImageBackdrop imageUrl={titleBgImage} imageClassName={imagePositionClasses[imgPos]} focus="bottom" />
+        ) : null}
+        {!hasTitleBg && <SlideDecoration theme={theme} />}
+
         <div className="relative z-20"><Header /></div>
         <div className={cn('flex-1 flex flex-col justify-end px-6 pb-10 z-10 relative')}>
           <div className="max-w-lg">
