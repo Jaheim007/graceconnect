@@ -235,7 +235,7 @@ export default function CertificateVerifyPage() {
                       </span>
                     ) : null}
                     <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 font-mono text-amber-200">
-                      N° {certNumber}
+                      N° {certData?.certificate_number || certNumber}
                     </span>
                   </div>
 
