@@ -13,7 +13,9 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { useI18n } from '@/i18n/I18nContext';
-import { Award } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Award, ExternalLink } from 'lucide-react';
+
 
 export interface CertificateDesign {
   cover_image_url?: string | null;
