@@ -28,6 +28,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { LessonEditor } from '@/components/programs/LessonEditor';
 import { CourseBuilder } from '@/components/programs/builder/CourseBuilder';
 import { CourseCompletionRules } from '@/components/programs/CourseCompletionRules';
+import { CertificateTemplateEditor, type CertificateDesign } from '@/components/programs/CertificateTemplateEditor';
 import { useProgramSlideMap } from '@/hooks/useProgramSlides';
 import { minAiCoursePrice } from '@/lib/coursePricing';
 import type { CourseRules } from '@/hooks/useCourseDraft';
@@ -155,6 +156,13 @@ export function ProgramForm() {
   const [rules, setRules] = useState<CourseRules>({ score_mode: 'none', passing_score: 70, max_quiz_attempts: 0, certificate_enabled: true });
   const [rulesLoaded, setRulesLoaded] = useState(false);
 
+  // ── Certificate template design ─────────────────────────────────────────────
+  const [certDesign, setCertDesign] = useState<CertificateDesign>({ show_lessons: true });
+  useEffect(() => {
+    const d = (existingProgram as any)?.certificate_design;
+    if (d && typeof d === 'object') setCertDesign({ show_lessons: true, ...d });
+  }, [existingProgram]);
+
   useEffect(() => {
     if (rulesLoaded || !existingProgram || flatLessons.length === 0 || Object.keys(slideMap).length === 0) return;
     const perLesson: Record<string, { passing_score?: number; max_attempts?: number }> = {};
@@ -234,6 +242,7 @@ export function ProgramForm() {
         price: effectiveFree ? 0 : price,
         currency,
         certificate_enabled: rules.certificate_enabled !== false,
+        certificate_design: certDesign,
         passing_score: scored ? (rules.passing_score ?? 70) : 0,
         max_quiz_attempts: (rules.max_quiz_attempts ?? 0) === 0 ? 10 : rules.max_quiz_attempts,
         require_sequential_lessons: true,
@@ -742,6 +751,18 @@ export function ProgramForm() {
               lessons={flatLessons}
               onChange={(patch) => setRules(r => ({ ...r, ...patch }))}
             />
+
+            {/* Certificate template — only when certificates are issued */}
+            {rules.certificate_enabled !== false && (
+              <CertificateTemplateEditor
+                design={certDesign}
+                onChange={(patch) => setCertDesign(d => ({ ...d, ...patch }))}
+                courseTitle={title}
+                orgName={currentOrg?.name || 'SiteViral'}
+                orgLogo={(currentOrg as any)?.logo_url}
+                lessons={flatLessons}
+              />
+            )}
 
             <Button onClick={handleSave} disabled={saving || !title.trim()} className="gap-1.5">
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}

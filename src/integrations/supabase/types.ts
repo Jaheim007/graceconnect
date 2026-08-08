@@ -10678,6 +10678,7 @@ export type Database = {
         Row: {
           ai_generated: boolean
           assessment_enabled: boolean | null
+          certificate_design: Json
           certificate_enabled: boolean | null
           certificate_template: string | null
           content_language: string | null
@@ -10711,6 +10712,7 @@ export type Database = {
         Insert: {
           ai_generated?: boolean
           assessment_enabled?: boolean | null
+          certificate_design?: Json
           certificate_enabled?: boolean | null
           certificate_template?: string | null
           content_language?: string | null
@@ -10744,6 +10746,7 @@ export type Database = {
         Update: {
           ai_generated?: boolean
           assessment_enabled?: boolean | null
+          certificate_design?: Json
           certificate_enabled?: boolean | null
           certificate_template?: string | null
           content_language?: string | null
