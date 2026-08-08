@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronLeft, ChevronRight, Monitor, Tablet, Smartphone, X, List, Settings2, Star, Trophy, Zap, HelpCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Monitor, Tablet, Smartphone, X, List, Settings2, Trophy, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parseContentIntoSlides, ContentSlide, type QuizData } from './lesson-preview/parseContentSlides';
 import { SlideRenderer } from './lesson-preview/SlideRenderer';
