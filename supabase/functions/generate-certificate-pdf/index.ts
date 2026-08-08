@@ -143,12 +143,16 @@ serve(async (req) => {
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+    // Engraved display faces — a serif spine is what makes a certificate read as official
+    const fontDisplay = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+    const fontDisplayItalic = await pdfDoc.embedFont(StandardFonts.TimesRomanItalic);
 
-    const gold = rgb(0.76, 0.56, 0.11);
-    const goldSoft = rgb(0.87, 0.75, 0.42);
-    const ink = rgb(0.06, 0.07, 0.14);
-    const dark = rgb(0.12, 0.13, 0.2);
+    const gold = rgb(0.72, 0.55, 0.16);
+    const goldSoft = rgb(0.85, 0.73, 0.44);
+    const ink = rgb(0.05, 0.07, 0.14);
+    const dark = rgb(0.1, 0.12, 0.2);
     const muted = rgb(0.45, 0.46, 0.52);
+
 
     const center = (text: string, font: any, size: number) => (width - font.widthOfTextAtSize(text, size)) / 2;
 
@@ -280,40 +284,49 @@ serve(async (req) => {
     let y = badgeY - 62 * k;
 
     // ---------- Title ----------
-    drawTracked("CERTIFICATE", fontBold, 30 * k, y, ink, 9 * k);
-    y -= 26 * k;
-    drawTracked("OF COMPLETION", fontBold, 15 * k, y, gold, 8 * k);
+    drawTracked("CERTIFICATE", fontDisplay, 34 * k, y, ink, 11 * k);
+    y -= 28 * k;
+    drawTracked("OF COMPLETION", fontBold, 14 * k, y, gold, 9 * k);
     y -= 20 * k;
     // ornamental divider: line — diamond — line
-    page.drawLine({ start: { x: width / 2 - 120 * k, y: y + 4 * k }, end: { x: width / 2 - 16 * k, y: y + 4 * k }, color: gold, thickness: 1.1 * k });
-    page.drawLine({ start: { x: width / 2 + 16 * k, y: y + 4 * k }, end: { x: width / 2 + 120 * k, y: y + 4 * k }, color: gold, thickness: 1.1 * k });
+    page.drawLine({ start: { x: width / 2 - 130 * k, y: y + 4 * k }, end: { x: width / 2 - 18 * k, y: y + 4 * k }, color: gold, thickness: 1.1 * k });
+    page.drawLine({ start: { x: width / 2 + 18 * k, y: y + 4 * k }, end: { x: width / 2 + 130 * k, y: y + 4 * k }, color: gold, thickness: 1.1 * k });
     page.drawSvgPath(`M 0 0 L ${7 * k} ${7 * k} L 0 ${14 * k} L ${-7 * k} ${7 * k} Z`, { x: width / 2, y: y + 11 * k, color: gold });
+    page.drawCircle({ x: width / 2 - 26 * k, y: y + 4 * k, size: 2.6 * k, color: gold, opacity: 0.7 });
+    page.drawCircle({ x: width / 2 + 26 * k, y: y + 4 * k, size: 2.6 * k, color: gold, opacity: 0.7 });
 
     // ---------- Statement ----------
-    y -= 38 * k;
+    y -= 40 * k;
     const ack = "This certificate acknowledges that";
-    page.drawText(ack, { x: center(ack, fontItalic, 12.5 * k), y, size: 12.5 * k, font: fontItalic, color: muted });
+    page.drawText(ack, { x: center(ack, fontDisplayItalic, 14 * k), y, size: 14 * k, font: fontDisplayItalic, color: muted });
 
-    y -= 52 * k;
-    const nameSize = (learnerName.length > 28 ? 28 : 36) * k;
-    page.drawText(learnerName, { x: center(learnerName, fontBold, nameSize), y, size: nameSize, font: fontBold, color: dark });
-    // gold underline swash beneath the name
-    const nameW = fontBold.widthOfTextAtSize(learnerName, nameSize);
-    const underlineW = Math.min(width - 160 * k, nameW + 60 * k);
+    y -= 56 * k;
+    const nameSize = (learnerName.length > 28 ? 30 : 40) * k;
+    page.drawText(learnerName, { x: center(learnerName, fontDisplay, nameSize), y, size: nameSize, font: fontDisplay, color: dark });
+    // gold underline swash beneath the name, tapering to fine points
+    const nameW = fontDisplay.widthOfTextAtSize(learnerName, nameSize);
+    const underlineW = Math.min(width - 160 * k, nameW + 70 * k);
+    const uy = y - 16 * k;
     page.drawLine({
-      start: { x: (width - underlineW) / 2, y: y - 14 * k },
-      end: { x: (width + underlineW) / 2, y: y - 14 * k },
-      color: gold, thickness: 1.6 * k, opacity: 0.7,
+      start: { x: (width - underlineW) / 2 + 10 * k, y: uy },
+      end: { x: (width + underlineW) / 2 - 10 * k, y: uy },
+      color: gold, thickness: 1.6 * k, opacity: 0.8,
     });
+    for (const dir of [-1, 1]) {
+      page.drawSvgPath(`M 0 0 L ${dir * 12 * k} ${2.6 * k} L ${dir * 12 * k} ${-2.6 * k} Z`, {
+        x: width / 2 + dir * (underlineW / 2 - 10 * k), y: uy, color: gold, opacity: 0.8,
+      });
+    }
 
-    y -= 44 * k;
+    y -= 46 * k;
     const line2 = "has successfully fulfilled the requirements of the course";
     page.drawText(line2, { x: center(line2, fontRegular, 12 * k), y, size: 12 * k, font: fontRegular, color: muted });
 
-    y -= 36 * k;
-    const ctSize = (courseTitle.length > 46 ? 17 : 21) * k;
-    const ct = truncate(`“${courseTitle}”`, fontBold, ctSize, width - 160 * k);
-    page.drawText(ct, { x: center(ct, fontBold, ctSize), y, size: ctSize, font: fontBold, color: ink });
+    y -= 38 * k;
+    const ctSize = (courseTitle.length > 46 ? 18 : 23) * k;
+    const ct = truncate(`“${courseTitle}”`, fontDisplay, ctSize, width - 160 * k);
+    page.drawText(ct, { x: center(ct, fontDisplay, ctSize), y, size: ctSize, font: fontDisplay, color: ink });
+
 
     // meta chips (date + score)
     y -= 34 * k;
@@ -380,8 +393,9 @@ serve(async (req) => {
     });
     drawTracked(signatureLabel.toUpperCase(), fontBold, 8.5 * k, sigBaseY, rgb(0.45, 0.45, 0.5), 3 * k);
     page.drawText(footerText, {
-      x: center(footerText, fontBold, 11.5 * k), y: sigBaseY - 22 * k, size: 11.5 * k, font: fontBold, color: dark,
+      x: center(footerText, fontDisplay, 13 * k), y: sigBaseY - 24 * k, size: 13 * k, font: fontDisplay, color: dark,
     });
+
 
     // ---------- Footer: verification ----------
     page.drawLine({ start: { x: 110 * k, y: 108 * k }, end: { x: width - 110 * k, y: 108 * k }, color: goldSoft, thickness: 0.8 * k });

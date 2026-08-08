@@ -83,73 +83,162 @@ export function CertificateTemplateEditor({
       </div>
 
 
-      {/* Live preview */}
-      <div className="mx-auto w-full max-w-[420px] rounded-xl border border-border overflow-hidden bg-background aspect-[1414/2000] flex flex-col">
-        {design.cover_image_url ? (
-          <img
-            src={design.cover_image_url}
-            alt={t('Bannière du certificat', 'Certificate cover')}
-            className="w-full h-[88px] object-cover"
-            loading="lazy"
+      {/* Live preview — a faithful miniature of the printed certificate */}
+      <div className="mx-auto w-full max-w-[440px]">
+        <div className="relative aspect-[1414/2000] w-full overflow-hidden rounded-lg bg-cert-paper shadow-elevated">
+          {/* engraved guilloche + warm vignette */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(circle at 50% 48%, hsl(var(--cert-gold-soft) / 0.14) 0 1px, transparent 1px 26px), radial-gradient(circle at 50% 100%, hsl(var(--cert-paper-warm)) 0%, transparent 70%)',
+              backgroundSize: '100% 100%, 100% 100%',
+            }}
           />
-        ) : (
-          <div className="w-full h-[88px] bg-gradient-to-r from-primary/25 via-primary/10 to-transparent" />
-        )}
+          <div
+            className="pointer-events-none absolute left-1/2 top-[46%] aspect-square w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-40"
+            style={{
+              background:
+                'repeating-radial-gradient(circle, hsl(var(--cert-gold-soft) / 0.28) 0 0.5px, transparent 0.5px 11px)',
+            }}
+          />
 
-        <div className="flex-1 flex flex-col px-6 pb-6 -mt-8 text-center space-y-3 overflow-hidden">
-          <div className="mx-auto h-16 w-16 rounded-full border-4 border-background bg-muted overflow-hidden grid place-items-center">
-            {badge
-              ? <img src={badge} alt={t('Badge', 'Badge')} className="h-full w-full object-cover" loading="lazy" />
-              : <Award className="h-6 w-6 text-muted-foreground" />}
-          </div>
+          {/* double gold frame */}
+          <div className="pointer-events-none absolute inset-[7px] border-[1.5px] border-cert-gold" />
+          <div className="pointer-events-none absolute inset-[12px] border border-cert-gold-soft/70" />
+          {/* corner brackets */}
+          {[
+            'left-[14px] top-[14px] border-l-2 border-t-2',
+            'right-[14px] top-[14px] border-r-2 border-t-2',
+            'left-[14px] bottom-[14px] border-l-2 border-b-2',
+            'right-[14px] bottom-[14px] border-r-2 border-b-2',
+          ].map((pos) => (
+            <div key={pos} className={`pointer-events-none absolute h-6 w-6 border-cert-gold ${pos}`} />
+          ))}
 
-          <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-            {t('Certificat de réussite', 'Certificate of completion')}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {t('Ce certificat atteste que', 'This certificate acknowledges that')}
-          </p>
-          <p className="font-heading text-xl font-bold">{name}</p>
-          <p className="text-xs text-muted-foreground max-w-md mx-auto">
-            {t('a rempli avec succès les exigences du cours', 'has successfully fulfilled the requirements of the course')}
-            {' '}<span className="font-semibold text-foreground">{courseTitle || t('Titre du cours', 'Course title')}</span>
-            {' · '}{new Date().toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
-          </p>
-
-          {lessons.length > 0 && (
-            <div className="text-left mx-auto max-w-md pt-2">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
-                {t('Programme suivi', 'Course outline')}
-              </p>
-              <ul className="grid gap-0.5">
-                {lessons.slice(0, 6).map((l, i) => (
-                  <li key={i} className="text-[11px] text-muted-foreground truncate">• {l.title}</li>
-                ))}
-                {lessons.length > 6 && (
-                  <li className="text-[11px] text-muted-foreground">
-                    + {lessons.length - 6} {t('autres', 'more')}
-                  </li>
-                )}
-              </ul>
+          <div className="relative flex h-full flex-col px-6 pb-5 pt-5">
+            {/* header band */}
+            <div className="relative h-[54px] w-full overflow-hidden border border-cert-gold/80">
+              {design.cover_image_url ? (
+                <>
+                  <img
+                    src={design.cover_image_url}
+                    alt={t('Bannière du certificat', 'Certificate cover')}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-cert-ink/25" />
+                </>
+              ) : (
+                <div className="grid h-full w-full place-items-center bg-cert-ink">
+                  <span className="text-[8px] uppercase tracking-[0.35em] text-cert-gold-soft">{orgName}</span>
+                </div>
+              )}
             </div>
-          )}
+            <div className="mt-1 h-[1.5px] w-full bg-cert-gold" />
 
-          <div className="mt-auto pt-3 flex flex-col items-center gap-1">
-            {design.signature_image_url && (
-              <img
-                src={design.signature_image_url}
-                alt={t('Signature', 'Signature')}
-                className="h-10 w-10 object-contain"
-                loading="lazy"
+            {/* medallion */}
+            <div className="relative mx-auto -mt-[26px] h-[62px] w-[62px]">
+              <div
+                className="absolute -inset-[7px] rounded-full opacity-90"
+                style={{
+                  background:
+                    'repeating-conic-gradient(from 0deg, hsl(var(--cert-gold)) 0deg 1.2deg, transparent 1.2deg 10deg)',
+                  mask: 'radial-gradient(circle, transparent 62%, #000 64%)',
+                  WebkitMask: 'radial-gradient(circle, transparent 62%, #000 64%)',
+                }}
               />
-            )}
-            <div className="h-px w-28 bg-border" />
-            <p className="text-[11px] font-medium">{design.signature_label || t('Signé par', 'Signed by')}</p>
+              <div className="absolute inset-0 grid place-items-center overflow-hidden rounded-full border-2 border-cert-gold bg-cert-paper">
+                {badge
+                  ? <img src={badge} alt={t('Badge', 'Badge')} className="h-full w-full object-cover" loading="lazy" />
+                  : <Award className="h-6 w-6 text-cert-gold" />}
+              </div>
+            </div>
 
-            <p className="text-[11px] text-muted-foreground">{footerText}</p>
+            {/* title */}
+            <p className="mt-3 text-center font-heading text-[15px] font-bold uppercase tracking-[0.3em] text-cert-ink">
+              {t('Certificat', 'Certificate')}
+            </p>
+            <p className="mt-0.5 text-center text-[8px] font-semibold uppercase tracking-[0.32em] text-cert-gold">
+              {t('de réussite', 'of completion')}
+            </p>
+            <div className="mx-auto mt-2 flex items-center gap-2">
+              <span className="h-[1px] w-14 bg-cert-gold" />
+              <span className="h-1.5 w-1.5 rotate-45 bg-cert-gold" />
+              <span className="h-[1px] w-14 bg-cert-gold" />
+            </div>
+
+            {/* statement */}
+            <p className="mt-3 text-center text-[9px] italic text-cert-muted">
+              {t('Ce certificat atteste que', 'This certificate acknowledges that')}
+            </p>
+            <p className="mt-2 text-center font-heading text-lg font-bold leading-tight text-cert-ink">{name}</p>
+            <div className="mx-auto mt-1.5 h-[1.5px] w-[62%] bg-cert-gold/70" />
+            <p className="mt-2.5 text-center text-[9px] text-cert-muted">
+              {t('a rempli avec succès les exigences du cours', 'has successfully fulfilled the requirements of the course')}
+            </p>
+            <p className="mt-1.5 line-clamp-2 text-center font-heading text-[13px] font-bold text-cert-ink">
+              “{courseTitle || t('Titre du cours', 'Course title')}”
+            </p>
+
+            {/* meta chips */}
+            <div className="mt-2.5 flex justify-center gap-1.5">
+              <span className="border border-cert-gold-soft bg-cert-paper-warm px-2 py-[3px] text-[7.5px] font-semibold uppercase tracking-wider text-cert-gold">
+                {new Date().toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </span>
+              <span className="border border-cert-gold-soft bg-cert-paper-warm px-2 py-[3px] text-[7.5px] font-semibold uppercase tracking-wider text-cert-gold">
+                {t('Réussi', 'Passed')}
+              </span>
+            </div>
+
+            {/* outline */}
+            {lessons.length > 0 && (
+              <div className="mt-4">
+                <p className="text-center text-[7px] font-semibold uppercase tracking-[0.3em] text-cert-muted">
+                  {t('Programme suivi', 'Course outline')}
+                </p>
+                <div className="mx-auto mt-1 h-[1px] w-[75%] bg-cert-gold-soft/70" />
+                <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-[3px]">
+                  {lessons.slice(0, 10).map((l, i) => (
+                    <li key={i} className="flex items-center gap-1 truncate text-[7.5px] text-cert-ink-soft">
+                      <span className="h-1 w-1 shrink-0 rotate-45 bg-cert-gold" />
+                      <span className="truncate">{l.title}</span>
+                    </li>
+                  ))}
+                </ul>
+                {lessons.length > 10 && (
+                  <p className="mt-1 text-center text-[7px] italic text-cert-muted">
+                    + {lessons.length - 10} {t('autres leçons', 'more lessons')}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* signature + verification */}
+            <div className="mt-auto flex flex-col items-center pt-4">
+              {design.signature_image_url && (
+                <img
+                  src={design.signature_image_url}
+                  alt={t('Signature', 'Signature')}
+                  className="mb-1 h-9 w-9 object-contain"
+                  loading="lazy"
+                />
+              )}
+              <div className="h-[1px] w-24 bg-cert-ink-soft/40" />
+              <p className="mt-1 text-[7px] font-semibold uppercase tracking-[0.28em] text-cert-muted">
+                {design.signature_label || t('Signé par', 'Signed by')}
+              </p>
+              <p className="mt-0.5 font-heading text-[10px] font-bold text-cert-ink">{footerText}</p>
+
+              <div className="mt-3 h-[1px] w-[80%] bg-cert-gold-soft/70" />
+              <span className="mt-2 bg-cert-ink px-3 py-1 text-[7px] font-semibold uppercase tracking-[0.22em] text-cert-paper">
+                {t('Certificat n°', 'Certificate No.')} PREVIEW-0000
+              </span>
+            </div>
           </div>
         </div>
       </div>
+
 
       {/* Fields */}
       <div className="grid gap-4 sm:grid-cols-2">
