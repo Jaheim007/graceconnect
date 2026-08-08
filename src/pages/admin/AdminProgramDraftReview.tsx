@@ -92,8 +92,12 @@ export default function AdminProgramDraftReview() {
   useEffect(() => {
     if (rulesLoaded || !project) return;
     setRules({
+      // No score is required by default — the creator opts in.
+      score_mode: 'none',
+      require_score: false,
       passing_score: 70,
-      max_quiz_attempts: 3,
+      // 0 = unlimited retries.
+      max_quiz_attempts: 0,
       // Lessons always unlock one by one — it is the learning model, not an option.
       require_sequential_lessons: true,
       gamification_enabled: true,
@@ -213,12 +217,16 @@ export default function AdminProgramDraftReview() {
     try {
       // Per-lesson rules travel with the quiz slides so the learner player
       // enforces exactly what the creator set for that lesson.
+      const mode = rules.score_mode ?? (rules.require_score ? 'global' : 'none');
+      const scored = mode !== 'none';
+      const defaultPass = rules.passing_score ?? 70;
+      // 0 = unlimited retries.
+      const defaultTries = rules.max_quiz_attempts ?? 0;
       const stamped: CourseDraft = structuredClone(draft);
       stamped.lessons.forEach((l, i) => {
-        const rule = rules.lesson_rules?.[String(i)];
-        const scored = rules.require_score !== false;
-        const pass = scored ? (rule?.passing_score ?? rules.passing_score ?? 70) : 0;
-        const tries = rule?.max_attempts ?? rules.max_quiz_attempts ?? 3;
+        const rule = mode === 'per_lesson' ? rules.lesson_rules?.[String(i)] : undefined;
+        const pass = scored ? (rule?.passing_score ?? defaultPass) : 0;
+        const tries = rule?.max_attempts ?? defaultTries;
         (l.slides || []).forEach((s) => {
           if (s.slide_type === 'quiz') {
             s.data = { ...(s.data || {}), passingScore: pass, maxAttempts: tries, revealAnswers: false };
@@ -230,7 +238,12 @@ export default function AdminProgramDraftReview() {
       const result = await publishDraft.mutateAsync({
         org_id: orgId, project_id: projectId,
         publish_now: !incomplete,
-        settings: rules.require_score === false ? { ...rules, passing_score: 0 } : rules,
+        settings: {
+          ...rules,
+          passing_score: scored ? defaultPass : 0,
+          // The program column only accepts 1–10; unlimited is kept on the slides.
+          max_quiz_attempts: defaultTries === 0 ? 10 : defaultTries,
+        },
       });
 
 

@@ -36,15 +36,21 @@ export interface DraftLesson {
 /** Per-lesson override of the completion rules (keyed by lesson index). */
 export interface LessonRule {
   passing_score?: number;
+  /** 0 = unlimited retries. */
   max_attempts?: number;
 }
+
+/** How scoring gates the course: no score, one score for all, or per lesson. */
+export type ScoreMode = 'none' | 'global' | 'per_lesson';
 
 /** Course rules chosen on the review screen, applied when publishing. */
 export interface CourseRules {
   cover_image_url?: string | null;
+  score_mode?: ScoreMode;
   /** When false the quizzes stay informative: no score is required to move on. */
   require_score?: boolean;
   passing_score?: number;
+  /** 0 = unlimited retries. */
   max_quiz_attempts?: number;
   require_sequential_lessons?: boolean;
 
