@@ -235,10 +235,9 @@ export function ModuleQuizPlayer({ quiz, moduleTitle, onComplete, gamificationEn
               <div className="space-y-2">
                 <Input
                   value={fillBlankInput}
-                  onChange={e => setFillBlankInput(e.target.value)}
+                  onChange={e => { setFillBlankInput(e.target.value); handleAnswer(e.target.value.trim()); }}
                   placeholder={isFr ? 'Tapez votre réponse...' : 'Type your answer...'}
                   className="text-sm"
-                  onChange={e => { setFillBlankInput(e.target.value); handleAnswer(e.target.value.trim()); }}
                 />
               </div>
             ) : (
