@@ -1083,7 +1083,11 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
                 </div>
               <SlideCustomizationPanel
                   customization={currentCustomization}
-                  onChange={(c) => setSlideCustomizations(prev => ({ ...prev, [currentIndex]: { ...c, layout: 'text-only' } }))}
+                  onChange={(c) => {
+                    const next = { ...c, layout: 'text-only' as const };
+                    setSlideCustomizations(prev => ({ ...prev, [currentIndex]: next }));
+                    persistCustomization(currentIndex, next);
+                  }}
                   onApplyToAll={applyCustomizationToAll}
                   onGenerateImage={handleGenerateSlideBackground}
                   isGenerating={isGeneratingSlideImage}
