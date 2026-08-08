@@ -10663,6 +10663,7 @@ export type Database = {
           is_free: boolean | null
           is_published: boolean | null
           linked_product_id: string | null
+          max_quiz_attempts: number
           organization_id: string
           passing_score: number | null
           price: number | null
@@ -10695,6 +10696,7 @@ export type Database = {
           is_free?: boolean | null
           is_published?: boolean | null
           linked_product_id?: string | null
+          max_quiz_attempts?: number
           organization_id: string
           passing_score?: number | null
           price?: number | null
@@ -10727,6 +10729,7 @@ export type Database = {
           is_free?: boolean | null
           is_published?: boolean | null
           linked_product_id?: string | null
+          max_quiz_attempts?: number
           organization_id?: string
           passing_score?: number | null
           price?: number | null
