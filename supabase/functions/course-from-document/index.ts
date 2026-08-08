@@ -109,7 +109,7 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const {
       org_id, source = 'document', file_url, file_name, mime,
-      prompt, language, tier, title: titleHint,
+      prompt, language, tier, title: titleHint, generate_images,
     } = body as Record<string, any>;
 
     if (!org_id) return jsonResp({ error: 'org_id required' }, 400);
