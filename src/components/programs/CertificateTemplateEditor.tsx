@@ -11,7 +11,6 @@
  */
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { useI18n } from '@/i18n/I18nContext';
 import { Award } from 'lucide-react';
@@ -22,7 +21,6 @@ export interface CertificateDesign {
   signature_image_url?: string | null;
   signature_label?: string | null;
   footer_text?: string | null;
-  show_lessons?: boolean;
 }
 
 interface Props {
@@ -44,7 +42,6 @@ export function CertificateTemplateEditor({
 
   const badge = design.badge_image_url || orgLogo || '';
   const footerText = design.footer_text ?? orgName;
-  const showLessons = design.show_lessons !== false;
   const name = learnerName || t('Nom de l’apprenant', 'Learner name');
 
   return (
@@ -61,7 +58,7 @@ export function CertificateTemplateEditor({
       </div>
 
       {/* Live preview */}
-      <div className="rounded-xl border border-border overflow-hidden bg-background">
+      <div className="mx-auto w-full max-w-[420px] rounded-xl border border-border overflow-hidden bg-background aspect-[1414/2000] flex flex-col">
         {design.cover_image_url ? (
           <img
             src={design.cover_image_url}
@@ -73,7 +70,7 @@ export function CertificateTemplateEditor({
           <div className="w-full h-[88px] bg-gradient-to-r from-primary/25 via-primary/10 to-transparent" />
         )}
 
-        <div className="px-6 pb-6 -mt-8 text-center space-y-3">
+        <div className="flex-1 flex flex-col px-6 pb-6 -mt-8 text-center space-y-3 overflow-hidden">
           <div className="mx-auto h-16 w-16 rounded-full border-4 border-background bg-muted overflow-hidden grid place-items-center">
             {badge
               ? <img src={badge} alt={t('Badge', 'Badge')} className="h-full w-full object-cover" loading="lazy" />
@@ -93,7 +90,7 @@ export function CertificateTemplateEditor({
             {' · '}{new Date().toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
 
-          {showLessons && lessons.length > 0 && (
+          {lessons.length > 0 && (
             <div className="text-left mx-auto max-w-md pt-2">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
                 {t('Programme suivi', 'Course outline')}
@@ -111,7 +108,7 @@ export function CertificateTemplateEditor({
             </div>
           )}
 
-          <div className="pt-3 flex flex-col items-center gap-1">
+          <div className="mt-auto pt-3 flex flex-col items-center gap-1">
             {design.signature_image_url && (
               <img
                 src={design.signature_image_url}
@@ -180,15 +177,6 @@ export function CertificateTemplateEditor({
             <p className="text-[10px] text-muted-foreground mt-1">
               {t('Vide = le nom de votre plateforme.', 'Empty = your platform name.')}
             </p>
-          </div>
-          <div className="flex items-center justify-between rounded-xl border border-border p-3">
-            <div className="pr-3">
-              <Label className="text-xs">{t('Afficher le programme', 'Display lesson outline')}</Label>
-              <p className="text-[10px] text-muted-foreground">
-                {t('Liste les titres des leçons sur le certificat.', 'Lists the lesson titles on the certificate.')}
-              </p>
-            </div>
-            <Switch checked={showLessons} onCheckedChange={(v) => onChange({ show_lessons: v })} />
           </div>
         </div>
       </div>

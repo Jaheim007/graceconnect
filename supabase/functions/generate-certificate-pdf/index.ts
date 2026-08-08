@@ -91,11 +91,9 @@ serve(async (req) => {
 
     const footerText = (design.footer_text ?? orgName) || orgName;
     const signatureLabel = design.signature_label || "Signed by";
-    const showLessons = design.show_lessons !== false;
-
-    // Lesson outline (only when enabled)
+    // Lesson outline is always printed on the certificate
     let lessonTitles: string[] = [];
-    if (showLessons && program.id) {
+    if (program.id) {
       const { data: modules } = await sb
         .from("program_modules")
         .select("id, order_index")
@@ -112,10 +110,11 @@ serve(async (req) => {
       }
     }
 
-    // Create PDF
+    // Create PDF — standard certificate portrait 1414 x 2000
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([842, 595]); // A4 landscape
+    const page = pdfDoc.addPage([1414, 2000]);
     const { width, height } = page.getSize();
+    const k = width / 595; // scale factor vs A4-portrait-points baseline
 
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -129,123 +128,124 @@ serve(async (req) => {
 
     // Background + border
     page.drawRectangle({ x: 0, y: 0, width, height, color: rgb(0.99, 0.985, 0.97) });
-    page.drawRectangle({ x: 18, y: 18, width: width - 36, height: height - 36, borderColor: gold, borderWidth: 2.5 });
-    page.drawRectangle({ x: 27, y: 27, width: width - 54, height: height - 54, borderColor: rgb(0.85, 0.74, 0.35), borderWidth: 0.75 });
+    page.drawRectangle({ x: 24 * k, y: 24 * k, width: width - 48 * k, height: height - 48 * k, borderColor: gold, borderWidth: 3 * k });
+    page.drawRectangle({ x: 36 * k, y: 36 * k, width: width - 72 * k, height: height - 72 * k, borderColor: rgb(0.85, 0.74, 0.35), borderWidth: 1 * k });
 
     // Cover strip (1000x200 → 5:1)
     const coverImg = await embedImage(pdfDoc, design.cover_image_url);
-    const stripX = 32;
-    const stripW = width - 64;
+    const stripX = 44 * k;
+    const stripW = width - 88 * k;
     const stripH = Math.round(stripW / 5);
-    const stripY = height - 32 - stripH;
+    const stripY = height - 44 * k - stripH;
     if (coverImg) {
       page.drawImage(coverImg, { x: stripX, y: stripY, width: stripW, height: stripH });
     } else {
       page.drawRectangle({ x: stripX, y: stripY, width: stripW, height: stripH, color: rgb(0.96, 0.93, 0.85) });
       const oName = orgName.toUpperCase();
       page.drawText(oName, {
-        x: center(oName, fontBold, 12),
-        y: stripY + stripH / 2 - 4,
-        size: 12, font: fontBold, color: rgb(0.55, 0.45, 0.2),
+        x: center(oName, fontBold, 14 * k),
+        y: stripY + stripH / 2 - 5 * k,
+        size: 14 * k, font: fontBold, color: rgb(0.55, 0.45, 0.2),
       });
     }
 
     // Badge (180x180) overlapping the strip
     const badgeImg = await embedImage(pdfDoc, design.badge_image_url || org.logo_url);
-    const badgeSize = 62;
+    const badgeSize = 95 * k;
     const badgeY = stripY - badgeSize / 2;
     if (badgeImg) {
       page.drawImage(badgeImg, { x: (width - badgeSize) / 2, y: badgeY, width: badgeSize, height: badgeSize });
     } else {
       page.drawRectangle({
         x: (width - badgeSize) / 2, y: badgeY, width: badgeSize, height: badgeSize,
-        color: rgb(0.96, 0.93, 0.85), borderColor: gold, borderWidth: 1,
+        color: rgb(0.96, 0.93, 0.85), borderColor: gold, borderWidth: 1 * k,
       });
     }
 
-    let y = badgeY - 26;
+    let y = badgeY - 54 * k;
 
     // Title
     const title = "CERTIFICATE OF COMPLETION";
-    page.drawText(title, { x: center(title, fontBold, 22), y, size: 22, font: fontBold, color: dark });
-    y -= 12;
-    page.drawLine({ start: { x: width / 2 - 70, y }, end: { x: width / 2 + 70, y }, color: gold, thickness: 1.2 });
+    page.drawText(title, { x: center(title, fontBold, 26 * k), y, size: 26 * k, font: fontBold, color: dark });
+    y -= 18 * k;
+    page.drawLine({ start: { x: width / 2 - 90 * k, y }, end: { x: width / 2 + 90 * k, y }, color: gold, thickness: 1.4 * k });
 
     // Statement
-    y -= 24;
+    y -= 40 * k;
     const ack = "This certificate acknowledges that";
-    page.drawText(ack, { x: center(ack, fontItalic, 11), y, size: 11, font: fontItalic, color: muted });
+    page.drawText(ack, { x: center(ack, fontItalic, 12 * k), y, size: 12 * k, font: fontItalic, color: muted });
 
-    y -= 30;
-    const nameSize = learnerName.length > 28 ? 24 : 30;
+    y -= 46 * k;
+    const nameSize = (learnerName.length > 28 ? 26 : 34) * k;
     page.drawText(learnerName, { x: center(learnerName, fontBold, nameSize), y, size: nameSize, font: fontBold, color: gold });
 
-    y -= 24;
+    y -= 38 * k;
     const line2 = "has successfully fulfilled the requirements of the course";
-    page.drawText(line2, { x: center(line2, fontRegular, 11), y, size: 11, font: fontRegular, color: muted });
+    page.drawText(line2, { x: center(line2, fontRegular, 12 * k), y, size: 12 * k, font: fontRegular, color: muted });
 
-    y -= 24;
-    const ctSize = courseTitle.length > 46 ? 15 : 19;
-    const ct = truncate(`“${courseTitle}”`, fontBold, ctSize, width - 160);
+    y -= 34 * k;
+    const ctSize = (courseTitle.length > 46 ? 16 : 20) * k;
+    const ct = truncate(`“${courseTitle}”`, fontBold, ctSize, width - 160 * k);
     page.drawText(ct, { x: center(ct, fontBold, ctSize), y, size: ctSize, font: fontBold, color: rgb(0.2, 0.2, 0.2) });
 
-    y -= 20;
+    y -= 30 * k;
     let meta = `Completed on ${completedDate}`;
     if (score !== undefined && score !== null && total) {
       meta += ` • Score ${score}/${total} (${Math.round((score / total) * 100)}%)`;
     }
-    page.drawText(meta, { x: center(meta, fontRegular, 10), y, size: 10, font: fontRegular, color: rgb(0.55, 0.55, 0.55) });
+    page.drawText(meta, { x: center(meta, fontRegular, 11 * k), y, size: 11 * k, font: fontRegular, color: rgb(0.55, 0.55, 0.55) });
 
-    // Lesson outline
-    if (showLessons && lessonTitles.length) {
-      y -= 26;
+    // Lesson outline (always shown when the course has lessons)
+    if (lessonTitles.length) {
+      y -= 50 * k;
       const label = "COURSE OUTLINE";
-      page.drawText(label, { x: center(label, fontBold, 8), y, size: 8, font: fontBold, color: rgb(0.6, 0.6, 0.6) });
-      y -= 14;
+      page.drawText(label, { x: center(label, fontBold, 9 * k), y, size: 9 * k, font: fontBold, color: rgb(0.6, 0.6, 0.6) });
+      y -= 24 * k;
 
-      const shown = lessonTitles.slice(0, 8);
-      const colW = (width - 220) / 2;
+      const shown = lessonTitles.slice(0, 20);
+      const colW = (width - 200 * k) / 2;
       const rows = Math.ceil(shown.length / 2);
+      const rowH = 17 * k;
       shown.forEach((t, i) => {
         const col = i < rows ? 0 : 1;
         const row = i < rows ? i : i - rows;
-        const text = truncate(`• ${t}`, fontRegular, 9, colW);
+        const text = truncate(`• ${t}`, fontRegular, 10 * k, colW - 12 * k);
         page.drawText(text, {
-          x: 110 + col * (colW + 10),
-          y: y - row * 12,
-          size: 9, font: fontRegular, color: rgb(0.45, 0.45, 0.45),
+          x: 100 * k + col * (colW + 10 * k),
+          y: y - row * rowH,
+          size: 10 * k, font: fontRegular, color: rgb(0.45, 0.45, 0.45),
         });
       });
-      y -= rows * 12;
+      y -= rows * rowH;
       if (lessonTitles.length > shown.length) {
         const more = `+ ${lessonTitles.length - shown.length} more lessons`;
-        page.drawText(more, { x: center(more, fontItalic, 8), y: y - 4, size: 8, font: fontItalic, color: rgb(0.6, 0.6, 0.6) });
+        page.drawText(more, { x: center(more, fontItalic, 9 * k), y: y - 8 * k, size: 9 * k, font: fontItalic, color: rgb(0.6, 0.6, 0.6) });
       }
     }
 
     // Signature block
     const sigImg = await embedImage(pdfDoc, design.signature_image_url);
-    const sigBaseY = 92;
+    const sigBaseY = 150 * k;
     if (sigImg) {
-      const s = 34;
-      page.drawImage(sigImg, { x: (width - s) / 2, y: sigBaseY + 12, width: s, height: s });
+      const s = 52 * k;
+      page.drawImage(sigImg, { x: (width - s) / 2, y: sigBaseY + 18 * k, width: s, height: s });
     }
     page.drawText(signatureLabel, {
-      x: center(signatureLabel, fontBold, 9), y: sigBaseY, size: 9, font: fontBold, color: rgb(0.3, 0.3, 0.3),
+      x: center(signatureLabel, fontBold, 10 * k), y: sigBaseY, size: 10 * k, font: fontBold, color: rgb(0.3, 0.3, 0.3),
     });
     page.drawText(footerText, {
-      x: center(footerText, fontRegular, 9), y: sigBaseY - 13, size: 9, font: fontRegular, color: rgb(0.5, 0.5, 0.5),
+      x: center(footerText, fontRegular, 10 * k), y: sigBaseY - 18 * k, size: 10 * k, font: fontRegular, color: rgb(0.5, 0.5, 0.5),
     });
 
     // Footer
-    page.drawLine({ start: { x: 100, y: 62 }, end: { x: width - 100, y: 62 }, color: gold, thickness: 0.5 });
+    page.drawLine({ start: { x: 110 * k, y: 100 * k }, end: { x: width - 110 * k, y: 100 * k }, color: gold, thickness: 0.7 * k });
     const certNumText = `Certificate No: ${certNumber}`;
     page.drawText(certNumText, {
-      x: center(certNumText, fontRegular, 9), y: 46, size: 9, font: fontRegular, color: rgb(0.6, 0.6, 0.6),
+      x: center(certNumText, fontRegular, 10 * k), y: 76 * k, size: 10 * k, font: fontRegular, color: rgb(0.6, 0.6, 0.6),
     });
     const poweredBy = "Powered by SiteViral";
     page.drawText(poweredBy, {
-      x: center(poweredBy, fontItalic, 8), y: 33, size: 8, font: fontItalic, color: rgb(0.7, 0.7, 0.7),
+      x: center(poweredBy, fontItalic, 9 * k), y: 56 * k, size: 9 * k, font: fontItalic, color: rgb(0.7, 0.7, 0.7),
     });
 
     const ownerId = org.owner_id || null;

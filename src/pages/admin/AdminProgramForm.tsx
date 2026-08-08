@@ -157,10 +157,10 @@ export function ProgramForm() {
   const [rulesLoaded, setRulesLoaded] = useState(false);
 
   // ── Certificate template design ─────────────────────────────────────────────
-  const [certDesign, setCertDesign] = useState<CertificateDesign>({ show_lessons: true });
+  const [certDesign, setCertDesign] = useState<CertificateDesign>({});
   useEffect(() => {
     const d = (existingProgram as any)?.certificate_design;
-    if (d && typeof d === 'object') setCertDesign({ show_lessons: true, ...d });
+    if (d && typeof d === 'object') setCertDesign({ ...d });
   }, [existingProgram]);
 
   useEffect(() => {
