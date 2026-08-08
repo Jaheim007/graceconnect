@@ -13,7 +13,7 @@ serve(async (req) => {
     const { supabaseUrl, serviceKey, userId } = auth;
     const admin = adminClient(supabaseUrl, serviceKey);
 
-    const { title, description, tier = 'standard', org_id } = await req.json();
+    const { title, description, tier = 'standard', org_id, image_type } = await req.json();
     if (!title?.trim()) return jsonResp({ error: 'Title is required' }, 400);
 
     const creditTier = normalizeTier(tier);
@@ -24,9 +24,12 @@ serve(async (req) => {
       actionKey: 'generate_cover',
       tier: creditTier,
       idempotencyKey: `course-cover-${userId}-${Date.now()}`,
-      metadata: { title, type: 'course_cover' },
+      metadata: { title, type: image_type === 'slide_background' ? 'slide_background' : 'course_cover' },
       action: async () => {
-        const prompt = `Create a professional, modern course cover image in wide 16:9 landscape format for a learning platform.
+        const isSlideBackground = image_type === 'slide_background';
+        const prompt = `${isSlideBackground
+          ? 'Create a professional editorial background illustration in wide 16:9 landscape format for an online course slide.'
+          : 'Create a professional, modern course cover image in wide 16:9 landscape format for a learning platform.'}
 Title: "${title}"
 ${description ? `Topic: ${description.replace(/<[^>]*>/g, '').slice(0, 200)}` : ''}
 
@@ -35,7 +38,7 @@ Requirements:
 - Clean, modern aesthetic with bold colors
 - NO text or words in the image — purely visual/graphic
 - Abstract or illustrative representation of the topic
-- Suitable as a course thumbnail/banner
+- ${isSlideBackground ? 'Keep the central and lower-third areas calm and uncluttered for readable overlaid lesson text' : 'Suitable as a course thumbnail/banner'}
 - High quality, visually striking composition
 - Framed for a 1280x720 style cover without important content near the edges`;
 

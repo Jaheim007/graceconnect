@@ -34,7 +34,7 @@ const TOPIC_SOURCE_CHARS = 9000;  // per-call prompt ceiling
  * never finish. We now stop generating BEFORE the kill and finalise the draft
  * with whatever lessons exist, so nothing is ever lost.
  */
-const PIPELINE_SOFT_DEADLINE_MS = 260_000;
+const PIPELINE_SOFT_DEADLINE_MS = 340_000;
 /** Below this remaining budget we stop spending time (and credits) on images. */
 const IMAGE_MIN_REMAINING_MS = 30_000;
 /**
@@ -205,6 +205,7 @@ Deno.serve(async (req) => {
         language: isFr ? 'fr' : 'en',
         data_json: {
           pipeline: 'course-from-document',
+          generation: { tier: normalizeTier(tier), level: ['beginner', 'intermediate', 'advanced'].includes(level) ? level : 'intermediate' },
           source: { kind: sourceKind, file_url: file_url || null, file_name: file_name || null, words: sourceWords, prompt: prompt || null },
           course: { title: projectTitle, lessons: [] },
         },
@@ -367,7 +368,7 @@ async function runPipeline(ctx: {
 
     // Lessons are generated in small parallel batches: a premium course (18
     // topics on a slower model) used to hit the wall clock after ~5 lessons.
-    const BATCH = 3;
+    const BATCH = 4;
     let done = 0;
 
     for (let start = 0; start < topics.length; start += BATCH) {
@@ -427,6 +428,21 @@ async function runPipeline(ctx: {
       });
 
       // persist incrementally so a partial draft is never lost
+      await admin.from('ai_content_projects').update({
+        data_json: await mergeCourse(admin, ctx.projectId, { title: ctx.projectTitle, lessons }),
+        updated_at: new Date().toISOString(),
+      }).eq('id', ctx.projectId);
+    }
+
+    // Do not silently downgrade a paid tier when the runtime deadline is hit.
+    // Preserve the remaining source as concise, editable lessons so Standard
+    // always has 8+ lessons and Premium always has 14+ lessons.
+    if (lessons.length < profile.minTopics) {
+      const missingTopics = topics.slice(lessons.length, profile.minTopics);
+      missingTopics.forEach((topic) => {
+        lessons.push(fallbackLesson(topic.heading, topic.text.slice(0, TOPIC_SOURCE_CHARS), lessons.length, isFr, profile));
+      });
+      truncated = true;
       await admin.from('ai_content_projects').update({
         data_json: await mergeCourse(admin, ctx.projectId, { title: ctx.projectTitle, lessons }),
         updated_at: new Date().toISOString(),

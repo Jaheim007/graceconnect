@@ -28,20 +28,22 @@ interface FlashcardSlideProps {
 
 export function FlashcardSlide({
   flashcard, theme, slideIndex, totalSlides, lessonTitle,
-  orgLogoUrl, deviceMode, lessonImageUrl, onStarEarned, gamificationEnabled = true,
+  orgLogoUrl, deviceMode, lessonImageUrl,
 }: FlashcardSlideProps) {
   const [flipped, setFlipped] = useState(false);
-  const [starGiven, setStarGiven] = useState(false);
   const isMobile = deviceMode === 'mobile';
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
   const handleFlip = () => {
     setFlipped(prev => !prev);
-    if (!flipped && gamificationEnabled && !starGiven) {
-      setStarGiven(true);
-      onStarEarned?.();
-    }
+  };
+
+  const concise = (value: string, limit: number) => {
+    if (value.length <= limit) return value;
+    const cut = value.slice(0, limit);
+    const lastSpace = cut.lastIndexOf(' ');
+    return `${cut.slice(0, lastSpace > limit * 0.7 ? lastSpace : limit).trim()}…`;
   };
 
   return (
@@ -77,7 +79,7 @@ export function FlashcardSlide({
         <div
           className={cn(
             'relative w-full cursor-pointer',
-            isMobile ? 'max-w-[320px] h-[220px]' : 'max-w-[460px] h-[260px]',
+            isMobile ? 'max-w-[min(320px,calc(100vw-32px))] h-[210px]' : 'max-w-[460px] h-[260px]',
           )}
           style={{ perspective: '1000px' }}
           onClick={handleFlip}
@@ -91,13 +93,14 @@ export function FlashcardSlide({
             {/* FRONT */}
             <div
               className={cn(
-                'absolute inset-0 w-full h-full rounded-2xl flex flex-col items-center justify-center p-6',
+                'absolute inset-0 w-full h-full overflow-hidden rounded-2xl flex flex-col items-center justify-center',
+                isMobile ? 'p-4' : 'p-6',
                 'bg-white border-2 border-white/90 shadow-2xl'
               )}
               style={{ backfaceVisibility: 'hidden' }}
             >
-              <p className={cn('font-bold text-slate-800 leading-snug text-center', isMobile ? 'text-lg' : 'text-xl')}>
-                {flashcard.front}
+              <p className={cn('font-bold text-slate-800 leading-snug text-center break-words max-w-full', isMobile ? 'text-base' : 'text-xl')}>
+                {concise(flashcard.front, isMobile ? 150 : 220)}
               </p>
               {flashcard.hint && (
                 <p className="text-xs text-slate-400 mt-3 italic">
@@ -113,14 +116,15 @@ export function FlashcardSlide({
             {/* BACK */}
             <div
               className={cn(
-                'absolute inset-0 w-full h-full rounded-2xl flex flex-col items-center justify-center p-6',
+                'absolute inset-0 w-full h-full overflow-hidden rounded-2xl flex flex-col items-center justify-center',
+                isMobile ? 'p-4' : 'p-6',
                 'bg-emerald-600 border-2 border-emerald-500 shadow-2xl'
               )}
               style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
             >
               <CheckCircle2 className="h-5 w-5 text-emerald-200 mb-2" />
-              <p className={cn('font-bold text-white leading-snug text-center', isMobile ? 'text-lg' : 'text-xl')}>
-                {flashcard.back}
+              <p className={cn('font-bold text-white leading-snug text-center break-words max-w-full', isMobile ? 'text-sm' : 'text-lg')}>
+                {concise(flashcard.back, isMobile ? 260 : 460)}
               </p>
               <div className="flex items-center gap-1.5 justify-center mt-4 text-emerald-200/70">
                 <RotateCw className="h-3.5 w-3.5" />

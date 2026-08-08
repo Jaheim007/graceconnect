@@ -59,6 +59,19 @@ function stripHtmlToText(html: string | null): string {
   return String(html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+function pickAssessmentQuestions(questions: QuizData[], lessonCount: number): QuizData[] {
+  const target = lessonCount >= 14
+    ? Math.min(25, 20 + Math.max(0, lessonCount - 14))
+    : 15;
+  if (questions.length <= target) return questions;
+
+  // Sample evenly across the full course instead of over-representing the
+  // first lessons or reshuffling on every render.
+  return Array.from({ length: target }, (_, index) => (
+    questions[Math.floor(index * questions.length / target)]
+  ));
+}
+
 function extractLessonMedia(html: string | null): { lessonImageUrl?: string; cleanedHtml: string } {
   if (!html) return { cleanedHtml: '' };
 
@@ -448,10 +461,21 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
           description,
           tier: 'standard',
           org_id: (program as any).organization_id,
+          image_type: 'slide_background',
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        let detail: any = null;
+        try { detail = await (error as any).context?.json?.(); } catch { /* response body unavailable */ }
+        const status = Number((error as any)?.context?.status || 0);
+        if (status === 402) {
+          throw new Error(detail?.error || (isFr
+            ? 'Crédits insuffisants pour générer cette image. Ajoutez des crédits puis réessayez.'
+            : 'Not enough credits to generate this image. Add credits and try again.'));
+        }
+        throw new Error(detail?.error || error.message);
+      }
       if (!data?.url) throw new Error(isFr ? 'Aucune image n’a été générée.' : 'No image was generated.');
 
       const generated: SlideCustomization = {
@@ -666,9 +690,8 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
 
     // Final assessment
     if (current.slide.type === 'final-assessment') {
-      const assessmentQuestions = allQuizQuestions.length > 10
-        ? allQuizQuestions.sort(() => 0.5 - Math.random()).slice(0, 10)
-        : allQuizQuestions;
+      const lessonCount = modules.reduce((count, mod: any) => count + ((mod.lessons || []).length), 0);
+      const assessmentQuestions = pickAssessmentQuestions(allQuizQuestions, lessonCount);
 
       return (
         <FinalAssessmentSlide
