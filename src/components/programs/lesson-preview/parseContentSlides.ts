@@ -43,7 +43,14 @@ export interface QuizData {
   options: string[];
   correctIndex: number;
   explanation?: string;
+  /**
+   * Graded quizzes (AI course pipeline) never reveal the answer while the
+   * learner answers: the result is shown once the lesson quiz is finished.
+   * Legacy / hand-made quizzes keep the instant-feedback behaviour.
+   */
+  revealAnswers?: boolean;
 }
+
 
 export interface AssessmentData {
   title: string;

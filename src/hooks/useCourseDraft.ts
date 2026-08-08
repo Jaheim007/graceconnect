@@ -11,7 +11,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface DraftSlide {
-  slide_type: 'text' | 'quiz' | 'image' | 'video';
+  slide_type: 'text' | 'quiz' | 'image' | 'video' | 'flashcard';
   title: string | null;
   body: string | null;
   media_url?: string | null;
@@ -33,6 +33,16 @@ export interface DraftLesson {
 }
 
 
+/** Course rules chosen on the review screen, applied when publishing. */
+export interface CourseRules {
+  cover_image_url?: string | null;
+  passing_score?: number;
+  max_quiz_attempts?: number;
+  require_sequential_lessons?: boolean;
+  gamification_enabled?: boolean;
+  certificate_enabled?: boolean;
+}
+
 export interface CourseDraft {
   title: string;
   lessons: DraftLesson[];
@@ -49,6 +59,7 @@ export interface DraftProject {
     pipeline?: string;
     source?: { kind?: string; file_name?: string | null; file_url?: string | null; words?: number; prompt?: string | null };
     course?: CourseDraft;
+    settings?: CourseRules;
   } | null;
 }
 
@@ -71,6 +82,8 @@ export function useStartCourseDraft() {
       title?: string;
       language?: string;
       tier?: 'standard' | 'premium';
+      /** Drives quiz count + difficulty in the pipeline. */
+      level?: 'beginner' | 'intermediate' | 'advanced';
       /** Opt-in per-lesson AI illustrations (extra credits per image). */
       generate_images?: boolean;
 
@@ -173,11 +186,34 @@ export function useUpdateCourseDraft(projectId: string | undefined) {
   });
 }
 
+/** Persist the course rules (cover, passing score, retries) on the draft. */
+export function useUpdateCourseRules(projectId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (settings: CourseRules) => {
+      const { data: current } = await supabase
+        .from('ai_content_projects')
+        .select('data_json')
+        .eq('id', projectId!)
+        .single();
+      const prev = ((current as any)?.data_json) || {};
+      const next = { ...prev, settings: { ...(prev.settings || {}), ...settings } };
+      const { error } = await supabase
+        .from('ai_content_projects')
+        .update({ data_json: next as any, updated_at: new Date().toISOString() })
+        .eq('id', projectId!);
+      if (error) throw error;
+      return next.settings as CourseRules;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['course-draft', projectId] }); },
+  });
+}
+
 /** Explicit "Publish as course" — materialises real records. */
 export function usePublishCourseDraft() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { org_id: string; project_id: string; publish_now?: boolean }) => {
+    mutationFn: async (input: { org_id: string; project_id: string; publish_now?: boolean; settings?: CourseRules }) => {
       const { data, error } = await supabase.functions.invoke('ai-project-to-program', {
         headers: await authHeaders(),
         body: { ...input, publish_now: input.publish_now ?? false },

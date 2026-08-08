@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
     const { data: { user }, error: authErr } = await userClient.auth.getUser();
     if (authErr || !user) return jsonError('Unauthorized', 401);
 
-    const { org_id, project_id, publish_now } = await req.json();
+    const { org_id, project_id, publish_now, settings } = await req.json();
     if (!org_id || !project_id) return jsonError('org_id and project_id required', 400);
 
     const admin = createClient(supabaseUrl, serviceKey);
@@ -71,6 +71,14 @@ Deno.serve(async (req) => {
     //  - `course.lessons[].slides[]`  → new slide-native pipeline (course-from-document)
     //  - `chapters[]`                 → legacy chapter/HTML projects
     const dataJson = (project.data_json || project.structure_json || {}) as any;
+    // Course rules chosen on the review screen (passing score, retries, …).
+    const rules = { ...(dataJson?.settings || {}), ...(settings || {}) } as any;
+    const clampInt = (v: any, min: number, max: number, dflt: number) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : dflt;
+    };
+    const passingScore = clampInt(rules.passing_score, 0, 100, 70);
+    const maxQuizAttempts = clampInt(rules.max_quiz_attempts, 1, 10, 3);
     const courseLessons: any[] = Array.isArray(dataJson?.course?.lessons) ? dataJson.course.lessons : [];
     const chapters = courseLessons.length === 0 ? (dataJson.chapters || []) : [];
 
@@ -95,7 +103,12 @@ Deno.serve(async (req) => {
         created_by: user.id,
         title: project.title,
         description: project.objective || project.description || '',
-        cover_image_url: coverAsset?.file_url || courseLessons.find((l: any) => l?.image_url)?.image_url || null,
+        cover_image_url: rules.cover_image_url || coverAsset?.file_url || courseLessons.find((l: any) => l?.image_url)?.image_url || null,
+        passing_score: passingScore,
+        max_quiz_attempts: maxQuizAttempts,
+        require_sequential_lessons: rules.require_sequential_lessons !== false,
+        gamification_enabled: rules.gamification_enabled !== false,
+        certificate_enabled: rules.certificate_enabled !== false,
         is_published: publish_now ?? false,
         publication_status: publish_now ? 'published' : 'draft',
         is_free: false,
@@ -141,7 +154,7 @@ Deno.serve(async (req) => {
             ? `<div class="lesson-hero-image"><img src="${escapeAttr(l.image_url)}" alt="${escapeAttr(l.title || '')}" /></div>`
             : '',
           ...(Array.isArray(l.slides) ? l.slides : [])
-            .filter((s: any) => s.slide_type !== 'quiz')
+            .filter((s: any) => s.slide_type !== 'quiz' && s.slide_type !== 'flashcard')
             .map((s: any) => `${s.title ? `<h2>${escapeHtml(s.title)}</h2>` : ''}<p>${escapeHtml(s.body || '')}</p>`),
         ].filter(Boolean).join('\n'),
         display_order: i,
@@ -172,9 +185,13 @@ Deno.serve(async (req) => {
           slideRows.push({
             lesson_id: lessonId,
             display_order: j,
-            slide_type: s.slide_type === 'quiz' ? 'quiz' : (s.slide_type || 'text'),
+            slide_type: ['quiz', 'flashcard', 'image', 'video'].includes(s.slide_type) ? s.slide_type : 'text',
             title: s.title || null,
-            body: s.slide_type === 'quiz' ? null : `<p>${escapeHtml(s.body || '')}</p>`,
+            body: s.slide_type === 'quiz'
+              ? null
+              : s.slide_type === 'flashcard'
+                ? (s.body || null)
+                : `<p>${escapeHtml(s.body || '')}</p>`,
             media_url: s.media_url || null,
             caption: s.caption || null,
             data: s.data || {},

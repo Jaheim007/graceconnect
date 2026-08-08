@@ -89,8 +89,10 @@ export function rowToContentSlide(row: ProgramSlideRow): ContentSlide {
         options: Array.isArray(data.options) ? data.options : [],
         correctIndex: typeof data.correctIndex === 'number' ? data.correctIndex : 0,
         explanation: data.explanation || '',
+        revealAnswers: data.revealAnswers !== false,
       },
     };
+
   }
 
   if (row.slide_type === 'flashcard') {
