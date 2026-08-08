@@ -458,20 +458,33 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
               <p className="text-[11px] text-muted-foreground">
                 {isFr ? 'Coût estimé' : 'Estimated cost'}: <span className="font-medium text-foreground">{selectedCost ?? (tier === 'premium' ? 15 : 8)} {isFr ? 'crédits' : 'credits'}</span>
                 {generateImages && <span className="text-primary"> + {isFr ? 'images' : 'images'}</span>}
+                {typeof balance === 'number' && (
+                  <span className={notEnoughCredits ? 'block text-destructive' : 'block'}>
+                    {isFr ? 'Votre solde' : 'Your balance'}: {balance}
+                    {notEnoughCredits && (isFr ? ' — insuffisant' : ' — not enough')}
+                  </span>
+                )}
               </p>
               <div className="flex items-center gap-2">
                 <Button variant="outline" onClick={() => onOpenChange(false)}>
                   {isFr ? 'Annuler' : 'Cancel'}
                 </Button>
-                <Button onClick={() => void handleCreate()} disabled={!prompt.trim()} className="gap-1.5">
-                  
-                  {isFr ? 'Créer' : 'Create'}
-                </Button>
+                {notEnoughCredits ? (
+                  <Button onClick={() => setShowCreditDialog(true)}>
+                    {isFr ? 'Obtenir des crédits' : 'Get credits'}
+                  </Button>
+                ) : (
+                  <Button onClick={() => handleCreate()} disabled={!prompt.trim()} className="gap-1.5">
+                    {isFr ? 'Créer' : 'Create'}
+                  </Button>
+                )}
               </div>
             </div>
           </>
         )}
       </DialogContent>
+      <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
     </Dialog>
   );
+
 }
