@@ -312,7 +312,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
     });
 
     return slides;
-  }, [modules, allQuizQuestions.length, isFr, moduleQuizzes, getLessonSlides]);
+  }, [modules, allQuizQuestions.length, isFr, moduleQuizzes, getLessonSlides, program]);
 
   /**
    * Resume resolution (runs once the flat slide list exists):
