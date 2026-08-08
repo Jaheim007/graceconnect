@@ -323,12 +323,15 @@ export function SlideRenderer({
   if (layout === 'image-cover' && hasBgImage) {
     return (
       <div className="h-full flex flex-col text-white relative overflow-hidden" style={bgStyle}>
-        <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} loading="lazy" decoding="async" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20 z-[1]" />
-        <SlideDecoration theme={theme} />
+        <LessonImageBackdrop
+          imageUrl={c!.bgImageUrl}
+          imageClassName={imagePositionClasses[imgPos]}
+          focus={captionPos === 'top' ? 'top' : captionPos === 'middle' ? 'center' : 'bottom'}
+        />
         <Header />
         <div className={cn('flex-1 flex flex-col relative z-10 px-6', captionPositionClasses[captionPos])}>
-          <div className={cn('rounded-xl px-5 py-6 max-w-lg backdrop-blur-sm', captionClasses[captionStyle], 'border border-white/10', theme.captionGlow)}>
+          <div className={cn('rounded-xl px-5 py-6 max-w-lg', captionClasses[captionStyle], 'border border-white/10', theme.captionGlow)}>
+
             <SlideTag />
             {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', lightMode ? 'text-slate-900' : 'text-white', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>}
             {slide.bodyHtml && <div className={proseClasses} dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />}
