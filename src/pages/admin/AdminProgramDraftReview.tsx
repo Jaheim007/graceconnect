@@ -245,7 +245,7 @@ export default function AdminProgramDraftReview() {
       setDraft(stamped);
       const result = await publishDraft.mutateAsync({
         org_id: orgId, project_id: projectId,
-        publish_now: !incomplete,
+        publish_now: !incomplete && !asDraft,
         settings: {
           ...rules,
           passing_score: scored ? defaultPass : 0,
@@ -256,16 +256,18 @@ export default function AdminProgramDraftReview() {
 
 
       // Apply pricing + keep the checkout product in sync (same flow as products)
-      await setPricing.mutateAsync({
-        program_id: result.program_id,
-        organization_id: orgId,
-        title: draft.title,
-        description: project?.data_json?.source?.prompt || null,
-        cover_image_url: rules.cover_image_url || null,
-        is_free: false,
-        price: priceValue,
-        currency,
-      });
+      if (priceValid) {
+        await setPricing.mutateAsync({
+          program_id: result.program_id,
+          organization_id: orgId,
+          title: draft.title,
+          description: project?.data_json?.source?.prompt || null,
+          cover_image_url: rules.cover_image_url || null,
+          is_free: false,
+          price: priceValue,
+          currency,
+        });
+      }
 
       setTitleDirty(false);
       toast({
