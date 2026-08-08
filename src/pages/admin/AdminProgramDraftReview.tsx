@@ -29,6 +29,8 @@ import {
   useGenerationJob, type CourseDraft, type CourseRules, type DraftLesson,
 } from '@/hooks/useCourseDraft';
 import { CourseCoverCard } from '@/components/programs/CourseCoverCard';
+import { CourseTitleCard } from '@/components/programs/CourseTitleCard';
+
 import { CourseCompletionRules } from '@/components/programs/CourseCompletionRules';
 
 import { CourseGenerationLoader } from '@/components/programs/CourseGenerationLoader';
@@ -523,8 +525,20 @@ export default function AdminProgramDraftReview() {
           </>
         ) : (
           <div className="space-y-4 max-w-3xl">
+            {/* Title + description (AI-assisted) */}
+            <CourseTitleCard
+              title={draft?.title || ''}
+              description={rules.description || ''}
+              tier={((job?.result_summary as any)?.tier === 'premium' ? 'premium' : 'standard')}
+              price={priceValue}
+              currency={currency}
+              onTitleChange={(v) => { setTitleDirty(true); setDraft((d) => (d ? { ...d, title: v } : d)); }}
+              onDescriptionChange={(v) => patchRules({ description: v })}
+            />
+
             {/* Cover image */}
             <CourseCoverCard
+
               orgId={project?.organization_id || currentOrg?.id}
               title={draft?.title || ''}
               tier={((job?.result_summary as any)?.tier === 'premium' ? 'premium' : 'standard')}
