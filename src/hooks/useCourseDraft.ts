@@ -33,6 +33,12 @@ export interface DraftLesson {
 }
 
 
+/** Per-lesson override of the completion rules (keyed by lesson index). */
+export interface LessonRule {
+  passing_score?: number;
+  max_attempts?: number;
+}
+
 /** Course rules chosen on the review screen, applied when publishing. */
 export interface CourseRules {
   cover_image_url?: string | null;
@@ -41,7 +47,10 @@ export interface CourseRules {
   require_sequential_lessons?: boolean;
   gamification_enabled?: boolean;
   certificate_enabled?: boolean;
+  /** Lesson index (as string) → override. Missing entries follow the defaults. */
+  lesson_rules?: Record<string, LessonRule>;
 }
+
 
 export interface CourseDraft {
   title: string;
