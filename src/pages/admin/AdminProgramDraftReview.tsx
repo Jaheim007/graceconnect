@@ -110,8 +110,15 @@ export default function AdminProgramDraftReview() {
   const priceValue = Number(price) || 0;
   const priceValid = priceValue >= minPrice;
 
-  // Seed the price with the currency minimum
-  useEffect(() => { setPrice((p) => (p ? p : String(minPrice))); }, [minPrice]);
+  // Seed the price with the currency minimum, and lift it whenever the chosen
+  // currency has a higher floor (so the creator never stares at a red error).
+  useEffect(() => {
+    setPrice((p) => {
+      const n = Number(p) || 0;
+      return n >= minPrice ? p : String(minPrice);
+    });
+  }, [minPrice]);
+
 
   const remoteCourse = project?.data_json?.course;
   const jobRunning = job?.status === 'running' || job?.status === 'queued';
