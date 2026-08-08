@@ -173,8 +173,8 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
               <p className="text-sm font-semibold">Premium <span className="font-normal text-muted-foreground">· {premiumCost ?? 15} {isFr ? 'crédits' : 'credits'}</span></p>
               <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
                 {isFr
-                  ? 'Jusqu’à 18 leçons · 8 à 12 slides par leçon · textes de 320 à 450 mots (2 exemples + « à retenir ») · 4 quiz · modèle IA avancé'
-                  : 'Up to 18 lessons · 8-12 slides each · 320-450 word bodies (2 examples + key takeaway) · 4 quizzes · advanced AI model'}
+                  ? '14 à 18 leçons · 18 à 28 slides par leçon · textes courts de 60 à 100 mots · 8 à 10 quiz · 5 à 6 cartes mémo · modèle IA avancé'
+                  : '14-18 lessons · 18-28 slides each · short 60-100 word slides · 8-10 quizzes · 5-6 flashcards · advanced AI model'}
               </p>
             </button>
           </div>
