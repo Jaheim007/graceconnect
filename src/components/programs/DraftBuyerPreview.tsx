@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { SlideRenderer } from './lesson-preview/SlideRenderer';
 import { SlideSegmentBar } from './lesson-preview/SlideSegmentBar';
+import { DEFAULT_CUSTOMIZATION } from './lesson-preview/SlideCustomizationPanel';
+
 import { rowToContentSlide, type ProgramSlideRow } from './lesson-preview/slideAdapters';
 import { PREVIEW_SLIDES_IN_FIRST_LESSON } from '@/lib/coursePreview';
 import type { CourseDraft } from '@/hooks/useCourseDraft';
