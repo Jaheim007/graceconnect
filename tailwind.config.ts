@@ -62,6 +62,15 @@ export default {
         },
         gold: "hsl(var(--gold))",
         surface: "hsl(var(--surface))",
+        cert: {
+          paper: "hsl(var(--cert-paper))",
+          "paper-warm": "hsl(var(--cert-paper-warm))",
+          ink: "hsl(var(--cert-ink))",
+          "ink-soft": "hsl(var(--cert-ink-soft))",
+          muted: "hsl(var(--cert-muted))",
+          gold: "hsl(var(--cert-gold))",
+          "gold-soft": "hsl(var(--cert-gold-soft))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
