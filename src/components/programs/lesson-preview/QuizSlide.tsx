@@ -53,18 +53,22 @@ export function QuizSlide({
   orgLogoUrl, deviceMode, lessonImageUrl, onStarEarned, gamificationEnabled = true,
 }: QuizSlideProps) {
   const [selected, setSelected] = useState<number | null>(null);
-  const [revealed, setRevealed] = useState(false);
+  const [answered, setAnswered] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const isMobile = deviceMode === 'mobile';
+  // Graded quizzes hide the answer: the learner only sees whether they passed
+  // once the whole lesson quiz is done.
+  const showAnswer = quiz.revealAnswers !== false;
+  const revealed = answered && showAnswer;
   const isCorrect = selected === quiz.correctIndex;
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
   const handleSelect = (idx: number) => {
-    if (revealed) return;
+    if (answered) return;
     setSelected(idx);
-    setRevealed(true);
-    if (idx === quiz.correctIndex) {
+    setAnswered(true);
+    if (showAnswer && idx === quiz.correctIndex) {
       setShowConfetti(true);
       if (gamificationEnabled) onStarEarned?.();
     }
@@ -170,8 +174,8 @@ export function QuizSlide({
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 + idx * 0.08 }}
-                whileHover={!revealed ? { scale: 1.02, x: 4 } : {}}
-                whileTap={!revealed ? { scale: 0.98 } : {}}
+                whileHover={!answered ? { scale: 1.02, x: 4 } : {}}
+                whileTap={!answered ? { scale: 0.98 } : {}}
                 className={cn(
                   'relative text-left rounded-xl px-4 py-3 transition-all duration-200 text-sm font-medium border-2',
                   revealed
@@ -180,9 +184,13 @@ export function QuizSlide({
                       : isSelected
                         ? 'bg-red-500/20 border-red-400 text-white/70'
                         : 'bg-white/5 border-white/10 text-white/40'
-                    : 'bg-white/95 text-slate-800 border-white/80 hover:bg-white hover:border-white cursor-pointer shadow-lg hover:shadow-xl'
+                    : answered && isSelected
+                      ? 'bg-primary/20 border-white/70 text-white'
+                      : answered
+                        ? 'bg-white/10 border-white/10 text-white/50'
+                        : 'bg-white/95 text-slate-800 border-white/80 hover:bg-white hover:border-white cursor-pointer shadow-lg hover:shadow-xl'
                 )}
-                disabled={revealed}
+                disabled={answered}
               >
                 <div className="flex items-center gap-3">
                   <div className={cn(
@@ -230,6 +238,17 @@ export function QuizSlide({
               </>
             )}
           </motion.div>
+        ) : answered ? (
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-xs font-medium text-white/80 flex items-center gap-2"
+          >
+            <CheckCircle2 className="h-4 w-4 text-white/70" />
+            {isFr
+              ? 'Réponse enregistrée — résultat à la fin du quiz.'
+              : 'Answer recorded — result at the end of the quiz.'}
+          </motion.span>
         ) : (
           <motion.span
             initial={{ opacity: 0 }}
@@ -237,7 +256,7 @@ export function QuizSlide({
             transition={{ delay: 0.5 }}
             className="text-[10px] text-white/50 uppercase font-bold tracking-widest"
           >
-            {isFr ? 'Sélectionnez la bonne réponse' : 'Select the correct answer'}
+            {isFr ? 'Sélectionnez votre réponse' : 'Select your answer'}
           </motion.span>
         )}
         {revealed && isCorrect && gamificationEnabled && (
