@@ -265,15 +265,6 @@ export function CourseCompletionRules({ rules, lessons, onChange }: Props) {
       {/* Extras, each with a plain explanation */}
       <div className="space-y-2.5">
         <RuleSwitch
-          id="rule-gamification"
-          label={isFr ? 'Afficher les points gagnés' : 'Show the points earned'}
-          help={isFr
-            ? 'L’apprenant gagne des points en répondant correctement et voit son total à la fin de chaque leçon. Purement motivant.'
-            : 'The learner earns points for correct answers and sees the total at the end of each lesson. Purely motivational.'}
-          checked={rules.gamification_enabled !== false}
-          onChange={(v) => onChange({ gamification_enabled: v })}
-        />
-        <RuleSwitch
           id="rule-certificate"
           label={isFr ? 'Délivrer un certificat à la fin' : 'Issue a certificate at the end'}
           help={isFr
@@ -283,6 +274,7 @@ export function CourseCompletionRules({ rules, lessons, onChange }: Props) {
           onChange={(v) => onChange({ certificate_enabled: v })}
         />
       </div>
+
     </div>
   );
 }
