@@ -225,8 +225,12 @@ export default function AdminProgramDraftReview() {
       const stamped: CourseDraft = structuredClone(draft);
       stamped.lessons.forEach((l, i) => {
         const rule = mode === 'per_lesson' ? rules.lesson_rules?.[String(i)] : undefined;
-        const pass = scored ? (rule?.passing_score ?? defaultPass) : 0;
+        // per-lesson mode: a lesson the creator did not switch on requires no score.
+        const pass = mode === 'per_lesson'
+          ? (rule?.passing_score ?? 0)
+          : scored ? defaultPass : 0;
         const tries = rule?.max_attempts ?? defaultTries;
+
         (l.slides || []).forEach((s) => {
           if (s.slide_type === 'quiz') {
             s.data = { ...(s.data || {}), passingScore: pass, maxAttempts: tries, revealAnswers: false };
