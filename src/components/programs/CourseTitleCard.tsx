@@ -92,15 +92,24 @@ export function CourseTitleCard({
       toast({ title: isFr ? 'Ajoutez d’abord un titre' : 'Add a title first' });
       return;
     }
+    // First click opens the brief: never generate blind.
+    if (!briefOpen && !audience.trim() && !tone.trim()) {
+      setBriefOpen(true);
+      return;
+    }
     setLoadingDesc(true);
     try {
       const { data, error } = await supabase.functions.invoke('ai-generate-description', {
         headers: await authHeaders(),
         body: {
           title, product_type: 'course', price, currency, language: locale, tier,
+          audience: audience.trim() || undefined,
+          tone: tone.trim() || undefined,
+          extra_notes: notes.trim() || undefined,
           existing_description: description || undefined,
         },
       });
+
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
       const raw = (data as any)?.description || (data as any)?.html || '';
