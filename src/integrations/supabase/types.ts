@@ -12891,12 +12891,17 @@ export type Database = {
         Returns: {
           assessment_score: number
           assessment_total: number
+          certificate_design: Json
           certificate_number: string
           course_title: string
           issued_at: string
           learner_name: string
+          lesson_titles: Json
           organization_logo_url: string
           organization_name: string
+          organization_slug: string
+          program_cover_url: string
+          program_id: string
         }[]
       }
     }
