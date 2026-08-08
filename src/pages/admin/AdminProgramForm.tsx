@@ -27,10 +27,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useI18n } from '@/i18n/I18nContext';
 import { LessonEditor } from '@/components/programs/LessonEditor';
 import { CourseBuilder } from '@/components/programs/builder/CourseBuilder';
+import { CourseCompletionRules } from '@/components/programs/CourseCompletionRules';
+import { useProgramSlideMap } from '@/hooks/useProgramSlides';
+import { minAiCoursePrice } from '@/lib/coursePricing';
+import type { CourseRules } from '@/hooks/useCourseDraft';
 
 import { AICourseGenerator } from '@/components/programs/AICourseGenerator';
 import { ModuleQuizEditor } from '@/components/programs/ModuleQuizEditor';
 import { cn } from '@/lib/utils';
+
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
