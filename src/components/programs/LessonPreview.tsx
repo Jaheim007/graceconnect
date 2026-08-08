@@ -405,23 +405,26 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
     updateSlide.mutate({ id: slideId, data: { ...(row?.data || {}), customization: c } } as any);
   }, [allSlides, rowsById, updateSlide, isLearner]);
 
+  const customizationsRef = useRef<Record<number, SlideCustomization>>({});
+  useEffect(() => { customizationsRef.current = slideCustomizations; }, [slideCustomizations]);
+
   const applyCustomizationToAll = useCallback((partial: Partial<SlideCustomization>) => {
-    setSlideCustomizations((prev) => {
-      const next = { ...prev };
+    const prev = customizationsRef.current;
+    const next: Record<number, SlideCustomization> = { ...prev };
 
-      allSlides.forEach((slide, index) => {
-        if (slide.slide.type === 'final-assessment' || slide.slide.type === 'course-completion') return;
-        next[index] = {
-          ...(prev[index] || DEFAULT_CUSTOMIZATION),
-          ...partial,
-          layout: 'text-only',
-        };
-        persistCustomization(index, next[index]);
-      });
-
-      return next;
+    allSlides.forEach((slide, index) => {
+      if (slide.slide.type === 'final-assessment' || slide.slide.type === 'course-completion') return;
+      next[index] = {
+        ...(prev[index] || DEFAULT_CUSTOMIZATION),
+        ...partial,
+        layout: 'text-only',
+      };
+      persistCustomization(index, next[index]);
     });
+
+    setSlideCustomizations(next);
   }, [allSlides, persistCustomization]);
+
 
   const handleGenerateSlideBackground = useCallback(async () => {
     if (!current || !(program as any)?.organization_id) return;
