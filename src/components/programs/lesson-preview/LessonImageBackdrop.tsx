@@ -11,9 +11,9 @@ interface LessonImageBackdropProps {
 /**
  * Photo backdrop for a slide.
  *
- * Rule: the AI illustration must stay CRISP and full quality — no blur, no flat
- * black wash on top of it. Readability comes from a directional scrim behind the
- * text block only, plus a soft vignette on the edges.
+ * Rule: the AI illustration stays CRISP (no blur, never degraded) but it must
+ * read as a calm background, not as the subject of the slide. So it gets a
+ * light, even tint plus a directional scrim behind the text block only.
  */
 export function LessonImageBackdrop({
   imageUrl,
@@ -25,10 +25,10 @@ export function LessonImageBackdrop({
 
   const scrim =
     focus === 'top'
-      ? 'bg-gradient-to-b from-black/75 via-black/30 to-transparent'
+      ? 'bg-gradient-to-b from-black/70 via-black/30 to-transparent'
       : focus === 'center'
-        ? 'bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.62)_0%,rgba(0,0,0,0.28)_55%,rgba(0,0,0,0.08)_100%)]'
-        : 'bg-gradient-to-t from-black/78 via-black/34 to-transparent';
+        ? 'bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.58)_0%,rgba(0,0,0,0.26)_55%,rgba(0,0,0,0.08)_100%)]'
+        : 'bg-gradient-to-t from-black/72 via-black/32 to-transparent';
 
   return (
     <>
@@ -39,6 +39,8 @@ export function LessonImageBackdrop({
         decoding="async"
         className={cn('absolute inset-0 z-0 h-full w-full object-cover', imageClassName)}
       />
+      {/* Even, light tint: keeps the photo clean and quiet behind the content */}
+      <div className="absolute inset-0 z-[1] pointer-events-none bg-black/25" />
       {/* Directional scrim: only behind the text, image stays visible elsewhere */}
       <div className={cn('absolute inset-0 z-[1] pointer-events-none', scrim, overlayClassName)} />
       {/* Soft vignette for depth (no blur, no quality loss) */}
@@ -46,3 +48,4 @@ export function LessonImageBackdrop({
     </>
   );
 }
+
