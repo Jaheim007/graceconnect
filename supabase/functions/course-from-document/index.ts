@@ -398,8 +398,9 @@ async function runPipeline(ctx: {
       }));
 
       // ── Lesson background images (credit-debited, best effort) ──
-      // Generated in PARALLEL for the batch: sequential generation on the
-      // premium model burned the wall clock and stopped images after ~6 lessons.
+      // Generated in PARALLEL for the batch. When the wall clock is tight we do
+      // NOT disable images for the rest of the run — the missing ones are picked
+      // up by the tail pass below.
       if (imagesEnabled && remainingMs() > IMAGE_MIN_REMAINING_MS) {
         const eligible = generated
           .map((lesson, k) => ({ lesson, index: start + k }))
@@ -414,9 +415,8 @@ async function runPipeline(ctx: {
           if (result.url) { eligible[k].lesson.image_url = result.url; imagesGenerated += 1; }
           if (result.stop) imagesEnabled = false;
         });
-      } else if (imagesEnabled) {
-        imagesEnabled = false;
       }
+
 
 
       lessons.push(...generated);
