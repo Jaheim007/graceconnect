@@ -261,10 +261,13 @@ async function runPipeline(ctx: {
   projectId: string; jobId: string; orgId: string; userId: string;
   projectTitle: string; sourceText: string; source: string; prompt?: string; debited: number;
   tier: 'standard' | 'premium';
+  /** Images are OPT-IN: only generated (and credit-debited) when the creator asked for them. */
+  generateImages: boolean;
 }) {
   const { admin, isFr } = ctx;
   const profile = TIER_PROFILES[ctx.tier];
-  let imagesEnabled = true;
+  let imagesEnabled = ctx.generateImages === true;
+
   let imagesGenerated = 0;
 
   try {
