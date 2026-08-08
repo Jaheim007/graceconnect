@@ -371,6 +371,40 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
     };
   }, [allSlides, current?.lessonId, currentIndex]);
 
+  /** slideId → persisted row, used to hydrate & save slide styling */
+  const rowsById = useMemo(() => {
+    const map: Record<string, any> = {};
+    Object.values(slideMap as Record<string, any[]>).forEach((rows) => {
+      (rows || []).forEach((r) => { map[r.id] = r; });
+    });
+    return map;
+  }, [slideMap]);
+
+  /** Hydrate saved styling so the Customize panel reflects what is stored */
+  const hydratedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (allSlides.length === 0) return;
+    const next: Record<number, SlideCustomization> = {};
+    allSlides.forEach((s, index) => {
+      if (!s.slideId || hydratedRef.current.has(s.slideId)) return;
+      const saved = rowsById[s.slideId]?.data?.customization;
+      hydratedRef.current.add(s.slideId);
+      if (saved) next[index] = { ...DEFAULT_CUSTOMIZATION, ...saved, layout: 'text-only' };
+    });
+    if (Object.keys(next).length) {
+      setSlideCustomizations((prev) => ({ ...next, ...prev }));
+    }
+  }, [allSlides, rowsById]);
+
+  const updateSlide = useUpdateSlide();
+  const persistCustomization = useCallback((index: number, c: SlideCustomization) => {
+    if (isLearner) return;
+    const slideId = allSlides[index]?.slideId;
+    if (!slideId) return;
+    const row = rowsById[slideId];
+    updateSlide.mutate({ id: slideId, data: { ...(row?.data || {}), customization: c } } as any);
+  }, [allSlides, rowsById, updateSlide, isLearner]);
+
   const applyCustomizationToAll = useCallback((partial: Partial<SlideCustomization>) => {
     setSlideCustomizations((prev) => {
       const next = { ...prev };
@@ -382,11 +416,12 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
           ...partial,
           layout: 'text-only',
         };
+        persistCustomization(index, next[index]);
       });
 
       return next;
     });
-  }, [allSlides]);
+  }, [allSlides, persistCustomization]);
 
   const handleGenerateSlideBackground = useCallback(async () => {
     if (!current || !(program as any)?.organization_id) return;
