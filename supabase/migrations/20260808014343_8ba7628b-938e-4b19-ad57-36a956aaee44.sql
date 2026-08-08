@@ -1,0 +1,1 @@
+SELECT public.grant_bonus_credits('aaa55147-6755-4733-a27a-1791b68e832e'::uuid, 1500, 'test_credits', 365);
