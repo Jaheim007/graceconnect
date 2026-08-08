@@ -70,7 +70,7 @@ export function CertificateTemplateEditor({
           <div className="w-full h-[88px] bg-gradient-to-r from-primary/25 via-primary/10 to-transparent" />
         )}
 
-        <div className="px-6 pb-6 -mt-8 text-center space-y-3">
+        <div className="flex-1 flex flex-col px-6 pb-6 -mt-8 text-center space-y-3 overflow-hidden">
           <div className="mx-auto h-16 w-16 rounded-full border-4 border-background bg-muted overflow-hidden grid place-items-center">
             {badge
               ? <img src={badge} alt={t('Badge', 'Badge')} className="h-full w-full object-cover" loading="lazy" />
@@ -108,7 +108,7 @@ export function CertificateTemplateEditor({
             </div>
           )}
 
-          <div className="pt-3 flex flex-col items-center gap-1">
+          <div className="mt-auto pt-3 flex flex-col items-center gap-1">
             {design.signature_image_url && (
               <img
                 src={design.signature_image_url}
