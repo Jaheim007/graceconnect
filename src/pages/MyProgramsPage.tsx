@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, CheckCircle2, Clock, ChevronRight, GraduationCap, Play } from 'lucide-react';
+import { BookOpen, CheckCircle2, Clock, ChevronRight, GraduationCap, Play, Award } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useCourseResume } from '@/hooks/useCourseResume';
