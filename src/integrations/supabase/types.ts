@@ -3607,6 +3607,36 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_alert_log: {
+        Row: {
+          alert_day: string
+          alert_type: string
+          balance: number
+          created_at: string
+          emailed: boolean
+          id: string
+          user_id: string
+        }
+        Insert: {
+          alert_day?: string
+          alert_type: string
+          balance?: number
+          created_at?: string
+          emailed?: boolean
+          id?: string
+          user_id: string
+        }
+        Update: {
+          alert_day?: string
+          alert_type?: string
+          balance?: number
+          created_at?: string
+          emailed?: boolean
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       credit_lots: {
         Row: {
           created_at: string
