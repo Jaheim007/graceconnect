@@ -169,8 +169,8 @@ export default function AdminProgramDraftReview() {
   );
   const incomplete = generating || job?.status === 'failed' || emptyLessons > 0 || totals.lessons === 0;
 
-  // Force "draft" whenever the draft is incomplete
-  useEffect(() => { if (incomplete && publishNow) setPublishNow(false); }, [incomplete, publishNow]);
+
+
 
 
   // ── Auto-save ────────────────────────────────────────────────────────────
