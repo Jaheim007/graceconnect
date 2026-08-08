@@ -150,7 +150,10 @@ export function SlideRenderer({
   onStarEarned,
   gamificationEnabled,
 }: SlideRendererProps) {
-  const theme = getSlideTheme(slideIndex);
+  // Per-course visual signature: the decorative layer is unique to each course
+  // instead of the same rotation for everyone.
+  const theme = getSlideThemeFor(`${moduleTitle || ''}|${lessonTitle || ''}`, slideIndex);
+
   const isMobile = deviceMode === 'mobile';
   const c = customization;
 
