@@ -282,7 +282,7 @@ export default function CertificateVerifyPage() {
               <div className="mt-6 flex flex-wrap items-center justify-center gap-2 border-t border-white/10 pt-5">
                 {orgSlug ? (
                   <Button asChild variant="ghost" className="text-white/80 hover:bg-white/10 hover:text-white">
-                    <a href={`/o/${orgSlug}`}>
+                    <a href={`/org/${orgSlug}`}>
                       <GraduationCap className="mr-2 h-4 w-4" />
                       {isFr ? `Voir ${orgName}` : `View ${orgName}`}
                     </a>
