@@ -123,6 +123,8 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         title: prompt.trim().slice(0, 100),
         language: contentLanguage,
         tier,
+        generate_images: _generateImagesOverride ?? generateImages,
+
       });
 
       refreshCredits();
