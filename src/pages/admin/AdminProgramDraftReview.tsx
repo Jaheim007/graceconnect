@@ -244,12 +244,27 @@ export default function AdminProgramDraftReview() {
     }
 
     try {
-      if (dirty) await updateDraft.mutateAsync(draft);
+      // Per-lesson rules travel with the quiz slides so the learner player
+      // enforces exactly what the creator set for that lesson.
+      const stamped: CourseDraft = structuredClone(draft);
+      stamped.lessons.forEach((l, i) => {
+        const rule = rules.lesson_rules?.[String(i)];
+        const pass = rule?.passing_score ?? rules.passing_score ?? 70;
+        const tries = rule?.max_attempts ?? rules.max_quiz_attempts ?? 3;
+        (l.slides || []).forEach((s) => {
+          if (s.slide_type === 'quiz') {
+            s.data = { ...(s.data || {}), passingScore: pass, maxAttempts: tries, revealAnswers: false };
+          }
+        });
+      });
+      await updateDraft.mutateAsync(stamped);
+      setDraft(stamped);
       const result = await publishDraft.mutateAsync({
         org_id: orgId, project_id: projectId,
-        publish_now: publishNow && !incomplete,
+        publish_now: !incomplete,
         settings: rules,
       });
+
 
       // Apply pricing + keep the checkout product in sync (same flow as products)
       await setPricing.mutateAsync({
