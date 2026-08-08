@@ -31,17 +31,20 @@ export default function CertificateVerifyPage() {
   const [copied, setCopied] = useState(false);
 
   // Preview mode: /verify/preview renders a sample certificate from the design
-  // the creator is currently editing (stored in sessionStorage). No DB read.
+  // the creator is currently editing. Stored in localStorage because a new tab
+  // opened with noopener does NOT inherit sessionStorage.
   const isPreview = certNumber === 'preview';
   const previewData = (() => {
     if (!isPreview || typeof window === 'undefined') return null;
     try {
-      const raw = sessionStorage.getItem('certificate-preview');
+      const raw = localStorage.getItem('certificate-preview')
+        || sessionStorage.getItem('certificate-preview');
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
     }
   })();
+
 
   // Public verification runs through the read-only RPC: the certificates table
   // itself is not readable by anonymous visitors.

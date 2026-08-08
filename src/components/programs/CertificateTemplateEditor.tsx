@@ -48,7 +48,7 @@ export function CertificateTemplateEditor({
 
   const openPublicPreview = () => {
     try {
-      sessionStorage.setItem('certificate-preview', JSON.stringify({
+      const payload = JSON.stringify({
         learner_name: name,
         course_title: courseTitle || t('Titre du cours', 'Course title'),
         organization_name: orgName,
@@ -58,10 +58,13 @@ export function CertificateTemplateEditor({
         program_cover_url: design.cover_image_url || null,
         lesson_titles: lessons.map((l) => l.title),
         certificate_design: design,
-      }));
-    } catch { /* sessionStorage unavailable — page falls back to "not found" */ }
+      });
+      // localStorage: a new tab opened with noopener does not inherit sessionStorage.
+      localStorage.setItem('certificate-preview', payload);
+    } catch { /* storage unavailable — page falls back to "not found" */ }
     window.open('/verify/preview', '_blank', 'noopener');
   };
+
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5 space-y-5">
