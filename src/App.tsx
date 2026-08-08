@@ -1,4 +1,3 @@
-import DevSlideProbe from "./pages/DevSlideProbe";
 import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -452,7 +451,6 @@ const App = () => (
                     page stays available at /landing (linked from the hub). */}
                 <Route path="/" element={<ActionHub />} />
                 <Route path="/landing" element={<LandingPage />} />
-                <Route path="/dev-slide-probe" element={<DevSlideProbe />} />
                 <Route path="/churches" element={<ChurchesPage />} />
                 <Route path="/solutions/church" element={<Navigate to="/churches" replace />} />
                 <Route path="/explore/digital-products" element={<Navigate to="/discover?type=digital" replace />} />
