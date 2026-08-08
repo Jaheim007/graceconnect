@@ -476,7 +476,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
     } finally {
       setIsGeneratingSlideImage(false);
     }
-  }, [current, currentIndex, isFr, program, toast]);
+  }, [current, currentIndex, isFr, program, toast, persistCustomization]);
 
   const totalQuizzes = useMemo(() => 
     allSlides.filter(s => s.slide.type === 'quiz').length, 
