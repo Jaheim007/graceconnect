@@ -24,6 +24,16 @@ interface Props {
   onTitleChange: (v: string) => void;
   onDescriptionChange: (v: string) => void;
 }
+/** Ready-made tones so the creator picks in one tap instead of writing. */
+const TONES = [
+  { fr: 'Inspirant', en: 'Inspiring' },
+  { fr: 'Professionnel', en: 'Professional' },
+  { fr: 'Simple et direct', en: 'Simple and direct' },
+  { fr: 'Chaleureux', en: 'Warm' },
+  { fr: 'Spirituel', en: 'Spiritual' },
+  { fr: 'Vendeur (urgence)', en: 'Persuasive (urgency)' },
+];
+
 
 /** Turn the AI's HTML description into something a plain textarea can hold. */
 function htmlToText(html: string) {
