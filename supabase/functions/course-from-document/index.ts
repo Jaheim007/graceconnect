@@ -51,32 +51,33 @@ interface TierProfile {
 
 const TIER_PROFILES: Record<'standard' | 'premium', TierProfile> = {
   standard: {
-    maxTopics: 10,
-    minSlides: 4,
-    maxSlides: 7,
-    maxQuiz: 2,
-    sentencesFr: '5 à 7 phrases complètes (120 à 180 mots)',
-    sentencesEn: '5-7 full sentences (120-180 words)',
+    maxTopics: 12,
+    minSlides: 5,
+    maxSlides: 8,
+    maxQuiz: 3,
+    sentencesFr: '7 à 10 phrases complètes (180 à 260 mots), avec au moins un exemple concret',
+    sentencesEn: '7-10 full sentences (180-260 words), including at least one concrete example',
     model: 'gemini-2.5-flash',
-    maxOutputTokens: 6000,
-    outlineSections: '8-10',
-    maxImages: 4,
-    bodyChars: 2500,
+    maxOutputTokens: 9000,
+    outlineSections: '10-12',
+    maxImages: 12,
+    bodyChars: 3200,
   },
   premium: {
-    maxTopics: 16,
-    minSlides: 7,
-    maxSlides: 10,
+    maxTopics: 18,
+    minSlides: 8,
+    maxSlides: 12,
     maxQuiz: 4,
-    sentencesFr: '9 à 14 phrases complètes (220 à 320 mots), avec un exemple concret et un « À retenir » final',
-    sentencesEn: '9-14 full sentences (220-320 words), including one concrete example and a closing "Key takeaway"',
+    sentencesFr: '12 à 18 phrases complètes (320 à 450 mots), avec deux exemples concrets, des chiffres ou cas pratiques, et un « À retenir » final',
+    sentencesEn: '12-18 full sentences (320-450 words), including two concrete examples, figures or practical cases, and a closing "Key takeaway"',
     model: 'gemini-2.5-pro',
-    maxOutputTokens: 12000,
-    outlineSections: '12-16',
-    maxImages: 16,
-    bodyChars: 4500,
+    maxOutputTokens: 16000,
+    outlineSections: '14-18',
+    maxImages: 18,
+    bodyChars: 6000,
   },
 };
+
 
 interface DraftSlide {
   slide_type: 'text' | 'quiz';
