@@ -42,7 +42,6 @@ export function FinalAssessmentSlide({
   const isFr = locale === 'fr';
 
   const question = questions[currentQ];
-  const isCorrect = answers[currentQ] === question?.correctIndex;
 
   const handleSelect = (idx: number) => {
     if (revealed) return;
@@ -180,7 +179,6 @@ export function FinalAssessmentSlide({
 
             <div className="flex flex-col gap-2.5">
               {question.options.map((option, idx) => {
-                const isThisCorrect = idx === question.correctIndex;
                 const isSelected = idx === answers[currentQ];
                 return (
                   <motion.button
@@ -194,11 +192,9 @@ export function FinalAssessmentSlide({
                     className={cn(
                       'relative text-left rounded-xl px-4 py-3 transition-all duration-200 text-sm font-medium border-2',
                       revealed
-                        ? isThisCorrect
-                          ? 'bg-emerald-500/20 border-emerald-400 text-white'
-                          : isSelected
-                            ? 'bg-red-500/20 border-red-400 text-white/70'
-                            : 'bg-white/5 border-white/10 text-white/40'
+                        ? isSelected
+                          ? 'bg-white/25 border-white/70 text-white'
+                          : 'bg-white/5 border-white/10 text-white/40'
                         : 'bg-white/95 text-slate-800 border-white/80 hover:bg-white cursor-pointer shadow-lg'
                     )}
                     disabled={revealed}
@@ -207,16 +203,12 @@ export function FinalAssessmentSlide({
                       <div className={cn(
                         'h-6 w-6 rounded-full border-2 flex items-center justify-center shrink-0 text-xs font-bold',
                         revealed
-                          ? isThisCorrect
-                            ? 'border-emerald-400 bg-emerald-400 text-white'
-                            : isSelected
-                              ? 'border-red-400 bg-red-400 text-white'
-                              : 'border-white/20 text-white/30'
+                          ? isSelected
+                            ? 'border-white bg-white/20 text-white'
+                            : 'border-white/20 text-white/30'
                           : 'border-slate-300 text-slate-500'
                       )}>
-                        {revealed && isThisCorrect ? <CheckCircle2 className="h-4 w-4" /> :
-                         revealed && isSelected ? <XCircle className="h-4 w-4" /> :
-                         String.fromCharCode(65 + idx)}
+                        {revealed && isSelected ? <CheckCircle2 className="h-4 w-4" /> : String.fromCharCode(65 + idx)}
                       </div>
                       <span className="flex-1">{option}</span>
                     </div>
@@ -228,20 +220,15 @@ export function FinalAssessmentSlide({
             <AnimatePresence>
               {revealed && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-                  {question.explanation && (
-                    <div className={cn(
-                      'rounded-lg px-4 py-3 text-xs border',
-                      isCorrect
-                        ? 'bg-emerald-500/10 border-emerald-400/30 text-emerald-300'
-                        : 'bg-amber-500/10 border-amber-400/30 text-amber-300'
-                    )}>
-                      {isCorrect ? '✅ ' : '💡 '}{question.explanation}
-                    </div>
-                  )}
+                  <p className="text-xs text-white/70">
+                    {isFr
+                      ? 'Réponse enregistrée — votre score s\u2019affichera à la fin.'
+                      : 'Answer recorded — your score appears at the end.'}
+                  </p>
                   <Button onClick={handleNext} size="sm" className="w-full gap-2 bg-white/15 hover:bg-white/25 text-white border-0">
                     {currentQ < questions.length - 1
                       ? (isFr ? 'Question suivante' : 'Next question')
-                      : (isFr ? 'Voir les résultats' : 'See results')}
+                      : (isFr ? 'Voir mon score' : 'See my score')}
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </motion.div>
