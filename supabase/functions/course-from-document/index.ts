@@ -61,11 +61,16 @@ interface TierProfile {
   minTopics: number;
   minSlides: number;
   maxSlides: number;
+  minQuiz: number;
   maxQuiz: number;
   /** Practice flashcards inserted between the teaching slides. */
+  minFlashcards: number;
   maxFlashcards: number;
   sentencesFr: string;
   sentencesEn: string;
+  /** Target words per teaching slide (microlearning: one idea, no scrolling). */
+  slideWordsMin: number;
+  slideWordsMax: number;
   model: string;
   maxOutputTokens: number;
   outlineSections: string;
@@ -77,32 +82,40 @@ const TIER_PROFILES: Record<'standard' | 'premium', TierProfile> = {
   standard: {
     maxTopics: 12,
     minTopics: 8,
-    minSlides: 5,
-    maxSlides: 8,
-    maxQuiz: 3,
-    maxFlashcards: 2,
-    sentencesFr: '7 à 10 phrases complètes (180 à 260 mots), avec au moins un exemple concret',
-    sentencesEn: '7-10 full sentences (180-260 words), including at least one concrete example',
+    minSlides: 12,
+    maxSlides: 20,
+    minQuiz: 5,
+    maxQuiz: 6,
+    minFlashcards: 3,
+    maxFlashcards: 4,
+    sentencesFr: '2 à 4 phrases courtes (40 à 80 mots maximum), une seule idée par slide',
+    sentencesEn: '2-4 short sentences (40-80 words max), one single idea per slide',
+    slideWordsMin: 40,
+    slideWordsMax: 80,
     model: 'gemini-2.5-flash',
-    maxOutputTokens: 9000,
+    maxOutputTokens: 12000,
     outlineSections: '10-12',
     maxImages: 12,
-    bodyChars: 3200,
+    bodyChars: 900,
   },
   premium: {
     maxTopics: 18,
     minTopics: 14,
-    minSlides: 8,
-    maxSlides: 12,
-    maxQuiz: 5,
-    maxFlashcards: 4,
-    sentencesFr: '12 à 18 phrases complètes (320 à 450 mots), avec deux exemples concrets, des chiffres ou cas pratiques, et un « À retenir » final',
-    sentencesEn: '12-18 full sentences (320-450 words), including two concrete examples, figures or practical cases, and a closing "Key takeaway"',
+    minSlides: 18,
+    maxSlides: 28,
+    minQuiz: 8,
+    maxQuiz: 10,
+    minFlashcards: 5,
+    maxFlashcards: 6,
+    sentencesFr: '3 à 5 phrases courtes (60 à 100 mots maximum), une seule idée par slide, avec un exemple concret quand c\'est utile',
+    sentencesEn: '3-5 short sentences (60-100 words max), one single idea per slide, with a concrete example where useful',
+    slideWordsMin: 60,
+    slideWordsMax: 100,
     model: 'gemini-2.5-pro',
-    maxOutputTokens: 16000,
+    maxOutputTokens: 20000,
     outlineSections: '14-18',
     maxImages: 18,
-    bodyChars: 6000,
+    bodyChars: 1200,
   },
 };
 
