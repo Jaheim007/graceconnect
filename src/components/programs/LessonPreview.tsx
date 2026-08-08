@@ -653,8 +653,11 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
           quiz={current.moduleQuiz}
           moduleTitle={current.moduleTitle}
           gamificationEnabled={gamificationEnabled}
-          onComplete={(passed, score, total, stars) => {
-            if (stars > 0) setStarsEarned(s => s + stars);
+          onReview={() => {
+            const first = allSlides.findIndex(sl => sl.lessonId === current.lessonId);
+            setCurrentIndex(first >= 0 ? first : 0);
+          }}
+          onComplete={(passed) => {
             if (passed || !isLearner) goNext();
           }}
         />
