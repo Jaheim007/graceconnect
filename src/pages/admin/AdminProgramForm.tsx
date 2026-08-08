@@ -28,6 +28,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { LessonEditor } from '@/components/programs/LessonEditor';
 import { CourseBuilder } from '@/components/programs/builder/CourseBuilder';
 import { CourseCompletionRules } from '@/components/programs/CourseCompletionRules';
+import { CertificateTemplateEditor, type CertificateDesign } from '@/components/programs/CertificateTemplateEditor';
 import { useProgramSlideMap } from '@/hooks/useProgramSlides';
 import { minAiCoursePrice } from '@/lib/coursePricing';
 import type { CourseRules } from '@/hooks/useCourseDraft';
