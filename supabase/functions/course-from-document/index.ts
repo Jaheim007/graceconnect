@@ -37,6 +37,15 @@ const TOPIC_SOURCE_CHARS = 9000;  // per-call prompt ceiling
 const PIPELINE_SOFT_DEADLINE_MS = 260_000;
 /** Below this remaining budget we stop spending time (and credits) on images. */
 const IMAGE_MIN_REMAINING_MS = 30_000;
+/**
+ * Images used to die around lesson 9-10: the lesson loop ate the wall clock and
+ * the inline image step was skipped for every later batch. Illustrations now get
+ * their own tail budget AFTER all lessons are written, so late lessons are
+ * illustrated too.
+ */
+const IMAGE_TAIL_DEADLINE_MS = 370_000;
+const IMAGE_TAIL_BATCH = 4;
+
 
 
 /**
