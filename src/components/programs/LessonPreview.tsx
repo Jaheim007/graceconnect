@@ -143,7 +143,9 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
   // Per-slide customizations keyed by slide index
   const [slideCustomizations, setSlideCustomizations] = useState<Record<number, SlideCustomization>>({});
   const [starsEarned, setStarsEarned] = useState(0);
-  const [gamificationEnabled, setGamificationEnabled] = useState(true);
+  // Star gamification was removed from the product; kept as a constant so the
+  // slide components stay compatible without showing any star UI.
+  const gamificationEnabled = false;
 
   // Track the highest slide index the learner has reached (for slide locking)
   const [maxReachedIndex, setMaxReachedIndex] = useState(0);
