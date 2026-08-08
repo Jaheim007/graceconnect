@@ -142,13 +142,14 @@ export function CourseCompletionRules({ rules, lessons, onChange }: Props) {
         </div>
       </div>
 
-      {/* Step 2 — the default setting (used by both scored modes) */}
-      {mode !== 'none' && (
+      {/* Step 2 — one single setting, only for the "same score everywhere" mode.
+          In per-lesson mode there is no "default setting" card: the creator
+          switches on the lessons he wants and sets each one himself. */}
+      {mode === 'global' && (
         <div className="space-y-4 rounded-lg border border-border p-3">
           <p className="text-[12px] font-medium">
-            {mode === 'global'
-              ? (isFr ? 'Réglage pour toutes les leçons' : 'Setting for every lesson')
-              : (isFr ? 'Réglage par défaut' : 'Default setting')}
+            {isFr ? 'Réglage pour toutes les leçons' : 'Setting for every lesson'}
+
           </p>
 
           <div className="space-y-2">
