@@ -393,8 +393,9 @@ serve(async (req) => {
     });
     drawTracked(signatureLabel.toUpperCase(), fontBold, 8.5 * k, sigBaseY, rgb(0.45, 0.45, 0.5), 3 * k);
     page.drawText(footerText, {
-      x: center(footerText, fontBold, 11.5 * k), y: sigBaseY - 22 * k, size: 11.5 * k, font: fontBold, color: dark,
+      x: center(footerText, fontDisplay, 13 * k), y: sigBaseY - 24 * k, size: 13 * k, font: fontDisplay, color: dark,
     });
+
 
     // ---------- Footer: verification ----------
     page.drawLine({ start: { x: 110 * k, y: 108 * k }, end: { x: width - 110 * k, y: 108 * k }, color: goldSoft, thickness: 0.8 * k });
