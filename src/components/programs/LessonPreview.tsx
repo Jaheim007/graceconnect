@@ -454,15 +454,14 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
       if (error) throw error;
       if (!data?.url) throw new Error(isFr ? 'Aucune image n’a été générée.' : 'No image was generated.');
 
-      setSlideCustomizations((prev) => ({
-        ...prev,
-        [currentIndex]: {
-          ...(prev[currentIndex] || DEFAULT_CUSTOMIZATION),
-          bgImageUrl: data.url,
-          imagePosition: 'cover',
-          layout: 'text-only',
-        },
-      }));
+      const generated: SlideCustomization = {
+        ...(customizationsRef.current[currentIndex] || DEFAULT_CUSTOMIZATION),
+        bgImageUrl: data.url,
+        imagePosition: 'cover',
+        layout: 'text-only',
+      };
+      setSlideCustomizations((prev) => ({ ...prev, [currentIndex]: generated }));
+      persistCustomization(currentIndex, generated);
 
       toast({
         title: isFr ? 'Image de fond générée' : 'Background image generated',
