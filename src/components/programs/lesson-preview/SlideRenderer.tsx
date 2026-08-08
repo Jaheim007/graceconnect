@@ -377,15 +377,17 @@ export function SlideRenderer({
   // Default: Text-only
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
-      {hasBgImage && <img src={backgroundImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} loading="lazy" decoding="async" />}
-      {hasBgImage && (
-        <>
-          {/* Readability scrim: the photo stays visible, but never competes with the text block */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/65 to-black/35 z-[1]" />
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px] z-[1]" />
-        </>
-      )}
-      <SlideDecoration theme={theme} />
+      {hasBgImage ? (
+        <LessonImageBackdrop
+          imageUrl={backgroundImageUrl}
+          imageClassName={imagePositionClasses[imgPos]}
+          focus={captionPos === 'top' ? 'top' : captionPos === 'middle' ? 'center' : 'bottom'}
+        />
+      ) : null}
+      {/* Decorations belong to gradient slides only — they must never sit on top
+          of an AI illustration and dull it. */}
+      {!hasBgImage && <SlideDecoration theme={theme} />}
+
       <div className="relative z-20"><Header /></div>
 
       <div className={cn('absolute inset-0 flex flex-col z-10', isMobile ? 'px-5' : 'px-8', captionPositionClasses[captionPos])}>
