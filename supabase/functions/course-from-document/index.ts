@@ -29,6 +29,17 @@ const IMAGE_ACTION_KEY = 'generate_illustration';
 const TOPIC_SOURCE_CHARS = 9000;  // per-call prompt ceiling
 
 /**
+ * Wall-clock safety net. Background isolates are killed without warning, which
+ * used to leave a job frozen at "82%" forever and a draft the creator could
+ * never finish. We now stop generating BEFORE the kill and finalise the draft
+ * with whatever lessons exist, so nothing is ever lost.
+ */
+const PIPELINE_SOFT_DEADLINE_MS = 260_000;
+/** Below this remaining budget we stop spending time (and credits) on images. */
+const IMAGE_MIN_REMAINING_MS = 120_000;
+
+
+/**
  * Tier profiles — this is what actually makes Standard ≠ Premium.
  * Standard: solid course, flash model, fewer/leaner lessons, images on the
  * first lessons only. Premium: deeper lessons (more slides, longer bodies,
@@ -295,8 +306,20 @@ async function runPipeline(ctx: {
     const topics = segmentIntoTopics(sourceText, { maxTopics: profile.maxTopics });
     await setProgress(admin, ctx.jobId, 15, 'segmenting', { topics: topics.length, tier: ctx.tier });
 
+    const startedAt = Date.now();
+    const remainingMs = () => PIPELINE_SOFT_DEADLINE_MS - (Date.now() - startedAt);
+
     const lessons: DraftLesson[] = [];
+    let truncated = false;
+
     for (let i = 0; i < topics.length; i++) {
+      // Wall-clock guard: finalise instead of getting killed mid-run.
+      if (i > 0 && remainingMs() <= 25_000) {
+        truncated = true;
+        console.warn('[course-from-document] soft deadline reached, finalising partial draft', { done: i, topics: topics.length });
+        break;
+      }
+
       const topic = topics[i];
       const excerpt = topic.text.slice(0, TOPIC_SOURCE_CHARS);
       let lesson: DraftLesson;
@@ -314,11 +337,15 @@ async function runPipeline(ctx: {
 
       // ── Lesson background image (credit-debited, best effort) ──
       if (imagesEnabled && imagesGenerated < profile.maxImages) {
-        const result = await generateLessonImage({
-          admin, ctx, lesson, index: i, profile,
-        });
-        if (result.url) { lesson.image_url = result.url; imagesGenerated += 1; }
-        if (result.stop) imagesEnabled = false;
+        if (remainingMs() <= IMAGE_MIN_REMAINING_MS) {
+          imagesEnabled = false;   // no budget left: keep generating text instead
+        } else {
+          const result = await generateLessonImage({
+            admin, ctx, lesson, index: i, profile,
+          });
+          if (result.url) { lesson.image_url = result.url; imagesGenerated += 1; }
+          if (result.stop) imagesEnabled = false;
+        }
       }
 
       lessons.push(lesson);
@@ -347,9 +374,12 @@ async function runPipeline(ctx: {
         lessons: lessons.length,
         slides: lessons.reduce((n, l) => n + l.slides.length, 0),
         images: imagesGenerated,
+        truncated,
+        planned_lessons: topics.length,
       },
       completed_at: new Date().toISOString(),
     }).eq('id', ctx.jobId);
+
 
     await admin.from('audit_logs').insert({
       user_id: ctx.userId,

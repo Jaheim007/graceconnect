@@ -16,7 +16,7 @@ import { CourseCompletionSlide } from './lesson-preview/CourseCompletionSlide';
 import { ModuleQuizPlayer } from './ModuleQuizPlayer';
 import { useSaveSlideProgress, useSaveLessonCompletion, useEnrollmentProgress } from '@/hooks/useLearnerProgress';
 import { useModuleQuiz } from '@/hooks/useModuleQuiz';
-import { getSlideTheme } from './lesson-preview/slideThemes';
+import { getSlideThemeFor } from './lesson-preview/slideThemes';
 import { Switch } from '@/components/ui/switch';
 import { db } from '@/lib/db';
 import { useProgramSlideMap } from '@/hooks/useProgramSlides';
@@ -582,7 +582,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
 
   const renderSlideContent = () => {
     if (!current) return null;
-    const theme = getSlideTheme(currentIndex);
+    const theme = getSlideThemeFor(`${program?.title || ''}|${current.lessonTitle || ''}`, currentIndex);
 
     // Preview boundary: render the paywall instead of the locked slide's content.
     if (isPaywalled) {

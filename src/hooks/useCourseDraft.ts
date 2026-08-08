@@ -192,3 +192,60 @@ export function usePublishCourseDraft() {
     },
   });
 }
+
+export interface CourseDraftSummary {
+  id: string;
+  title: string;
+  status: string;
+  updated_at: string;
+  lessons: number;
+  slides: number;
+  source_kind?: string | null;
+}
+
+/**
+ * Every AI course draft is auto-saved server-side, so leaving the page (or
+ * losing the connection) never destroys work. This lists the drafts that were
+ * never published so the creator can always come back and finish them.
+ */
+export function useOrgCourseDrafts(orgId: string | undefined) {
+  return useQuery({
+    queryKey: ['org-course-drafts', orgId],
+    enabled: !!orgId,
+    queryFn: async (): Promise<CourseDraftSummary[]> => {
+      const { data, error } = await supabase
+        .from('ai_content_projects')
+        .select('id, title, status, updated_at, linked_program_id, data_json')
+        .eq('organization_id', orgId!)
+        .eq('project_type', 'course_pack')
+        .is('linked_program_id', null)
+        .order('updated_at', { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return (data || []).map((row: any) => {
+        const lessons = row.data_json?.course?.lessons || [];
+        return {
+          id: row.id,
+          title: row.title || 'Cours',
+          status: row.status,
+          updated_at: row.updated_at,
+          lessons: lessons.length,
+          slides: lessons.reduce((n: number, l: any) => n + (l.slides?.length || 0), 0),
+          source_kind: row.data_json?.source?.kind ?? null,
+        };
+      });
+    },
+  });
+}
+
+export function useDeleteCourseDraft() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (projectId: string) => {
+      const { error } = await supabase.from('ai_content_projects').delete().eq('id', projectId);
+      if (error) throw error;
+      return projectId;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['org-course-drafts'] }); },
+  });
+}

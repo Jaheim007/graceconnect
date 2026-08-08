@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { ContentSlide } from './parseContentSlides';
-import { getSlideTheme } from './slideThemes';
+import { getSlideThemeFor } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
+import { LessonImageBackdrop } from './LessonImageBackdrop';
+
 import { QuizSlide } from './QuizSlide';
 import { FlashcardSlide } from './FlashcardSlide';
 import { MatchingSlide } from './MatchingSlide';
@@ -84,7 +86,7 @@ function ScrollableContent({
 }: {
   captionStyle: CaptionStyle;
   captionClasses: Record<CaptionStyle, string>;
-  theme: ReturnType<typeof getSlideTheme>;
+  theme: ReturnType<typeof getSlideThemeFor>;
   children: React.ReactNode;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -148,7 +150,10 @@ export function SlideRenderer({
   onStarEarned,
   gamificationEnabled,
 }: SlideRendererProps) {
-  const theme = getSlideTheme(slideIndex);
+  // Per-course visual signature: the decorative layer is unique to each course
+  // instead of the same rotation for everyone.
+  const theme = getSlideThemeFor(`${moduleTitle || ''}|${lessonTitle || ''}`, slideIndex);
+
   const isMobile = deviceMode === 'mobile';
   const c = customization;
 
@@ -288,9 +293,11 @@ export function SlideRenderer({
 
     return (
       <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
-        {hasTitleBg && <img src={titleBgImage} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} loading="lazy" decoding="async" />}
-        {hasTitleBg && <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30 z-[1]" />}
-        <SlideDecoration theme={theme} />
+        {hasTitleBg ? (
+          <LessonImageBackdrop imageUrl={titleBgImage} imageClassName={imagePositionClasses[imgPos]} focus="bottom" />
+        ) : null}
+        {!hasTitleBg && <SlideDecoration theme={theme} />}
+
         <div className="relative z-20"><Header /></div>
         <div className={cn('flex-1 flex flex-col justify-end px-6 pb-10 z-10 relative')}>
           <div className="max-w-lg">
@@ -316,12 +323,15 @@ export function SlideRenderer({
   if (layout === 'image-cover' && hasBgImage) {
     return (
       <div className="h-full flex flex-col text-white relative overflow-hidden" style={bgStyle}>
-        <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} loading="lazy" decoding="async" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20 z-[1]" />
-        <SlideDecoration theme={theme} />
+        <LessonImageBackdrop
+          imageUrl={c!.bgImageUrl}
+          imageClassName={imagePositionClasses[imgPos]}
+          focus={captionPos === 'top' ? 'top' : captionPos === 'middle' ? 'center' : 'bottom'}
+        />
         <Header />
         <div className={cn('flex-1 flex flex-col relative z-10 px-6', captionPositionClasses[captionPos])}>
-          <div className={cn('rounded-xl px-5 py-6 max-w-lg backdrop-blur-sm', captionClasses[captionStyle], 'border border-white/10', theme.captionGlow)}>
+          <div className={cn('rounded-xl px-5 py-6 max-w-lg', captionClasses[captionStyle], 'border border-white/10', theme.captionGlow)}>
+
             <SlideTag />
             {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', lightMode ? 'text-slate-900' : 'text-white', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>}
             {slide.bodyHtml && <div className={proseClasses} dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />}
@@ -377,15 +387,17 @@ export function SlideRenderer({
   // Default: Text-only
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
-      {hasBgImage && <img src={backgroundImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} loading="lazy" decoding="async" />}
-      {hasBgImage && (
-        <>
-          {/* Readability scrim: the photo stays visible, but never competes with the text block */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/65 to-black/35 z-[1]" />
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px] z-[1]" />
-        </>
-      )}
-      <SlideDecoration theme={theme} />
+      {hasBgImage ? (
+        <LessonImageBackdrop
+          imageUrl={backgroundImageUrl}
+          imageClassName={imagePositionClasses[imgPos]}
+          focus={captionPos === 'top' ? 'top' : captionPos === 'middle' ? 'center' : 'bottom'}
+        />
+      ) : null}
+      {/* Decorations belong to gradient slides only — they must never sit on top
+          of an AI illustration and dull it. */}
+      {!hasBgImage && <SlideDecoration theme={theme} />}
+
       <div className="relative z-20"><Header /></div>
 
       <div className={cn('absolute inset-0 flex flex-col z-10', isMobile ? 'px-5' : 'px-8', captionPositionClasses[captionPos])}>

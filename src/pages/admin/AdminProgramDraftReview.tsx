@@ -6,7 +6,7 @@
  * is a single explicit action; the created course starts as a draft unless the
  * admin opts into publishing immediately.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -81,7 +81,6 @@ export default function AdminProgramDraftReview() {
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState(currentOrg?.currency || 'XOF');
   const [buyerPreview, setBuyerPreview] = useState(false);
-  const [previewFull, setPreviewFull] = useState(false);
 
   const minPrice = MIN_AI_COURSE_PRICE[currency] ?? MIN_AI_COURSE_PRICE.USD;
   const priceValue = Number(price) || 0;
@@ -92,7 +91,28 @@ export default function AdminProgramDraftReview() {
 
 
   const remoteCourse = project?.data_json?.course;
-  const generating = job?.status === 'running' || job?.status === 'queued';
+  const jobRunning = job?.status === 'running' || job?.status === 'queued';
+
+  // A background isolate can be killed silently, leaving the job "running"
+  // forever (the classic "stuck at 82%"). When progress stops moving we treat
+  // the run as finished: the incrementally-saved lessons are usable and the
+  // creator can edit / publish instead of being locked out.
+  const progressRef = useRef<number | undefined>(undefined);
+  const [lastTick, setLastTick] = useState(() => Date.now());
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (job?.progress !== progressRef.current) {
+      progressRef.current = job?.progress;
+      setLastTick(Date.now());
+    }
+  }, [job?.progress]);
+  useEffect(() => {
+    if (!jobRunning) return;
+    const i = setInterval(() => setNow(Date.now()), 5000);
+    return () => clearInterval(i);
+  }, [jobRunning]);
+  const stalled = jobRunning && now - lastTick > 150_000;
+  const generating = jobRunning && !stalled;
 
   // Sync from server until the admin starts editing
   useEffect(() => {
@@ -120,6 +140,18 @@ export default function AdminProgramDraftReview() {
   // Force "draft" whenever the draft is incomplete
   useEffect(() => { if (incomplete && publishNow) setPublishNow(false); }, [incomplete, publishNow]);
 
+
+  // ── Auto-save ────────────────────────────────────────────────────────────
+  // The creator must never lose work: edits are pushed to the cloud draft a
+  // couple of seconds after they stop typing, and the pipeline itself persists
+  // each generated lesson. "Save" stays available but is only a shortcut.
+  useEffect(() => {
+    if (!dirty || !draft || generating) return;
+    const t = setTimeout(() => {
+      updateDraft.mutate(draft, { onSuccess: () => setDirty(false) });
+    }, 2500);
+    return () => clearTimeout(t);
+  }, [dirty, draft, generating]);
 
   const mutate = (fn: (d: CourseDraft) => CourseDraft) => {
     setDraft((prev) => (prev ? fn(structuredClone(prev)) : prev));
@@ -220,6 +252,12 @@ export default function AdminProgramDraftReview() {
     return (
       <AdminPageShell title={isFr ? 'Génération du cours' : 'Generating course'}>
         <CourseGenerationLoader phase="generating" mode="convert" />
+        <p className="mt-4 text-center text-[12px] text-muted-foreground">
+          {isFr
+            ? 'Vous pouvez quitter cette page : le brouillon est enregistré automatiquement dans le cloud et vous le retrouverez dans « Cours ».'
+            : 'You can leave this page: the draft is auto-saved to the cloud and will be waiting for you under “Courses”.'}
+        </p>
+
       </AdminPageShell>
     );
   }
@@ -273,17 +311,7 @@ export default function AdminProgramDraftReview() {
               variant="outline"
               size="sm"
               className="gap-1.5"
-              onClick={() => { setPreviewFull(true); setBuyerPreview(true); }}
-              disabled={totals.slides === 0}
-            >
-              <Eye className="h-3.5 w-3.5" />
-              {isFr ? 'Aperçu complet' : 'Full preview'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => { setPreviewFull(false); setBuyerPreview(true); }}
+              onClick={() => setBuyerPreview(true)}
               disabled={totals.slides === 0}
             >
               <Eye className="h-3.5 w-3.5" />
@@ -312,6 +340,14 @@ export default function AdminProgramDraftReview() {
             <Badge variant="outline" className="text-[10px] gap-1"><FileText className="h-3 w-3" />{project.data_json.source.file_name}</Badge>
           )}
         </div>
+
+        {stalled && (
+          <div className="rounded-xl border border-border bg-muted/40 p-3 text-[12px] text-muted-foreground">
+            {isFr
+              ? 'La génération s’est arrêtée avant la fin, mais tout ce qui a été généré est enregistré dans le cloud. Vous pouvez modifier, compléter ou publier ce brouillon — rien n’est perdu.'
+              : 'Generation stopped before finishing, but everything generated so far is saved in the cloud. You can edit, complete or publish this draft — nothing is lost.'}
+          </div>
+        )}
 
         {incomplete && (
           <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-[12px] text-amber-700 dark:text-amber-300">
@@ -609,7 +645,6 @@ export default function AdminProgramDraftReview() {
           price={priceValue}
           currency={currency}
           isFree={false}
-          initialUnlocked={previewFull}
           onClose={() => setBuyerPreview(false)}
 
         />

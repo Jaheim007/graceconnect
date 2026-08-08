@@ -10,10 +10,12 @@ import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, BookOpen, Edit, Trash2, Eye, EyeOff, Layers, ChevronRight, Zap, FileUp, PenLine, ChevronDown, Copy } from 'lucide-react';
+import { Plus, BookOpen, Edit, Trash2, Eye, EyeOff, Layers, ChevronRight, Zap, FileUp, PenLine, ChevronDown, Copy, Save } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrgCourseStats } from '@/hooks/useCourseCommerce';
 import { formatPrice } from '@/lib/currency';
+import { askConfirm } from '@/components/ui/confirm-dialog';
+import { useOrgCourseDrafts, useDeleteCourseDraft } from '@/hooks/useCourseDraft';
 import { CreateWithAIDialog } from '@/components/programs/CreateWithAIDialog';
 import { CreateBlankDialog } from '@/components/programs/CreateBlankDialog';
 import { ConvertDocumentDialog } from '@/components/programs/ConvertDocumentDialog';
@@ -44,6 +46,24 @@ export default function AdminPrograms() {
   const createProgram = useCreateProgram();
   const cloneProgram = useCloneProgram();
   const { data: courseStats } = useOrgCourseStats(currentOrg?.id, programs);
+  const { data: drafts = [] } = useOrgCourseDrafts(currentOrg?.id);
+  const deleteDraft = useDeleteCourseDraft();
+
+  const handleDeleteDraft = async (id: string, title: string) => {
+    const ok = await askConfirm({
+      title: isFr ? 'Supprimer ce brouillon ?' : 'Delete this draft?',
+      description: title,
+      confirmLabel: isFr ? 'Supprimer' : 'Delete',
+      destructive: true,
+    });
+    if (!ok) return;
+    try {
+      await deleteDraft.mutateAsync(id);
+      toast({ title: isFr ? 'Brouillon supprimé' : 'Draft deleted' });
+    } catch (e: any) {
+      toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
+    }
+  };
 
   const [showAI, setShowAI] = useState(false);
   const [showBlank, setShowBlank] = useState(false);
@@ -127,12 +147,56 @@ export default function AdminPrograms() {
       }
     >
       <div className="space-y-4">
+        {/* Auto-saved AI drafts — nothing is ever lost if the creator leaves */}
+        {drafts.length > 0 && (
+          <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
+            <div className="flex items-center gap-2">
+              <Save className="h-4 w-4 text-primary" />
+              <span className="font-semibold text-sm">
+                {isFr ? 'Brouillons enregistrés automatiquement' : 'Auto-saved drafts'}
+              </span>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {isFr
+                ? 'Vos générations sont sauvegardées dans le cloud. Reprenez là où vous vous êtes arrêté, même après une déconnexion.'
+                : 'Your generations are saved in the cloud. Pick up exactly where you left off, even after a disconnection.'}
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {drafts.map((d) => (
+                <div key={d.id} className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium truncate">{d.title}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {d.lessons} {isFr ? 'leçons' : 'lessons'} · {d.slides} slides
+                      {d.status === 'generating' ? ` · ${isFr ? 'en cours' : 'in progress'}` : ''}
+                    </p>
+                  </div>
+                  <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => navigate(`/admin/programs/draft/${d.id}`)}>
+                    {isFr ? 'Reprendre' : 'Resume'}
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7 text-destructive"
+                    onClick={() => handleDeleteDraft(d.id, d.title)}
+                    aria-label={isFr ? 'Supprimer' : 'Delete'}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center gap-2">
           <BookOpen className="h-5 w-5 text-primary" />
           <span className="font-semibold text-sm">
             {programs.length} {isFr ? `cours` : `course${programs.length !== 1 ? 's' : ''}`}
           </span>
         </div>
+
+
 
         {isLoading ? <SkeletonRow count={3} /> : programs.length === 0 ? (
           <div className="text-center py-16 space-y-4">
