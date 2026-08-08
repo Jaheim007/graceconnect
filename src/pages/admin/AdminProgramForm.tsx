@@ -27,10 +27,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useI18n } from '@/i18n/I18nContext';
 import { LessonEditor } from '@/components/programs/LessonEditor';
 import { CourseBuilder } from '@/components/programs/builder/CourseBuilder';
+import { CourseCompletionRules } from '@/components/programs/CourseCompletionRules';
+import { useProgramSlideMap } from '@/hooks/useProgramSlides';
+import { minAiCoursePrice } from '@/lib/coursePricing';
+import type { CourseRules } from '@/hooks/useCourseDraft';
 
 import { AICourseGenerator } from '@/components/programs/AICourseGenerator';
 import { ModuleQuizEditor } from '@/components/programs/ModuleQuizEditor';
 import { cn } from '@/lib/utils';
+
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
@@ -139,28 +144,105 @@ export function ProgramForm() {
   }, [isMobileViewport, modules, selectedLessonId]);
 
   const currency = currentOrg?.currency || 'XOF';
+  const minAiPrice = minAiCoursePrice(currency);
+
+  // ── Completion rules ────────────────────────────────────────────────────────
+  // Quiz slides are the source of truth for scores/retries (the learner player
+  // reads them), so the panel is derived from them and written back on save.
+  const { data: slideMap = {} } = useProgramSlideMap(id);
+  const flatLessons = modules.flatMap((m: any) =>
+    (m.lessons || []).map((l: any) => ({ id: l.id as string, title: l.title as string })));
+  const [rules, setRules] = useState<CourseRules>({ score_mode: 'none', passing_score: 70, max_quiz_attempts: 0, certificate_enabled: true });
+  const [rulesLoaded, setRulesLoaded] = useState(false);
+
+  useEffect(() => {
+    if (rulesLoaded || !existingProgram || flatLessons.length === 0 || Object.keys(slideMap).length === 0) return;
+    const perLesson: Record<string, { passing_score?: number; max_attempts?: number }> = {};
+    let anyScored = false;
+    const seen: { pass: number; tries: number }[] = [];
+    flatLessons.forEach((l, i) => {
+      const quizzes = (slideMap[l.id] || []).filter((s: any) => s.slide_type === 'quiz');
+      if (quizzes.length === 0) return;
+      const pass = Number((quizzes[0].data as any)?.passingScore || 0);
+      const tries = Number((quizzes[0].data as any)?.maxAttempts ?? 0);
+      seen.push({ pass, tries });
+      if (pass > 0) {
+        anyScored = true;
+        perLesson[String(i)] = { passing_score: pass, max_attempts: tries };
+      }
+    });
+    const uniform = seen.length > 0 && seen.every(s => s.pass === seen[0].pass && s.tries === seen[0].tries);
+    const mode = !anyScored ? 'none' : uniform ? 'global' : 'per_lesson';
+    setRules({
+      score_mode: mode,
+      require_score: mode !== 'none',
+      passing_score: (existingProgram as any).passing_score || seen[0]?.pass || 70,
+      max_quiz_attempts: seen[0]?.tries ?? 0,
+      certificate_enabled: (existingProgram as any).certificate_enabled !== false,
+      lesson_rules: mode === 'per_lesson' ? perLesson : undefined,
+    });
+    setRulesLoaded(true);
+  }, [rulesLoaded, existingProgram, flatLessons.length, slideMap]);
+
+  /** Write the chosen rules onto every quiz slide of the course. */
+  const stampQuizRules = async () => {
+    const mode = rules.score_mode ?? 'none';
+    const defaultPass = rules.passing_score ?? 70;
+    const defaultTries = rules.max_quiz_attempts ?? 0;
+    const updates: PromiseLike<any>[] = [];
+    flatLessons.forEach((l, i) => {
+      const rule = mode === 'per_lesson' ? rules.lesson_rules?.[String(i)] : undefined;
+      const pass = mode === 'per_lesson' ? (rule?.passing_score ?? 0) : mode === 'global' ? defaultPass : 0;
+      const tries = rule?.max_attempts ?? defaultTries;
+      (slideMap[l.id] || []).forEach((s: any) => {
+        if (s.slide_type !== 'quiz') return;
+        updates.push(
+          supabase.from('program_slides')
+            .update({ data: { ...(s.data || {}), passingScore: pass, maxAttempts: tries, revealAnswers: false } as any })
+            .eq('id', s.id),
+        );
+      });
+    });
+    await Promise.all(updates);
+    queryClient.invalidateQueries({ queryKey: ['program-slides'] });
+  };
 
   const handleSave = async () => {
     if (!currentOrg || !user || !title.trim() || !id) return;
+    if (isAiGenerated && price < minAiPrice) {
+      toast({
+        title: isFr ? 'Prix requis' : 'Price required',
+        description: isFr
+          ? `Un cours généré par l’IA ne peut pas être gratuit. Minimum ${minAiPrice} ${currency}.`
+          : `An AI-generated course cannot be free. Minimum ${minAiPrice} ${currency}.`,
+        variant: 'destructive',
+      });
+      return;
+    }
     setSaving(true);
     try {
       const wasPublished = existingProgram?.is_published;
+      const scored = (rules.score_mode ?? 'none') !== 'none';
+      const effectiveFree = isAiGenerated ? false : isFree;
       await updateProgram.mutateAsync({
         id,
         title: title.trim(),
         description: description.trim() || undefined,
         cover_image_url: coverUrl || undefined,
         is_published: isPublished,
-        is_free: isFree,
-        price: isFree ? 0 : price,
+        is_free: effectiveFree,
+        price: effectiveFree ? 0 : price,
         currency,
-        certificate_enabled: certificateEnabled,
-        passing_score: passingScore,
-        require_sequential_lessons: requireSequential,
-        require_assessment_for_cert: requireAssessmentForCert,
+        certificate_enabled: rules.certificate_enabled !== false,
+        passing_score: scored ? (rules.passing_score ?? 70) : 0,
+        max_quiz_attempts: (rules.max_quiz_attempts ?? 0) === 0 ? 10 : rules.max_quiz_attempts,
+        require_sequential_lessons: true,
+        require_assessment_for_cert: scored,
         assessment_enabled: assessmentEnabled,
-        gamification_enabled: gamificationEnabledSetting,
+        gamification_enabled: false,
       } as any);
+      await stampQuizRules();
+
 
       // Auto-create/update linked digital product for paid courses (enables affiliate system)
       if (!isFree && price > 0 && isPublished) {
@@ -560,9 +642,9 @@ export function ProgramForm() {
         </MobilePreviewOverlay>
       )}
 
-      {/* ─── SETTINGS TAB ─── */}
+      {/* ─── SETTINGS TAB — the single place for everything about the course ─── */}
       {activeTab === 'settings' && (
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="max-w-2xl mx-auto space-y-6">
             {/* Program info */}
             <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
@@ -601,9 +683,19 @@ export function ProgramForm() {
                   <RichTextEditor value={description} onChange={setDescription} placeholder={isFr ? "Décrivez le contenu..." : "Describe the content..."} />
                 </div>
                 <div>
-                  <Label className="text-xs">{isFr ? 'Image de couverture' : 'Cover image'}</Label>
+                  <div className="flex items-center justify-between mb-1">
+                    <Label className="text-xs">{isFr ? 'Image de couverture' : 'Cover image'}</Label>
+                    <Button
+                      type="button" variant="ghost" size="sm"
+                      className="h-6 gap-1 text-[10px] text-primary hover:text-primary"
+                      onClick={handleGenerateCover}
+                      disabled={generatingCover || !title.trim()}
+                    >
+                      {generatingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <ImageIcon className="h-3 w-3" />}
+                      {isFr ? 'Générer avec l’IA' : 'Generate with AI'}
+                    </Button>
+                  </div>
                   <ImageUploader value={coverUrl} onChange={setCoverUrl} folder={`programs/${currentOrg?.id}`} label="" aspectRatio="video" />
-                  {/* AI cover generation removed — use upload or Canva */}
                 </div>
               </div>
             </div>
@@ -613,104 +705,52 @@ export function ProgramForm() {
               <h3 className="font-semibold text-sm flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-primary" /> {isFr ? 'Tarification' : 'Pricing'}
               </h3>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-xs">{isFr ? 'Cours gratuit' : 'Free course'}</Label>
-                  <p className="text-[10px] text-muted-foreground">
-                    {isAiGenerated
-                      ? (isFr ? 'Les formations créées par IA doivent être payantes' : 'AI-generated courses must be paid')
-                      : (isFr ? 'Accessible sans paiement' : 'Free access')}
-                  </p>
-                </div>
-                <Switch checked={isFree} onCheckedChange={setIsFree} disabled={isAiGenerated} />
-              </div>
-              <div className={cn(isFree && 'opacity-40 pointer-events-none')}>
-                <Label className="text-xs">{isFr ? 'Prix' : 'Price'} ({currency})</Label>
-                <Input type="number" min={0} value={isFree ? 0 : price} onChange={e => setPrice(Number(e.target.value))} className="h-9 w-[200px]" disabled={isFree} />
-              </div>
-            </div>
-
-            {/* LMS Settings */}
-            <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-              <h3 className="font-semibold text-sm flex items-center gap-2">
-                <Settings className="h-4 w-4 text-primary" /> {isFr ? 'Paramètres LMS' : 'LMS Settings'}
-              </h3>
-
-              {/* Sequential lessons */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-xs">{isFr ? 'Progression séquentielle' : 'Sequential progression'}</Label>
-                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Les apprenants doivent suivre les leçons dans l\'ordre' : 'Learners must complete lessons in order'}</p>
-                </div>
-                <Switch checked={requireSequential} onCheckedChange={setRequireSequential} />
-              </div>
-
-              {/* Assessment */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-xs">{isFr ? 'Évaluation finale' : 'Final assessment'}</Label>
-                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Quiz final à la fin du cours' : 'Final quiz at end of course'}</p>
-                </div>
-                <Switch checked={assessmentEnabled} onCheckedChange={setAssessmentEnabled} />
-              </div>
-
-              {/* Gamification */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-xs">{isFr ? 'Gamification (étoiles)' : 'Gamification (stars)'}</Label>
-                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Récompenser les bonnes réponses' : 'Reward correct answers'}</p>
-                </div>
-                <Switch checked={gamificationEnabledSetting} onCheckedChange={setGamificationEnabledSetting} />
-              </div>
-
-              {/* Passing score */}
-              <div>
-                <Label className="text-xs">{isFr ? 'Score minimum de réussite' : 'Minimum passing score'}</Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <Select value={String(passingScore)} onValueChange={v => setPassingScore(Number(v))}>
-                    <SelectTrigger className="w-[120px] h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="50">50%</SelectItem>
-                      <SelectItem value="60">60%</SelectItem>
-                      <SelectItem value="70">70%</SelectItem>
-                      <SelectItem value="80">80%</SelectItem>
-                      <SelectItem value="90">90%</SelectItem>
-                      <SelectItem value="100">100%</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <span className="text-[10px] text-muted-foreground">{isFr ? 'requis pour réussir' : 'required to pass'}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Certificate */}
-            <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-              <h3 className="font-semibold text-sm flex items-center gap-2">
-                <Award className="h-4 w-4 text-primary" /> {isFr ? 'Certificat' : 'Certificate'}
-              </h3>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-xs">{isFr ? 'Certificat de réussite' : 'Completion certificate'}</Label>
-                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Délivré après complétion du cours' : 'Issued upon course completion'}</p>
-                </div>
-                <Switch checked={certificateEnabled} onCheckedChange={setCertificateEnabled} />
-              </div>
-
-              {certificateEnabled && (
-                <div className="flex items-center justify-between pl-4 border-l-2 border-primary/20">
+              {isAiGenerated ? (
+                <p className="text-[11px] text-muted-foreground">
+                  {isFr
+                    ? `Ce cours a été écrit par l’IA : il doit être payant (minimum ${minAiPrice.toLocaleString()} ${currency}).`
+                    : `This course was written by the AI: it must be paid (minimum ${minAiPrice.toLocaleString()} ${currency}).`}
+                </p>
+              ) : (
+                <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-xs">{isFr ? 'Exiger l\'évaluation finale' : 'Require final assessment'}</Label>
-                    <p className="text-[10px] text-muted-foreground">{isFr ? 'Le score minimum doit être atteint' : 'Minimum score must be reached'}</p>
+                    <Label className="text-xs">{isFr ? 'Cours gratuit' : 'Free course'}</Label>
+                    <p className="text-[10px] text-muted-foreground">{isFr ? 'Accessible sans paiement' : 'Free access'}</p>
                   </div>
-                  <Switch checked={requireAssessmentForCert} onCheckedChange={setRequireAssessmentForCert} />
+                  <Switch checked={isFree} onCheckedChange={setIsFree} />
                 </div>
               )}
+              <div className={cn(isFree && !isAiGenerated && 'opacity-40 pointer-events-none')}>
+                <Label className="text-xs">{isFr ? 'Prix' : 'Price'} ({currency})</Label>
+                <Input
+                  type="number" min={isAiGenerated ? minAiPrice : 0}
+                  value={isFree && !isAiGenerated ? 0 : price}
+                  onChange={e => setPrice(Number(e.target.value))}
+                  className="h-9 w-[200px]" disabled={isFree && !isAiGenerated}
+                />
+                {isAiGenerated && price < minAiPrice && (
+                  <p className="mt-1 text-[11px] text-destructive">
+                    {isFr ? `Minimum ${minAiPrice.toLocaleString()} ${currency}.` : `Minimum ${minAiPrice.toLocaleString()} ${currency}.`}
+                  </p>
+                )}
+              </div>
             </div>
+
+            {/* Completion rules — score mode, retries, certificate */}
+            <CourseCompletionRules
+              rules={rules}
+              lessons={flatLessons}
+              onChange={(patch) => setRules(r => ({ ...r, ...patch }))}
+            />
+
+            <Button onClick={handleSave} disabled={saving || !title.trim()} className="gap-1.5">
+              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+              {isFr ? 'Enregistrer les réglages' : 'Save settings'}
+            </Button>
           </div>
         </div>
       )}
+
 
       {/* ─── PUBLISH TAB ─── */}
       {activeTab === 'publish' && (
