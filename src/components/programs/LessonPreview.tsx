@@ -720,35 +720,13 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
                   {currentIndex + 1}/{total}
                 </span>
               )}
-
-              {!isCompactCreatorPreview && gamificationEnabled && starsEarned > 0 && (
-                <motion.span
-                  className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-foreground shrink-0"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  key={starsEarned}
-                >
-                  <Star className="h-3 w-3 fill-current" />
-                  {starsEarned}
-                </motion.span>
-              )}
             </div>
           </div>
 
           <div className="flex items-center gap-1 shrink-0">
             {!isLearner && (
               <>
-                <div className="hidden sm:flex items-center gap-1.5 mr-1">
-                  <Zap className="h-4 w-4 text-primary shrink-0" />
-                  <span className="text-[10px] text-muted-foreground hidden sm:inline">
-                    {isFr ? 'Étoiles' : 'Stars'}
-                  </span>
-                  <Switch
-                    checked={gamificationEnabled}
-                    onCheckedChange={setGamificationEnabled}
-                    className="scale-75"
-                  />
-                </div>
+
 
                 <div className="hidden md:flex items-center gap-0.5 bg-muted rounded-lg p-0.5 mr-1">
                   {([
