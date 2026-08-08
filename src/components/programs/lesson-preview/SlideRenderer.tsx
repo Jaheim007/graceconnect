@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { ContentSlide } from './parseContentSlides';
-import { getSlideTheme, getSlideThemeFor } from './slideThemes';
+import { getSlideThemeFor } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
 import { LessonImageBackdrop } from './LessonImageBackdrop';
 
