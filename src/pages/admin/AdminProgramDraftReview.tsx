@@ -252,6 +252,12 @@ export default function AdminProgramDraftReview() {
     return (
       <AdminPageShell title={isFr ? 'Génération du cours' : 'Generating course'}>
         <CourseGenerationLoader phase="generating" mode="convert" />
+        <p className="mt-4 text-center text-[12px] text-muted-foreground">
+          {isFr
+            ? 'Vous pouvez quitter cette page : le brouillon est enregistré automatiquement dans le cloud et vous le retrouverez dans « Cours ».'
+            : 'You can leave this page: the draft is auto-saved to the cloud and will be waiting for you under “Courses”.'}
+        </p>
+
       </AdminPageShell>
     );
   }
