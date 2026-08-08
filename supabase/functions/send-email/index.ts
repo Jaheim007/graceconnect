@@ -49,6 +49,7 @@ type EmailTemplate =
   | 'fraud_alert' | 'new_org_alert' | 'moderation_action'
   | 'flash_sale_alert' | 'promo_code_used' | 'org_verified'
   | 'waitlist_spot_available' | 'referral_reward'
+  | 'credits_low' | 'credits_empty'
   | 'review_request'
   | 'org_welcome_j0' | 'org_onboarding_j1' | 'org_onboarding_j3'
   | 'post_purchase_ambassador_j1' | 'post_purchase_ambassador_j5' | 'post_purchase_ambassador_j10'
@@ -903,6 +904,18 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return isFr
         ? { subject: `🎁 Récompense de parrainage`, html: wrap(`<h1 style="color:${green}">🎁 Récompense !</h1><p><strong>${d.referred_name || 'Quelqu\'un'}</strong> s'est inscrit grâce à vous !</p><p>${d.reward_description || 'Votre récompense a été créditée.'}</p>`, lang) }
         : { subject: `🎁 Referral reward`, html: wrap(`<h1 style="color:${green}">🎁 Reward!</h1><p><strong>${d.referred_name || 'Someone'}</strong> signed up thanks to you!</p><p>${d.reward_description || 'Your reward has been credited.'}</p>`, lang) };
+
+    // ═══ CREDITS ═══
+    case 'credits_low':
+      return isFr
+        ? { subject: `⚡ Il te reste ${d.balance} crédits`, html: wrap(`<h1 style="color:${orange}">⚡ Tes crédits baissent</h1><p>Il te reste <strong>${d.balance} crédits</strong> sur Siteviral.</p><p>Recharge maintenant pour continuer à générer des cours, des visuels et du contenu sans interruption.</p>${cta('https://siteviral.com/credits', 'Recharger mes crédits')}`, lang) }
+        : { subject: `⚡ Only ${d.balance} credits left`, html: wrap(`<h1 style="color:${orange}">⚡ Your credits are running low</h1><p>You have <strong>${d.balance} credits</strong> left on Siteviral.</p><p>Top up now to keep generating courses, visuals and content without interruption.</p>${cta('https://siteviral.com/credits', 'Top up credits')}`, lang) };
+
+    case 'credits_empty':
+      return isFr
+        ? { subject: `🔴 Tu n'as plus de crédits`, html: wrap(`<h1 style="color:${red}">🔴 Plus de crédits</h1><p>Ton solde de crédits est épuisé : les générations IA sont en pause.</p><p>Recharge en une minute et reprends là où tu t'es arrêté. Tu reçois aussi des crédits gratuits chaque jour.</p>${cta('https://siteviral.com/credits', 'Acheter des crédits')}`, lang) }
+        : { subject: `🔴 You're out of credits`, html: wrap(`<h1 style="color:${red}">🔴 Out of credits</h1><p>Your credit balance is empty, so AI generations are paused.</p><p>Top up in a minute and pick up right where you left off. You also get free credits every day.</p>${cta('https://siteviral.com/credits', 'Buy credits')}`, lang) };
+
 
     // ═══ NOTIFICATION REMINDER ═══
     case 'notification_reminder': {

@@ -20,6 +20,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { GlobalBottomNav } from "@/components/layout/GlobalBottomNav";
 import { TrialBillingBanner } from "@/components/billing/TrialBillingBanner";
+import { CreditAlertWatcher } from "@/components/credits/CreditAlertWatcher";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { RequireAuth, RequireSuperadmin, RequireOrgManage } from "@/components/layout/RouteGuard";
 import { GDPRBanner } from "@/components/layout/GDPRBanner";
@@ -444,6 +445,8 @@ const App = () => (
               <FloatingProofToast />
               <DomainRouter />
               <TrialBillingBanner />
+              <CreditAlertWatcher />
+
               
               <Suspense fallback={<PageLoader />}>
               <Routes>
