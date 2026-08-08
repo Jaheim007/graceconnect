@@ -23,6 +23,8 @@ interface SocialShareKitProps {
   earnings?: number;
   commissionRate?: number;
   productId?: string;
+  /** `onDark` renders the secondary actions readable over dark/glass surfaces. */
+  tone?: 'default' | 'onDark';
 }
 
 const MESSAGES_FR: Record<ShareContext, (t: string, p?: number, e?: number) => string> = {
