@@ -99,52 +99,46 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
     }
   };
 
-  const handleCreate = async (_generateImagesOverride?: boolean) => {
+  const handleCreate = (_generateImagesOverride?: boolean) => {
     if (!prompt.trim() || !currentOrg || !user) return;
-    setGenerating(true);
-    setGenerationPhase('generating');
-    setGenerationError(null);
-    try {
-      // The pipeline produces a REVIEWABLE DRAFT; nothing is written to the
-      // live course tables until the admin publishes it from the review screen.
-      const result = await startDraft.mutateAsync({
-        org_id: currentOrg.id,
-        source: 'prompt',
-        prompt: [
-          prompt.trim(),
-          courseGoal ? `Goal: ${courseGoal}` : '',
-          audience ? `Audience: ${audience}` : '',
-          level ? `Level: ${level}` : '',
-          teachingStyle ? `Teaching style: ${teachingStyle}` : '',
-          tone ? `Tone: ${tone}` : '',
-          depthLevel ? `Depth: ${depthLevel}` : '',
-          contentOrientation ? `Worldview: ${contentOrientation}` : '',
-        ].filter(Boolean).join('\n'),
-        title: prompt.trim().slice(0, 100),
-        language: contentLanguage,
-        tier,
-        level: level as 'beginner' | 'intermediate' | 'advanced',
-        generate_images: _generateImagesOverride ?? generateImages,
+    const images = _generateImagesOverride ?? generateImages;
 
-      });
-
-      refreshCredits();
-      onOpenChange(false);
-      setPrompt('');
-      setGenerating(false);
-      navigate(`/admin/programs/draft/${result.project_id}`);
+    // Not enough credits → tell the creator BEFORE leaving the dialog.
+    if (typeof balance === 'number' && typeof selectedCost === 'number' && balance < selectedCost) {
+      setShowCreditDialog(true);
       return;
-    } catch (err: any) {
-      const isCreditError = handleAiError(err);
-      if (!isCreditError) {
-        const errorMsg = draftErrorMessage(err, isFr);
-        setGenerationError(errorMsg);
-        toast({ title: isFr ? 'Erreur' : 'Error', description: errorMsg, variant: 'destructive' });
-      }
-    } finally {
-      setGenerating(false);
     }
+
+    // No in-dialog loader: the dialog closes instantly and the generation
+    // animation lives on a single page (/admin/programs/generating).
+    onOpenChange(false);
+    setPrompt('');
+    navigate('/admin/programs/generating', {
+      state: {
+        mode: 'ai',
+        input: {
+          org_id: currentOrg.id,
+          source: 'prompt',
+          prompt: [
+            prompt.trim(),
+            courseGoal ? `Goal: ${courseGoal}` : '',
+            audience ? `Audience: ${audience}` : '',
+            level ? `Level: ${level}` : '',
+            teachingStyle ? `Teaching style: ${teachingStyle}` : '',
+            tone ? `Tone: ${tone}` : '',
+            depthLevel ? `Depth: ${depthLevel}` : '',
+            contentOrientation ? `Worldview: ${contentOrientation}` : '',
+          ].filter(Boolean).join('\n'),
+          title: prompt.trim().slice(0, 100),
+          language: contentLanguage,
+          tier,
+          level: level as 'beginner' | 'intermediate' | 'advanced',
+          generate_images: images,
+        },
+      },
+    });
   };
+
 
   const selectedCost = tier === 'premium' ? premiumCost : standardCost;
 
