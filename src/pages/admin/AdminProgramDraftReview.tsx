@@ -195,6 +195,18 @@ export default function AdminProgramDraftReview() {
       });
       return;
     }
+    if (coverMissing && !incomplete) {
+      toast({
+        title: isFr ? 'Image de couverture requise' : 'Cover image required',
+        description: isFr
+          ? 'Téléversez une image ou générez-la avec l’IA avant de mettre le cours en ligne.'
+          : 'Upload an image or generate one with AI before putting the course live.',
+        variant: 'destructive',
+      });
+      setStep(2);
+      return;
+    }
+
 
     try {
       // Per-lesson rules travel with the quiz slides so the learner player
