@@ -120,132 +120,265 @@ serve(async (req) => {
     const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
 
-    const gold = rgb(0.72, 0.53, 0.04);
-    const dark = rgb(0.15, 0.15, 0.15);
-    const muted = rgb(0.45, 0.45, 0.45);
+    const gold = rgb(0.76, 0.56, 0.11);
+    const goldSoft = rgb(0.87, 0.75, 0.42);
+    const ink = rgb(0.06, 0.07, 0.14);
+    const dark = rgb(0.12, 0.13, 0.2);
+    const muted = rgb(0.45, 0.46, 0.52);
 
     const center = (text: string, font: any, size: number) => (width - font.widthOfTextAtSize(text, size)) / 2;
 
-    // Background + border
-    page.drawRectangle({ x: 0, y: 0, width, height, color: rgb(0.99, 0.985, 0.97) });
-    page.drawRectangle({ x: 24 * k, y: 24 * k, width: width - 48 * k, height: height - 48 * k, borderColor: gold, borderWidth: 3 * k });
-    page.drawRectangle({ x: 36 * k, y: 36 * k, width: width - 72 * k, height: height - 72 * k, borderColor: rgb(0.85, 0.74, 0.35), borderWidth: 1 * k });
+    // Letter-spaced drawing for display type
+    const drawTracked = (
+      text: string, font: any, size: number, y: number, color: any, tracking: number,
+    ) => {
+      const chars = [...text];
+      const total = chars.reduce((w, c) => w + font.widthOfTextAtSize(c, size), 0) + tracking * (chars.length - 1);
+      let x = (width - total) / 2;
+      for (const c of chars) {
+        page.drawText(c, { x, y, size, font, color });
+        x += font.widthOfTextAtSize(c, size) + tracking;
+      }
+    };
 
-    // Cover strip (1000x200 → 5:1)
+    // ---------- Background ----------
+    page.drawRectangle({ x: 0, y: 0, width, height, color: rgb(0.995, 0.99, 0.975) });
+    // subtle warm vignette bands
+    for (let i = 0; i < 10; i++) {
+      page.drawRectangle({
+        x: 0, y: (height / 10) * i, width, height: height / 10,
+        color: rgb(0.98, 0.95, 0.88), opacity: 0.05 + i * 0.012,
+      });
+    }
+
+    // Guilloche-style concentric rings behind the centre
+    const ringCx = width / 2;
+    const ringCy = height * 0.52;
+    for (let i = 0; i < 14; i++) {
+      page.drawCircle({
+        x: ringCx, y: ringCy, size: 120 * k + i * 16 * k,
+        borderColor: goldSoft, borderWidth: 0.5 * k, opacity: 0, borderOpacity: 0.10 - i * 0.005,
+      });
+    }
+
+    // ---------- Frame ----------
+    page.drawRectangle({ x: 22 * k, y: 22 * k, width: width - 44 * k, height: height - 44 * k, borderColor: gold, borderWidth: 3.2 * k });
+    page.drawRectangle({ x: 33 * k, y: 33 * k, width: width - 66 * k, height: height - 66 * k, borderColor: goldSoft, borderWidth: 1 * k });
+    page.drawRectangle({ x: 38 * k, y: 38 * k, width: width - 76 * k, height: height - 76 * k, borderColor: goldSoft, borderWidth: 0.5 * k, opacity: 0 });
+
+    // Corner ornaments: nested gold brackets
+    const cornerBrackets = (cx: number, cy: number, sx: number, sy: number) => {
+      for (const [len, off, w] of [[62, 0, 2.4], [40, 9, 1.2], [22, 18, 0.8]] as const) {
+        page.drawLine({
+          start: { x: cx + sx * off * k, y: cy + sy * off * k },
+          end: { x: cx + sx * (off + len) * k, y: cy + sy * off * k },
+          color: gold, thickness: w * k,
+        });
+        page.drawLine({
+          start: { x: cx + sx * off * k, y: cy + sy * off * k },
+          end: { x: cx + sx * off * k, y: cy + sy * (off + len) * k },
+          color: gold, thickness: w * k,
+        });
+      }
+      page.drawCircle({ x: cx + sx * 34 * k, y: cy + sy * 34 * k, size: 4 * k, color: gold, opacity: 0.55 });
+    };
+    cornerBrackets(46 * k, 46 * k, 1, 1);
+    cornerBrackets(width - 46 * k, 46 * k, -1, 1);
+    cornerBrackets(46 * k, height - 46 * k, 1, -1);
+    cornerBrackets(width - 46 * k, height - 46 * k, -1, -1);
+
+    // ---------- Cover strip (1000x200 → 5:1) ----------
     const coverImg = await embedImage(pdfDoc, design.cover_image_url);
-    const stripX = 44 * k;
-    const stripW = width - 88 * k;
+    const stripX = 46 * k;
+    const stripW = width - 92 * k;
     const stripH = Math.round(stripW / 5);
-    const stripY = height - 44 * k - stripH;
+    const stripY = height - 62 * k - stripH;
     if (coverImg) {
       page.drawImage(coverImg, { x: stripX, y: stripY, width: stripW, height: stripH });
+      // dark scrim so the strip reads as a deliberate header band
+      page.drawRectangle({ x: stripX, y: stripY, width: stripW, height: stripH, color: ink, opacity: 0.22 });
     } else {
-      page.drawRectangle({ x: stripX, y: stripY, width: stripW, height: stripH, color: rgb(0.96, 0.93, 0.85) });
+      page.drawRectangle({ x: stripX, y: stripY, width: stripW, height: stripH, color: ink });
+      for (let i = 0; i < 18; i++) {
+        page.drawLine({
+          start: { x: stripX + (stripW / 18) * i, y: stripY },
+          end: { x: stripX + (stripW / 18) * i + stripH, y: stripY + stripH },
+          color: goldSoft, thickness: 1 * k, opacity: 0.12,
+        });
+      }
       const oName = orgName.toUpperCase();
-      page.drawText(oName, {
-        x: center(oName, fontBold, 14 * k),
-        y: stripY + stripH / 2 - 5 * k,
-        size: 14 * k, font: fontBold, color: rgb(0.55, 0.45, 0.2),
-      });
+      drawTracked(oName, fontBold, 15 * k, stripY + stripH / 2 - 5 * k, rgb(0.95, 0.9, 0.75), 4 * k);
     }
+    page.drawRectangle({ x: stripX, y: stripY, width: stripW, height: stripH, borderColor: gold, borderWidth: 1.4 * k, opacity: 0 });
+    // gold rule under the header
+    page.drawLine({ start: { x: stripX, y: stripY - 6 * k }, end: { x: stripX + stripW, y: stripY - 6 * k }, color: gold, thickness: 1.2 * k });
 
-    // Badge (180x180) overlapping the strip
+    // ---------- Badge medallion (180x180) ----------
     const badgeImg = await embedImage(pdfDoc, design.badge_image_url || org.logo_url);
-    const badgeSize = 95 * k;
-    const badgeY = stripY - badgeSize / 2;
-    if (badgeImg) {
-      page.drawImage(badgeImg, { x: (width - badgeSize) / 2, y: badgeY, width: badgeSize, height: badgeSize });
-    } else {
-      page.drawRectangle({
-        x: (width - badgeSize) / 2, y: badgeY, width: badgeSize, height: badgeSize,
-        color: rgb(0.96, 0.93, 0.85), borderColor: gold, borderWidth: 1 * k,
+    const badgeSize = 92 * k;
+    const badgeY = stripY - badgeSize / 2 - 10 * k;
+    const badgeCx = width / 2;
+    const badgeCy = badgeY + badgeSize / 2;
+    // medallion rings
+    page.drawCircle({ x: badgeCx, y: badgeCy, size: badgeSize / 2 + 18 * k, color: rgb(1, 0.99, 0.96) });
+    page.drawCircle({ x: badgeCx, y: badgeCy, size: badgeSize / 2 + 16 * k, borderColor: gold, borderWidth: 2.4 * k, opacity: 0 });
+    page.drawCircle({ x: badgeCx, y: badgeCy, size: badgeSize / 2 + 10 * k, borderColor: goldSoft, borderWidth: 1 * k, opacity: 0 });
+    // radiating ticks around the medallion
+    const R1 = badgeSize / 2 + 22 * k;
+    const R2 = badgeSize / 2 + 30 * k;
+    for (let i = 0; i < 36; i++) {
+      const a = (i / 36) * Math.PI * 2;
+      page.drawLine({
+        start: { x: badgeCx + Math.cos(a) * R1, y: badgeCy + Math.sin(a) * R1 },
+        end: { x: badgeCx + Math.cos(a) * R2, y: badgeCy + Math.sin(a) * R2 },
+        color: gold, thickness: 1.1 * k, opacity: i % 3 === 0 ? 0.65 : 0.28,
       });
     }
+    if (badgeImg) {
+      page.drawImage(badgeImg, { x: badgeCx - badgeSize / 2, y: badgeY, width: badgeSize, height: badgeSize });
+    } else {
+      page.drawCircle({ x: badgeCx, y: badgeCy, size: badgeSize / 2, color: rgb(0.97, 0.94, 0.86) });
+      const initial = (orgName || "S").slice(0, 1).toUpperCase();
+      page.drawText(initial, {
+        x: badgeCx - fontBold.widthOfTextAtSize(initial, 40 * k) / 2,
+        y: badgeCy - 14 * k, size: 40 * k, font: fontBold, color: gold,
+      });
+    }
+    // ribbon tails under the medallion
+    const ribbonTop = badgeCy - (badgeSize / 2 + 14 * k);
+    for (const dir of [-1, 1]) {
+      page.drawSvgPath(
+        `M 0 0 L ${dir * 26 * k} 0 L ${dir * 34 * k} ${44 * k} L ${dir * 17 * k} ${32 * k} L ${dir * 6 * k} ${46 * k} Z`,
+        { x: badgeCx + dir * 4 * k, y: ribbonTop, color: gold, opacity: 0.9 },
+      );
+    }
 
-    let y = badgeY - 54 * k;
+    let y = badgeY - 62 * k;
 
-    // Title
-    const title = "CERTIFICATE OF COMPLETION";
-    page.drawText(title, { x: center(title, fontBold, 26 * k), y, size: 26 * k, font: fontBold, color: dark });
-    y -= 18 * k;
-    page.drawLine({ start: { x: width / 2 - 90 * k, y }, end: { x: width / 2 + 90 * k, y }, color: gold, thickness: 1.4 * k });
+    // ---------- Title ----------
+    drawTracked("CERTIFICATE", fontBold, 30 * k, y, ink, 9 * k);
+    y -= 26 * k;
+    drawTracked("OF COMPLETION", fontBold, 15 * k, y, gold, 8 * k);
+    y -= 20 * k;
+    // ornamental divider: line — diamond — line
+    page.drawLine({ start: { x: width / 2 - 120 * k, y: y + 4 * k }, end: { x: width / 2 - 16 * k, y: y + 4 * k }, color: gold, thickness: 1.1 * k });
+    page.drawLine({ start: { x: width / 2 + 16 * k, y: y + 4 * k }, end: { x: width / 2 + 120 * k, y: y + 4 * k }, color: gold, thickness: 1.1 * k });
+    page.drawSvgPath(`M 0 0 L ${7 * k} ${7 * k} L 0 ${14 * k} L ${-7 * k} ${7 * k} Z`, { x: width / 2, y: y + 11 * k, color: gold });
 
-    // Statement
-    y -= 40 * k;
-    const ack = "This certificate acknowledges that";
-    page.drawText(ack, { x: center(ack, fontItalic, 12 * k), y, size: 12 * k, font: fontItalic, color: muted });
-
-    y -= 46 * k;
-    const nameSize = (learnerName.length > 28 ? 26 : 34) * k;
-    page.drawText(learnerName, { x: center(learnerName, fontBold, nameSize), y, size: nameSize, font: fontBold, color: gold });
-
+    // ---------- Statement ----------
     y -= 38 * k;
+    const ack = "This certificate acknowledges that";
+    page.drawText(ack, { x: center(ack, fontItalic, 12.5 * k), y, size: 12.5 * k, font: fontItalic, color: muted });
+
+    y -= 52 * k;
+    const nameSize = (learnerName.length > 28 ? 28 : 36) * k;
+    page.drawText(learnerName, { x: center(learnerName, fontBold, nameSize), y, size: nameSize, font: fontBold, color: dark });
+    // gold underline swash beneath the name
+    const nameW = fontBold.widthOfTextAtSize(learnerName, nameSize);
+    const underlineW = Math.min(width - 160 * k, nameW + 60 * k);
+    page.drawLine({
+      start: { x: (width - underlineW) / 2, y: y - 14 * k },
+      end: { x: (width + underlineW) / 2, y: y - 14 * k },
+      color: gold, thickness: 1.6 * k, opacity: 0.7,
+    });
+
+    y -= 44 * k;
     const line2 = "has successfully fulfilled the requirements of the course";
     page.drawText(line2, { x: center(line2, fontRegular, 12 * k), y, size: 12 * k, font: fontRegular, color: muted });
 
-    y -= 34 * k;
-    const ctSize = (courseTitle.length > 46 ? 16 : 20) * k;
+    y -= 36 * k;
+    const ctSize = (courseTitle.length > 46 ? 17 : 21) * k;
     const ct = truncate(`“${courseTitle}”`, fontBold, ctSize, width - 160 * k);
-    page.drawText(ct, { x: center(ct, fontBold, ctSize), y, size: ctSize, font: fontBold, color: rgb(0.2, 0.2, 0.2) });
+    page.drawText(ct, { x: center(ct, fontBold, ctSize), y, size: ctSize, font: fontBold, color: ink });
 
-    y -= 30 * k;
-    let meta = `Completed on ${completedDate}`;
+    // meta chips (date + score)
+    y -= 34 * k;
+    const chips: string[] = [completedDate];
     if (score !== undefined && score !== null && total) {
-      meta += ` • Score ${score}/${total} (${Math.round((score / total) * 100)}%)`;
+      chips.push(`Score ${score}/${total} · ${Math.round((score / total) * 100)}%`);
     }
-    page.drawText(meta, { x: center(meta, fontRegular, 11 * k), y, size: 11 * k, font: fontRegular, color: rgb(0.55, 0.55, 0.55) });
+    const chipH = 22 * k;
+    const chipPad = 14 * k;
+    const chipGap = 10 * k;
+    const chipWidths = chips.map((c) => fontBold.widthOfTextAtSize(c, 9.5 * k) + chipPad * 2);
+    const chipsTotal = chipWidths.reduce((a, b) => a + b, 0) + chipGap * (chips.length - 1);
+    let cx = (width - chipsTotal) / 2;
+    chips.forEach((c, i) => {
+      page.drawRectangle({
+        x: cx, y: y - 6 * k, width: chipWidths[i], height: chipH,
+        color: rgb(0.99, 0.96, 0.89), borderColor: goldSoft, borderWidth: 0.8 * k,
+      });
+      page.drawText(c, { x: cx + chipPad, y: y, size: 9.5 * k, font: fontBold, color: rgb(0.5, 0.4, 0.15) });
+      cx += chipWidths[i] + chipGap;
+    });
 
-    // Lesson outline (always shown when the course has lessons)
+    // ---------- Lesson outline (always shown when the course has lessons) ----------
     if (lessonTitles.length) {
-      y -= 50 * k;
-      const label = "COURSE OUTLINE";
-      page.drawText(label, { x: center(label, fontBold, 9 * k), y, size: 9 * k, font: fontBold, color: rgb(0.6, 0.6, 0.6) });
-      y -= 24 * k;
+      y -= 56 * k;
+      drawTracked("COURSE OUTLINE", fontBold, 9.5 * k, y, rgb(0.55, 0.5, 0.42), 4 * k);
+      y -= 8 * k;
+      page.drawLine({ start: { x: 120 * k, y }, end: { x: width - 120 * k, y }, color: goldSoft, thickness: 0.7 * k });
+      y -= 26 * k;
 
       const shown = lessonTitles.slice(0, 20);
       const colW = (width - 200 * k) / 2;
       const rows = Math.ceil(shown.length / 2);
-      const rowH = 17 * k;
+      const rowH = 19 * k;
       shown.forEach((t, i) => {
         const col = i < rows ? 0 : 1;
         const row = i < rows ? i : i - rows;
-        const text = truncate(`• ${t}`, fontRegular, 10 * k, colW - 12 * k);
-        page.drawText(text, {
-          x: 100 * k + col * (colW + 10 * k),
-          y: y - row * rowH,
-          size: 10 * k, font: fontRegular, color: rgb(0.45, 0.45, 0.45),
+        const bx = 100 * k + col * (colW + 10 * k);
+        const by = y - row * rowH;
+        page.drawSvgPath(`M 0 0 L ${4.5 * k} ${4.5 * k} L 0 ${9 * k} L ${-4.5 * k} ${4.5 * k} Z`, {
+          x: bx + 5 * k, y: by + 9 * k, color: gold, opacity: 0.8,
         });
+        const text = truncate(t, fontRegular, 10.5 * k, colW - 24 * k);
+        page.drawText(text, { x: bx + 16 * k, y: by, size: 10.5 * k, font: fontRegular, color: rgb(0.36, 0.37, 0.42) });
       });
       y -= rows * rowH;
       if (lessonTitles.length > shown.length) {
         const more = `+ ${lessonTitles.length - shown.length} more lessons`;
-        page.drawText(more, { x: center(more, fontItalic, 9 * k), y: y - 8 * k, size: 9 * k, font: fontItalic, color: rgb(0.6, 0.6, 0.6) });
+        page.drawText(more, { x: center(more, fontItalic, 9.5 * k), y: y - 6 * k, size: 9.5 * k, font: fontItalic, color: rgb(0.6, 0.6, 0.6) });
       }
     }
 
-    // Signature block
+    // ---------- Signature block ----------
     const sigImg = await embedImage(pdfDoc, design.signature_image_url);
-    const sigBaseY = 150 * k;
+    const sigBaseY = 172 * k;
     if (sigImg) {
-      const s = 52 * k;
-      page.drawImage(sigImg, { x: (width - s) / 2, y: sigBaseY + 18 * k, width: s, height: s });
+      const s = 54 * k;
+      page.drawImage(sigImg, { x: (width - s) / 2, y: sigBaseY + 20 * k, width: s, height: s });
     }
-    page.drawText(signatureLabel, {
-      x: center(signatureLabel, fontBold, 10 * k), y: sigBaseY, size: 10 * k, font: fontBold, color: rgb(0.3, 0.3, 0.3),
+    page.drawLine({
+      start: { x: width / 2 - 90 * k, y: sigBaseY + 16 * k },
+      end: { x: width / 2 + 90 * k, y: sigBaseY + 16 * k },
+      color: rgb(0.75, 0.75, 0.78), thickness: 0.8 * k,
     });
+    drawTracked(signatureLabel.toUpperCase(), fontBold, 8.5 * k, sigBaseY, rgb(0.45, 0.45, 0.5), 3 * k);
     page.drawText(footerText, {
-      x: center(footerText, fontRegular, 10 * k), y: sigBaseY - 18 * k, size: 10 * k, font: fontRegular, color: rgb(0.5, 0.5, 0.5),
+      x: center(footerText, fontBold, 11.5 * k), y: sigBaseY - 22 * k, size: 11.5 * k, font: fontBold, color: dark,
     });
 
-    // Footer
-    page.drawLine({ start: { x: 110 * k, y: 100 * k }, end: { x: width - 110 * k, y: 100 * k }, color: gold, thickness: 0.7 * k });
-    const certNumText = `Certificate No: ${certNumber}`;
-    page.drawText(certNumText, {
-      x: center(certNumText, fontRegular, 10 * k), y: 76 * k, size: 10 * k, font: fontRegular, color: rgb(0.6, 0.6, 0.6),
+    // ---------- Footer: verification ----------
+    page.drawLine({ start: { x: 110 * k, y: 108 * k }, end: { x: width - 110 * k, y: 108 * k }, color: goldSoft, thickness: 0.8 * k });
+
+    const certLabel = `CERTIFICATE No. ${certNumber}`;
+    const pillW = fontBold.widthOfTextAtSize(certLabel, 10 * k) + 40 * k;
+    page.drawRectangle({
+      x: (width - pillW) / 2, y: 72 * k, width: pillW, height: 26 * k,
+      color: ink,
+    });
+    page.drawText(certLabel, {
+      x: center(certLabel, fontBold, 10 * k), y: 80 * k, size: 10 * k, font: fontBold, color: rgb(0.96, 0.9, 0.72),
+    });
+
+    const verifyLine = `Verify this certificate at siteviral.com/verify/${certNumber}`;
+    page.drawText(verifyLine, {
+      x: center(verifyLine, fontRegular, 9.5 * k), y: 54 * k, size: 9.5 * k, font: fontRegular, color: rgb(0.5, 0.5, 0.55),
     });
     const poweredBy = "Powered by SiteViral";
     page.drawText(poweredBy, {
-      x: center(poweredBy, fontItalic, 9 * k), y: 56 * k, size: 9 * k, font: fontItalic, color: rgb(0.7, 0.7, 0.7),
+      x: center(poweredBy, fontItalic, 8.5 * k), y: 40 * k, size: 8.5 * k, font: fontItalic, color: rgb(0.68, 0.68, 0.72),
     });
 
     const ownerId = org.owner_id || null;
