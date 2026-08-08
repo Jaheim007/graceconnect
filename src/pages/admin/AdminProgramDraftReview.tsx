@@ -92,8 +92,12 @@ export default function AdminProgramDraftReview() {
   useEffect(() => {
     if (rulesLoaded || !project) return;
     setRules({
+      // No score is required by default — the creator opts in.
+      score_mode: 'none',
+      require_score: false,
       passing_score: 70,
-      max_quiz_attempts: 3,
+      // 0 = unlimited retries.
+      max_quiz_attempts: 0,
       // Lessons always unlock one by one — it is the learning model, not an option.
       require_sequential_lessons: true,
       gamification_enabled: true,
