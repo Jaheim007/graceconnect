@@ -343,6 +343,7 @@ export function CourseCompletionSlide({
                 title={courseTitle}
                 description={shareDescription}
                 context="post-purchase"
+                tone="onDark"
               />
             </div>
           </motion.div>
