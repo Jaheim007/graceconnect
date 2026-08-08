@@ -20,11 +20,18 @@ interface FinalAssessmentSlideProps {
   lessonImageUrl?: string;
   onComplete: (score: number, total: number) => void;
   gamificationEnabled?: boolean;
+  /** Minimum percentage required to pass (0 = no requirement) */
+  passingScore?: number;
+  /** Move on once passed */
+  onContinue?: () => void;
+  /** Send the learner back to review the course content */
+  onReview?: () => void;
 }
 
 export function FinalAssessmentSlide({
   questions, theme, slideIndex, totalSlides, lessonTitle,
-  orgLogoUrl, deviceMode, lessonImageUrl, onComplete, gamificationEnabled = true,
+  orgLogoUrl, deviceMode, lessonImageUrl, onComplete, gamificationEnabled = false,
+  passingScore = 0, onContinue, onReview,
 }: FinalAssessmentSlideProps) {
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(new Array(questions.length).fill(null));
@@ -39,10 +46,18 @@ export function FinalAssessmentSlide({
 
   const handleSelect = (idx: number) => {
     if (revealed) return;
+    // Answers are recorded but never graded on screen.
     const newAnswers = [...answers];
     newAnswers[currentQ] = idx;
     setAnswers(newAnswers);
     setRevealed(true);
+  };
+
+  const handleRetry = () => {
+    setAnswers(new Array(questions.length).fill(null));
+    setCurrentQ(0);
+    setRevealed(false);
+    setFinished(false);
   };
 
   const handleNext = () => {
