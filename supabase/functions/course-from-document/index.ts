@@ -232,6 +232,8 @@ Deno.serve(async (req) => {
       projectId: project.id, jobId: job.id, orgId: org_id, userId: auth.userId,
       projectTitle, sourceText, source, prompt, debited,
       tier: normalizeTier(tier) === 'premium' ? 'premium' : 'standard',
+      generateImages: generate_images === true,
+
     });
     // deno-lint-ignore no-explicit-any
     const runtime = (globalThis as any).EdgeRuntime;
