@@ -169,9 +169,10 @@ function stripMarkers(text: string): string {
  */
 export function segmentIntoTopics(
   text: string,
-  opts: { maxTopics: number; targetWords?: number } = { maxTopics: 12 },
+  opts: { maxTopics: number; minTopics?: number; targetWords?: number } = { maxTopics: 12 },
 ): DocTopic[] {
   const targetWords = opts.targetWords ?? 700;
+  const minTopics = Math.min(opts.minTopics ?? 1, opts.maxTopics);
   const minWords = Math.round(targetWords * 0.22);   // below this, topics get merged
   const splitAtWords = 60;                            // headings split once a block has real content
   const maxWords = targetWords * 2;
