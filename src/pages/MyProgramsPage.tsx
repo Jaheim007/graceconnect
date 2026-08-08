@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, CheckCircle2, Clock, ChevronRight, GraduationCap, Play } from 'lucide-react';
+import { BookOpen, CheckCircle2, Clock, ChevronRight, GraduationCap, Play, Award } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useCourseResume } from '@/hooks/useCourseResume';
@@ -14,6 +14,9 @@ import { Progress } from '@/components/ui/progress';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AchievementsSection } from '@/components/programs/AchievementsSection';
+
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } };
 const fadeUp = {
@@ -81,7 +84,22 @@ export default function MyProgramsPage() {
         </div>
       </div>
 
+      <Tabs defaultValue="courses" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="courses" className="text-xs">{isFr ? 'Mes cours' : 'My courses'}</TabsTrigger>
+          <TabsTrigger value="achievements" className="text-xs gap-1.5">
+            <Award className="h-3 w-3" />
+            {isFr ? 'Réussites' : 'Achievements'}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="achievements" className="mt-0">
+          <AchievementsSection onExplore={() => navigate('/discover')} />
+        </TabsContent>
+
+        <TabsContent value="courses" className="mt-0 space-y-3">
       {isLoading ? (
+
         <div className="space-y-3">
           {[1, 2, 3].map(i => (
             <div key={i} className="h-28 bg-muted rounded-2xl animate-pulse" />
@@ -175,6 +193,9 @@ export default function MyProgramsPage() {
           })}
         </motion.div>
       )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
+
