@@ -152,6 +152,7 @@ Deno.serve(async (req) => {
 
     if (modErr || !mod) {
       console.error('Module creation error:', modErr);
+      await cleanupProgram(admin, program.id);
       return jsonError('Failed to create module', 500);
     }
 
@@ -186,6 +187,7 @@ Deno.serve(async (req) => {
 
       if (lessonsErr || !insertedLessons) {
         console.error('Lessons creation error:', lessonsErr);
+        await cleanupProgram(admin, program.id);
         return jsonError('Failed to create lessons', 500);
       }
       lessonsCount = insertedLessons.length;
@@ -220,6 +222,7 @@ Deno.serve(async (req) => {
         const { error: slidesErr } = await admin.from('program_slides').insert(slideRows);
         if (slidesErr) {
           console.error('Slides creation error:', slidesErr);
+          await cleanupProgram(admin, program.id);
           return jsonError('Failed to create slides', 500);
         }
         slidesCount = slideRows.length;
@@ -239,6 +242,7 @@ Deno.serve(async (req) => {
 
       if (lessonsErr) {
         console.error('Lessons creation error:', lessonsErr);
+        await cleanupProgram(admin, program.id);
         return jsonError('Failed to create lessons', 500);
       }
       lessonsCount = lessons.length;

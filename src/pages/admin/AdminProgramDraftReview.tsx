@@ -84,6 +84,7 @@ export default function AdminProgramDraftReview() {
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState(currentOrg?.currency || 'XOF');
   const [buyerPreview, setBuyerPreview] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
 
   // Course rules (cover, passing score, retries) — saved on the draft.
   const [rules, setRules] = useState<CourseRules>({});
@@ -269,6 +270,24 @@ export default function AdminProgramDraftReview() {
     }
   };
 
+  const handleSaveDraft = async () => {
+    if (!draft) return;
+    setSavingDraft(true);
+    try {
+      await updateDraft.mutateAsync(draft);
+      await updateRules.mutateAsync(rules);
+      setTitleDirty(false);
+      toast({
+        title: isFr ? 'Brouillon enregistré' : 'Draft saved',
+        description: isFr ? 'Votre cours reste privé.' : 'Your course remains private.',
+      });
+    } catch (e: any) {
+      toast({ title: isFr ? 'Enregistrement échoué' : 'Save failed', description: e.message, variant: 'destructive' });
+    } finally {
+      setSavingDraft(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <AdminPageShell title={isFr ? 'Brouillon IA' : 'AI draft'}>
@@ -355,10 +374,10 @@ export default function AdminProgramDraftReview() {
               <>
                 <Button
                   variant="outline" size="sm" className="gap-1.5"
-                  onClick={() => handlePublish(true)}
-                  disabled={publishDraft.isPending || totals.lessons === 0}
+                  onClick={handleSaveDraft}
+                  disabled={savingDraft || publishDraft.isPending || totals.lessons === 0}
                 >
-                  <FileText className="h-3.5 w-3.5" />
+                  {savingDraft ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
                   {isFr ? 'Enregistrer en brouillon' : 'Save as draft'}
                 </Button>
                 <Button
@@ -616,10 +635,10 @@ export default function AdminProgramDraftReview() {
               </Button>
               <Button
                 variant="outline" size="sm" className="w-full gap-1.5"
-                onClick={() => handlePublish(true)}
-                disabled={publishDraft.isPending || totals.lessons === 0}
+                onClick={handleSaveDraft}
+                disabled={savingDraft || publishDraft.isPending || totals.lessons === 0}
               >
-                <FileText className="h-3.5 w-3.5" />
+                {savingDraft ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
                 {isFr ? 'Enregistrer en brouillon' : 'Save as draft'}
               </Button>
               <Button
