@@ -130,18 +130,8 @@ export function FlashcardSlide({
           </motion.div>
         </div>
 
-        {/* Star reward */}
-        {flipped && gamificationEnabled && starGiven && (
-          <motion.div
-            initial={{ scale: 0, y: 10 }}
-            animate={{ scale: 1, y: 0 }}
-            transition={{ type: 'spring', delay: 0.3 }}
-            className="flex items-center gap-2 mt-4 bg-yellow-500/20 backdrop-blur-sm border border-yellow-400/30 rounded-full px-4 py-2"
-          >
-            <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-            <span className="text-sm text-yellow-300 font-bold">+1</span>
-          </motion.div>
-        )}
+
+
       </div>
     </div>
   );
