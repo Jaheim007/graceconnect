@@ -49,6 +49,7 @@ type EmailTemplate =
   | 'fraud_alert' | 'new_org_alert' | 'moderation_action'
   | 'flash_sale_alert' | 'promo_code_used' | 'org_verified'
   | 'waitlist_spot_available' | 'referral_reward'
+  | 'credits_low' | 'credits_empty'
   | 'review_request'
   | 'org_welcome_j0' | 'org_onboarding_j1' | 'org_onboarding_j3'
   | 'post_purchase_ambassador_j1' | 'post_purchase_ambassador_j5' | 'post_purchase_ambassador_j10'
