@@ -185,6 +185,75 @@ export function CourseTitleCard({
             {isFr ? 'Générer avec l’IA' : 'Generate with AI'}
           </Button>
         </div>
+
+        {/* Brief: audience + tone, asked BEFORE generating */}
+        {briefOpen && (
+          <div className="space-y-2.5 rounded-lg border border-border bg-muted/30 p-2.5">
+            <p className="text-[11px] text-muted-foreground">
+              {isFr
+                ? 'Dites à l’IA à qui vous vendez et sur quel ton écrire. Elle écrira pour ces personnes.'
+                : 'Tell the AI who you are selling to and how to sound. It will write for those people.'}
+            </p>
+            <div className="space-y-1.5">
+              <Label className="text-[11px]">{isFr ? 'À quel public vendez-vous ?' : 'Who are you selling to?'}</Label>
+              <Input
+                value={audience}
+                onChange={(e) => setAudience(e.target.value)}
+                placeholder={isFr
+                  ? 'Ex. jeunes leaders d’église de 20-35 ans, débutants'
+                  : 'e.g. young church leaders aged 20-35, beginners'}
+                className="h-9 text-[12px]"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[11px]">{isFr ? 'Quel ton voulez-vous ?' : 'Which tone do you want?'}</Label>
+              <div className="flex flex-wrap gap-1.5">
+                {TONES.map((t) => (
+                  <button
+                    key={t.en}
+                    type="button"
+                    onClick={() => setTone(isFr ? t.fr : t.en)}
+                    className={`rounded-full border px-2.5 py-1 text-[11px] ${
+                      tone === (isFr ? t.fr : t.en)
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border bg-card hover:bg-muted/60'
+                    }`}
+                  >
+                    {isFr ? t.fr : t.en}
+                  </button>
+                ))}
+              </div>
+              <Input
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+                placeholder={isFr ? 'Ou écrivez votre ton…' : 'Or type your own tone…'}
+                className="h-9 text-[12px]"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[11px]">{isFr ? 'Précisions (optionnel)' : 'Anything else (optional)'}</Label>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={2}
+                placeholder={isFr
+                  ? 'Ex. insister sur le certificat, mentionner le paiement Mobile Money…'
+                  : 'e.g. highlight the certificate, mention Mobile Money payment…'}
+                className="text-[12px]"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" className="gap-1.5 h-8" onClick={generateDescription} disabled={loadingDesc}>
+                {loadingDesc ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
+                {isFr ? 'Écrire la description' : 'Write the description'}
+              </Button>
+              <Button size="sm" variant="ghost" className="h-8" onClick={() => setBriefOpen(false)}>
+                {isFr ? 'Annuler' : 'Cancel'}
+              </Button>
+            </div>
+          </div>
+        )}
+
         <Textarea
           value={description}
           onChange={(e) => onDescriptionChange(e.target.value)}
