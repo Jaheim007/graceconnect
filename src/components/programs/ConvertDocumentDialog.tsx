@@ -82,6 +82,8 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
         title: file.name.replace(/\.[^.]+$/, ''),
         language: contentLanguage,
         tier,
+        generate_images: generateImages,
+
       });
 
       refreshCredits();
@@ -155,8 +157,8 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
               <p className="text-sm font-semibold">Standard <span className="font-normal text-muted-foreground">· {standardCost ?? 8} {isFr ? 'crédits' : 'credits'}</span></p>
               <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
                 {isFr
-                  ? 'Jusqu’à 10 leçons · 4 à 7 slides par leçon · 2 quiz · images sur les 4 premières leçons'
-                  : 'Up to 10 lessons · 4-7 slides each · 2 quizzes · images on the first 4 lessons'}
+                  ? 'Jusqu’à 12 leçons · 5 à 8 slides par leçon · textes de 180 à 260 mots avec exemple · 3 quiz'
+                  : 'Up to 12 lessons · 5-8 slides each · 180-260 word bodies with an example · 3 quizzes'}
               </p>
             </button>
             <button
@@ -168,12 +170,27 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
               <p className="text-sm font-semibold">Premium <span className="font-normal text-muted-foreground">· {premiumCost ?? 15} {isFr ? 'crédits' : 'credits'}</span></p>
               <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
                 {isFr
-                  ? 'Jusqu’à 16 leçons · 7 à 10 slides par leçon · textes 2x plus développés (exemples + « à retenir ») · 4 quiz · une image par leçon · modèle IA avancé'
-                  : 'Up to 16 lessons · 7-10 slides each · 2x longer bodies (examples + key takeaway) · 4 quizzes · an image on every lesson · advanced AI model'}
+                  ? 'Jusqu’à 18 leçons · 8 à 12 slides par leçon · textes de 320 à 450 mots (2 exemples + « à retenir ») · 4 quiz · modèle IA avancé'
+                  : 'Up to 18 lessons · 8-12 slides each · 320-450 word bodies (2 examples + key takeaway) · 4 quizzes · advanced AI model'}
               </p>
             </button>
           </div>
         </div>
+
+        {/* Images are opt-in and billed per generated image */}
+        <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border">
+          <div className="flex items-center gap-2">
+            <ImageIcon className="h-4 w-4 text-primary" />
+            <div>
+              <p className="text-xs font-medium">{isFr ? 'Générer une image par leçon' : 'Generate an image per lesson'}</p>
+              <p className="text-[10px] text-muted-foreground">
+                {isFr ? 'Optionnel — crédits supplémentaires par image générée' : 'Optional — extra credits per generated image'}
+              </p>
+            </div>
+          </div>
+          <Switch checked={generateImages} onCheckedChange={setGenerateImages} disabled={converting} />
+        </div>
+
 
         {/* Language selector */}
         <div className="space-y-1.5">

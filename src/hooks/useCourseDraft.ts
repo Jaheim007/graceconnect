@@ -71,6 +71,9 @@ export function useStartCourseDraft() {
       title?: string;
       language?: string;
       tier?: 'standard' | 'premium';
+      /** Opt-in per-lesson AI illustrations (extra credits per image). */
+      generate_images?: boolean;
+
     }) => {
       const { data, error } = await supabase.functions.invoke('course-from-document', {
         headers: await authHeaders(),
