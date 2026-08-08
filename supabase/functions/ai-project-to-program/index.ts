@@ -262,6 +262,8 @@ Deno.serve(async (req) => {
         price: coursePrice,
         currency: courseCurrency,
         is_free: false,
+        ai_generated: true,
+        ai_project_id: project_id,
         is_published: publish_now ?? false,
         publication_status: publish_now ? 'published' : 'draft',
         external_link: `/program/${program.id}`,
