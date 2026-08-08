@@ -40,9 +40,17 @@ const TIPS_EN = [
 interface Props {
   phase?: 'generating' | 'saving' | 'done';
   mode?: 'ai' | 'convert';
+  /**
+   * Real server-side progress (0-100). When provided the bar CONTINUES from the
+   * job's actual progress instead of restarting at 0 on the review screen.
+   */
+  progress?: number;
+  /** Lessons already generated — shown so the wait feels concrete. */
+  doneCount?: number;
+  totalCount?: number;
 }
 
-export function CourseGenerationLoader({ phase = 'generating', mode = 'ai' }: Props) {
+export function CourseGenerationLoader({ phase = 'generating', mode = 'ai', progress: realProgress, doneCount, totalCount }: Props) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const steps = isFr ? STEPS_FR : STEPS_EN;
@@ -89,14 +97,20 @@ export function CourseGenerationLoader({ phase = 'generating', mode = 'ai' }: Pr
   }, [steps.length, phase]);
 
   // Smooth progress
+  // Real progress acts as a FLOOR: the bar never goes backwards.
+  useEffect(() => {
+    if (typeof realProgress !== 'number') return;
+    setProgress((p) => Math.max(p, Math.min(99, realProgress)));
+  }, [realProgress]);
+
   useEffect(() => {
     if (phase === 'done') return;
     const max = phase === 'saving' ? 95 : 82;
     const interval = setInterval(() => {
-      setProgress((p) => Math.min(p + 0.25, max));
+      setProgress((p) => Math.max(Math.min(p + 0.25, max), typeof realProgress === 'number' ? Math.min(99, realProgress) : 0));
     }, 350);
     return () => clearInterval(interval);
-  }, [phase]);
+  }, [phase, realProgress]);
 
   // Rotating tips
   useEffect(() => {
@@ -291,7 +305,10 @@ export function CourseGenerationLoader({ phase = 'generating', mode = 'ai' }: Pr
               ? (isFr ? 'Terminé !' : 'Complete!')
               : (isFr ? 'Cela peut prendre 1 à 2 min' : 'This may take 1-2 min')}
           </p>
-          <p className="text-[10px] font-medium text-foreground">{Math.round(progress)}%</p>
+          <p className="text-[10px] font-medium text-foreground">
+            {Math.round(progress)}%
+            {typeof doneCount === 'number' && totalCount ? ` · ${doneCount}/${totalCount}` : ''}
+          </p>
         </div>
       </div>
 

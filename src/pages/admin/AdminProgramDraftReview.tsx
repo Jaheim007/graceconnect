@@ -251,7 +251,13 @@ export default function AdminProgramDraftReview() {
   if (generating && (draft?.lessons.length || 0) === 0) {
     return (
       <AdminPageShell title={isFr ? 'Génération du cours' : 'Generating course'}>
-        <CourseGenerationLoader phase="generating" mode="convert" />
+        <CourseGenerationLoader
+          phase="generating"
+          mode="convert"
+          progress={job?.progress}
+          doneCount={(job?.result_summary as any)?.done}
+          totalCount={(job?.result_summary as any)?.topics}
+        />
         <p className="mt-4 text-center text-[12px] text-muted-foreground">
           {isFr
             ? 'Vous pouvez quitter cette page : le brouillon est enregistré automatiquement dans le cloud et vous le retrouverez dans « Cours ».'
