@@ -145,6 +145,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
 
 
   const selectedCost = tier === 'premium' ? premiumCost : standardCost;
+  const notEnoughCredits = typeof balance === 'number' && typeof selectedCost === 'number' && balance < selectedCost;
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!generating) onOpenChange(v); }}>
