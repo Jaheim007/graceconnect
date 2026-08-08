@@ -96,7 +96,7 @@ const PLATFORMS: Platform[] = [
   },
 ];
 
-export function SocialShareKit({ url, title, description, context, price, earnings, commissionRate, productId }: SocialShareKitProps) {
+export function SocialShareKit({ url, title, description, context, price, earnings, commissionRate, productId, tone = 'default' }: SocialShareKitProps) {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const { locale } = useI18n();
