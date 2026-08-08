@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { ContentSlide } from './parseContentSlides';
-import { getSlideTheme } from './slideThemes';
+import { getSlideTheme, getSlideThemeFor } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
+import { LessonImageBackdrop } from './LessonImageBackdrop';
+
 import { QuizSlide } from './QuizSlide';
 import { FlashcardSlide } from './FlashcardSlide';
 import { MatchingSlide } from './MatchingSlide';
