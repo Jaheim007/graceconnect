@@ -60,7 +60,10 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const { currentOrg } = useOrg();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { handleAiError, refreshCredits } = useCreditGuard();
+  const { handleAiError, refreshCredits, showCreditDialog, setShowCreditDialog, creditErrorMessage } = useCreditGuard();
+  const { data: creditSummary } = useCreditsBalance();
+  const balance = creditSummary?.total_credits;
+
   const queryClient = useQueryClient();
 
   const [prompt, setPrompt] = useState('');
