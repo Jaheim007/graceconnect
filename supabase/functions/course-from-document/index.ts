@@ -779,7 +779,7 @@ function fallbackLesson(
   let buf: string[] = [];
   for (const p of paragraphs) {
     buf.push(p);
-    if (countWords(buf.join(' ')) > 90) { chunks.push(buf.join('\n\n')); buf = []; }
+    if (countWords(buf.join(' ')) >= profile.slideWordsMax) { chunks.push(buf.join('\n\n')); buf = []; }
     if (chunks.length >= profile.maxSlides) break;
   }
   if (buf.length && chunks.length < profile.maxSlides) chunks.push(buf.join('\n\n'));
