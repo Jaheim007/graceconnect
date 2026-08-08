@@ -18,25 +18,49 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+/**
+ * Certificate images (cover, badge, signature) are stored on Supabase storage
+ * but the app rewrites their URLs to the branded host api.siteviral.com. That
+ * host is not always resolvable/proxied from inside the edge runtime, which
+ * silently dropped the signature image. So we try the URL as-is and then fall
+ * back to the raw project storage host.
+ */
+function imageUrlCandidates(url: string): string[] {
+  const raw = Deno.env.get("SUPABASE_URL") || "";
+  const out = [url];
+  if (url.includes("api.siteviral.com") && raw) {
+    out.push(url.split("https://api.siteviral.com").join(raw));
+  }
+  return out;
+}
+
 async function embedImage(pdfDoc: PDFDocument, url?: string | null) {
   if (!url) return null;
-  try {
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const bytes = new Uint8Array(await res.arrayBuffer());
-    const type = (res.headers.get("content-type") || "").toLowerCase();
-    if (type.includes("png") || url.toLowerCase().includes(".png")) {
-      return await pdfDoc.embedPng(bytes);
-    }
+  for (const candidate of imageUrlCandidates(url)) {
     try {
-      return await pdfDoc.embedJpg(bytes);
-    } catch {
-      return await pdfDoc.embedPng(bytes);
+      const res = await fetch(candidate, { redirect: "follow" });
+      if (!res.ok) {
+        console.warn(`[certificate-pdf] image fetch ${res.status}: ${candidate}`);
+        continue;
+      }
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      const type = (res.headers.get("content-type") || "").toLowerCase();
+      if (type.includes("png") || candidate.toLowerCase().includes(".png")) {
+        try { return await pdfDoc.embedPng(bytes); } catch { /* fall through */ }
+      }
+      try {
+        return await pdfDoc.embedJpg(bytes);
+      } catch {
+        try { return await pdfDoc.embedPng(bytes); } catch { /* try next */ }
+      }
+    } catch (e) {
+      console.warn(`[certificate-pdf] image error: ${candidate}`, e);
     }
-  } catch {
-    return null;
   }
+  console.warn(`[certificate-pdf] could not embed image: ${url}`);
+  return null;
 }
+
 
 function truncate(text: string, font: any, size: number, maxWidth: number) {
   let t = text;
