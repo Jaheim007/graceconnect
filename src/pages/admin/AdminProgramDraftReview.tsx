@@ -82,7 +82,7 @@ export default function AdminProgramDraftReview() {
 
   const [draft, setDraft] = useState<CourseDraft | null>(null);
   const [selected, setSelected] = useState(0);
-  const [publishNow, setPublishNow] = useState(false);
+  
   const [dirty, setDirty] = useState(false);
 
   // Pricing step — reuses the digital-product checkout (see useCourseCommerce).
