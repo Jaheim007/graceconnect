@@ -234,12 +234,16 @@ export function useUpdateCourseRules(projectId: string | undefined) {
 export function usePublishCourseDraft() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { org_id: string; project_id: string; publish_now?: boolean; settings?: CourseRules }) => {
+    mutationFn: async (input: { org_id: string; project_id: string; publish_now?: boolean; settings?: CourseRules; price: number; currency: string }) => {
       const { data, error } = await supabase.functions.invoke('ai-project-to-program', {
         headers: await authHeaders(),
         body: { ...input, publish_now: input.publish_now ?? false },
       });
-      if (error) throw error;
+      if (error) {
+        let detail: any = null;
+        try { detail = await (error as any).context?.json?.(); } catch { /* ignore */ }
+        throw new Error(detail?.error || error.message);
+      }
       if ((data as any)?.error) throw new Error((data as any).error);
       return data as { program_id: string; lessons_count: number; slides_count: number };
     },

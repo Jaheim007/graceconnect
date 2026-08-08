@@ -252,22 +252,10 @@ export default function AdminProgramDraftReview() {
           // The program column only accepts 1–10; unlimited is kept on the slides.
           max_quiz_attempts: defaultTries === 0 ? 10 : defaultTries,
         },
+        price: priceValue,
+        currency,
       });
 
-
-      // Apply pricing + keep the checkout product in sync (same flow as products)
-      if (priceValid) {
-        await setPricing.mutateAsync({
-          program_id: result.program_id,
-          organization_id: orgId,
-          title: draft.title,
-          description: project?.data_json?.source?.prompt || null,
-          cover_image_url: rules.cover_image_url || null,
-          is_free: false,
-          price: priceValue,
-          currency,
-        });
-      }
 
       setTitleDirty(false);
       toast({
@@ -625,29 +613,27 @@ export default function AdminProgramDraftReview() {
               />
             </div>
 
-            <div className="flex flex-wrap justify-between gap-2">
+            <div className="grid gap-2 sm:grid-cols-[auto_1fr_1fr]">
               <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setStep(1)}>
                 <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Revoir le contenu' : 'Back to content'}
               </Button>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  variant="outline" size="sm" className="gap-1.5"
-                  onClick={() => handlePublish(true)}
-                  disabled={publishDraft.isPending || totals.lessons === 0}
-                >
-                  <FileText className="h-3.5 w-3.5" />
-                  {isFr ? 'Enregistrer en brouillon' : 'Save as draft'}
-                </Button>
-                <Button
-                  size="sm" className="gap-1.5" onClick={() => handlePublish(false)}
-                  disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid || (coverMissing && !incomplete)}
-                >
-                  {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
-                  {incomplete
-                    ? (isFr ? 'Garder en brouillon' : 'Keep as draft')
-                    : (isFr ? 'Mettre le cours en ligne' : 'Put the course live')}
-                </Button>
-              </div>
+              <Button
+                variant="outline" size="sm" className="w-full gap-1.5"
+                onClick={() => handlePublish(true)}
+                disabled={publishDraft.isPending || totals.lessons === 0}
+              >
+                <FileText className="h-3.5 w-3.5" />
+                {isFr ? 'Enregistrer en brouillon' : 'Save as draft'}
+              </Button>
+              <Button
+                size="sm" className="w-full gap-1.5" onClick={() => handlePublish(false)}
+                disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid || (coverMissing && !incomplete)}
+              >
+                {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
+                {incomplete
+                  ? (isFr ? 'Garder en brouillon' : 'Keep as draft')
+                  : (isFr ? 'Mettre le cours en ligne' : 'Put the course live')}
+              </Button>
             </div>
 
           </div>
