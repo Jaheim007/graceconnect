@@ -271,7 +271,9 @@ export default function AdminProgramDraftReview() {
 
       setTitleDirty(false);
       toast({
-        title: isFr ? 'Cours créé' : 'Course created',
+        title: asDraft
+          ? (isFr ? 'Brouillon enregistré' : 'Draft saved')
+          : (isFr ? 'Cours créé' : 'Course created'),
         description: isFr
           ? `${result.lessons_count} leçon(s), ${result.slides_count} slide(s).`
           : `${result.lessons_count} lesson(s), ${result.slides_count} slide(s).`,
