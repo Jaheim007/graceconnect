@@ -743,6 +743,18 @@ export function ProgramForm() {
               onChange={(patch) => setRules(r => ({ ...r, ...patch }))}
             />
 
+            {/* Certificate template — only when certificates are issued */}
+            {rules.certificate_enabled !== false && (
+              <CertificateTemplateEditor
+                design={certDesign}
+                onChange={(patch) => setCertDesign(d => ({ ...d, ...patch }))}
+                courseTitle={title}
+                orgName={currentOrg?.name || 'SiteViral'}
+                orgLogo={(currentOrg as any)?.logo_url}
+                lessons={flatLessons}
+              />
+            )}
+
             <Button onClick={handleSave} disabled={saving || !title.trim()} className="gap-1.5">
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
               {isFr ? 'Enregistrer les réglages' : 'Save settings'}
