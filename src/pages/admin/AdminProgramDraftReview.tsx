@@ -189,11 +189,13 @@ export default function AdminProgramDraftReview() {
     return () => clearTimeout(t);
   }, [titleDirty, draft, generating]);
 
-  const handlePublish = async () => {
+  const handlePublish = async (asDraft = false) => {
     if (!draft || !projectId) return;
     const orgId = project?.organization_id || currentOrg?.id;
     if (!orgId) return;
-    if (!priceValid) {
+    // Saving as a draft never blocks on price or cover: those are only
+    // required to actually put the course on sale.
+    if (!asDraft && !priceValid) {
       toast({
         title: isFr ? 'Prix requis' : 'Price required',
         description: isFr
@@ -203,7 +205,7 @@ export default function AdminProgramDraftReview() {
       });
       return;
     }
-    if (coverMissing && !incomplete) {
+    if (!asDraft && coverMissing && !incomplete) {
       toast({
         title: isFr ? 'Image de couverture requise' : 'Cover image required',
         description: isFr
@@ -243,7 +245,7 @@ export default function AdminProgramDraftReview() {
       setDraft(stamped);
       const result = await publishDraft.mutateAsync({
         org_id: orgId, project_id: projectId,
-        publish_now: !incomplete,
+        publish_now: !incomplete && !asDraft,
         settings: {
           ...rules,
           passing_score: scored ? defaultPass : 0,
@@ -254,20 +256,24 @@ export default function AdminProgramDraftReview() {
 
 
       // Apply pricing + keep the checkout product in sync (same flow as products)
-      await setPricing.mutateAsync({
-        program_id: result.program_id,
-        organization_id: orgId,
-        title: draft.title,
-        description: project?.data_json?.source?.prompt || null,
-        cover_image_url: rules.cover_image_url || null,
-        is_free: false,
-        price: priceValue,
-        currency,
-      });
+      if (priceValid) {
+        await setPricing.mutateAsync({
+          program_id: result.program_id,
+          organization_id: orgId,
+          title: draft.title,
+          description: project?.data_json?.source?.prompt || null,
+          cover_image_url: rules.cover_image_url || null,
+          is_free: false,
+          price: priceValue,
+          currency,
+        });
+      }
 
       setTitleDirty(false);
       toast({
-        title: isFr ? 'Cours créé' : 'Course created',
+        title: asDraft
+          ? (isFr ? 'Brouillon enregistré' : 'Draft saved')
+          : (isFr ? 'Cours créé' : 'Course created'),
         description: isFr
           ? `${result.lessons_count} leçon(s), ${result.slides_count} slide(s).`
           : `${result.lessons_count} lesson(s), ${result.slides_count} slide(s).`,
@@ -361,16 +367,25 @@ export default function AdminProgramDraftReview() {
                 {isFr ? 'Suivant' : 'Next'} <ArrowRight className="h-3.5 w-3.5" />
               </Button>
             ) : (
-              <Button
-                size="sm" className="gap-1.5" onClick={handlePublish}
-                disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid || (coverMissing && !incomplete)}
-
-              >
-                {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
-                {incomplete
-                  ? (isFr ? 'Garder en brouillon' : 'Keep as draft')
-                  : (isFr ? 'Mettre le cours en ligne' : 'Put the course live')}
-              </Button>
+              <>
+                <Button
+                  variant="outline" size="sm" className="gap-1.5"
+                  onClick={() => handlePublish(true)}
+                  disabled={publishDraft.isPending || totals.lessons === 0}
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  {isFr ? 'Enregistrer en brouillon' : 'Save as draft'}
+                </Button>
+                <Button
+                  size="sm" className="gap-1.5" onClick={() => handlePublish(false)}
+                  disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid || (coverMissing && !incomplete)}
+                >
+                  {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
+                  {incomplete
+                    ? (isFr ? 'Garder en brouillon' : 'Keep as draft')
+                    : (isFr ? 'Mettre le cours en ligne' : 'Put the course live')}
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -610,19 +625,29 @@ export default function AdminProgramDraftReview() {
               />
             </div>
 
-            <div className="flex justify-between gap-2">
+            <div className="flex flex-wrap justify-between gap-2">
               <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setStep(1)}>
                 <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Revoir le contenu' : 'Back to content'}
               </Button>
-              <Button
-                size="sm" className="gap-1.5" onClick={handlePublish}
-                disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid || (coverMissing && !incomplete)}
-              >
-                {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
-                {incomplete
-                  ? (isFr ? 'Garder en brouillon' : 'Keep as draft')
-                  : (isFr ? 'Mettre le cours en ligne' : 'Put the course live')}
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="outline" size="sm" className="gap-1.5"
+                  onClick={() => handlePublish(true)}
+                  disabled={publishDraft.isPending || totals.lessons === 0}
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  {isFr ? 'Enregistrer en brouillon' : 'Save as draft'}
+                </Button>
+                <Button
+                  size="sm" className="gap-1.5" onClick={() => handlePublish(false)}
+                  disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid || (coverMissing && !incomplete)}
+                >
+                  {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
+                  {incomplete
+                    ? (isFr ? 'Garder en brouillon' : 'Keep as draft')
+                    : (isFr ? 'Mettre le cours en ligne' : 'Put the course live')}
+                </Button>
+              </div>
             </div>
 
           </div>

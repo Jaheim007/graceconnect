@@ -128,7 +128,7 @@ Deno.serve(async (req) => {
       .insert({
         program_id: program.id,
         title: project.title,
-        display_order: 0,
+        order_index: 0,
       })
       .select('id')
       .single();
