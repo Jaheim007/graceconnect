@@ -101,3 +101,26 @@ export const SLIDE_THEMES: SlideTheme[] = [
 export function getSlideTheme(index: number): SlideTheme {
   return SLIDE_THEMES[index % SLIDE_THEMES.length];
 }
+
+/** Stable 32-bit hash so a given course always gets the same visual signature. */
+function hashSeed(seed: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return Math.abs(h);
+}
+
+/**
+ * Per-course visual signature: two different courses never start on the same
+ * palette, and the rotation step differs too, so the decorative layer feels
+ * unique instead of the same repeating swirl for everyone.
+ */
+export function getSlideThemeFor(seed: string | undefined, index: number): SlideTheme {
+  if (!seed) return getSlideTheme(index);
+  const h = hashSeed(seed);
+  const offset = h % SLIDE_THEMES.length;
+  const step = 1 + (h % (SLIDE_THEMES.length - 1));
+  return SLIDE_THEMES[(offset + index * step) % SLIDE_THEMES.length];
+}
