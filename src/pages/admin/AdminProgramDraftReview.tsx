@@ -339,8 +339,8 @@ export default function AdminProgramDraftReview() {
     >
       <div className="space-y-4">
         {/* Header */}
-        <div className="flex flex-wrap items-center gap-2 justify-between">
-          <div className="flex items-center gap-2 min-w-0">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex w-full items-center gap-2 min-w-0 sm:w-auto">
             <Button
               variant="ghost" size="icon" className="h-8 w-8"
               onClick={() => (step === 2 ? setStep(1) : navigate('/admin/programs'))}
@@ -351,14 +351,14 @@ export default function AdminProgramDraftReview() {
             <Input
               value={draft?.title || ''}
               onChange={(e) => { setDraft((d) => (d ? { ...d, title: e.target.value } : d)); setTitleDirty(true); }}
-              className="h-9 font-semibold max-w-sm"
+              className="h-9 min-w-0 flex-1 font-semibold sm:max-w-sm"
               placeholder={isFr ? 'Titre du cours' : 'Course title'}
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center">
             <Button
-              variant="outline" size="sm" className="gap-1.5"
+              variant="outline" size="sm" className="w-full gap-1.5 sm:w-auto"
               onClick={() => setBuyerPreview(true)}
               disabled={totals.slides === 0}
             >
@@ -367,13 +367,13 @@ export default function AdminProgramDraftReview() {
             </Button>
 
             {step === 1 ? (
-              <Button size="sm" className="gap-1.5" onClick={() => setStep(2)} disabled={totals.lessons === 0}>
+              <Button size="sm" className="w-full gap-1.5 sm:w-auto" onClick={() => setStep(2)} disabled={totals.lessons === 0}>
                 {isFr ? 'Suivant' : 'Next'} <ArrowRight className="h-3.5 w-3.5" />
               </Button>
             ) : (
               <>
                 <Button
-                  variant="outline" size="sm" className="gap-1.5"
+                  variant="outline" size="sm" className="w-full gap-1.5 sm:w-auto"
                   onClick={handleSaveDraft}
                   disabled={savingDraft || publishDraft.isPending || totals.lessons === 0}
                 >
@@ -381,7 +381,7 @@ export default function AdminProgramDraftReview() {
                   {isFr ? 'Enregistrer en brouillon' : 'Save as draft'}
                 </Button>
                 <Button
-                  size="sm" className="gap-1.5" onClick={() => handlePublish(false)}
+                  size="sm" className="w-full gap-1.5 sm:w-auto" onClick={() => handlePublish(false)}
                   disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid || (coverMissing && !incomplete)}
                 >
                   {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
