@@ -48,6 +48,13 @@ export function CourseTitleCard({
   const [titleIdeas, setTitleIdeas] = useState<string[]>([]);
   const [loadingTitles, setLoadingTitles] = useState(false);
   const [loadingDesc, setLoadingDesc] = useState(false);
+  // The AI should not invent the positioning: the creator says who he sells to
+  // and how he wants to sound before anything is generated.
+  const [briefOpen, setBriefOpen] = useState(false);
+  const [audience, setAudience] = useState('');
+  const [tone, setTone] = useState('');
+  const [notes, setNotes] = useState('');
+
 
   const authHeaders = async () => {
     const { data: { session } } = await supabase.auth.getSession();
