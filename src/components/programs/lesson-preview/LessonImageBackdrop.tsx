@@ -32,13 +32,26 @@ export function LessonImageBackdrop({
 
   return (
     <>
+      {/* The illustration is also painted as a CSS background on this layer, so
+          it shows even if the <img> element itself is not repainted (some
+          engines skip repainting a lazily decoded image inside an animated
+          overlay — this was making buyer-preview slides look empty). */}
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-center"
+        style={{ backgroundImage: `url("${imageUrl}")` }}
+        aria-hidden
+      />
       <img
+        key={imageUrl}
         src={imageUrl}
         alt=""
-        loading="lazy"
-        decoding="async"
+        loading="eager"
+        decoding="sync"
+        // @ts-expect-error - fetchpriority is valid HTML, typed in newer React
+        fetchpriority="high"
         className={cn('absolute inset-0 z-0 h-full w-full object-cover', imageClassName)}
       />
+
       {/* Very light tint: the photo must stay clearly visible */}
       <div className="absolute inset-0 z-[1] pointer-events-none bg-black/10" />
       {/* Directional scrim: only behind the text, image stays visible elsewhere */}
