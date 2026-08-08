@@ -53,6 +53,8 @@ interface TierProfile {
   minSlides: number;
   maxSlides: number;
   maxQuiz: number;
+  /** Practice flashcards inserted between the teaching slides. */
+  maxFlashcards: number;
   sentencesFr: string;
   sentencesEn: string;
   model: string;
@@ -69,6 +71,7 @@ const TIER_PROFILES: Record<'standard' | 'premium', TierProfile> = {
     minSlides: 5,
     maxSlides: 8,
     maxQuiz: 3,
+    maxFlashcards: 2,
     sentencesFr: '7 à 10 phrases complètes (180 à 260 mots), avec au moins un exemple concret',
     sentencesEn: '7-10 full sentences (180-260 words), including at least one concrete example',
     model: 'gemini-2.5-flash',
@@ -82,7 +85,8 @@ const TIER_PROFILES: Record<'standard' | 'premium', TierProfile> = {
     minTopics: 14,
     minSlides: 8,
     maxSlides: 12,
-    maxQuiz: 4,
+    maxQuiz: 5,
+    maxFlashcards: 4,
     sentencesFr: '12 à 18 phrases complètes (320 à 450 mots), avec deux exemples concrets, des chiffres ou cas pratiques, et un « À retenir » final',
     sentencesEn: '12-18 full sentences (320-450 words), including two concrete examples, figures or practical cases, and a closing "Key takeaway"',
     model: 'gemini-2.5-pro',
@@ -95,7 +99,7 @@ const TIER_PROFILES: Record<'standard' | 'premium', TierProfile> = {
 
 
 interface DraftSlide {
-  slide_type: 'text' | 'quiz';
+  slide_type: 'text' | 'quiz' | 'flashcard';
   title: string | null;
   body: string | null;
   data: Record<string, unknown>;
@@ -124,7 +128,7 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const {
       org_id, source = 'document', file_url, file_name, mime,
-      prompt, language, tier, title: titleHint, generate_images,
+      prompt, language, tier, title: titleHint, generate_images, level,
     } = body as Record<string, any>;
 
     if (!org_id) return jsonResp({ error: 'org_id required' }, 400);
@@ -248,6 +252,7 @@ Deno.serve(async (req) => {
       projectTitle, sourceText, source, prompt, debited,
       tier: normalizeTier(tier) === 'premium' ? 'premium' : 'standard',
       generateImages: generate_images === true,
+      level: ['beginner', 'intermediate', 'advanced'].includes(level) ? level : 'intermediate',
 
     });
     // deno-lint-ignore no-explicit-any
@@ -278,6 +283,8 @@ async function runPipeline(ctx: {
   tier: 'standard' | 'premium';
   /** Images are OPT-IN: only generated (and credit-debited) when the creator asked for them. */
   generateImages: boolean;
+  /** Drives quiz difficulty (and how many questions a lesson gets). */
+  level: 'beginner' | 'intermediate' | 'advanced';
 }) {
   const { admin, isFr } = ctx;
   const profile = TIER_PROFILES[ctx.tier];
@@ -370,7 +377,7 @@ async function runPipeline(ctx: {
         try {
           lesson = await generateLesson({
             geminiKey: ctx.geminiKey, openaiKey: ctx.openaiKey, isFr,
-            heading: topic.heading, sourceExcerpt: excerpt, index: i, profile,
+            heading: topic.heading, sourceExcerpt: excerpt, index: i, profile, level: ctx.level,
           });
         } catch (e) {
           console.warn('[course-from-document] topic failed, keeping raw text', i, e);
@@ -460,11 +467,32 @@ async function mergeCourse(admin: any, projectId: string, course: unknown) {
   return { ...(data?.data_json || {}), course };
 }
 
+const LEVEL_RULES: Record<'beginner' | 'intermediate' | 'advanced', { fr: string; en: string; quizBonus: number }> = {
+  beginner: {
+    fr: 'Public débutant : questions de compréhension simples (définitions, faits explicites), vocabulaire accessible.',
+    en: 'Beginner audience: simple comprehension questions (definitions, explicit facts), accessible vocabulary.',
+    quizBonus: -1,
+  },
+  intermediate: {
+    fr: 'Public intermédiaire : questions d\'application (choisir la bonne pratique dans une situation donnée).',
+    en: 'Intermediate audience: application questions (pick the right practice in a given situation).',
+    quizBonus: 0,
+  },
+  advanced: {
+    fr: 'Public avancé : questions d\'analyse et de nuance (distinguer deux approches proches, cas limites).',
+    en: 'Advanced audience: analysis and nuance questions (distinguish two close approaches, edge cases).',
+    quizBonus: 1,
+  },
+};
+
 async function generateLesson(opts: {
   geminiKey: string; openaiKey?: string; isFr: boolean;
   heading: string | null; sourceExcerpt: string; index: number; profile: TierProfile;
+  level: 'beginner' | 'intermediate' | 'advanced';
 }): Promise<DraftLesson> {
   const { isFr, profile } = opts;
+  const levelRule = LEVEL_RULES[opts.level] || LEVEL_RULES.intermediate;
+  const quizCount = Math.max(2, Math.min(profile.maxQuiz, profile.maxQuiz + levelRule.quizBonus));
   const system = isFr
     ? 'Tu es concepteur pédagogique. Tu transformes un extrait de document en leçon complète et riche. Tu ne dois JAMAIS inventer de faits absents de l\'extrait, mais tu dois développer, expliquer et illustrer chaque idée présente. Réponds uniquement en JSON valide.'
     : 'You are an instructional designer turning a document excerpt into a complete, rich lesson. NEVER invent facts absent from the excerpt, but do develop, explain and illustrate every idea present. Reply with valid JSON only.';
@@ -482,14 +510,17 @@ ${isFr ? `Produis un JSON strict :` : `Produce strict JSON:`}
   "slides": [
     { "title": "${isFr ? 'titre court' : 'short title'}", "body": "${isFr ? profile.sentencesFr : profile.sentencesEn}" }
   ],
+  "flashcards": [
+    { "front": "${isFr ? 'notion ou question courte' : 'short notion or question'}", "back": "${isFr ? 'explication claire en 1 à 3 phrases' : 'clear 1-3 sentence explanation'}" }
+  ],
   "quiz": [
     { "question": "...", "options": ["a","b","c","d"], "correctIndex": 0, "explanation": "${isFr ? 'pourquoi, en citant l\'extrait' : 'why, grounded in the excerpt'}" }
   ]
 }
 
 ${isFr
-  ? `Règles : entre ${profile.minSlides} et ${profile.maxSlides} slides, chacune développant une idée de l'extrait dans l'ordre du document. Chaque "body" doit faire ${profile.sentencesFr} — jamais une seule phrase, jamais un simple titre reformulé. Explique, définis les termes, donne des exemples issus de l'extrait. Entre 2 et ${profile.maxQuiz} questions dont la réponse est explicitement contenue dans l'extrait. 4 options par question. Français.`
-  : `Rules: between ${profile.minSlides} and ${profile.maxSlides} slides, each developing one idea from the excerpt in document order. Each "body" must be ${profile.sentencesEn} — never a single sentence, never a restated title. Explain, define terms, give examples drawn from the excerpt. Between 2 and ${profile.maxQuiz} questions whose answer is explicitly present in the excerpt. 4 options each. English.`}`;
+  ? `Règles : entre ${profile.minSlides} et ${profile.maxSlides} slides, chacune développant une idée de l'extrait dans l'ordre du document. Chaque "body" doit faire ${profile.sentencesFr} — jamais une seule phrase, jamais un simple titre reformulé. Explique, définis les termes, donne des exemples issus de l'extrait. Exactement ${profile.maxFlashcards} cartes mémo (flashcards) qui font réviser les notions clés de la leçon. Exactement ${quizCount} questions de quiz dont la réponse est explicitement contenue dans l'extrait, 4 options par question. ${levelRule.fr} Français.`
+  : `Rules: between ${profile.minSlides} and ${profile.maxSlides} slides, each developing one idea from the excerpt in document order. Each "body" must be ${profile.sentencesEn} — never a single sentence, never a restated title. Explain, define terms, give examples drawn from the excerpt. Exactly ${profile.maxFlashcards} flashcards revising the lesson's key notions. Exactly ${quizCount} quiz questions whose answer is explicitly present in the excerpt, 4 options each. ${levelRule.en} English.`}`;
 
   const raw = await aiGenerateText({
     geminiKey: opts.geminiKey, openaiKey: opts.openaiKey,
@@ -500,8 +531,9 @@ ${isFr
   const parsed = extractJson(raw) as any;
   const slidesIn = Array.isArray(parsed?.slides) ? parsed.slides : [];
   const quizIn = Array.isArray(parsed?.quiz) ? parsed.quiz : [];
+  const cardsIn = Array.isArray(parsed?.flashcards) ? parsed.flashcards : [];
 
-  const slides: DraftSlide[] = slidesIn
+  const textSlides: DraftSlide[] = slidesIn
     .slice(0, profile.maxSlides)
     .filter((s: any) => (s?.body || s?.title))
     .map((s: any) => ({
@@ -512,7 +544,37 @@ ${isFr
       duration_seconds: 30,
     }));
 
-  for (const q of quizIn.slice(0, profile.maxQuiz)) {
+  // Flashcards are PRACTICE: they sit between the teaching slides and always
+  // show their answer, so the learner can self-check before the graded quiz.
+  const cards: DraftSlide[] = cardsIn
+    .slice(0, profile.maxFlashcards)
+    .filter((c: any) => c?.front && c?.back)
+    .map((c: any) => ({
+      slide_type: 'flashcard' as const,
+      title: String(c.front).slice(0, 200),
+      body: String(c.back).slice(0, 1200),
+      data: {
+        front: String(c.front).slice(0, 200),
+        back: String(c.back).slice(0, 1200),
+        hint: c.hint ? String(c.hint).slice(0, 200) : undefined,
+        source: 'ai_document_pipeline',
+      },
+      duration_seconds: 25,
+    }));
+
+  // Interleave: teach → (flashcard) → teach → … then every quiz question last.
+  const slides: DraftSlide[] = [];
+  const gap = cards.length > 0 ? Math.max(1, Math.ceil(textSlides.length / (cards.length + 1))) : 0;
+  let cardIdx = 0;
+  textSlides.forEach((s, i) => {
+    slides.push(s);
+    if (gap && cardIdx < cards.length && (i + 1) % gap === 0 && i < textSlides.length - 1) {
+      slides.push(cards[cardIdx++]);
+    }
+  });
+  while (cardIdx < cards.length) slides.push(cards[cardIdx++]);
+
+  for (const q of quizIn.slice(0, quizCount)) {
     const options = Array.isArray(q?.options) ? q.options.map((o: any) => String(o)).slice(0, 6) : [];
     if (!q?.question || options.length < 2) continue;
     slides.push({
@@ -525,6 +587,9 @@ ${isFr
         options,
         correctIndex: Number.isInteger(q.correctIndex) ? Math.max(0, Math.min(options.length - 1, q.correctIndex)) : 0,
         explanation: q.explanation ? String(q.explanation).slice(0, 500) : undefined,
+        // The answer is never revealed while answering: the learner sees the
+        // result at the end of the lesson quiz.
+        revealAnswers: false,
         // Practice only — never counted towards certificate eligibility.
         scored: false,
         source: 'ai_document_pipeline',
