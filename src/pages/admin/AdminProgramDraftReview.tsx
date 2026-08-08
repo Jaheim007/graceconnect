@@ -342,7 +342,8 @@ export default function AdminProgramDraftReview() {
             ) : (
               <Button
                 size="sm" className="gap-1.5" onClick={handlePublish}
-                disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid}
+                disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid || (coverMissing && !incomplete)}
+
               >
                 {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
                 {incomplete
