@@ -340,14 +340,6 @@ export default function AdminProgramDraftReview() {
                 {isFr ? 'Génération…' : 'Generating…'} {job?.progress ?? 0}%
               </Badge>
             )}
-            <div className="flex items-center gap-1.5 mr-1">
-              <Switch id="publish-now" checked={publishNow} onCheckedChange={setPublishNow} disabled={incomplete} />
-              <Label htmlFor="publish-now" className="text-[11px] text-muted-foreground">
-                {incomplete
-                  ? (isFr ? 'Reste en brouillon' : 'Stays a draft')
-                  : (isFr ? 'Publier tout de suite' : 'Publish immediately')}
-              </Label>
-            </div>
 
             <Button
               variant="outline"
@@ -363,13 +355,16 @@ export default function AdminProgramDraftReview() {
             <Button variant="outline" size="sm" onClick={handleSave} disabled={!dirty || updateDraft.isPending}>
               {updateDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : (isFr ? 'Enregistrer' : 'Save')}
             </Button>
+            {/* One clear action: publish when the draft is complete, otherwise
+                keep it as a draft. No confusing toggle. */}
             <Button size="sm" className="gap-1.5" onClick={handlePublish} disabled={publishDraft.isPending || generating || totals.lessons === 0 || !priceValid}>
               {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
               {incomplete
-                ? (isFr ? 'Enregistrer comme brouillon' : 'Save as draft')
-                : (isFr ? 'Publier comme cours' : 'Publish as course')}
+                ? (isFr ? 'Garder en brouillon' : 'Keep as draft')
+                : (isFr ? 'Mettre le cours en ligne' : 'Put the course live')}
             </Button>
           </div>
+
         </div>
 
         {/* Summary */}
