@@ -242,6 +242,7 @@ export function ProgramForm() {
         price: effectiveFree ? 0 : price,
         currency,
         certificate_enabled: rules.certificate_enabled !== false,
+        certificate_design: certDesign,
         passing_score: scored ? (rules.passing_score ?? 70) : 0,
         max_quiz_attempts: (rules.max_quiz_attempts ?? 0) === 0 ? 10 : rules.max_quiz_attempts,
         require_sequential_lessons: true,
