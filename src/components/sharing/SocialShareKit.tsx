@@ -23,6 +23,8 @@ interface SocialShareKitProps {
   earnings?: number;
   commissionRate?: number;
   productId?: string;
+  /** `onDark` renders the secondary actions readable over dark/glass surfaces. */
+  tone?: 'default' | 'onDark';
 }
 
 const MESSAGES_FR: Record<ShareContext, (t: string, p?: number, e?: number) => string> = {
@@ -94,7 +96,7 @@ const PLATFORMS: Platform[] = [
   },
 ];
 
-export function SocialShareKit({ url, title, description, context, price, earnings, commissionRate, productId }: SocialShareKitProps) {
+export function SocialShareKit({ url, title, description, context, price, earnings, commissionRate, productId, tone = 'default' }: SocialShareKitProps) {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const { locale } = useI18n();
@@ -153,9 +155,16 @@ export function SocialShareKit({ url, title, description, context, price, earnin
 
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(ogUrl)}`;
 
+  const onDark = tone === 'onDark';
+  const secondaryClass = onDark
+    ? 'gap-2 text-xs bg-white/15 border-white/30 text-white hover:bg-white/25 hover:text-white backdrop-blur-sm'
+    : 'gap-2 text-xs';
+
   return (
     <div className="space-y-4">
-      <p className="text-sm font-bold text-center">📤 {isFr ? 'Partage maintenant !' : 'Share now!'}</p>
+      <p className={`text-sm font-bold text-center ${onDark ? 'text-white' : ''}`}>
+        📤 {isFr ? 'Partage maintenant !' : 'Share now!'}
+      </p>
 
       {/* Platform buttons */}
       <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
@@ -163,10 +172,12 @@ export function SocialShareKit({ url, title, description, context, price, earnin
           <button
             key={p.name}
             onClick={() => handlePlatformClick(p)}
-            className={`${p.color} text-white rounded-xl p-3 text-center transition-all hover:scale-105 active:scale-95`}
+            className={`${p.color} text-white rounded-xl px-1.5 py-2.5 text-center transition-all hover:scale-105 active:scale-95`}
+            title={p.name}
+            aria-label={p.name}
           >
             <span className="text-lg block">{p.icon}</span>
-            <span className="text-[10px] font-medium block mt-1 truncate">{p.name}</span>
+            <span className="text-[9px] font-medium block mt-1 leading-tight">{p.name}</span>
           </button>
         ))}
       </div>
@@ -176,7 +187,7 @@ export function SocialShareKit({ url, title, description, context, price, earnin
         <Button
           variant="outline"
           size="sm"
-          className="gap-2 text-xs"
+          className={secondaryClass}
           onClick={() => copyText(ogUrl)}
         >
           {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
@@ -185,7 +196,7 @@ export function SocialShareKit({ url, title, description, context, price, earnin
         <Button
           variant="outline"
           size="sm"
-          className="gap-2 text-xs"
+          className={secondaryClass}
           asChild
           onClick={() => track('email')}
         >
@@ -196,7 +207,7 @@ export function SocialShareKit({ url, title, description, context, price, earnin
         <Button
           variant="outline"
           size="sm"
-          className="gap-2 text-xs"
+          className={secondaryClass}
           onClick={() => { setShowQR(true); track('qr_code'); }}
         >
           <QrCode className="h-3.5 w-3.5" /> QR Code
@@ -204,9 +215,10 @@ export function SocialShareKit({ url, title, description, context, price, earnin
       </div>
 
       {/* Pre-written message preview */}
-      <div className="bg-muted/50 rounded-xl p-3 border border-border text-xs text-muted-foreground text-center">
+      <div className={`rounded-xl p-3 border text-xs text-center ${onDark ? 'bg-black/25 border-white/20 text-white/80' : 'bg-muted/50 border-border text-muted-foreground'}`}>
         <p className="italic">« {message} »</p>
       </div>
+
 
       {/* QR Code Dialog */}
       <Dialog open={showQR} onOpenChange={setShowQR}>

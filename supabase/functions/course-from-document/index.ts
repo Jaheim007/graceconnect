@@ -765,15 +765,26 @@ function fallbackLesson(
   }
   if (buf.length && chunks.length < profile.maxSlides) chunks.push(buf.join('\n\n'));
 
+  const lessonTitle = (heading || `${isFr ? 'Leçon' : 'Lesson'} ${index + 1}`).slice(0, 120);
+  const bodies = chunks.length ? chunks : [excerpt.slice(0, 1200)];
+
+  /** A slide must never ship without a heading: derive one from its own text. */
+  const headingFor = (body: string, i: number): string => {
+    const firstSentence = (body.replace(/\s+/g, ' ').match(/^[^.!?]{12,80}[.!?]?/) || [])[0];
+    const derived = firstSentence?.replace(/[.!?]\s*$/, '').trim();
+    if (derived && derived.length >= 12) return derived.slice(0, 90);
+    return bodies.length > 1 ? `${lessonTitle} (${i + 1}/${bodies.length})` : lessonTitle;
+  };
+
   return {
-    title: (heading || `${isFr ? 'Leçon' : 'Lesson'} ${index + 1}`).slice(0, 120),
+    title: lessonTitle,
     summary: '',
     image_prompt: null,
     source_excerpt: '',
     source_page: null,
-    slides: (chunks.length ? chunks : [excerpt.slice(0, 1200)]).map((body) => ({
+    slides: bodies.map((body, i) => ({
       slide_type: 'text' as const,
-      title: null,
+      title: headingFor(body, i),
       body: body.slice(0, profile.bodyChars),
       data: { source: 'source_fallback' },
       duration_seconds: 30,
