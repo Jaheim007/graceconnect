@@ -199,12 +199,26 @@ Deno.serve(async (req) => {
       courseLessons.forEach((l: any, i: number) => {
         const lessonId = byOrder.get(i);
         if (!lessonId) return;
-        (Array.isArray(l.slides) ? l.slides : []).forEach((s: any, j: number) => {
+        const lessonSlides = Array.isArray(l.slides) ? l.slides : [];
+        const textCount = lessonSlides.filter((s: any) => !['quiz', 'flashcard'].includes(s?.slide_type)).length;
+        let textIdx = 0;
+        lessonSlides.forEach((s: any, j: number) => {
+          const isText = !['quiz', 'flashcard', 'image', 'video'].includes(s?.slide_type);
+          if (isText) textIdx += 1;
+          // Never persist a headless teaching slide: fall back to a derived heading.
+          let title: string | null = s.title ? String(s.title).slice(0, 120) : null;
+          if (!title && isText) {
+            const plain = String(s.body || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            const sentence = (plain.match(/^[^.!?]{12,80}[.!?]?/) || [])[0]?.replace(/[.!?]\s*$/, '').trim();
+            title = sentence && sentence.length >= 12
+              ? sentence.slice(0, 90)
+              : (textCount > 1 ? `${l.title || ''} (${textIdx}/${textCount})`.trim() : (l.title || null));
+          }
           slideRows.push({
             lesson_id: lessonId,
             display_order: j,
             slide_type: ['quiz', 'flashcard', 'image', 'video'].includes(s.slide_type) ? s.slide_type : 'text',
-            title: s.title || null,
+            title,
             body: s.slide_type === 'quiz'
               ? null
               : s.slide_type === 'flashcard'
