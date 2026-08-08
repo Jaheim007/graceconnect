@@ -204,8 +204,9 @@ export default function AdminProgramDraftReview() {
       const result = await publishDraft.mutateAsync({
         org_id: orgId, project_id: projectId,
         publish_now: !incomplete,
-        settings: rules,
+        settings: rules.require_score === false ? { ...rules, passing_score: 0 } : rules,
       });
+
 
       // Apply pricing + keep the checkout product in sync (same flow as products)
       await setPricing.mutateAsync({
