@@ -284,7 +284,11 @@ export default function AdminProgramDraftReview() {
     );
   }
 
-  if (generating && (draft?.lessons.length || 0) === 0) {
+  // Stay on the full-screen loader for the WHOLE generation. The review screen
+  // is only shown once everything that will be generated is there — never a
+  // second progress bar restarting from zero.
+  if (generating) {
+
     return (
       <AdminPageShell title={isFr ? 'Génération du cours' : 'Generating course'}>
         <CourseGenerationLoader
