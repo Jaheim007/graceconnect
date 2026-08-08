@@ -216,6 +216,9 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
     const slides: FlatSlide[] = [];
     let lessonIdx = 0;
     let lastLessonImageUrl: string | undefined;
+    // Last resort backdrop: the course cover, so no slide ever falls back to a
+    // bare gradient when illustrations were not generated.
+    const coverFallback: string | undefined = (program as any)?.cover_image_url || undefined;
 
     for (const mod of modules) {
       const modLessons = (mod as any).lessons || [];
@@ -225,7 +228,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
         if (ownImageUrl) lastLessonImageUrl = ownImageUrl;
         // Illustration generation can stop early: reuse the closest available
         // image so no lesson falls back to a bare gradient.
-        const lessonImageUrl = ownImageUrl || lastLessonImageUrl;
+        const lessonImageUrl = ownImageUrl || lastLessonImageUrl || coverFallback;
 
         slides.push({
           lessonId: lesson.id,
@@ -272,7 +275,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
           slideInLesson: 0,
           slideId: null,
           countsForProgress: true,
-          lessonImageUrl: lastLessonImageUrl,
+          lessonImageUrl: lastLessonImageUrl || coverFallback,
           moduleQuiz: modQuiz,
         });
       }
@@ -290,7 +293,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
         slideInLesson: 0,
         slideId: null,
         countsForProgress: true,
-        lessonImageUrl: lastLessonImageUrl,
+        lessonImageUrl: lastLessonImageUrl || coverFallback,
       });
     }
 
@@ -305,7 +308,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
       slideInLesson: 0,
       slideId: null,
       countsForProgress: false,
-      lessonImageUrl: lastLessonImageUrl,
+      lessonImageUrl: lastLessonImageUrl || coverFallback,
     });
 
     return slides;
