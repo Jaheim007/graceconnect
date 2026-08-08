@@ -76,8 +76,9 @@ export function CourseCompletionRules({ rules, lessons, onChange }: Props) {
       id: 'per_lesson',
       title: isFr ? 'Un score différent selon la leçon' : 'A different score per lesson',
       help: isFr
-        ? 'Vous choisissez leçon par leçon (les autres suivent le réglage par défaut).'
-        : 'You choose lesson by lesson (the rest follow the default setting).',
+        ? 'Vous activez les leçons concernées et réglez chacune. Les leçons non activées n’exigent aucun score.'
+        : 'You switch on the lessons you want and set each one. Lessons left off require no score.',
+
     },
   ];
 
@@ -142,13 +143,14 @@ export function CourseCompletionRules({ rules, lessons, onChange }: Props) {
         </div>
       </div>
 
-      {/* Step 2 — the default setting (used by both scored modes) */}
-      {mode !== 'none' && (
+      {/* Step 2 — one single setting, only for the "same score everywhere" mode.
+          In per-lesson mode there is no "default setting" card: the creator
+          switches on the lessons he wants and sets each one himself. */}
+      {mode === 'global' && (
         <div className="space-y-4 rounded-lg border border-border p-3">
           <p className="text-[12px] font-medium">
-            {mode === 'global'
-              ? (isFr ? 'Réglage pour toutes les leçons' : 'Setting for every lesson')
-              : (isFr ? 'Réglage par défaut' : 'Default setting')}
+            {isFr ? 'Réglage pour toutes les leçons' : 'Setting for every lesson'}
+
           </p>
 
           <div className="space-y-2">
@@ -192,8 +194,8 @@ export function CourseCompletionRules({ rules, lessons, onChange }: Props) {
             <p className="text-[12px] font-medium">{isFr ? 'Leçon par leçon' : 'Lesson by lesson'}</p>
             <p className="text-[11px] text-muted-foreground">
               {isFr
-                ? 'Activez une leçon pour lui donner son propre score et ses propres essais.'
-                : 'Switch a lesson on to give it its own score and retries.'}
+                ? 'Activez les leçons où un score est demandé, puis choisissez le score et les essais de chacune. Les leçons laissées désactivées n’exigent aucun score.'
+                : 'Switch on the lessons where a score is required, then set the score and retries for each. Lessons left off require no score.'}
             </p>
           </div>
           <div className="divide-y divide-border">
@@ -213,9 +215,10 @@ export function CourseCompletionRules({ rules, lessons, onChange }: Props) {
                       <p className="text-[11px] text-muted-foreground">
                         {custom
                           ? `${score}% · ${attemptLabel(tries, isFr)}`
-                          : (isFr ? 'Suit le réglage par défaut' : 'Follows the default setting')}
+                          : (isFr ? 'Aucun score demandé' : 'No score required')}
                       </p>
                     </div>
+
                     <Switch
                       checked={custom}
                       onCheckedChange={(v) => setLessonRule(i, v ? { passing_score: passing, max_attempts: attempts } : null)}

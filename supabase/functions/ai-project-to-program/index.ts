@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
         organization_id: org_id,
         created_by: user.id,
         title: project.title,
-        description: project.objective || project.description || '',
+        description: rules.description || project.objective || project.description || '',
         cover_image_url: rules.cover_image_url || coverAsset?.file_url || courseLessons.find((l: any) => l?.image_url)?.image_url || null,
         passing_score: passingScore,
         max_quiz_attempts: maxQuizAttempts,

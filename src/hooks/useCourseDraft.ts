@@ -56,6 +56,9 @@ export interface CourseRules {
 
   gamification_enabled?: boolean;
   certificate_enabled?: boolean;
+  /** Sales description shown to buyers (set on the finalisation step). */
+  description?: string;
+
   /** Lesson index (as string) → override. Missing entries follow the defaults. */
   lesson_rules?: Record<string, LessonRule>;
 }

@@ -82,13 +82,17 @@ function ScrollableContent({
   captionStyle,
   captionClasses: captionClassMap,
   theme,
+  hasImage,
   children,
 }: {
   captionStyle: CaptionStyle;
   captionClasses: Record<CaptionStyle, string>;
   theme: ReturnType<typeof getSlideThemeFor>;
+  /** When a real illustration sits behind, the card stays narrower so the photo reads. */
+  hasImage?: boolean;
   children: React.ReactNode;
 }) {
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScroll, setCanScroll] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(false);
@@ -112,7 +116,7 @@ function ScrollableContent({
   }, [checkScroll, children]);
 
   return (
-    <div className="relative w-full max-w-3xl lg:max-w-4xl max-h-[86%]">
+    <div className={cn('relative w-full', hasImage ? 'max-w-2xl max-h-[74%]' : 'max-w-3xl lg:max-w-4xl max-h-[86%]')}>
       <div
         ref={scrollRef}
           className={cn(
@@ -405,7 +409,9 @@ export function SlideRenderer({
           captionStyle={captionStyle}
           captionClasses={captionClasses}
           theme={theme}
+          hasImage={hasBgImage}
         >
+
           <SlideTag />
           {slide.heading && (
             <div className="mb-4">

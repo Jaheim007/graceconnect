@@ -29,6 +29,8 @@ import {
   useGenerationJob, type CourseDraft, type CourseRules, type DraftLesson,
 } from '@/hooks/useCourseDraft';
 import { CourseCoverCard } from '@/components/programs/CourseCoverCard';
+import { CourseTitleCard } from '@/components/programs/CourseTitleCard';
+
 import { CourseCompletionRules } from '@/components/programs/CourseCompletionRules';
 
 import { CourseGenerationLoader } from '@/components/programs/CourseGenerationLoader';
@@ -225,8 +227,12 @@ export default function AdminProgramDraftReview() {
       const stamped: CourseDraft = structuredClone(draft);
       stamped.lessons.forEach((l, i) => {
         const rule = mode === 'per_lesson' ? rules.lesson_rules?.[String(i)] : undefined;
-        const pass = scored ? (rule?.passing_score ?? defaultPass) : 0;
+        // per-lesson mode: a lesson the creator did not switch on requires no score.
+        const pass = mode === 'per_lesson'
+          ? (rule?.passing_score ?? 0)
+          : scored ? defaultPass : 0;
         const tries = rule?.max_attempts ?? defaultTries;
+
         (l.slides || []).forEach((s) => {
           if (s.slide_type === 'quiz') {
             s.data = { ...(s.data || {}), passingScore: pass, maxAttempts: tries, revealAnswers: false };
@@ -519,8 +525,20 @@ export default function AdminProgramDraftReview() {
           </>
         ) : (
           <div className="space-y-4 max-w-3xl">
+            {/* Title + description (AI-assisted) */}
+            <CourseTitleCard
+              title={draft?.title || ''}
+              description={rules.description || ''}
+              tier={((job?.result_summary as any)?.tier === 'premium' ? 'premium' : 'standard')}
+              price={priceValue}
+              currency={currency}
+              onTitleChange={(v) => { setTitleDirty(true); setDraft((d) => (d ? { ...d, title: v } : d)); }}
+              onDescriptionChange={(v) => patchRules({ description: v })}
+            />
+
             {/* Cover image */}
             <CourseCoverCard
+
               orgId={project?.organization_id || currentOrg?.id}
               title={draft?.title || ''}
               tier={((job?.result_summary as any)?.tier === 'premium' ? 'premium' : 'standard')}
