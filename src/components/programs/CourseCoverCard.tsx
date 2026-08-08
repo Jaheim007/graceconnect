@@ -1,18 +1,18 @@
 /**
- * Course cover picker — three explicit ways to get a cover:
+ * Course cover picker — two ways only, both obvious:
  *   1. Upload an image from the device (most people already have one)
  *   2. Generate one with AI (uses credits)
- *   3. Paste a URL (e.g. a design made in Canva)
+ *
+ * No URL field: pasting a link confused creators and is not how they work.
  */
 import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/i18n/I18nContext';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { uploadEditorImage } from '@/lib/editorUpload';
-import { ImageIcon, Loader2, ExternalLink, Wand2, Upload, Trash2 } from 'lucide-react';
+import { ImageIcon, Loader2, Wand2, Upload, Trash2 } from 'lucide-react';
 
 interface Props {
   orgId?: string;
@@ -22,7 +22,7 @@ interface Props {
   onChange: (url: string | null) => void;
 }
 
-const CANVA_NEW_DESIGN = 'https://www.canva.com/design?create&type=TAEqBrs4Kk4&category=tACZCvjI6Ss';
+
 
 export function CourseCoverCard({ orgId, title, tier = 'standard', coverUrl, onChange }: Props) {
   const { locale } = useI18n();
