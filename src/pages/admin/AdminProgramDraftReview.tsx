@@ -35,7 +35,6 @@ import { CourseCompletionRules } from '@/components/programs/CourseCompletionRul
 
 import { CourseGenerationLoader } from '@/components/programs/CourseGenerationLoader';
 import { DraftBuyerPreview } from '@/components/programs/DraftBuyerPreview';
-import { useSetCoursePricing } from '@/hooks/useCourseCommerce';
 import { SUPPORTED_CURRENCIES } from '@/lib/currency';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -57,8 +56,6 @@ export default function AdminProgramDraftReview() {
   const updateDraft = useUpdateCourseDraft(projectId);
   const publishDraft = usePublishCourseDraft();
   const updateRules = useUpdateCourseRules(projectId);
-  const setPricing = useSetCoursePricing();
-
   // latest job for this project (to show progress while generation runs)
   const { data: latestJob } = useQuery({
     queryKey: ['course-draft-job', projectId],
