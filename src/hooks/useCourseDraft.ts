@@ -42,9 +42,12 @@ export interface LessonRule {
 /** Course rules chosen on the review screen, applied when publishing. */
 export interface CourseRules {
   cover_image_url?: string | null;
+  /** When false the quizzes stay informative: no score is required to move on. */
+  require_score?: boolean;
   passing_score?: number;
   max_quiz_attempts?: number;
   require_sequential_lessons?: boolean;
+
   gamification_enabled?: boolean;
   certificate_enabled?: boolean;
   /** Lesson index (as string) → override. Missing entries follow the defaults. */

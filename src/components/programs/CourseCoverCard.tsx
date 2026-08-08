@@ -1,18 +1,18 @@
 /**
- * Course cover picker — three explicit ways to get a cover:
+ * Course cover picker — two ways only, both obvious:
  *   1. Upload an image from the device (most people already have one)
  *   2. Generate one with AI (uses credits)
- *   3. Paste a URL (e.g. a design made in Canva)
+ *
+ * No URL field: pasting a link confused creators and is not how they work.
  */
 import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/i18n/I18nContext';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { uploadEditorImage } from '@/lib/editorUpload';
-import { ImageIcon, Loader2, ExternalLink, Wand2, Upload, Trash2 } from 'lucide-react';
+import { ImageIcon, Loader2, Wand2, Upload, Trash2 } from 'lucide-react';
 
 interface Props {
   orgId?: string;
@@ -22,7 +22,7 @@ interface Props {
   onChange: (url: string | null) => void;
 }
 
-const CANVA_NEW_DESIGN = 'https://www.canva.com/design?create&type=TAEqBrs4Kk4&category=tACZCvjI6Ss';
+
 
 export function CourseCoverCard({ orgId, title, tier = 'standard', coverUrl, onChange }: Props) {
   const { locale } = useI18n();
@@ -116,12 +116,6 @@ export function CourseCoverCard({ orgId, title, tier = 'standard', coverUrl, onC
               {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
               {isFr ? 'Générer avec l’IA' : 'Generate with AI'}
             </Button>
-            <Button size="sm" variant="outline" className="gap-1.5" asChild>
-              <a href={CANVA_NEW_DESIGN} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-3.5 w-3.5" />
-                {isFr ? 'Créer sur Canva' : 'Design on Canva'}
-              </a>
-            </Button>
             {coverUrl && (
               <Button size="sm" variant="ghost" className="gap-1.5 text-destructive" onClick={() => onChange(null)}>
                 <Trash2 className="h-3.5 w-3.5" />
@@ -130,17 +124,12 @@ export function CourseCoverCard({ orgId, title, tier = 'standard', coverUrl, onC
             )}
           </div>
 
-          <Input
-            value={coverUrl || ''}
-            onChange={(e) => onChange(e.target.value || null)}
-            placeholder={isFr ? 'ou collez le lien de votre image' : 'or paste your image link'}
-            className="h-9 text-[12px]"
-          />
           <p className="text-[11px] text-muted-foreground">
             {isFr
-              ? 'La génération IA utilise des crédits. Le téléversement et le lien sont gratuits.'
-              : 'AI generation uses credits. Uploading or pasting a link is free.'}
+              ? 'Le téléversement est gratuit. La génération par l’IA utilise des crédits.'
+              : 'Uploading is free. AI generation uses credits.'}
           </p>
+
         </div>
       </div>
     </div>

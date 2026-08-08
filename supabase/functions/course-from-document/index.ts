@@ -36,7 +36,7 @@ const TOPIC_SOURCE_CHARS = 9000;  // per-call prompt ceiling
  */
 const PIPELINE_SOFT_DEADLINE_MS = 260_000;
 /** Below this remaining budget we stop spending time (and credits) on images. */
-const IMAGE_MIN_REMAINING_MS = 45_000;
+const IMAGE_MIN_REMAINING_MS = 30_000;
 
 
 /**
@@ -388,17 +388,27 @@ async function runPipeline(ctx: {
         return lesson;
       }));
 
-      // ── Lesson background images (credit-debited, best effort, sequential) ──
-      for (let k = 0; k < generated.length; k++) {
-        const lesson = generated[k];
-        if (!imagesEnabled || imagesGenerated >= profile.maxImages) break;
-        if (remainingMs() <= IMAGE_MIN_REMAINING_MS) { imagesEnabled = false; break; }
-        const result = await generateLessonImage({
-          admin, ctx, lesson, index: start + k, profile,
+      // ── Lesson background images (credit-debited, best effort) ──
+      // Generated in PARALLEL for the batch: sequential generation on the
+      // premium model burned the wall clock and stopped images after ~6 lessons.
+      if (imagesEnabled && remainingMs() > IMAGE_MIN_REMAINING_MS) {
+        const eligible = generated
+          .map((lesson, k) => ({ lesson, index: start + k }))
+          .filter((_, k) => imagesGenerated + k < profile.maxImages);
+
+        const results = await Promise.all(eligible.map(({ lesson, index }) =>
+          generateLessonImage({ admin, ctx, lesson, index, profile })
+            .catch((e) => { console.warn('[course-from-document] image failed', index, e); return { url: null, stop: false }; }),
+        ));
+
+        results.forEach((result, k) => {
+          if (result.url) { eligible[k].lesson.image_url = result.url; imagesGenerated += 1; }
+          if (result.stop) imagesEnabled = false;
         });
-        if (result.url) { lesson.image_url = result.url; imagesGenerated += 1; }
-        if (result.stop) imagesEnabled = false;
+      } else if (imagesEnabled) {
+        imagesEnabled = false;
       }
+
 
       lessons.push(...generated);
       done = lessons.length;

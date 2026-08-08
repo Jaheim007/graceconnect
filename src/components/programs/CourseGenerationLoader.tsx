@@ -100,17 +100,25 @@ export function CourseGenerationLoader({ phase = 'generating', mode = 'ai', prog
   // Real progress acts as a FLOOR: the bar never goes backwards.
   useEffect(() => {
     if (typeof realProgress !== 'number') return;
-    setProgress((p) => Math.max(p, Math.min(99, realProgress)));
+    setProgress((p) => Math.max(p, Math.min(98, realProgress)));
   }, [realProgress]);
 
+  // Keep creeping forward so the wait always feels alive. When the server sends
+  // real progress we stay just a little ahead of it (never parked at 82%).
   useEffect(() => {
     if (phase === 'done') return;
-    const max = phase === 'saving' ? 95 : 82;
     const interval = setInterval(() => {
-      setProgress((p) => Math.max(Math.min(p + 0.25, max), typeof realProgress === 'number' ? Math.min(99, realProgress) : 0));
+      setProgress((p) => {
+        const floor = typeof realProgress === 'number' ? Math.min(98, realProgress) : 0;
+        const ceiling = typeof realProgress === 'number'
+          ? Math.min(98, realProgress + 6)
+          : (phase === 'saving' ? 96 : 90);
+        return Math.max(Math.min(p + 0.2, ceiling), floor);
+      });
     }, 350);
     return () => clearInterval(interval);
   }, [phase, realProgress]);
+
 
   // Rotating tips
   useEffect(() => {
