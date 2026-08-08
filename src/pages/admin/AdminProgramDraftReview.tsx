@@ -563,13 +563,27 @@ export default function AdminProgramDraftReview() {
               </p>
             </div>
 
+            {/* Ready-to-publish checklist — plain language, no jargon */}
+            <div className="rounded-xl border border-border bg-card p-3.5 space-y-2">
+              <p className="text-sm font-semibold">{isFr ? 'Prêt à publier ?' : 'Ready to publish?'}</p>
+              <ChecklistRow
+                ok={totals.lessons > 0 && !incomplete}
+                label={isFr ? `Contenu du cours (${totals.lessons} leçons)` : `Course content (${totals.lessons} lessons)`}
+              />
+              <ChecklistRow ok={!coverMissing} label={isFr ? 'Image de couverture' : 'Cover image'} />
+              <ChecklistRow
+                ok={priceValid}
+                label={isFr ? `Prix (${priceValue} ${currency})` : `Price (${priceValue} ${currency})`}
+              />
+            </div>
+
             <div className="flex justify-between gap-2">
               <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setStep(1)}>
                 <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Revoir le contenu' : 'Back to content'}
               </Button>
               <Button
                 size="sm" className="gap-1.5" onClick={handlePublish}
-                disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid}
+                disabled={publishDraft.isPending || totals.lessons === 0 || !priceValid || (coverMissing && !incomplete)}
               >
                 {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
                 {incomplete
@@ -577,6 +591,7 @@ export default function AdminProgramDraftReview() {
                   : (isFr ? 'Mettre le cours en ligne' : 'Put the course live')}
               </Button>
             </div>
+
           </div>
         )}
       </div>
