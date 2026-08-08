@@ -36,7 +36,7 @@ const TOPIC_SOURCE_CHARS = 9000;  // per-call prompt ceiling
  */
 const PIPELINE_SOFT_DEADLINE_MS = 260_000;
 /** Below this remaining budget we stop spending time (and credits) on images. */
-const IMAGE_MIN_REMAINING_MS = 45_000;
+const IMAGE_MIN_REMAINING_MS = 30_000;
 
 
 /**
