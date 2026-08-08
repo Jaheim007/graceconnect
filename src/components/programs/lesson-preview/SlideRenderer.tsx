@@ -86,7 +86,7 @@ function ScrollableContent({
 }: {
   captionStyle: CaptionStyle;
   captionClasses: Record<CaptionStyle, string>;
-  theme: ReturnType<typeof getSlideTheme>;
+  theme: ReturnType<typeof getSlideThemeFor>;
   children: React.ReactNode;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);

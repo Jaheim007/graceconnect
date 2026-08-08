@@ -10,10 +10,12 @@ import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, BookOpen, Edit, Trash2, Eye, EyeOff, Layers, ChevronRight, Zap, FileUp, PenLine, ChevronDown, Copy } from 'lucide-react';
+import { Plus, BookOpen, Edit, Trash2, Eye, EyeOff, Layers, ChevronRight, Zap, FileUp, PenLine, ChevronDown, Copy, Save } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrgCourseStats } from '@/hooks/useCourseCommerce';
 import { formatPrice } from '@/lib/currency';
+import { askConfirm } from '@/components/ui/confirm-dialog';
+import { useOrgCourseDrafts, useDeleteCourseDraft } from '@/hooks/useCourseDraft';
 import { CreateWithAIDialog } from '@/components/programs/CreateWithAIDialog';
 import { CreateBlankDialog } from '@/components/programs/CreateBlankDialog';
 import { ConvertDocumentDialog } from '@/components/programs/ConvertDocumentDialog';
@@ -44,6 +46,24 @@ export default function AdminPrograms() {
   const createProgram = useCreateProgram();
   const cloneProgram = useCloneProgram();
   const { data: courseStats } = useOrgCourseStats(currentOrg?.id, programs);
+  const { data: drafts = [] } = useOrgCourseDrafts(currentOrg?.id);
+  const deleteDraft = useDeleteCourseDraft();
+
+  const handleDeleteDraft = async (id: string, title: string) => {
+    const ok = await askConfirm({
+      title: isFr ? 'Supprimer ce brouillon ?' : 'Delete this draft?',
+      description: title,
+      confirmLabel: isFr ? 'Supprimer' : 'Delete',
+      destructive: true,
+    });
+    if (!ok) return;
+    try {
+      await deleteDraft.mutateAsync(id);
+      toast({ title: isFr ? 'Brouillon supprimé' : 'Draft deleted' });
+    } catch (e: any) {
+      toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
+    }
+  };
 
   const [showAI, setShowAI] = useState(false);
   const [showBlank, setShowBlank] = useState(false);
@@ -158,7 +178,7 @@ export default function AdminPrograms() {
                     size="icon"
                     variant="ghost"
                     className="h-7 w-7 text-destructive"
-                    onClick={() => setDraftDeleteTarget({ id: d.id, title: d.title })}
+                    onClick={() => handleDeleteDraft(d.id, d.title)}
                     aria-label={isFr ? 'Supprimer' : 'Delete'}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
