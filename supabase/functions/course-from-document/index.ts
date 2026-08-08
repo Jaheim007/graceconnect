@@ -349,46 +349,55 @@ async function runPipeline(ctx: {
     const lessons: DraftLesson[] = [];
     let truncated = false;
 
-    for (let i = 0; i < topics.length; i++) {
+    // Lessons are generated in small parallel batches: a premium course (18
+    // topics on a slower model) used to hit the wall clock after ~5 lessons.
+    const BATCH = 3;
+    let done = 0;
+
+    for (let start = 0; start < topics.length; start += BATCH) {
       // Wall-clock guard: finalise instead of getting killed mid-run.
-      if (i > 0 && remainingMs() <= 25_000) {
+      if (start > 0 && remainingMs() <= 30_000) {
         truncated = true;
-        console.warn('[course-from-document] soft deadline reached, finalising partial draft', { done: i, topics: topics.length });
+        console.warn('[course-from-document] soft deadline reached, finalising partial draft', { done, topics: topics.length });
         break;
       }
 
-      const topic = topics[i];
-      const excerpt = topic.text.slice(0, TOPIC_SOURCE_CHARS);
-      let lesson: DraftLesson;
-      try {
-        lesson = await generateLesson({
-          geminiKey: ctx.geminiKey, openaiKey: ctx.openaiKey, isFr,
-          heading: topic.heading, sourceExcerpt: excerpt, index: i, profile,
-        });
-      } catch (e) {
-        console.warn('[course-from-document] topic failed, keeping raw text', i, e);
-        lesson = fallbackLesson(topic.heading, excerpt, i, isFr, profile);
-      }
-      lesson.source_excerpt = excerpt.slice(0, 1200);
-      lesson.source_page = topic.page;
-
-      // ── Lesson background image (credit-debited, best effort) ──
-      if (imagesEnabled && imagesGenerated < profile.maxImages) {
-        if (remainingMs() <= IMAGE_MIN_REMAINING_MS) {
-          imagesEnabled = false;   // no budget left: keep generating text instead
-        } else {
-          const result = await generateLessonImage({
-            admin, ctx, lesson, index: i, profile,
+      const batch = topics.slice(start, start + BATCH);
+      const generated = await Promise.all(batch.map(async (topic, k) => {
+        const i = start + k;
+        const excerpt = topic.text.slice(0, TOPIC_SOURCE_CHARS);
+        let lesson: DraftLesson;
+        try {
+          lesson = await generateLesson({
+            geminiKey: ctx.geminiKey, openaiKey: ctx.openaiKey, isFr,
+            heading: topic.heading, sourceExcerpt: excerpt, index: i, profile,
           });
-          if (result.url) { lesson.image_url = result.url; imagesGenerated += 1; }
-          if (result.stop) imagesEnabled = false;
+        } catch (e) {
+          console.warn('[course-from-document] topic failed, keeping raw text', i, e);
+          lesson = fallbackLesson(topic.heading, excerpt, i, isFr, profile);
         }
+        lesson.source_excerpt = excerpt.slice(0, 1200);
+        lesson.source_page = topic.page;
+        return lesson;
+      }));
+
+      // ── Lesson background images (credit-debited, best effort, sequential) ──
+      for (let k = 0; k < generated.length; k++) {
+        const lesson = generated[k];
+        if (!imagesEnabled || imagesGenerated >= profile.maxImages) break;
+        if (remainingMs() <= IMAGE_MIN_REMAINING_MS) { imagesEnabled = false; break; }
+        const result = await generateLessonImage({
+          admin, ctx, lesson, index: start + k, profile,
+        });
+        if (result.url) { lesson.image_url = result.url; imagesGenerated += 1; }
+        if (result.stop) imagesEnabled = false;
       }
 
-      lessons.push(lesson);
+      lessons.push(...generated);
+      done = lessons.length;
 
-      await setProgress(admin, ctx.jobId, 15 + ((i + 1) / topics.length) * 80, 'generating', {
-        topics: topics.length, done: i + 1, tier: ctx.tier, images: imagesGenerated,
+      await setProgress(admin, ctx.jobId, 15 + (done / topics.length) * 80, 'generating', {
+        topics: topics.length, done, tier: ctx.tier, images: imagesGenerated,
       });
 
       // persist incrementally so a partial draft is never lost
@@ -397,6 +406,7 @@ async function runPipeline(ctx: {
         updated_at: new Date().toISOString(),
       }).eq('id', ctx.projectId);
     }
+
 
 
     await admin.from('ai_content_projects').update({
