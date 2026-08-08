@@ -82,6 +82,8 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
         title: file.name.replace(/\.[^.]+$/, ''),
         language: contentLanguage,
         tier,
+        generate_images: generateImages,
+
       });
 
       refreshCredits();
