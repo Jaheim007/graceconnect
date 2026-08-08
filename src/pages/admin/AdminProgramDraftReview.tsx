@@ -81,7 +81,6 @@ export default function AdminProgramDraftReview() {
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState(currentOrg?.currency || 'XOF');
   const [buyerPreview, setBuyerPreview] = useState(false);
-  const [previewFull, setPreviewFull] = useState(false);
 
   const minPrice = MIN_AI_COURSE_PRICE[currency] ?? MIN_AI_COURSE_PRICE.USD;
   const priceValue = Number(price) || 0;
@@ -120,6 +119,18 @@ export default function AdminProgramDraftReview() {
   // Force "draft" whenever the draft is incomplete
   useEffect(() => { if (incomplete && publishNow) setPublishNow(false); }, [incomplete, publishNow]);
 
+
+  // ── Auto-save ────────────────────────────────────────────────────────────
+  // The creator must never lose work: edits are pushed to the cloud draft a
+  // couple of seconds after they stop typing, and the pipeline itself persists
+  // each generated lesson. "Save" stays available but is only a shortcut.
+  useEffect(() => {
+    if (!dirty || !draft || generating) return;
+    const t = setTimeout(() => {
+      updateDraft.mutate(draft, { onSuccess: () => setDirty(false) });
+    }, 2500);
+    return () => clearTimeout(t);
+  }, [dirty, draft, generating]);
 
   const mutate = (fn: (d: CourseDraft) => CourseDraft) => {
     setDraft((prev) => (prev ? fn(structuredClone(prev)) : prev));
@@ -273,17 +284,7 @@ export default function AdminProgramDraftReview() {
               variant="outline"
               size="sm"
               className="gap-1.5"
-              onClick={() => { setPreviewFull(true); setBuyerPreview(true); }}
-              disabled={totals.slides === 0}
-            >
-              <Eye className="h-3.5 w-3.5" />
-              {isFr ? 'Aperçu complet' : 'Full preview'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => { setPreviewFull(false); setBuyerPreview(true); }}
+              onClick={() => setBuyerPreview(true)}
               disabled={totals.slides === 0}
             >
               <Eye className="h-3.5 w-3.5" />
@@ -609,7 +610,6 @@ export default function AdminProgramDraftReview() {
           price={priceValue}
           currency={currency}
           isFree={false}
-          initialUnlocked={previewFull}
           onClose={() => setBuyerPreview(false)}
 
         />
