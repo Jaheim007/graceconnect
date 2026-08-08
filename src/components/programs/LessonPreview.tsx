@@ -678,12 +678,12 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
           deviceMode={deviceMode}
           lessonImageUrl={current.lessonImageUrl}
           gamificationEnabled={gamificationEnabled}
+          passingScore={(program as any)?.passing_score ?? 0}
+          onContinue={() => goNext()}
+          onReview={() => goTo(0)}
           onComplete={(score, t) => {
             setAssessmentScore(score);
             setAssessmentTotal(t);
-            if (gamificationEnabled) {
-              setStarsEarned(s => s + score);
-            }
           }}
         />
       );
