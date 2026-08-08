@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
     const auth = await requireAuth(req);
     if (auth instanceof Response) return auth;
 
-    const { title, product_type, price, currency, language, tier, existing_description } = await req.json();
+    const { title, product_type, price, currency, language, tier, existing_description, audience, tone, extra_notes } = await req.json();
     if (!title || title.length < 3) return jsonResp({ error: 'Title is required (min 3 chars)' }, 400);
 
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
@@ -131,6 +131,9 @@ PRODUCT:
 - Type: ${typeLabel}
 - Price: ${priceText}
 ${existing_description ? `- Existing description (to improve): ${existing_description.slice(0, 500)}` : ''}
+${audience ? `- Target audience (write FOR these people, speak to them directly): ${String(audience).slice(0, 300)}` : ''}
+${tone ? `- Required tone of voice (respect it strictly): ${String(tone).slice(0, 120)}` : ''}
+${extra_notes ? `- Extra instructions from the creator: ${String(extra_notes).slice(0, 300)}` : ''}
 
 MANDATORY STRUCTURE (HTML only, NO markdown):
 ${instr.structure}
