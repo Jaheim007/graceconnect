@@ -23,17 +23,25 @@ import { useOrg } from '@/contexts/OrgContext';
 import { cn } from '@/lib/utils';
 import {
   ArrowLeft, ArrowUp, ArrowDown, Trash2, Plus, CheckCircle2, FileText,
-  HelpCircle, Loader2, Rocket, Quote, Eye, Tag,
+  HelpCircle, Loader2, Rocket, Quote, Eye, Tag, Lock, Layers,
 } from 'lucide-react';
 import {
-  useCourseDraftProject, useUpdateCourseDraft, usePublishCourseDraft,
-  useGenerationJob, type CourseDraft, type DraftLesson, type DraftSlide,
+  useCourseDraftProject, useUpdateCourseDraft, usePublishCourseDraft, useUpdateCourseRules,
+  useGenerationJob, type CourseDraft, type CourseRules, type DraftLesson, type DraftSlide,
 } from '@/hooks/useCourseDraft';
+import { CourseRulesCard } from '@/components/programs/CourseRulesCard';
 import { CourseGenerationLoader } from '@/components/programs/CourseGenerationLoader';
 import { DraftBuyerPreview } from '@/components/programs/DraftBuyerPreview';
 import { useSetCoursePricing } from '@/hooks/useCourseCommerce';
 import { SUPPORTED_CURRENCIES } from '@/lib/currency';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+/**
+ * How many lessons stay editable in the draft review. The creator checks the
+ * quality of the opening lessons; the rest of the course is delivered as
+ * generated and can be edited in the full course editor after publishing.
+ */
+const EDITABLE_LESSONS = 4;
 
 /** AI-generated courses can never be free — minimum price per currency. */
 const MIN_AI_COURSE_PRICE: Record<string, number> = {
@@ -52,6 +60,7 @@ export default function AdminProgramDraftReview() {
   const { data: project, isLoading } = useCourseDraftProject(projectId);
   const updateDraft = useUpdateCourseDraft(projectId);
   const publishDraft = usePublishCourseDraft();
+  const updateRules = useUpdateCourseRules(projectId);
   const setPricing = useSetCoursePricing();
 
   // latest job for this project (to show progress while generation runs)
@@ -81,6 +90,27 @@ export default function AdminProgramDraftReview() {
   const [price, setPrice] = useState('');
   const [currency, setCurrency] = useState(currentOrg?.currency || 'XOF');
   const [buyerPreview, setBuyerPreview] = useState(false);
+
+  // Course rules (cover, passing score, retries) — saved on the draft.
+  const [rules, setRules] = useState<CourseRules>({});
+  const [rulesLoaded, setRulesLoaded] = useState(false);
+  useEffect(() => {
+    if (rulesLoaded || !project) return;
+    setRules({
+      passing_score: 70,
+      max_quiz_attempts: 3,
+      require_sequential_lessons: true,
+      gamification_enabled: true,
+      certificate_enabled: true,
+      ...(project.data_json?.settings || {}),
+    });
+    setRulesLoaded(true);
+  }, [project, rulesLoaded]);
+
+  const patchRules = (patch: CourseRules) => {
+    setRules((r) => ({ ...r, ...patch }));
+    updateRules.mutate(patch);
+  };
 
   const minPrice = MIN_AI_COURSE_PRICE[currency] ?? MIN_AI_COURSE_PRICE.USD;
   const priceValue = Number(price) || 0;
@@ -122,6 +152,8 @@ export default function AdminProgramDraftReview() {
   }, [remoteCourse, project?.title, dirty]);
 
   const lesson: DraftLesson | undefined = draft?.lessons[selected];
+  /** Lessons past the editable window are shown read-only in this screen. */
+  const lessonLocked = selected >= EDITABLE_LESSONS;
   const totals = useMemo(() => ({
     lessons: draft?.lessons.length || 0,
     slides: draft?.lessons.reduce((n, l) => n + (l.slides?.length || 0), 0) || 0,
@@ -213,7 +245,11 @@ export default function AdminProgramDraftReview() {
 
     try {
       if (dirty) await updateDraft.mutateAsync(draft);
-      const result = await publishDraft.mutateAsync({ org_id: orgId, project_id: projectId, publish_now: publishNow && !incomplete });
+      const result = await publishDraft.mutateAsync({
+        org_id: orgId, project_id: projectId,
+        publish_now: publishNow && !incomplete,
+        settings: rules,
+      });
 
       // Apply pricing + keep the checkout product in sync (same flow as products)
       await setPricing.mutateAsync({
@@ -221,7 +257,7 @@ export default function AdminProgramDraftReview() {
         organization_id: orgId,
         title: draft.title,
         description: project?.data_json?.source?.prompt || null,
-        cover_image_url: null,
+        cover_image_url: rules.cover_image_url || null,
         is_free: false,
         price: priceValue,
         currency,
