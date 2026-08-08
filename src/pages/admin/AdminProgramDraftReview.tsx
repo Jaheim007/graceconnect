@@ -15,8 +15,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -29,7 +27,9 @@ import {
   useCourseDraftProject, useUpdateCourseDraft, usePublishCourseDraft, useUpdateCourseRules,
   useGenerationJob, type CourseDraft, type CourseRules, type DraftLesson, type DraftSlide,
 } from '@/hooks/useCourseDraft';
-import { CourseRulesCard } from '@/components/programs/CourseRulesCard';
+import { CourseCoverCard } from '@/components/programs/CourseCoverCard';
+import { CourseCompletionRules } from '@/components/programs/CourseCompletionRules';
+
 import { CourseGenerationLoader } from '@/components/programs/CourseGenerationLoader';
 import { DraftBuyerPreview } from '@/components/programs/DraftBuyerPreview';
 import { useSetCoursePricing } from '@/hooks/useCourseCommerce';
@@ -82,7 +82,7 @@ export default function AdminProgramDraftReview() {
 
   const [draft, setDraft] = useState<CourseDraft | null>(null);
   const [selected, setSelected] = useState(0);
-  const [publishNow, setPublishNow] = useState(false);
+  
   const [dirty, setDirty] = useState(false);
 
   // Pricing step — reuses the digital-product checkout (see useCourseCommerce).
@@ -169,8 +169,8 @@ export default function AdminProgramDraftReview() {
   );
   const incomplete = generating || job?.status === 'failed' || emptyLessons > 0 || totals.lessons === 0;
 
-  // Force "draft" whenever the draft is incomplete
-  useEffect(() => { if (incomplete && publishNow) setPublishNow(false); }, [incomplete, publishNow]);
+
+
 
 
   // ── Auto-save ────────────────────────────────────────────────────────────
@@ -244,12 +244,27 @@ export default function AdminProgramDraftReview() {
     }
 
     try {
-      if (dirty) await updateDraft.mutateAsync(draft);
+      // Per-lesson rules travel with the quiz slides so the learner player
+      // enforces exactly what the creator set for that lesson.
+      const stamped: CourseDraft = structuredClone(draft);
+      stamped.lessons.forEach((l, i) => {
+        const rule = rules.lesson_rules?.[String(i)];
+        const pass = rule?.passing_score ?? rules.passing_score ?? 70;
+        const tries = rule?.max_attempts ?? rules.max_quiz_attempts ?? 3;
+        (l.slides || []).forEach((s) => {
+          if (s.slide_type === 'quiz') {
+            s.data = { ...(s.data || {}), passingScore: pass, maxAttempts: tries, revealAnswers: false };
+          }
+        });
+      });
+      await updateDraft.mutateAsync(stamped);
+      setDraft(stamped);
       const result = await publishDraft.mutateAsync({
         org_id: orgId, project_id: projectId,
-        publish_now: publishNow && !incomplete,
+        publish_now: !incomplete,
         settings: rules,
       });
+
 
       // Apply pricing + keep the checkout product in sync (same flow as products)
       await setPricing.mutateAsync({
@@ -284,7 +299,11 @@ export default function AdminProgramDraftReview() {
     );
   }
 
-  if (generating && (draft?.lessons.length || 0) === 0) {
+  // Stay on the full-screen loader for the WHOLE generation. The review screen
+  // is only shown once everything that will be generated is there — never a
+  // second progress bar restarting from zero.
+  if (generating) {
+
     return (
       <AdminPageShell title={isFr ? 'Génération du cours' : 'Generating course'}>
         <CourseGenerationLoader
@@ -340,14 +359,6 @@ export default function AdminProgramDraftReview() {
                 {isFr ? 'Génération…' : 'Generating…'} {job?.progress ?? 0}%
               </Badge>
             )}
-            <div className="flex items-center gap-1.5 mr-1">
-              <Switch id="publish-now" checked={publishNow} onCheckedChange={setPublishNow} disabled={incomplete} />
-              <Label htmlFor="publish-now" className="text-[11px] text-muted-foreground">
-                {incomplete
-                  ? (isFr ? 'Reste en brouillon' : 'Stays a draft')
-                  : (isFr ? 'Publier tout de suite' : 'Publish immediately')}
-              </Label>
-            </div>
 
             <Button
               variant="outline"
@@ -363,13 +374,16 @@ export default function AdminProgramDraftReview() {
             <Button variant="outline" size="sm" onClick={handleSave} disabled={!dirty || updateDraft.isPending}>
               {updateDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : (isFr ? 'Enregistrer' : 'Save')}
             </Button>
+            {/* One clear action: publish when the draft is complete, otherwise
+                keep it as a draft. No confusing toggle. */}
             <Button size="sm" className="gap-1.5" onClick={handlePublish} disabled={publishDraft.isPending || generating || totals.lessons === 0 || !priceValid}>
               {publishDraft.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
               {incomplete
-                ? (isFr ? 'Enregistrer comme brouillon' : 'Save as draft')
-                : (isFr ? 'Publier comme cours' : 'Publish as course')}
+                ? (isFr ? 'Garder en brouillon' : 'Keep as draft')
+                : (isFr ? 'Mettre le cours en ligne' : 'Put the course live')}
             </Button>
           </div>
+
         </div>
 
         {/* Summary */}
@@ -456,20 +470,22 @@ export default function AdminProgramDraftReview() {
         </div>
 
 
-        {/* Course rules — cover + completion settings */}
-        <CourseRulesCard
+        {/* Cover image */}
+        <CourseCoverCard
           orgId={project?.organization_id || currentOrg?.id}
           title={draft?.title || ''}
           tier={((job?.result_summary as any)?.tier === 'premium' ? 'premium' : 'standard')}
+          coverUrl={rules.cover_image_url}
+          onChange={(url) => patchRules({ cover_image_url: url })}
+        />
+
+        {/* Completion rules — global defaults + per-lesson overrides */}
+        <CourseCompletionRules
           rules={rules}
+          lessons={(draft?.lessons || []).map((l) => ({ title: l.title }))}
           onChange={patchRules}
         />
 
-        <p className="text-[11px] text-muted-foreground">
-          {isFr
-            ? 'Chaque leçon se termine par son quiz ; les cartes mémo intercalées servent à réviser et affichent leur réponse. Les quiz de leçon ne comptent pas pour le certificat, qui dépend de l’évaluation finale du cours.'
-            : 'Each lesson ends with its quiz; the flashcards in between are for revision and do show their answer. Lesson quizzes do not count towards the certificate, which depends on the course-level assessment.'}
-        </p>
 
         {(totals.lessons > EDITABLE_LESSONS) && (
           <div className="rounded-xl border border-border bg-muted/40 p-3 text-[12px] text-muted-foreground flex items-start gap-2">
@@ -735,6 +751,7 @@ export default function AdminProgramDraftReview() {
           currency={currency}
           isFree={false}
           orgLogoUrl={(currentOrg as any)?.logo_url || null}
+          fallbackImageUrl={rules.cover_image_url || null}
           onClose={() => setBuyerPreview(false)}
 
         />

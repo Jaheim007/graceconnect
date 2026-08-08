@@ -27,6 +27,8 @@ interface DraftBuyerPreviewProps {
   isFree?: boolean;
   /** Platform logo, shown as the slide avatar (falls back to an initial). */
   orgLogoUrl?: string | null;
+  /** Used as the slide backdrop when no lesson illustration was generated. */
+  fallbackImageUrl?: string | null;
   onClose: () => void;
 }
 
@@ -39,7 +41,7 @@ interface FlatDraftSlide {
   previewable: boolean;
 }
 
-export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, orgLogoUrl, onClose }: DraftBuyerPreviewProps) {
+export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, orgLogoUrl, fallbackImageUrl, onClose }: DraftBuyerPreviewProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [index, setIndex] = useState(0);
@@ -59,7 +61,9 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
       const backdrop = lesson.image_url
         || lastImage
         || (draft.lessons || []).find((l) => l.image_url)?.image_url
+        || fallbackImageUrl
         || undefined;
+
       (lesson.slides || []).forEach((s, slideInLesson) => {
         const row: ProgramSlideRow = {
           id: `${lessonIndex}-${slideInLesson}`,
@@ -87,7 +91,7 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
       });
     });
     return flat;
-  }, [draft]);
+  }, [draft, fallbackImageUrl]);
 
   const current = slides[index];
   const lessonSegments = useMemo(() => {
