@@ -10,7 +10,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
-import { useActionCost } from '@/hooks/useCredits';
+import { useActionCost, useCreditsBalance } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useStartCourseDraft } from '@/hooks/useCourseDraft';
@@ -18,6 +18,7 @@ import { draftErrorMessage } from '@/lib/courseDraftErrors';
 import { Zap, BookOpen, HelpCircle, Plus, ImageIcon, Users, GraduationCap, MessageSquare, Palette, BarChart3, Settings2, Globe, Target, AlertTriangle, Wand2 } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 
 const SUGGESTIONS_FR = [
   { icon: BookOpen, text: 'Créer un cours de 10 minutes pour former le personnel au service client' },
@@ -62,7 +63,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const { toast } = useToast();
   const { handleAiError, refreshCredits, showCreditDialog, setShowCreditDialog, creditErrorMessage } = useCreditGuard();
   const { data: creditSummary } = useCreditsBalance();
-  const balance = creditSummary?.total_credits;
+  const balance = creditSummary?.balance;
 
   const queryClient = useQueryClient();
 
