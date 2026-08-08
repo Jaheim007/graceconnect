@@ -1,0 +1,1 @@
+ALTER TABLE public.programs ADD COLUMN IF NOT EXISTS certificate_design jsonb NOT NULL DEFAULT '{}'::jsonb;
