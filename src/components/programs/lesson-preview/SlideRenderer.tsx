@@ -82,13 +82,17 @@ function ScrollableContent({
   captionStyle,
   captionClasses: captionClassMap,
   theme,
+  hasImage,
   children,
 }: {
   captionStyle: CaptionStyle;
   captionClasses: Record<CaptionStyle, string>;
   theme: ReturnType<typeof getSlideThemeFor>;
+  /** When a real illustration sits behind, the card stays narrower so the photo reads. */
+  hasImage?: boolean;
   children: React.ReactNode;
 }) {
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScroll, setCanScroll] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(false);

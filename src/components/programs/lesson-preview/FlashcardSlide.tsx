@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { RotateCw, Star, Lightbulb, CheckCircle2 } from 'lucide-react';
+import { RotateCw, Lightbulb, CheckCircle2 } from 'lucide-react';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
 import { LessonImageBackdrop } from './LessonImageBackdrop';
