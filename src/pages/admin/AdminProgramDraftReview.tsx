@@ -29,7 +29,9 @@ import {
   useCourseDraftProject, useUpdateCourseDraft, usePublishCourseDraft, useUpdateCourseRules,
   useGenerationJob, type CourseDraft, type CourseRules, type DraftLesson, type DraftSlide,
 } from '@/hooks/useCourseDraft';
-import { CourseRulesCard } from '@/components/programs/CourseRulesCard';
+import { CourseCoverCard } from '@/components/programs/CourseCoverCard';
+import { CourseCompletionRules } from '@/components/programs/CourseCompletionRules';
+
 import { CourseGenerationLoader } from '@/components/programs/CourseGenerationLoader';
 import { DraftBuyerPreview } from '@/components/programs/DraftBuyerPreview';
 import { useSetCoursePricing } from '@/hooks/useCourseCommerce';
