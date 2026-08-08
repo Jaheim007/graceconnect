@@ -30,9 +30,22 @@ export default function CertificateVerifyPage() {
   const dateLoc = isFr ? fr : enUS;
   const [copied, setCopied] = useState(false);
 
+  // Preview mode: /verify/preview renders a sample certificate from the design
+  // the creator is currently editing (stored in sessionStorage). No DB read.
+  const isPreview = certNumber === 'preview';
+  const previewData = (() => {
+    if (!isPreview || typeof window === 'undefined') return null;
+    try {
+      const raw = sessionStorage.getItem('certificate-preview');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  })();
+
   // Public verification runs through the read-only RPC: the certificates table
   // itself is not readable by anonymous visitors.
-  const { data: certData, isLoading } = useQuery({
+  const { data: fetched, isLoading: fetching } = useQuery({
     queryKey: ['verify-certificate', certNumber],
     queryFn: async () => {
       if (!certNumber) return null;
@@ -43,8 +56,12 @@ export default function CertificateVerifyPage() {
       const row = Array.isArray(data) ? data[0] : data;
       return (row ?? null) as any;
     },
-    enabled: !!certNumber,
+    enabled: !!certNumber && !isPreview,
   });
+
+  const certData = isPreview ? previewData : fetched;
+  const isLoading = isPreview ? false : fetching;
+
 
   const isValid = !!certData;
   const recipientName = certData?.learner_name || (isFr ? 'Apprenant' : 'Learner');
@@ -142,7 +159,10 @@ export default function CertificateVerifyPage() {
               className="mx-auto mb-6 flex w-fit items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1.5 text-sm font-medium text-emerald-300 backdrop-blur"
             >
               <BadgeCheck className="h-4 w-4" />
-              {isFr ? 'Certificat authentique et vérifié' : 'Authentic, verified certificate'}
+              {isPreview
+                ? (isFr ? 'Aperçu — voici ce que vos apprenants partageront' : 'Preview — this is what your learners will share')
+                : (isFr ? 'Certificat authentique et vérifié' : 'Authentic, verified certificate')}
+
             </motion.div>
 
             {/* The certificate */}
@@ -218,7 +238,7 @@ export default function CertificateVerifyPage() {
                       </span>
                     ) : null}
                     <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 font-mono text-amber-200">
-                      N° {certNumber}
+                      N° {certData?.certificate_number || certNumber}
                     </span>
                   </div>
 
