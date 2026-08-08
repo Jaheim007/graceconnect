@@ -76,8 +76,9 @@ export function CourseCompletionRules({ rules, lessons, onChange }: Props) {
       id: 'per_lesson',
       title: isFr ? 'Un score différent selon la leçon' : 'A different score per lesson',
       help: isFr
-        ? 'Vous choisissez leçon par leçon (les autres suivent le réglage par défaut).'
-        : 'You choose lesson by lesson (the rest follow the default setting).',
+        ? 'Vous activez les leçons concernées et réglez chacune. Les leçons non activées n’exigent aucun score.'
+        : 'You switch on the lessons you want and set each one. Lessons left off require no score.',
+
     },
   ];
 
