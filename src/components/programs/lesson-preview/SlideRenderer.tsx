@@ -112,13 +112,13 @@ function ScrollableContent({
   }, [checkScroll, children]);
 
   return (
-    <div className="relative max-w-2xl w-full max-h-[75%]">
+    <div className="relative w-full max-w-3xl lg:max-w-4xl max-h-[86%]">
       <div
         ref={scrollRef}
           className={cn(
-            'rounded-xl w-full overflow-y-auto h-full',
+            'rounded-2xl w-full overflow-y-auto h-full',
             'scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
-            cn(captionClassMap[captionStyle], 'px-6 py-5', theme.captionGlow)
+            cn(captionClassMap[captionStyle], 'px-6 py-6 sm:px-8 sm:py-7', theme.captionGlow)
           )}
       >
         {children}

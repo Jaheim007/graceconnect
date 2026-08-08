@@ -25,6 +25,8 @@ interface DraftBuyerPreviewProps {
   price?: number;
   currency?: string;
   isFree?: boolean;
+  /** Platform logo, shown as the slide avatar (falls back to an initial). */
+  orgLogoUrl?: string | null;
   onClose: () => void;
 }
 
@@ -37,7 +39,7 @@ interface FlatDraftSlide {
   previewable: boolean;
 }
 
-export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, onClose }: DraftBuyerPreviewProps) {
+export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, orgLogoUrl, onClose }: DraftBuyerPreviewProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [index, setIndex] = useState(0);
@@ -49,7 +51,15 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
 
   const slides = useMemo<FlatDraftSlide[]>(() => {
     const flat: FlatDraftSlide[] = [];
+    // Image generation can stop before the last lesson (budget / time). Reuse
+    // the closest available illustration so every slide keeps a real backdrop.
+    let lastImage: string | undefined;
     (draft.lessons || []).forEach((lesson, lessonIndex) => {
+      if (lesson.image_url) lastImage = lesson.image_url;
+      const backdrop = lesson.image_url
+        || lastImage
+        || (draft.lessons || []).find((l) => l.image_url)?.image_url
+        || undefined;
       (lesson.slides || []).forEach((s, slideInLesson) => {
         const row: ProgramSlideRow = {
           id: `${lessonIndex}-${slideInLesson}`,
@@ -68,7 +78,7 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
           lessonTitle: lesson.title,
           slideInLesson,
           slide: rowToContentSlide(row),
-          lessonImageUrl: lesson.image_url || undefined,
+          lessonImageUrl: backdrop,
           // Same rule as published courses, minus creator-set free lessons
           // (a draft has no per-lesson free-preview flag yet).
           previewable: lessonIndex === 0 && slideInLesson <= PREVIEW_SLIDES_IN_FIRST_LESSON
@@ -142,6 +152,7 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
                 lessonTitle={current.lessonTitle}
                 moduleTitle={draft.title}
                 lessonImageUrl={current.lessonImageUrl}
+                orgLogoUrl={orgLogoUrl}
                 deviceMode="desktop"
               />
             ) : (

@@ -36,7 +36,7 @@ const TOPIC_SOURCE_CHARS = 9000;  // per-call prompt ceiling
  */
 const PIPELINE_SOFT_DEADLINE_MS = 260_000;
 /** Below this remaining budget we stop spending time (and credits) on images. */
-const IMAGE_MIN_REMAINING_MS = 120_000;
+const IMAGE_MIN_REMAINING_MS = 45_000;
 
 
 /**
@@ -48,6 +48,8 @@ const IMAGE_MIN_REMAINING_MS = 120_000;
  */
 interface TierProfile {
   maxTopics: number;
+  /** Never deliver fewer lessons than this when the source allows it. */
+  minTopics: number;
   minSlides: number;
   maxSlides: number;
   maxQuiz: number;
@@ -63,6 +65,7 @@ interface TierProfile {
 const TIER_PROFILES: Record<'standard' | 'premium', TierProfile> = {
   standard: {
     maxTopics: 12,
+    minTopics: 8,
     minSlides: 5,
     maxSlides: 8,
     maxQuiz: 3,
@@ -76,6 +79,7 @@ const TIER_PROFILES: Record<'standard' | 'premium', TierProfile> = {
   },
   premium: {
     maxTopics: 18,
+    minTopics: 14,
     minSlides: 8,
     maxSlides: 12,
     maxQuiz: 4,
@@ -303,8 +307,41 @@ async function runPipeline(ctx: {
       sourceText = outline;
     }
 
-    const topics = segmentIntoTopics(sourceText, { maxTopics: profile.maxTopics });
+    let topics = segmentIntoTopics(sourceText, { maxTopics: profile.maxTopics });
+
+    // The tier promise is a LESSON COUNT. A short/merged outline used to leave a
+    // premium course with 5 lessons. If segmentation under-delivers in prompt
+    // mode, ask for a titles-only plan and build one topic per title.
+    if (ctx.source !== 'document' && topics.length < profile.minTopics) {
+      try {
+        const planRaw = await aiGenerateText({
+          geminiKey: ctx.geminiKey, openaiKey: ctx.openaiKey,
+          model: profile.model,
+          system: isFr
+            ? 'Tu es concepteur pédagogique. Réponds uniquement en JSON valide.'
+            : 'You are an instructional designer. Reply with valid JSON only.',
+          prompt: isFr
+            ? `Plan de cours sur "${ctx.prompt}". Renvoie exactement ${profile.maxTopics} titres de leçons progressifs, sans doublon : {"lessons":["titre 1", ...]}`
+            : `Course plan about "${ctx.prompt}". Return exactly ${profile.maxTopics} progressive, non-duplicate lesson titles: {"lessons":["title 1", ...]}`,
+          temperature: 0.6, maxOutputTokens: 1200, jsonMode: true,
+        });
+        const titles: string[] = ((extractJson(planRaw) as any)?.lessons || [])
+          .map((t: any) => String(t).slice(0, 120)).filter(Boolean).slice(0, profile.maxTopics);
+        if (titles.length > topics.length) {
+          topics = titles.map((heading, i) => ({
+            index: i,
+            heading,
+            page: null,
+            text: `${isFr ? 'SUJET DU COURS' : 'COURSE SUBJECT'}: ${ctx.prompt}\n\n${isFr ? 'LEÇON' : 'LESSON'} ${i + 1}: ${heading}\n\n${sourceText.slice(0, 4000)}`,
+          })) as typeof topics;
+        }
+      } catch (e) {
+        console.warn('[course-from-document] titles-only plan failed', e);
+      }
+    }
+
     await setProgress(admin, ctx.jobId, 15, 'segmenting', { topics: topics.length, tier: ctx.tier });
+
 
     const startedAt = Date.now();
     const remainingMs = () => PIPELINE_SOFT_DEADLINE_MS - (Date.now() - startedAt);
@@ -312,46 +349,55 @@ async function runPipeline(ctx: {
     const lessons: DraftLesson[] = [];
     let truncated = false;
 
-    for (let i = 0; i < topics.length; i++) {
+    // Lessons are generated in small parallel batches: a premium course (18
+    // topics on a slower model) used to hit the wall clock after ~5 lessons.
+    const BATCH = 3;
+    let done = 0;
+
+    for (let start = 0; start < topics.length; start += BATCH) {
       // Wall-clock guard: finalise instead of getting killed mid-run.
-      if (i > 0 && remainingMs() <= 25_000) {
+      if (start > 0 && remainingMs() <= 30_000) {
         truncated = true;
-        console.warn('[course-from-document] soft deadline reached, finalising partial draft', { done: i, topics: topics.length });
+        console.warn('[course-from-document] soft deadline reached, finalising partial draft', { done, topics: topics.length });
         break;
       }
 
-      const topic = topics[i];
-      const excerpt = topic.text.slice(0, TOPIC_SOURCE_CHARS);
-      let lesson: DraftLesson;
-      try {
-        lesson = await generateLesson({
-          geminiKey: ctx.geminiKey, openaiKey: ctx.openaiKey, isFr,
-          heading: topic.heading, sourceExcerpt: excerpt, index: i, profile,
-        });
-      } catch (e) {
-        console.warn('[course-from-document] topic failed, keeping raw text', i, e);
-        lesson = fallbackLesson(topic.heading, excerpt, i, isFr, profile);
-      }
-      lesson.source_excerpt = excerpt.slice(0, 1200);
-      lesson.source_page = topic.page;
-
-      // ── Lesson background image (credit-debited, best effort) ──
-      if (imagesEnabled && imagesGenerated < profile.maxImages) {
-        if (remainingMs() <= IMAGE_MIN_REMAINING_MS) {
-          imagesEnabled = false;   // no budget left: keep generating text instead
-        } else {
-          const result = await generateLessonImage({
-            admin, ctx, lesson, index: i, profile,
+      const batch = topics.slice(start, start + BATCH);
+      const generated = await Promise.all(batch.map(async (topic, k) => {
+        const i = start + k;
+        const excerpt = topic.text.slice(0, TOPIC_SOURCE_CHARS);
+        let lesson: DraftLesson;
+        try {
+          lesson = await generateLesson({
+            geminiKey: ctx.geminiKey, openaiKey: ctx.openaiKey, isFr,
+            heading: topic.heading, sourceExcerpt: excerpt, index: i, profile,
           });
-          if (result.url) { lesson.image_url = result.url; imagesGenerated += 1; }
-          if (result.stop) imagesEnabled = false;
+        } catch (e) {
+          console.warn('[course-from-document] topic failed, keeping raw text', i, e);
+          lesson = fallbackLesson(topic.heading, excerpt, i, isFr, profile);
         }
+        lesson.source_excerpt = excerpt.slice(0, 1200);
+        lesson.source_page = topic.page;
+        return lesson;
+      }));
+
+      // ── Lesson background images (credit-debited, best effort, sequential) ──
+      for (let k = 0; k < generated.length; k++) {
+        const lesson = generated[k];
+        if (!imagesEnabled || imagesGenerated >= profile.maxImages) break;
+        if (remainingMs() <= IMAGE_MIN_REMAINING_MS) { imagesEnabled = false; break; }
+        const result = await generateLessonImage({
+          admin, ctx, lesson, index: start + k, profile,
+        });
+        if (result.url) { lesson.image_url = result.url; imagesGenerated += 1; }
+        if (result.stop) imagesEnabled = false;
       }
 
-      lessons.push(lesson);
+      lessons.push(...generated);
+      done = lessons.length;
 
-      await setProgress(admin, ctx.jobId, 15 + ((i + 1) / topics.length) * 80, 'generating', {
-        topics: topics.length, done: i + 1, tier: ctx.tier, images: imagesGenerated,
+      await setProgress(admin, ctx.jobId, 15 + (done / topics.length) * 80, 'generating', {
+        topics: topics.length, done, tier: ctx.tier, images: imagesGenerated,
       });
 
       // persist incrementally so a partial draft is never lost
@@ -360,6 +406,7 @@ async function runPipeline(ctx: {
         updated_at: new Date().toISOString(),
       }).eq('id', ctx.projectId);
     }
+
 
 
     await admin.from('ai_content_projects').update({

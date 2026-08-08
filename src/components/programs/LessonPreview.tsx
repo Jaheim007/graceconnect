@@ -221,8 +221,11 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
       const modLessons = (mod as any).lessons || [];
 
       for (const lesson of modLessons) {
-        const { lessonImageUrl, cleanedHtml } = extractLessonMedia(lesson.content || '');
-        if (lessonImageUrl) lastLessonImageUrl = lessonImageUrl;
+        const { lessonImageUrl: ownImageUrl, cleanedHtml } = extractLessonMedia(lesson.content || '');
+        if (ownImageUrl) lastLessonImageUrl = ownImageUrl;
+        // Illustration generation can stop early: reuse the closest available
+        // image so no lesson falls back to a bare gradient.
+        const lessonImageUrl = ownImageUrl || lastLessonImageUrl;
 
         slides.push({
           lessonId: lesson.id,
