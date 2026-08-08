@@ -456,20 +456,22 @@ export default function AdminProgramDraftReview() {
         </div>
 
 
-        {/* Course rules — cover + completion settings */}
-        <CourseRulesCard
+        {/* Cover image */}
+        <CourseCoverCard
           orgId={project?.organization_id || currentOrg?.id}
           title={draft?.title || ''}
           tier={((job?.result_summary as any)?.tier === 'premium' ? 'premium' : 'standard')}
+          coverUrl={rules.cover_image_url}
+          onChange={(url) => patchRules({ cover_image_url: url })}
+        />
+
+        {/* Completion rules — global defaults + per-lesson overrides */}
+        <CourseCompletionRules
           rules={rules}
+          lessons={(draft?.lessons || []).map((l) => ({ title: l.title }))}
           onChange={patchRules}
         />
 
-        <p className="text-[11px] text-muted-foreground">
-          {isFr
-            ? 'Chaque leçon se termine par son quiz ; les cartes mémo intercalées servent à réviser et affichent leur réponse. Les quiz de leçon ne comptent pas pour le certificat, qui dépend de l’évaluation finale du cours.'
-            : 'Each lesson ends with its quiz; the flashcards in between are for revision and do show their answer. Lesson quizzes do not count towards the certificate, which depends on the course-level assessment.'}
-        </p>
 
         {(totals.lessons > EDITABLE_LESSONS) && (
           <div className="rounded-xl border border-border bg-muted/40 p-3 text-[12px] text-muted-foreground flex items-start gap-2">
