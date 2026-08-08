@@ -193,8 +193,8 @@ export function CourseCompletionRules({ rules, lessons, onChange }: Props) {
             <p className="text-[12px] font-medium">{isFr ? 'Leçon par leçon' : 'Lesson by lesson'}</p>
             <p className="text-[11px] text-muted-foreground">
               {isFr
-                ? 'Activez une leçon pour lui donner son propre score et ses propres essais.'
-                : 'Switch a lesson on to give it its own score and retries.'}
+                ? 'Activez les leçons où un score est demandé, puis choisissez le score et les essais de chacune. Les leçons laissées désactivées n’exigent aucun score.'
+                : 'Switch on the lessons where a score is required, then set the score and retries for each. Lessons left off require no score.'}
             </p>
           </div>
           <div className="divide-y divide-border">
@@ -214,9 +214,10 @@ export function CourseCompletionRules({ rules, lessons, onChange }: Props) {
                       <p className="text-[11px] text-muted-foreground">
                         {custom
                           ? `${score}% · ${attemptLabel(tries, isFr)}`
-                          : (isFr ? 'Suit le réglage par défaut' : 'Follows the default setting')}
+                          : (isFr ? 'Aucun score demandé' : 'No score required')}
                       </p>
                     </div>
+
                     <Switch
                       checked={custom}
                       onCheckedChange={(v) => setLessonRule(i, v ? { passing_score: passing, max_attempts: attempts } : null)}
