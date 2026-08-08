@@ -680,7 +680,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
           gamificationEnabled={gamificationEnabled}
           passingScore={(program as any)?.passing_score ?? 0}
           onContinue={() => goNext()}
-          onReview={() => goTo(0)}
+          onReview={() => setCurrentIndex(0)}
           onComplete={(score, t) => {
             setAssessmentScore(score);
             setAssessmentTotal(t);
