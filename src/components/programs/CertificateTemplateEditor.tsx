@@ -44,18 +44,42 @@ export function CertificateTemplateEditor({
   const footerText = design.footer_text ?? orgName;
   const name = learnerName || t('Nom de l’apprenant', 'Learner name');
 
+  const openPublicPreview = () => {
+    try {
+      sessionStorage.setItem('certificate-preview', JSON.stringify({
+        learner_name: name,
+        course_title: courseTitle || t('Titre du cours', 'Course title'),
+        organization_name: orgName,
+        organization_logo_url: orgLogo || null,
+        certificate_number: 'PREVIEW-0000',
+        issued_at: new Date().toISOString(),
+        program_cover_url: design.cover_image_url || null,
+        lesson_titles: lessons.map((l) => l.title),
+        certificate_design: design,
+      }));
+    } catch { /* sessionStorage unavailable — page falls back to "not found" */ }
+    window.open('/verify/preview', '_blank', 'noopener');
+  };
+
   return (
     <div className="bg-card border border-border rounded-2xl p-5 space-y-5">
-      <div className="flex items-center gap-2">
-        <Award className="h-4 w-4 text-primary" />
-        <div>
-          <h3 className="font-semibold text-sm">{t('Modèle de certificat', 'Certificate template')}</h3>
-          <p className="text-[11px] text-muted-foreground">
-            {t('Ce que l’apprenant reçoit et peut imprimer à la fin du cours.',
-               'What the learner receives and can print at the end of the course.')}
-          </p>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Award className="h-4 w-4 text-primary" />
+          <div>
+            <h3 className="font-semibold text-sm">{t('Modèle de certificat', 'Certificate template')}</h3>
+            <p className="text-[11px] text-muted-foreground">
+              {t('Ce que l’apprenant reçoit et peut imprimer à la fin du cours.',
+                 'What the learner receives and can print at the end of the course.')}
+            </p>
+          </div>
         </div>
+        <Button type="button" variant="outline" size="sm" className="gap-1.5 text-xs shrink-0" onClick={openPublicPreview}>
+          <ExternalLink className="h-3.5 w-3.5" />
+          {t('Aperçu de la page publique', 'Preview public page')}
+        </Button>
       </div>
+
 
       {/* Live preview */}
       <div className="mx-auto w-full max-w-[420px] rounded-xl border border-border overflow-hidden bg-background aspect-[1414/2000] flex flex-col">
