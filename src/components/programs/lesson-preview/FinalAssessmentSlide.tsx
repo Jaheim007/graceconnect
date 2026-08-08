@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, CheckCircle2, XCircle, Trophy, ChevronRight, Award } from 'lucide-react';
+import { CheckCircle2, Trophy, ChevronRight, Award, RotateCcw } from 'lucide-react';
 import type { QuizData } from './parseContentSlides';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
@@ -20,11 +20,18 @@ interface FinalAssessmentSlideProps {
   lessonImageUrl?: string;
   onComplete: (score: number, total: number) => void;
   gamificationEnabled?: boolean;
+  /** Minimum percentage required to pass (0 = no requirement) */
+  passingScore?: number;
+  /** Move on once passed */
+  onContinue?: () => void;
+  /** Send the learner back to review the course content */
+  onReview?: () => void;
 }
 
 export function FinalAssessmentSlide({
   questions, theme, slideIndex, totalSlides, lessonTitle,
-  orgLogoUrl, deviceMode, lessonImageUrl, onComplete, gamificationEnabled = true,
+  orgLogoUrl, deviceMode, lessonImageUrl, onComplete, gamificationEnabled = false,
+  passingScore = 0, onContinue, onReview,
 }: FinalAssessmentSlideProps) {
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(new Array(questions.length).fill(null));
@@ -35,14 +42,21 @@ export function FinalAssessmentSlide({
   const isFr = locale === 'fr';
 
   const question = questions[currentQ];
-  const isCorrect = answers[currentQ] === question?.correctIndex;
 
   const handleSelect = (idx: number) => {
     if (revealed) return;
+    // Answers are recorded but never graded on screen.
     const newAnswers = [...answers];
     newAnswers[currentQ] = idx;
     setAnswers(newAnswers);
     setRevealed(true);
+  };
+
+  const handleRetry = () => {
+    setAnswers(new Array(questions.length).fill(null));
+    setCurrentQ(0);
+    setRevealed(false);
+    setFinished(false);
   };
 
   const handleNext = () => {
@@ -60,7 +74,7 @@ export function FinalAssessmentSlide({
 
   if (finished) {
     const pct = Math.round((score / questions.length) * 100);
-    const starRating = Math.round((score / questions.length) * 5);
+    const passed = passingScore <= 0 || pct >= passingScore;
 
     return (
       <div className={cn('h-full flex flex-col text-white relative overflow-hidden bg-gradient-to-br', theme.gradient)}>
@@ -68,36 +82,41 @@ export function FinalAssessmentSlide({
         <SlideDecoration theme={theme} />
         <div className="flex-1 flex flex-col items-center justify-center px-6 relative z-10">
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 10, delay: 0.2 }} className="mb-6">
-            <Trophy className={cn('h-16 w-16', pct >= 80 ? 'text-yellow-400' : pct >= 50 ? 'text-blue-400' : 'text-white/50')} />
+            <Trophy className={cn('h-16 w-16', passed ? 'text-emerald-400' : 'text-white/50')} />
           </motion.div>
-          <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-2xl font-bold mb-2 text-center">
-            {pct >= 80
-              ? (isFr ? '🔥 Excellent !' : '🔥 Excellent!')
-              : pct >= 50
-                ? (isFr ? '👏 Bien joué !' : '👏 Well done!')
-                : (isFr ? '💪 Courage !' : '💪 Keep trying!')}
+          <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-2xl font-bold mb-2 text-center">
+            {passed
+              ? (isFr ? 'Évaluation réussie !' : 'Assessment passed!')
+              : (isFr ? 'Pas encore atteint' : 'Not passed yet')}
           </motion.h2>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="text-4xl font-bold mb-1">
+            {pct}%
+          </motion.div>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-white/70 text-sm mb-6 text-center">
-            {score} / {questions.length} {isFr ? 'réponses correctes' : 'correct answers'} ({pct}%)
+            {score} / {questions.length} {isFr ? 'réponses correctes' : 'correct answers'}
+            {passingScore > 0 && ` • ${isFr ? 'Minimum requis' : 'Required'}: ${passingScore}%`}
           </motion.p>
-          {gamificationEnabled && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="flex items-center gap-1.5 mb-6">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <motion.div key={s} initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }} transition={{ delay: 0.7 + s * 0.1, type: 'spring' }}>
-                  <Star className={cn('h-8 w-8 transition-colors', s <= starRating ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]' : 'text-white/20')} />
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2">
-            <Award className="h-4 w-4 text-primary" />
-            <span className="text-xs font-medium">
-              {pct >= 80
-                ? (isFr ? 'Maîtrise confirmée !' : 'Mastery confirmed!')
-                : pct >= 50
-                  ? (isFr ? 'En bonne voie !' : 'On track!')
-                  : (isFr ? 'Révisez et réessayez !' : 'Review and try again!')}
-            </span>
+
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="flex flex-col sm:flex-row items-stretch gap-2 w-full max-w-xs">
+            {passed ? (
+              <Button onClick={() => onContinue?.()} className="gap-2 bg-white text-slate-900 hover:bg-white/90">
+                {isFr ? 'Continuer' : 'Continue'}
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            ) : (
+              <>
+                <Button onClick={handleRetry} className="gap-2 bg-white text-slate-900 hover:bg-white/90">
+                  <RotateCcw className="h-4 w-4" />
+                  {isFr ? 'Refaire l\u2019évaluation' : 'Retake the assessment'}
+                </Button>
+                {onReview && (
+                  <Button variant="ghost" onClick={onReview} className="gap-2 text-white hover:bg-white/10">
+                    <Award className="h-4 w-4" />
+                    {isFr ? 'Revoir le cours' : 'Review the course'}
+                  </Button>
+                )}
+              </>
+            )}
           </motion.div>
         </div>
       </div>
@@ -130,7 +149,7 @@ export function FinalAssessmentSlide({
             className={cn(
               'h-1.5 rounded-full flex-1 transition-all duration-300',
               i < currentQ
-                ? answers[i] === questions[i].correctIndex ? 'bg-emerald-400' : 'bg-red-400'
+                ? 'bg-white/70'
                 : i === currentQ ? 'bg-white/60' : 'bg-white/15'
             )}
           />
@@ -160,7 +179,6 @@ export function FinalAssessmentSlide({
 
             <div className="flex flex-col gap-2.5">
               {question.options.map((option, idx) => {
-                const isThisCorrect = idx === question.correctIndex;
                 const isSelected = idx === answers[currentQ];
                 return (
                   <motion.button
@@ -174,11 +192,9 @@ export function FinalAssessmentSlide({
                     className={cn(
                       'relative text-left rounded-xl px-4 py-3 transition-all duration-200 text-sm font-medium border-2',
                       revealed
-                        ? isThisCorrect
-                          ? 'bg-emerald-500/20 border-emerald-400 text-white'
-                          : isSelected
-                            ? 'bg-red-500/20 border-red-400 text-white/70'
-                            : 'bg-white/5 border-white/10 text-white/40'
+                        ? isSelected
+                          ? 'bg-white/25 border-white/70 text-white'
+                          : 'bg-white/5 border-white/10 text-white/40'
                         : 'bg-white/95 text-slate-800 border-white/80 hover:bg-white cursor-pointer shadow-lg'
                     )}
                     disabled={revealed}
@@ -187,16 +203,12 @@ export function FinalAssessmentSlide({
                       <div className={cn(
                         'h-6 w-6 rounded-full border-2 flex items-center justify-center shrink-0 text-xs font-bold',
                         revealed
-                          ? isThisCorrect
-                            ? 'border-emerald-400 bg-emerald-400 text-white'
-                            : isSelected
-                              ? 'border-red-400 bg-red-400 text-white'
-                              : 'border-white/20 text-white/30'
+                          ? isSelected
+                            ? 'border-white bg-white/20 text-white'
+                            : 'border-white/20 text-white/30'
                           : 'border-slate-300 text-slate-500'
                       )}>
-                        {revealed && isThisCorrect ? <CheckCircle2 className="h-4 w-4" /> :
-                         revealed && isSelected ? <XCircle className="h-4 w-4" /> :
-                         String.fromCharCode(65 + idx)}
+                        {revealed && isSelected ? <CheckCircle2 className="h-4 w-4" /> : String.fromCharCode(65 + idx)}
                       </div>
                       <span className="flex-1">{option}</span>
                     </div>
@@ -208,20 +220,15 @@ export function FinalAssessmentSlide({
             <AnimatePresence>
               {revealed && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-                  {question.explanation && (
-                    <div className={cn(
-                      'rounded-lg px-4 py-3 text-xs border',
-                      isCorrect
-                        ? 'bg-emerald-500/10 border-emerald-400/30 text-emerald-300'
-                        : 'bg-amber-500/10 border-amber-400/30 text-amber-300'
-                    )}>
-                      {isCorrect ? '✅ ' : '💡 '}{question.explanation}
-                    </div>
-                  )}
+                  <p className="text-xs text-white/70">
+                    {isFr
+                      ? 'Réponse enregistrée — votre score s\u2019affichera à la fin.'
+                      : 'Answer recorded — your score appears at the end.'}
+                  </p>
                   <Button onClick={handleNext} size="sm" className="w-full gap-2 bg-white/15 hover:bg-white/25 text-white border-0">
                     {currentQ < questions.length - 1
                       ? (isFr ? 'Question suivante' : 'Next question')
-                      : (isFr ? 'Voir les résultats' : 'See results')}
+                      : (isFr ? 'Voir mon score' : 'See my score')}
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </motion.div>

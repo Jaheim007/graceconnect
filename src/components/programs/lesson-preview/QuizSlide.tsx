@@ -58,7 +58,9 @@ export function QuizSlide({
   const isMobile = deviceMode === 'mobile';
   // Graded quizzes hide the answer: the learner only sees whether they passed
   // once the whole lesson quiz is done.
-  const showAnswer = quiz.revealAnswers !== false;
+  // Correct answers are never revealed to the learner: answers are recorded and
+  // only the final score is shown at the end of the quiz.
+  const showAnswer = false;
   const revealed = answered && showAnswer;
   const isCorrect = selected === quiz.correctIndex;
   const { locale } = useI18n();

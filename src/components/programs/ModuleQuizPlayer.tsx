@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  CheckCircle2, XCircle, Star, Trophy, RotateCcw, ChevronRight, Lock, Lightbulb
+  CheckCircle2, XCircle, Trophy, RotateCcw, ChevronRight, BookOpen
 } from 'lucide-react';
 import { useQuizAttempts, useSubmitQuizAttempt } from '@/hooks/useModuleQuiz';
 
@@ -15,9 +15,11 @@ interface ModuleQuizPlayerProps {
   moduleTitle: string;
   onComplete: (passed: boolean, score: number, total: number, starsEarned: number) => void;
   gamificationEnabled?: boolean;
+  /** Send the learner back to the beginning of the lesson */
+  onReview?: () => void;
 }
 
-export function ModuleQuizPlayer({ quiz, moduleTitle, onComplete, gamificationEnabled = true }: ModuleQuizPlayerProps) {
+export function ModuleQuizPlayer({ quiz, moduleTitle, onComplete, gamificationEnabled = false, onReview }: ModuleQuizPlayerProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
@@ -61,22 +63,17 @@ export function ModuleQuizPlayer({ quiz, moduleTitle, onComplete, gamificationEn
   }, [showResult, answers, questions, passingScore]);
 
   const handleAnswer = (answer: number | string) => {
-    if (submitted) return;
+    // Answers are recorded silently — correctness is never shown per question.
     setAnswers(prev => ({ ...prev, [currentQ]: answer }));
-    setSubmitted(true);
-    setShowExplanation(currentQ);
+  };
 
-    // Auto-advance after 1.5s
-    setTimeout(() => {
-      setSubmitted(false);
-      setShowExplanation(null);
-      if (currentQ < questions.length - 1) {
-        setCurrentQ(prev => prev + 1);
-        setFillBlankInput('');
-      } else {
-        setShowResult(true);
-      }
-    }, 2000);
+  const goToNextQuestion = () => {
+    if (currentQ < questions.length - 1) {
+      setCurrentQ(prev => prev + 1);
+      setFillBlankInput('');
+    } else {
+      setShowResult(true);
+    }
   };
 
   const handleSubmitResults = async () => {
@@ -155,38 +152,30 @@ export function ModuleQuizPlayer({ quiz, moduleTitle, onComplete, gamificationEn
           {` • ${isFr ? 'Minimum requis' : 'Required'}: ${passingScore}%`}
         </p>
 
-        {gamificationEnabled && result.starsEarned > 0 && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="flex items-center gap-1"
-          >
-            {Array.from({ length: result.starsEarned }).map((_, i) => (
-              <Star key={i} className="h-6 w-6 fill-yellow-400 text-yellow-400" />
-            ))}
-            <span className="text-sm font-medium ml-1">+{result.starsEarned}</span>
-          </motion.div>
-        )}
-
-        <div className="flex items-center gap-2 pt-2">
+        <div className="flex flex-col sm:flex-row items-stretch gap-2 pt-2 w-full max-w-xs">
           {result.passed ? (
             <Button onClick={handleSubmitResults} className="gap-1.5">
-              {isFr ? 'Continuer' : 'Continue'} <ChevronRight className="h-4 w-4" />
+              {isFr ? 'Leçon suivante' : 'Next lesson'} <ChevronRight className="h-4 w-4" />
             </Button>
           ) : (
             <>
-              {canRetry ? (
-                <Button onClick={handleRetry} variant="outline" className="gap-1.5">
-                  <RotateCcw className="h-4 w-4" /> {isFr ? 'Réessayer' : 'Retry'}
+              {canRetry && (
+                <Button onClick={handleRetry} className="gap-1.5">
+                  <RotateCcw className="h-4 w-4" /> {isFr ? 'Refaire le quiz' : 'Retake the quiz'}
                 </Button>
-              ) : (
+              )}
+              <Button
+                variant="outline"
+                onClick={() => { void handleSubmitResults(); onReview?.(); }}
+                className="gap-1.5"
+              >
+                <BookOpen className="h-4 w-4" /> {isFr ? 'Revoir la leçon' : 'Review the lesson'}
+              </Button>
+              {!canRetry && (
                 <p className="text-xs text-destructive">
                   {isFr ? 'Nombre maximum de tentatives atteint.' : 'Maximum attempts reached.'}
                 </p>
               )}
-              <Button onClick={handleSubmitResults} variant="ghost" className="text-xs">
-                {isFr ? 'Voir les résultats' : 'View results'}
-              </Button>
             </>
           )}
         </div>
@@ -246,26 +235,10 @@ export function ModuleQuizPlayer({ quiz, moduleTitle, onComplete, gamificationEn
               <div className="space-y-2">
                 <Input
                   value={fillBlankInput}
-                  onChange={e => setFillBlankInput(e.target.value)}
+                  onChange={e => { setFillBlankInput(e.target.value); handleAnswer(e.target.value.trim()); }}
                   placeholder={isFr ? 'Tapez votre réponse...' : 'Type your answer...'}
                   className="text-sm"
-                  disabled={submitted}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' && fillBlankInput.trim() && !submitted) {
-                      handleAnswer(fillBlankInput.trim());
-                    }
-                  }}
                 />
-                {!submitted && (
-                  <Button
-                    size="sm"
-                    onClick={() => handleAnswer(fillBlankInput.trim())}
-                    disabled={!fillBlankInput.trim()}
-                    className="w-full"
-                  >
-                    {isFr ? 'Valider' : 'Submit'}
-                  </Button>
-                )}
               </div>
             ) : (
               <div className="space-y-2">
@@ -274,35 +247,24 @@ export function ModuleQuizPlayer({ quiz, moduleTitle, onComplete, gamificationEn
                   : question.options || []
                 ).map((opt: string, i: number) => {
                   const isSelected = answers[currentQ] === i;
-                  const isAnswered = submitted;
-                  const correct = i === question.correct_index;
 
                   return (
                     <button
                       key={i}
-                      disabled={submitted}
                       onClick={() => handleAnswer(i)}
                       className={cn(
                         'w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-sm',
-                        isAnswered && correct
-                          ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30'
-                          : isAnswered && isSelected && !correct
-                            ? 'border-destructive bg-destructive/5'
-                            : isSelected
-                              ? 'border-primary bg-primary/5'
-                              : 'border-border hover:border-primary/50 hover:bg-muted/30'
+                        isSelected
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border hover:border-primary/50 hover:bg-muted/30'
                       )}
                     >
                       <div className="flex items-center gap-3">
                         <span className={cn(
                           'h-6 w-6 rounded-full border-2 flex items-center justify-center shrink-0 text-[10px] font-bold',
-                          isAnswered && correct ? 'border-emerald-500 bg-emerald-500 text-white' :
-                          isAnswered && isSelected && !correct ? 'border-destructive bg-destructive text-white' :
-                          'border-muted-foreground/30'
+                          isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-muted-foreground/30'
                         )}>
-                          {isAnswered && correct ? <CheckCircle2 className="h-3.5 w-3.5" /> :
-                           isAnswered && isSelected ? <XCircle className="h-3.5 w-3.5" /> :
-                           String.fromCharCode(65 + i)}
+                          {isSelected ? <CheckCircle2 className="h-3.5 w-3.5" /> : String.fromCharCode(65 + i)}
                         </span>
                         <span className="flex-1">{opt}</span>
                       </div>
@@ -312,30 +274,17 @@ export function ModuleQuizPlayer({ quiz, moduleTitle, onComplete, gamificationEn
               </div>
             )}
 
-            {/* Explanation after answer */}
-            {showExplanation === currentQ && submitted && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={cn(
-                  'rounded-lg p-3 text-xs',
-                  isCorrect(currentQ) ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400' : 'bg-destructive/5 text-destructive'
-                )}
-              >
-                <div className="flex items-center gap-2 font-semibold mb-1">
-                  {isCorrect(currentQ) ? (
-                    <><CheckCircle2 className="h-4 w-4" /> {isFr ? 'Correct !' : 'Correct!'}</>
-                  ) : (
-                    <><XCircle className="h-4 w-4" /> {isFr ? 'Incorrect' : 'Incorrect'}</>
-                  )}
-                </div>
-                {question.explanation && (
-                  <p className="flex items-start gap-1 mt-1 opacity-80">
-                    <Lightbulb className="h-3 w-3 shrink-0 mt-0.5" /> {question.explanation}
-                  </p>
-                )}
-              </motion.div>
-            )}
+            <Button
+              onClick={goToNextQuestion}
+              disabled={answers[currentQ] === undefined}
+              className="w-full gap-1.5"
+            >
+              {currentQ < questions.length - 1
+                ? (isFr ? 'Question suivante' : 'Next question')
+                : (isFr ? 'Voir mon score' : 'See my score')}
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+
           </motion.div>
         </AnimatePresence>
       </div>

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronLeft, ChevronRight, Monitor, Tablet, Smartphone, X, List, Settings2, Star, Trophy, Zap, HelpCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Monitor, Tablet, Smartphone, X, List, Settings2, Trophy, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parseContentIntoSlides, ContentSlide, type QuizData } from './lesson-preview/parseContentSlides';
 import { SlideRenderer } from './lesson-preview/SlideRenderer';
@@ -17,9 +17,8 @@ import { ModuleQuizPlayer } from './ModuleQuizPlayer';
 import { useSaveSlideProgress, useSaveLessonCompletion, useEnrollmentProgress } from '@/hooks/useLearnerProgress';
 import { useModuleQuiz } from '@/hooks/useModuleQuiz';
 import { getSlideThemeFor } from './lesson-preview/slideThemes';
-import { Switch } from '@/components/ui/switch';
 import { db } from '@/lib/db';
-import { useProgramSlideMap } from '@/hooks/useProgramSlides';
+import { useProgramSlideMap, useUpdateSlide } from '@/hooks/useProgramSlides';
 import { rowToContentSlide } from './lesson-preview/slideAdapters';
 import { SlideSegmentBar } from './lesson-preview/SlideSegmentBar';
 import { PreviewPaywallSlide } from './lesson-preview/PreviewPaywallSlide';
@@ -143,7 +142,9 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
   // Per-slide customizations keyed by slide index
   const [slideCustomizations, setSlideCustomizations] = useState<Record<number, SlideCustomization>>({});
   const [starsEarned, setStarsEarned] = useState(0);
-  const [gamificationEnabled, setGamificationEnabled] = useState(true);
+  // Star gamification was removed from the product; kept as a constant so the
+  // slide components stay compatible without showing any star UI.
+  const gamificationEnabled = false;
 
   // Track the highest slide index the learner has reached (for slide locking)
   const [maxReachedIndex, setMaxReachedIndex] = useState(0);
@@ -370,22 +371,60 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
     };
   }, [allSlides, current?.lessonId, currentIndex]);
 
-  const applyCustomizationToAll = useCallback((partial: Partial<SlideCustomization>) => {
-    setSlideCustomizations((prev) => {
-      const next = { ...prev };
-
-      allSlides.forEach((slide, index) => {
-        if (slide.slide.type === 'final-assessment' || slide.slide.type === 'course-completion') return;
-        next[index] = {
-          ...(prev[index] || DEFAULT_CUSTOMIZATION),
-          ...partial,
-          layout: 'text-only',
-        };
-      });
-
-      return next;
+  /** slideId → persisted row, used to hydrate & save slide styling */
+  const rowsById = useMemo(() => {
+    const map: Record<string, any> = {};
+    Object.values(slideMap as Record<string, any[]>).forEach((rows) => {
+      (rows || []).forEach((r) => { map[r.id] = r; });
     });
-  }, [allSlides]);
+    return map;
+  }, [slideMap]);
+
+  /** Hydrate saved styling so the Customize panel reflects what is stored */
+  const hydratedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (allSlides.length === 0) return;
+    const next: Record<number, SlideCustomization> = {};
+    allSlides.forEach((s, index) => {
+      if (!s.slideId || hydratedRef.current.has(s.slideId)) return;
+      const saved = rowsById[s.slideId]?.data?.customization;
+      hydratedRef.current.add(s.slideId);
+      if (saved) next[index] = { ...DEFAULT_CUSTOMIZATION, ...saved, layout: 'text-only' };
+    });
+    if (Object.keys(next).length) {
+      setSlideCustomizations((prev) => ({ ...next, ...prev }));
+    }
+  }, [allSlides, rowsById]);
+
+  const updateSlide = useUpdateSlide();
+  const persistCustomization = useCallback((index: number, c: SlideCustomization) => {
+    if (isLearner) return;
+    const slideId = allSlides[index]?.slideId;
+    if (!slideId) return;
+    const row = rowsById[slideId];
+    updateSlide.mutate({ id: slideId, data: { ...(row?.data || {}), customization: c } } as any);
+  }, [allSlides, rowsById, updateSlide, isLearner]);
+
+  const customizationsRef = useRef<Record<number, SlideCustomization>>({});
+  useEffect(() => { customizationsRef.current = slideCustomizations; }, [slideCustomizations]);
+
+  const applyCustomizationToAll = useCallback((partial: Partial<SlideCustomization>) => {
+    const prev = customizationsRef.current;
+    const next: Record<number, SlideCustomization> = { ...prev };
+
+    allSlides.forEach((slide, index) => {
+      if (slide.slide.type === 'final-assessment' || slide.slide.type === 'course-completion') return;
+      next[index] = {
+        ...(prev[index] || DEFAULT_CUSTOMIZATION),
+        ...partial,
+        layout: 'text-only',
+      };
+      persistCustomization(index, next[index]);
+    });
+
+    setSlideCustomizations(next);
+  }, [allSlides, persistCustomization]);
+
 
   const handleGenerateSlideBackground = useCallback(async () => {
     if (!current || !(program as any)?.organization_id) return;
@@ -415,15 +454,14 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
       if (error) throw error;
       if (!data?.url) throw new Error(isFr ? 'Aucune image n’a été générée.' : 'No image was generated.');
 
-      setSlideCustomizations((prev) => ({
-        ...prev,
-        [currentIndex]: {
-          ...(prev[currentIndex] || DEFAULT_CUSTOMIZATION),
-          bgImageUrl: data.url,
-          imagePosition: 'cover',
-          layout: 'text-only',
-        },
-      }));
+      const generated: SlideCustomization = {
+        ...(customizationsRef.current[currentIndex] || DEFAULT_CUSTOMIZATION),
+        bgImageUrl: data.url,
+        imagePosition: 'cover',
+        layout: 'text-only',
+      };
+      setSlideCustomizations((prev) => ({ ...prev, [currentIndex]: generated }));
+      persistCustomization(currentIndex, generated);
 
       toast({
         title: isFr ? 'Image de fond générée' : 'Background image generated',
@@ -438,7 +476,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
     } finally {
       setIsGeneratingSlideImage(false);
     }
-  }, [current, currentIndex, isFr, program, toast]);
+  }, [current, currentIndex, isFr, program, toast, persistCustomization]);
 
   const totalQuizzes = useMemo(() => 
     allSlides.filter(s => s.slide.type === 'quiz').length, 
@@ -615,8 +653,11 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
           quiz={current.moduleQuiz}
           moduleTitle={current.moduleTitle}
           gamificationEnabled={gamificationEnabled}
-          onComplete={(passed, score, total, stars) => {
-            if (stars > 0) setStarsEarned(s => s + stars);
+          onReview={() => {
+            const first = allSlides.findIndex(sl => sl.lessonId === current.lessonId);
+            setCurrentIndex(first >= 0 ? first : 0);
+          }}
+          onComplete={(passed) => {
             if (passed || !isLearner) goNext();
           }}
         />
@@ -640,12 +681,12 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
           deviceMode={deviceMode}
           lessonImageUrl={current.lessonImageUrl}
           gamificationEnabled={gamificationEnabled}
+          passingScore={(program as any)?.passing_score ?? 0}
+          onContinue={() => goNext()}
+          onReview={() => setCurrentIndex(0)}
           onComplete={(score, t) => {
             setAssessmentScore(score);
             setAssessmentTotal(t);
-            if (gamificationEnabled) {
-              setStarsEarned(s => s + score);
-            }
           }}
         />
       );
@@ -720,35 +761,13 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
                   {currentIndex + 1}/{total}
                 </span>
               )}
-
-              {!isCompactCreatorPreview && gamificationEnabled && starsEarned > 0 && (
-                <motion.span
-                  className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-foreground shrink-0"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  key={starsEarned}
-                >
-                  <Star className="h-3 w-3 fill-current" />
-                  {starsEarned}
-                </motion.span>
-              )}
             </div>
           </div>
 
           <div className="flex items-center gap-1 shrink-0">
             {!isLearner && (
               <>
-                <div className="hidden sm:flex items-center gap-1.5 mr-1">
-                  <Zap className="h-4 w-4 text-primary shrink-0" />
-                  <span className="text-[10px] text-muted-foreground hidden sm:inline">
-                    {isFr ? 'Étoiles' : 'Stars'}
-                  </span>
-                  <Switch
-                    checked={gamificationEnabled}
-                    onCheckedChange={setGamificationEnabled}
-                    className="scale-75"
-                  />
-                </div>
+
 
                 <div className="hidden md:flex items-center gap-0.5 bg-muted rounded-lg p-0.5 mr-1">
                   {([
@@ -1067,7 +1086,11 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
                 </div>
               <SlideCustomizationPanel
                   customization={currentCustomization}
-                  onChange={(c) => setSlideCustomizations(prev => ({ ...prev, [currentIndex]: { ...c, layout: 'text-only' } }))}
+                  onChange={(c) => {
+                    const next = { ...c, layout: 'text-only' as const };
+                    setSlideCustomizations(prev => ({ ...prev, [currentIndex]: next }));
+                    persistCustomization(currentIndex, next);
+                  }}
                   onApplyToAll={applyCustomizationToAll}
                   onGenerateImage={handleGenerateSlideBackground}
                   isGenerating={isGeneratingSlideImage}
