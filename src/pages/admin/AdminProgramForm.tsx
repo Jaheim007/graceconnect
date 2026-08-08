@@ -560,9 +560,9 @@ export function ProgramForm() {
         </MobilePreviewOverlay>
       )}
 
-      {/* ─── SETTINGS TAB ─── */}
+      {/* ─── SETTINGS TAB — the single place for everything about the course ─── */}
       {activeTab === 'settings' && (
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="max-w-2xl mx-auto space-y-6">
             {/* Program info */}
             <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
@@ -601,9 +601,19 @@ export function ProgramForm() {
                   <RichTextEditor value={description} onChange={setDescription} placeholder={isFr ? "Décrivez le contenu..." : "Describe the content..."} />
                 </div>
                 <div>
-                  <Label className="text-xs">{isFr ? 'Image de couverture' : 'Cover image'}</Label>
+                  <div className="flex items-center justify-between mb-1">
+                    <Label className="text-xs">{isFr ? 'Image de couverture' : 'Cover image'}</Label>
+                    <Button
+                      type="button" variant="ghost" size="sm"
+                      className="h-6 gap-1 text-[10px] text-primary hover:text-primary"
+                      onClick={handleGenerateCover}
+                      disabled={generatingCover || !title.trim()}
+                    >
+                      {generatingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <ImageIcon className="h-3 w-3" />}
+                      {isFr ? 'Générer avec l’IA' : 'Generate with AI'}
+                    </Button>
+                  </div>
                   <ImageUploader value={coverUrl} onChange={setCoverUrl} folder={`programs/${currentOrg?.id}`} label="" aspectRatio="video" />
-                  {/* AI cover generation removed — use upload or Canva */}
                 </div>
               </div>
             </div>
@@ -613,104 +623,52 @@ export function ProgramForm() {
               <h3 className="font-semibold text-sm flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-primary" /> {isFr ? 'Tarification' : 'Pricing'}
               </h3>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-xs">{isFr ? 'Cours gratuit' : 'Free course'}</Label>
-                  <p className="text-[10px] text-muted-foreground">
-                    {isAiGenerated
-                      ? (isFr ? 'Les formations créées par IA doivent être payantes' : 'AI-generated courses must be paid')
-                      : (isFr ? 'Accessible sans paiement' : 'Free access')}
-                  </p>
-                </div>
-                <Switch checked={isFree} onCheckedChange={setIsFree} disabled={isAiGenerated} />
-              </div>
-              <div className={cn(isFree && 'opacity-40 pointer-events-none')}>
-                <Label className="text-xs">{isFr ? 'Prix' : 'Price'} ({currency})</Label>
-                <Input type="number" min={0} value={isFree ? 0 : price} onChange={e => setPrice(Number(e.target.value))} className="h-9 w-[200px]" disabled={isFree} />
-              </div>
-            </div>
-
-            {/* LMS Settings */}
-            <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-              <h3 className="font-semibold text-sm flex items-center gap-2">
-                <Settings className="h-4 w-4 text-primary" /> {isFr ? 'Paramètres LMS' : 'LMS Settings'}
-              </h3>
-
-              {/* Sequential lessons */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-xs">{isFr ? 'Progression séquentielle' : 'Sequential progression'}</Label>
-                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Les apprenants doivent suivre les leçons dans l\'ordre' : 'Learners must complete lessons in order'}</p>
-                </div>
-                <Switch checked={requireSequential} onCheckedChange={setRequireSequential} />
-              </div>
-
-              {/* Assessment */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-xs">{isFr ? 'Évaluation finale' : 'Final assessment'}</Label>
-                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Quiz final à la fin du cours' : 'Final quiz at end of course'}</p>
-                </div>
-                <Switch checked={assessmentEnabled} onCheckedChange={setAssessmentEnabled} />
-              </div>
-
-              {/* Gamification */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-xs">{isFr ? 'Gamification (étoiles)' : 'Gamification (stars)'}</Label>
-                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Récompenser les bonnes réponses' : 'Reward correct answers'}</p>
-                </div>
-                <Switch checked={gamificationEnabledSetting} onCheckedChange={setGamificationEnabledSetting} />
-              </div>
-
-              {/* Passing score */}
-              <div>
-                <Label className="text-xs">{isFr ? 'Score minimum de réussite' : 'Minimum passing score'}</Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <Select value={String(passingScore)} onValueChange={v => setPassingScore(Number(v))}>
-                    <SelectTrigger className="w-[120px] h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="50">50%</SelectItem>
-                      <SelectItem value="60">60%</SelectItem>
-                      <SelectItem value="70">70%</SelectItem>
-                      <SelectItem value="80">80%</SelectItem>
-                      <SelectItem value="90">90%</SelectItem>
-                      <SelectItem value="100">100%</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <span className="text-[10px] text-muted-foreground">{isFr ? 'requis pour réussir' : 'required to pass'}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Certificate */}
-            <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-              <h3 className="font-semibold text-sm flex items-center gap-2">
-                <Award className="h-4 w-4 text-primary" /> {isFr ? 'Certificat' : 'Certificate'}
-              </h3>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-xs">{isFr ? 'Certificat de réussite' : 'Completion certificate'}</Label>
-                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Délivré après complétion du cours' : 'Issued upon course completion'}</p>
-                </div>
-                <Switch checked={certificateEnabled} onCheckedChange={setCertificateEnabled} />
-              </div>
-
-              {certificateEnabled && (
-                <div className="flex items-center justify-between pl-4 border-l-2 border-primary/20">
+              {isAiGenerated ? (
+                <p className="text-[11px] text-muted-foreground">
+                  {isFr
+                    ? `Ce cours a été écrit par l’IA : il doit être payant (minimum ${minAiPrice.toLocaleString()} ${currency}).`
+                    : `This course was written by the AI: it must be paid (minimum ${minAiPrice.toLocaleString()} ${currency}).`}
+                </p>
+              ) : (
+                <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-xs">{isFr ? 'Exiger l\'évaluation finale' : 'Require final assessment'}</Label>
-                    <p className="text-[10px] text-muted-foreground">{isFr ? 'Le score minimum doit être atteint' : 'Minimum score must be reached'}</p>
+                    <Label className="text-xs">{isFr ? 'Cours gratuit' : 'Free course'}</Label>
+                    <p className="text-[10px] text-muted-foreground">{isFr ? 'Accessible sans paiement' : 'Free access'}</p>
                   </div>
-                  <Switch checked={requireAssessmentForCert} onCheckedChange={setRequireAssessmentForCert} />
+                  <Switch checked={isFree} onCheckedChange={setIsFree} />
                 </div>
               )}
+              <div className={cn(isFree && !isAiGenerated && 'opacity-40 pointer-events-none')}>
+                <Label className="text-xs">{isFr ? 'Prix' : 'Price'} ({currency})</Label>
+                <Input
+                  type="number" min={isAiGenerated ? minAiPrice : 0}
+                  value={isFree && !isAiGenerated ? 0 : price}
+                  onChange={e => setPrice(Number(e.target.value))}
+                  className="h-9 w-[200px]" disabled={isFree && !isAiGenerated}
+                />
+                {isAiGenerated && price < minAiPrice && (
+                  <p className="mt-1 text-[11px] text-destructive">
+                    {isFr ? `Minimum ${minAiPrice.toLocaleString()} ${currency}.` : `Minimum ${minAiPrice.toLocaleString()} ${currency}.`}
+                  </p>
+                )}
+              </div>
             </div>
+
+            {/* Completion rules — score mode, retries, certificate */}
+            <CourseCompletionRules
+              rules={rules}
+              lessons={flatLessons}
+              onChange={(patch) => setRules(r => ({ ...r, ...patch }))}
+            />
+
+            <Button onClick={handleSave} disabled={saving || !title.trim()} className="gap-1.5">
+              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+              {isFr ? 'Enregistrer les réglages' : 'Save settings'}
+            </Button>
           </div>
         </div>
       )}
+
 
       {/* ─── PUBLISH TAB ─── */}
       {activeTab === 'publish' && (
