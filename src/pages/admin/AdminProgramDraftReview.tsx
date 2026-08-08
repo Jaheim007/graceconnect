@@ -611,6 +611,18 @@ export default function AdminProgramDraftReview() {
   );
 }
 
+function ChecklistRow({ ok, label }: { ok: boolean; label: string }) {
+  return (
+    <div className="flex items-center gap-2 text-[12px]">
+      {ok
+        ? <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+        : <Circle className="h-4 w-4 text-muted-foreground shrink-0" />}
+      <span className={ok ? '' : 'text-muted-foreground'}>{label}</span>
+    </div>
+  );
+}
+
+
 function StepChip({ active, done, label }: { active?: boolean; done?: boolean; label: string }) {
   return (
     <span
