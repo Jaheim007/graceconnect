@@ -651,6 +651,7 @@ export default function AdminProgramDraftReview() {
           price={priceValue}
           currency={currency}
           isFree={false}
+          orgLogoUrl={(currentOrg as any)?.logo_url || null}
           onClose={() => setBuyerPreview(false)}
 
         />
