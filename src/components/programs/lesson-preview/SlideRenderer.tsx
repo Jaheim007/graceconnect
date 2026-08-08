@@ -116,7 +116,7 @@ function ScrollableContent({
   }, [checkScroll, children]);
 
   return (
-    <div className="relative w-full max-w-3xl lg:max-w-4xl max-h-[86%]">
+    <div className={cn('relative w-full', hasImage ? 'max-w-2xl max-h-[74%]' : 'max-w-3xl lg:max-w-4xl max-h-[86%]')}>
       <div
         ref={scrollRef}
           className={cn(
@@ -409,7 +409,9 @@ export function SlideRenderer({
           captionStyle={captionStyle}
           captionClasses={captionClasses}
           theme={theme}
+          hasImage={hasBgImage}
         >
+
           <SlideTag />
           {slide.heading && (
             <div className="mb-4">
