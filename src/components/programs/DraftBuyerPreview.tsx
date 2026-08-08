@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { SlideRenderer } from './lesson-preview/SlideRenderer';
 import { SlideSegmentBar } from './lesson-preview/SlideSegmentBar';
+import { DEFAULT_CUSTOMIZATION } from './lesson-preview/SlideCustomizationPanel';
+
 import { rowToContentSlide, type ProgramSlideRow } from './lesson-preview/slideAdapters';
 import { PREVIEW_SLIDES_IN_FIRST_LESSON } from '@/lib/coursePreview';
 import type { CourseDraft } from '@/hooks/useCourseDraft';
@@ -156,9 +158,16 @@ export function DraftBuyerPreview({ draft, price = 0, currency = 'XOF', isFree, 
                 lessonTitle={current.lessonTitle}
                 moduleTitle={draft.title}
                 lessonImageUrl={current.lessonImageUrl}
+                // Force the illustration as the slide backdrop: the buyer view
+                // must look exactly like the real player, never a flat gradient.
+                customization={{
+                  ...DEFAULT_CUSTOMIZATION,
+                  bgImageUrl: current.lessonImageUrl || '',
+                }}
                 orgLogoUrl={orgLogoUrl}
                 deviceMode="desktop"
               />
+
             ) : (
               <div className="flex-1 flex items-center justify-center p-8">
                 <div className="max-w-sm text-center space-y-3">

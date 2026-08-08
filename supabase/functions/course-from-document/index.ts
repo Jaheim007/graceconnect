@@ -37,6 +37,15 @@ const TOPIC_SOURCE_CHARS = 9000;  // per-call prompt ceiling
 const PIPELINE_SOFT_DEADLINE_MS = 260_000;
 /** Below this remaining budget we stop spending time (and credits) on images. */
 const IMAGE_MIN_REMAINING_MS = 30_000;
+/**
+ * Images used to die around lesson 9-10: the lesson loop ate the wall clock and
+ * the inline image step was skipped for every later batch. Illustrations now get
+ * their own tail budget AFTER all lessons are written, so late lessons are
+ * illustrated too.
+ */
+const IMAGE_TAIL_DEADLINE_MS = 370_000;
+const IMAGE_TAIL_BATCH = 4;
+
 
 
 /**
@@ -389,8 +398,9 @@ async function runPipeline(ctx: {
       }));
 
       // ── Lesson background images (credit-debited, best effort) ──
-      // Generated in PARALLEL for the batch: sequential generation on the
-      // premium model burned the wall clock and stopped images after ~6 lessons.
+      // Generated in PARALLEL for the batch. When the wall clock is tight we do
+      // NOT disable images for the rest of the run — the missing ones are picked
+      // up by the tail pass below.
       if (imagesEnabled && remainingMs() > IMAGE_MIN_REMAINING_MS) {
         const eligible = generated
           .map((lesson, k) => ({ lesson, index: start + k }))
@@ -405,9 +415,8 @@ async function runPipeline(ctx: {
           if (result.url) { eligible[k].lesson.image_url = result.url; imagesGenerated += 1; }
           if (result.stop) imagesEnabled = false;
         });
-      } else if (imagesEnabled) {
-        imagesEnabled = false;
       }
+
 
 
       lessons.push(...generated);
@@ -423,6 +432,47 @@ async function runPipeline(ctx: {
         updated_at: new Date().toISOString(),
       }).eq('id', ctx.projectId);
     }
+
+    // ── Image tail pass: illustrate every lesson still missing a backdrop ──
+    if (imagesEnabled) {
+      const tailStart = Date.now();
+      const tailRemaining = () => IMAGE_TAIL_DEADLINE_MS - (Date.now() - startedAt);
+      const missing = lessons
+        .map((lesson, index) => ({ lesson, index }))
+        .filter(({ lesson }) => !lesson.image_url);
+
+      for (let start = 0; start < missing.length; start += IMAGE_TAIL_BATCH) {
+        if (!imagesEnabled) break;
+        if (imagesGenerated >= profile.maxImages) break;
+        if (tailRemaining() <= IMAGE_MIN_REMAINING_MS) {
+          console.warn('[course-from-document] image tail budget exhausted', { imagesGenerated, missing: missing.length });
+          break;
+        }
+
+        const batch = missing
+          .slice(start, start + IMAGE_TAIL_BATCH)
+          .filter((_, k) => imagesGenerated + k < profile.maxImages);
+        if (!batch.length) break;
+
+        const results = await Promise.all(batch.map(({ lesson, index }) =>
+          generateLessonImage({ admin, ctx, lesson, index, profile })
+            .catch((e) => { console.warn('[course-from-document] tail image failed', index, e); return { url: null, stop: false }; }),
+        ));
+
+        results.forEach((result, k) => {
+          if (result.url) { batch[k].lesson.image_url = result.url; imagesGenerated += 1; }
+          if (result.stop) imagesEnabled = false;
+        });
+
+        await admin.from('ai_content_projects').update({
+          data_json: await mergeCourse(admin, ctx.projectId, { title: ctx.projectTitle, lessons }),
+          updated_at: new Date().toISOString(),
+        }).eq('id', ctx.projectId);
+      }
+      console.log('[course-from-document] image tail done', { imagesGenerated, ms: Date.now() - tailStart });
+    }
+
+
 
 
 
