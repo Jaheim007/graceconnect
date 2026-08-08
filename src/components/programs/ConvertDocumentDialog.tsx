@@ -160,8 +160,8 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
               <p className="text-sm font-semibold">Standard <span className="font-normal text-muted-foreground">· {standardCost ?? 8} {isFr ? 'crédits' : 'credits'}</span></p>
               <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
                 {isFr
-                  ? 'Jusqu’à 12 leçons · 5 à 8 slides par leçon · textes de 180 à 260 mots avec exemple · 3 quiz'
-                  : 'Up to 12 lessons · 5-8 slides each · 180-260 word bodies with an example · 3 quizzes'}
+                  ? '8 à 12 leçons · 12 à 20 slides par leçon · textes courts de 40 à 80 mots · 5 à 6 quiz · 3 à 4 cartes mémo'
+                  : '8-12 lessons · 12-20 slides each · short 40-80 word slides · 5-6 quizzes · 3-4 flashcards'}
               </p>
             </button>
             <button
