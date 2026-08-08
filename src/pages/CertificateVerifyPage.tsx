@@ -159,7 +159,10 @@ export default function CertificateVerifyPage() {
               className="mx-auto mb-6 flex w-fit items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1.5 text-sm font-medium text-emerald-300 backdrop-blur"
             >
               <BadgeCheck className="h-4 w-4" />
-              {isFr ? 'Certificat authentique et vérifié' : 'Authentic, verified certificate'}
+              {isPreview
+                ? (isFr ? 'Aperçu — voici ce que vos apprenants partageront' : 'Preview — this is what your learners will share')
+                : (isFr ? 'Certificat authentique et vérifié' : 'Authentic, verified certificate')}
+
             </motion.div>
 
             {/* The certificate */}
