@@ -189,7 +189,7 @@ export function ProgramForm() {
     const mode = rules.score_mode ?? 'none';
     const defaultPass = rules.passing_score ?? 70;
     const defaultTries = rules.max_quiz_attempts ?? 0;
-    const updates: Promise<any>[] = [];
+    const updates: PromiseLike<any>[] = [];
     flatLessons.forEach((l, i) => {
       const rule = mode === 'per_lesson' ? rules.lesson_rules?.[String(i)] : undefined;
       const pass = mode === 'per_lesson' ? (rule?.passing_score ?? 0) : mode === 'global' ? defaultPass : 0;
