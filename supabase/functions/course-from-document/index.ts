@@ -337,7 +337,10 @@ async function runPipeline(ctx: {
       sourceText = outline;
     }
 
-    let topics = segmentIntoTopics(sourceText, { maxTopics: profile.maxTopics });
+    let topics = segmentIntoTopics(sourceText, {
+      maxTopics: profile.maxTopics,
+      minTopics: profile.minTopics,
+    });
 
     // The tier promise is a LESSON COUNT. A short/merged outline used to leave a
     // premium course with 5 lessons. If segmentation under-delivers in prompt
