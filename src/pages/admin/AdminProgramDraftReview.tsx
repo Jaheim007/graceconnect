@@ -167,6 +167,11 @@ export default function AdminProgramDraftReview() {
   );
   const incomplete = generating || job?.status === 'failed' || emptyLessons > 0 || totals.lessons === 0;
 
+  // A course with no cover looks unfinished in the catalogue: required to go
+  // live, but never blocks keeping the course as a draft.
+  const coverMissing = !rules.cover_image_url;
+
+
   // Title edits are saved to the cloud draft shortly after typing stops.
   useEffect(() => {
     if (!titleDirty || !draft || generating) return;
