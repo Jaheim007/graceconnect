@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { X, Mic, Send, Loader2, Coins, RotateCcw, BookOpen, GraduationCap, Radio } from 'lucide-react';
+import { X, Mic, Send, Loader2, Coins, RotateCcw, BookOpen, GraduationCap, Radio, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
