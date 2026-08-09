@@ -57,6 +57,33 @@ export function AssistantChatWidget() {
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages.length, thinking]);
   useEffect(() => { if (error) toast({ title: error, variant: 'destructive' }); }, [error, toast]);
 
+  // Periodic "How can I help you today?" nudge — gentle, never while chatting.
+  useEffect(() => {
+    let mounted = true;
+    const show = () => { if (mounted && !open) setShowNudge(true); };
+    const hide = () => { if (mounted) setShowNudge(false); };
+    const first = setTimeout(show, 12000);
+    let hideTimer: ReturnType<typeof setTimeout> | undefined;
+    let cycleTimer: ReturnType<typeof setInterval> | undefined;
+    const startCycle = () => {
+      cycleTimer = setInterval(() => {
+        show();
+        hideTimer = setTimeout(hide, 6000);
+      }, 50000);
+    };
+    const onVisibility = () => {
+      if (document.hidden) hide();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      mounted = false;
+      clearTimeout(first);
+      clearTimeout(hideTimer);
+      clearInterval(cycleTimer);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [open]);
+
   if (!user) return null;
 
   const handleSend = async () => {
