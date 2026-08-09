@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, BookOpen, Edit, Trash2, Eye, EyeOff, Layers, ChevronRight, Zap, FileUp, PenLine, ChevronDown, Copy, Save, MessageSquare } from 'lucide-react';
-import { ASSISTANT_NAME, ASSISTANT_ROUTE } from '@/lib/viralStudio/assistant';
+
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrgCourseStats } from '@/hooks/useCourseCommerce';
 import { formatPrice } from '@/lib/currency';
