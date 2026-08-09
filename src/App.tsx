@@ -925,6 +925,7 @@ const App = () => (
                   <Route path="programs" element={<AdminPrograms />} />
                   <Route path="programs/new" element={<AdminPrograms />} />
                   <Route path="programs/generating" element={<AdminProgramGenerating />} />
+                  <Route path="viral-studio" element={<ViralStudioPage />} />
                   <Route path="programs/draft/:projectId" element={<AdminProgramDraftReview />} />
 
                   <Route path="programs/:id/edit" element={<AdminProgramForm />} />
