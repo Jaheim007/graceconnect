@@ -331,6 +331,7 @@ const AdminOfferings = lazy(() => import("@/pages/admin/AdminOfferings"));
 const AdminPrograms = lazy(() => import("@/pages/admin/AdminPrograms"));
 const AdminProgramDraftReview = lazy(() => import("@/pages/admin/AdminProgramDraftReview"));
 const AdminProgramGenerating = lazy(() => import("@/pages/admin/AdminProgramGenerating"));
+const ViralStudioPage = lazy(() => import("@/pages/admin/ViralStudioPage"));
 
 const AdminProgramForm = lazy(() => import("@/pages/admin/AdminProgramForm").then(m => ({ default: m.ProgramForm })));
 const AdminLearnerProgress = lazy(() => import("@/pages/admin/AdminLearnerProgress"));
@@ -924,6 +925,7 @@ const App = () => (
                   <Route path="programs" element={<AdminPrograms />} />
                   <Route path="programs/new" element={<AdminPrograms />} />
                   <Route path="programs/generating" element={<AdminProgramGenerating />} />
+                  <Route path="viral-studio" element={<ViralStudioPage />} />
                   <Route path="programs/draft/:projectId" element={<AdminProgramDraftReview />} />
 
                   <Route path="programs/:id/edit" element={<AdminProgramForm />} />
