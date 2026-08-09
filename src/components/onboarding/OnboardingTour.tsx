@@ -88,23 +88,46 @@ const STEPS: TourStep[] = [
 
 interface Rect { top: number; left: number; width: number; height: number }
 
-function measure(targets: string[]): Rect | null {
+function findEl(targets: string[]): HTMLElement | null {
   for (const sel of targets) {
     const el = document.querySelector(sel) as HTMLElement | null;
     if (el) {
       const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) {
-        return { top: r.top, left: r.left, width: r.width, height: r.height };
-      }
+      if (r.width > 0 && r.height > 0) return el;
     }
   }
   return null;
+}
+
+function measure(targets: string[]): Rect | null {
+  const el = findEl(targets);
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  return { top: r.top, left: r.left, width: r.width, height: r.height };
+}
+
+/** Bring the spotlight target fully into view (sidebar or page scroll containers). */
+function revealTarget(targets: string[]) {
+  const el = findEl(targets);
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  const vh = window.innerHeight;
+  const needsScroll = r.top < 96 || r.bottom > vh - 96;
+  if (needsScroll) {
+    try {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+    } catch {
+      el.scrollIntoView();
+    }
+  }
 }
 
 export function OnboardingTour() {
   const [active, setActive] = useState(false);
   const [step, setStep] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
+  /** Only steps whose target actually exists in the current navigation. */
+  const [steps, setSteps] = useState<TourStep[]>(STEPS);
   const { user } = useAuth();
   const location = useLocation();
   const { locale } = useI18n();
@@ -117,18 +140,24 @@ export function OnboardingTour() {
       setActive(false);
       return;
     }
-    const done = localStorage.getItem(TOUR_STORAGE_KEY);
-    if (!done) {
-      const t = setTimeout(() => setActive(true), 1000);
-      return () => clearTimeout(t);
-    }
+    // Anyone who already finished this or a previous onboarding never sees it again.
+    const done = LEGACY_TOUR_KEYS.some((k) => localStorage.getItem(k));
+    if (done) return;
+    const t = setTimeout(() => {
+      const available = STEPS.filter((s) => !!findEl(s.targets));
+      setSteps(available.length > 0 ? available : STEPS.filter((s) => s.always));
+      setStep(0);
+      setActive(true);
+    }, 1000);
+    return () => clearTimeout(t);
   }, [user, isAdminRoute]);
 
-  const current = STEPS[step];
+  const current = steps[step] ?? steps[0];
 
   // Track the spotlight target position (resize / scroll aware)
   useLayoutEffect(() => {
-    if (!active) return;
+    if (!active || !current) return;
+    revealTarget(current.targets);
     const update = () => setRect(measure(current.targets));
     update();
     const id = window.setInterval(update, 400);
@@ -147,13 +176,14 @@ export function OnboardingTour() {
   }, []);
 
   const next = useCallback(() => {
-    if (step < STEPS.length - 1) setStep((s) => s + 1);
+    if (step < steps.length - 1) setStep((s) => s + 1);
     else finish();
-  }, [step, finish]);
+  }, [step, steps.length, finish]);
 
   const prev = useCallback(() => {
     if (step > 0) setStep((s) => s - 1);
   }, [step]);
+
 
   useEffect(() => {
     if (!active) return;
