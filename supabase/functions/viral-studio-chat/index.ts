@@ -158,6 +158,22 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ── Micro-debit for the exchange (tiny, silent). Never blocks on system errors.
+    try {
+      await consumeCreditsOrThrow({
+        admin,
+        userId: auth.userId,
+        actionKey: CHAT_ACTION_KEY,
+        tier: 'standard',
+        metadata: { surface: 'viral-studio-chat' },
+      });
+    } catch (err) {
+      if ((err as any)?.status === 402) {
+        return jsonResp({ error: (err as Error).message }, 402);
+      }
+      console.warn('[viral-studio-chat] credit debit skipped', err);
+    }
+
 
     const contents = messages.map((m) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
