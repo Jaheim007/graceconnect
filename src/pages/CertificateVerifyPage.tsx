@@ -197,7 +197,7 @@ export default function CertificateVerifyPage() {
                 </div>
 
                 {/* Badge */}
-                <div className="-mt-12 flex justify-center">
+                <div className="relative z-20 -mt-12 flex justify-center">
                   <div
                     className="flex h-24 w-24 items-center justify-center rounded-full p-[2px] shadow-[0_10px_40px_-8px_rgba(250,204,21,0.6)]"
                     style={{ background: 'linear-gradient(135deg,#fde68a,#b45309,#fcd34d)' }}

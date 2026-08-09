@@ -159,6 +159,8 @@ export function Sidebar() {
       <Link
         to={item.route}
         aria-current={active ? 'page' : undefined}
+        data-nav-route={item.route.split('?')[0]}
+        data-tour={`nav-${item.id}`}
         className={cn(
           'group relative flex items-center gap-3 h-11 px-3 rounded-xl text-[13px] transition-all duration-200',
           active
@@ -187,6 +189,8 @@ export function Sidebar() {
         to={item.route}
         aria-current={active ? 'page' : undefined}
         aria-label={isFr ? item.titleFr : item.titleEn}
+        data-nav-route={item.route.split('?')[0]}
+        data-tour={`nav-${item.id}`}
         className={cn(
           'relative flex items-center justify-center h-11 w-11 mx-auto rounded-xl transition-all duration-200',
           active
@@ -245,7 +249,7 @@ export function Sidebar() {
 
       {/* Workspace switcher */}
       {user && (
-        <div className={cn('relative', collapsed ? 'px-1.5 pb-1' : 'px-3 pb-2')}>
+        <div className={cn('relative', collapsed ? 'px-1.5 pb-1' : 'px-3 pb-2')} data-tour="org-switcher">
           <OrgSwitcher variant="sidebar" collapsed={collapsed} />
         </div>
       )}
@@ -301,6 +305,8 @@ export function Sidebar() {
           ) : (
             <Link
               to="/admin/settings"
+              data-tour="nav-settings"
+              data-nav-route="/admin/settings"
               className="flex items-center gap-2.5 h-11 px-3 rounded-xl text-[13px] font-medium text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-foreground/5"
             >
               <Settings className="h-[18px] w-[18px] shrink-0" />
