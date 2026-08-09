@@ -21,6 +21,8 @@ import { WriteProgress } from './WriteProgress';
 import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { resolveBookLanguageFromLocale, type SupportedBookLanguage } from './utils/bookLanguage';
+import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
+
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
