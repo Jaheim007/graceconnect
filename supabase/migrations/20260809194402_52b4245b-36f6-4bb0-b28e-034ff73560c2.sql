@@ -1,0 +1,3 @@
+INSERT INTO public.credit_action_pricing (action_key, action_label, category, cost_standard, cost_premium, description, is_active)
+VALUES ('assistant_chat_message', 'Assistant Viral Studio', 'assistant', 0.05, 0.05, 'Échange avec l''assistant de création', true)
+ON CONFLICT (action_key) DO UPDATE SET cost_standard = 0.05, cost_premium = 0.05, is_active = true, action_label = 'Assistant Viral Studio';
