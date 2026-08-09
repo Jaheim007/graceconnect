@@ -10,6 +10,14 @@ import { useI18n } from '@/i18n/I18nContext';
 
 const TOUR_VERSION = 'v4';
 const TOUR_STORAGE_KEY = `gc_onboarding_done_${TOUR_VERSION}`;
+/** Any of these means the user already went through onboarding — never replay it. */
+const LEGACY_TOUR_KEYS = [
+  TOUR_STORAGE_KEY,
+  'gc_onboarding_done_v3',
+  'gc_onboarding_done_v2',
+  'gc_onboarding_done_v1',
+  'gc_onboarding_done',
+];
 
 interface TourStep {
   icon: React.ReactNode;
@@ -21,6 +29,8 @@ interface TourStep {
   desc_en: string;
   tip_fr: string;
   tip_en: string;
+  /** Keep this step even when no matching nav item is found. */
+  always?: boolean;
 }
 
 const STEPS: TourStep[] = [
@@ -67,6 +77,7 @@ const STEPS: TourStep[] = [
   {
     icon: <Users className="h-5 w-5" />,
     targets: ['[data-tour="org-switcher"]'],
+    always: true,
     title_fr: 'Votre plateforme',
     title_en: 'Your platform',
     desc_fr: 'Basculez entre vos plateformes ou créez-en une nouvelle depuis ce sélecteur.',
@@ -77,6 +88,7 @@ const STEPS: TourStep[] = [
   {
     icon: <Settings className="h-5 w-5" />,
     targets: ['[data-tour="nav-settings"]', '[data-nav-route="/admin/settings"]'],
+    always: true,
     title_fr: 'Personnaliser',
     title_en: 'Customize',
     desc_fr: 'Logo, bannière, couleurs, sections publiques et paiements se règlent ici.',
@@ -329,7 +341,7 @@ export function OnboardingTour() {
 
           <div className="p-5">
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              {isFr ? 'Étape' : 'Step'} {step + 1} / {STEPS.length}
+              {isFr ? 'Étape' : 'Step'} {step + 1} / {steps.length}
             </p>
 
             <div className="mb-3 flex items-center gap-3">
@@ -352,7 +364,7 @@ export function OnboardingTour() {
             </div>
 
             <div className="mb-4 flex justify-center gap-1.5">
-              {STEPS.map((_, i) => (
+              {steps.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setStep(i)}
@@ -378,10 +390,10 @@ export function OnboardingTour() {
                 )}
               </div>
               <Button size="sm" onClick={next} className="h-8 gap-1 text-xs">
-                {step === STEPS.length - 1
+                {step === steps.length - 1
                   ? (isFr ? "C'est parti !" : "Let's go!")
                   : (isFr ? 'Suivant' : 'Next')}
-                {step < STEPS.length - 1 && <ChevronRight className="h-3.5 w-3.5" />}
+                {step < steps.length - 1 && <ChevronRight className="h-3.5 w-3.5" />}
               </Button>
             </div>
           </div>
