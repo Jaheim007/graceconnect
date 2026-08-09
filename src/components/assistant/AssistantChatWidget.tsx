@@ -32,6 +32,7 @@ export function AssistantChatWidget() {
   const { data: creditSummary } = useCreditsBalance();
 
   const [open, setOpen] = useState(false);
+  const [showNudge, setShowNudge] = useState(false);
   const [input, setInput] = useState('');
   const baseTextRef = useRef('');
   const composerRef = useRef<HTMLTextAreaElement>(null);
