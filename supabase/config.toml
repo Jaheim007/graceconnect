@@ -291,3 +291,11 @@ verify_jwt = false
 [functions.church-sermon-pdf-download]
 verify_jwt = false
 
+[functions.viral-studio-chat]
+verify_jwt = false
+
+[functions.viral-studio-transcribe]
+verify_jwt = false
+
+[functions.viral-studio-speak]
+verify_jwt = false
