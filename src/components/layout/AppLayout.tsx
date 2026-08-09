@@ -16,6 +16,8 @@ import { CommandPalette } from '@/components/command/CommandPalette';
 import { CompareProvider } from '@/components/products/ProductCompareDrawer';
 import { CookieConsent } from '@/components/legal/CookieConsent';
 import { FloatingHelpWidget } from '@/components/help/FloatingHelpWidget';
+import { AssistantChatWidget } from '@/components/assistant/AssistantChatWidget';
+
 import { SkipToContent } from '@/components/a11y/SkipToContent';
 import { KeyboardShortcutsModal } from '@/components/a11y/KeyboardShortcutsModal';
 import { OfflineIndicator } from '@/components/network/OfflineIndicator';
