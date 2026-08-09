@@ -1199,6 +1199,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'write.illust_generated': 'Illustration generated!',
     'write.illust_skip': 'Skip',
     'write.illust_progress': 'illustrations generated',
+    'write.illust_cost_info': 'Each illustration uses credits. Make sure you have enough credits before generating.',
     'write.pages_label': 'Number of pages',
     'write.language_label': 'Book language',
     'write.lang_fr': 'French',
