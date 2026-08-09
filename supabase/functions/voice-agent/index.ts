@@ -10,8 +10,9 @@
  *  - It lets us run the SAME independent moderation pass as the chat version on
  *    every user utterance BEFORE the agent is allowed to answer it.
  *
- * Speech-to-text: Deepgram Flux Multilingual (`flux-multilingual`) with
- * `language: "multi"` so EN/FR are auto-detected and can be switched mid-call.
+ * Speech-to-text: Deepgram Flux multilingual (`flux-general-multi`, the Flux/V2 listen API) so
+ * EN/FR are auto-detected and can be switched mid-call. NOTE: the deprecated
+ * `agent.language` field must NOT be sent with Flux — Deepgram rejects it.
  */
 import { corsHeaders, jsonResp, requireAuth } from '../_shared/auth.ts';
 import { canUseVoiceAgent } from '../_shared/voice-agent-access.ts';
@@ -23,7 +24,7 @@ import {
   logSafetyFlag,
 } from '../_shared/ai-safety.ts';
 
-const LISTEN_MODEL = Deno.env.get('DEEPGRAM_FLUX_MODEL') || 'flux-multilingual';
+const LISTEN_MODEL = Deno.env.get('DEEPGRAM_FLUX_MODEL') || 'flux-general-multi';
 const THINK_MODEL = Deno.env.get('VOICE_AGENT_THINK_MODEL') || 'gemini-2.5-flash';
 const AGENT_URL = 'wss://agent.deepgram.com/v1/agent/converse';
 
@@ -52,7 +53,6 @@ function settings(assistantName: string, isFr: boolean, geminiKey: string) {
       output: { encoding: 'linear16', sample_rate: 24000, container: 'none' },
     },
     agent: {
-      language: 'multi',
       listen: { provider: { type: 'deepgram', model: LISTEN_MODEL } },
       think: {
         // OUR OWN Gemini key, via Gemini's OpenAI-compatible surface.
