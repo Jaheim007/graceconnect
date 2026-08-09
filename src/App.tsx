@@ -172,6 +172,7 @@ const PromoAICreationsPage = lazy(() => import("@/pages/promo/PromoAICreationsPa
 const OrgPublicPage = lazy(() => import("@/pages/OrgPublicPage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
+const VoiceAgentPage = lazy(() => import("@/pages/labs/VoiceAgentPage"));
 const TermsPage = lazy(() => import("@/pages/TermsPage"));
 const PrivacyPage = lazy(() => import("@/pages/PrivacyPage"));
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
@@ -926,6 +927,8 @@ const App = () => (
                   <Route path="programs/new" element={<AdminPrograms />} />
                   <Route path="programs/generating" element={<AdminProgramGenerating />} />
                   <Route path="viral-studio" element={<ViralStudioPage />} />
+                  {/* Internal voice-agent test — allowlisted UID only (see lib/access/voiceAgentAccess) */}
+                  <Route path="voice-agent" element={<VoiceAgentPage />} />
                   <Route path="programs/draft/:projectId" element={<AdminProgramDraftReview />} />
 
                   <Route path="programs/:id/edit" element={<AdminProgramForm />} />
