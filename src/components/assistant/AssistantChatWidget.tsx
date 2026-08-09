@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, X, Mic, Send, Loader2, Coins, RotateCcw, BookOpen, GraduationCap } from 'lucide-react';
+import { X, Mic, Send, Loader2, Coins, RotateCcw, BookOpen, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useI18n } from '@/i18n/I18nContext';
@@ -14,6 +14,7 @@ import { useStudioConversation, type GenerationProposal } from '@/hooks/useStudi
 import { useVoiceDictation } from '@/hooks/useVoiceDictation';
 import { useCreditsBalance } from '@/hooks/useCredits';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
+import botAsset from '@/assets/viral-studio-bot.gif.asset.json';
 
 /**
  * Global creation chatbot — sits just above the Support button on every
@@ -31,6 +32,7 @@ export function AssistantChatWidget() {
   const { data: creditSummary } = useCreditsBalance();
 
   const [open, setOpen] = useState(false);
+  const [showNudge, setShowNudge] = useState(false);
   const [input, setInput] = useState('');
   const baseTextRef = useRef('');
   const composerRef = useRef<HTMLTextAreaElement>(null);
@@ -54,6 +56,27 @@ export function AssistantChatWidget() {
   useEffect(() => { if (open) composerRef.current?.focus(); }, [open]);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages.length, thinking]);
   useEffect(() => { if (error) toast({ title: error, variant: 'destructive' }); }, [error, toast]);
+
+  // Periodic "How can I help you today?" nudge — gentle, never while chatting.
+  useEffect(() => {
+    let mounted = true;
+    const show = () => { if (mounted && !open) setShowNudge(true); };
+    const hide = () => { if (mounted) setShowNudge(false); };
+    let hideTimer: ReturnType<typeof setTimeout> | undefined;
+    const scheduleHide = () => { hideTimer = setTimeout(hide, 6000); };
+    const showAndSchedule = () => { show(); scheduleHide(); };
+    const first = setTimeout(showAndSchedule, 12000);
+    const cycle = setInterval(showAndSchedule, 50000);
+    const onVisibility = () => { if (document.hidden) hide(); };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      mounted = false;
+      clearTimeout(first);
+      clearTimeout(hideTimer);
+      clearInterval(cycle);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [open]);
 
   if (!user) return null;
 
@@ -228,15 +251,43 @@ export function AssistantChatWidget() {
         )}
       </AnimatePresence>
 
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setOpen((o) => !o)}
-        aria-label={ASSISTANT_NAME}
-        className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-500 text-amber-950 shadow-lg transition-shadow hover:shadow-xl"
-      >
-        {open ? <X className="h-4.5 w-4.5" /> : <MessageSquare className="h-4.5 w-4.5" />}
-      </motion.button>
+      <div className="relative flex flex-col items-end gap-2">
+        <AnimatePresence>
+          {!open && showNudge && (
+            <motion.div
+              initial={{ opacity: 0, y: 8, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+              className="mb-1 max-w-[14rem] rounded-xl border border-amber-500/20 bg-card px-3 py-2 text-xs shadow-lg"
+            >
+              <p className="font-medium text-foreground">{copy.nudge}</p>
+              <div className="absolute -bottom-1 right-5 h-2 w-2 rotate-45 border-b border-r border-amber-500/20 bg-card" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setOpen((o) => !o)}
+          aria-label={ASSISTANT_NAME}
+          className={cn(
+            'flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-amber-500 text-amber-950 shadow-lg transition-shadow hover:shadow-xl',
+            !open && 'p-0.5'
+          )}
+        >
+          {open ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <img
+              src={botAsset.url}
+              alt={ASSISTANT_NAME}
+              className="h-full w-full rounded-full object-cover"
+            />
+          )}
+        </motion.button>
+      </div>
     </div>
   );
 }
