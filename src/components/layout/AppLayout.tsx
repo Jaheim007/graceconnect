@@ -94,6 +94,8 @@ export function AppLayout() {
       <BackToTopProgress />
       <CookieConsent />
       <FloatingHelpWidget />
+      <AssistantChatWidget />
+
       <KeyboardShortcutsModal />
     </div>
     </CompareProvider>
