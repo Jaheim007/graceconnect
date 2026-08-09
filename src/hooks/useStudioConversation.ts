@@ -10,6 +10,7 @@ export interface StudioMessage {
 }
 
 export interface GenerationProposal {
+  kind?: 'course' | 'book';
   action_key: string;
   action_label: string;
   cost: number | null;
@@ -21,8 +22,12 @@ export interface GenerationProposal {
     prompt: string;
     language: string;
     tier: 'standard' | 'premium';
-    level: 'beginner' | 'intermediate' | 'advanced';
-    generate_images: boolean;
+    level?: 'beginner' | 'intermediate' | 'advanced';
+    generate_images?: boolean;
+    style?: string;
+    tone?: string;
+    audience?: string;
+    chapter_count?: number;
     file_url?: string;
     file_name?: string;
     mime?: string;

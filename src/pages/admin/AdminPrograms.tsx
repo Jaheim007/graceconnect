@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, BookOpen, Edit, Trash2, Eye, EyeOff, Layers, ChevronRight, Zap, FileUp, PenLine, ChevronDown, Copy, Save, MessageSquare } from 'lucide-react';
-import { ASSISTANT_NAME, ASSISTANT_ROUTE } from '@/lib/viralStudio/assistant';
+
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrgCourseStats } from '@/hooks/useCourseCommerce';
 import { formatPrice } from '@/lib/currency';
@@ -119,13 +119,8 @@ export default function AdminPrograms() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem onClick={() => navigate(ASSISTANT_ROUTE)} className="gap-2.5 py-2.5">
-              <MessageSquare className="h-4 w-4 text-primary" />
-              <div>
-                <p className="text-sm font-medium">{ASSISTANT_NAME}</p>
-                <p className="text-[10px] text-muted-foreground">{isFr ? 'Créer en discutant (gratuit)' : 'Create by chatting (free)'}</p>
-              </div>
-            </DropdownMenuItem>
+            {/* The conversational assistant now lives in the global floating chat widget. */}
+
             <DropdownMenuItem onClick={() => setShowAI(true)} className="gap-2.5 py-2.5">
               
               <div>
