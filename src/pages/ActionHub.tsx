@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
-import { ArrowRight, Zap, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet } from 'lucide-react';
+import { ArrowRight, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -135,13 +135,38 @@ export default function ActionHub() {
 
 
   return (
-    <div className="relative min-h-[100dvh] flex flex-col bg-background overflow-hidden">
-      {/* Ambient glow — same sophisticated glass language as the dashboard shells */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-primary/12 blur-[120px]" />
-        <div className="absolute bottom-[-160px] right-[-120px] h-[380px] w-[520px] rounded-full bg-accent/10 blur-[130px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.06),transparent_60%)]" />
+    <div className="relative min-h-[100dvh] flex flex-col bg-[hsl(var(--cert-paper))] dark:bg-[#08070f] overflow-hidden">
+      {/* Certificate-grade backdrop: warm paper in light, deep ink in dark — gold aurora both ways */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <motion.div
+          className="absolute -top-1/3 -left-1/4 h-[70vh] w-[70vh] rounded-full blur-[120px]"
+          style={{ background: 'radial-gradient(circle, hsl(var(--cert-gold)/0.16), transparent 65%)' }}
+          animate={{ scale: [1, 1.12, 1], opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute -bottom-1/3 -right-1/4 h-[65vh] w-[65vh] rounded-full blur-[130px]"
+          style={{ background: 'radial-gradient(circle, hsl(var(--primary)/0.14), transparent 65%)' }}
+          animate={{ scale: [1.1, 1, 1.1], opacity: [0.55, 0.9, 0.55] }}
+          transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        {/* Engraved grid */}
+        <div
+          className="absolute inset-0 opacity-[0.07] dark:opacity-[0.06]"
+          style={{
+            backgroundImage:
+              'linear-gradient(to right, hsl(var(--cert-gold)/0.55) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--cert-gold)/0.55) 1px, transparent 1px)',
+            backgroundSize: '64px 64px',
+            maskImage: 'radial-gradient(ellipse at center, black, transparent 72%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at center, black, transparent 72%)',
+          }}
+        />
+        <div
+          className="absolute inset-x-0 top-0 h-px"
+          style={{ background: 'linear-gradient(90deg, transparent, hsl(var(--cert-gold)/0.55), transparent)' }}
+        />
       </div>
+
       <SEOHead
 
         title="SiteViral — Écris. Vends. Gagne."
@@ -166,7 +191,7 @@ export default function ActionHub() {
       />
 
       {/* Compact mobile-first top bar */}
-      <header className="h-12 sm:h-14 sticky top-0 z-40 glass border-b border-border flex items-center px-3 sm:px-4 gap-2">
+      <header className="relative h-12 sm:h-14 sticky top-0 z-40 backdrop-blur-xl bg-[hsl(var(--cert-paper))]/70 dark:bg-[#08070f]/70 border-b border-[hsl(var(--cert-gold))]/20 flex items-center px-3 sm:px-4 gap-2">
         <SiteLogo size="sm" animate />
         <div className="flex-1" />
         <Button
@@ -201,72 +226,107 @@ export default function ActionHub() {
           className="w-full max-w-2xl space-y-6"
         >
           {/* Hero */}
-          <motion.div variants={item} className="text-center space-y-2">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary shadow-[0_0_24px_-8px_hsl(var(--primary)/0.6)] mb-1">
-              <Zap className="h-3 w-3 text-primary shrink-0" />
+          <motion.div variants={item} className="text-center space-y-3">
+            <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.32em] text-[hsl(var(--cert-gold))] dark:text-amber-300/80">
               {isFr ? 'Gratuit pour commencer' : 'Free to start'}
-            </div>
-            <h1 className="text-[26px] sm:text-4xl font-black tracking-tight text-foreground leading-[1.1]">
+            </p>
+            <h1 className="font-heading text-[28px] sm:text-[42px] font-bold tracking-tight text-foreground leading-[1.06]">
               {user && displayName
-                ? (isFr ? `Salut ${displayName} 👋` : `Hey ${displayName} 👋`)
-                : (isFr ? 'Que veux-tu faire ?' : 'What do you want to do?')}
+                ? (isFr ? `Salut ${displayName}.` : `Hey ${displayName}.`)
+                : (isFr ? 'Que veux-tu ' : 'What do you ')}
+              <span
+                className="italic"
+                style={{
+                  backgroundImage: 'linear-gradient(120deg, hsl(var(--cert-gold)), hsl(var(--cert-gold-soft)), hsl(var(--cert-gold)))',
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text',
+                  color: 'transparent',
+                }}
+              >
+                {user && displayName
+                  ? (isFr ? ' On continue ?' : ' Let’s continue.')
+                  : (isFr ? 'faire ?' : 'want to do?')}
+              </span>
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground max-w-[380px] mx-auto">
+            <div
+              aria-hidden
+              className="mx-auto h-px w-24"
+              style={{ background: 'linear-gradient(90deg, transparent, hsl(var(--cert-gold)/0.8), transparent)' }}
+            />
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-[400px] mx-auto">
               {user
                 ? (isFr ? 'Choisis une action pour continuer.' : 'Pick an action to continue.')
                 : (isFr ? 'Crée, vends et gagne — tout en un seul endroit.' : 'Create, sell & earn — all in one place.')}
             </p>
           </motion.div>
 
-          {/* Action cards — glass surface, unified badges */}
-          <div className="grid gap-2.5 sm:grid-cols-2">
-            {actions.map((action) => (
-              <motion.button
-                key={action.id}
-                variants={item}
-                onClick={() => handleAction(action)}
-                className={cn(
-                  'relative w-full flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl text-left group overflow-hidden',
-                  'border bg-card/70 backdrop-blur-xl',
-                  'shadow-[0_1px_2px_hsl(var(--foreground)/0.04)]',
-                  'transition-all duration-200 active:scale-[0.98]',
-                  'hover:-translate-y-0.5 hover:bg-card',
-                  'hover:shadow-[0_18px_40px_-22px_hsl(var(--primary)/0.45)]',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
-                  action.borderClass
-                )}
-              >
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(120%_120%_at_0%_0%,hsl(var(--primary)/0.10),transparent_60%)]"
-                />
-                <div className={cn(
-                  'relative h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-inset ring-current/10 transition-transform duration-200 group-hover:scale-[1.06]',
-                  action.iconBg, action.iconColor
-                )}>
-                  <action.icon className="h-5 w-5" />
-                </div>
+          {/* Action panel — gold-framed surface, same language as the certificate & sign-in */}
+          <motion.div
+            variants={item}
+            className="relative overflow-hidden rounded-[26px] p-[1.5px] shadow-[0_40px_120px_-50px_hsl(var(--cert-gold)/0.55)]"
+            style={{
+              background:
+                'linear-gradient(135deg, hsl(var(--cert-gold-soft)/0.9), hsl(var(--cert-gold)/0.45) 35%, hsl(var(--cert-gold-soft)/0.85) 55%, hsl(var(--cert-gold)/0.45) 80%, hsl(var(--cert-gold-soft)/0.9))',
+            }}
+          >
+            <motion.div
+              aria-hidden
+              initial={{ x: '-130%' }}
+              animate={{ x: '150%' }}
+              transition={{ duration: 2.6, delay: 0.5, ease: 'easeInOut' }}
+              className="pointer-events-none absolute inset-y-0 z-20 w-1/3 bg-gradient-to-r from-transparent via-white/25 dark:via-white/10 to-transparent"
+            />
+            <div className="relative rounded-[24px] bg-[hsl(var(--cert-paper))]/95 dark:bg-[#0e0d16]/95 backdrop-blur-xl p-3 sm:p-4">
+              <div className="grid gap-2.5 sm:grid-cols-2">
+                {actions.map((action) => (
+                  <button
+                    key={action.id}
+                    onClick={() => handleAction(action)}
+                    className={cn(
+                      'relative w-full flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl text-left group overflow-hidden',
+                      'border border-[hsl(var(--cert-gold))]/20 dark:border-amber-200/10',
+                      'bg-[hsl(var(--cert-paper-warm))]/70 dark:bg-white/[0.03]',
+                      'transition-all duration-200 active:scale-[0.98]',
+                      'hover:-translate-y-0.5 hover:border-[hsl(var(--cert-gold))]/50',
+                      'hover:shadow-[0_18px_40px_-24px_hsl(var(--cert-gold)/0.6)]',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--cert-gold))]/50',
+                    )}
+                  >
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(120%_120%_at_0%_0%,hsl(var(--cert-gold)/0.12),transparent_60%)]"
+                    />
+                    <div className={cn(
+                      'relative h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-inset ring-current/15 transition-transform duration-200 group-hover:scale-[1.06]',
+                      action.iconBg, action.iconColor
+                    )}>
+                      <action.icon className="h-5 w-5" />
+                    </div>
 
-                <div className="relative flex-1 min-w-0">
-                  <div className="font-bold text-[13px] sm:text-sm text-foreground leading-tight">{isFr ? action.titleFr : action.titleEn}</div>
-                  <div className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 leading-snug">{isFr ? action.descFr : action.descEn}</div>
-                </div>
-                <ArrowRight className="relative h-4 w-4 text-muted-foreground/70 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
-              </motion.button>
-            ))}
-          </div>
+                    <div className="relative flex-1 min-w-0">
+                      <div className="font-bold text-[13px] sm:text-sm text-foreground leading-tight">{isFr ? action.titleFr : action.titleEn}</div>
+                      <div className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 leading-snug">{isFr ? action.descFr : action.descEn}</div>
+                    </div>
+                    <ArrowRight className="relative h-4 w-4 text-muted-foreground/70 group-hover:text-[hsl(var(--cert-gold))] group-hover:translate-x-0.5 transition-all shrink-0" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
 
           {/* Footer link */}
           <motion.div variants={item} className="text-center pt-1">
             <Button
               variant="outline"
               size="sm"
-              className="h-9 rounded-xl border-border/60 bg-card/60 px-4 text-xs font-semibold backdrop-blur-xl hover:border-primary/40"
+              className="h-9 rounded-xl border-[hsl(var(--cert-gold))]/30 bg-transparent px-4 text-xs font-semibold backdrop-blur-xl hover:border-[hsl(var(--cert-gold))]/60 hover:bg-[hsl(var(--cert-gold))]/10"
               onClick={() => navigate('/landing')}
             >
               {isFr ? 'En savoir plus sur SiteViral' : 'Learn more about SiteViral'}
               <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
             </Button>
+
           </motion.div>
         </motion.div>
       </main>
