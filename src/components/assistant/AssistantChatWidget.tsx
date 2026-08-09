@@ -177,16 +177,16 @@ export function AssistantChatWidget() {
               </div>
             </div>
 
-            <div className="flex-1 space-y-3 overflow-y-auto p-3">
+            <div className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-3 py-3.5">
               {messages.map((m) => (
                 <div key={m.id} className={cn('flex flex-col gap-2', m.role === 'user' ? 'items-end' : 'items-start')}>
                   {m.content && (
                     <div
                       className={cn(
-                        'max-w-[90%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-xs leading-relaxed',
+                        'max-w-[88%] whitespace-pre-wrap break-words rounded-2xl text-[13px] leading-relaxed',
                         m.role === 'user'
-                          ? 'rounded-br-sm bg-primary text-primary-foreground'
-                          : 'text-foreground',
+                          ? 'rounded-br-sm bg-primary px-3 py-2 text-primary-foreground'
+                          : 'px-0.5 text-foreground',
                       )}
                     >
                       {m.content}
@@ -195,25 +195,44 @@ export function AssistantChatWidget() {
 
                   {m.proposal && (
                     <div className="w-full rounded-xl border border-amber-500/30 bg-amber-500/5 p-3">
-                      <p className="flex items-center gap-2 text-xs font-semibold">
+                      <p className="flex items-center gap-2 text-[13px] font-semibold">
                         {m.proposal.kind === 'book'
-                          ? <BookOpen className="h-3.5 w-3.5 text-amber-500" />
-                          : <GraduationCap className="h-3.5 w-3.5 text-amber-500" />}
-                        {m.proposal.input.title || (isFr ? 'Nouveau contenu' : 'New content')}
+                          ? <BookOpen className="h-4 w-4 shrink-0 text-amber-500" />
+                          : <GraduationCap className="h-4 w-4 shrink-0 text-amber-500" />}
+                        <span className="min-w-0 break-words">{m.proposal.input.title || (isFr ? 'Nouveau contenu' : 'New content')}</span>
                       </p>
-                      <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 text-[11px] text-muted-foreground">
                         <Coins className="h-3 w-3 text-amber-500" />
                         {isFr ? 'Coût' : 'Cost'}: <span className="font-semibold text-foreground">{m.proposal.cost ?? '—'}</span>
                         {typeof (creditSummary?.balance ?? m.proposal.balance) === 'number' && (
                           <span>· {isFr ? 'solde' : 'balance'} {(creditSummary?.balance ?? m.proposal.balance)?.toFixed?.(1)}</span>
                         )}
                       </p>
-                      <p className="mt-1 text-[10px] text-muted-foreground">
+
+                      {m.proposal.kind !== 'book' && (
+                        <label className="mt-2.5 flex items-center justify-between gap-2 rounded-lg border border-border/60 bg-background/60 px-2.5 py-2">
+                          <span className="flex items-center gap-2 text-[11px] font-medium">
+                            <ImageIcon className="h-3.5 w-3.5 text-amber-500" />
+                            {isFr ? 'Illustrations par leçon' : 'Illustrations per lesson'}
+                          </span>
+                          <Switch
+                            checked={imageChoice[m.id] ?? m.proposal.input.generate_images ?? false}
+                            onCheckedChange={(v) => setImageChoice((prev) => ({ ...prev, [m.id]: v }))}
+                            aria-label={isFr ? 'Générer des illustrations' : 'Generate illustrations'}
+                          />
+                        </label>
+                      )}
+
+                      <p className="mt-2 text-[10px] text-muted-foreground">
                         {isFr
                           ? 'Tu pourras relire et modifier avant publication.'
                           : 'You can review and edit before publishing.'}
                       </p>
-                      <Button size="sm" className="mt-2.5 h-8 w-full text-xs" onClick={() => startGeneration(m.proposal!)}>
+                      <Button
+                        size="sm"
+                        className="mt-2.5 h-9 w-full text-xs"
+                        onClick={() => startGeneration(m.proposal!, imageChoice[m.id] ?? m.proposal!.input.generate_images ?? false)}
+                      >
                         {isFr ? 'Confirmer et générer' : 'Confirm & generate'}
                       </Button>
                     </div>
@@ -230,7 +249,7 @@ export function AssistantChatWidget() {
               <div ref={bottomRef} />
             </div>
 
-            <div className="border-t border-border p-2">
+            <div className="border-t border-border bg-muted/20 p-2">
               <div className="flex items-end gap-1.5">
                 <Textarea
                   ref={composerRef}
@@ -241,21 +260,21 @@ export function AssistantChatWidget() {
                   }}
                   placeholder={copy.placeholder}
                   rows={1}
-                  className="min-h-[2.25rem] resize-none border-0 bg-transparent px-2 py-2 text-xs shadow-none focus-visible:ring-0"
+                  className="max-h-28 min-h-[2.5rem] flex-1 resize-none border-0 bg-transparent px-2 py-2.5 text-[13px] shadow-none focus-visible:ring-0"
                 />
                 <Button
                   variant={dictation.recording ? 'destructive' : 'ghost'}
                   size="icon"
-                  className="h-8 w-8 shrink-0"
+                  className="h-9 w-9 shrink-0"
                   onClick={() => dictation.toggle()}
                   aria-label={dictation.recording ? (isFr ? 'Arrêter la dictée' : 'Stop dictation') : (isFr ? 'Dicter' : 'Dictate')}
                 >
                   {dictation.transcribing
-                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    : <Mic className="h-3.5 w-3.5" />}
+                    ? <Loader2 className="h-4 w-4 animate-spin" />
+                    : <Mic className="h-4 w-4" />}
                 </Button>
-                <Button size="icon" className="h-8 w-8 shrink-0" onClick={handleSend} disabled={!input.trim() || thinking} aria-label={isFr ? 'Envoyer' : 'Send'}>
-                  <Send className="h-3.5 w-3.5" />
+                <Button size="icon" className="h-9 w-9 shrink-0" onClick={handleSend} disabled={!input.trim() || thinking} aria-label={isFr ? 'Envoyer' : 'Send'}>
+                  <Send className="h-4 w-4" />
                 </Button>
               </div>
               {dictation.recording && (
