@@ -208,7 +208,7 @@ export function OnboardingTour() {
     return () => window.removeEventListener('keydown', handler);
   }, [active, next, prev, finish]);
 
-  if (!active) return null;
+  if (!active || !current) return null;
 
   const pad = 8;
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
