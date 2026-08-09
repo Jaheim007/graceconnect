@@ -27,6 +27,8 @@ interface Attachment {
   mime?: string;
 }
 
+const BOOK_ACTION_KEY = 'generate_book';
+
 const TOOLS = [
   {
     functionDeclarations: [
@@ -55,6 +57,34 @@ const TOOLS = [
           required: ['title', 'prompt', 'language', 'tier'],
         },
       },
+      {
+        name: 'start_book_generation',
+        description:
+          'Propose the creation of a book / ebook with the existing writing pipeline. Only call this once the topic, the audience and the language are known.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            title: { type: 'STRING', description: 'Short book title.' },
+            prompt: { type: 'STRING', description: 'Rich brief: topic, promise, audience, angle, key chapters.' },
+            language: { type: 'STRING', description: 'fr or en' },
+            style: {
+              type: 'STRING',
+              description: 'ebook, guide, prayers, story, novel, devotional, activity or coloring',
+            },
+            tone: {
+              type: 'STRING',
+              description: 'professional, conversational, humorous, spiritual, poetic or academic',
+            },
+            audience: {
+              type: 'STRING',
+              description: 'general, children, teens, adults, seniors or professionals',
+            },
+            chapter_count: { type: 'NUMBER', description: 'Number of chapters (6-14).' },
+            use_document: { type: 'BOOLEAN', description: 'True when an uploaded document is the source.' },
+          },
+          required: ['title', 'prompt', 'language'],
+        },
+      },
     ],
   },
 ];
@@ -62,20 +92,23 @@ const TOOLS = [
 function systemPrompt(assistantName: string, isFr: boolean, attachments: Attachment[]) {
   const doc = attachments.length
     ? `The user has attached: ${attachments.map((a) => a.file_name || a.file_url).join(', ')}. Prefer use_document=true.`
-    : 'No document attached. The course will be generated from the conversation brief.';
+    : 'No document attached. The content will be generated from the conversation brief.';
 
   return [
     `You are ${assistantName}, the creation assistant of SiteViral.`,
-    `You help creators turn an idea into a sellable course/formation through natural conversation — never by showing forms.`,
+    `You help creators turn an idea into a sellable course/formation OR a book/ebook through natural conversation — never by showing forms.`,
     `Language: reply in ${isFr ? 'French' : 'English'}, but always mirror the language the user writes in.`,
-    `Ask ONE short question at a time. Gather: topic, target audience, goal, tone, level, language, and whether they want AI illustrations.`,
+    `First figure out WHAT they want: a course/formation, or a book/ebook.`,
+    `Ask ONE short question at a time, and only ask what is still missing: topic, target audience, goal, tone, level, language, and whether they want AI illustrations.`,
+    `If the user already gave everything in one message (often by voice), do NOT re-ask — just confirm: "Anything else to add, or should I generate?"`,
     `Keep every reply under 70 words, warm and concrete. Never invent platform features.`,
-    `When you have topic + audience + language, call the tool "start_course_generation" with a rich brief instead of writing a long plan.`,
+    `When the essentials are known, call "start_course_generation" (course) or "start_book_generation" (book) with a rich brief instead of writing a long plan.`,
     `Default tier is "standard"; propose "premium" only if the user asks for a deeper/longer course.`,
-    `Never claim the course is generated: after the tool call the user must confirm the credit cost, then a human review step follows.`,
+    `Never claim the content is generated: after the tool call the user must confirm the credit cost, then they land in the normal editor/review flow.`,
     doc,
   ].join('\n');
 }
+
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
