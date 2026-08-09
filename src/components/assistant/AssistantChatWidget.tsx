@@ -91,7 +91,7 @@ export function AssistantChatWidget() {
     composerRef.current?.focus();
   };
 
-  const startGeneration = (proposal: GenerationProposal) => {
+  const startGeneration = (proposal: GenerationProposal, withImages?: boolean) => {
     const balance = creditSummary?.balance;
     if (typeof balance === 'number' && typeof proposal.cost === 'number' && balance < proposal.cost) {
       toast({
@@ -130,7 +130,11 @@ export function AssistantChatWidget() {
     navigate('/admin/programs/generating', {
       state: {
         mode: proposal.input.source === 'document' ? 'convert' : 'ai',
-        input: { org_id: currentOrg.id, ...proposal.input },
+        input: {
+          org_id: currentOrg.id,
+          ...proposal.input,
+          generate_images: withImages ?? proposal.input.generate_images ?? false,
+        },
       },
     });
   };
@@ -144,7 +148,7 @@ export function AssistantChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 380, damping: 26 }}
-            className="mb-3 flex w-[min(92vw,23rem)] max-h-[70dvh] flex-col overflow-hidden rounded-2xl border border-amber-500/25 bg-card shadow-2xl"
+            className="mb-3 flex h-[min(72dvh,32rem)] w-[calc(100vw-2rem)] max-w-[24rem] flex-col overflow-hidden rounded-2xl border border-amber-500/25 bg-card shadow-2xl sm:w-[24rem] md:h-[min(70dvh,34rem)] md:w-[26rem] md:max-w-[26rem]"
           >
             <div className="flex items-center justify-between gap-2 border-b border-border bg-muted/30 px-3.5 py-2.5">
               <div>
