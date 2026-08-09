@@ -331,6 +331,7 @@ const AdminOfferings = lazy(() => import("@/pages/admin/AdminOfferings"));
 const AdminPrograms = lazy(() => import("@/pages/admin/AdminPrograms"));
 const AdminProgramDraftReview = lazy(() => import("@/pages/admin/AdminProgramDraftReview"));
 const AdminProgramGenerating = lazy(() => import("@/pages/admin/AdminProgramGenerating"));
+const ViralStudioPage = lazy(() => import("@/pages/admin/ViralStudioPage"));
 
 const AdminProgramForm = lazy(() => import("@/pages/admin/AdminProgramForm").then(m => ({ default: m.ProgramForm })));
 const AdminLearnerProgress = lazy(() => import("@/pages/admin/AdminLearnerProgress"));
