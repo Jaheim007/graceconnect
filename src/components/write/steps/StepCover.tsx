@@ -123,12 +123,37 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
           <p className="text-xs text-muted-foreground uppercase tracking-wide">📖 {state.title}</p>
         </div>
       )}
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl sm:text-3xl font-extrabold">{t('write.cover_title')}</h2>
-        <p className="text-muted-foreground text-sm">{t('write.cover_sub')}</p>
+      <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-card to-accent/10 p-6 sm:p-8 text-center">
+        <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 h-56 w-56 rounded-full bg-accent/20 blur-3xl" />
+        <div className="relative space-y-2">
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">{t('write.cover_title')}</h2>
+          <p className="text-muted-foreground text-sm max-w-md mx-auto">{t('write.cover_sub')}</p>
+        </div>
       </div>
 
-      {/* AI cover generation removed — use Canva or upload */}
+      {/* AI cover generation */}
+      <div className="rounded-2xl border border-primary/25 bg-primary/5 p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/15">
+            <Wand2 className="h-5 w-5 text-primary" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">
+              {t('write.cover_ai_title') || 'Générer la couverture avec l’IA'}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {t('write.cover_ai_cost') || 'Utilise des crédits · basé sur le titre de ton livre'}
+            </p>
+          </div>
+          <Button onClick={handleAiGenerate} disabled={generating} className="gap-2 shrink-0">
+            {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+            {generating
+              ? (t('write.illust_generating_all') || 'Génération...')
+              : (t('write.illust_generate') || 'Générer')}
+          </Button>
+        </div>
+      </div>
 
       {/* Upload / Canva */}
       <div>
@@ -142,6 +167,7 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
           showCanva={true}
         />
       </div>
+
 
       {!state.coverUrl && (
         <div className="space-y-2">

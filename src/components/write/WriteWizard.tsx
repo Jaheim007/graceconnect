@@ -468,6 +468,18 @@ export default function WriteWizard() {
     syncDraftList(store, draftId);
   }, [draftId, state, step, syncDraftList]);
 
+  /** Explicit "Save as draft": persist, confirm, then return to the wizard home. */
+  const handleSaveDraftAndExitToStart = useCallback(() => {
+    if (step >= CELEBRATION_STEP) return;
+    const { store, updatedAt } = saveDraftSnapshot(draftId, state, step);
+    setLastSavedAt(updatedAt);
+    syncDraftList(store, draftId);
+    setStep(0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    toast({ title: `💾 ${t('write.save_as_draft')}` });
+  }, [draftId, state, step, syncDraftList, toast, t]);
+
+
   const handleCreateNewDraft = useCallback(() => {
     if (step < CELEBRATION_STEP) saveCurrentDraftNow();
 
@@ -1038,7 +1050,7 @@ export default function WriteWizard() {
             {step === ILLUSTRATIONS_STEP && <StepIllustrations state={state} update={update} onNext={next} onBack={back} />}
             {step === COVER_STEP && <StepCover state={state} update={update} onNext={next} onBack={back} />}
             {step === PRICING_STEP && <StepPricing state={state} update={update} onNext={next} onBack={back} orgCurrency={orgCurrency} />}
-            {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={saveCurrentDraftNow} saving={publishing} />}
+            {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={handleSaveDraftAndExitToStart} saving={publishing} />}
             {step === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
             {step === CELEBRATION_STEP && <StepCelebration state={state} onWriteAnother={handleCreateNewDraft} />}
           </motion.div>
