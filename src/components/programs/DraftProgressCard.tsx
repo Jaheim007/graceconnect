@@ -91,7 +91,7 @@ export function DraftProgressCard({ draft, isFr, onResume, onDelete }: DraftProg
               animate={{ width: `${percent}%` }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-foreground/30 to-transparent animate-[shimmer_1.6s_infinite]" />
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-foreground/30 to-transparent animate-pulse" />
             </motion.div>
           </div>
           <p className="text-xs text-muted-foreground">
