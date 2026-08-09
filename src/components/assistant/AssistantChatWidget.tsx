@@ -36,6 +36,7 @@ export function AssistantChatWidget() {
   const [open, setOpen] = useState(false);
   const [showNudge, setShowNudge] = useState(false);
   const [input, setInput] = useState('');
+  const [imageChoice, setImageChoice] = useState<Record<string, boolean>>({});
   const baseTextRef = useRef('');
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
