@@ -356,7 +356,9 @@ export default function AuthPage() {
               <Link to="/terms" className="underline hover:text-foreground">{t('auth.terms_of_service')}</Link>{' '}{t('auth.and')}{' '}
               <Link to="/privacy" className="underline hover:text-foreground">{t('auth.privacy_policy')}</Link>.
             </p>
-          </div>
+            </div>
+          </motion.div>
+
         </div>
       </div>
     </div>
