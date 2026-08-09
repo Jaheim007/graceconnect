@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
-import { ArrowRight, Zap, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet } from 'lucide-react';
+import { ArrowRight, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
