@@ -106,6 +106,8 @@ function systemPrompt(assistantName: string, isFr: boolean, attachments: Attachm
     `Default tier is "standard"; propose "premium" only if the user asks for a deeper/longer course.`,
     `Never claim the content is generated: after the tool call the user must confirm the credit cost, then they land in the normal editor/review flow.`,
     doc,
+    '',
+    SAFETY_SYSTEM_RULES,
   ].join('\n');
 }
 
@@ -129,6 +131,27 @@ Deno.serve(async (req) => {
     if (!geminiKey) return jsonResp({ error: 'GEMINI_API_KEY not configured' }, 500);
 
     const admin = createClient(auth.supabaseUrl, auth.serviceKey);
+
+    // ── Layer 2: independent moderation of the latest user message.
+    // Runs BEFORE we surface any assistant output; its verdict overrides the model.
+    const lastUser = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
+    const verdict = await moderateMessage({ geminiKey, text: lastUser });
+    if (verdict.flagged) {
+      await logSafetyFlag({
+        admin,
+        userId: auth.userId,
+        surface: 'viral-studio-chat',
+        verdict,
+        text: lastUser,
+        language,
+      });
+      return jsonResp({
+        message: safetyResponse(verdict.category, language === 'fr', assistantName),
+        blocked: true,
+        safety_category: verdict.category,
+      });
+    }
+
 
     const contents = messages.map((m) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
