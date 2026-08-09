@@ -62,24 +62,18 @@ export function AssistantChatWidget() {
     let mounted = true;
     const show = () => { if (mounted && !open) setShowNudge(true); };
     const hide = () => { if (mounted) setShowNudge(false); };
-    const first = setTimeout(show, 12000);
     let hideTimer: ReturnType<typeof setTimeout> | undefined;
-    let cycleTimer: ReturnType<typeof setInterval> | undefined;
-    const startCycle = () => {
-      cycleTimer = setInterval(() => {
-        show();
-        hideTimer = setTimeout(hide, 6000);
-      }, 50000);
-    };
-    const onVisibility = () => {
-      if (document.hidden) hide();
-    };
+    const scheduleHide = () => { hideTimer = setTimeout(hide, 6000); };
+    const showAndSchedule = () => { show(); scheduleHide(); };
+    const first = setTimeout(showAndSchedule, 12000);
+    const cycle = setInterval(showAndSchedule, 50000);
+    const onVisibility = () => { if (document.hidden) hide(); };
     document.addEventListener('visibilitychange', onVisibility);
     return () => {
       mounted = false;
       clearTimeout(first);
       clearTimeout(hideTimer);
-      clearInterval(cycleTimer);
+      clearInterval(cycle);
       document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [open]);
