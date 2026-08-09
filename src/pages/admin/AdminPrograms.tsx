@@ -18,6 +18,8 @@ import { formatPrice } from '@/lib/currency';
 import { askConfirm } from '@/components/ui/confirm-dialog';
 import { useOrgCourseDrafts, useDeleteCourseDraft } from '@/hooks/useCourseDraft';
 import { CreateWithAIDialog } from '@/components/programs/CreateWithAIDialog';
+import { DraftProgressCard } from '@/components/programs/DraftProgressCard';
+
 import { CreateBlankDialog } from '@/components/programs/CreateBlankDialog';
 import { ConvertDocumentDialog } from '@/components/programs/ConvertDocumentDialog';
 import { ShareCourseMenu } from '@/components/programs/ShareCourseMenu';
