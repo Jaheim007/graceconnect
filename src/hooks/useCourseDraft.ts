@@ -262,17 +262,30 @@ export interface CourseDraftSummary {
   lessons: number;
   slides: number;
   source_kind?: string | null;
+  /** Live generation progress (0-100) when a job is still running. */
+  progress?: number | null;
+  job_status?: string | null;
 }
 
 /**
  * Every AI course draft is auto-saved server-side, so leaving the page (or
  * losing the connection) never destroys work. This lists the drafts that were
  * never published so the creator can always come back and finish them.
+ *
+ * Drafts still generating carry their live job progress so the list can show a
+ * real percentage instead of a static "in progress" label.
  */
 export function useOrgCourseDrafts(orgId: string | undefined) {
   return useQuery({
     queryKey: ['org-course-drafts', orgId],
     enabled: !!orgId,
+    // Keep the percentage moving while any draft is still being generated.
+    refetchInterval: (query) => {
+      const rows = query.state.data as CourseDraftSummary[] | undefined;
+      const active = rows?.some((r) => r.status === 'generating' || r.job_status === 'running' || r.job_status === 'queued');
+      return active ? 4000 : false;
+    },
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<CourseDraftSummary[]> => {
       const { data, error } = await supabase
         .from('ai_content_projects')
@@ -283,8 +296,27 @@ export function useOrgCourseDrafts(orgId: string | undefined) {
         .order('updated_at', { ascending: false })
         .limit(20);
       if (error) throw error;
-      return (data || []).map((row: any) => {
+
+      const rows = data || [];
+      const generatingIds = rows.filter((r: any) => r.status === 'generating').map((r: any) => r.id);
+
+      const jobByProject = new Map<string, { progress: number; status: string }>();
+      if (generatingIds.length) {
+        const { data: jobs } = await supabase
+          .from('ai_generation_jobs')
+          .select('project_id, progress, status, created_at')
+          .in('project_id', generatingIds)
+          .order('created_at', { ascending: false });
+        for (const j of (jobs || []) as any[]) {
+          if (j.project_id && !jobByProject.has(j.project_id)) {
+            jobByProject.set(j.project_id, { progress: j.progress ?? 0, status: j.status });
+          }
+        }
+      }
+
+      return rows.map((row: any) => {
         const lessons = row.data_json?.course?.lessons || [];
+        const job = jobByProject.get(row.id);
         return {
           id: row.id,
           title: row.title || 'Cours',
@@ -293,11 +325,14 @@ export function useOrgCourseDrafts(orgId: string | undefined) {
           lessons: lessons.length,
           slides: lessons.reduce((n: number, l: any) => n + (l.slides?.length || 0), 0),
           source_kind: row.data_json?.source?.kind ?? null,
+          progress: job ? job.progress : null,
+          job_status: job ? job.status : null,
         };
       });
     },
   });
 }
+
 
 export function useDeleteCourseDraft() {
   const qc = useQueryClient();

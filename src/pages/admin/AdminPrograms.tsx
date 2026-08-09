@@ -18,6 +18,8 @@ import { formatPrice } from '@/lib/currency';
 import { askConfirm } from '@/components/ui/confirm-dialog';
 import { useOrgCourseDrafts, useDeleteCourseDraft } from '@/hooks/useCourseDraft';
 import { CreateWithAIDialog } from '@/components/programs/CreateWithAIDialog';
+import { DraftProgressCard } from '@/components/programs/DraftProgressCard';
+
 import { CreateBlankDialog } from '@/components/programs/CreateBlankDialog';
 import { ConvertDocumentDialog } from '@/components/programs/ConvertDocumentDialog';
 import { ShareCourseMenu } from '@/components/programs/ShareCourseMenu';
@@ -152,45 +154,32 @@ export default function AdminPrograms() {
       <div className="space-y-4">
         {/* Auto-saved AI drafts — nothing is ever lost if the creator leaves */}
         {drafts.length > 0 && (
-          <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
+          <div className="rounded-2xl border border-border bg-muted/30 p-4 sm:p-5 space-y-3">
             <div className="flex items-center gap-2">
-              <Save className="h-4 w-4 text-primary" />
-              <span className="font-semibold text-sm">
+              <Save className="h-5 w-5 text-primary" />
+              <span className="font-semibold text-base">
                 {isFr ? 'Brouillons enregistrés automatiquement' : 'Auto-saved drafts'}
               </span>
             </div>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {isFr
                 ? 'Vos générations sont sauvegardées dans le cloud. Reprenez là où vous vous êtes arrêté, même après une déconnexion.'
                 : 'Your generations are saved in the cloud. Pick up exactly where you left off, even after a disconnection.'}
             </p>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-3 lg:grid-cols-2">
               {drafts.map((d) => (
-                <div key={d.id} className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium truncate">{d.title}</p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {d.lessons} {isFr ? 'leçons' : 'lessons'} · {d.slides} slides
-                      {d.status === 'generating' ? ` · ${isFr ? 'en cours' : 'in progress'}` : ''}
-                    </p>
-                  </div>
-                  <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => navigate(`/admin/programs/draft/${d.id}`)}>
-                    {isFr ? 'Reprendre' : 'Resume'}
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-7 w-7 text-destructive"
-                    onClick={() => handleDeleteDraft(d.id, d.title)}
-                    aria-label={isFr ? 'Supprimer' : 'Delete'}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+                <DraftProgressCard
+                  key={d.id}
+                  draft={d}
+                  isFr={isFr}
+                  onResume={() => navigate(`/admin/programs/draft/${d.id}`)}
+                  onDelete={() => handleDeleteDraft(d.id, d.title)}
+                />
               ))}
             </div>
           </div>
         )}
+
 
         <div className="flex items-center gap-2">
           <BookOpen className="h-5 w-5 text-primary" />
