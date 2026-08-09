@@ -66,7 +66,7 @@ function settings(assistantName: string, isFr: boolean, geminiKey: string) {
       speak: {
         provider: {
           type: 'deepgram',
-          model: isFr ? 'aura-2-pandora-en' : 'aura-2-thalia-en',
+          model: isFr ? 'aura-2-agathe-fr' : 'aura-2-thalia-en',
         },
       },
       greeting: isFr
