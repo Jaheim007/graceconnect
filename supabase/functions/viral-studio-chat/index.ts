@@ -16,6 +16,8 @@
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, jsonResp, requireAuth } from '../_shared/auth.ts';
+import { SAFETY_SYSTEM_RULES, moderateMessage, safetyResponse, logSafetyFlag } from '../_shared/ai-safety.ts';
+
 
 const GENERATION_ACTION_KEY = 'ai_course_structure';
 
