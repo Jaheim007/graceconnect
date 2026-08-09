@@ -10,6 +10,14 @@ import { useI18n } from '@/i18n/I18nContext';
 
 const TOUR_VERSION = 'v4';
 const TOUR_STORAGE_KEY = `gc_onboarding_done_${TOUR_VERSION}`;
+/** Any of these means the user already went through onboarding — never replay it. */
+const LEGACY_TOUR_KEYS = [
+  TOUR_STORAGE_KEY,
+  'gc_onboarding_done_v3',
+  'gc_onboarding_done_v2',
+  'gc_onboarding_done_v1',
+  'gc_onboarding_done',
+];
 
 interface TourStep {
   icon: React.ReactNode;
@@ -21,6 +29,8 @@ interface TourStep {
   desc_en: string;
   tip_fr: string;
   tip_en: string;
+  /** Keep this step even when no matching nav item is found. */
+  always?: boolean;
 }
 
 const STEPS: TourStep[] = [
@@ -67,6 +77,7 @@ const STEPS: TourStep[] = [
   {
     icon: <Users className="h-5 w-5" />,
     targets: ['[data-tour="org-switcher"]'],
+    always: true,
     title_fr: 'Votre plateforme',
     title_en: 'Your platform',
     desc_fr: 'Basculez entre vos plateformes ou créez-en une nouvelle depuis ce sélecteur.',
@@ -77,6 +88,7 @@ const STEPS: TourStep[] = [
   {
     icon: <Settings className="h-5 w-5" />,
     targets: ['[data-tour="nav-settings"]', '[data-nav-route="/admin/settings"]'],
+    always: true,
     title_fr: 'Personnaliser',
     title_en: 'Customize',
     desc_fr: 'Logo, bannière, couleurs, sections publiques et paiements se règlent ici.',
@@ -88,23 +100,46 @@ const STEPS: TourStep[] = [
 
 interface Rect { top: number; left: number; width: number; height: number }
 
-function measure(targets: string[]): Rect | null {
+function findEl(targets: string[]): HTMLElement | null {
   for (const sel of targets) {
     const el = document.querySelector(sel) as HTMLElement | null;
     if (el) {
       const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) {
-        return { top: r.top, left: r.left, width: r.width, height: r.height };
-      }
+      if (r.width > 0 && r.height > 0) return el;
     }
   }
   return null;
+}
+
+function measure(targets: string[]): Rect | null {
+  const el = findEl(targets);
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  return { top: r.top, left: r.left, width: r.width, height: r.height };
+}
+
+/** Bring the spotlight target fully into view (sidebar or page scroll containers). */
+function revealTarget(targets: string[]) {
+  const el = findEl(targets);
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  const vh = window.innerHeight;
+  const needsScroll = r.top < 96 || r.bottom > vh - 96;
+  if (needsScroll) {
+    try {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+    } catch {
+      el.scrollIntoView();
+    }
+  }
 }
 
 export function OnboardingTour() {
   const [active, setActive] = useState(false);
   const [step, setStep] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
+  /** Only steps whose target actually exists in the current navigation. */
+  const [steps, setSteps] = useState<TourStep[]>(STEPS);
   const { user } = useAuth();
   const location = useLocation();
   const { locale } = useI18n();
@@ -117,18 +152,24 @@ export function OnboardingTour() {
       setActive(false);
       return;
     }
-    const done = localStorage.getItem(TOUR_STORAGE_KEY);
-    if (!done) {
-      const t = setTimeout(() => setActive(true), 1000);
-      return () => clearTimeout(t);
-    }
+    // Anyone who already finished this or a previous onboarding never sees it again.
+    const done = LEGACY_TOUR_KEYS.some((k) => localStorage.getItem(k));
+    if (done) return;
+    const t = setTimeout(() => {
+      const available = STEPS.filter((s) => !!findEl(s.targets));
+      setSteps(available.length > 0 ? available : STEPS.filter((s) => s.always));
+      setStep(0);
+      setActive(true);
+    }, 1000);
+    return () => clearTimeout(t);
   }, [user, isAdminRoute]);
 
-  const current = STEPS[step];
+  const current = steps[step] ?? steps[0];
 
   // Track the spotlight target position (resize / scroll aware)
   useLayoutEffect(() => {
-    if (!active) return;
+    if (!active || !current) return;
+    revealTarget(current.targets);
     const update = () => setRect(measure(current.targets));
     update();
     const id = window.setInterval(update, 400);
@@ -147,13 +188,14 @@ export function OnboardingTour() {
   }, []);
 
   const next = useCallback(() => {
-    if (step < STEPS.length - 1) setStep((s) => s + 1);
+    if (step < steps.length - 1) setStep((s) => s + 1);
     else finish();
-  }, [step, finish]);
+  }, [step, steps.length, finish]);
 
   const prev = useCallback(() => {
     if (step > 0) setStep((s) => s - 1);
   }, [step]);
+
 
   useEffect(() => {
     if (!active) return;
@@ -166,7 +208,7 @@ export function OnboardingTour() {
     return () => window.removeEventListener('keydown', handler);
   }, [active, next, prev, finish]);
 
-  if (!active) return null;
+  if (!active || !current) return null;
 
   const pad = 8;
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
@@ -299,7 +341,7 @@ export function OnboardingTour() {
 
           <div className="p-5">
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              {isFr ? 'Étape' : 'Step'} {step + 1} / {STEPS.length}
+              {isFr ? 'Étape' : 'Step'} {step + 1} / {steps.length}
             </p>
 
             <div className="mb-3 flex items-center gap-3">
@@ -322,7 +364,7 @@ export function OnboardingTour() {
             </div>
 
             <div className="mb-4 flex justify-center gap-1.5">
-              {STEPS.map((_, i) => (
+              {steps.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setStep(i)}
@@ -348,10 +390,10 @@ export function OnboardingTour() {
                 )}
               </div>
               <Button size="sm" onClick={next} className="h-8 gap-1 text-xs">
-                {step === STEPS.length - 1
+                {step === steps.length - 1
                   ? (isFr ? "C'est parti !" : "Let's go!")
                   : (isFr ? 'Suivant' : 'Next')}
-                {step < STEPS.length - 1 && <ChevronRight className="h-3.5 w-3.5" />}
+                {step < steps.length - 1 && <ChevronRight className="h-3.5 w-3.5" />}
               </Button>
             </div>
           </div>
