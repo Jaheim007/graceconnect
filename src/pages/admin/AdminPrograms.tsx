@@ -118,6 +118,13 @@ export default function AdminPrograms() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem onClick={() => navigate(ASSISTANT_ROUTE)} className="gap-2.5 py-2.5">
+              <MessageSquare className="h-4 w-4 text-primary" />
+              <div>
+                <p className="text-sm font-medium">{ASSISTANT_NAME}</p>
+                <p className="text-[10px] text-muted-foreground">{isFr ? 'Créer en discutant (gratuit)' : 'Create by chatting (free)'}</p>
+              </div>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setShowAI(true)} className="gap-2.5 py-2.5">
               
               <div>
