@@ -111,6 +111,7 @@ function systemPrompt(assistantName: string, isFr: boolean, attachments: Attachm
     `Keep every reply under 70 words, warm and concrete. Never invent platform features.`,
     `When the essentials are known, call "start_course_generation" (course) or "start_book_generation" (book) with a rich brief instead of writing a long plan.`,
     `Default tier is "standard"; propose "premium" only if the user asks for a deeper/longer course.`,
+    `For a course, ALWAYS ask (once, before proposing) whether they want AI illustrations for each lesson — exactly like the manual creation flow does — and set generate_images accordingly.`,
     `Never claim the content is generated: after the tool call the user must confirm the credit cost, then they land in the normal editor/review flow.`,
     doc,
     '',
