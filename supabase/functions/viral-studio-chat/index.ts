@@ -17,6 +17,10 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, jsonResp, requireAuth } from '../_shared/auth.ts';
 import { SAFETY_SYSTEM_RULES, moderateMessage, safetyResponse, logSafetyFlag } from '../_shared/ai-safety.ts';
+import { consumeCreditsOrThrow } from '../_shared/credits.ts';
+
+/** Micro-cost per assistant exchange — deliberately tiny so it is not felt. */
+const CHAT_ACTION_KEY = 'assistant_chat_message';
 
 
 const GENERATION_ACTION_KEY = 'ai_course_structure';
