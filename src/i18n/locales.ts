@@ -2903,6 +2903,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'write.illust_generated': 'Illustration générée !',
     'write.illust_skip': 'Passer',
     'write.illust_progress': 'illustrations générées',
+    'write.illust_cost_info': 'Chaque illustration consomme des crédits. Vérifie ton solde avant de générer.',
     'write.pages_label': 'Nombre de pages',
     'write.language_label': 'Langue du livre',
     'write.lang_fr': 'Français',
