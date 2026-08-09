@@ -1580,6 +1580,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'write.cover_title': 'Choose your cover',
     'write.cover_sub': 'Auto template, Canva design, or upload your own image.',
     'write.cover_upload_label': 'Or upload your own cover:',
+    'write.cover_ai_title': 'Generate the cover with AI',
+    'write.cover_ai_cost': 'Uses credits · based on your book title',
     'write.cover_choose': 'Choose an image',
     'write.cover_canva': 'Design with Canva',
     'write.cover_import_canva': 'Import from Canva',
