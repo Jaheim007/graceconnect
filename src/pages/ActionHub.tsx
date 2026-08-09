@@ -135,13 +135,38 @@ export default function ActionHub() {
 
 
   return (
-    <div className="relative min-h-[100dvh] flex flex-col bg-background overflow-hidden">
-      {/* Ambient glow — same sophisticated glass language as the dashboard shells */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-primary/12 blur-[120px]" />
-        <div className="absolute bottom-[-160px] right-[-120px] h-[380px] w-[520px] rounded-full bg-accent/10 blur-[130px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.06),transparent_60%)]" />
+    <div className="relative min-h-[100dvh] flex flex-col bg-[hsl(var(--cert-paper))] dark:bg-[#08070f] overflow-hidden">
+      {/* Certificate-grade backdrop: warm paper in light, deep ink in dark — gold aurora both ways */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <motion.div
+          className="absolute -top-1/3 -left-1/4 h-[70vh] w-[70vh] rounded-full blur-[120px]"
+          style={{ background: 'radial-gradient(circle, hsl(var(--cert-gold)/0.16), transparent 65%)' }}
+          animate={{ scale: [1, 1.12, 1], opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute -bottom-1/3 -right-1/4 h-[65vh] w-[65vh] rounded-full blur-[130px]"
+          style={{ background: 'radial-gradient(circle, hsl(var(--primary)/0.14), transparent 65%)' }}
+          animate={{ scale: [1.1, 1, 1.1], opacity: [0.55, 0.9, 0.55] }}
+          transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        {/* Engraved grid */}
+        <div
+          className="absolute inset-0 opacity-[0.07] dark:opacity-[0.06]"
+          style={{
+            backgroundImage:
+              'linear-gradient(to right, hsl(var(--cert-gold)/0.55) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--cert-gold)/0.55) 1px, transparent 1px)',
+            backgroundSize: '64px 64px',
+            maskImage: 'radial-gradient(ellipse at center, black, transparent 72%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at center, black, transparent 72%)',
+          }}
+        />
+        <div
+          className="absolute inset-x-0 top-0 h-px"
+          style={{ background: 'linear-gradient(90deg, transparent, hsl(var(--cert-gold)/0.55), transparent)' }}
+        />
       </div>
+
       <SEOHead
 
         title="SiteViral — Écris. Vends. Gagne."
