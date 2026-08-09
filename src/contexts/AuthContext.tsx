@@ -3,6 +3,8 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/types/database';
 import { sendEmailNotification } from '@/lib/api';
+import { ASSISTANT_NAME } from '@/lib/viralStudio/assistant';
+
 
 interface AuthContextType {
   user: User | null;
@@ -211,7 +213,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               await supabase.from('user_notifications').insert({
                 user_id: newSession.user.id,
                 title: '🎁 50 crédits bonus offerts !',
-                body: 'Bienvenue ! Vous avez reçu 50 crédits bonus pour découvrir le Viral Studio, générer du contenu IA et bien plus. Ces crédits expirent dans 7 jours.',
+                body: `Bienvenue ! Vous avez reçu 50 crédits bonus pour découvrir ${ASSISTANT_NAME}, générer du contenu IA et bien plus. Ces crédits expirent dans 7 jours.`,
                 notification_type: 'credits',
                 action_url: '/credits',
               });

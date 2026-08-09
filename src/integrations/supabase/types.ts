@@ -859,6 +859,39 @@ export type Database = {
           },
         ]
       }
+      ai_safety_flags: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          language: string | null
+          message_excerpt: string | null
+          surface: string
+          user_id: string | null
+          verdict: Json | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          language?: string | null
+          message_excerpt?: string | null
+          surface: string
+          user_id?: string | null
+          verdict?: Json | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          language?: string | null
+          message_excerpt?: string | null
+          surface?: string
+          user_id?: string | null
+          verdict?: Json | null
+        }
+        Relationships: []
+      }
       ai_templates: {
         Row: {
           created_at: string

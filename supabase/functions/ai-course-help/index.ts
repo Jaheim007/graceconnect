@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { corsHeaders, jsonResp, requireAuth, adminClient } from '../_shared/auth.ts';
 import { geminiGenerateText } from '../_shared/ai-gemini.ts';
+import { SAFETY_SYSTEM_RULES, moderateMessage, safetyResponse, logSafetyFlag } from '../_shared/ai-safety.ts';
 
 /**
  * AI Help for course title & description generation.
@@ -23,6 +24,22 @@ serve(async (req) => {
     }
 
     const isFr = language === 'fr';
+
+    // Independent moderation of the user-supplied text (layer 2).
+    const userText = `${course_title || ''}\n${course_description || ''}`;
+    const verdict = await moderateMessage({ geminiKey: GEMINI_API_KEY, text: userText });
+    if (verdict.flagged) {
+      await logSafetyFlag({
+        admin: adminClient(auth.supabaseUrl, auth.serviceKey),
+        userId: auth.userId,
+        surface: 'ai-course-help',
+        verdict,
+        text: userText,
+        language,
+      });
+      return jsonResp({ ok: false, blocked: true, safety_category: verdict.category, error: safetyResponse(verdict.category, isFr) }, 200);
+    }
+
     let prompt = '';
 
     if (type === 'title') {
@@ -51,7 +68,7 @@ Requirements:
     const result = await geminiGenerateText({
       apiKey: GEMINI_API_KEY,
       model: 'gemini-2.5-flash',
-      system: `You are a marketing copywriter specializing in online education. ${isFr ? 'Write exclusively in French.' : 'Write exclusively in English.'}`,
+      system: `You are a marketing copywriter specializing in online education. ${isFr ? 'Write exclusively in French.' : 'Write exclusively in English.'}\n\n${SAFETY_SYSTEM_RULES}`,
       prompt,
     });
 
