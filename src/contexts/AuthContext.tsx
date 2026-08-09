@@ -3,6 +3,8 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/types/database';
 import { sendEmailNotification } from '@/lib/api';
+import { ASSISTANT_NAME } from '@/lib/viralStudio/assistant';
+
 
 interface AuthContextType {
   user: User | null;
