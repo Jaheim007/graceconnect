@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { X, Mic, Send, Loader2, Coins, RotateCcw, BookOpen, GraduationCap } from 'lucide-react';
+import { X, Mic, Send, Loader2, Coins, RotateCcw, BookOpen, GraduationCap, Radio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useI18n } from '@/i18n/I18nContext';
@@ -15,6 +15,7 @@ import { useVoiceDictation } from '@/hooks/useVoiceDictation';
 import { useCreditsBalance } from '@/hooks/useCredits';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
 import botAsset from '@/assets/viral-studio-bot.gif.asset.json';
+import { canUseVoiceAgent, VOICE_AGENT_ROUTE } from '@/lib/access/voiceAgentAccess';
 
 /**
  * Global creation chatbot — sits just above the Support button on every
@@ -151,6 +152,18 @@ export function AssistantChatWidget() {
                 <p className="text-[10px] text-muted-foreground">{copy.free}</p>
               </div>
               <div className="flex items-center gap-1">
+                {/* Internal voice-agent test — renders only for allowlisted UIDs. */}
+                {canUseVoiceAgent(user?.id) && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => { setOpen(false); navigate(VOICE_AGENT_ROUTE); }}
+                    aria-label="Voice agent"
+                  >
+                    <Radio className="h-3.5 w-3.5" />
+                  </Button>
+                )}
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={reset} aria-label={isFr ? 'Nouvelle discussion' : 'New chat'}>
                   <RotateCcw className="h-3.5 w-3.5" />
                 </Button>
