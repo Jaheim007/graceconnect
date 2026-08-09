@@ -229,15 +229,43 @@ export function AssistantChatWidget() {
         )}
       </AnimatePresence>
 
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setOpen((o) => !o)}
-        aria-label={ASSISTANT_NAME}
-        className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-500 text-amber-950 shadow-lg transition-shadow hover:shadow-xl"
-      >
-        {open ? <X className="h-4.5 w-4.5" /> : <MessageSquare className="h-4.5 w-4.5" />}
-      </motion.button>
+      <div className="relative flex flex-col items-end gap-2">
+        <AnimatePresence>
+          {!open && showNudge && (
+            <motion.div
+              initial={{ opacity: 0, y: 8, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+              className="mb-1 max-w-[14rem] rounded-xl border border-amber-500/20 bg-card px-3 py-2 text-xs shadow-lg"
+            >
+              <p className="font-medium text-foreground">{copy.nudge}</p>
+              <div className="absolute -bottom-1 right-5 h-2 w-2 rotate-45 border-b border-r border-amber-500/20 bg-card" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setOpen((o) => !o)}
+          aria-label={ASSISTANT_NAME}
+          className={cn(
+            'flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-amber-500 text-amber-950 shadow-lg transition-shadow hover:shadow-xl',
+            !open && 'p-0.5'
+          )}
+        >
+          {open ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <img
+              src={botAsset.url}
+              alt={ASSISTANT_NAME}
+              className="h-full w-full rounded-full object-cover"
+            />
+          )}
+        </motion.button>
+      </div>
     </div>
   );
 }
