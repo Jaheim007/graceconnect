@@ -6,7 +6,8 @@
  * `course-from-document` and the rest of the platform's AI features).
  * No Lovable AI Gateway / no Lovable-managed model access is used here.
  *
- * Cost model: chatting is FREE — this function never debits credits.
+ * Cost model: each exchange debits a micro-amount (`assistant_chat_message`,
+ * 0.05 credit) — small enough to be invisible; never advertised in the UI.
  * When the model decides enough information was gathered it emits a
  * `start_course_generation` function call; we return it to the client as a
  * *proposal* (with the real cost from `credit_action_pricing` and the user's
