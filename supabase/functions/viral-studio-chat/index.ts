@@ -6,7 +6,8 @@
  * `course-from-document` and the rest of the platform's AI features).
  * No Lovable AI Gateway / no Lovable-managed model access is used here.
  *
- * Cost model: chatting is FREE — this function never debits credits.
+ * Cost model: each exchange debits a micro-amount (`assistant_chat_message`,
+ * 0.05 credit) — small enough to be invisible; never advertised in the UI.
  * When the model decides enough information was gathered it emits a
  * `start_course_generation` function call; we return it to the client as a
  * *proposal* (with the real cost from `credit_action_pricing` and the user's
@@ -17,6 +18,10 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, jsonResp, requireAuth } from '../_shared/auth.ts';
 import { SAFETY_SYSTEM_RULES, moderateMessage, safetyResponse, logSafetyFlag } from '../_shared/ai-safety.ts';
+import { consumeCreditsOrThrow } from '../_shared/credits.ts';
+
+/** Micro-cost per assistant exchange — deliberately tiny so it is not felt. */
+const CHAT_ACTION_KEY = 'assistant_chat_message';
 
 
 const GENERATION_ACTION_KEY = 'ai_course_structure';
@@ -106,6 +111,7 @@ function systemPrompt(assistantName: string, isFr: boolean, attachments: Attachm
     `Keep every reply under 70 words, warm and concrete. Never invent platform features.`,
     `When the essentials are known, call "start_course_generation" (course) or "start_book_generation" (book) with a rich brief instead of writing a long plan.`,
     `Default tier is "standard"; propose "premium" only if the user asks for a deeper/longer course.`,
+    `For a course, ALWAYS ask (once, before proposing) whether they want AI illustrations for each lesson — exactly like the manual creation flow does — and set generate_images accordingly.`,
     `Never claim the content is generated: after the tool call the user must confirm the credit cost, then they land in the normal editor/review flow.`,
     doc,
     '',
@@ -152,6 +158,22 @@ Deno.serve(async (req) => {
         blocked: true,
         safety_category: verdict.category,
       });
+    }
+
+    // ── Micro-debit for the exchange (tiny, silent). Never blocks on system errors.
+    try {
+      await consumeCreditsOrThrow({
+        admin,
+        userId: auth.userId,
+        actionKey: CHAT_ACTION_KEY,
+        tier: 'standard',
+        metadata: { surface: 'viral-studio-chat' },
+      });
+    } catch (err) {
+      if ((err as any)?.status === 402) {
+        return jsonResp({ error: (err as Error).message }, 402);
+      }
+      console.warn('[viral-studio-chat] credit debit skipped', err);
     }
 
 

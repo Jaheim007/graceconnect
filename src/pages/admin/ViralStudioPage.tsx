@@ -122,11 +122,11 @@ export default function ViralStudioPage() {
       backRoute="/admin/programs"
     >
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
-        {/* Free-chat reassurance */}
+        {/* Reassurance */}
         <div className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-muted/30 px-4 py-2.5">
           <p className="flex items-center gap-2 text-xs text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-            {copy.free} · {isFr ? 'les crédits ne sont utilisés qu’après ta confirmation' : 'credits are only used after you confirm'}
+            {isFr ? 'Tu confirmes toujours avant la génération' : 'You always confirm before generating'}
           </p>
           <div className="flex items-center gap-3">
             <label className="flex items-center gap-2 text-xs text-muted-foreground">

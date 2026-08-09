@@ -17,5 +17,5 @@ export const assistantCopy = (isFr: boolean) => ({
     ? `Comment puis-je t’aider aujourd’hui ?`
     : `How can I help you today?`,
   placeholder: isFr ? 'Écris ou parle…' : 'Type or speak…',
-  free: isFr ? 'La conversation est gratuite' : 'Chatting is free',
+  free: isFr ? 'Assistant de création' : 'Creation assistant',
 });
