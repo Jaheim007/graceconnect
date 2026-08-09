@@ -346,13 +346,32 @@ function removeDraftSnapshot(draftId: string): WriteDraftStore {
   return store;
 }
 
+/** A brief handed over by the creation chatbot (see `lib/viralStudio/handoff`). */
+function consumeAssistantPrefill(): Partial<WriteState> | null {
+  try {
+    const raw = sessionStorage.getItem(BOOK_PREFILL_KEY);
+    if (!raw) return null;
+    sessionStorage.removeItem(BOOK_PREFILL_KEY);
+    const parsed = JSON.parse(raw) as Partial<WriteState>;
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function WriteWizard() {
   const bootstrapRef = useRef<LoadedWriteDraft | null>(null);
   if (!bootstrapRef.current) {
-    bootstrapRef.current = loadInitialDraft();
+    const loaded = loadInitialDraft();
+    const prefill = consumeAssistantPrefill();
+    bootstrapRef.current = prefill
+      // Fresh draft, pre-loaded with the assistant brief, straight to the details step.
+      ? { id: createDraftId(), state: toHydratedState(prefill), step: 1, updatedAt: null }
+      : loaded;
   }
 
   const bootstrap = bootstrapRef.current;
+
 
   const [draftId, setDraftId] = useState(bootstrap.id);
   const [step, setStep] = useState(bootstrap.step);
