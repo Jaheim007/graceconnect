@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, X, Mic, Send, Loader2, Coins, RotateCcw, BookOpen, GraduationCap } from 'lucide-react';
+import { X, Mic, Send, Loader2, Coins, RotateCcw, BookOpen, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useI18n } from '@/i18n/I18nContext';
@@ -14,6 +14,7 @@ import { useStudioConversation, type GenerationProposal } from '@/hooks/useStudi
 import { useVoiceDictation } from '@/hooks/useVoiceDictation';
 import { useCreditsBalance } from '@/hooks/useCredits';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
+import botAsset from '@/assets/viral-studio-bot.gif.asset.json';
 
 /**
  * Global creation chatbot — sits just above the Support button on every
