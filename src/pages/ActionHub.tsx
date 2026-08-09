@@ -320,12 +320,13 @@ export default function ActionHub() {
             <Button
               variant="outline"
               size="sm"
-              className="h-9 rounded-xl border-border/60 bg-card/60 px-4 text-xs font-semibold backdrop-blur-xl hover:border-primary/40"
+              className="h-9 rounded-xl border-[hsl(var(--cert-gold))]/30 bg-transparent px-4 text-xs font-semibold backdrop-blur-xl hover:border-[hsl(var(--cert-gold))]/60 hover:bg-[hsl(var(--cert-gold))]/10"
               onClick={() => navigate('/landing')}
             >
               {isFr ? 'En savoir plus sur SiteViral' : 'Learn more about SiteViral'}
               <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
             </Button>
+
           </motion.div>
         </motion.div>
       </main>
