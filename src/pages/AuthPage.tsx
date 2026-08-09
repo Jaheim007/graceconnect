@@ -135,29 +135,65 @@ export default function AuthPage() {
   };
 
   return (
-    <div className={cn('relative flex', nativeApp ? 'native-auth-screen' : 'min-h-screen')}>
+    <div className={cn('dark relative flex bg-[#08070f] text-foreground', nativeApp ? 'native-auth-screen' : 'min-h-screen')}>
       <SEOHead title={document.documentElement.lang === 'fr' ? 'Connexion — Siteviral' : 'Sign in — Siteviral'} description={document.documentElement.lang === 'fr' ? 'Connectez-vous à Siteviral pour gérer votre plateforme, vos ressources et vos commissions.' : 'Sign in to Siteviral to manage your platform, resources, and commissions.'} noindex />
-      <div className="absolute inset-0 z-0">
+
+      {/* Premium certificate-grade backdrop: deep ink, gold aurora, engraved grid */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
         {nativeApp ? (
           <div className="native-auth-background absolute inset-0" />
         ) : (
-          <>
-            <img src={authBg} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
-          </>
+          <img src={authBg} alt="" className="h-full w-full object-cover opacity-[0.18]" />
         )}
+        <div aria-hidden className="absolute inset-0 bg-[#08070f]/90" />
+        <motion.div
+          aria-hidden
+          className="absolute -top-1/3 -left-1/4 h-[70vh] w-[70vh] rounded-full blur-[120px]"
+          style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.22), transparent 65%)' }}
+          animate={{ scale: [1, 1.12, 1], opacity: [0.75, 1, 0.75] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          aria-hidden
+          className="absolute -bottom-1/3 -right-1/4 h-[65vh] w-[65vh] rounded-full blur-[130px]"
+          style={{ background: 'radial-gradient(circle, rgba(56,89,255,0.18), transparent 65%)' }}
+          animate={{ scale: [1.1, 1, 1.1], opacity: [0.6, 0.95, 0.6] }}
+          transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.06]"
+          style={{
+            backgroundImage:
+              'linear-gradient(to right, rgba(253,230,138,0.5) 1px, transparent 1px), linear-gradient(to bottom, rgba(253,230,138,0.5) 1px, transparent 1px)',
+            backgroundSize: '64px 64px',
+            maskImage: 'radial-gradient(ellipse at center, black, transparent 72%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at center, black, transparent 72%)',
+          }}
+        />
+        <div aria-hidden className="absolute inset-x-0 top-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(252,211,77,0.5), transparent)' }} />
       </div>
 
       <div className={cn('hidden lg:flex flex-col justify-between w-1/2 p-12 relative z-10', nativeApp && 'lg:hidden')}>
         <SiteLogo size="xl" animate />
-        <div className="space-y-4">
-          <h1 className="text-4xl font-bold leading-tight">
-            {t('auth.sign_in_title')}{' '}<span className="text-primary italic">{t('auth.grow_together')}</span>
+        <div className="space-y-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-amber-300/70">
+            {document.documentElement.lang === 'fr' ? 'Accès sécurisé' : 'Secure access'}
+          </p>
+          <h1 className="font-heading text-5xl font-bold leading-[1.05]">
+            {t('auth.sign_in_title')}{' '}
+            <span
+              className="italic"
+              style={{ backgroundImage: 'linear-gradient(120deg,#fef3c7,#fbbf24,#fef3c7)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}
+            >
+              {t('auth.grow_together')}
+            </span>
           </h1>
-          <p className="text-muted-foreground text-lg max-w-md">{t('auth.infra_platform')}</p>
-          <div className="flex gap-3 mt-4">
+          <div className="h-px w-28" style={{ background: 'linear-gradient(90deg, rgba(252,211,77,0.8), transparent)' }} />
+          <p className="max-w-md text-lg text-muted-foreground">{t('auth.infra_platform')}</p>
+          <div className="mt-4 flex gap-2.5">
             {['Médias', 'Dons', 'Boutique', 'Ambassadeur'].map((tag) => (
-              <span key={tag} className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium border border-primary/20">{tag}</span>
+              <span key={tag} className="rounded-full border border-amber-300/25 bg-amber-300/[0.07] px-3 py-1 text-xs font-medium text-amber-200/90">{tag}</span>
             ))}
           </div>
         </div>
@@ -166,7 +202,22 @@ export default function AuthPage() {
 
       <div className={cn('flex-1 lg:w-1/2 flex items-center justify-center p-6 relative z-10', nativeApp && 'w-full items-start justify-center p-0')}>
         <div className={cn('w-full max-w-md', nativeApp && 'native-auth-card max-w-lg')}>
-          <div className={cn('bg-card/95 backdrop-blur-md rounded-3xl border border-border shadow-elevated p-7 space-y-6', nativeApp && 'rounded-[2rem] border-border/80 shadow-premium')}>
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="relative overflow-hidden rounded-[28px] p-[1.5px] shadow-[0_40px_120px_-40px_rgba(250,204,21,0.35)]"
+            style={{ background: 'linear-gradient(135deg, rgba(253,230,138,0.9), rgba(180,83,9,0.5) 35%, rgba(254,243,199,0.85) 55%, rgba(146,64,14,0.5) 80%, rgba(252,211,77,0.9))' }}
+          >
+            <motion.div
+              aria-hidden
+              initial={{ x: '-130%' }}
+              animate={{ x: '150%' }}
+              transition={{ duration: 2.6, delay: 0.6, ease: 'easeInOut' }}
+              className="pointer-events-none absolute inset-y-0 z-20 w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+            />
+            <div className={cn('relative rounded-[26px] bg-[#0e0d16]/95 backdrop-blur-xl p-7 space-y-6', nativeApp && 'shadow-premium')}>
+
             {nativeApp && (
               <div className="flex items-center justify-center gap-3" aria-label="SiteViral">
                 <SiteLogo size="lg" animate />
