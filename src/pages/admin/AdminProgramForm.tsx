@@ -21,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { Plus, Save, Loader2, BookOpen, Layers, FileText, Video, Music, Link2, Trash2, GripVertical, ChevronDown, ChevronRight, Clock, Settings, Eye, Zap, DollarSign, Award, ArrowLeft, MoreVertical, Lock, PenLine, ImageIcon, Wand2, Users, Share2, HelpCircle } from 'lucide-react';
+import { Plus, Save, Loader2, BookOpen, Layers, FileText, Video, Music, Link2, Trash2, GripVertical, ChevronDown, ChevronRight, Clock, Settings, Eye, Zap, DollarSign, Award, ArrowLeft, MoreVertical, Lock, PenLine, ImageIcon, Wand2, Users, Share2, HelpCircle, Languages } from 'lucide-react';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useI18n } from '@/i18n/I18nContext';
