@@ -84,7 +84,7 @@ const CATEGORY_ORG_DOC_HINTS: Record<string, string> = {
 };
 
 // ── Build steps dynamically based on mode and verification type ──
-function getSteps(mode: VerificationMode, verificationType: VerificationType | null) {
+function getSteps(mode: VerificationMode, verificationType: VerificationType | null, skipChooseType = false) {
   const steps: { id: string; label: string; icon: typeof FileText }[] = [];
 
   // Beauty & Church modes: individual-only, skip the "choose type" screen
@@ -100,10 +100,14 @@ function getSteps(mode: VerificationMode, verificationType: VerificationType | n
     return steps;
   }
 
-  steps.push({ id: 'choose_type', label: 'Type de vérification', icon: Shield });
+  // When the flow is decided by the platform type, never ask the user.
+  if (!skipChooseType) {
+    steps.push({ id: 'choose_type', label: 'Type de vérification', icon: Shield });
+  }
 
   // Only add remaining steps once type is chosen
   if (verificationType) {
+
     steps.push(
       { id: 'doc_type', label: 'Type de document', icon: FileText },
       { id: 'document', label: 'Document d\'identité', icon: CreditCard },
