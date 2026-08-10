@@ -238,7 +238,7 @@ export default function ActionHub() {
       </header>
 
       {/* Main content — centered vertically, mobile-optimized spacing */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 pb-32 lg:pb-8">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 lg:pb-8">
 
         <motion.div
           variants={container}
