@@ -5,6 +5,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { onContentPublished, onContentUnpublished } from '@/lib/notifications';
 import { useOrg } from '@/contexts/OrgContext';
 import { useEnsureProgramSlides } from '@/hooks/useProgramSlides';
+import { useDuplicateCourse } from '@/hooks/useDuplicateCourse';
+import { DuplicateCourseDialog } from '@/components/programs/DuplicateCourseDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   useProgram, useProgramModules, useUpdateProgram,
@@ -21,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { Plus, Save, Loader2, BookOpen, Layers, FileText, Video, Music, Link2, Trash2, GripVertical, ChevronDown, ChevronRight, Clock, Settings, Eye, Zap, DollarSign, Award, ArrowLeft, MoreVertical, Lock, PenLine, ImageIcon, Wand2, Users, Share2, HelpCircle } from 'lucide-react';
+import { Plus, Save, Loader2, BookOpen, Layers, FileText, Video, Music, Link2, Trash2, GripVertical, ChevronDown, ChevronRight, Clock, Settings, Eye, Zap, DollarSign, Award, ArrowLeft, MoreVertical, Lock, PenLine, ImageIcon, Wand2, Users, Share2, HelpCircle, Languages } from 'lucide-react';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useI18n } from '@/i18n/I18nContext';
@@ -72,6 +74,29 @@ export function ProgramForm() {
 
 
   const [title, setTitle] = useState('');
+  const [showDuplicate, setShowDuplicate] = useState(false);
+  const duplicateCourse = useDuplicateCourse();
+
+  const handleDuplicate = async ({ translate, targetLanguage }: { translate: boolean; targetLanguage: string | null }) => {
+    if (!id || !currentOrg) return;
+    try {
+      const res = await duplicateCourse.mutateAsync({ programId: id, orgId: currentOrg.id, translate, targetLanguage });
+      setShowDuplicate(false);
+      toast({
+        title: translate
+          ? (isFr ? '✅ Cours dupliqué et traduit' : '✅ Course duplicated and translated')
+          : (isFr ? '✅ Cours dupliqué' : '✅ Course duplicated'),
+        description: isFr ? 'La copie est en brouillon.' : 'The copy is saved as a draft.',
+      });
+      navigate(`/admin/programs/${res.program_id}/edit`);
+    } catch (e: any) {
+      toast({
+        title: isFr ? 'Erreur' : 'Error',
+        description: e?.message || (isFr ? 'Duplication impossible' : 'Duplication failed'),
+        variant: 'destructive',
+      });
+    }
+  };
   const [description, setDescription] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
   const [isPublished, setIsPublished] = useState(false);
@@ -558,10 +583,24 @@ export function ProgramForm() {
               {isPublished ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
             </Badge>
           </div>
-          <Button size="sm" onClick={handleSave} disabled={saving || !title.trim()} className="gap-1.5 h-8 text-xs shrink-0">
-            {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-            <span className="hidden sm:inline">{isFr ? 'Enregistrer' : 'Save'}</span>
-          </Button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {isEdit && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1.5 text-xs"
+                title={isFr ? 'Dupliquer / traduire' : 'Duplicate / translate'}
+                onClick={() => setShowDuplicate(true)}
+              >
+                <Languages className="h-3 w-3" />
+                <span className="hidden sm:inline">{isFr ? 'Dupliquer' : 'Duplicate'}</span>
+              </Button>
+            )}
+            <Button size="sm" onClick={handleSave} disabled={saving || !title.trim()} className="gap-1.5 h-8 text-xs">
+              {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+              <span className="hidden sm:inline">{isFr ? 'Enregistrer' : 'Save'}</span>
+            </Button>
+          </div>
         </div>
 
         {/* Row 2: Tabs */}
@@ -870,6 +909,15 @@ export function ProgramForm() {
           </div>
         </div>
       )}
+
+      <DuplicateCourseDialog
+        open={showDuplicate}
+        onOpenChange={setShowDuplicate}
+        courseTitle={title}
+        sourceLanguage={(existingProgram as any)?.content_language ?? null}
+        loading={duplicateCourse.isPending}
+        onConfirm={handleDuplicate}
+      />
     </div>
   );
 }

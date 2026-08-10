@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useOrgPrograms, useDeleteProgram, useCreateProgram, useCloneProgram } from '@/hooks/usePrograms';
+import { useOrgPrograms, useDeleteProgram, useCreateProgram } from '@/hooks/usePrograms';
+import { useDuplicateCourse } from '@/hooks/useDuplicateCourse';
+import { DuplicateCourseDialog } from '@/components/programs/DuplicateCourseDialog';
 import { AdminPageShell } from './AdminPageShell';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,7 +49,7 @@ export default function AdminPrograms() {
   const { data: programs = [], isLoading } = useOrgPrograms(currentOrg?.id);
   const deleteProgram = useDeleteProgram();
   const createProgram = useCreateProgram();
-  const cloneProgram = useCloneProgram();
+  const duplicateCourse = useDuplicateCourse();
   const { data: courseStats } = useOrgCourseStats(currentOrg?.id, programs);
   const { data: drafts = [] } = useOrgCourseDrafts(currentOrg?.id);
   const deleteDraft = useDeleteCourseDraft();
@@ -72,6 +74,33 @@ export default function AdminPrograms() {
   const [showBlank, setShowBlank] = useState(false);
   const [showConvert, setShowConvert] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  const [duplicateTarget, setDuplicateTarget] = useState<{ id: string; title: string; language: string | null } | null>(null);
+
+  const handleDuplicate = async ({ translate, targetLanguage }: { translate: boolean; targetLanguage: string | null }) => {
+    if (!duplicateTarget || !currentOrg) return;
+    try {
+      const res = await duplicateCourse.mutateAsync({
+        programId: duplicateTarget.id,
+        orgId: currentOrg.id,
+        translate,
+        targetLanguage,
+      });
+      setDuplicateTarget(null);
+      toast({
+        title: translate
+          ? (isFr ? '✅ Cours dupliqué et traduit' : '✅ Course duplicated and translated')
+          : (isFr ? '✅ Cours dupliqué' : '✅ Course duplicated'),
+        description: isFr ? 'La copie est en brouillon.' : 'The copy is saved as a draft.',
+      });
+      navigate(`/admin/programs/${res.program_id}/edit`);
+    } catch (e: any) {
+      toast({
+        title: isFr ? 'Erreur' : 'Error',
+        description: e?.message || (isFr ? 'Duplication impossible' : 'Duplication failed'),
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
@@ -293,13 +322,16 @@ export default function AdminPrograms() {
                           />
                         </div>
                       )}
-                      <Button variant="ghost" size="icon" className="h-7 w-7" title={isFr ? 'Dupliquer' : 'Duplicate'} onClick={(e) => {
-                        e.stopPropagation();
-                        if (!currentOrg || !user) return;
-                        cloneProgram.mutateAsync({ programId: prog.id, organizationId: currentOrg.id, createdBy: user.id })
-                          .then(r => { toast({ title: isFr ? '✅ Cours dupliqué' : '✅ Course duplicated' }); navigate(`/admin/programs/${(r as any).id}/edit`); })
-                          .catch(e => toast({ title: 'Error', description: e.message, variant: 'destructive' }));
-                      }}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        title={isFr ? 'Dupliquer / traduire' : 'Duplicate / translate'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDuplicateTarget({ id: prog.id, title: prog.title, language: prog.content_language ?? null });
+                        }}
+                      >
                         <Copy className="h-3 w-3" />
                       </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); navigate(`/admin/programs/${prog.id}/edit`); }}>
@@ -321,6 +353,15 @@ export default function AdminPrograms() {
       <CreateWithAIDialog open={showAI} onOpenChange={setShowAI} onCreated={handleAICreated} />
       <CreateBlankDialog open={showBlank} onOpenChange={setShowBlank} onCreate={handleCreateBlank} />
       <ConvertDocumentDialog open={showConvert} onOpenChange={setShowConvert} onCreated={handleAICreated} />
+
+      <DuplicateCourseDialog
+        open={!!duplicateTarget}
+        onOpenChange={(open) => !open && setDuplicateTarget(null)}
+        courseTitle={duplicateTarget?.title || ''}
+        sourceLanguage={duplicateTarget?.language}
+        loading={duplicateCourse.isPending}
+        onConfirm={handleDuplicate}
+      />
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
