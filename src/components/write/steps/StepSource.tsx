@@ -422,26 +422,6 @@ function SourceInput({ state, update, t, transcribing }: {
         </div>
       );
 
-    case 'youtube':
-      return (
-        <div className="space-y-4">
-          <Input
-            value={state.sourceUrl || ''}
-            onChange={(e) => update({ sourceUrl: e.target.value })}
-            placeholder={t('write.youtube_placeholder')}
-            className="text-base"
-            autoFocus
-            disabled={transcribing}
-          />
-          {state.topic.trim().length > 0 && (
-            <div className="rounded-xl border border-border bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground mb-1">📝 {t('write.transcribe_success')}</p>
-              <p className="text-sm line-clamp-4">{state.topic.slice(0, 300)}…</p>
-            </div>
-          )}
-        </div>
-      );
-
     case 'audio':
       return (
         <div className="space-y-3">
@@ -451,6 +431,7 @@ function SourceInput({ state, update, t, transcribing }: {
               {state.uploadedFile ? state.uploadedFile.name : t('write.upload_audio')}
             </p>
             <p className="text-xs text-muted-foreground mt-1">{t('write.audio_formats')}</p>
+            <p className="text-[11px] text-muted-foreground mt-1">{t('write.audio_caps')}</p>
             {state.uploadedFile && (
               <p className="text-[11px] text-muted-foreground mt-1">
                 {(state.uploadedFile.size / (1024 * 1024)).toFixed(1)} MB
@@ -458,17 +439,30 @@ function SourceInput({ state, update, t, transcribing }: {
             )}
             <input
               type="file"
-              accept=".mp3,.wav,.m4a,.ogg,.aac,.flac,.wma"
+              accept="audio/*,.mp3,.wav,.m4a,.ogg,.aac,.flac"
               className="hidden"
-              onChange={(e) => {
+              disabled={transcribing}
+              onChange={async (e) => {
                 const file = e.target.files?.[0];
-                if (file) {
-                  if (file.size > 18 * 1024 * 1024) {
-                    void askAlert(t('write.file_too_large') || 'File too large (max 18 MB)');
-                    return;
-                  }
-                  update({ uploadedFile: file, title: file.name.replace(/\.[^.]+$/, '') });
+                e.target.value = '';
+                if (!file) return;
+                if (!file.type.startsWith('audio/') && !/\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(file.name)) {
+                  void askAlert(t('write.audio_only') || 'Audio files only.');
+                  return;
                 }
+                if (file.size > MAX_AUDIO_BYTES) {
+                  void askAlert(t('write.audio_too_large') || 'Audio file too large (max 150 MB).');
+                  return;
+                }
+                const duration = await probeAudioDuration(file);
+                if (duration && duration > MAX_AUDIO_SECONDS) {
+                  void askAlert(
+                    (t('write.audio_too_long') || 'Recording too long (max 90 minutes). Please split it.') +
+                    ` — ${Math.round(duration / 60)} min`
+                  );
+                  return;
+                }
+                update({ uploadedFile: file, title: file.name.replace(/\.[^.]+$/, '') });
               }}
             />
           </label>
@@ -478,26 +472,119 @@ function SourceInput({ state, update, t, transcribing }: {
               <p className="text-sm line-clamp-4">{state.topic.slice(0, 300)}…</p>
             </div>
           )}
+          <p className="text-[11px] text-muted-foreground">{t('write.audio_retention_note')}</p>
         </div>
       );
 
-    case 'notes_photo':
+    case 'notes_photo': {
+      const pages = state.uploadedFiles ?? [];
       return (
         <div className="space-y-3">
           <label className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl p-8 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-colors">
             <Camera className="h-10 w-10 text-muted-foreground mb-3" />
             <p className="font-medium text-sm">
-              {state.uploadedFile ? state.uploadedFile.name : t('write.upload_notes')}
+              {pages.length > 0
+                ? `${pages.length} ${t('write.pages_selected') || 'page(s)'}`
+                : t('write.upload_notes')}
             </p>
             <p className="text-xs text-muted-foreground mt-1">{t('write.notes_formats')}</p>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              {t('write.notes_page_cap') || `Up to ${MAX_HANDWRITING_PAGES} pages`}
+            </p>
             <input
               type="file"
-              accept=".jpg,.jpeg,.png,.webp"
+              accept=".jpg,.jpeg,.png,.webp,.heic,.pdf"
+              multiple
               className="hidden"
+              disabled={transcribing}
               onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) update({ uploadedFile: file });
+                const picked = Array.from(e.target.files || []);
+                e.target.value = '';
+                if (!picked.length) return;
+                const isPdf = picked.some((f) => f.type === 'application/pdf' || /\.pdf$/i.test(f.name));
+                if (isPdf && picked.length > 1) {
+                  void askAlert(t('write.notes_pdf_single') || 'Upload one scanned PDF, or several images — not both.');
+                  return;
+                }
+                const next = isPdf ? picked.slice(0, 1) : [...pages, ...picked];
+                if (next.length > MAX_HANDWRITING_PAGES) {
+                  void askAlert(
+                    t('write.notes_too_many_pages') || `Too many pages (max ${MAX_HANDWRITING_PAGES}).`
+                  );
+                  return;
+                }
+                if (next.some((f) => f.size > 18 * 1024 * 1024)) {
+                  void askAlert(t('write.file_too_large') || 'File too large (max 18 MB)');
+                  return;
+                }
+                update({ uploadedFiles: next, uploadedFile: next[0] ?? null });
               }}
+            />
+          </label>
+
+          {pages.length > 0 && (
+            <div className="space-y-2">
+              {pages.map((file, i) => (
+                <div key={`${file.name}-${i}`} className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2">
+                  <span className="text-[11px] font-semibold text-muted-foreground w-6 shrink-0">{i + 1}.</span>
+                  <p className="text-sm truncate flex-1">{file.name}</p>
+                  <span className="text-[11px] text-muted-foreground shrink-0">
+                    {(file.size / (1024 * 1024)).toFixed(1)} MB
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0"
+                    disabled={transcribing}
+                    onClick={() => {
+                      const next = pages.filter((_, idx) => idx !== i);
+                      update({ uploadedFiles: next, uploadedFile: next[0] ?? null });
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {state.topic.trim().length > 0 && (
+            <div className="rounded-xl border border-border bg-muted/30 p-3">
+              <p className="text-xs text-muted-foreground mb-1">📝 {t('write.transcribe_success')}</p>
+              <p className="text-sm line-clamp-4">{state.topic.slice(0, 300)}…</p>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    default:
+      return null;
+  }
+}
+
+/** Read audio duration in the browser so we can reject over-long recordings before upload. */
+function probeAudioDuration(file: File): Promise<number | null> {
+  return new Promise((resolve) => {
+    try {
+      const url = URL.createObjectURL(file);
+      const audio = document.createElement('audio');
+      audio.preload = 'metadata';
+      const done = (value: number | null) => {
+        URL.revokeObjectURL(url);
+        resolve(value);
+      };
+      audio.onloadedmetadata = () => done(Number.isFinite(audio.duration) ? audio.duration : null);
+      audio.onerror = () => done(null);
+      setTimeout(() => done(null), 8000);
+      audio.src = url;
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
             />
           </label>
           {state.topic.trim().length > 0 && (
