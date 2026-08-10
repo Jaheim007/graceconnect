@@ -229,8 +229,10 @@ export default function GagnerPage() {
         <EarningsCalculator />
         <GagnerTabs />
         <TrustBadgesBar compact />
+        </div>
       </div>
     </div>
+
     </AdaptiveLayout>
   );
 }
