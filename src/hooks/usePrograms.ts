@@ -9,17 +9,20 @@ export function useOrgPrograms(orgId: string | undefined) {
     queryFn: async () => {
       if (!orgId) return [];
       const { data } = await db.from('programs')
-        .select('*, program_modules(id)')
+        .select('*, program_modules(id, program_lessons(id))')
         .eq('organization_id', orgId)
         .order('created_at', { ascending: false });
       return (data || []).map((p: any) => ({
         ...p,
         module_count: p.program_modules?.length || 0,
+        lesson_count: (p.program_modules || []).reduce(
+          (s: number, m: any) => s + (m.program_lessons?.length || 0), 0),
       }));
     },
     enabled: !!orgId,
   });
 }
+
 
 export function useProgram(programId: string | undefined) {
   return useQuery({
