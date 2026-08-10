@@ -293,13 +293,16 @@ export default function AdminPrograms() {
                           />
                         </div>
                       )}
-                      <Button variant="ghost" size="icon" className="h-7 w-7" title={isFr ? 'Dupliquer' : 'Duplicate'} onClick={(e) => {
-                        e.stopPropagation();
-                        if (!currentOrg || !user) return;
-                        cloneProgram.mutateAsync({ programId: prog.id, organizationId: currentOrg.id, createdBy: user.id })
-                          .then(r => { toast({ title: isFr ? '✅ Cours dupliqué' : '✅ Course duplicated' }); navigate(`/admin/programs/${(r as any).id}/edit`); })
-                          .catch(e => toast({ title: 'Error', description: e.message, variant: 'destructive' }));
-                      }}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        title={isFr ? 'Dupliquer / traduire' : 'Duplicate / translate'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDuplicateTarget({ id: prog.id, title: prog.title, language: prog.content_language ?? null });
+                        }}
+                      >
                         <Copy className="h-3 w-3" />
                       </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); navigate(`/admin/programs/${prog.id}/edit`); }}>
