@@ -235,6 +235,14 @@ export function useDeleteProgram() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
+      // The course may have a mirror "digital product" used for checkout/Explore.
+      // If we leave it behind, the deleted course keeps showing up in Explore.
+      const { data: prog } = await db.from('programs')
+        .select('linked_product_id')
+        .eq('id', id)
+        .maybeSingle();
+      const productId = (prog as any)?.linked_product_id as string | null;
+
       const { data: modules } = await db.from('program_modules').select('id').eq('program_id', id);
       const moduleIds = (modules || []).map((m: any) => m.id);
       if (moduleIds.length > 0) {
@@ -250,10 +258,27 @@ export function useDeleteProgram() {
       await db.from('program_enrollments').delete().eq('program_id', id);
       const { error } = await db.from('programs').delete().eq('id', id);
       if (error) throw error;
+
+      if (productId) {
+        // Buyers keep their purchase records: if anyone ever paid, we only
+        // unlist the product. Otherwise it is removed completely.
+        const { count } = await db.from('product_purchases')
+          .select('id', { count: 'exact', head: true })
+          .eq('product_id', productId);
+        if ((count ?? 0) > 0) {
+          await db.from('digital_products')
+            .update({ is_published: false, publication_status: 'draft' } as any)
+            .eq('id', productId);
+        } else {
+          await db.from('digital_products').delete().eq('id', productId);
+        }
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['org-programs'] });
+      qc.invalidateQueries({ queryKey: ['org-products'] });
     },
+
   });
 }
 
