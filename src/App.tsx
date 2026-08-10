@@ -860,7 +860,9 @@ const App = () => (
                   <Route path="analytics" element={<AdminAnalyticsPage />} />
                   <Route path="crm" element={<AdminCRM />} />
                   
-                  <Route path="kyc" element={<LazyAdminKYC />} />
+                  {/* Verification now lives in Settings → Identity verification */}
+                  <Route path="kyc" element={<Navigate to="/admin/settings?s=verification" replace />} />
+
                   <Route path="settings" element={<LazyAdminSettings />} />
                   
                   <Route path="sales" element={<AdminSales />} />
