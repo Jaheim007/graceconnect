@@ -210,14 +210,23 @@ export function StepSource({
   }
 
   return (
-    <div className="space-y-8 pt-8">
-      <div className="text-center space-y-3">
-        <h1 className="text-3xl sm:text-4xl font-extrabold">
-          ✏️ {t('write.hero')} <span className="text-primary">{t('write.hero_highlight')}</span>
-        </h1>
-        <p className="text-muted-foreground text-sm max-w-md mx-auto">
-          {t('write.hero_sub')}
-        </p>
+    <div className="space-y-8 pt-6">
+      {/* Hero */}
+      <div className="relative overflow-hidden rounded-[28px] border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card px-5 py-8 sm:px-10 sm:py-12">
+        <div className="pointer-events-none absolute -top-24 -right-16 h-64 w-64 rounded-full bg-primary/25 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute -bottom-28 -left-20 h-64 w-64 rounded-full bg-accent/20 blur-3xl" aria-hidden />
+        <div className="relative text-center space-y-3">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-background/70 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary backdrop-blur">
+            <ScanText className="h-3 w-3" />
+            {t('write.hero_badge') || 'AI Studio'}
+          </span>
+          <h1 className="text-3xl sm:text-[2.6rem] leading-tight font-extrabold">
+            {t('write.hero')} <span className="text-primary">{t('write.hero_highlight')}</span>
+          </h1>
+          <p className="text-muted-foreground text-sm max-w-md mx-auto">
+            {t('write.hero_sub')}
+          </p>
+        </div>
       </div>
 
       {/* Draft manager */}
@@ -232,23 +241,45 @@ export function StepSource({
       />
 
       {/* Source selection */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {sources.map((s) => (
-          <button
-            key={s.type}
-            onClick={() => update({ source: s.type })}
-            className={`p-4 sm:p-5 rounded-2xl border-2 text-left transition-all ${
-              state.source === s.type
-                ? 'border-primary bg-primary/5 shadow-md'
-                : 'border-border hover:border-primary/30 bg-card'
-            }`}
-          >
-            <s.icon className={`h-5 w-5 sm:h-6 sm:w-6 mb-2 sm:mb-3 ${state.source === s.type ? 'text-primary' : 'text-muted-foreground'}`} />
-            <p className="font-bold text-xs sm:text-sm">{s.label}</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 line-clamp-2">{s.desc}</p>
-          </button>
-        ))}
+      <div className="space-y-4">
+        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+          {t('write.source_section_label') || 'Choose your starting point'}
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {sources.map((s) => {
+            const active = state.source === s.type;
+            return (
+              <button
+                key={s.type}
+                onClick={() => update({ source: s.type })}
+                aria-pressed={active}
+                className={`group relative overflow-hidden rounded-2xl border p-4 sm:p-5 text-left transition-all duration-300 ${
+                  active
+                    ? 'border-primary/60 bg-primary/[0.07] shadow-[0_18px_40px_-24px_hsl(var(--primary)/0.7)] -translate-y-0.5'
+                    : 'border-border bg-card hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_14px_34px_-26px_hsl(var(--primary)/0.6)]'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none absolute -top-10 -right-10 h-24 w-24 rounded-full blur-2xl transition-opacity duration-300 ${
+                    active ? 'bg-primary/30 opacity-100' : 'bg-primary/20 opacity-0 group-hover:opacity-100'
+                  }`}
+                  aria-hidden
+                />
+                <span
+                  className={`relative flex h-10 w-10 items-center justify-center rounded-xl border transition-colors ${
+                    active ? 'border-primary/40 bg-primary/15 text-primary' : 'border-border bg-muted/50 text-muted-foreground group-hover:text-primary'
+                  }`}
+                >
+                  <s.icon className="h-5 w-5" />
+                </span>
+                <p className="relative mt-3 font-bold text-xs sm:text-sm">{s.label}</p>
+                <p className="relative text-[10px] sm:text-xs text-muted-foreground mt-1 line-clamp-2">{s.desc}</p>
+              </button>
+            );
+          })}
+        </div>
       </div>
+
 
       {/* Source-specific inputs */}
       <SourceInput state={state} update={update} t={t} transcribing={transcribing} />
