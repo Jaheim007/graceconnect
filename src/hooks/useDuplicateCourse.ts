@@ -8,9 +8,15 @@ export const COURSE_LANGUAGES = [
   { code: 'pt', flag: '🇵🇹', fr: 'Portugais', en: 'Portuguese' },
   { code: 'de', flag: '🇩🇪', fr: 'Allemand', en: 'German' },
   { code: 'it', flag: '🇮🇹', fr: 'Italien', en: 'Italian' },
+  { code: 'nl', flag: '🇳🇱', fr: 'Néerlandais', en: 'Dutch' },
   { code: 'ar', flag: '🇸🇦', fr: 'Arabe', en: 'Arabic' },
   { code: 'sw', flag: '🇰🇪', fr: 'Swahili', en: 'Swahili' },
+  { code: 'tr', flag: '🇹🇷', fr: 'Turc', en: 'Turkish' },
+  { code: 'ru', flag: '🇷🇺', fr: 'Russe', en: 'Russian' },
+  { code: 'hi', flag: '🇮🇳', fr: 'Hindi', en: 'Hindi' },
+  { code: 'zh', flag: '🇨🇳', fr: 'Chinois', en: 'Chinese' },
 ] as const;
+
 
 export type DuplicateCourseInput = {
   programId: string;
