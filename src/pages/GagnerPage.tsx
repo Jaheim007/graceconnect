@@ -103,17 +103,30 @@ function EarningsCalculator() {
           />
         </div>
 
-        <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4 text-center">
-          <p className="text-xs text-muted-foreground mb-1">{isFr ? 'Tu gagnes par vente' : 'You earn per sale'}</p>
-          <p className="text-lg font-black text-emerald-500">{fmt(perSale)}</p>
-          <div className="border-t border-emerald-500/20 mt-3 pt-3">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent border border-emerald-500/25 p-5 text-center">
+          <div className="pointer-events-none absolute inset-x-0 -bottom-16 h-32 bg-emerald-500/10 blur-2xl" aria-hidden />
+          <p className="relative text-[11px] uppercase tracking-[0.14em] text-muted-foreground mb-1">{isFr ? 'Tu gagnes par vente' : 'You earn per sale'}</p>
+          <p className="relative text-xl font-black text-emerald-500 tabular-nums">{fmt(perSale)}</p>
+          <div className="relative border-t border-emerald-500/20 mt-4 pt-4">
             <p className="text-xs text-muted-foreground mb-1">
               {friends} {isFr ? `ami${friends > 1 ? 's' : ''} achètent` : `friend${friends > 1 ? 's' : ''} buy`} =
             </p>
-            <p className="text-2xl font-black text-emerald-600">{fmt(total)}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'dans ta poche 💰' : 'in your pocket 💰'}</p>
+            <motion.p
+              key={total}
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+              className="text-3xl sm:text-4xl font-black text-emerald-500 tabular-nums tracking-tight"
+            >
+              {fmt(total)}
+            </motion.p>
+            <p className="text-[11px] text-muted-foreground mt-1 inline-flex items-center gap-1">
+              <TrendingUp className="h-3 w-3 text-emerald-500" />
+              {isFr ? 'dans ta poche' : 'in your pocket'}
+            </p>
           </div>
         </div>
+
       </div>
     </motion.div>
   );
