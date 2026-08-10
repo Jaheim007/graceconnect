@@ -19,7 +19,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, ChevronRight, Eye, EyeOff, Megaphone, CalendarDays, PackageOpen, Building2, Save, HandHeart, User, FolderOpen, Globe, SlidersHorizontal } from 'lucide-react';
+import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, ChevronRight, Eye, EyeOff, Megaphone, CalendarDays, PackageOpen, Building2, Save, HandHeart, User, FolderOpen, Globe, SlidersHorizontal, ShieldCheck } from 'lucide-react';
+import IdentityVerificationSettings from '@/components/verification/IdentityVerificationSettings';
+
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
