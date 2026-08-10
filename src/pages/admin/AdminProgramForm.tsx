@@ -909,6 +909,15 @@ export function ProgramForm() {
           </div>
         </div>
       )}
+
+      <DuplicateCourseDialog
+        open={showDuplicate}
+        onOpenChange={setShowDuplicate}
+        courseTitle={title}
+        sourceLanguage={(existingProgram as any)?.content_language ?? null}
+        loading={duplicateCourse.isPending}
+        onConfirm={handleDuplicate}
+      />
     </div>
   );
 }
