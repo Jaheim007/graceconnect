@@ -239,7 +239,12 @@ Deno.serve(async (req) => {
     }
 
     const args = (call.args || {}) as Record<string, unknown>;
-    const tier = args.tier === 'premium' ? 'premium' : 'standard';
+    // Depth is asked in plain words; premium is only chosen when the user asked for depth.
+    const depthWords = String(args.depth ?? '');
+    const tier =
+      args.tier === 'premium' || /detail|in-?depth|profond|complet|approfond|avanc/i.test(depthWords)
+        ? 'premium'
+        : 'standard';
     const actionKey = isCourse ? GENERATION_ACTION_KEY : BOOK_ACTION_KEY;
 
     // Cost comes from the SAME pricing table the pipeline debits from.
