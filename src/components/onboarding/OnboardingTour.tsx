@@ -259,11 +259,19 @@ export function OnboardingTour() {
             height: rect.height + pad * 2,
           }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          style={{ boxShadow: '0 0 0 9999px rgba(3,7,18,0.72)' }}
+          style={{ boxShadow: `0 0 0 9999px rgba(3,7,18,${isMobile ? 0.55 : 0.72})` }}
         />
       ) : (
-        <div aria-hidden className="absolute inset-0 bg-[rgba(3,7,18,0.72)] backdrop-blur-[2px]" onClick={finish} />
+        <div
+          aria-hidden
+          className={cn(
+            'absolute inset-0',
+            isMobile ? 'bg-[rgba(3,7,18,0.45)]' : 'bg-[rgba(3,7,18,0.72)] backdrop-blur-[2px]',
+          )}
+          onClick={finish}
+        />
       )}
+
 
       {/* Glowing ring + pulse on the target */}
       {rect && (
