@@ -351,7 +351,11 @@ export function OnboardingTour() {
             <span aria-hidden className="absolute -top-1.5 left-10 h-3 w-3 rotate-45 border-l border-t border-border/70 bg-card/95" />
           )}
 
-          <div className="h-1 rounded-t-2xl bg-gradient-to-r from-primary via-primary/60 to-transparent" />
+          <div className={cn('h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent', isMobile ? 'rounded-t-3xl' : 'rounded-t-2xl')} />
+          {isMobile && (
+            <div aria-hidden className="mx-auto mt-2 h-1 w-10 rounded-full bg-muted-foreground/30" />
+          )}
+
 
           <button
             onClick={finish}
