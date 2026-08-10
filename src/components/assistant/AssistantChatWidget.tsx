@@ -211,6 +211,30 @@ export function AssistantChatWidget() {
                         )}
                       </p>
 
+                      {/* Recap of everything gathered in the conversation */}
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {[
+                          m.proposal.input.tier === 'premium'
+                            ? (isFr ? 'Détaillé' : 'Detailed')
+                            : (isFr ? 'Essentiel' : 'Essential'),
+                          m.proposal.input.language === 'fr' ? 'Français' : 'English',
+                          m.proposal.kind === 'book' ? m.proposal.input.style : m.proposal.input.level,
+                          m.proposal.kind === 'book' ? m.proposal.input.audience : m.proposal.input.teaching_style,
+                          m.proposal.input.tone,
+                          m.proposal.kind === 'book' && m.proposal.input.chapter_count
+                            ? `${m.proposal.input.chapter_count} ${isFr ? 'chapitres' : 'chapters'}`
+                            : null,
+                        ].filter(Boolean).map((chip, i) => (
+                          <span
+                            key={i}
+                            className="rounded-full border border-border/60 bg-background/60 px-2 py-0.5 text-[10px] capitalize text-muted-foreground"
+                          >
+                            {chip as string}
+                          </span>
+                        ))}
+                      </div>
+
+
                       {m.proposal.kind !== 'book' && (
                         <label className="mt-2.5 flex items-center justify-between gap-2 rounded-lg border border-border/60 bg-background/60 px-2.5 py-2">
                           <span className="flex items-center gap-2 text-[11px] font-medium">
