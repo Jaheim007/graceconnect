@@ -30,6 +30,8 @@ export function AssistantChatWidget() {
   const isFr = locale === 'fr';
   const copy = assistantCopy(isFr);
   const { user } = useAuth();
+  const typing = useIsTyping();
+
   const { currentOrg } = useOrg();
   const { toast } = useToast();
   const navigate = useNavigate();
