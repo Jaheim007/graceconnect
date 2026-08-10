@@ -72,6 +72,29 @@ export function ProgramForm() {
 
 
   const [title, setTitle] = useState('');
+  const [showDuplicate, setShowDuplicate] = useState(false);
+  const duplicateCourse = useDuplicateCourse();
+
+  const handleDuplicate = async ({ translate, targetLanguage }: { translate: boolean; targetLanguage: string | null }) => {
+    if (!id || !currentOrg) return;
+    try {
+      const res = await duplicateCourse.mutateAsync({ programId: id, orgId: currentOrg.id, translate, targetLanguage });
+      setShowDuplicate(false);
+      toast({
+        title: translate
+          ? (isFr ? '✅ Cours dupliqué et traduit' : '✅ Course duplicated and translated')
+          : (isFr ? '✅ Cours dupliqué' : '✅ Course duplicated'),
+        description: isFr ? 'La copie est en brouillon.' : 'The copy is saved as a draft.',
+      });
+      navigate(`/admin/programs/${res.program_id}/edit`);
+    } catch (e: any) {
+      toast({
+        title: isFr ? 'Erreur' : 'Error',
+        description: e?.message || (isFr ? 'Duplication impossible' : 'Duplication failed'),
+        variant: 'destructive',
+      });
+    }
+  };
   const [description, setDescription] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
   const [isPublished, setIsPublished] = useState(false);
