@@ -74,41 +74,14 @@ export function DuplicateCourseDialog({
         <div className="space-y-4">
           <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-xs">
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">{isFr ? 'Langue actuelle' : 'Current language'}</span>
+              <span className="text-muted-foreground">{isFr ? 'Langue détectée' : 'Detected language'}</span>
               <span className="ml-auto inline-flex items-center gap-1.5 font-semibold">
                 <span className="text-base leading-none">{srcLang?.flag ?? '🌐'}</span>
                 {srcLang ? (isFr ? srcLang.fr : srcLang.en) : (isFr ? 'Non définie' : 'Not set')}
               </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-6 gap-1 px-1.5 text-[10px]"
-                onClick={() => setEditingSrc((v) => !v)}
-              >
-                <Pencil className="h-3 w-3" />
-                {isFr ? 'Corriger' : 'Fix'}
-              </Button>
             </div>
-            {editingSrc && (
-              <div className="mt-2 grid max-h-[26vh] grid-cols-2 gap-1.5 overflow-y-auto pr-1">
-                {languages.map((l) => (
-                  <button
-                    key={l.code}
-                    type="button"
-                    onClick={() => handlePickSource(l.code)}
-                    className={cn(
-                      'flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-left',
-                      l.code === srcCode ? 'border-primary bg-primary/10 font-semibold' : 'border-border hover:bg-muted/50',
-                    )}
-                  >
-                    <span className="text-sm leading-none">{l.flag}</span>
-                    <span className="truncate">{isFr ? l.fr : l.en}</span>
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
+
 
 
           <div className="flex items-start justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
