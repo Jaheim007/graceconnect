@@ -84,9 +84,11 @@ export function GlobalBottomNav() {
 
 
   const isActive = (route: string) => {
+    if (route === '/') return location.pathname === '/';
     if (route === '/dashboard') return location.pathname === '/dashboard' || location.pathname === '/dashboard/home';
     return location.pathname === route || location.pathname.startsWith(route + '/');
   };
+
 
   return (
     <>
