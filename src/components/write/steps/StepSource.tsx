@@ -10,8 +10,8 @@ import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCred
 import type { WriteState, SourceType, SavedWriteDraftSummary } from '../WriteWizard';
 import { askAlert } from '@/components/ui/confirm-dialog';
 
-const MAX_AUDIO_BYTES = 150 * 1024 * 1024;   // 150 MB
-const MAX_AUDIO_SECONDS = 90 * 60;           // 90 minutes
+const MAX_AUDIO_BYTES = 18 * 1024 * 1024;    // 18 MB (Gemini inline cap)
+const MAX_AUDIO_SECONDS = 60 * 60;           // 60 minutes
 const MAX_HANDWRITING_PAGES = 20;            // pages per book
 
 const SUGGESTION_KEYS = [
@@ -491,13 +491,13 @@ function SourceInput({ state, update, t, transcribing }: {
                   return;
                 }
                 if (file.size > MAX_AUDIO_BYTES) {
-                  void askAlert(t('write.audio_too_large') || 'Audio file too large (max 150 MB).');
+                  void askAlert(t('write.audio_too_large') || 'Audio file too large (max 18 MB).');
                   return;
                 }
                 const duration = await probeAudioDuration(file);
                 if (duration && duration > MAX_AUDIO_SECONDS) {
                   void askAlert(
-                    (t('write.audio_too_long') || 'Recording too long (max 90 minutes). Please split it.') +
+                    (t('write.audio_too_long') || 'Recording too long (max 60 minutes). Please split it.') +
                     ` — ${Math.round(duration / 60)} min`
                   );
                   return;
