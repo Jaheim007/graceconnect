@@ -6,7 +6,7 @@
 import { visionTranscribeImages, geminiTranscribePages } from '../_shared/transcribe-vision.ts';
 import { encode as base64Encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts';
 
-const SAMPLE = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Letter_from_Wilhelm_Conrad_R%C3%B6ntgen_to_Ludwig_Zehnder%2C_1896.jpg/640px-Letter_from_Wilhelm_Conrad_R%C3%B6ntgen_to_Ludwig_Zehnder%2C_1896.jpg';
+const SAMPLE = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Letter_from_Wilhelm_Conrad_R%C3%B6ntgen_to_Ludwig_Zehnder%2C_1896.jpg/480px-Letter_from_Wilhelm_Conrad_R%C3%B6ntgen_to_Ludwig_Zehnder%2C_1896.jpg';
 
 Deno.serve(async () => {
   const out: Record<string, unknown> = {};
