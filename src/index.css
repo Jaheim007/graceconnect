@@ -514,11 +514,22 @@ body > div[style*="position: fixed"][style*="opacity"] {
    The clearance lives INSIDE the page's own scroll area (not on <body>) so the
    reserved strip inherits the page background instead of exposing a mismatched
    band above the nav. Font-size independent (rem + safe-area). */
+:root {
+  --sv-nav-clearance: 0px;
+  --sv-fab-offset: 1.5rem;
+}
+
 @media (max-width: 1023.98px) {
+  body:has(.native-bottom-nav-shell) {
+    --sv-nav-clearance: calc(env(safe-area-inset-bottom, 0px) + 5.75rem);
+    --sv-fab-offset: calc(env(safe-area-inset-bottom, 0px) + 6.25rem);
+  }
+
   body:has(.native-bottom-nav-shell) main,
   body:has(.native-bottom-nav-shell) .native-main-scroll,
-  body:has(.native-bottom-nav-shell) [data-scroll-container] {
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
+  body:has(.native-bottom-nav-shell) [data-scroll-container],
+  body:has(.native-bottom-nav-shell) .sv-nav-clearance {
+    padding-bottom: var(--sv-nav-clearance);
   }
 
   /* App-like floating rail on every mobile surface (web, PWA and native) */
@@ -533,6 +544,7 @@ body > div[style*="position: fixed"][style*="opacity"] {
     border-radius: 1.35rem;
   }
 }
+
 
 
 .capacitor-app .native-bottom-nav {
