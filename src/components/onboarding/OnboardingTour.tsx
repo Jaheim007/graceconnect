@@ -299,11 +299,12 @@ export function OnboardingTour() {
             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           />
 
-          {/* Pointer arrow aimed at the real element */}
+          {/* Pointer arrow aimed at the real element (desktop only) */}
           <motion.div
             key={`arrow-${step}`}
             aria-hidden
-            className="pointer-events-none absolute text-primary"
+            className={cn('pointer-events-none absolute text-primary', isMobile && 'hidden')}
+
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             style={
