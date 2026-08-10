@@ -39,7 +39,8 @@ export function GlobalBottomNav() {
     HIDE_NAV_ROUTES.some((r) => location.pathname.startsWith(r)) ||
     isBeautyThread;
 
-  if (hidden || (user && !workspaceReady)) return null;
+  // Never unmount the rail on workspace hydration — it must feel permanent.
+  if (hidden) return null;
 
   const inVerticalSurface = /^\/(beauty|home|events|education|church)\b/.test(location.pathname);
 
@@ -47,7 +48,8 @@ export function GlobalBottomNav() {
   if (inVerticalSurface) {
     return (
       <nav
-        className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-50 lg:hidden pointer-events-auto"
+        className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-40 lg:hidden pointer-events-auto"
+
         aria-label="Navigation mobile"
       >
         <BottomNav />
