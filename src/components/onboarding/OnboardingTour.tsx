@@ -8,16 +8,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLocation } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 
-const TOUR_VERSION = 'v4';
+const TOUR_VERSION = 'v5';
 const TOUR_STORAGE_KEY = `gc_onboarding_done_${TOUR_VERSION}`;
 /** Any of these means the user already went through onboarding — never replay it. */
-const LEGACY_TOUR_KEYS = [
-  TOUR_STORAGE_KEY,
-  'gc_onboarding_done_v3',
-  'gc_onboarding_done_v2',
-  'gc_onboarding_done_v1',
-  'gc_onboarding_done',
-];
+const LEGACY_TOUR_KEYS = [TOUR_STORAGE_KEY];
 
 interface TourStep {
   icon: React.ReactNode;
@@ -288,8 +282,12 @@ export function OnboardingTour() {
   };
   let arrowSide: 'left' | 'top' | null = null;
   if (isMobile) {
-    // Mobile: always a bottom sheet — never covers the highlighted element.
-    cardStyle = { left: 12, bottom: 12, top: 'auto' as any };
+    // Mobile: sheet on the opposite side of the highlighted element so the
+    // real UI stays visible (bottom nav steps push the card to the top).
+    const targetIsLow = !rect || rect.top > vh * 0.45;
+    cardStyle = targetIsLow
+      ? { left: 12, top: 16, bottom: 'auto' as any }
+      : { left: 12, bottom: 96, top: 'auto' as any };
   } else if (rect) {
     const spaceRight = vw - (rect.left + rect.width);
     if (spaceRight > cardW + 48) {
