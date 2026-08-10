@@ -24,7 +24,13 @@ interface Props {
   status: string; // 'none' | 'pending' | 'approved' | 'rejected' | 'level1' | 'level2'
   rejectionReason?: string | null;
   orgCategory?: string;
+  /**
+   * When provided, the flow is pre-decided by the platform type (KYC vs KYB)
+   * and the "choose verification type" step is skipped entirely.
+   */
+  forcedVerificationType?: VerificationType;
 }
+
 
 const DOC_TYPES = [
   { value: 'national_id', label: "Carte Nationale d'Identité", hasBack: true, icon: '🪪' },
