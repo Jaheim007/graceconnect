@@ -10,10 +10,11 @@ import { useState } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { MobileMenuDrawer } from './MobileMenuDrawer';
 
-/** Hide bottom nav (prefix match) */
-const HIDE_NAV_ROUTES = ['/auth', '/reels', '/superadmin'];
+/** Hide bottom nav (prefix match) — only fully immersive surfaces */
+const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 /** Hide bottom nav (exact match) */
 const HIDE_NAV_EXACT: string[] = [];
+
 
 /**
  * GlobalBottomNav — one unified compact bottom nav for signed-in customer/admin
@@ -27,7 +28,7 @@ export function GlobalBottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { workspaceReady } = useOrg();
+  const { workspaceReady: _workspaceReady } = useOrg();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [menuOpen, setMenuOpen] = useState(false);
@@ -38,7 +39,8 @@ export function GlobalBottomNav() {
     HIDE_NAV_ROUTES.some((r) => location.pathname.startsWith(r)) ||
     isBeautyThread;
 
-  if (hidden || (user && !workspaceReady)) return null;
+  // Never unmount the rail on workspace hydration — it must feel permanent.
+  if (hidden) return null;
 
   const inVerticalSurface = /^\/(beauty|home|events|education|church)\b/.test(location.pathname);
 
@@ -46,7 +48,8 @@ export function GlobalBottomNav() {
   if (inVerticalSurface) {
     return (
       <nav
-        className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-50 lg:hidden pointer-events-auto"
+        className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-40 lg:hidden pointer-events-auto"
+
         aria-label="Navigation mobile"
       >
         <BottomNav />
@@ -93,7 +96,7 @@ export function GlobalBottomNav() {
   return (
     <>
       <nav
-        className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-50 lg:hidden pointer-events-auto"
+        className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-40 lg:hidden pointer-events-auto"
         aria-label="Navigation mobile"
       >
         <div className="native-bottom-nav pointer-events-auto">
