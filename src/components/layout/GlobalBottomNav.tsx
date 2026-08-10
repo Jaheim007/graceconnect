@@ -96,7 +96,7 @@ export function GlobalBottomNav() {
   return (
     <>
       <nav
-        className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-50 lg:hidden pointer-events-auto"
+        className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-40 lg:hidden pointer-events-auto"
         aria-label="Navigation mobile"
       >
         <div className="native-bottom-nav pointer-events-auto">
