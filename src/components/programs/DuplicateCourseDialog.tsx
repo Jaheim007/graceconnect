@@ -29,7 +29,10 @@ export function DuplicateCourseDialog({
   const [lang, setLang] = useState<string | null>(null);
   const cost = useActionCost('translate_course');
 
-  const languages = COURSE_LANGUAGES.filter((l) => l.code !== (sourceLanguage || '').slice(0, 2));
+  const srcCode = (sourceLanguage || '').slice(0, 2).toLowerCase();
+  const srcLang = COURSE_LANGUAGES.find((l) => l.code === srcCode) || null;
+  const languages = COURSE_LANGUAGES;
+
 
   const canConfirm = !loading && (!translate || !!lang);
 
