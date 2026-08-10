@@ -247,7 +247,6 @@ export default function AdminPrograms() {
                   {/* Creator metrics */}
                   {(() => {
                     const stat = courseStats?.[prog.id];
-                    const isPaid = prog.ai_generated || (!prog.is_free && (prog.price ?? 0) > 0);
                     return (
                       <div className="grid grid-cols-3 gap-1.5 pt-1">
                         <div className="rounded-lg bg-muted/50 px-2 py-1.5">
