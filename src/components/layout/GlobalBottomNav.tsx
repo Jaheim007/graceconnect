@@ -143,11 +143,12 @@ export function GlobalBottomNav() {
               >
 
                 <div className="flex h-8 w-8 items-center justify-center rounded-xl">
-                  <MenuIcon className="h-4 w-4" />
+                  {user ? <MenuIcon className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
                 </div>
                 <span className="text-[10px] leading-none tracking-wide font-medium">
-                  {isFr ? 'Menu' : 'Menu'}
+                  {user ? 'Menu' : isFr ? 'Connexion' : 'Sign in'}
                 </span>
+
               </button>
             </div>
           </div>
