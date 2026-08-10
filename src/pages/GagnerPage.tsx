@@ -7,7 +7,7 @@ import { TrustBadgesBar } from '@/components/trust/TrustBadgesBar';
 import { LiveEarningsTicker } from '@/components/growth/LiveEarningsTicker';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Share2, Zap, Search, Link2, Wallet } from 'lucide-react';
+import { ArrowRight, Share2, Zap, Search, Link2, Wallet, Calculator, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
