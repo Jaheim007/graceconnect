@@ -1388,6 +1388,10 @@ export function AdminSettings() {
     { key: 'profile', icon: Building2, tone: 'text-primary bg-primary/10',
       titleFr: 'Profil de la plateforme', titleEn: 'Platform profile',
       descFr: 'Nom, logo, bannière, lien public, devise', descEn: 'Name, logo, banner, public link, currency' },
+    { key: 'verification', icon: ShieldCheck, tone: 'text-emerald-600 bg-emerald-500/10',
+      titleFr: "Vérification d'identité", titleEn: 'Identity verification',
+      descFr: 'Débloquez les retraits et les versements', descEn: 'Unlock withdrawals and payouts' },
+
     { key: 'content', icon: FolderOpen, tone: 'text-amber-500 bg-amber-500/10',
       titleFr: 'Mes contenus', titleEn: 'My content',
       descFr: 'Produits, formations, médias, événements, campagnes, codes promo, pop-ups',
