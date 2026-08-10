@@ -57,12 +57,23 @@ export function FirstSaleChecklist() {
     queryFn: async () => {
       if (!orgId || !user?.id) return null;
 
-      const [productsRes, salesRes, affRes, orgRes] = await Promise.all([
+      const [productsRes, salesRes, affRes, orgRes, progRes, campRes, annRes, churchRes] = await Promise.all([
         db.from('digital_products').select('id, is_published').eq('organization_id', orgId).limit(5),
         db.from('product_purchases').select('id').eq('organization_id', orgId).eq('status', 'completed').limit(1),
         db.from('affiliate_links').select('code').eq('user_id', user.id).limit(1),
         db.from('organizations').select('logo_url, description').eq('id', orgId).maybeSingle(),
+        db.from('programs').select('id').eq('organization_id', orgId).limit(1),
+        db.from('donation_campaigns').select('id').eq('organization_id', orgId).limit(1),
+        db.from('announcements').select('id').eq('organization_id', orgId).limit(1),
+        db.from('church_providers').select('id').eq('user_id', user.id).maybeSingle(),
       ]);
+
+      let hasSermon = false;
+      const churchId = (churchRes as any)?.data?.id as string | undefined;
+      if (churchId) {
+        const { data } = await db.from('church_sermons').select('id').eq('church_id', churchId).limit(1);
+        hasSermon = (data || []).length > 0;
+      }
 
       const products = productsRes.data || [];
       return {
@@ -72,11 +83,16 @@ export function FirstSaleChecklist() {
         hasSale: (salesRes.data || []).length > 0,
         hasAffiliateCode: (affRes.data || []).length > 0,
         hasOrgBranding: !!(orgRes.data?.logo_url && orgRes.data?.description),
+        hasProgram: (progRes.data || []).length > 0,
+        hasCampaign: (campRes.data || []).length > 0,
+        hasAnnouncement: (annRes.data || []).length > 0,
+        hasSermon,
       };
     },
     enabled: !!orgId && !!user?.id,
     staleTime: 60_000,
   });
+
 
   const type = (currentOrg?.siteviral_type as SiteviralType | null) ?? null;
 
