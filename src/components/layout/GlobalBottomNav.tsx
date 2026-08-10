@@ -42,8 +42,8 @@ export function GlobalBottomNav() {
 
   const inVerticalSurface = /^\/(beauty|home|events|education|church)\b/.test(location.pathname);
 
-  // Guest or vertical surface → keep legacy generic bottom nav
-  if (!user || inVerticalSurface) {
+  // Vertical provider surfaces keep their own vertical BottomNav.
+  if (inVerticalSurface) {
     return (
       <nav
         className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-50 lg:hidden pointer-events-auto"
@@ -54,14 +54,32 @@ export function GlobalBottomNav() {
     );
   }
 
-  const items = [
-    { id: 'overview', route: '/dashboard', icon: LayoutDashboard, fr: 'Accueil',  en: 'Home' },
-    { id: 'explore',  route: '/dashboard/explore', icon: Compass, fr: 'Explorer', en: 'Explore' },
-    { id: 'purchases', route: '/my-purchases', icon: ShoppingBag, fr: 'Achats',   en: 'Purchases' },
-    showServiceSurfaces()
-      ? { id: 'messages', route: '/dashboard/messages', icon: MessageSquare, fr: 'Messages', en: 'Messages' }
-      : { id: 'earn', route: '/gagner', icon: HandCoins, fr: 'Gagner', en: 'Earn' },
-  ] as const;
+  const items = user
+    ? ([
+        { id: 'overview', route: '/dashboard', icon: LayoutDashboard, fr: 'Accueil', en: 'Home' },
+        { id: 'explore', route: '/dashboard/explore', icon: Compass, fr: 'Explorer', en: 'Explore' },
+        { id: 'purchases', route: '/my-purchases', icon: ShoppingBag, fr: 'Achats', en: 'Purchases' },
+        showServiceSurfaces()
+          ? { id: 'messages', route: '/dashboard/messages', icon: MessageSquare, fr: 'Messages', en: 'Messages' }
+          : { id: 'earn', route: '/gagner', icon: HandCoins, fr: 'Gagner', en: 'Earn' },
+      ] as const)
+    : ([
+        { id: 'overview', route: '/', icon: LayoutDashboard, fr: 'Accueil', en: 'Home' },
+        { id: 'explore', route: '/discover', icon: Compass, fr: 'Explorer', en: 'Explore' },
+        { id: 'purchases', route: '/my-purchases', icon: ShoppingBag, fr: 'Achats', en: 'Purchases' },
+        { id: 'earn', route: '/gagner', icon: HandCoins, fr: 'Gagner', en: 'Earn' },
+      ] as const);
+
+  /** Guests can browse Home/Explore/Earn; Purchases requires an account. */
+  const go = (route: string) => {
+    if (!user && route === '/my-purchases') {
+      try { sessionStorage.setItem('sv_auth_returnTo', route); } catch {}
+      navigate(`/auth?returnTo=${encodeURIComponent(route)}`);
+      return;
+    }
+    navigate(route);
+  };
+
 
 
 
