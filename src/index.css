@@ -511,12 +511,26 @@ body > div[style*="position: fixed"][style*="opacity"] {
 }
 
 /* Reserve space so the fixed bottom nav never covers page content on mobile.
-   The clearance lives INSIDE the page's own <main> (not on <body>) so the
+   The clearance lives INSIDE the page's own scroll area (not on <body>) so the
    reserved strip inherits the page background instead of exposing a mismatched
    band above the nav. Font-size independent (rem + safe-area). */
 @media (max-width: 1023.98px) {
-  body:has(.native-bottom-nav-shell) main {
+  body:has(.native-bottom-nav-shell) main,
+  body:has(.native-bottom-nav-shell) .native-main-scroll,
+  body:has(.native-bottom-nav-shell) [data-scroll-container] {
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
+  }
+
+  /* App-like floating rail on every mobile surface (web, PWA and native) */
+  .native-bottom-nav-shell {
+    padding-left: max(0.25rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.25rem, env(safe-area-inset-right, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .native-bottom-nav {
+    margin: 0 0.5rem 0.5rem;
+    border-radius: 1.35rem;
   }
 }
 
@@ -525,6 +539,7 @@ body > div[style*="position: fixed"][style*="opacity"] {
   margin: 0 0.5rem 0.5rem;
   border-radius: 1.35rem;
 }
+
 
 /* Auth screen */
 .capacitor-app .native-auth-screen {
