@@ -244,10 +244,12 @@ export default function ActionHub() {
                 }}
               >
                 {user && displayName
-                  ? (isFr ? ' On continue ?' : ' Let’s continue.')
-                  : (isFr ? 'faire ?' : 'want to do?')}
+                  ? (isFr ? ' On continue' : ' Let’s continue')
+                  : (isFr ? 'faire' : 'want to do')}
               </span>
+              <span className="not-italic text-foreground/70">{isFr ? ' ?' : '?'}</span>
             </h1>
+
             <div
               aria-hidden
               className="mx-auto h-px w-24"
