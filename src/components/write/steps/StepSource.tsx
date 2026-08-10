@@ -584,19 +584,3 @@ function probeAudioDuration(file: File): Promise<number | null> {
     }
   });
 }
-
-            />
-          </label>
-          {state.topic.trim().length > 0 && (
-            <div className="rounded-xl border border-border bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground mb-1">📝 {t('write.transcribe_success')}</p>
-              <p className="text-sm line-clamp-4">{state.topic.slice(0, 300)}…</p>
-            </div>
-          )}
-        </div>
-      );
-
-    default:
-      return null;
-  }
-}
