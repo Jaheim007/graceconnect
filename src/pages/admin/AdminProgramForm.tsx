@@ -227,6 +227,19 @@ export function ProgramForm() {
       });
       return;
     }
+    // A course can only go live either as an explicit free course (non-AI) or
+    // with a real price. "Paid but 0" is never publishable.
+    if (isPublished && !isFree && price <= 0) {
+      toast({
+        title: isFr ? 'Prix manquant' : 'Missing price',
+        description: isFr
+          ? 'Ajoutez un prix, ou marquez le cours comme gratuit, avant de le publier.'
+          : 'Add a price, or mark the course as free, before publishing it.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setSaving(true);
     try {
       const wasPublished = existingProgram?.is_published;
@@ -254,15 +267,18 @@ export function ProgramForm() {
 
 
       // Auto-create/update linked digital product for paid courses (enables affiliate system)
+      const externalLink = `/program/${id}`;
       if (!isFree && price > 0 && isPublished) {
         try {
-          const externalLink = `/program/${id}`;
+          // Match on the stable program link, never on the title (renaming a course
+          // used to orphan its marketplace listing).
           const { data: existingProduct } = await supabase.from('digital_products')
             .select('id')
             .eq('organization_id', currentOrg.id)
             .eq('product_type', 'course')
-            .ilike('title', title.trim())
+            .eq('external_link', externalLink)
             .maybeSingle();
+
 
           const productPayload = {
             title: title.trim(),
@@ -288,7 +304,19 @@ export function ProgramForm() {
         } catch (e) {
           console.warn('[AdminProgramForm] Auto-product sync error (non-fatal):', e);
         }
+      } else if (wasPublished && !isPublished) {
+        // Course taken offline → its marketplace listing must follow.
+        try {
+          await supabase.from('digital_products')
+            .update({ is_published: false, publication_status: 'draft' })
+            .eq('organization_id', currentOrg.id)
+            .eq('product_type', 'course')
+            .eq('external_link', externalLink);
+        } catch (e) {
+          console.warn('[AdminProgramForm] Mirror unpublish error (non-fatal):', e);
+        }
       }
+
 
       if (currentOrg) {
         if (!wasPublished && isPublished) onContentPublished(currentOrg.id, currentOrg.name, 'program', title.trim(), id, {}, user.id);
