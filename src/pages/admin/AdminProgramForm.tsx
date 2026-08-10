@@ -5,6 +5,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { onContentPublished, onContentUnpublished } from '@/lib/notifications';
 import { useOrg } from '@/contexts/OrgContext';
 import { useEnsureProgramSlides } from '@/hooks/useProgramSlides';
+import { useDuplicateCourse } from '@/hooks/useDuplicateCourse';
+import { DuplicateCourseDialog } from '@/components/programs/DuplicateCourseDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   useProgram, useProgramModules, useUpdateProgram,
