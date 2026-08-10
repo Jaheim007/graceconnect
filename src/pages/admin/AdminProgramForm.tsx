@@ -267,15 +267,18 @@ export function ProgramForm() {
 
 
       // Auto-create/update linked digital product for paid courses (enables affiliate system)
+      const externalLink = `/program/${id}`;
       if (!isFree && price > 0 && isPublished) {
         try {
-          const externalLink = `/program/${id}`;
+          // Match on the stable program link, never on the title (renaming a course
+          // used to orphan its marketplace listing).
           const { data: existingProduct } = await supabase.from('digital_products')
             .select('id')
             .eq('organization_id', currentOrg.id)
             .eq('product_type', 'course')
-            .ilike('title', title.trim())
+            .eq('external_link', externalLink)
             .maybeSingle();
+
 
           const productPayload = {
             title: title.trim(),
