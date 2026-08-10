@@ -6,14 +6,14 @@
 import { visionTranscribeImages, geminiTranscribePages } from '../_shared/transcribe-vision.ts';
 import { encode as base64Encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts';
 
-const SAMPLE = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Letter_from_Wilhelm_Conrad_R%C3%B6ntgen_to_Ludwig_Zehnder%2C_1896.jpg/480px-Letter_from_Wilhelm_Conrad_R%C3%B6ntgen_to_Ludwig_Zehnder%2C_1896.jpg';
+const SAMPLE = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Cursive.svg/512px-Cursive.svg.png';
 
 Deno.serve(async () => {
   const out: Record<string, unknown> = {};
   try {
     const resp = await fetch(SAMPLE);
     const base64 = base64Encode(await resp.arrayBuffer());
-    const pages = [{ base64, mimeType: 'image/jpeg' }];
+    const pages = [{ base64, mimeType: 'image/png' }];
 
     try {
       const vision = await visionTranscribeImages(Deno.env.get('GOOGLE_CLOUD_VISION_API_KEY')!, pages);
