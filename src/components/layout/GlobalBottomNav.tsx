@@ -105,7 +105,7 @@ export function GlobalBottomNav() {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => navigate(item.route)}
+                    onClick={() => go(item.route)}
                     aria-current={active ? 'page' : undefined}
                     aria-label={isFr ? item.fr : item.en}
                     className={cn(
