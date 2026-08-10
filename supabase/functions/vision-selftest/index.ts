@@ -11,8 +11,10 @@ const SAMPLE = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Cursiv
 Deno.serve(async () => {
   const out: Record<string, unknown> = {};
   try {
-    const resp = await fetch(SAMPLE);
-    const base64 = base64Encode(await resp.arrayBuffer());
+    const resp = await fetch(SAMPLE, { headers: { 'User-Agent': 'SiteViral-SelfTest/1.0 (contact@siteviral.com)' } });
+    const buf = await resp.arrayBuffer();
+    out.fetch = { status: resp.status, type: resp.headers.get('content-type'), bytes: buf.byteLength };
+    const base64 = base64Encode(buf);
     const pages = [{ base64, mimeType: 'image/png' }];
 
     try {
