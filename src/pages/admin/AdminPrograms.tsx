@@ -47,7 +47,7 @@ export default function AdminPrograms() {
   const { data: programs = [], isLoading } = useOrgPrograms(currentOrg?.id);
   const deleteProgram = useDeleteProgram();
   const createProgram = useCreateProgram();
-  const cloneProgram = useCloneProgram();
+  const duplicateCourse = useDuplicateCourse();
   const { data: courseStats } = useOrgCourseStats(currentOrg?.id, programs);
   const { data: drafts = [] } = useOrgCourseDrafts(currentOrg?.id);
   const deleteDraft = useDeleteCourseDraft();
