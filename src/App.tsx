@@ -397,7 +397,6 @@ const LazyAdminCampaigns = lazy(() => import("@/pages/admin/AdminPages").then(m 
 const LazyAdminProducts = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminProducts })));
 const LazyAdminMembers = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminMembers })));
 const LazyAdminAffiliation = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminAffiliation })));
-const LazyAdminKYC = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminKYC })));
 const LazyAdminSettings = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminSettings })));
 
 const LazyStartSellingPage = lazy(() => import("@/pages/StartSellingPage"));

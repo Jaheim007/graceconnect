@@ -238,7 +238,7 @@ export default function AdminDashboard() {
                 </p>
               </div>
             </div>
-            <Button size="sm" variant="destructive" onClick={() => navigate('/admin/kyc')} className="h-8 text-xs shrink-0 gap-1.5">
+            <Button size="sm" variant="destructive" onClick={() => navigate("/admin/settings?s=verification")} className="h-8 text-xs shrink-0 gap-1.5">
               <AlertTriangle className="h-3.5 w-3.5" /> {t('admin.verify_account')}
             </Button>
           </div>
