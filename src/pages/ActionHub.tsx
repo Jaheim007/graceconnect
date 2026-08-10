@@ -247,7 +247,7 @@ export default function ActionHub() {
                   ? (isFr ? ' On continue' : ' Let’s continue')
                   : (isFr ? 'faire' : 'want to do')}
               </span>
-              <span className="not-italic text-foreground/70">{isFr ? ' ?' : '?'}</span>
+              <span className="not-italic text-foreground/70">{user && displayName ? (isFr ? ' ?' : '.') : (isFr ? ' ?' : '?')}</span>
             </h1>
 
             <div
