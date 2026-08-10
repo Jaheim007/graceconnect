@@ -237,7 +237,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
     try {
       let submissionId: string | null = null;
       if (mode === 'org') {
-        const { data, error } = await db.rpc('submit_org_kyc', {
+        const { data, error } = await (db as any).rpc('submit_org_kyc', {
           _org_id: entityId,
           _kyc_level: 1,
           _id_document_url: docFrontUrl,
