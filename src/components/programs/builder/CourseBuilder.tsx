@@ -5,7 +5,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Layers, PanelRightOpen, PanelRightClose } from 'lucide-react';
+import { ArrowLeft, Layers, Smartphone, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   useProgramSlideMap, useCreateSlide, useUpdateSlide, useDeleteSlide, useReorderSlides,
