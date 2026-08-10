@@ -92,7 +92,13 @@ export function FloatingHelpWidget() {
   if (!user) return null;
 
   return (
-    <div className="fixed bottom-20 right-4 z-[55] md:bottom-6 md:right-6">
+    <div
+      className={`fixed right-3 z-[55] transition-opacity duration-200 md:bottom-6 md:right-6 ${
+        typing && !open ? 'pointer-events-none opacity-0' : 'opacity-100'
+      }`}
+      style={{ bottom: 'var(--sv-fab-offset)' }}
+    >
+
       <AnimatePresence>
         {open && (
           <motion.div
