@@ -4,6 +4,8 @@ import { HelpCircle, X, MessageCircle, BookOpen, LifeBuoy, Keyboard, ChevronRigh
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsTyping } from '@/hooks/useIsTyping';
+
 
 // Contextual FAQ answers based on current page
 const CONTEXTUAL_HELP: Record<string, { q: string; a: string }[]> = {
