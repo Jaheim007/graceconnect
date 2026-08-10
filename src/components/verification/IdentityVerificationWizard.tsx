@@ -137,8 +137,11 @@ function getSteps(mode: VerificationMode, verificationType: VerificationType | n
   return steps;
 }
 
-export default function IdentityVerificationWizard({ mode, entityId, status, rejectionReason, orgCategory }: Props) {
-  const [verificationType, setVerificationType] = useState<VerificationType | null>(mode === 'beauty' || mode === 'church' ? 'individual' : null);
+export default function IdentityVerificationWizard({ mode, entityId, status, rejectionReason, orgCategory, forcedVerificationType }: Props) {
+  const [verificationType, setVerificationType] = useState<VerificationType | null>(
+    forcedVerificationType ?? (mode === 'beauty' || mode === 'church' ? 'individual' : null)
+  );
+
   const [step, setStep] = useState(0);
   const [docType, setDocType] = useState('national_id');
   const [docFrontUrl, setDocFrontUrl] = useState('');
