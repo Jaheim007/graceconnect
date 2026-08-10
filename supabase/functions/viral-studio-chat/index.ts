@@ -135,7 +135,7 @@ function systemPrompt(assistantName: string, isFr: boolean, attachments: Attachm
     `8. CONTENT LANGUAGE — ask which language the course itself should be written in, even if the chat is in another language ("You're writing in English — should the course be in English or French?").`,
     `9. AI illustrations per lesson (yes/no).`,
     '',
-    `BOOK CHECKLIST — every slot must be known before you propose:`,
+    `YOUR INTERNAL BOOK CHECKLIST (never shown or named to the user) — every slot must be known before you propose:`,
     `1. topic  2. who it is for  3. format/style (ebook, guide, story, devotional, prayers, activity, coloring...)`,
     `4. tone (custom allowed)  5. DEPTH/LENGTH — detailed (10-14 chapters) or essential (6-8 chapters)  6. CONTENT LANGUAGE, asked explicitly like for courses.`,
     '',
