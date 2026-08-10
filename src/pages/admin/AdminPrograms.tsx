@@ -72,6 +72,33 @@ export default function AdminPrograms() {
   const [showBlank, setShowBlank] = useState(false);
   const [showConvert, setShowConvert] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  const [duplicateTarget, setDuplicateTarget] = useState<{ id: string; title: string; language: string | null } | null>(null);
+
+  const handleDuplicate = async ({ translate, targetLanguage }: { translate: boolean; targetLanguage: string | null }) => {
+    if (!duplicateTarget || !currentOrg) return;
+    try {
+      const res = await duplicateCourse.mutateAsync({
+        programId: duplicateTarget.id,
+        orgId: currentOrg.id,
+        translate,
+        targetLanguage,
+      });
+      setDuplicateTarget(null);
+      toast({
+        title: translate
+          ? (isFr ? '✅ Cours dupliqué et traduit' : '✅ Course duplicated and translated')
+          : (isFr ? '✅ Cours dupliqué' : '✅ Course duplicated'),
+        description: isFr ? 'La copie est en brouillon.' : 'The copy is saved as a draft.',
+      });
+      navigate(`/admin/programs/${res.program_id}/edit`);
+    } catch (e: any) {
+      toast({
+        title: isFr ? 'Erreur' : 'Error',
+        description: e?.message || (isFr ? 'Duplication impossible' : 'Duplication failed'),
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
