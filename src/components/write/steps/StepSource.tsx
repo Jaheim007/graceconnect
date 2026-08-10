@@ -52,14 +52,15 @@ export function StepSource({
     { type: 'notes_photo', icon: Camera, label: t('write.source_notes'), desc: t('write.source_notes_desc') },
   ];
 
+  const handwritingPages = state.uploadedFiles ?? [];
+
   const canContinue = (() => {
     if (transcribing) return false;
     switch (state.source) {
       case 'idea': return state.topic.trim().length >= 3;
       case 'document': return state.uploadedFile !== null || state.topic.trim().length >= 3;
-      case 'youtube': return state.topic.trim().length >= 3 || (state.sourceUrl || '').trim().length > 10;
       case 'audio': return state.uploadedFile !== null || state.topic.trim().length >= 3;
-      case 'notes_photo': return state.uploadedFile !== null || state.topic.trim().length >= 3;
+      case 'notes_photo': return handwritingPages.length > 0 || state.topic.trim().length >= 3;
       default: return false;
     }
   })();
@@ -72,9 +73,8 @@ export function StepSource({
     // Already transcribed (topic has content) → no need to re-transcribe
     if (state.topic.trim().length >= 3) return false;
     switch (state.source) {
-      case 'youtube': return (state.sourceUrl || '').trim().length > 10;
       case 'audio': return state.uploadedFile !== null;
-      case 'notes_photo': return state.uploadedFile !== null;
+      case 'notes_photo': return handwritingPages.length > 0;
       case 'document': return state.uploadedFile !== null;
       default: return false;
     }
@@ -84,23 +84,25 @@ export function StepSource({
   // show the preview when user clicks continue (no need to re-transcribe)
   const shouldShowPreviewOnContinue = isTranscriptionSource && state.topic.trim().length >= 3 && !showTranscriptionPreview;
 
-  const uploadAndTranscribe = async (file: File, sourceType: string) => {
-    const path = `transcribe/${Date.now()}-${file.name}`;
+  const uploadOne = async (file: File) => {
+    const safeName = file.name.replace(/[^\w.\-]+/g, '_');
+    const path = `transcribe/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${safeName}`;
     const { error: uploadErr } = await supabase.storage.from('org-uploads').upload(path, file, {
       cacheControl: '3600',
       upsert: false,
     });
     if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
+    return path;
+  };
 
-    const { data, error } = await supabase.functions.invoke('transcribe-source', {
-      body: { source_type: sourceType, storage_path: path },
-    });
+  const callTranscribe = async (payload: Record<string, unknown>) => {
+    const { data, error } = await supabase.functions.invoke('transcribe-source', { body: payload });
     if (error || !data?.ok) {
       const err: any = new Error(data?.error || error?.message || 'Transcription failed');
       if (data?.error?.includes?.('insuffisant') || error?.message?.includes?.('402')) err.status = 402;
       throw err;
     }
-    return data.text as string;
+    return data as { text: string; method?: WriteState['transcriptionMethod'] };
   };
 
   const handleTranscribeAndNext = async () => {
@@ -116,19 +118,18 @@ export function StepSource({
 
     setTranscribing(true);
     try {
-      let text = '';
+      let result: { text: string; method?: WriteState['transcriptionMethod'] };
 
-      if (state.source === 'youtube') {
-        const { data, error } = await supabase.functions.invoke('transcribe-source', {
-          body: { source_type: 'youtube', url: state.sourceUrl },
-        });
-        if (error || !data?.ok) throw new Error(data?.error || 'Transcription failed');
-        text = data.text;
-      } else if (state.uploadedFile) {
-        text = await uploadAndTranscribe(state.uploadedFile, state.source);
+      if (state.source === 'notes_photo') {
+        const paths: string[] = [];
+        for (const file of handwritingPages) paths.push(await uploadOne(file));
+        result = await callTranscribe({ source_type: 'notes_photo', storage_paths: paths });
+      } else {
+        const path = await uploadOne(state.uploadedFile!);
+        result = await callTranscribe({ source_type: state.source, storage_path: path });
       }
 
-      update({ topic: text });
+      update({ topic: result.text, transcriptionMethod: result.method });
       toast({ title: `✅ ${t('write.transcribe_success')}` });
       setTranscribing(false);
       setShowTranscriptionPreview(true);
@@ -145,6 +146,7 @@ export function StepSource({
     setShowTranscriptionPreview(false);
     onNext();
   };
+
 
   const visibleDrafts = savedDrafts.slice(0, 8);
 
