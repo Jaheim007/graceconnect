@@ -49,13 +49,18 @@ function EarningsCalculator() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15 }}
-      className="rounded-2xl border border-emerald-500/20 bg-card p-5 sm:p-6"
+      className="relative overflow-hidden rounded-3xl border border-emerald-500/25 glass-premium backdrop-blur-xl p-5 sm:p-7 shadow-[0_18px_50px_-24px_hsl(var(--foreground)/0.35)]"
     >
-      <h3 className="font-extrabold text-sm mb-4 flex items-center gap-2">
-        🧮 {isFr ? 'Calcule tes gains' : 'Calculate your earnings'}
+      <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-emerald-500/15 blur-3xl" aria-hidden />
+      <h3 className="relative font-extrabold text-sm mb-5 flex items-center gap-2 tracking-tight">
+        <span className="h-8 w-8 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
+          <Calculator className="h-4 w-4 text-emerald-500" />
+        </span>
+        {isFr ? 'Calcule tes gains' : 'Calculate your earnings'}
       </h3>
 
-      <div className="space-y-5">
+      <div className="relative space-y-5">
+
         <div>
           <div className="flex justify-between text-xs mb-2">
             <span className="text-muted-foreground">{isFr ? 'Prix du produit' : 'Product price'}</span>
