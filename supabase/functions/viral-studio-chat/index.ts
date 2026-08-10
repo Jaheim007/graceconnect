@@ -126,7 +126,7 @@ function systemPrompt(assistantName: string, isFr: boolean, attachments: Attachm
     `First figure out WHAT they want: a course/formation, or a book/ebook.`,
     `Ask ONE short question at a time. Never re-ask something already given or clearly implied.`,
     '',
-    `COURSE CHECKLIST — every slot must be known before you propose:`,
+    `YOUR INTERNAL COURSE CHECKLIST (never shown or named to the user) — every slot must be known before you propose:`,
     `1. topic  2. who it is for (audience)  3. what learners should achieve (goal)`,
     `4. DEPTH — ask plainly, e.g. "Do you want a detailed, in-depth course or a shorter essential one?" Map: detailed/in-depth/complete -> tier "premium"; essential/short/quick -> tier "standard". Never pick the tier silently.`,
     `5. level (beginner / intermediate / advanced)`,
