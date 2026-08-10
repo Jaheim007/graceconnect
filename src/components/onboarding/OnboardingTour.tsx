@@ -403,25 +403,26 @@ export function OnboardingTour() {
               ))}
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="sm" onClick={finish} className="h-8 text-xs text-muted-foreground">
+                <Button variant="ghost" size="sm" onClick={finish} className={cn('text-xs text-muted-foreground', isMobile ? 'h-11' : 'h-8')}>
                   {isFr ? 'Passer' : 'Skip'}
                 </Button>
                 {step > 0 && (
-                  <Button variant="ghost" size="sm" onClick={prev} className="h-8 gap-1 text-xs">
+                  <Button variant="ghost" size="sm" onClick={prev} className={cn('gap-1 text-xs', isMobile ? 'h-11' : 'h-8')}>
                     <ChevronLeft className="h-3.5 w-3.5" />
                     {isFr ? 'Retour' : 'Back'}
                   </Button>
                 )}
               </div>
-              <Button size="sm" onClick={next} className="h-8 gap-1 text-xs">
+              <Button size="sm" onClick={next} className={cn('gap-1 text-xs', isMobile ? 'h-11 flex-1 max-w-[55%]' : 'h-8')}>
                 {step === steps.length - 1
                   ? (isFr ? "C'est parti !" : "Let's go!")
                   : (isFr ? 'Suivant' : 'Next')}
                 {step < steps.length - 1 && <ChevronRight className="h-3.5 w-3.5" />}
               </Button>
             </div>
+
           </div>
         </motion.div>
       </AnimatePresence>
