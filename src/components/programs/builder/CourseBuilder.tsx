@@ -49,7 +49,10 @@ export function CourseBuilder({ programId, modules, courseTitle, orgLogoUrl }: C
   const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
   const [selectedSlideId, setSelectedSlideId] = useState<string | null>(null);
   const [centerMode, setCenterMode] = useState<CenterMode>('empty');
-  const [showPreview, setShowPreview] = useState(true);
+  // On mobile the phone preview is a full-screen sheet, never an inline pane,
+  // so the editor keeps the whole viewport.
+  const [showPreview, setShowPreview] = useState(!isMobile);
+
   const [saving, setSaving] = useState(false);
 
   const createSlide = useCreateSlide();
