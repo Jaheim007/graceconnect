@@ -63,7 +63,9 @@ type EmailTemplate =
   | 'grandfather_ending_soon' | 'grandfather_expired'
   | 'founder_welcome'
   | 'monthly_commission_recap_paid' | 'monthly_commission_recap_saved'
-  | 'product_unpublished_no_cover';
+  | 'product_unpublished_no_cover'
+  | 'course_unpublished_no_price';
+
 
 type Lang = 'fr' | 'en';
 
