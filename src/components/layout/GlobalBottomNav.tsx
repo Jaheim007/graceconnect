@@ -13,7 +13,7 @@ import { MobileMenuDrawer } from './MobileMenuDrawer';
 /** Hide bottom nav (prefix match) */
 const HIDE_NAV_ROUTES = ['/auth', '/reels', '/superadmin'];
 /** Hide bottom nav (exact match) */
-const HIDE_NAV_EXACT = ['/'];
+const HIDE_NAV_EXACT: string[] = [];
 
 /**
  * GlobalBottomNav — one unified compact bottom nav for signed-in customer/admin

@@ -191,34 +191,55 @@ export default function ActionHub() {
       />
 
       {/* Compact mobile-first top bar */}
-      <header className="relative h-12 sm:h-14 sticky top-0 z-40 backdrop-blur-xl bg-[hsl(var(--cert-paper))]/70 dark:bg-[#08070f]/70 border-b border-[hsl(var(--cert-gold))]/20 flex items-center px-3 sm:px-4 gap-2">
-        <SiteLogo size="sm" animate />
+      <header className="relative h-12 sm:h-14 sticky top-0 z-40 backdrop-blur-xl bg-[hsl(var(--cert-paper))]/70 dark:bg-[#08070f]/70 border-b border-[hsl(var(--cert-gold))]/20 flex items-center px-3 sm:px-4 gap-2 after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-px after:h-px after:bg-gradient-to-r after:from-transparent after:via-[hsl(var(--cert-gold))]/60 after:to-transparent">
+        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -top-14 left-8 h-28 w-40 rounded-full bg-[hsl(var(--cert-gold))]/20 blur-3xl" />
+        </div>
+        <div className="relative flex items-center">
+          <SiteLogo size="sm" animate />
+        </div>
         <div className="flex-1" />
-        <Button
-          variant="ghost"
-          size="sm"
-          className="hidden h-8 rounded-xl px-3 text-xs font-semibold text-muted-foreground hover:text-foreground sm:inline-flex"
-          onClick={() => navigate('/landing')}
-        >
-          {isFr ? 'Découvrir SiteViral' : 'About SiteViral'}
-        </Button>
-        <GlobalPreferencesSelector />
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
-          {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </Button>
-        {user ? (
-          <Button size="sm" className="h-8 text-xs font-semibold rounded-xl px-4" onClick={() => navigate('/dashboard')}>
-            {isFr ? 'Tableau de bord' : 'Dashboard'}
+        <div className="relative flex items-center gap-1.5">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="hidden h-8 rounded-full px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-[hsl(var(--cert-gold))]/10 hover:text-foreground sm:inline-flex"
+            onClick={() => navigate('/landing')}
+          >
+            {isFr ? 'Découvrir SiteViral' : 'About SiteViral'}
           </Button>
-        ) : (
-          <Button size="sm" className="h-8 text-xs font-semibold rounded-xl px-4" onClick={() => navigate('/auth')}>
-            {isFr ? 'Connexion' : 'Sign in'}
+          <GlobalPreferencesSelector />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-full transition-transform hover:scale-110 hover:bg-[hsl(var(--cert-gold))]/10"
+            onClick={toggleTheme}
+          >
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
-        )}
+          {user ? (
+            <Button
+              size="sm"
+              className="h-8 rounded-full px-4 text-xs font-bold shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:shadow-primary/40 active:translate-y-0"
+              onClick={() => navigate('/dashboard')}
+            >
+              {isFr ? 'Tableau de bord' : 'Dashboard'}
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              className="h-8 rounded-full px-4 text-xs font-bold shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:shadow-primary/40 active:translate-y-0"
+              onClick={() => navigate('/auth')}
+            >
+              {isFr ? 'Connexion' : 'Sign in'}
+            </Button>
+          )}
+        </div>
       </header>
 
       {/* Main content — centered vertically, mobile-optimized spacing */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 pb-28 sm:pb-8">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 pb-32 lg:pb-8">
+
         <motion.div
           variants={container}
           initial="hidden"
