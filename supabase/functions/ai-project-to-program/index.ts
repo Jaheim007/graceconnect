@@ -278,6 +278,7 @@ Deno.serve(async (req) => {
         currency: courseCurrency,
         is_free: false,
         ai_generated: true,
+        content_language: (project.language || 'fr').slice(0, 2).toLowerCase(),
         ai_project_id: project_id,
         is_published: publish_now ?? false,
         publication_status: publish_now ? 'published' : 'draft',
