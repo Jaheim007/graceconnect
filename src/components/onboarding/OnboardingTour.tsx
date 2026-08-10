@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, BarChart3, ShoppingBag, GraduationCap, Users, Megaphone, Settings } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, BarChart3, ShoppingBag, GraduationCap, Users, Megaphone, Settings, Compass, HandCoins, Menu as MenuIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -31,7 +31,70 @@ interface TourStep {
   tip_en: string;
   /** Keep this step even when no matching nav item is found. */
   always?: boolean;
+  /** Tapping the highlighted element activates it (e.g. opens the menu) instead of closing the tour. */
+  clickTarget?: boolean;
 }
+
+/**
+ * Mobile guided tour — walks through the real bottom navigation, one tab at a
+ * time, and finishes by opening the Menu so the user discovers everything they
+ * can create from there.
+ */
+const MOBILE_STEPS: TourStep[] = [
+  {
+    icon: <BarChart3 className="h-5 w-5" />,
+    targets: ['[data-tour="bottomnav-overview"]'],
+    always: true,
+    title_fr: 'Accueil',
+    title_en: 'Home',
+    desc_fr: 'Votre point de départ : raccourcis pour écrire un livre, créer une formation ou publier un produit.',
+    desc_en: 'Your starting point: shortcuts to write a book, build a course, or publish a product.',
+    tip_fr: 'Revenez ici quand vous ne savez pas quoi faire ensuite.',
+    tip_en: 'Come back here whenever you are unsure what to do next.',
+  },
+  {
+    icon: <Compass className="h-5 w-5" />,
+    targets: ['[data-tour="bottomnav-explore"]'],
+    title_fr: 'Explorer',
+    title_en: 'Explore',
+    desc_fr: 'Découvrez les livres, formations et ressources publiés sur SiteViral — et inspirez-vous.',
+    desc_en: 'Discover books, courses, and resources published on SiteViral — and get inspired.',
+    tip_fr: 'Utilisez la recherche pour trouver un thème précis.',
+    tip_en: 'Use search to find a specific topic.',
+  },
+  {
+    icon: <ShoppingBag className="h-5 w-5" />,
+    targets: ['[data-tour="bottomnav-purchases"]'],
+    title_fr: 'Achats',
+    title_en: 'Purchases',
+    desc_fr: 'Tout ce que vous achetez reste ici, à vie : livres, formations, certificats et téléchargements.',
+    desc_en: 'Everything you buy lives here forever: books, courses, certificates, and downloads.',
+    tip_fr: 'Vos accès restent valables même si le créateur retire le produit.',
+    tip_en: 'Your access stays valid even if the creator removes the product.',
+  },
+  {
+    icon: <HandCoins className="h-5 w-5" />,
+    targets: ['[data-tour="bottomnav-earn"]', '[data-tour="bottomnav-messages"]'],
+    title_fr: 'Gagner',
+    title_en: 'Earn',
+    desc_fr: 'Partagez les produits des autres et touchez une commission sur chaque vente.',
+    desc_en: 'Share other creators’ products and earn a commission on every sale.',
+    tip_fr: 'Votre lien de partage est suivi automatiquement.',
+    tip_en: 'Your share link is tracked automatically.',
+  },
+  {
+    icon: <MenuIcon className="h-5 w-5" />,
+    targets: ['[data-tour="bottomnav-menu"]'],
+    always: true,
+    clickTarget: true,
+    title_fr: 'Menu — tout créer',
+    title_en: 'Menu — create anything',
+    desc_fr: 'Appuyez sur Menu : vous y trouverez vos produits, formations, paiements, réglages et la création de plateforme.',
+    desc_en: 'Tap Menu: it holds your products, courses, payouts, settings, and platform creation.',
+    tip_fr: 'Appuyez sur la zone en surbrillance pour ouvrir le menu.',
+    tip_en: 'Tap the highlighted area to open the menu.',
+  },
+];
 
 const STEPS: TourStep[] = [
   {
@@ -146,9 +209,10 @@ export function OnboardingTour() {
   const isFr = locale === 'fr';
 
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isHubRoute = location.pathname === '/' || location.pathname.startsWith('/dashboard');
 
   useEffect(() => {
-    if (!user || !isAdminRoute) {
+    if (!user || !(isAdminRoute || isHubRoute)) {
       setActive(false);
       return;
     }
@@ -156,13 +220,14 @@ export function OnboardingTour() {
     const done = LEGACY_TOUR_KEYS.some((k) => localStorage.getItem(k));
     if (done) return;
     const t = setTimeout(() => {
-      const available = STEPS.filter((s) => !!findEl(s.targets));
-      setSteps(available.length > 0 ? available : STEPS.filter((s) => s.always));
+      const base = window.innerWidth < 768 ? MOBILE_STEPS : STEPS;
+      const available = base.filter((s) => s.always || !!findEl(s.targets));
+      setSteps(available.length > 0 ? available : base.filter((s) => s.always));
       setStep(0);
       setActive(true);
     }, 1000);
     return () => clearTimeout(t);
-  }, [user, isAdminRoute]);
+  }, [user, isAdminRoute, isHubRoute]);
 
   const current = steps[step] ?? steps[0];
 
@@ -250,7 +315,14 @@ export function OnboardingTour() {
         <motion.div
           aria-hidden
           className="pointer-events-auto absolute rounded-2xl"
-          onClick={finish}
+          onClick={() => {
+            if (current.clickTarget) {
+              findEl(current.targets)?.click();
+              next();
+              return;
+            }
+            finish();
+          }}
           initial={false}
           animate={{
             top: rect.top - pad,
