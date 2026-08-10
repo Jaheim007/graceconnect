@@ -420,10 +420,17 @@ export function AdminProducts() {
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
         <EmptyState variant="purchases" title={isFr ? 'Aucun produit' : 'No products'} action={{ label: isFr ? 'Nouveau produit' : 'New product', onClick: () => navigate('/admin/products/new') }} />
       ) : (
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-sm">{items.length} {isFr ? 'produit' : 'product'}{items.length > 1 ? 's' : ''}</h2>
-            <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={bulk.toggleAll}>
+        <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-baseline gap-2">
+              <h2 className="font-heading text-base font-bold tracking-tight">{items.length}</h2>
+              <span className="text-xs text-muted-foreground">
+                {isFr ? 'produit' : 'product'}{items.length > 1 ? 's' : ''}
+                {' · '}
+                {items.filter(p => p.is_published).length} {isFr ? 'en ligne' : 'live'}
+              </span>
+            </div>
+            <Button variant="ghost" size="sm" className="h-7 rounded-lg text-xs" onClick={bulk.toggleAll}>
               {bulk.allSelected ? (isFr ? 'Désélectionner' : 'Deselect') : (isFr ? 'Tout sélectionner' : 'Select all')}
             </Button>
           </div>
@@ -437,82 +444,91 @@ export function AdminProducts() {
               { label: isFr ? 'Supprimer' : 'Delete', icon: Trash2, variant: 'destructive', onClick: handleBulkDelete },
             ]}
           />
-          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2.5">
+          <motion.div variants={stagger} initial="hidden" animate="visible" className="divide-y divide-border/60 rounded-xl border border-border/60 overflow-hidden">
             {items.map(p => (
               <motion.div key={p.id} variants={fadeUp}
-                className={cn("p-3 sm:p-4 rounded-xl border bg-background/50 hover:bg-background transition-all group cursor-pointer space-y-2.5",
-                  bulk.isSelected(p.id) ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/20')}
+                className={cn("relative flex items-center gap-3 sm:gap-4 p-3 sm:p-3.5 transition-colors group cursor-pointer",
+                  bulk.isSelected(p.id) ? 'bg-primary/5' : 'bg-background/40 hover:bg-muted/40')}
                 onClick={() => bulk.toggle(p.id)}
               >
-                {/* Row 1: thumbnail + info */}
-                <div className="flex items-start gap-3">
-                  <div className="h-14 w-14 rounded-xl bg-muted shrink-0 overflow-hidden">
-                    {p.cover_image_url ? (
-                      <img src={p.cover_image_url} alt={p.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-muted opacity-60" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium leading-snug line-clamp-2">{p.title}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {(p as any).is_pwyw
-                        ? `💰 ${isFr ? 'Prix libre' : 'Name your price'}${(p as any).min_price > 0 ? ` · ${isFr ? 'Dès' : 'From'} ${rawFormatPrice((p as any).min_price, false, p.currency)}` : ''}`
-                        : rawFormatPrice(p.price || 0, p.is_free, p.currency)} · {p.sales_count || 0} {isFr ? 'vente' : 'sale'}{(p.sales_count || 0) > 1 ? 's' : ''}
-                    </p>
-                  </div>
+                {bulk.isSelected(p.id) && <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-primary" />}
+                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl bg-muted shrink-0 overflow-hidden ring-1 ring-inset ring-border/60">
+                  {p.cover_image_url ? (
+                    <img src={p.cover_image_url} alt={p.title} loading="lazy" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full grid place-items-center text-muted-foreground/40">
+                      <PackageOpen className="h-5 w-5" />
+                    </div>
+                  )}
                 </div>
-                {/* Row 2: badges + actions */}
-                <div className="flex items-center justify-between gap-2 pl-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <Badge variant="outline" className={cn('text-[11px] border-0 shrink-0',
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <p className="text-sm font-semibold leading-snug truncate">{p.title}</p>
+                    <Badge variant="outline" className={cn('hidden sm:inline-flex text-[10px] font-semibold border-0 shrink-0',
                       (p as any).publication_status === 'moderated' ? 'bg-destructive/10 text-destructive' :
                       p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
-                      {(p as any).publication_status === 'moderated' ? (isFr ? '🚫 Modéré' : '🚫 Moderated') : p.is_published ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
+                      {(p as any).publication_status === 'moderated' ? (isFr ? 'Modéré' : 'Moderated') : p.is_published ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
                     </Badge>
-                    {(p as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">{isFr ? 'Démo' : 'Demo'}</Badge>}
+                    {(p as any).is_express_demo && <Badge variant="outline" className="hidden sm:inline-flex text-[9px] border-dashed shrink-0">{isFr ? 'Démo' : 'Demo'}</Badge>}
                   </div>
-                  <div className="flex items-center gap-0.5 shrink-0">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" title={isFr ? 'Voir' : 'View'}
-                      onClick={(e) => { e.stopPropagation(); navigate(`/org/${currentOrg?.slug}/product/${p.id}`); }}>
-                      <Eye className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" title={isFr ? 'Modifier' : 'Edit'}
-                      onClick={(e) => { e.stopPropagation(); navigate(`/admin/products/${p.id}/edit`); }}>
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" title={p.is_published ? (isFr ? 'Dépublier' : 'Unpublish') : (isFr ? 'Publier' : 'Publish')}
-                      onClick={(e) => { e.stopPropagation(); handleTogglePublish(p); }}>
-                      {p.is_published ? <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> : <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />}
-                    </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" title={isFr ? 'Supprimer' : 'Delete'}
-                          onClick={(e) => e.stopPropagation()}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>{isFr ? 'Supprimer ce produit ?' : 'Delete this product?'}</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            {isFr ? 'Si le produit a déjà été acheté, il ne pourra pas être supprimé mais seulement dépublié.' : 'If the product has already been purchased, it cannot be deleted but only unpublished.'}
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>{isFr ? 'Annuler' : 'Cancel'}</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDeleteSingle(p)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                            {isFr ? 'Supprimer' : 'Delete'}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                  <div className="mt-1 flex items-center gap-1.5 flex-wrap text-[11px] text-muted-foreground">
+                    <span className="rounded-md bg-muted px-1.5 py-0.5 font-semibold text-foreground/80 tabular-nums">
+                      {(p as any).is_pwyw
+                        ? `${isFr ? 'Prix libre' : 'Name your price'}${(p as any).min_price > 0 ? ` · ${isFr ? 'dès' : 'from'} ${rawFormatPrice((p as any).min_price, false, p.currency)}` : ''}`
+                        : rawFormatPrice(p.price || 0, p.is_free, p.currency)}
+                    </span>
+                    <span className="text-muted-foreground/50">·</span>
+                    <span className="tabular-nums">{p.sales_count || 0} {isFr ? 'vente' : 'sale'}{(p.sales_count || 0) > 1 ? 's' : ''}</span>
+                    <Badge variant="outline" className={cn('sm:hidden text-[10px] font-semibold border-0 ml-0.5',
+                      (p as any).publication_status === 'moderated' ? 'bg-destructive/10 text-destructive' :
+                      p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
+                      {(p as any).publication_status === 'moderated' ? (isFr ? 'Modéré' : 'Moderated') : p.is_published ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
+                    </Badge>
                   </div>
+                </div>
+
+                <div className="flex items-center gap-0.5 shrink-0 sm:opacity-60 sm:group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title={isFr ? 'Voir' : 'View'}
+                    onClick={(e) => { e.stopPropagation(); navigate(`/org/${currentOrg?.slug}/product/${p.id}`); }}>
+                    <Eye className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title={isFr ? 'Modifier' : 'Edit'}
+                    onClick={(e) => { e.stopPropagation(); navigate(`/admin/products/${p.id}/edit`); }}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title={p.is_published ? (isFr ? 'Dépublier' : 'Unpublish') : (isFr ? 'Publier' : 'Publish')}
+                    onClick={(e) => { e.stopPropagation(); handleTogglePublish(p); }}>
+                    {p.is_published ? <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> : <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />}
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive" title={isFr ? 'Supprimer' : 'Delete'}
+                        onClick={(e) => e.stopPropagation()}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>{isFr ? 'Supprimer ce produit ?' : 'Delete this product?'}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {isFr ? 'Si le produit a déjà été acheté, il ne pourra pas être supprimé mais seulement dépublié.' : 'If the product has already been purchased, it cannot be deleted but only unpublished.'}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>{isFr ? 'Annuler' : 'Cancel'}</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeleteSingle(p)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          {isFr ? 'Supprimer' : 'Delete'}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </motion.div>
             ))}
           </motion.div>
         </div>
+
       )}
     </AdminPageShell>
     <ChariowImportDialog open={chariowOpen} onOpenChange={setChariowOpen} />
