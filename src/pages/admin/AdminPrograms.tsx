@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useOrgPrograms, useDeleteProgram, useCreateProgram, useCloneProgram } from '@/hooks/usePrograms';
+import { useOrgPrograms, useDeleteProgram, useCreateProgram } from '@/hooks/usePrograms';
+import { useDuplicateCourse } from '@/hooks/useDuplicateCourse';
+import { DuplicateCourseDialog } from '@/components/programs/DuplicateCourseDialog';
 import { AdminPageShell } from './AdminPageShell';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
