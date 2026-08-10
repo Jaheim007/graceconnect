@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Copy, Languages } from 'lucide-react';
+import { Loader2, Copy, Languages, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
 import { COURSE_LANGUAGES } from '@/hooks/useDuplicateCourse';
 import { useActionCost } from '@/hooks/useCredits';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface Props {
   open: boolean;
@@ -16,12 +18,14 @@ interface Props {
   courseTitle: string;
   /** Current language of the course, used to pre-exclude it from the picker. */
   sourceLanguage?: string | null;
+  /** Program id — lets the user correct a wrong source language. */
+  programId?: string;
   loading?: boolean;
   onConfirm: (opts: { translate: boolean; targetLanguage: string | null }) => Promise<void>;
 }
 
 export function DuplicateCourseDialog({
-  open, onOpenChange, courseTitle, sourceLanguage, loading, onConfirm,
+  open, onOpenChange, courseTitle, sourceLanguage, programId, loading, onConfirm,
 }: Props) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -29,12 +33,27 @@ export function DuplicateCourseDialog({
   const [lang, setLang] = useState<string | null>(null);
   const cost = useActionCost('translate_course');
 
-  const srcCode = (sourceLanguage || '').slice(0, 2).toLowerCase();
+  const [srcOverride, setSrcOverride] = useState<string | null>(null);
+  const [editingSrc, setEditingSrc] = useState(false);
+  useEffect(() => {
+    if (open) { setSrcOverride(null); setEditingSrc(false); }
+  }, [open]);
+
+  const srcCode = (srcOverride ?? sourceLanguage ?? '').slice(0, 2).toLowerCase();
   const srcLang = COURSE_LANGUAGES.find((l) => l.code === srcCode) || null;
   const languages = COURSE_LANGUAGES;
 
+  const handlePickSource = async (code: string) => {
+    setSrcOverride(code);
+    setEditingSrc(false);
+    if (lang === code) setLang(null);
+    if (!programId) return;
+    const { error } = await supabase.from('programs').update({ content_language: code }).eq('id', programId);
+    if (error) toast.error(isFr ? 'Impossible d’enregistrer la langue' : 'Could not save language');
+  };
 
   const canConfirm = !loading && (!translate || !!lang);
+
 
   const handleConfirm = async () => {
     if (!canConfirm) return;
