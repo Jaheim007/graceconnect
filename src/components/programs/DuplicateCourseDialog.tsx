@@ -29,7 +29,10 @@ export function DuplicateCourseDialog({
   const [lang, setLang] = useState<string | null>(null);
   const cost = useActionCost('translate_course');
 
-  const languages = COURSE_LANGUAGES.filter((l) => l.code !== (sourceLanguage || '').slice(0, 2));
+  const srcCode = (sourceLanguage || '').slice(0, 2).toLowerCase();
+  const srcLang = COURSE_LANGUAGES.find((l) => l.code === srcCode) || null;
+  const languages = COURSE_LANGUAGES;
+
 
   const canConfirm = !loading && (!translate || !!lang);
 
@@ -50,6 +53,14 @@ export function DuplicateCourseDialog({
         </DialogHeader>
 
         <div className="space-y-4">
+          <div className="flex items-center gap-2 rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-xs">
+            <span className="text-muted-foreground">{isFr ? 'Langue actuelle' : 'Current language'}</span>
+            <span className="ml-auto inline-flex items-center gap-1.5 font-semibold">
+              <span className="text-base leading-none">{srcLang?.flag ?? '🌐'}</span>
+              {srcLang ? (isFr ? srcLang.fr : srcLang.en) : (isFr ? 'Non définie' : 'Not set')}
+            </span>
+          </div>
+
           <div className="flex items-start justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
             <div className="space-y-0.5">
               <Label className="flex items-center gap-1.5 text-sm">
@@ -70,25 +81,37 @@ export function DuplicateCourseDialog({
               <Label className="text-xs uppercase tracking-wide text-muted-foreground">
                 {isFr ? 'Langue cible' : 'Target language'}
               </Label>
-              <div className="grid grid-cols-2 gap-2">
-                {languages.map((l) => (
-                  <button
-                    key={l.code}
-                    type="button"
-                    disabled={loading}
-                    onClick={() => setLang(l.code)}
-                    className={cn(
-                      'flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition-all',
-                      lang === l.code
-                        ? 'border-primary bg-primary/10 font-semibold'
-                        : 'border-border hover:bg-muted/50',
-                    )}
-                  >
-                    <span className="text-base leading-none">{l.flag}</span>
-                    {isFr ? l.fr : l.en}
-                  </button>
-                ))}
+              <div className="grid max-h-[42vh] grid-cols-2 gap-2 overflow-y-auto pr-1">
+                {languages.map((l) => {
+                  const isSource = l.code === srcCode;
+                  return (
+                    <button
+                      key={l.code}
+                      type="button"
+                      disabled={loading || isSource}
+                      onClick={() => setLang(l.code)}
+                      title={isSource ? (isFr ? 'Langue actuelle du cours' : 'Current course language') : undefined}
+                      className={cn(
+                        'flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition-all',
+                        isSource
+                          ? 'cursor-not-allowed border-dashed border-border/60 text-muted-foreground opacity-60'
+                          : lang === l.code
+                            ? 'border-primary bg-primary/10 font-semibold'
+                            : 'border-border hover:bg-muted/50',
+                      )}
+                    >
+                      <span className="text-base leading-none">{l.flag}</span>
+                      <span className="truncate">{isFr ? l.fr : l.en}</span>
+                      {isSource && (
+                        <span className="ml-auto shrink-0 text-[9px] uppercase tracking-wide">
+                          {isFr ? 'actuelle' : 'current'}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
+
               {cost != null && (
                 <p className="text-[11px] text-muted-foreground">
                   {isFr ? 'Coût estimé :' : 'Estimated cost:'}{' '}

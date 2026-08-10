@@ -105,6 +105,7 @@ export function GlobalBottomNav() {
                 return (
                   <button
                     key={item.id}
+                    data-tour={`bottomnav-${item.id}`}
                     onClick={() => go(item.route)}
                     aria-current={active ? 'page' : undefined}
                     aria-label={isFr ? item.fr : item.en}
@@ -130,6 +131,7 @@ export function GlobalBottomNav() {
                 );
               })}
               <button
+                data-tour="bottomnav-menu"
                 onClick={() => {
                   if (!user) {
                     try { sessionStorage.setItem('sv_auth_returnTo', location.pathname); } catch {}
