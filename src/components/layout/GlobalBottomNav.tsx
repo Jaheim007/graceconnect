@@ -10,10 +10,11 @@ import { useState } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { MobileMenuDrawer } from './MobileMenuDrawer';
 
-/** Hide bottom nav (prefix match) */
-const HIDE_NAV_ROUTES = ['/auth', '/reels', '/superadmin'];
+/** Hide bottom nav (prefix match) — only fully immersive surfaces */
+const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 /** Hide bottom nav (exact match) */
 const HIDE_NAV_EXACT: string[] = [];
+
 
 /**
  * GlobalBottomNav — one unified compact bottom nav for signed-in customer/admin
