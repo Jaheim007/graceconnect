@@ -304,7 +304,19 @@ export function ProgramForm() {
         } catch (e) {
           console.warn('[AdminProgramForm] Auto-product sync error (non-fatal):', e);
         }
+      } else if (wasPublished && !isPublished) {
+        // Course taken offline → its marketplace listing must follow.
+        try {
+          await supabase.from('digital_products')
+            .update({ is_published: false, publication_status: 'draft' })
+            .eq('organization_id', currentOrg.id)
+            .eq('product_type', 'course')
+            .eq('external_link', externalLink);
+        } catch (e) {
+          console.warn('[AdminProgramForm] Mirror unpublish error (non-fatal):', e);
+        }
       }
+
 
       if (currentOrg) {
         if (!wasPublished && isPublished) onContentPublished(currentOrg.id, currentOrg.name, 'program', title.trim(), id, {}, user.id);
