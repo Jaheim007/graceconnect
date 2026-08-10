@@ -558,10 +558,24 @@ export function ProgramForm() {
               {isPublished ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
             </Badge>
           </div>
-          <Button size="sm" onClick={handleSave} disabled={saving || !title.trim()} className="gap-1.5 h-8 text-xs shrink-0">
-            {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-            <span className="hidden sm:inline">{isFr ? 'Enregistrer' : 'Save'}</span>
-          </Button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {isEdit && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1.5 text-xs"
+                title={isFr ? 'Dupliquer / traduire' : 'Duplicate / translate'}
+                onClick={() => setShowDuplicate(true)}
+              >
+                <Languages className="h-3 w-3" />
+                <span className="hidden sm:inline">{isFr ? 'Dupliquer' : 'Duplicate'}</span>
+              </Button>
+            )}
+            <Button size="sm" onClick={handleSave} disabled={saving || !title.trim()} className="gap-1.5 h-8 text-xs">
+              {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+              <span className="hidden sm:inline">{isFr ? 'Enregistrer' : 'Save'}</span>
+            </Button>
+          </div>
         </div>
 
         {/* Row 2: Tabs */}
