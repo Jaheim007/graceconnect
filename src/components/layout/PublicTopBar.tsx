@@ -18,7 +18,7 @@ export function PublicTopBar() {
 
   return (
     <header className={cn(
-      'sticky top-0 z-40 flex items-center gap-3 px-4',
+      'sticky top-0 z-40 relative flex items-center gap-3 px-4',
       'border-b border-border/60 supports-[backdrop-filter]:bg-background/70 backdrop-blur-xl',
       'after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-px after:h-px',
       'after:bg-gradient-to-r after:from-transparent after:via-primary/40 after:to-transparent',
