@@ -438,6 +438,7 @@ Deno.serve(async (req) => {
                 org_name: org.name,
                 status: org.kyc_status === 'rejected' ? 'rejeté' : 'non commencé',
                 total_revenue: (orgSales || 0) + (orgDonations || 0),
+                verification_link: 'https://siteviral.com/admin/settings?s=verification',
               },
               organization_id: org.id,
             });

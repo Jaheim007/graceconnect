@@ -15,7 +15,7 @@ type EmailTemplate =
   | 'campaign_goal_reached' | 'campaign_expiring_soon' | 'payment_failed'
   | 'purchase_confirmation' | 'new_purchase_received' | 'download_ready'
   | 'first_sale_milestone'
-  | 'kyc_submitted' | 'kyc_approved' | 'kyc_rejected'
+  | 'kyc_submitted' | 'kyc_approved' | 'kyc_rejected' | 'kyc_reminder'
   | 'org_created' | 'org_deleted' | 'org_suspended' | 'org_unsuspended'
   | 'org_inactive_30d' | 'member_milestone'
   | 'new_member_joined' | 'member_left' | 'invite_to_org' | 'role_changed'
@@ -415,8 +415,13 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
 
     case 'kyc_rejected':
       return isFr
-        ? { subject: `Vérification – Action requise – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Vérification Non Approuvée</h1><p>Votre vérification d'identité pour <strong>${d.org_name}</strong> n'a pas été approuvée.</p><p>Raison : ${d.reason || 'Veuillez contacter le support.'}</p>`, lang) }
-        : { subject: `Verification – Action required – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Verification Not Approved</h1><p>Your identity verification for <strong>${d.org_name}</strong> was not approved.</p><p>Reason: ${d.reason || 'Please contact support.'}</p>`, lang) };
+        ? { subject: `Vérification – Action requise – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Vérification Non Approuvée</h1><p>Votre vérification d'identité pour <strong>${d.org_name}</strong> n'a pas été approuvée.</p><p>Raison : ${d.reason || 'Veuillez contacter le support.'}</p>${cta(String(d.verification_link || 'https://siteviral.com/admin/settings?s=verification'), 'Reprendre ma vérification →')}`, lang) }
+        : { subject: `Verification – Action required – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Verification Not Approved</h1><p>Your identity verification for <strong>${d.org_name}</strong> was not approved.</p><p>Reason: ${d.reason || 'Please contact support.'}</p>${cta(String(d.verification_link || 'https://siteviral.com/admin/settings?s=verification'), 'Retry my verification →')}`, lang) };
+
+    case 'kyc_reminder':
+      return isFr
+        ? { subject: `Vérifiez votre identité pour retirer vos revenus – ${d.org_name}`, html: wrap(`<h1 style="color:${orange}">🔐 Vérification requise pour vos retraits</h1><p><strong>${d.org_name}</strong> génère déjà des revenus, mais votre identité n'est pas encore vérifiée (statut : ${d.status || 'non commencé'}).</p><p>La vérification débloque les retraits et les versements. Elle prend environ 5 minutes.</p>${cta(String(d.verification_link || 'https://siteviral.com/admin/settings?s=verification'), 'Vérifier mon identité →')}<p style="font-size:12px;color:#999">Vous retrouverez cette page dans Paramètres → Vérification d'identité.</p>`, lang) }
+        : { subject: `Verify your identity to withdraw your earnings – ${d.org_name}`, html: wrap(`<h1 style="color:${orange}">🔐 Verification required for payouts</h1><p><strong>${d.org_name}</strong> is already earning, but your identity isn't verified yet (status: ${d.status || 'not started'}).</p><p>Verification unlocks withdrawals and payouts. It takes about 5 minutes.</p>${cta(String(d.verification_link || 'https://siteviral.com/admin/settings?s=verification'), 'Verify my identity →')}<p style="font-size:12px;color:#999">You can find this page anytime in Settings → Identity verification.</p>`, lang) };
 
     // ═══ ORG LIFECYCLE ═══
     case 'org_created':
