@@ -196,14 +196,15 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
       case 'document': return !!docFrontUrl && (!selectedDoc.hasBack || !!docBackUrl);
       case 'selfie': return !!selfieUrl;
       case 'selfie_doc': return !!selfieWithDocUrl;
-      case 'org_docs': return !!orgDocUrl;
+      case 'org_docs': return !!orgDocUrl && !!orgStatutesUrl;
       case 'payout':
         if (payoutMethod === 'mobile_money') return !!accountNumber && !!accountName && !!payoutProvider;
         return !!bankName && !!accountNumber && !!accountName;
       case 'review': return true;
       default: return false;
     }
-  }, [currentStep?.id, verificationType, docType, docFrontUrl, docBackUrl, selfieUrl, selfieWithDocUrl, orgDocUrl, payoutMethod, accountNumber, accountName, payoutProvider, bankName, selectedDoc]);
+  }, [currentStep?.id, verificationType, docType, docFrontUrl, docBackUrl, selfieUrl, selfieWithDocUrl, orgDocUrl, orgStatutesUrl, payoutMethod, accountNumber, accountName, payoutProvider, bankName, selectedDoc]);
+
 
   const [aiAnalyzing, setAiAnalyzing] = useState(false);
   const [aiResult, setAiResult] = useState<any>(null);
