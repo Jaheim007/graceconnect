@@ -28,7 +28,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-export type SourceType = 'idea' | 'document' | 'youtube' | 'audio' | 'notes_photo';
+export type SourceType = 'idea' | 'document' | 'audio' | 'notes_photo';
 export type BookStyle = 'ebook' | 'guide' | 'prayers' | 'story' | 'novel' | 'devotional' | 'activity' | 'coloring';
 export type ReligiousTradition = 'christian' | 'muslim' | 'spiritual' | 'interfaith';
 export type PrayerFormat = 'simple_prayers' | 'warfare_prayers' | 'proclamations' | 'invocations' | 'religious_teaching';
@@ -59,6 +59,10 @@ export interface WriteState {
   topic: string;
   sourceUrl: string;
   uploadedFile: File | null;
+  /** Handwritten pages: one or more images (or a single scanned PDF). */
+  uploadedFiles?: File[];
+  /** Which engine produced the last transcription (for the review-screen label). */
+  transcriptionMethod?: 'cloud_vision' | 'gemini_fallback' | 'deepgram' | 'gemini';
   transcribing: boolean;
   title: string;
   subtitle: string;
@@ -143,6 +147,8 @@ function createInitialState(): WriteState {
     topic: '',
     sourceUrl: '',
     uploadedFile: null,
+    uploadedFiles: [],
+    transcriptionMethod: undefined,
     transcribing: false,
     title: '',
     subtitle: '',
@@ -186,7 +192,7 @@ function clampDraftStep(step: number) {
 }
 
 function toSerializableState(state: WriteState): Partial<WriteState> {
-  const { uploadedFile, coverFile, previewPdfUrl, transcribing, ...serializable } = state;
+  const { uploadedFile, uploadedFiles, coverFile, previewPdfUrl, transcribing, ...serializable } = state;
   return serializable;
 }
 
@@ -195,6 +201,7 @@ function toHydratedState(rawState?: Partial<WriteState>): WriteState {
     ...createInitialState(),
     ...(rawState ?? {}),
     uploadedFile: null,
+    uploadedFiles: [],
     coverFile: null,
     previewPdfUrl: undefined,
   };
