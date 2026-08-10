@@ -1173,6 +1173,78 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return { subject, html };
     }
 
+    case 'course_unpublished_no_price': {
+      const courseTitle = String(d.course_title || 'your course');
+      const programId = String(d.program_id || '');
+      const editUrl = programId
+        ? `https://siteviral.com/admin/programs/${programId}/edit`
+        : 'https://siteviral.com/admin/programs';
+      const minPrice = String(d.min_price || '5');
+      const currency = String(d.currency || 'USD');
+      const isFr = String(d.locale || '').toLowerCase().startsWith('fr');
+      const helpUrl = isFr ? 'https://siteviral.com/help?lang=fr' : 'https://siteviral.com/help';
+
+      if (isFr) {
+        return {
+          subject: `Action requise : "${courseTitle}" a été dépublié — prix manquant`,
+          html: wrap(`
+            <div style="text-align:center;margin-bottom:24px">
+              <img src="https://siteviral.com/logo-s.png" alt="Siteviral" width="64" height="64" style="border-radius:14px;display:inline-block" />
+              <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;margin-top:10px">Siteviral</div>
+              <h1 style="color:${blue};margin:14px 0 4px;font-size:22px">Votre cours a été dépublié</h1>
+              <p style="color:#aaa;margin:0;font-size:13px">Il a été publié sans prix. Ajoutez un prix pour le remettre en ligne.</p>
+            </div>
+            <p>Bonjour ${d.author_name || 'créateur'},</p>
+            <p>Votre cours <strong>"${courseTitle}"</strong> a été <strong>dépublié</strong> du catalogue Siteviral : il était marqué comme payant mais aucun prix ne lui avait été attribué.</p>
+            <div style="background:#0d2540;border-left:3px solid ${info};padding:14px 16px;border-radius:8px;margin:18px 0">
+              <p style="margin:0 0 6px;font-weight:bold;color:${info}">Pourquoi ce cours ne peut pas être gratuit</p>
+              <p style="margin:0;font-size:13px;color:#cbd5e1;line-height:1.6">Ce cours a été produit avec notre studio d'intelligence artificielle. La génération de contenu par IA a un coût réel pour la plateforme, c'est pourquoi les cours créés avec l'IA doivent être vendus à un prix minimum de <strong>${minPrice} ${currency}</strong>. Cela protège aussi la valeur perçue de votre travail et celle de tous les créateurs du catalogue.</p>
+            </div>
+            <p style="margin:18px 0 8px"><strong>Ce que vous devez faire</strong></p>
+            <ol style="padding-left:20px;line-height:1.8;color:#ddd;font-size:14px">
+              <li>Ouvrez le cours dans votre espace créateur.</li>
+              <li>Renseignez un prix (minimum ${minPrice} ${currency}).</li>
+              <li>Réactivez <em>Publier</em>, puis enregistrez.</li>
+            </ol>
+            <p style="font-size:13px;color:#aaa">Vos leçons, quiz et certificats sont intacts : rien n'a été supprimé, le cours est simplement redevenu un brouillon privé.</p>
+            ${cta(editUrl, 'Ajouter un prix et republier')}
+            <p style="font-size:12px;color:#888;margin-top:24px">Besoin d'aide pour fixer votre prix ? Répondez à cet email ou consultez <a href="${helpUrl}" style="color:${blue}">notre centre d'aide</a>.</p>
+            <p style="font-size:12px;color:#888;margin-top:8px">— L'équipe Qualité Siteviral</p>
+          `, 'fr'),
+        };
+      }
+
+      return {
+        subject: `Action required: "${courseTitle}" was unpublished — price missing`,
+        html: wrap(`
+          <div style="text-align:center;margin-bottom:24px">
+            <img src="https://siteviral.com/logo-s.png" alt="Siteviral" width="64" height="64" style="border-radius:14px;display:inline-block" />
+            <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;margin-top:10px">Siteviral</div>
+            <h1 style="color:${blue};margin:14px 0 4px;font-size:22px">Your course has been unpublished</h1>
+            <p style="color:#aaa;margin:0;font-size:13px">It went live without a price. Add one to put it back online.</p>
+          </div>
+          <p>Hello ${d.author_name || 'Creator'},</p>
+          <p>Your course <strong>"${courseTitle}"</strong> has been <strong>unpublished</strong> from the Siteviral catalogue because it was listed as paid but no price had been set.</p>
+          <div style="background:#0d2540;border-left:3px solid ${info};padding:14px 16px;border-radius:8px;margin:18px 0">
+            <p style="margin:0 0 6px;font-weight:bold;color:${info}">Why this course can't be free</p>
+            <p style="margin:0;font-size:13px;color:#cbd5e1;line-height:1.6">This course was produced with our AI studio. AI generation carries a real cost for the platform, so AI-created courses must be sold at a minimum price of <strong>${minPrice} ${currency}</strong>. It also protects the perceived value of your work and of every creator in the catalogue.</p>
+          </div>
+          <p style="margin:18px 0 8px"><strong>What you need to do</strong></p>
+          <ol style="padding-left:20px;line-height:1.8;color:#ddd;font-size:14px">
+            <li>Open the course in your creator space.</li>
+            <li>Set a price (minimum ${minPrice} ${currency}).</li>
+            <li>Toggle <em>Publish</em> back on and save.</li>
+          </ol>
+          <p style="font-size:13px;color:#aaa">Your lessons, quizzes and certificates are untouched — nothing was deleted, the course simply went back to being a private draft.</p>
+          ${cta(editUrl, 'Add a price and republish')}
+          <p style="font-size:12px;color:#888;margin-top:24px">Need help pricing it? Reply to this email or visit <a href="${helpUrl}" style="color:${blue}">our help center</a>.</p>
+          <p style="font-size:12px;color:#888;margin-top:8px">— The Siteviral Quality Team</p>
+        `, 'en'),
+      };
+    }
+
+
+
     default:
       throw new Error(`Unknown template: ${template}`);
   }
