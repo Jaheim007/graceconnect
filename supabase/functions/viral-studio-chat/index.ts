@@ -272,6 +272,30 @@ Deno.serve(async (req) => {
     const TONES = ['professional', 'conversational', 'humorous', 'spiritual', 'poetic', 'academic'];
     const AUDIENCES = ['general', 'children', 'teens', 'adults', 'seniors', 'professionals'];
 
+    const str = (v: unknown, max = 120) => String(v ?? '').trim().slice(0, max);
+    const level = ['beginner', 'intermediate', 'advanced'].includes(str(args.level))
+      ? str(args.level)
+      : 'intermediate';
+    const teachingStyle = str(args.teaching_style);
+    const courseTone = str(args.tone);
+    const goal = str(args.goal);
+    const orientation = str(args.orientation);
+    const depth = str(args.depth);
+
+    // Same brief enrichment as the manual "Create with AI" dialog: the pipeline
+    // only reads the prompt text, so every gathered slot is appended to it.
+    const enrichedPrompt = isCourse
+      ? [
+          String(args.prompt || '').slice(0, 6000),
+          goal ? `Goal: ${goal}` : '',
+          level ? `Level: ${level}` : '',
+          teachingStyle ? `Teaching style: ${teachingStyle}` : '',
+          courseTone ? `Tone: ${courseTone}` : '',
+          depth ? `Depth: ${depth}` : `Depth: ${tier === 'premium' ? 'detailed' : 'essential'}`,
+          orientation ? `Worldview: ${orientation}` : '',
+        ].filter(Boolean).join('\n')
+      : String(args.prompt || '').slice(0, 6000);
+
     return jsonResp({
       message:
         text ||
@@ -288,26 +312,32 @@ Deno.serve(async (req) => {
         input: {
           source: useDocument ? 'document' : 'prompt',
           title: String(args.title || '').slice(0, 160),
-          prompt: String(args.prompt || '').slice(0, 6000),
+          prompt: enrichedPrompt,
           language: args.language === 'en' ? 'en' : language,
           tier,
           ...(isCourse
             ? {
-                level: ['beginner', 'intermediate', 'advanced'].includes(String(args.level))
-                  ? String(args.level)
-                  : 'beginner',
+                level,
+                teaching_style: teachingStyle || 'structured',
+                tone: courseTone || 'professional',
+                goal: goal || undefined,
+                orientation: orientation || undefined,
                 generate_images: args.generate_images === true,
               }
             : {
-                style: BOOK_STYLES.includes(String(args.style)) ? String(args.style) : 'ebook',
-                tone: TONES.includes(String(args.tone)) ? String(args.tone) : 'professional',
-                audience: AUDIENCES.includes(String(args.audience)) ? String(args.audience) : 'general',
-                chapter_count: Math.min(14, Math.max(6, Number(args.chapter_count) || 8)),
+                style: BOOK_STYLES.includes(str(args.style)) ? str(args.style) : 'ebook',
+                tone: TONES.includes(str(args.tone)) ? str(args.tone) : 'professional',
+                audience: AUDIENCES.includes(str(args.audience)) ? str(args.audience) : 'general',
+                chapter_count: Math.min(
+                  14,
+                  Math.max(6, Number(args.chapter_count) || (/detail|profond|complet|long/i.test(depth) ? 12 : 8)),
+                ),
               }),
           ...docFields,
         },
       },
     });
+
 
   } catch (err) {
     console.error('[viral-studio-chat] error', err);
