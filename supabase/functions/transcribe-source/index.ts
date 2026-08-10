@@ -4,8 +4,8 @@
  *
  * Routing:
  *   document     → Gemini document extraction (unchanged)
- *   audio        → Deepgram nova-2 (DEEPGRAM_API_KEY) → Gemini fallback
- *   notes_photo  → Google Cloud Vision DOCUMENT_TEXT_DETECTION → Gemini fallback
+ *   audio        → Gemini multimodal transcription
+ *   notes_photo  → Gemini multimodal handwriting transcription
  *
  * There is NO video input and no URL fetching (YouTube/Facebook) — audio and
  * image/PDF uploads only.
@@ -18,8 +18,6 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { encode as base64Encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts';
 import { consumeCreditsOrThrow, refundCreditsAsBonus } from '../_shared/credits.ts';
 import {
-  visionTranscribeImages,
-  visionTranscribePdf,
   geminiTranscribePages,
   type PageInput,
   type TranscriptionMethod,
@@ -31,8 +29,6 @@ const corsHeaders = {
 };
 
 const MAX_INLINE_BYTES = 18 * 1024 * 1024;       // Gemini inline cap (documents / images)
-const MAX_AUDIO_BYTES = 150 * 1024 * 1024;       // Deepgram fetches by URL, so we allow larger audio
-const MAX_AUDIO_SECONDS = 90 * 60;               // 90 minutes cost cap
 const MAX_HANDWRITING_PAGES = 20;                // page-count cap, consistent with document caps
 
 function json(body: unknown, status = 200) {
@@ -48,8 +44,6 @@ Deno.serve(async (req) => {
   const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
   const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-  const VISION_API_KEY = Deno.env.get('GOOGLE_CLOUD_VISION_API_KEY');
-  const DEEPGRAM_API_KEY = Deno.env.get('DEEPGRAM_API_KEY');
 
   if (!GEMINI_API_KEY) return json({ error: 'GEMINI_API_KEY not configured' }, 500);
 
@@ -67,12 +61,11 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { source_type, storage_path, storage_paths, project_id, force_vision_failure } = body as {
+    const { source_type, storage_path, storage_paths, project_id } = body as {
       source_type: string;
       storage_path?: string;
       storage_paths?: string[];
       project_id?: string;
-      force_vision_failure?: boolean;
     };
 
     const authHeader = req.headers.get('Authorization');
