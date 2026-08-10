@@ -11,11 +11,11 @@ export const assistantCopy = (isFr: boolean) => ({
     ? 'Crée ton cours en discutant, sans formulaire.'
     : 'Create your course by chatting — no forms.',
   greeting: isFr
-    ? `Bonjour 👋 Je suis ${ASSISTANT_NAME}. Comment puis-je t’aider aujourd’hui ?`
-    : `Hi 👋 I’m ${ASSISTANT_NAME}. How can I help you today?`,
+    ? `Salut 👋 Moi c’est ${ASSISTANT_NAME}. Alors, on fait quoi maintenant ?`
+    : `Hey 👋 I’m ${ASSISTANT_NAME}. So, what do you want to do next?`,
   nudge: isFr
-    ? `Comment puis-je t’aider aujourd’hui ?`
-    : `How can I help you today?`,
+    ? `Alors, on fait quoi maintenant ?`
+    : `So, what do you want to do next?`,
   placeholder: isFr ? 'Écris ou parle…' : 'Type or speak…',
   free: isFr ? 'Assistant de création' : 'Creation assistant',
 });
