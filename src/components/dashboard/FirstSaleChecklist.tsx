@@ -288,7 +288,7 @@ function buildStepsForType(
       createCourse,
       { id: 'product', label: { fr: 'Publie un produit digital', en: 'Publish a digital product' },
         cta: { fr: 'Publier', en: 'Publish' }, done: !!s?.hasPublishedProduct,
-        onClick: () => navigate('/admin/pages') },
+        onClick: () => navigate("/admin/products/new") },
     ];
   }
 
@@ -349,7 +349,7 @@ function buildStepsForType(
     createCourse,
     { id: 'product', label: { fr: 'Publie ton premier produit', en: 'Publish your first product' },
       cta: { fr: 'Publier', en: 'Publish' },
-      done: !!s?.hasPublishedProduct, onClick: () => navigate('/admin/pages') },
+      done: !!s?.hasPublishedProduct, onClick: () => navigate("/admin/products/new") },
     { id: 'affiliate', label: { fr: 'Active ton code ambassadeur', en: 'Activate your ambassador code' },
       cta: { fr: 'Activer', en: 'Activate' },
       done: !!s?.hasAffiliateCode, onClick: () => navigate('/gagner') },
