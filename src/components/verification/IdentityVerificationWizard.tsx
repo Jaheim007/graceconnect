@@ -247,7 +247,10 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
           _selfie_with_doc_url: selfieWithDocUrl,
           _org_document_url: verificationType === 'organization' ? (orgDocUrl || null) : null,
           _org_document_type: verificationType === 'organization' ? (orgDocType || null) : null,
+          _org_statutes_url: verificationType === 'organization' ? (orgStatutesUrl || null) : null,
+          _org_statutes_type: verificationType === 'organization' ? 'org_statutes' : null,
           _verification_type: verificationType,
+
           _bank_account_name: accountName || null,
           _bank_account_number: accountNumber || null,
           _bank_name: payoutMethod === 'bank' ? bankName : payoutProvider,
