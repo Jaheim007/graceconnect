@@ -528,9 +528,13 @@ body > div[style*="position: fixed"][style*="opacity"] {
   body:has(.native-bottom-nav-shell) main,
   body:has(.native-bottom-nav-shell) .native-main-scroll,
   body:has(.native-bottom-nav-shell) [data-scroll-container],
-  body:has(.native-bottom-nav-shell) .sv-nav-clearance {
+  body:has(.native-bottom-nav-shell) .sv-nav-clearance,
+  /* Safety net: full-screen pages that don't use a <main> wrapper */
+  body:has(.native-bottom-nav-shell) #root > .min-h-screen:not(:has(main)),
+  body:has(.native-bottom-nav-shell) #root > div > .min-h-screen:not(:has(main)) {
     padding-bottom: var(--sv-nav-clearance);
   }
+
 
   /* App-like floating rail on every mobile surface (web, PWA and native) */
   .native-bottom-nav-shell {
