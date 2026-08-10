@@ -4,6 +4,8 @@ import { HelpCircle, X, MessageCircle, BookOpen, LifeBuoy, Keyboard, ChevronRigh
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsTyping } from '@/hooks/useIsTyping';
+
 
 // Contextual FAQ answers based on current page
 const CONTEXTUAL_HELP: Record<string, { q: string; a: string }[]> = {
@@ -48,7 +50,9 @@ export function FloatingHelpWidget() {
   const location = useLocation();
   const { locale } = useI18n();
   const { user } = useAuth();
+  const typing = useIsTyping();
   const isFr = locale === 'fr';
+
 
   const contextFaqs = useMemo(() => getContextualHelp(location.pathname), [location.pathname]);
 
@@ -90,7 +94,13 @@ export function FloatingHelpWidget() {
   if (!user) return null;
 
   return (
-    <div className="fixed bottom-20 right-4 z-[55] md:bottom-6 md:right-6">
+    <div
+      className={`fixed right-3 z-[55] transition-opacity duration-200 md:right-6 ${
+        typing && !open ? 'pointer-events-none opacity-0' : 'opacity-100'
+      }`}
+      style={{ bottom: 'var(--sv-fab-offset)' }}
+    >
+
       <AnimatePresence>
         {open && (
           <motion.div

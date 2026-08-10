@@ -17,6 +17,8 @@ import { useCreditsBalance } from '@/hooks/useCredits';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
 import botAsset from '@/assets/viral-studio-bot.gif.asset.json';
 import { canUseVoiceAgent, VOICE_AGENT_ROUTE } from '@/lib/access/voiceAgentAccess';
+import { useIsTyping } from '@/hooks/useIsTyping';
+
 
 /**
  * Global creation chatbot — sits just above the Support button on every
@@ -28,6 +30,8 @@ export function AssistantChatWidget() {
   const isFr = locale === 'fr';
   const copy = assistantCopy(isFr);
   const { user } = useAuth();
+  const typing = useIsTyping();
+
   const { currentOrg } = useOrg();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -142,7 +146,14 @@ export function AssistantChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-36 right-4 z-[56] md:bottom-[5.5rem] md:right-6">
+    <div
+      className={cn(
+        'fixed right-3 z-[56] transition-opacity duration-200 md:right-6',
+        typing && !open ? 'pointer-events-none opacity-0' : 'opacity-100',
+      )}
+      style={{ bottom: 'calc(var(--sv-fab-offset) + 3.75rem)' }}
+    >
+
       <AnimatePresence>
         {open && (
           <motion.div
