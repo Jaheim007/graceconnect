@@ -4,8 +4,8 @@
  *
  * Routing:
  *   document     → Gemini document extraction (unchanged)
- *   audio        → Deepgram nova-2 (DEEPGRAM_API_KEY) → Gemini fallback
- *   notes_photo  → Google Cloud Vision DOCUMENT_TEXT_DETECTION → Gemini fallback
+ *   audio        → Gemini multimodal transcription
+ *   notes_photo  → Gemini multimodal handwriting transcription
  *
  * There is NO video input and no URL fetching (YouTube/Facebook) — audio and
  * image/PDF uploads only.
@@ -18,8 +18,6 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { encode as base64Encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts';
 import { consumeCreditsOrThrow, refundCreditsAsBonus } from '../_shared/credits.ts';
 import {
-  visionTranscribeImages,
-  visionTranscribePdf,
   geminiTranscribePages,
   type PageInput,
   type TranscriptionMethod,
@@ -31,8 +29,6 @@ const corsHeaders = {
 };
 
 const MAX_INLINE_BYTES = 18 * 1024 * 1024;       // Gemini inline cap (documents / images)
-const MAX_AUDIO_BYTES = 150 * 1024 * 1024;       // Deepgram fetches by URL, so we allow larger audio
-const MAX_AUDIO_SECONDS = 90 * 60;               // 90 minutes cost cap
 const MAX_HANDWRITING_PAGES = 20;                // page-count cap, consistent with document caps
 
 function json(body: unknown, status = 200) {
@@ -48,8 +44,6 @@ Deno.serve(async (req) => {
   const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
   const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-  const VISION_API_KEY = Deno.env.get('GOOGLE_CLOUD_VISION_API_KEY');
-  const DEEPGRAM_API_KEY = Deno.env.get('DEEPGRAM_API_KEY');
 
   if (!GEMINI_API_KEY) return json({ error: 'GEMINI_API_KEY not configured' }, 500);
 
@@ -67,12 +61,11 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { source_type, storage_path, storage_paths, project_id, force_vision_failure } = body as {
+    const { source_type, storage_path, storage_paths, project_id } = body as {
       source_type: string;
       storage_path?: string;
       storage_paths?: string[];
       project_id?: string;
-      force_vision_failure?: boolean;
     };
 
     const authHeader = req.headers.get('Authorization');
@@ -136,64 +129,18 @@ Deno.serve(async (req) => {
         break;
       }
 
-      /* ─────────── Audio → Deepgram (→ Gemini fallback) ─────────── */
+      /* ─────────── Audio → Gemini multimodal ─────────── */
       case 'audio': {
         if (!storage_path) throw new Error('storage_path required for audio source');
         cleanupPaths.push(storage_path);
 
-        if (DEEPGRAM_API_KEY) {
-          try {
-            const url = await signedUrl(storage_path, 7200);
-            const params = new URLSearchParams({
-              model: 'nova-2',
-              smart_format: 'true',
-              punctuate: 'true',
-              paragraphs: 'true',
-              detect_language: 'true',
-            });
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 300_000);
-            const res = await fetch(`https://api.deepgram.com/v1/listen?${params}`, {
-              method: 'POST',
-              headers: { Authorization: `Token ${DEEPGRAM_API_KEY}`, 'Content-Type': 'application/json' },
-              body: JSON.stringify({ url }),
-              signal: controller.signal,
-            });
-            clearTimeout(timer);
-
-            if (!res.ok) throw new Error(`Deepgram ${res.status}: ${(await res.text()).slice(0, 300)}`);
-            const dg = await res.json();
-            const duration = Number(dg?.metadata?.duration || 0);
-            if (duration > MAX_AUDIO_SECONDS) {
-              await refund();
-              await purge(db, cleanupPaths);
-              return json({
-                ok: false,
-                error: `Audio too long (${Math.round(duration / 60)} min). Maximum is ${MAX_AUDIO_SECONDS / 60} minutes — please split the recording.`,
-                credits_refunded: true,
-              }, 422);
-            }
-            const alt = dg?.results?.channels?.[0]?.alternatives?.[0];
-            transcribedText = (alt?.paragraphs?.transcript || alt?.transcript || '').trim();
-            if (transcribedText.length < 10) throw new Error('Deepgram returned an empty transcript');
-            method = 'deepgram';
-          } catch (dgErr: any) {
-            fallbackReason = String(dgErr?.message || dgErr).slice(0, 200);
-            console.warn('[transcribe-source] Deepgram failed, falling back to Gemini:', fallbackReason);
-          }
-        } else {
-          fallbackReason = 'DEEPGRAM_API_KEY not configured';
-        }
-
-        if (!transcribedText) {
-          const { base64 } = await downloadBase64(storage_path);
-          transcribedText = await geminiTranscribeAudio(GEMINI_API_KEY, base64, guessAudioMime(storage_path));
-          method = 'gemini_fallback';
-        }
+        const { base64 } = await downloadBase64(storage_path);
+        transcribedText = await geminiTranscribeAudio(GEMINI_API_KEY, base64, guessAudioMime(storage_path));
+        method = 'gemini';
         break;
       }
 
-      /* ─────────── Handwriting → Cloud Vision (→ Gemini fallback) ─────────── */
+      /* ─────────── Handwriting → Gemini multimodal ─────────── */
       case 'notes_photo': {
         const paths = (storage_paths?.length ? storage_paths : storage_path ? [storage_path] : []).filter(Boolean);
         if (!paths.length) throw new Error('storage_path(s) required for handwritten notes');
@@ -211,29 +158,12 @@ Deno.serve(async (req) => {
           const { base64 } = await downloadBase64(p);
           pages.push({ base64, mimeType: guessImageMime(p) });
         }
-        const isPdf = pages.length === 1 && pages[0].mimeType === 'application/pdf';
 
-        if (VISION_API_KEY) {
-          try {
-            if (force_vision_failure) throw new Error('Forced Cloud Vision failure (test mode)');
-            transcribedText = isPdf
-              ? await visionTranscribePdf(VISION_API_KEY, pages[0].base64)
-              : await visionTranscribeImages(VISION_API_KEY, pages);
-            method = 'cloud_vision';
-          } catch (visionErr: any) {
-            fallbackReason = String(visionErr?.message || visionErr).slice(0, 200);
-            console.warn('[transcribe-source] Cloud Vision failed, falling back to Gemini:', fallbackReason);
-          }
-        } else {
-          fallbackReason = 'GOOGLE_CLOUD_VISION_API_KEY not configured';
-        }
-
-        if (!transcribedText) {
-          transcribedText = await geminiTranscribePages(GEMINI_API_KEY, pages);
-          method = 'gemini_fallback';
-        }
+        transcribedText = await geminiTranscribePages(GEMINI_API_KEY, pages);
+        method = 'gemini';
         break;
       }
+
 
       default:
         throw new Error(`Unsupported source_type: ${source_type}`);
