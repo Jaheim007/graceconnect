@@ -369,6 +369,7 @@ export default function AdminPrograms() {
         onOpenChange={(open) => !open && setDuplicateTarget(null)}
         courseTitle={duplicateTarget?.title || ''}
         sourceLanguage={duplicateTarget?.language}
+        programId={duplicateTarget?.id}
         loading={duplicateCourse.isPending}
         onConfirm={handleDuplicate}
       />

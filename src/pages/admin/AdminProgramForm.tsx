@@ -916,6 +916,7 @@ export function ProgramForm() {
         onOpenChange={setShowDuplicate}
         courseTitle={title}
         sourceLanguage={(existingProgram as any)?.content_language ?? null}
+        programId={id ?? undefined}
         loading={duplicateCourse.isPending}
         onConfirm={handleDuplicate}
       />

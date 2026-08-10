@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Copy, Languages } from 'lucide-react';
+import { Loader2, Copy, Languages, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
 import { COURSE_LANGUAGES } from '@/hooks/useDuplicateCourse';
 import { useActionCost } from '@/hooks/useCredits';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface Props {
   open: boolean;
@@ -16,12 +18,14 @@ interface Props {
   courseTitle: string;
   /** Current language of the course, used to pre-exclude it from the picker. */
   sourceLanguage?: string | null;
+  /** Program id — lets the user correct a wrong source language. */
+  programId?: string;
   loading?: boolean;
   onConfirm: (opts: { translate: boolean; targetLanguage: string | null }) => Promise<void>;
 }
 
 export function DuplicateCourseDialog({
-  open, onOpenChange, courseTitle, sourceLanguage, loading, onConfirm,
+  open, onOpenChange, courseTitle, sourceLanguage, programId, loading, onConfirm,
 }: Props) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -29,12 +33,27 @@ export function DuplicateCourseDialog({
   const [lang, setLang] = useState<string | null>(null);
   const cost = useActionCost('translate_course');
 
-  const srcCode = (sourceLanguage || '').slice(0, 2).toLowerCase();
+  const [srcOverride, setSrcOverride] = useState<string | null>(null);
+  const [editingSrc, setEditingSrc] = useState(false);
+  useEffect(() => {
+    if (open) { setSrcOverride(null); setEditingSrc(false); }
+  }, [open]);
+
+  const srcCode = (srcOverride ?? sourceLanguage ?? '').slice(0, 2).toLowerCase();
   const srcLang = COURSE_LANGUAGES.find((l) => l.code === srcCode) || null;
   const languages = COURSE_LANGUAGES;
 
+  const handlePickSource = async (code: string) => {
+    setSrcOverride(code);
+    setEditingSrc(false);
+    if (lang === code) setLang(null);
+    if (!programId) return;
+    const { error } = await supabase.from('programs').update({ content_language: code }).eq('id', programId);
+    if (error) toast.error(isFr ? 'Impossible d’enregistrer la langue' : 'Could not save language');
+  };
 
   const canConfirm = !loading && (!translate || !!lang);
+
 
   const handleConfirm = async () => {
     if (!canConfirm) return;
@@ -53,13 +72,44 @@ export function DuplicateCourseDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="flex items-center gap-2 rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-xs">
-            <span className="text-muted-foreground">{isFr ? 'Langue actuelle' : 'Current language'}</span>
-            <span className="ml-auto inline-flex items-center gap-1.5 font-semibold">
-              <span className="text-base leading-none">{srcLang?.flag ?? '🌐'}</span>
-              {srcLang ? (isFr ? srcLang.fr : srcLang.en) : (isFr ? 'Non définie' : 'Not set')}
-            </span>
+          <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">{isFr ? 'Langue actuelle' : 'Current language'}</span>
+              <span className="ml-auto inline-flex items-center gap-1.5 font-semibold">
+                <span className="text-base leading-none">{srcLang?.flag ?? '🌐'}</span>
+                {srcLang ? (isFr ? srcLang.fr : srcLang.en) : (isFr ? 'Non définie' : 'Not set')}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 gap-1 px-1.5 text-[10px]"
+                onClick={() => setEditingSrc((v) => !v)}
+              >
+                <Pencil className="h-3 w-3" />
+                {isFr ? 'Corriger' : 'Fix'}
+              </Button>
+            </div>
+            {editingSrc && (
+              <div className="mt-2 grid max-h-[26vh] grid-cols-2 gap-1.5 overflow-y-auto pr-1">
+                {languages.map((l) => (
+                  <button
+                    key={l.code}
+                    type="button"
+                    onClick={() => handlePickSource(l.code)}
+                    className={cn(
+                      'flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-left',
+                      l.code === srcCode ? 'border-primary bg-primary/10 font-semibold' : 'border-border hover:bg-muted/50',
+                    )}
+                  >
+                    <span className="text-sm leading-none">{l.flag}</span>
+                    <span className="truncate">{isFr ? l.fr : l.en}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
+
 
           <div className="flex items-start justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
             <div className="space-y-0.5">
