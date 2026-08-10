@@ -227,6 +227,19 @@ export function ProgramForm() {
       });
       return;
     }
+    // A course can only go live either as an explicit free course (non-AI) or
+    // with a real price. "Paid but 0" is never publishable.
+    if (isPublished && !isFree && price <= 0) {
+      toast({
+        title: isFr ? 'Prix manquant' : 'Missing price',
+        description: isFr
+          ? 'Ajoutez un prix, ou marquez le cours comme gratuit, avant de le publier.'
+          : 'Add a price, or mark the course as free, before publishing it.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setSaving(true);
     try {
       const wasPublished = existingProgram?.is_published;
