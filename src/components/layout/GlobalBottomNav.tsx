@@ -28,7 +28,7 @@ export function GlobalBottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { workspaceReady } = useOrg();
+  const { workspaceReady: _workspaceReady } = useOrg();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [menuOpen, setMenuOpen] = useState(false);
