@@ -50,7 +50,9 @@ export function FloatingHelpWidget() {
   const location = useLocation();
   const { locale } = useI18n();
   const { user } = useAuth();
+  const typing = useIsTyping();
   const isFr = locale === 'fr';
+
 
   const contextFaqs = useMemo(() => getContextualHelp(location.pathname), [location.pathname]);
 
