@@ -130,6 +130,7 @@ Deno.serve(async (req) => {
         price: coursePrice,
         currency: courseCurrency,
         ai_generated: true,
+        content_language: (project.language || 'fr').slice(0, 2).toLowerCase(),
       })
       .select('id')
       .single();
