@@ -354,6 +354,15 @@ export default function AdminPrograms() {
       <CreateBlankDialog open={showBlank} onOpenChange={setShowBlank} onCreate={handleCreateBlank} />
       <ConvertDocumentDialog open={showConvert} onOpenChange={setShowConvert} onCreated={handleAICreated} />
 
+      <DuplicateCourseDialog
+        open={!!duplicateTarget}
+        onOpenChange={(open) => !open && setDuplicateTarget(null)}
+        courseTitle={duplicateTarget?.title || ''}
+        sourceLanguage={duplicateTarget?.language}
+        loading={duplicateCourse.isPending}
+        onConfirm={handleDuplicate}
+      />
+
       {/* Delete confirmation dialog */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
