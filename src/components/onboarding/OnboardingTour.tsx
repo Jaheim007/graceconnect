@@ -329,13 +329,21 @@ export function OnboardingTour() {
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
-          initial={{ opacity: 0, scale: 0.96, y: 10 }}
+          initial={{ opacity: 0, scale: isMobile ? 1 : 0.96, y: isMobile ? 24 : 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: -10 }}
+          exit={{ opacity: 0, scale: isMobile ? 1 : 0.96, y: isMobile ? 24 : -10 }}
           transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-          className="absolute rounded-2xl border border-border/70 bg-card/95 shadow-elevated backdrop-blur-xl"
+          drag={isMobile ? 'y' : false}
+          dragConstraints={{ top: 0, bottom: 0 }}
+          dragElastic={0.12}
+          onDragEnd={(_, info) => { if (isMobile && info.offset.y > 90) finish(); }}
+          className={cn(
+            'absolute border border-border/70 bg-card/95 shadow-elevated backdrop-blur-xl',
+            isMobile ? 'rounded-3xl' : 'rounded-2xl',
+          )}
           style={{ ...cardStyle, width: cardW }}
         >
+
           {arrowSide === 'left' && (
             <span aria-hidden className="absolute -left-1.5 top-10 h-3 w-3 rotate-45 border-b border-l border-border/70 bg-card/95" />
           )}
