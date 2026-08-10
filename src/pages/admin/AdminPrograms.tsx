@@ -296,52 +296,62 @@ export default function AdminPrograms() {
                     );
                   })()}
 
-                  <div className="flex items-center justify-between pt-1">
-                    <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-                      <span className="flex items-center gap-0.5">
-                        <Layers className="h-3 w-3" />
-                        {prog.lesson_count ?? 0} {isFr
-                          ? `leçon${(prog.lesson_count ?? 0) !== 1 ? 's' : ''}`
-                          : `lesson${(prog.lesson_count ?? 0) !== 1 ? 's' : ''}`}
-                      </span>
-                      {!prog.is_free && (prog.price ?? 0) > 0 ? (
-                        <span className="font-medium text-foreground">{formatCurrency(prog.price ?? 0, prog.currency || 'XOF', locale)}</span>
-                      ) : (
-                        <span className="font-medium text-emerald-600">{isFr ? 'Gratuit' : 'Free'}</span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {prog.is_published && (
-                        <div onClick={(e) => e.stopPropagation()}>
-                          <ShareCourseMenu
-                            programId={prog.id}
-                            title={prog.title}
-                            description={prog.description?.replace(/<[^>]*>/g, '') || ''}
-                            variant="icon"
-                          />
-                        </div>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
-                        title={isFr ? 'Dupliquer / traduire' : 'Duplicate / translate'}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDuplicateTarget({ id: prog.id, title: prog.title, language: prog.content_language ?? null });
-                        }}
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); navigate(`/admin/programs/${prog.id}/edit`); }}>
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: prog.id, title: prog.title }); }}>
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
+                  <div className="flex items-center gap-3 pt-1 text-[10px] text-muted-foreground">
+                    <span className="flex items-center gap-0.5">
+                      <Layers className="h-3 w-3" />
+                      {prog.lesson_count ?? 0} {isFr
+                        ? `leçon${(prog.lesson_count ?? 0) !== 1 ? 's' : ''}`
+                        : `lesson${(prog.lesson_count ?? 0) !== 1 ? 's' : ''}`}
+                    </span>
+                    {!prog.is_free && (prog.price ?? 0) > 0 ? (
+                      <span className="font-medium text-foreground">{formatCurrency(prog.price ?? 0, prog.currency || 'XOF', locale)}</span>
+                    ) : (
+                      <span className="font-medium text-emerald-600">{isFr ? 'Gratuit' : 'Free'}</span>
+                    )}
                   </div>
+
+                  {/* Always-visible action bar — no hover required (mobile friendly) */}
+                  <div
+                    className="flex items-center gap-1.5 border-t border-border/60 pt-2.5"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 flex-1 gap-1.5 text-[11px]"
+                      onClick={() => setDuplicateTarget({ id: prog.id, title: prog.title, language: prog.content_language ?? null })}
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                      {isFr ? 'Dupliquer' : 'Duplicate'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 flex-1 gap-1.5 text-[11px]"
+                      onClick={() => navigate(`/admin/programs/${prog.id}/edit`)}
+                    >
+                      <Edit className="h-3.5 w-3.5" />
+                      {isFr ? 'Éditer' : 'Edit'}
+                    </Button>
+                    {prog.is_published && (
+                      <ShareCourseMenu
+                        programId={prog.id}
+                        title={prog.title}
+                        description={prog.description?.replace(/<[^>]*>/g, '') || ''}
+                        variant="icon"
+                      />
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0 text-destructive"
+                      title={isFr ? 'Supprimer' : 'Delete'}
+                      onClick={() => setDeleteTarget({ id: prog.id, title: prog.title })}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+
                 </div>
               </motion.div>
             ))}

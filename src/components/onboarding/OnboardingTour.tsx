@@ -213,7 +213,8 @@ export function OnboardingTour() {
   const pad = 8;
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
   const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
-  const cardW = Math.min(360, vw - 32);
+  const isMobile = vw < 768;
+  const cardW = isMobile ? vw - 24 : Math.min(360, vw - 32);
 
   // Place the card beside the highlighted element when possible
   let cardStyle: React.CSSProperties = {
@@ -221,7 +222,10 @@ export function OnboardingTour() {
     top: Math.max(24, vh / 2 - 170),
   };
   let arrowSide: 'left' | 'top' | null = null;
-  if (rect) {
+  if (isMobile) {
+    // Mobile: always a bottom sheet — never covers the highlighted element.
+    cardStyle = { left: 12, bottom: 12, top: 'auto' as any };
+  } else if (rect) {
     const spaceRight = vw - (rect.left + rect.width);
     if (spaceRight > cardW + 48) {
       cardStyle = {
@@ -237,6 +241,7 @@ export function OnboardingTour() {
       arrowSide = 'top';
     }
   }
+
 
   return createPortal(
     <div className="fixed inset-0 z-[10000]">
@@ -254,11 +259,19 @@ export function OnboardingTour() {
             height: rect.height + pad * 2,
           }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          style={{ boxShadow: '0 0 0 9999px rgba(3,7,18,0.72)' }}
+          style={{ boxShadow: `0 0 0 9999px rgba(3,7,18,${isMobile ? 0.55 : 0.72})` }}
         />
       ) : (
-        <div aria-hidden className="absolute inset-0 bg-[rgba(3,7,18,0.72)] backdrop-blur-[2px]" onClick={finish} />
+        <div
+          aria-hidden
+          className={cn(
+            'absolute inset-0',
+            isMobile ? 'bg-[rgba(3,7,18,0.45)]' : 'bg-[rgba(3,7,18,0.72)] backdrop-blur-[2px]',
+          )}
+          onClick={finish}
+        />
       )}
+
 
       {/* Glowing ring + pulse on the target */}
       {rect && (
@@ -286,11 +299,12 @@ export function OnboardingTour() {
             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           />
 
-          {/* Pointer arrow aimed at the real element */}
+          {/* Pointer arrow aimed at the real element (desktop only) */}
           <motion.div
             key={`arrow-${step}`}
             aria-hidden
-            className="pointer-events-none absolute text-primary"
+            className={cn('pointer-events-none absolute text-primary', isMobile && 'hidden')}
+
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             style={
@@ -315,13 +329,21 @@ export function OnboardingTour() {
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
-          initial={{ opacity: 0, scale: 0.96, y: 10 }}
+          initial={{ opacity: 0, scale: isMobile ? 1 : 0.96, y: isMobile ? 24 : 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: -10 }}
+          exit={{ opacity: 0, scale: isMobile ? 1 : 0.96, y: isMobile ? 24 : -10 }}
           transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-          className="absolute rounded-2xl border border-border/70 bg-card/95 shadow-elevated backdrop-blur-xl"
+          drag={isMobile ? 'y' : false}
+          dragConstraints={{ top: 0, bottom: 0 }}
+          dragElastic={0.12}
+          onDragEnd={(_, info) => { if (isMobile && info.offset.y > 90) finish(); }}
+          className={cn(
+            'absolute border border-border/70 bg-card/95 shadow-elevated backdrop-blur-xl',
+            isMobile ? 'rounded-3xl' : 'rounded-2xl',
+          )}
           style={{ ...cardStyle, width: cardW }}
         >
+
           {arrowSide === 'left' && (
             <span aria-hidden className="absolute -left-1.5 top-10 h-3 w-3 rotate-45 border-b border-l border-border/70 bg-card/95" />
           )}
@@ -329,7 +351,11 @@ export function OnboardingTour() {
             <span aria-hidden className="absolute -top-1.5 left-10 h-3 w-3 rotate-45 border-l border-t border-border/70 bg-card/95" />
           )}
 
-          <div className="h-1 rounded-t-2xl bg-gradient-to-r from-primary via-primary/60 to-transparent" />
+          <div className={cn('h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent', isMobile ? 'rounded-t-3xl' : 'rounded-t-2xl')} />
+          {isMobile && (
+            <div aria-hidden className="mx-auto mt-2 h-1 w-10 rounded-full bg-muted-foreground/30" />
+          )}
+
 
           <button
             onClick={finish}
@@ -377,25 +403,26 @@ export function OnboardingTour() {
               ))}
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="sm" onClick={finish} className="h-8 text-xs text-muted-foreground">
+                <Button variant="ghost" size="sm" onClick={finish} className={cn('text-xs text-muted-foreground', isMobile ? 'h-11' : 'h-8')}>
                   {isFr ? 'Passer' : 'Skip'}
                 </Button>
                 {step > 0 && (
-                  <Button variant="ghost" size="sm" onClick={prev} className="h-8 gap-1 text-xs">
+                  <Button variant="ghost" size="sm" onClick={prev} className={cn('gap-1 text-xs', isMobile ? 'h-11' : 'h-8')}>
                     <ChevronLeft className="h-3.5 w-3.5" />
                     {isFr ? 'Retour' : 'Back'}
                   </Button>
                 )}
               </div>
-              <Button size="sm" onClick={next} className="h-8 gap-1 text-xs">
+              <Button size="sm" onClick={next} className={cn('gap-1 text-xs', isMobile ? 'h-11 flex-1 max-w-[55%]' : 'h-8')}>
                 {step === steps.length - 1
                   ? (isFr ? "C'est parti !" : "Let's go!")
                   : (isFr ? 'Suivant' : 'Next')}
                 {step < steps.length - 1 && <ChevronRight className="h-3.5 w-3.5" />}
               </Button>
             </div>
+
           </div>
         </motion.div>
       </AnimatePresence>

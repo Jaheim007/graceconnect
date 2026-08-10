@@ -5,7 +5,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Layers, PanelRightOpen, PanelRightClose } from 'lucide-react';
+import { ArrowLeft, Layers, Smartphone, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   useProgramSlideMap, useCreateSlide, useUpdateSlide, useDeleteSlide, useReorderSlides,
@@ -49,7 +49,10 @@ export function CourseBuilder({ programId, modules, courseTitle, orgLogoUrl }: C
   const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
   const [selectedSlideId, setSelectedSlideId] = useState<string | null>(null);
   const [centerMode, setCenterMode] = useState<CenterMode>('empty');
-  const [showPreview, setShowPreview] = useState(true);
+  // On mobile the phone preview is a full-screen sheet, never an inline pane,
+  // so the editor keeps the whole viewport.
+  const [showPreview, setShowPreview] = useState(!isMobile);
+
   const [saving, setSaving] = useState(false);
 
   const createSlide = useCreateSlide();
@@ -284,10 +287,13 @@ export function CourseBuilder({ programId, modules, courseTitle, orgLogoUrl }: C
                 {isFr ? 'Quitter le mode avancé' : 'Exit advanced mode'}
               </Button>
             )}
-            <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden"
-              onClick={() => setShowPreview(v => !v)}>
-              {showPreview ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
-            </Button>
+            {centerMode !== 'raw-html' && (
+              <Button variant="outline" size="sm" className="h-8 shrink-0 gap-1.5 text-[11px] md:hidden"
+                onClick={() => setShowPreview(true)}>
+                <Smartphone className="h-3.5 w-3.5" /> {isFr ? 'Aperçu' : 'Preview'}
+              </Button>
+            )}
+
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto">
@@ -335,12 +341,9 @@ export function CourseBuilder({ programId, modules, courseTitle, orgLogoUrl }: C
         </div>
       )}
 
-      {/* ── RIGHT: live phone preview ── */}
-      {showPreview && centerMode !== 'raw-html' && (
-        <div className={cn(
-          'border-t border-border bg-card md:border-l md:border-t-0',
-          isMobile ? 'shrink-0' : 'w-[320px] shrink-0 xl:w-[360px]',
-        )}>
+      {/* ── RIGHT: live phone preview (desktop pane) ── */}
+      {showPreview && !isMobile && centerMode !== 'raw-html' && (
+        <div className="w-[320px] shrink-0 border-l border-border bg-card xl:w-[360px]">
           <SlidePhonePreview
             slide={selectedSlide}
             draft={draft}
@@ -353,6 +356,33 @@ export function CourseBuilder({ programId, modules, courseTitle, orgLogoUrl }: C
           />
         </div>
       )}
+
+      {/* ── Mobile: preview as a full-screen sheet so the editor keeps the viewport ── */}
+      {showPreview && isMobile && centerMode !== 'raw-html' && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-background/95 backdrop-blur-sm">
+          <div className="flex items-center justify-between border-b border-border bg-card px-3 py-2">
+            <span className="min-w-0 truncate text-xs font-semibold">
+              {isFr ? 'Aperçu apprenant' : 'Learner preview'}
+            </span>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowPreview(false)}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <SlidePhonePreview
+              slide={selectedSlide}
+              draft={draft}
+              slideIndex={Math.max(0, lessonSlides.findIndex(s => s.id === selectedSlideId))}
+              totalSlides={Math.max(1, lessonSlides.length)}
+              lessonTitle={lessonTitle}
+              moduleTitle={moduleTitle}
+              orgLogoUrl={orgLogoUrl}
+              isFr={isFr}
+            />
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
