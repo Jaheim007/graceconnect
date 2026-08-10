@@ -42,7 +42,7 @@ const TOOLS = [
       {
         name: 'start_course_generation',
         description:
-          'Propose the creation of a course/formation with the existing generation pipeline. Only call this once the topic, the audience and the language are known.',
+          'Propose the creation of a course/formation with the existing generation pipeline. Only call this once every slot of the course checklist is known (topic, goal, audience, depth, level, teaching style, tone, content language, illustrations).',
         parameters: {
           type: 'OBJECT',
           properties: {
@@ -50,30 +50,38 @@ const TOOLS = [
             prompt: {
               type: 'STRING',
               description:
-                'A rich, self-contained brief for the pipeline: topic, audience, goal, tone, level, key points to cover.',
+                'A rich, self-contained brief for the pipeline: topic, audience, goal, tone, level, teaching style, depth and key points to cover.',
             },
-            language: { type: 'STRING', description: 'fr or en' },
-            tier: { type: 'STRING', description: 'standard or premium' },
+            language: { type: 'STRING', description: 'Language of the GENERATED content: fr or en (may differ from the chat language).' },
+            tier: { type: 'STRING', description: '"premium" when the user wants a detailed/in-depth course, "standard" for an essential course.' },
+            depth: { type: 'STRING', description: 'The user own words about depth, e.g. "detailed", "essential/quick".' },
             level: { type: 'STRING', description: 'beginner, intermediate or advanced' },
+            goal: { type: 'STRING', description: 'What the learner should achieve (sell, teach a skill, train a team, educate, faith, authority...).' },
+            teaching_style: {
+              type: 'STRING',
+              description: 'How it should be taught: structured, storytelling, practical/workshop, case studies, Q&A, step-by-step... free text allowed.',
+            },
+            tone: { type: 'STRING', description: 'Tone of voice — free text allowed (spiritual, academic, friendly, motivational, professional...).' },
+            orientation: { type: 'STRING', description: 'Content orientation/worldview inferred from the conversation (neutral, christian, muslim...).' },
             generate_images: { type: 'BOOLEAN', description: 'Generate AI illustrations per lesson (extra credits).' },
             use_document: {
               type: 'BOOLEAN',
               description: 'True when the user uploaded a document that should be converted into the course.',
             },
           },
-          required: ['title', 'prompt', 'language', 'tier'],
+          required: ['title', 'prompt', 'language', 'tier', 'level', 'teaching_style', 'tone'],
         },
       },
       {
         name: 'start_book_generation',
         description:
-          'Propose the creation of a book / ebook with the existing writing pipeline. Only call this once the topic, the audience and the language are known.',
+          'Propose the creation of a book / ebook with the existing writing pipeline. Only call this once every slot of the book checklist is known (topic, audience, format/style, tone, depth/length, content language).',
         parameters: {
           type: 'OBJECT',
           properties: {
             title: { type: 'STRING', description: 'Short book title.' },
-            prompt: { type: 'STRING', description: 'Rich brief: topic, promise, audience, angle, key chapters.' },
-            language: { type: 'STRING', description: 'fr or en' },
+            prompt: { type: 'STRING', description: 'Rich brief: topic, promise, audience, angle, tone, depth, key chapters.' },
+            language: { type: 'STRING', description: 'Language of the GENERATED book: fr or en (may differ from the chat language).' },
             style: {
               type: 'STRING',
               description: 'ebook, guide, prayers, story, novel, devotional, activity or coloring',
@@ -86,10 +94,11 @@ const TOOLS = [
               type: 'STRING',
               description: 'general, children, teens, adults, seniors or professionals',
             },
-            chapter_count: { type: 'NUMBER', description: 'Number of chapters (6-14).' },
+            depth: { type: 'STRING', description: 'The user own words about depth/length: "detailed" or "essential".' },
+            chapter_count: { type: 'NUMBER', description: 'Number of chapters (6-14). Use 10-14 for a detailed book, 6-8 for a short one.' },
             use_document: { type: 'BOOLEAN', description: 'True when an uploaded document is the source.' },
           },
-          required: ['title', 'prompt', 'language'],
+          required: ['title', 'prompt', 'language', 'style', 'tone', 'audience'],
         },
       },
     ],
@@ -104,20 +113,35 @@ function systemPrompt(assistantName: string, isFr: boolean, attachments: Attachm
   return [
     `You are ${assistantName}, the creation assistant of SiteViral.`,
     `You help creators turn an idea into a sellable course/formation OR a book/ebook through natural conversation — never by showing forms.`,
-    `Language: reply in ${isFr ? 'French' : 'English'}, but always mirror the language the user writes in.`,
+    `Chat language: reply in ${isFr ? 'French' : 'English'}, but always mirror the language the user writes in.`,
     `First figure out WHAT they want: a course/formation, or a book/ebook.`,
-    `Ask ONE short question at a time, and only ask what is still missing: topic, target audience, goal, tone, level, language, and whether they want AI illustrations.`,
+    `Ask ONE short question at a time. Never re-ask something already given or clearly implied.`,
+    '',
+    `COURSE CHECKLIST — every slot must be known before you propose:`,
+    `1. topic  2. who it is for (audience)  3. what learners should achieve (goal)`,
+    `4. DEPTH — ask plainly, e.g. "Do you want a detailed, in-depth course or a shorter essential one?" Map: detailed/in-depth/complete -> tier "premium"; essential/short/quick -> tier "standard". Never pick the tier silently.`,
+    `5. level (beginner / intermediate / advanced)`,
+    `6. TEACHING STYLE — ask how they want it taught (structured lessons, storytelling, practical workshop, case studies, step-by-step, Q&A...). Accept any custom answer.`,
+    `7. tone — offer examples (spiritual, academic, friendly, motivational, professional) and accept any custom tone.`,
+    `8. CONTENT LANGUAGE — ask which language the course itself should be written in, even if the chat is in another language ("You're writing in English — should the course be in English or French?").`,
+    `9. AI illustrations per lesson (yes/no).`,
+    '',
+    `BOOK CHECKLIST — every slot must be known before you propose:`,
+    `1. topic  2. who it is for  3. format/style (ebook, guide, story, devotional, prayers, activity, coloring...)`,
+    `4. tone (custom allowed)  5. DEPTH/LENGTH — detailed (10-14 chapters) or essential (6-8 chapters)  6. CONTENT LANGUAGE, asked explicitly like for courses.`,
+    '',
+    `You may INFER (do not ask) the goal and the content orientation/worldview from the topic and the conversation.`,
     `If the user already gave everything in one message (often by voice), do NOT re-ask — just confirm: "Anything else to add, or should I generate?"`,
+    `Group at most two tightly-related micro-questions in one message when it feels natural; otherwise one at a time.`,
     `Keep every reply under 70 words, warm and concrete. Never invent platform features.`,
-    `When the essentials are known, call "start_course_generation" (course) or "start_book_generation" (book) with a rich brief instead of writing a long plan.`,
-    `Default tier is "standard"; propose "premium" only if the user asks for a deeper/longer course.`,
-    `For a course, ALWAYS ask (once, before proposing) whether they want AI illustrations for each lesson — exactly like the manual creation flow does — and set generate_images accordingly.`,
+    `When the checklist is complete, call "start_course_generation" (course) or "start_book_generation" (book) with a rich brief instead of writing a long plan.`,
     `Never claim the content is generated: after the tool call the user must confirm the credit cost, then they land in the normal editor/review flow.`,
     doc,
     '',
     SAFETY_SYSTEM_RULES,
   ].join('\n');
 }
+
 
 
 Deno.serve(async (req) => {
@@ -215,7 +239,12 @@ Deno.serve(async (req) => {
     }
 
     const args = (call.args || {}) as Record<string, unknown>;
-    const tier = args.tier === 'premium' ? 'premium' : 'standard';
+    // Depth is asked in plain words; premium is only chosen when the user asked for depth.
+    const depthWords = String(args.depth ?? '');
+    const tier =
+      args.tier === 'premium' || /detail|in-?depth|profond|complet|approfond|avanc/i.test(depthWords)
+        ? 'premium'
+        : 'standard';
     const actionKey = isCourse ? GENERATION_ACTION_KEY : BOOK_ACTION_KEY;
 
     // Cost comes from the SAME pricing table the pipeline debits from.
@@ -248,6 +277,30 @@ Deno.serve(async (req) => {
     const TONES = ['professional', 'conversational', 'humorous', 'spiritual', 'poetic', 'academic'];
     const AUDIENCES = ['general', 'children', 'teens', 'adults', 'seniors', 'professionals'];
 
+    const str = (v: unknown, max = 120) => String(v ?? '').trim().slice(0, max);
+    const level = ['beginner', 'intermediate', 'advanced'].includes(str(args.level))
+      ? str(args.level)
+      : 'intermediate';
+    const teachingStyle = str(args.teaching_style);
+    const courseTone = str(args.tone);
+    const goal = str(args.goal);
+    const orientation = str(args.orientation);
+    const depth = str(args.depth);
+
+    // Same brief enrichment as the manual "Create with AI" dialog: the pipeline
+    // only reads the prompt text, so every gathered slot is appended to it.
+    const enrichedPrompt = isCourse
+      ? [
+          String(args.prompt || '').slice(0, 6000),
+          goal ? `Goal: ${goal}` : '',
+          level ? `Level: ${level}` : '',
+          teachingStyle ? `Teaching style: ${teachingStyle}` : '',
+          courseTone ? `Tone: ${courseTone}` : '',
+          depth ? `Depth: ${depth}` : `Depth: ${tier === 'premium' ? 'detailed' : 'essential'}`,
+          orientation ? `Worldview: ${orientation}` : '',
+        ].filter(Boolean).join('\n')
+      : String(args.prompt || '').slice(0, 6000);
+
     return jsonResp({
       message:
         text ||
@@ -264,26 +317,32 @@ Deno.serve(async (req) => {
         input: {
           source: useDocument ? 'document' : 'prompt',
           title: String(args.title || '').slice(0, 160),
-          prompt: String(args.prompt || '').slice(0, 6000),
+          prompt: enrichedPrompt,
           language: args.language === 'en' ? 'en' : language,
           tier,
           ...(isCourse
             ? {
-                level: ['beginner', 'intermediate', 'advanced'].includes(String(args.level))
-                  ? String(args.level)
-                  : 'beginner',
+                level,
+                teaching_style: teachingStyle || 'structured',
+                tone: courseTone || 'professional',
+                goal: goal || undefined,
+                orientation: orientation || undefined,
                 generate_images: args.generate_images === true,
               }
             : {
-                style: BOOK_STYLES.includes(String(args.style)) ? String(args.style) : 'ebook',
-                tone: TONES.includes(String(args.tone)) ? String(args.tone) : 'professional',
-                audience: AUDIENCES.includes(String(args.audience)) ? String(args.audience) : 'general',
-                chapter_count: Math.min(14, Math.max(6, Number(args.chapter_count) || 8)),
+                style: BOOK_STYLES.includes(str(args.style)) ? str(args.style) : 'ebook',
+                tone: TONES.includes(str(args.tone)) ? str(args.tone) : 'professional',
+                audience: AUDIENCES.includes(str(args.audience)) ? str(args.audience) : 'general',
+                chapter_count: Math.min(
+                  14,
+                  Math.max(6, Number(args.chapter_count) || (/detail|profond|complet|long/i.test(depth) ? 12 : 8)),
+                ),
               }),
           ...docFields,
         },
       },
     });
+
 
   } catch (err) {
     console.error('[viral-studio-chat] error', err);

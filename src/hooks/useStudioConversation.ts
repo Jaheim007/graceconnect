@@ -24,6 +24,9 @@ export interface GenerationProposal {
     tier: 'standard' | 'premium';
     level?: 'beginner' | 'intermediate' | 'advanced';
     generate_images?: boolean;
+    teaching_style?: string;
+    goal?: string;
+    orientation?: string;
     style?: string;
     tone?: string;
     audience?: string;
