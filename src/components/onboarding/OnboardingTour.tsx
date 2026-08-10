@@ -213,7 +213,8 @@ export function OnboardingTour() {
   const pad = 8;
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
   const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
-  const cardW = Math.min(360, vw - 32);
+  const isMobile = vw < 768;
+  const cardW = isMobile ? vw - 24 : Math.min(360, vw - 32);
 
   // Place the card beside the highlighted element when possible
   let cardStyle: React.CSSProperties = {
@@ -221,7 +222,10 @@ export function OnboardingTour() {
     top: Math.max(24, vh / 2 - 170),
   };
   let arrowSide: 'left' | 'top' | null = null;
-  if (rect) {
+  if (isMobile) {
+    // Mobile: always a bottom sheet — never covers the highlighted element.
+    cardStyle = { left: 12, bottom: 12, top: 'auto' as any };
+  } else if (rect) {
     const spaceRight = vw - (rect.left + rect.width);
     if (spaceRight > cardW + 48) {
       cardStyle = {
@@ -237,6 +241,7 @@ export function OnboardingTour() {
       arrowSide = 'top';
     }
   }
+
 
   return createPortal(
     <div className="fixed inset-0 z-[10000]">
