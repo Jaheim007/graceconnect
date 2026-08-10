@@ -19,6 +19,8 @@ import { RouteContentSkeleton } from "@/components/layout/RouteFallback";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { GlobalBottomNav } from "@/components/layout/GlobalBottomNav";
+import { FloatingHelpWidget } from "@/components/help/FloatingHelpWidget";
+import { AssistantChatWidget } from "@/components/assistant/AssistantChatWidget";
 import { TrialBillingBanner } from "@/components/billing/TrialBillingBanner";
 import { CreditAlertWatcher } from "@/components/credits/CreditAlertWatcher";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
@@ -992,6 +994,8 @@ const App = () => (
               </Routes>
               </Suspense>
               <GlobalBottomNav />
+              <FloatingHelpWidget />
+              <AssistantChatWidget />
             
             
             </BrowserRouter>

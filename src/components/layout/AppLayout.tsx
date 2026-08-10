@@ -15,8 +15,6 @@ import { useNewUserRedirect } from '@/hooks/useNewUserRedirect';
 import { CommandPalette } from '@/components/command/CommandPalette';
 import { CompareProvider } from '@/components/products/ProductCompareDrawer';
 import { CookieConsent } from '@/components/legal/CookieConsent';
-import { FloatingHelpWidget } from '@/components/help/FloatingHelpWidget';
-import { AssistantChatWidget } from '@/components/assistant/AssistantChatWidget';
 
 import { SkipToContent } from '@/components/a11y/SkipToContent';
 import { KeyboardShortcutsModal } from '@/components/a11y/KeyboardShortcutsModal';
@@ -95,8 +93,6 @@ export function AppLayout() {
       <PushNotificationPrompt />
       <BackToTopProgress />
       <CookieConsent />
-      <FloatingHelpWidget />
-      <AssistantChatWidget />
 
       <KeyboardShortcutsModal />
     </div>
