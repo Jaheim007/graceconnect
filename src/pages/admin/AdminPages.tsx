@@ -1489,7 +1489,17 @@ export function AdminSettings() {
 
 
       <div className="space-y-5">
+        {/* ── IDENTITY VERIFICATION (KYC / KYB, routed by platform type) ── */}
+        {active?.key === 'verification' && currentOrg && (
+          <IdentityVerificationSettings
+            orgId={currentOrg.id}
+            orgCategory={currentOrg.category}
+            kycStatus={currentOrg.kyc_status}
+          />
+        )}
+
         {/* ── 1. PROFILE ── */}
+
 
         {active?.key === 'profile' && (
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
