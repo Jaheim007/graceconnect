@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { PenLine, FileText, Lightbulb, History, PlusCircle, Clock3, Video, Mic, Camera, Loader2, Trash2 } from 'lucide-react';
+import { PenLine, FileText, Lightbulb, History, PlusCircle, Clock3, Mic, Camera, Loader2, Trash2, ScanText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -10,6 +9,10 @@ import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState, SourceType, SavedWriteDraftSummary } from '../WriteWizard';
 import { askAlert } from '@/components/ui/confirm-dialog';
+
+const MAX_AUDIO_BYTES = 150 * 1024 * 1024;   // 150 MB
+const MAX_AUDIO_SECONDS = 90 * 60;           // 90 minutes
+const MAX_HANDWRITING_PAGES = 20;            // pages per book
 
 const SUGGESTION_KEYS = [
   'write.sug_prayers', 'write.sug_business', 'write.sug_cooking', 'write.sug_health',
@@ -170,6 +173,12 @@ export function StepSource({
               {state.topic.length} {t('write.characters') || 'caractères'}
             </span>
           </div>
+          {state.transcriptionMethod && (
+            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <ScanText className="h-3.5 w-3.5" />
+              <span>{t(`write.method_${state.transcriptionMethod}`)}</span>
+            </div>
+          )}
           <Textarea
             value={state.topic}
             onChange={(e) => update({ topic: e.target.value })}
