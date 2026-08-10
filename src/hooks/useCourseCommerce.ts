@@ -70,8 +70,11 @@ export function useOrgCourseStats(orgId: string | undefined, programs: any[] | u
       });
 
       byProgram.forEach((stat) => {
-        stat.completion_rate = stat.enrollments ? Math.round((stat.completions / stat.enrollments) * 100) : 0;
+        // Clamp: duplicate/legacy enrollment rows must never produce >100%.
+        const raw = stat.enrollments ? (stat.completions / stat.enrollments) * 100 : 0;
+        stat.completion_rate = Math.min(100, Math.max(0, Math.round(raw)));
       });
+
 
       return Object.fromEntries(byProgram) as Record<string, CourseSalesStat>;
     },
