@@ -230,7 +230,7 @@ export default function CreateOrgPage() {
         </div>
       )}
 
-      <div className="flex-1 flex items-center justify-center px-4 py-10">
+      <div className="sv-nav-clearance flex-1 flex items-center justify-center px-4 py-8 sm:py-10">
       <div className="w-full max-w-lg">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
