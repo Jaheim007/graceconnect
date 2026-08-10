@@ -158,6 +158,8 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
   // Org document state (KYB)
   const [orgDocType, setOrgDocType] = useState('');
   const [orgDocUrl, setOrgDocUrl] = useState('');
+  const [orgStatutesUrl, setOrgStatutesUrl] = useState('');
+
   
   // Payout state
   const [payoutMethod, setPayoutMethod] = useState<'mobile_money' | 'bank'>('mobile_money');
