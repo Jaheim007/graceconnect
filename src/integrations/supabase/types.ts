@@ -7287,6 +7287,8 @@ export type Database = {
           kyc_level: number | null
           org_document_type: string | null
           org_document_url: string | null
+          org_statutes_type: string | null
+          org_statutes_url: string | null
           organization_id: string | null
           payout_method: string | null
           payout_phone: string | null
@@ -7326,6 +7328,8 @@ export type Database = {
           kyc_level?: number | null
           org_document_type?: string | null
           org_document_url?: string | null
+          org_statutes_type?: string | null
+          org_statutes_url?: string | null
           organization_id?: string | null
           payout_method?: string | null
           payout_phone?: string | null
@@ -7365,6 +7369,8 @@ export type Database = {
           kyc_level?: number | null
           org_document_type?: string | null
           org_document_url?: string | null
+          org_statutes_type?: string | null
+          org_statutes_url?: string | null
           organization_id?: string | null
           payout_method?: string | null
           payout_phone?: string | null
@@ -12847,6 +12853,29 @@ export type Database = {
               _org_document_type?: string
               _org_document_url?: string
               _org_id: string
+              _payout_method?: string
+              _payout_phone?: string
+              _payout_provider?: string
+              _selfie_url?: string
+              _selfie_with_doc_url?: string
+              _verification_type?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _bank_account_name?: string
+              _bank_account_number?: string
+              _bank_name?: string
+              _id_document_back_url?: string
+              _id_document_type?: string
+              _id_document_url?: string
+              _kyc_level: number
+              _org_document_type?: string
+              _org_document_url?: string
+              _org_id: string
+              _org_statutes_type?: string
+              _org_statutes_url?: string
               _payout_method?: string
               _payout_phone?: string
               _payout_provider?: string
