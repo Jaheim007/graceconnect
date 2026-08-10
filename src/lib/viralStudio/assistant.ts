@@ -14,8 +14,8 @@ export const assistantCopy = (isFr: boolean) => ({
     ? `Salut 👋 Moi c’est ${ASSISTANT_NAME}. Alors, on fait quoi maintenant ?`
     : `Hey 👋 I’m ${ASSISTANT_NAME}. So, what do you want to do next?`,
   nudge: isFr
-    ? `Comment puis-je t’aider aujourd’hui ?`
-    : `How can I help you today?`,
+    ? `Alors, on fait quoi maintenant ?`
+    : `So, what do you want to do next?`,
   placeholder: isFr ? 'Écris ou parle…' : 'Type or speak…',
   free: isFr ? 'Assistant de création' : 'Creation assistant',
 });
