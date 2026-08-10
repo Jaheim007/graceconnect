@@ -17,6 +17,8 @@ import { useCreditsBalance } from '@/hooks/useCredits';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
 import botAsset from '@/assets/viral-studio-bot.gif.asset.json';
 import { canUseVoiceAgent, VOICE_AGENT_ROUTE } from '@/lib/access/voiceAgentAccess';
+import { useIsTyping } from '@/hooks/useIsTyping';
+
 
 /**
  * Global creation chatbot — sits just above the Support button on every
