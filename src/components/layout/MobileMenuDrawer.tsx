@@ -127,6 +127,42 @@ export function MobileMenuDrawer({ onClose }: Props) {
   const orgLogo = brandUrl(currentOrg?.logo_url);
   const displayOrgName = currentOrg?.name ?? manageableOrgs[0]?.name ?? (isFr ? 'Compte' : 'Account');
 
+  // Guests never see workspace/account controls — they get a sign-in prompt.
+  if (!user) {
+    return (
+      <div className="flex flex-col h-[100dvh] bg-background">
+        <div
+          className="shrink-0 flex items-center justify-end px-3 border-b border-border/60"
+          style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 10px)', paddingBottom: 10 }}
+        >
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="h-11 w-11 rounded-xl border border-border bg-card grid place-items-center active:scale-95 transition"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 px-6 text-center">
+          <h2 className="text-xl font-semibold">
+            {isFr ? 'Connecte-toi pour continuer' : 'Sign in to continue'}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {isFr
+              ? 'Crée ton compte pour accéder à ton espace, tes achats et tes revenus.'
+              : 'Create your account to access your space, purchases and earnings.'}
+          </p>
+          <button
+            onClick={() => handleNav('/auth')}
+            className="h-11 px-6 rounded-full bg-primary text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/25 active:scale-[0.98] transition"
+          >
+            {isFr ? 'Se connecter' : 'Sign in'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
       {/* Sticky header — workspace chip (opens switcher) + close */}
