@@ -130,10 +130,18 @@ export function GlobalBottomNav() {
                 );
               })}
               <button
-                onClick={() => setMenuOpen(true)}
-                aria-label={isFr ? 'Menu' : 'Menu'}
+                onClick={() => {
+                  if (!user) {
+                    try { sessionStorage.setItem('sv_auth_returnTo', location.pathname); } catch {}
+                    navigate(`/auth?returnTo=${encodeURIComponent(location.pathname)}`);
+                    return;
+                  }
+                  setMenuOpen(true);
+                }}
+                aria-label={user ? (isFr ? 'Menu' : 'Menu') : (isFr ? 'Se connecter' : 'Sign in')}
                 className="relative flex-1 flex flex-col items-center gap-1 rounded-xl px-1 pt-2 pb-1.5 transition-all duration-200 active:scale-[0.94] text-muted-foreground hover:text-foreground"
               >
+
                 <div className="flex h-8 w-8 items-center justify-center rounded-xl">
                   <MenuIcon className="h-4 w-4" />
                 </div>
