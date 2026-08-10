@@ -287,10 +287,13 @@ export function CourseBuilder({ programId, modules, courseTitle, orgLogoUrl }: C
                 {isFr ? 'Quitter le mode avancé' : 'Exit advanced mode'}
               </Button>
             )}
-            <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden"
-              onClick={() => setShowPreview(v => !v)}>
-              {showPreview ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
-            </Button>
+            {centerMode !== 'raw-html' && (
+              <Button variant="outline" size="sm" className="h-8 shrink-0 gap-1.5 text-[11px] md:hidden"
+                onClick={() => setShowPreview(true)}>
+                <Smartphone className="h-3.5 w-3.5" /> {isFr ? 'Aperçu' : 'Preview'}
+              </Button>
+            )}
+
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto">
