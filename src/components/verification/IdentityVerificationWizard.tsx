@@ -835,7 +835,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                 </div>
 
                 <div>
-                  <Label className="text-sm font-semibold">Document officiel *</Label>
+                  <Label className="text-sm font-semibold">Document d'enregistrement légal *</Label>
                   <FileUploader
                     value={orgDocUrl}
                     onChange={setOrgDocUrl}
@@ -843,10 +843,25 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     bucket="kyc-documents"
                     accept="image/*,.pdf"
                     label="Document de l'organisation"
-                    hint="Récépissé, certificat, statuts ou autorisation officielle (PDF ou image)"
+                    hint="Récépissé, certificat d'enregistrement ou autorisation officielle (PDF ou image)"
                     hideUrlMode
                   />
                 </div>
+
+                <div>
+                  <Label className="text-sm font-semibold">Statuts / règlement intérieur *</Label>
+                  <FileUploader
+                    value={orgStatutesUrl}
+                    onChange={setOrgStatutesUrl}
+                    folder={`kyc/${entityId}/org-docs`}
+                    bucket="kyc-documents"
+                    accept="image/*,.pdf"
+                    label="Statuts de l'organisation"
+                    hint="Statuts signés, règlement intérieur ou PV constitutif (PDF ou image)"
+                    hideUrlMode
+                  />
+                </div>
+
 
                 <div className="p-3 rounded-xl bg-muted/40 border border-border">
                   <p className="text-[10px] text-muted-foreground">
