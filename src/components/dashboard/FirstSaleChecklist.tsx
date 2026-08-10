@@ -57,12 +57,23 @@ export function FirstSaleChecklist() {
     queryFn: async () => {
       if (!orgId || !user?.id) return null;
 
-      const [productsRes, salesRes, affRes, orgRes] = await Promise.all([
+      const [productsRes, salesRes, affRes, orgRes, progRes, campRes, annRes, churchRes] = await Promise.all([
         db.from('digital_products').select('id, is_published').eq('organization_id', orgId).limit(5),
         db.from('product_purchases').select('id').eq('organization_id', orgId).eq('status', 'completed').limit(1),
         db.from('affiliate_links').select('code').eq('user_id', user.id).limit(1),
         db.from('organizations').select('logo_url, description').eq('id', orgId).maybeSingle(),
+        db.from('programs').select('id').eq('organization_id', orgId).limit(1),
+        db.from('donation_campaigns').select('id').eq('organization_id', orgId).limit(1),
+        db.from('announcements').select('id').eq('organization_id', orgId).limit(1),
+        db.from('church_providers').select('id').eq('user_id', user.id).maybeSingle(),
       ]);
+
+      let hasSermon = false;
+      const churchId = (churchRes as any)?.data?.id as string | undefined;
+      if (churchId) {
+        const { data } = await db.from('church_sermons').select('id').eq('church_id', churchId).limit(1);
+        hasSermon = (data || []).length > 0;
+      }
 
       const products = productsRes.data || [];
       return {
@@ -72,11 +83,16 @@ export function FirstSaleChecklist() {
         hasSale: (salesRes.data || []).length > 0,
         hasAffiliateCode: (affRes.data || []).length > 0,
         hasOrgBranding: !!(orgRes.data?.logo_url && orgRes.data?.description),
+        hasProgram: (progRes.data || []).length > 0,
+        hasCampaign: (campRes.data || []).length > 0,
+        hasAnnouncement: (annRes.data || []).length > 0,
+        hasSermon,
       };
     },
     enabled: !!orgId && !!user?.id,
     staleTime: 60_000,
   });
+
 
   const type = (currentOrg?.siteviral_type as SiteviralType | null) ?? null;
 
@@ -195,26 +211,14 @@ type Signals = {
   hasSale: boolean;
   hasAffiliateCode: boolean;
   hasOrgBranding: boolean;
+  hasProgram: boolean;
+  hasCampaign: boolean;
+  hasAnnouncement: boolean;
+  hasSermon: boolean;
 } | null | undefined;
 
-function goalTitle(type: SiteviralType | null, isFr: boolean): string {
-  switch (type) {
-    case 'artisans_home_services':
-      return isFr ? 'Ta première intervention en 48h' : 'Your first job in 48h';
-    case 'beauty':
-      return isFr ? 'Ton premier rendez-vous en 48h' : 'Your first booking in 48h';
-    case 'tutors_home_teachers':
-      return isFr ? 'Ta première session en 48h' : 'Your first session in 48h';
-    case 'church':
-      return isFr ? 'Ton premier don en 48h' : 'Your first gift in 48h';
-    case 'instrumentists':
-    case 'sport':
-    case 'services':
-    case 'influencers':
-      return isFr ? 'Ta première réservation en 48h' : 'Your first booking in 48h';
-    default:
-      return isFr ? 'Ta première vente en 24h' : 'Your first sale in 24h';
-  }
+function goalTitle(_type: SiteviralType | null, isFr: boolean): string {
+  return isFr ? 'Tes premiers pas' : 'Your first steps';
 }
 
 function buildStepsForType(
@@ -222,12 +226,36 @@ function buildStepsForType(
   s: Signals,
   navigate: (to: string) => void,
 ): Step[] {
+  const brandingRoute =
+    type === 'church' ? '/admin/church/settings'
+      : type === 'beauty' ? '/admin/beauty/settings'
+      : type === 'artisans_home_services' ? '/admin/home/settings'
+      : type === 'tutors_home_teachers' ? '/admin/learn/settings'
+      : (type === 'instrumentists' || type === 'sport' || type === 'services' || type === 'influencers') ? '/admin/events-service/settings'
+      : '/admin/settings';
+
   const branding: Step = {
     id: 'branding',
     label: { fr: 'Ajoute logo + description', en: 'Add logo + description' },
     cta: { fr: 'Personnaliser', en: 'Customize' },
     done: !!s?.hasOrgBranding,
-    onClick: () => navigate('/admin/settings'),
+    onClick: () => navigate(brandingRoute),
+  };
+
+  const writeBook: Step = {
+    id: 'book',
+    label: { fr: 'Écris ton premier livre avec l\'IA', en: 'Write your first book with AI' },
+    cta: { fr: 'Écrire', en: 'Write' },
+    done: false,
+    onClick: () => navigate('/ecrire'),
+  };
+
+  const createCourse: Step = {
+    id: 'course',
+    label: { fr: 'Crée ta première formation', en: 'Create your first course' },
+    cta: { fr: 'Créer', en: 'Create' },
+    done: !!s?.hasProgram,
+    onClick: () => navigate('/creer-formation'),
   };
 
   // Artisan / home services
@@ -236,16 +264,14 @@ function buildStepsForType(
       branding,
       { id: 'kyc', label: { fr: 'Vérifie ton identité (KYC)', en: 'Verify your identity (KYC)' },
         cta: { fr: 'Vérifier', en: 'Verify' }, done: false,
-        onClick: () => navigate('/home/pro/kyc') },
+        onClick: () => navigate('/admin/home/kyc') },
       { id: 'services', label: { fr: 'Ajoute tes services et tarifs', en: 'Add your services & prices' },
         cta: { fr: 'Ajouter', en: 'Add' }, done: false,
-        onClick: () => navigate('/home/pro/services') },
-      { id: 'zone', label: { fr: 'Définis ta zone d\'intervention', en: 'Set your service area' },
-        cta: { fr: 'Définir', en: 'Set' }, done: false,
-        onClick: () => navigate('/admin/settings') },
-      { id: 'share', label: { fr: 'Partage ton profil sur 1 réseau', en: 'Share your profile on 1 channel' },
+        onClick: () => navigate('/admin/home/services') },
+      createCourse,
+      { id: 'share', label: { fr: 'Partage ton profil public', en: 'Share your public profile' },
         cta: { fr: 'Partager', en: 'Share' }, done: false,
-        onClick: () => navigate('/home/pro') },
+        onClick: () => navigate('/admin/home/settings') },
     ];
   }
 
@@ -255,16 +281,14 @@ function buildStepsForType(
       branding,
       { id: 'kyc', label: { fr: 'Vérifie ton identité', en: 'Verify your identity' },
         cta: { fr: 'Vérifier', en: 'Verify' }, done: false,
-        onClick: () => navigate('/beauty/kyc') },
+        onClick: () => navigate('/admin/beauty/kyc') },
       { id: 'services', label: { fr: 'Ajoute tes prestations', en: 'Add your services' },
         cta: { fr: 'Ajouter', en: 'Add' }, done: false,
-        onClick: () => navigate('/admin/services') },
-      { id: 'availability', label: { fr: 'Définis tes disponibilités', en: 'Set your availability' },
-        cta: { fr: 'Définir', en: 'Set' }, done: false,
-        onClick: () => navigate('/admin/settings') },
-      { id: 'share', label: { fr: 'Partage ton salon', en: 'Share your salon' },
-        cta: { fr: 'Partager', en: 'Share' }, done: false,
-        onClick: () => navigate('/discover') },
+        onClick: () => navigate('/admin/beauty/settings') },
+      createCourse,
+      { id: 'product', label: { fr: 'Publie un produit digital', en: 'Publish a digital product' },
+        cta: { fr: 'Publier', en: 'Publish' }, done: !!s?.hasPublishedProduct,
+        onClick: () => navigate("/admin/products/new") },
     ];
   }
 
@@ -274,16 +298,12 @@ function buildStepsForType(
       branding,
       { id: 'kyc', label: { fr: 'Vérifie ton identité', en: 'Verify your identity' },
         cta: { fr: 'Vérifier', en: 'Verify' }, done: false,
-        onClick: () => navigate('/education/kyc') },
+        onClick: () => navigate('/admin/learn/kyc') },
       { id: 'subjects', label: { fr: 'Ajoute tes matières et tarifs', en: 'Add subjects & rates' },
         cta: { fr: 'Ajouter', en: 'Add' }, done: false,
-        onClick: () => navigate('/education/tutor/subjects') },
-      { id: 'availability', label: { fr: 'Définis tes créneaux', en: 'Set your time slots' },
-        cta: { fr: 'Définir', en: 'Set' }, done: false,
-        onClick: () => navigate('/admin/settings') },
-      { id: 'share', label: { fr: 'Partage ton profil tuteur', en: 'Share your tutor profile' },
-        cta: { fr: 'Partager', en: 'Share' }, done: false,
-        onClick: () => navigate('/education/discover') },
+        onClick: () => navigate('/admin/learn/subjects') },
+      createCourse,
+      writeBook,
     ];
   }
 
@@ -293,16 +313,17 @@ function buildStepsForType(
       branding,
       { id: 'kyc', label: { fr: 'Vérifie ton église', en: 'Verify your church' },
         cta: { fr: 'Vérifier', en: 'Verify' }, done: false,
-        onClick: () => navigate('/church/kyc') },
+        onClick: () => navigate('/admin/church/kyc') },
+      { id: 'sermon', label: { fr: 'Publie ta première prédication', en: 'Publish your first sermon' },
+        cta: { fr: 'Publier', en: 'Publish' }, done: !!s?.hasSermon,
+        onClick: () => navigate('/admin/church/sermons') },
       { id: 'campaign', label: { fr: 'Lance ta 1re campagne de don', en: 'Launch your 1st giving campaign' },
-        cta: { fr: 'Créer', en: 'Create' }, done: false,
-        onClick: () => navigate('/admin/campaigns') },
+        cta: { fr: 'Créer', en: 'Create' }, done: !!s?.hasCampaign,
+        onClick: () => navigate('/admin/campaigns/new') },
       { id: 'announce', label: { fr: 'Publie une annonce', en: 'Post an announcement' },
-        cta: { fr: 'Publier', en: 'Publish' }, done: false,
-        onClick: () => navigate('/church/pro/announcements') },
-      { id: 'share', label: { fr: 'Partage sur 1 canal', en: 'Share on 1 channel' },
-        cta: { fr: 'Partager', en: 'Share' }, done: false,
-        onClick: () => navigate('/discover') },
+        cta: { fr: 'Publier', en: 'Publish' }, done: !!s?.hasAnnouncement,
+        onClick: () => navigate('/admin/announcements/new') },
+      writeBook,
     ];
   }
 
@@ -312,33 +333,26 @@ function buildStepsForType(
       branding,
       { id: 'kyc', label: { fr: 'Vérifie ton identité', en: 'Verify your identity' },
         cta: { fr: 'Vérifier', en: 'Verify' }, done: false,
-        onClick: () => navigate('/events/kyc') },
+        onClick: () => navigate('/admin/events-service/kyc') },
       { id: 'packages', label: { fr: 'Crée tes offres et tarifs', en: 'Create your offers & pricing' },
         cta: { fr: 'Créer', en: 'Create' }, done: false,
-        onClick: () => navigate('/events/pro/packages') },
-      { id: 'availability', label: { fr: 'Définis tes disponibilités', en: 'Set your availability' },
-        cta: { fr: 'Définir', en: 'Set' }, done: false,
-        onClick: () => navigate('/admin/settings') },
-      { id: 'share', label: { fr: 'Partage ton profil', en: 'Share your profile' },
-        cta: { fr: 'Partager', en: 'Share' }, done: false,
-        onClick: () => navigate('/events/discover') },
+        onClick: () => navigate('/admin/events-service/packages') },
+      createCourse,
+      writeBook,
     ];
   }
 
-  // Digital creator (default) — keep original flow
+  // Digital creator (default)
   return [
-    { id: 'org', label: { fr: 'Crée ton organisation', en: 'Create your organization' },
-      cta: { fr: 'Créer', en: 'Create' }, done: !!s?.hasOrg,
-      onClick: () => navigate('/create-organization') },
     branding,
+    writeBook,
+    createCourse,
     { id: 'product', label: { fr: 'Publie ton premier produit', en: 'Publish your first product' },
-      cta: { fr: 'Créer un produit', en: 'Create product' },
-      done: !!s?.hasPublishedProduct, onClick: () => navigate('/sell') },
+      cta: { fr: 'Publier', en: 'Publish' },
+      done: !!s?.hasPublishedProduct, onClick: () => navigate("/admin/products/new") },
     { id: 'affiliate', label: { fr: 'Active ton code ambassadeur', en: 'Activate your ambassador code' },
       cta: { fr: 'Activer', en: 'Activate' },
-      done: !!s?.hasAffiliateCode, onClick: () => navigate('/earn') },
-    { id: 'share', label: { fr: 'Partage ton lien sur 1 réseau', en: 'Share your link on 1 channel' },
-      cta: { fr: 'Partager', en: 'Share' },
-      done: !!s?.hasSale, onClick: () => navigate('/discover') },
+      done: !!s?.hasAffiliateCode, onClick: () => navigate('/gagner') },
   ];
 }
+
