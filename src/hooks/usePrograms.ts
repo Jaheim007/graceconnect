@@ -9,17 +9,20 @@ export function useOrgPrograms(orgId: string | undefined) {
     queryFn: async () => {
       if (!orgId) return [];
       const { data } = await db.from('programs')
-        .select('*, program_modules(id)')
+        .select('*, program_modules(id, program_lessons(id))')
         .eq('organization_id', orgId)
         .order('created_at', { ascending: false });
       return (data || []).map((p: any) => ({
         ...p,
         module_count: p.program_modules?.length || 0,
+        lesson_count: (p.program_modules || []).reduce(
+          (s: number, m: any) => s + (m.program_lessons?.length || 0), 0),
       }));
     },
     enabled: !!orgId,
   });
 }
+
 
 export function useProgram(programId: string | undefined) {
   return useQuery({
@@ -232,6 +235,14 @@ export function useDeleteProgram() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
+      // The course may have a mirror "digital product" used for checkout/Explore.
+      // If we leave it behind, the deleted course keeps showing up in Explore.
+      const { data: prog } = await db.from('programs')
+        .select('linked_product_id')
+        .eq('id', id)
+        .maybeSingle();
+      const productId = (prog as any)?.linked_product_id as string | null;
+
       const { data: modules } = await db.from('program_modules').select('id').eq('program_id', id);
       const moduleIds = (modules || []).map((m: any) => m.id);
       if (moduleIds.length > 0) {
@@ -247,10 +258,27 @@ export function useDeleteProgram() {
       await db.from('program_enrollments').delete().eq('program_id', id);
       const { error } = await db.from('programs').delete().eq('id', id);
       if (error) throw error;
+
+      if (productId) {
+        // Buyers keep their purchase records: if anyone ever paid, we only
+        // unlist the product. Otherwise it is removed completely.
+        const { count } = await db.from('product_purchases')
+          .select('id', { count: 'exact', head: true })
+          .eq('product_id', productId);
+        if ((count ?? 0) > 0) {
+          await db.from('digital_products')
+            .update({ is_published: false, publication_status: 'draft' } as any)
+            .eq('id', productId);
+        } else {
+          await db.from('digital_products').delete().eq('id', productId);
+        }
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['org-programs'] });
+      qc.invalidateQueries({ queryKey: ['org-products'] });
     },
+
   });
 }
 

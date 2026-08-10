@@ -247,7 +247,6 @@ export default function AdminPrograms() {
                   {/* Creator metrics */}
                   {(() => {
                     const stat = courseStats?.[prog.id];
-                    const isPaid = prog.ai_generated || (!prog.is_free && (prog.price ?? 0) > 0);
                     return (
                       <div className="grid grid-cols-3 gap-1.5 pt-1">
                         <div className="rounded-lg bg-muted/50 px-2 py-1.5">
@@ -261,9 +260,7 @@ export default function AdminPrograms() {
                         <div className="rounded-lg bg-muted/50 px-2 py-1.5">
                           <p className="text-[9px] uppercase tracking-wide text-muted-foreground">{isFr ? 'Revenu' : 'Revenue'}</p>
                           <p className="text-xs font-semibold truncate">
-                            {isPaid
-                              ? formatPrice(stat?.revenue ?? 0, false, stat?.currency || prog.currency || 'XOF')
-                              : (isFr ? 'Gratuit' : 'Free')}
+                            {formatPrice(stat?.revenue ?? 0, false, stat?.currency || prog.currency || 'XOF')}
                           </p>
                         </div>
                       </div>
@@ -272,11 +269,19 @@ export default function AdminPrograms() {
 
                   <div className="flex items-center justify-between pt-1">
                     <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-                      <span className="flex items-center gap-0.5"><Layers className="h-3 w-3" /> {prog.module_count} module{prog.module_count !== 1 ? 's' : ''}</span>
-                      {!prog.is_free && (prog.price ?? 0) > 0 && (
+                      <span className="flex items-center gap-0.5">
+                        <Layers className="h-3 w-3" />
+                        {prog.lesson_count ?? 0} {isFr
+                          ? `leçon${(prog.lesson_count ?? 0) !== 1 ? 's' : ''}`
+                          : `lesson${(prog.lesson_count ?? 0) !== 1 ? 's' : ''}`}
+                      </span>
+                      {!prog.is_free && (prog.price ?? 0) > 0 ? (
                         <span className="font-medium text-foreground">{formatPrice(prog.price, false, prog.currency || 'XOF')}</span>
+                      ) : (
+                        <span className="font-medium text-emerald-600">{isFr ? 'Gratuit' : 'Free'}</span>
                       )}
                     </div>
+
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       {prog.is_published && (
                         <div onClick={(e) => e.stopPropagation()}>
