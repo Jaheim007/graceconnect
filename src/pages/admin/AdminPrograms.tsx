@@ -14,7 +14,7 @@ import { Plus, BookOpen, Edit, Trash2, Eye, EyeOff, Layers, ChevronRight, Zap, F
 
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrgCourseStats } from '@/hooks/useCourseCommerce';
-import { formatPrice } from '@/lib/currency';
+import { formatCurrency, formatPrice } from '@/lib/currency';
 import { askConfirm } from '@/components/ui/confirm-dialog';
 import { useOrgCourseDrafts, useDeleteCourseDraft } from '@/hooks/useCourseDraft';
 import { CreateWithAIDialog } from '@/components/programs/CreateWithAIDialog';
@@ -260,7 +260,7 @@ export default function AdminPrograms() {
                         <div className="rounded-lg bg-muted/50 px-2 py-1.5">
                           <p className="text-[9px] uppercase tracking-wide text-muted-foreground">{isFr ? 'Revenu' : 'Revenue'}</p>
                           <p className="text-xs font-semibold truncate">
-                            {formatPrice(stat?.revenue ?? 0, false, stat?.currency || prog.currency || 'XOF')}
+                            {formatCurrency(stat?.revenue ?? 0, stat?.currency || prog.currency || 'XOF', locale)}
                           </p>
                         </div>
                       </div>
@@ -276,7 +276,7 @@ export default function AdminPrograms() {
                           : `lesson${(prog.lesson_count ?? 0) !== 1 ? 's' : ''}`}
                       </span>
                       {!prog.is_free && (prog.price ?? 0) > 0 ? (
-                        <span className="font-medium text-foreground">{formatPrice(prog.price, false, prog.currency || 'XOF')}</span>
+                        <span className="font-medium text-foreground">{formatCurrency(prog.price ?? 0, prog.currency || 'XOF', locale)}</span>
                       ) : (
                         <span className="font-medium text-emerald-600">{isFr ? 'Gratuit' : 'Free'}</span>
                       )}
