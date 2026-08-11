@@ -4,7 +4,7 @@ import { Bot, Check, Copy, ExternalLink, Info, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { useI18n } from '@/i18n/I18nProvider';
+import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
 
 /**
