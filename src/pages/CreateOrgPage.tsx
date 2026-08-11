@@ -270,11 +270,20 @@ export default function CreateOrgPage() {
               {step === 0 && (
                 <div className="space-y-5">
                   <div className="space-y-1">
-                    <h2 className="text-xl font-bold tracking-tight">{isFr ? 'Quel type de plateforme veux-tu bâtir ?' : 'What kind of platform do you want to build?'}</h2>
-                    <p className="text-sm text-muted-foreground">{isFr ? 'Choisis ton profil. Tu pourras activer d\'autres outils plus tard depuis les paramètres.' : 'Pick your profile. You can activate more tools later from settings.'}</p>
+                    <h2 className="text-xl font-bold tracking-tight">
+                      {faithScope
+                        ? (isFr ? 'Église ou ONG ?' : 'Church or NGO?')
+                        : (isFr ? 'Quel type de plateforme veux-tu bâtir ?' : 'What kind of platform do you want to build?')}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      {faithScope
+                        ? (isFr ? 'Choisis le type de ton organisation. Offrandes, dons, enseignements et ressources sont inclus.' : 'Pick your organization type. Offerings, donations, teachings and resources are included.')
+                        : (isFr ? 'Choisis ton profil. Tu pourras activer d\'autres outils plus tard depuis les paramètres.' : 'Pick your profile. You can activate more tools later from settings.')}
+                    </p>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    {PLATFORM_PROFILES.map((p) => {
+                    {visibleProfiles.map((p) => {
+
                       const active = profileId === p.id;
                       const Icon = p.icon;
                       return (
