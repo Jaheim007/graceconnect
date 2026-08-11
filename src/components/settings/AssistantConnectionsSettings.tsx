@@ -38,6 +38,8 @@ export default function AssistantConnectionsSettings() {
   const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
 
   const connectorUrl = useMemo(() => {
+    const base = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.replace(/\/$/, '');
+    if (base) return `${base}/functions/v1/mcp`;
     const ref = import.meta.env.VITE_SUPABASE_PROJECT_ID as string | undefined;
     return `https://${ref ?? 'project-ref-unset'}.supabase.co/functions/v1/mcp`;
   }, []);
