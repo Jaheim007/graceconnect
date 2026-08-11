@@ -54,69 +54,9 @@ const PageLoader = () => <RouteContentSkeleton />;
 // ─── Lazy-loaded pages ─── //
 // Public
 const ActionHub = lazy(() => import("@/pages/ActionHub"));
-const BeautyLanding = lazy(() => import("@/pages/beauty/BeautyLanding"));
-const BeautyActionHub = lazy(() => import("@/pages/beauty/BeautyActionHub"));
-const BeautyProviderOnboarding = lazy(() => import("@/pages/beauty/BeautyProviderOnboarding"));
-const BeautySearch = lazy(() => import("@/pages/beauty/BeautySearch"));
-const BeautyProviderProfile = lazy(() => import("@/pages/beauty/BeautyProviderProfile"));
-
-const BeautyBookingDetail = lazy(() => import("@/pages/beauty/BeautyBookingDetail"));
-const BeautyConversation = lazy(() => import("@/pages/beauty/BeautyConversation"));
-const BeautyProOverview = lazy(() => import("@/pages/beauty/pro/BeautyProOverview"));
-const BeautyProMessagesPane = lazy(() => import("@/pages/beauty/pro/BeautyProMessagesPane"));
-const BeautyProConversationPane = lazy(() => import("@/pages/beauty/pro/BeautyProConversationPane"));
-const BeautyProOrdersPane = lazy(() => import("@/pages/beauty/pro/BeautyProOrdersPane"));
-const BeautyProRevenuePane = lazy(() => import("@/pages/beauty/pro/BeautyProRevenuePane"));
-const BeautyProSettingsPane = lazy(() => import("@/pages/beauty/pro/BeautyProSettingsPane"));
-const BeautyKYCPage = lazy(() => import("@/pages/beauty/BeautyKYCPage"));
-// SiteViral Home
-const HomeActionHub = lazy(() => import("@/pages/home/HomeActionHub"));
-const HomeLanding = lazy(() => import("@/pages/home/HomeLanding"));
-const HomeDiscover = lazy(() => import("@/pages/home/HomeDiscover"));
-const HomeProviderPublic = lazy(() => import("@/pages/home/HomeProviderPublic"));
-const HomeProviderOnboarding = lazy(() => import("@/pages/home/HomeProviderOnboarding"));
-const HomeConversation = lazy(() => import("@/pages/home/HomeConversation"));
-const HomeKYCPage = lazy(() => import("@/pages/home/HomeKYCPage"));
-const HomeProServices = lazy(() => import("@/pages/home/HomeProServices"));
-const HomeBookingDetail = lazy(() => import("@/pages/home/HomeBookingDetail"));
-// Pro shell (fixated dashboard) — desktop keeps sidebar visible, right pane routes.
-const HomeProOverview = lazy(() => import("@/pages/home/pro/HomeProOverview"));
-const HomeProMessagesPane = lazy(() => import("@/pages/home/pro/HomeProMessagesPane"));
-const HomeProConversationPane = lazy(() => import("@/pages/home/pro/HomeProConversationPane"));
-const HomeProOrdersPane = lazy(() => import("@/pages/home/pro/HomeProOrdersPane"));
-const HomeProRevenuePane = lazy(() => import("@/pages/home/pro/HomeProRevenuePane"));
-const HomeProSettingsPane = lazy(() => import("@/pages/home/pro/HomeProSettingsPane"));
-const EventsActionHub = lazy(() => import("@/pages/events/EventsActionHub"));
-const EventsLanding = lazy(() => import("@/pages/events/EventsLanding"));
-const EventsDiscover = lazy(() => import("@/pages/events/EventsDiscover"));
-const EventsProviderPublic = lazy(() => import("@/pages/events/EventsProviderPublic"));
-const EventsProviderOnboarding = lazy(() => import("@/pages/events/EventsProviderOnboarding"));
-const EventsProOverview = lazy(() => import("@/pages/events/pro/EventsProOverview"));
-const EventsProMessagesPane = lazy(() => import("@/pages/events/pro/EventsProMessagesPane"));
-const EventsProConversationPane = lazy(() => import("@/pages/events/pro/EventsProConversationPane"));
-const EventsProOrdersPane = lazy(() => import("@/pages/events/pro/EventsProOrdersPane"));
-const EventsProRevenuePane = lazy(() => import("@/pages/events/pro/EventsProRevenuePane"));
-const EventsProSettingsPane = lazy(() => import("@/pages/events/pro/EventsProSettingsPane"));
-const EventsConversation = lazy(() => import("@/pages/events/EventsConversation"));
-const EventsKYCPage = lazy(() => import("@/pages/events/EventsKYCPage"));
-const EventsProPackages = lazy(() => import("@/pages/events/EventsProPackages"));
-const EventsBookingDetail = lazy(() => import("@/pages/events/EventsBookingDetail"));
+// Hidden service verticals (Beauty / Home / Events / Learn) live in one module —
+// see @/routes/HiddenVerticalRoutes. Their pages are preserved there.
 const SuperadminEvents = lazy(() => import("@/pages/superadmin/SuperadminEvents"));
-const EducationActionHub = lazy(() => import("@/pages/education/EducationActionHub"));
-const EducationLanding = lazy(() => import("@/pages/education/EducationLanding"));
-const EducationDiscover = lazy(() => import("@/pages/education/EducationDiscover"));
-const EducationTutorPublic = lazy(() => import("@/pages/education/EducationTutorPublic"));
-const EducationTutorOnboarding = lazy(() => import("@/pages/education/EducationTutorOnboarding"));
-const EducationProOverview = lazy(() => import("@/pages/education/pro/EducationProOverview"));
-const EducationProMessagesPane = lazy(() => import("@/pages/education/pro/EducationProMessagesPane"));
-const EducationProConversationPane = lazy(() => import("@/pages/education/pro/EducationProConversationPane"));
-const EducationProOrdersPane = lazy(() => import("@/pages/education/pro/EducationProOrdersPane"));
-const EducationProRevenuePane = lazy(() => import("@/pages/education/pro/EducationProRevenuePane"));
-const EducationProSettingsPane = lazy(() => import("@/pages/education/pro/EducationProSettingsPane"));
-const EducationTutorSubjects = lazy(() => import("@/pages/education/EducationTutorSubjects"));
-const EducationKYCPage = lazy(() => import("@/pages/education/EducationKYCPage"));
-const EducationConversation = lazy(() => import("@/pages/education/EducationConversation"));
-const EducationBookingDetail = lazy(() => import("@/pages/education/EducationBookingDetail"));
 const SuperadminEducation = lazy(() => import("@/pages/superadmin/SuperadminEducation"));
 // SiteViral Church
 const ChurchActionHub = lazy(() => import("@/pages/church/ChurchActionHub"));
