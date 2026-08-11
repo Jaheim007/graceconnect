@@ -90,7 +90,8 @@ const MOBILE_STEPS: TourStep[] = [
   },
 ];
 
-const STEPS: TourStep[] = [
+function buildSteps(isChurch: boolean): TourStep[] {
+  return [
   {
     icon: <BarChart3 className="h-5 w-5" />,
     targets: ['[data-nav-route="/admin"]', '[data-nav-route="/dashboard"]'],
@@ -122,8 +123,28 @@ const STEPS: TourStep[] = [
     tip_en: 'A single PDF can become a full course.',
   },
   {
+    // Giving (churches) vs Campaigns (every other platform type) — the label
+    // must match exactly what the highlighted nav item says.
+    icon: <Gift className="h-5 w-5" />,
+    targets: ['[data-nav-route="/admin/campaigns"]'],
+    title_fr: isChurch ? 'Recevoir des dons' : 'Vos campagnes',
+    title_en: isChurch ? 'Receive giving' : 'Your campaigns',
+    desc_fr: isChurch
+      ? 'Votre page de dons : offrandes, dîmes et dons ponctuels, avec un lien à partager.'
+      : 'Lancez une collecte ou acceptez des cadeaux de votre audience, avec un lien à partager.',
+    desc_en: isChurch
+      ? 'Your giving page: offerings, tithes, and one-time gifts, with a link you can share.'
+      : 'Launch a fundraiser or accept gifts from your audience, with a link you can share.',
+    tip_fr: isChurch
+      ? 'La page de dons reste accessible même sans objectif fixé.'
+      : 'Fixez un objectif pour afficher une barre de progression.',
+    tip_en: isChurch
+      ? 'Your giving page stays reachable even without a goal set.'
+      : 'Set a goal to display a progress bar.',
+  },
+  {
     icon: <Megaphone className="h-5 w-5" />,
-    targets: ['[data-nav-route="/admin/campaigns"]', '[data-nav-route="/admin/events"]', '[data-nav-route="/admin/media"]'],
+    targets: ['[data-nav-route="/admin/announcements"]', '[data-nav-route="/admin/media"]', '[data-nav-route="/admin/events"]'],
     title_fr: 'Parler à votre audience',
     title_en: 'Reach your audience',
     desc_fr: 'Annonces, médias et événements pour garder votre communauté engagée.',
@@ -153,7 +174,9 @@ const STEPS: TourStep[] = [
     tip_fr: 'Complétez le KYC pour recevoir vos paiements.',
     tip_en: 'Complete KYC to receive your payouts.',
   },
-];
+  ];
+}
+
 
 interface Rect { top: number; left: number; width: number; height: number }
 
