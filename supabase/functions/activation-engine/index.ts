@@ -6,17 +6,16 @@ const corsHeaders = {
 };
 
 /**
- * activation-engine — the "never published" ladder + payout-ready alert.
+ * activation-engine — the "never published" activation ladder.
  *
  * Runs daily via pg_cron. Each email is sent at most once per user (deduped
- * against email_logs), except payout_ready_verify which repeats every 14 days.
+ * against email_logs). No payout reminders are sent to creators.
  *
  *  D+1   activation_draft_waiting        → has a draft, nothing published
  *  D+2   activation_no_creation_yet      → created nothing at all
  *  D+3   activation_publish_3_taps       → content ready/unpublished, no price or not live
  *  D+7   activation_published_no_traffic → published but zero sales
  *  D+14  activation_last_call            → still nothing published
- *  any   payout_ready_verify             → money available but identity not verified
  */
 
 type Lang = 'fr' | 'en';
@@ -34,7 +33,6 @@ Deno.serve(async (req) => {
     activation_publish_3_taps: 0,
     activation_published_no_traffic: 0,
     activation_last_call: 0,
-    payout_ready_verify: 0,
   };
 
   const now = Date.now();
