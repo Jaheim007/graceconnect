@@ -327,20 +327,26 @@ export default function ActionHub() {
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--brand-blue))]/50',
                     )}
                   >
-                    {/* Slow travelling sheen — never parks on one side */}
+                    {/* Light looping around the button's edge */}
                     <motion.span
                       aria-hidden
-                      initial={{ x: '-160%' }}
-                      animate={{ x: '180%' }}
+                      initial={{ rotate: 0 }}
+                      animate={{ rotate: 360 }}
                       transition={{
-                        duration: 9,
-                        ease: 'easeInOut',
+                        duration: 10,
+                        ease: 'linear',
                         repeat: Infinity,
-                        repeatDelay: 4,
-                        delay: 0.8 + idx * 0.45,
+                        delay: idx * 0.6,
                       }}
-                      className="pointer-events-none absolute inset-y-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 dark:via-white/[0.07] to-transparent"
+                      className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[180%] -translate-x-1/2 -translate-y-1/2 opacity-70"
+                      style={{
+                        background:
+                          'conic-gradient(from 0deg, transparent 0deg, transparent 260deg, hsl(var(--brand-blue) / 0.35) 330deg, hsl(0 0% 100% / 0.18) 352deg, transparent 360deg)',
+                        maskImage:
+                          'linear-gradient(#000 0 0)',
+                      }}
                     />
+
                     <span
                       aria-hidden
                       className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(120%_120%_at_0%_0%,hsl(var(--brand-blue)/0.12),transparent_60%)]"
