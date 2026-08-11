@@ -88,7 +88,7 @@ export function Sidebar() {
         },
         {
           id: 'acc-purchases', icon: ShoppingBag, emoji: '',
-          titleFr: 'Mes achats', titleEn: 'My purchases',
+          titleFr: 'Ma bibliothèque', titleEn: 'My library',
           descFr: 'Tous vos produits achetés', descEn: 'Everything you bought',
           route: '/my-purchases',
           borderClass: '', iconBg: '', iconColor: 'text-primary',

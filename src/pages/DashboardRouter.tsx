@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,17 +7,15 @@ import PersonalHome from '@/pages/dashboard/PersonalHome';
 import { consumePendingAction, safeReturnTo } from '@/lib/pendingAction';
 
 /**
- * /dashboard — friction-free resolver:
+ * /dashboard — the single, unified home for every signed-in user.
  *  A. Pending/interrupted action → resume it.
- *  B. currentOrg already selected and manageable → /admin.
- *  C. Any manageable workspaces → auto-pick last-used (localStorage) or the
- *     first manageable one, set it as current, → /admin.
- *  D. Zero manageable workspaces → unified account home.
- *
- * Never renders a full-page workspace chooser. Explicit switching happens
- * from the OrgSwitcher in the sidebar / avatar menu.
+ *  B. Restore the last-used manageable workspace (so the space block and the
+ *     sidebar point at the right one) — WITHOUT redirecting to /admin.
+ *  C. Always render the unified home: learn / earn / create capabilities are
+ *     cumulative, so no capability may be hidden by an automatic redirect.
  */
 export default function DashboardRouter() {
+
   const { user, loading } = useAuth();
   const { currentOrg, userOrgs, canManage, setCurrentOrg, isLoadingOrgs } = useOrg();
   const navigate = useNavigate();
@@ -61,22 +59,9 @@ export default function DashboardRouter() {
       </div>
     );
   }
-
-  // B) workspace ready → go to admin overview
-  if (currentOrg && canManage(currentOrg.id)) {
-    return <Navigate to="/admin" replace />;
-  }
-
-  // Auto-pick in progress (effect will fire) — brief skeleton, never a chooser
-  if (manageableOrgs.length > 0) {
-    return (
-      <div className="container max-w-2xl px-4 py-8 space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-24 w-full rounded-2xl" />
-      </div>
-    );
-  }
-
-  // D) zero manageable workspaces → account home
+  // Capabilities are cumulative: the unified home is the single entry point for
+  // everyone. Users with a space reach /admin from the "Mon espace" block or the
+  // sidebar — we never redirect away and hide their library / earnings.
   return <PersonalHome />;
 }
+

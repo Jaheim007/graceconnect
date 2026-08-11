@@ -2,6 +2,8 @@ import { AdaptiveLayout } from '@/components/layout/AdaptiveLayout';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { GagnerTabs } from '@/components/gagner/GagnerTabs';
 import { QuickShareWidget } from '@/components/gagner/QuickShareWidget';
+import { ActivateAmbassadorCard } from '@/components/gagner/ActivateAmbassadorCard';
+
 import { SocialProofBanner } from '@/components/gagner/SocialProofBanner';
 import { TrustBadgesBar } from '@/components/trust/TrustBadgesBar';
 import { LiveEarningsTicker } from '@/components/growth/LiveEarningsTicker';
@@ -225,9 +227,12 @@ export default function GagnerPage() {
 
         <SocialProofBanner />
         <LiveEarningsTicker />
+        <ActivateAmbassadorCard />
+
         <QuickShareWidget />
         <EarningsCalculator />
         <GagnerTabs />
+
         <TrustBadgesBar compact />
         </div>
       </div>

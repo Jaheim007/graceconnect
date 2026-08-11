@@ -82,7 +82,7 @@ export function MobileMenuDrawer({ onClose }: Props) {
     { id: 'acc-explore', icon: Compass, emoji: '', titleFr: 'Explorer', titleEn: 'Explore',
       descFr: '', descEn: '', route: '/dashboard/explore',
       borderClass: '', iconBg: 'bg-violet-500/12', iconColor: 'text-violet-500' },
-    { id: 'acc-purchases', icon: ShoppingBag, emoji: '', titleFr: 'Mes achats', titleEn: 'My purchases',
+    { id: 'acc-purchases', icon: ShoppingBag, emoji: '', titleFr: 'Ma bibliothèque', titleEn: 'My library',
       descFr: '', descEn: '', route: '/my-purchases',
       borderClass: '', iconBg: 'bg-primary/12', iconColor: 'text-primary' },
     { id: 'acc-programs', icon: GraduationCap, emoji: '', titleFr: 'Mes cours', titleEn: 'My courses',
