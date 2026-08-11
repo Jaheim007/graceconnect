@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet, Church } from 'lucide-react';
+import { ArrowRight, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet, HeartHandshake } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -67,7 +67,7 @@ export default function ActionHub() {
       descFr: 'Partage et touche des commissions', descEn: 'Share products and earn commissions',
       route: '/gagner', borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-500' },
-    { id: 'faith', icon: Church, titleFr: 'Créer un espace Église / ONG', titleEn: 'Create a Church / NGO space',
+    { id: 'faith', icon: HeartHandshake, titleFr: 'Créer un espace Église / ONG', titleEn: 'Create a Church / NGO space',
       descFr: 'Offrandes, dons, enseignements et ressources', descEn: 'Offerings, donations, teachings & resources',
       route: '/create-org?scope=faith', borderClass: 'border-sky-500/30 hover:border-sky-500/60',
       iconBg: 'bg-sky-500/15', iconColor: 'text-sky-500' },
