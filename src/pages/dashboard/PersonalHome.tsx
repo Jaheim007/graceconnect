@@ -117,6 +117,32 @@ export default function PersonalHome() {
     user?.email?.split('@')[0] ||
     (isFr ? 'là' : 'there');
 
+  // Cumulative capabilities — learn / earn / create can all be true at once.
+  const caps = useUserCapabilities();
+
+  const capabilityBlocks: Record<Capability, JSX.Element | null> = {
+    learn: caps.continueItem ? <ContinueBlock key="learn" item={caps.continueItem} /> : null,
+    create: caps.canCreate ? (
+      <SpaceBlock key="create" spaceName={caps.spaces.currentName} spaceCount={caps.spaces.count} />
+    ) : null,
+    earn: caps.canEarn ? (
+      <EarningsBlock
+        key="earn"
+        pendingAmount={caps.earnings.pendingAmount}
+        payableAmount={caps.earnings.payableAmount}
+        clicks={caps.earnings.clicks}
+        conversions={caps.earnings.conversions}
+      />
+    ) : null,
+  };
+
+  const orderedCapabilities: Capability[] = (() => {
+    const base: Capability[] = ['learn', 'create', 'earn'];
+    const primary = caps.primaryCapability;
+    if (!primary) return base;
+    return [primary, ...base.filter((c) => c !== primary)];
+  })();
+
   return (
     <div className="native-page-screen bg-background">
       <SEOHead
@@ -134,6 +160,14 @@ export default function PersonalHome() {
             {isFr ? 'Que cherchez-vous aujourd\u2019hui ?' : 'What are you looking for today?'}
           </p>
         </div>
+
+        {/* Capability blocks — ordered by the user's most recent activity */}
+        {orderedCapabilities.map((c) => capabilityBlocks[c])}
+
+        {/* Doors to the capabilities not activated yet */}
+        <UnlockRow capabilities={caps.inactiveCapabilities} />
+
+
 
         {/* Search */}
         <form onSubmit={onSearch} className="relative flex gap-2">
