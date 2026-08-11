@@ -202,13 +202,14 @@ export function Sidebar() {
         data-nav-route={item.route.split('?')[0]}
         data-tour={`nav-${item.id}`}
         className={cn(
-          'relative flex items-center justify-center h-11 w-11 mx-auto rounded-xl transition-all duration-200',
+          'relative flex items-center justify-center h-11 w-11 mx-auto rounded-2xl transition-all duration-200',
           active
-            ? 'bg-primary/15 border border-primary/25 shadow-[inset_0_1px_0_0_hsl(var(--sidebar-foreground)/0.08)]'
+            ? 'bg-sidebar-foreground/[0.12] border border-sidebar-foreground/15 backdrop-blur-md shadow-[inset_0_1px_0_0_hsl(var(--sidebar-foreground)/0.18)]'
             : 'border border-transparent hover:bg-sidebar-foreground/5',
         )}
       >
-        <Icon className={cn('h-[18px] w-[18px]', item.iconColor || 'text-sidebar-foreground/80')} />
+        <Icon className={cn('h-[18px] w-[18px]', sidebarIconColor(item.iconColor))} />
+
       </Link>
     );
 
