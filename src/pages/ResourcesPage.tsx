@@ -340,8 +340,12 @@ export default function ResourcesPage() {
             </div>
           )}
 
-          {/* ─── Products & Courses by Org ─── */}
-          {[...grouped.entries()].map(([orgId, { purchases: orgPurchases, programs: orgPrograms }]) => {
+          </TabsContent>
+
+          {/* ─── Books & files by Org ─── */}
+          <TabsContent value="files" className="space-y-6">
+          {[...grouped.entries()].filter(([, g]) => (g.purchases?.length || 0) > 0).map(([orgId, { purchases: orgPurchases }]) => {
+
             const org = orgMap.get(orgId);
             return (
               <div key={orgId} className="space-y-3">
