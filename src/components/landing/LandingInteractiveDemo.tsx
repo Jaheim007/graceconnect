@@ -110,7 +110,7 @@ export function LandingInteractiveDemo() {
               <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Wand2 className="h-7 w-7 text-primary" />
               </div>
-              <p className="text-lg font-bold mb-2">{isFr ? 'Studio IA Viral' : 'Viral AI Studio'}</p>
+              <p className="text-lg font-bold mb-2">{isFr ? 'Creators Studio' : 'Creators Studio'}</p>
               <p className="text-sm text-muted-foreground">{isFr ? 'Créez votre livre en quelques clics avec l\'intelligence artificielle' : 'Create your book in a few clicks with artificial intelligence'}</p>
             </div>
           </motion.div>
