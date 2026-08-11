@@ -43,6 +43,7 @@ interface TransactionDetails {
   leader_name?: string | null;
   leader_title?: string | null;
   campaign_title?: string;
+  buyer_email?: string | null;
   commission_rate?: number;
 }
 
