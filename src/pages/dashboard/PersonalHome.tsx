@@ -11,6 +11,12 @@ import { useI18n } from '@/i18n/I18nContext';
 import { BUYER_WORLDS, SERVICE_WORLDS } from '@/lib/siteviral/buyerWorlds';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import { cn } from '@/lib/utils';
+import { useUserCapabilities, type Capability } from '@/hooks/useUserCapabilities';
+import { ContinueBlock } from '@/components/home/ContinueBlock';
+import { SpaceBlock } from '@/components/home/SpaceBlock';
+import { EarningsBlock } from '@/components/home/EarningsBlock';
+import { UnlockRow } from '@/components/home/UnlockRow';
+
 
 /**
  * PersonalHome — the signed-in customer overview shown when currentOrg is null.
