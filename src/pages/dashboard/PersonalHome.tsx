@@ -354,6 +354,7 @@ export default function PersonalHome() {
         </section>
 
         {/* Explore CTA — icon matches the "Explorer" item in the sidebar */}
+        {!isFirstRun && (
         <section className="space-y-2">
           <Link
             to="/dashboard/explore"
