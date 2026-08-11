@@ -22,7 +22,7 @@ export default function AuthPage() {
   const [searchParams] = useSearchParams();
   const [method, setMethod] = useState<'choose' | 'magic-link' | 'otp-verify'>('choose');
   
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(() => searchParams.get('email') || '');
   const [otpCode, setOtpCode] = useState('');
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
