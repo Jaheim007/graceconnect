@@ -472,8 +472,61 @@ export default function ResourcesPage() {
               </div>
             );
           })}
-        </div>
+          {(!purchases || purchases.length === 0) && (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              {isFr ? 'Aucun livre ni fichier pour le moment.' : 'No books or files yet.'}
+            </p>
+          )}
+          </TabsContent>
+
+          {/* ─── Courses ─── */}
+          <TabsContent value="courses" className="space-y-3">
+            {enrolledPrograms.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                {isFr ? 'Aucune formation pour le moment.' : 'No courses yet.'}
+              </p>
+            )}
+            {enrolledPrograms.map((enrollment) => {
+              const pct = Math.max(0, Math.min(100, Math.round(enrollment.progress_percent || 0)));
+              const started = pct > 0;
+              return (
+                <div key={enrollment.id} className="p-3 rounded-xl border border-border bg-card space-y-2.5">
+                  <div className="flex gap-3 items-start">
+                    <div className="shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-muted">
+                      {enrollment.program?.cover_image_url ? (
+                        <img src={enrollment.program.cover_image_url} alt={enrollment.program.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          <GraduationCap className="h-5 w-5" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm truncate">{enrollment.program?.title}</h3>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {orgMap.get(enrollment.program?.organization_id || '')?.name || ''}
+                      </p>
+                      <div className="mt-2 h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+                      </div>
+                      <p className="text-[10px] text-muted-foreground mt-1 tabular-nums">
+                        {pct}% {isFr ? 'terminé' : 'complete'}
+                      </p>
+                    </div>
+                  </div>
+                  <Button size="sm" className="gap-1 h-8 text-xs font-semibold" onClick={() => setActiveCourseId(enrollment.program_id)}>
+                    <Play className="h-3.5 w-3.5" />
+                    {started
+                      ? (isFr ? 'Continuer' : 'Continue')
+                      : (isFr ? 'Commencer' : 'Start')}
+                  </Button>
+                </div>
+              );
+            })}
+          </TabsContent>
+        </Tabs>
       )}
+
     </div>
   );
 }
