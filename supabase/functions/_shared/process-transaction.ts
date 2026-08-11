@@ -292,6 +292,8 @@ export async function processTransaction(
       } else {
         console.warn(`[process-transaction] Resolved user_id from email lookup: ${resolvedUserId} for ref=${reference}`);
       }
+    }
+
 
     // Resolve buyer info: use explicit params, fallback to donor fields, then profile lookup
     let resolvedBuyerName = buyer_name || donor_name || null;
