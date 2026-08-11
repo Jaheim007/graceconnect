@@ -7,6 +7,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { useI18n } from '@/i18n/I18nContext';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { setOnboardingIntent, type OnboardingIntent } from '@/lib/siteviral/onboardingIntent';
 
 export default function WelcomeIntentPage() {
   const navigate = useNavigate();
