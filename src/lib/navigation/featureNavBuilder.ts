@@ -130,12 +130,20 @@ function specFor(
       descFr: 'Publie et monétise', descEn: 'Publish & monetize',
       route: hasManageableOrg ? '/admin/products' : '/create-org',
     };
-    case 'donation_gifts': return {
-      id: 'giving', icon: Gift, tone: 'emerald',
-      titleFr: 'Dons', titleEn: 'Giving',
-      descFr: 'Campagnes et cadeaux', descEn: 'Campaigns & gifts',
-      route: '/admin/campaigns',
-    };
+    case 'donation_gifts': {
+      // Churches / ministries collect *giving* (offerings, tithes).
+      // Every other platform type runs *campaigns* (fundraisers, gifts).
+      const isChurch = type === 'church';
+      return {
+        id: 'giving', icon: Gift, tone: 'emerald',
+        titleFr: isChurch ? 'Dons' : 'Campagnes',
+        titleEn: isChurch ? 'Giving' : 'Campaigns',
+        descFr: isChurch ? 'Offrandes et dons' : 'Collectes et cadeaux',
+        descEn: isChurch ? 'Offerings & giving' : 'Fundraisers & gifts',
+        route: '/admin/campaigns',
+      };
+    }
+
     case 'ai_book_creation': return {
       id: 'write', icon: BookOpen, tone: 'primary',
       titleFr: 'Écrire un livre en 5 min',
