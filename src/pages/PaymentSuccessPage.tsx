@@ -458,26 +458,51 @@ export default function PaymentSuccessPage() {
                 </div>
               )}
 
-              {/* Guest: secure the purchase inside a real library */}
+              {/* Guest: carry the purchased item into a permanent library */}
               {isProduct && isCompleted && !user && (
-                <div className="rounded-2xl border border-primary/25 bg-primary/5 p-4 space-y-3 text-center">
-                  <p className="text-sm font-bold">
-                    {isFr ? 'Crée ton compte pour retrouver ton achat' : 'Create your account to keep your purchase'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {isFr
-                      ? 'Ton livre reste accessible à vie dans ta bibliothèque, sur tous tes appareils.'
-                      : 'Your book stays available for life in your library, on every device.'}
-                  </p>
+                <div className="rounded-2xl border border-primary/25 bg-primary/5 p-4 space-y-3">
+                  <div className="flex items-center gap-3 text-left">
+                    {tx.cover_image_url ? (
+                      <img
+                        src={tx.cover_image_url}
+                        alt=""
+                        className="h-16 w-12 shrink-0 rounded-lg object-cover border border-border"
+                      />
+                    ) : (
+                      <span className="grid h-16 w-12 shrink-0 place-items-center rounded-lg bg-primary/10">
+                        <Package className="h-5 w-5 text-primary" />
+                      </span>
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold truncate">{tx.product_title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {isFr
+                          ? 'Accessible à vie dans ta bibliothèque, sur tous tes appareils.'
+                          : 'Yours for life in your library, on every device.'}
+                      </p>
+                    </div>
+                  </div>
                   <Button
                     className="w-full gap-2 h-11 font-semibold"
-                    onClick={() => navigate('/auth?redirect=/my-purchases')}
+                    onClick={() => {
+                      const tab = tx.product_type === 'course' || tx.product_type === 'program' ? 'courses' : 'files';
+                      const params = new URLSearchParams({ returnTo: `/my-purchases?tab=${tab}` });
+                      if (tx.buyer_email) params.set('email', tx.buyer_email);
+                      navigate(`/auth?${params.toString()}`);
+                    }}
                   >
                     <ArrowRight className="h-4 w-4" />
-                    {isFr ? 'Créer mon compte gratuit' : 'Create my free account'}
+                    {isFr ? 'Enregistrer dans ma bibliothèque' : 'Save it to my library'}
                   </Button>
+                  {tx.buyer_email && (
+                    <p className="text-[11px] text-center text-muted-foreground truncate">
+                      {isFr ? 'Avec ' : 'Using '}
+                      <span className="font-medium">{tx.buyer_email}</span>
+                    </p>
+                  )}
                 </div>
               )}
+
 
 
               {/* Ambassador earning section */}
