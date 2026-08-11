@@ -456,6 +456,28 @@ export default function PaymentSuccessPage() {
                 </div>
               )}
 
+              {/* Guest: secure the purchase inside a real library */}
+              {isProduct && isCompleted && !user && (
+                <div className="rounded-2xl border border-primary/25 bg-primary/5 p-4 space-y-3 text-center">
+                  <p className="text-sm font-bold">
+                    {isFr ? 'Crée ton compte pour retrouver ton achat' : 'Create your account to keep your purchase'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {isFr
+                      ? 'Ton livre reste accessible à vie dans ta bibliothèque, sur tous tes appareils.'
+                      : 'Your book stays available for life in your library, on every device.'}
+                  </p>
+                  <Button
+                    className="w-full gap-2 h-11 font-semibold"
+                    onClick={() => navigate('/auth?redirect=/my-purchases')}
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                    {isFr ? 'Créer mon compte gratuit' : 'Create my free account'}
+                  </Button>
+                </div>
+              )}
+
+
               {/* Ambassador earning section */}
               {showAmbassador && (
                 <>
