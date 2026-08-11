@@ -299,11 +299,12 @@ export default function ActionHub() {
           >
             <motion.div
               aria-hidden
-              initial={{ x: '-130%' }}
-              animate={{ x: '150%' }}
-              transition={{ duration: 2.6, delay: 0.5, ease: 'easeInOut' }}
+              initial={{ x: '-140%' }}
+              animate={{ x: '160%' }}
+              transition={{ duration: 7, delay: 0.4, ease: 'easeInOut', repeat: Infinity, repeatDelay: 3.5 }}
               className="pointer-events-none absolute inset-y-0 z-20 w-1/3 bg-gradient-to-r from-transparent via-white/25 dark:via-white/10 to-transparent"
             />
+
             <div className="relative rounded-[24px] bg-[hsl(var(--cert-paper))]/95 dark:bg-[#0e0d16]/95 backdrop-blur-xl p-3 sm:p-4">
               <div className="grid gap-2.5 sm:grid-cols-2">
                 {actions.map((action) => (
