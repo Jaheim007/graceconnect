@@ -297,13 +297,19 @@ export default function ActionHub() {
                 'linear-gradient(135deg, hsl(var(--brand-blue-soft)/0.9), hsl(var(--brand-blue)/0.45) 35%, hsl(var(--brand-blue-soft)/0.85) 55%, hsl(var(--brand-blue)/0.45) 80%, hsl(var(--brand-blue-soft)/0.9))',
             }}
           >
-            <motion.div
+            {/* Light that travels around the component's border */}
+            <motion.span
               aria-hidden
-              initial={{ x: '-140%' }}
-              animate={{ x: '160%' }}
-              transition={{ duration: 7, delay: 0.4, ease: 'easeInOut', repeat: Infinity, repeatDelay: 3.5 }}
-              className="pointer-events-none absolute inset-y-0 z-20 w-1/3 bg-gradient-to-r from-transparent via-white/25 dark:via-white/10 to-transparent"
+              initial={{ rotate: 0 }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, ease: 'linear', repeat: Infinity }}
+              className="pointer-events-none absolute left-1/2 top-1/2 z-10 aspect-square w-[160%] -translate-x-1/2 -translate-y-1/2"
+              style={{
+                background:
+                  'conic-gradient(from 0deg, transparent 0deg, transparent 250deg, hsl(0 0% 100% / 0.85) 320deg, hsl(0 0% 100% / 0.15) 350deg, transparent 360deg)',
+              }}
             />
+
 
             <div className="relative rounded-[24px] bg-[hsl(var(--cert-paper))]/95 dark:bg-[#0e0d16]/95 backdrop-blur-xl p-3 sm:p-4">
               <div className="grid gap-2.5 sm:grid-cols-2">
