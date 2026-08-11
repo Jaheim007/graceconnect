@@ -311,7 +311,7 @@ export default function ActionHub() {
             />
 
 
-            <div className="relative rounded-[24px] bg-[hsl(var(--cert-paper))]/95 dark:bg-[#0e0d16]/95 backdrop-blur-xl p-3 sm:p-4">
+            <div className="relative z-20 rounded-[24px] bg-[hsl(var(--cert-paper))]/95 dark:bg-[#0e0d16]/95 backdrop-blur-xl p-3 sm:p-4">
               <div className="grid gap-2.5 sm:grid-cols-2">
                 {actions.map((action, idx) => (
                   <button
