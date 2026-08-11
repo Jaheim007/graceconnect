@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,17 +7,15 @@ import PersonalHome from '@/pages/dashboard/PersonalHome';
 import { consumePendingAction, safeReturnTo } from '@/lib/pendingAction';
 
 /**
- * /dashboard — friction-free resolver:
+ * /dashboard — the single, unified home for every signed-in user.
  *  A. Pending/interrupted action → resume it.
- *  B. currentOrg already selected and manageable → /admin.
- *  C. Any manageable workspaces → auto-pick last-used (localStorage) or the
- *     first manageable one, set it as current, → /admin.
- *  D. Zero manageable workspaces → unified account home.
- *
- * Never renders a full-page workspace chooser. Explicit switching happens
- * from the OrgSwitcher in the sidebar / avatar menu.
+ *  B. Restore the last-used manageable workspace (so the space block and the
+ *     sidebar point at the right one) — WITHOUT redirecting to /admin.
+ *  C. Always render the unified home: learn / earn / create capabilities are
+ *     cumulative, so no capability may be hidden by an automatic redirect.
  */
 export default function DashboardRouter() {
+
   const { user, loading } = useAuth();
   const { currentOrg, userOrgs, canManage, setCurrentOrg, isLoadingOrgs } = useOrg();
   const navigate = useNavigate();
