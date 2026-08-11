@@ -10081,7 +10081,7 @@ export type Database = {
           settlement_released_at: string | null
           settlement_status: string | null
           status: Database["public"]["Enums"]["purchase_status"] | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           affiliate_commission?: number | null
@@ -10111,7 +10111,7 @@ export type Database = {
           settlement_released_at?: string | null
           settlement_status?: string | null
           status?: Database["public"]["Enums"]["purchase_status"] | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           affiliate_commission?: number | null
@@ -10141,7 +10141,7 @@ export type Database = {
           settlement_released_at?: string | null
           settlement_status?: string | null
           status?: Database["public"]["Enums"]["purchase_status"] | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -12385,6 +12385,7 @@ export type Database = {
         }
         Returns: number
       }
+      claim_guest_purchases: { Args: never; Returns: number }
       cleanup_rate_limits: { Args: never; Returns: undefined }
       complete_credit_purchase: {
         Args: { _payment_reference: string; _purchase_id: string }
