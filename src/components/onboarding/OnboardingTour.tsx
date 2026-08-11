@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, BarChart3, ShoppingBag, GraduationCap, Users, Megaphone, Settings, Compass, HandCoins, Menu as MenuIcon } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, BarChart3, ShoppingBag, GraduationCap, Users, Megaphone, Settings, Compass, HandCoins, Gift, Menu as MenuIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
