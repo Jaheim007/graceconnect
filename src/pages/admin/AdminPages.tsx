@@ -1428,9 +1428,13 @@ export function AdminSettings() {
     { key: 'domains', icon: Globe, tone: 'text-cyan-600 bg-cyan-500/10',
       titleFr: 'Domaines', titleEn: 'Domains',
       descFr: 'Connectez votre nom de domaine personnalisé', descEn: 'Connect your custom domain name' },
+    { key: 'assistants', icon: Bot, tone: 'text-indigo-600 bg-indigo-500/10',
+      titleFr: 'Connexions assistants', titleEn: 'Assistant connections',
+      descFr: 'Crée tes livres et cours depuis ChatGPT ou Claude', descEn: 'Create books and courses from ChatGPT or Claude' },
     { key: 'advanced', icon: SlidersHorizontal, tone: 'text-slate-600 bg-slate-500/10',
       titleFr: 'Avancé', titleEn: 'Advanced',
       descFr: 'Pixels de suivi, webhooks et pop-ups', descEn: 'Tracking pixels, webhooks and pop-ups' },
+
     ...(currentOrg?.owner_id === user?.id
       ? [{ key: 'danger', icon: AlertTriangle, tone: 'text-destructive bg-destructive/10',
           titleFr: 'Zone dangereuse', titleEn: 'Danger zone',
