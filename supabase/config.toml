@@ -302,3 +302,6 @@ verify_jwt = false
 
 [functions.voice-agent]
 verify_jwt = false
+
+[functions.activation-engine]
+verify_jwt = false

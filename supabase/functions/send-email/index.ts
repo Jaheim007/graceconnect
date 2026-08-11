@@ -64,7 +64,11 @@ type EmailTemplate =
   | 'founder_welcome'
   | 'monthly_commission_recap_paid' | 'monthly_commission_recap_saved'
   | 'product_unpublished_no_cover'
-  | 'course_unpublished_no_price';
+  | 'course_unpublished_no_price'
+  // ═══ ACTIVATION LADDER (never published) + PAYOUT READY ═══
+  | 'activation_draft_waiting' | 'activation_publish_3_taps' | 'activation_no_creation_yet'
+  | 'activation_published_no_traffic' | 'activation_last_call'
+  | 'payout_ready_verify';
 
 
 type Lang = 'fr' | 'en';
@@ -1250,6 +1254,158 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       };
     }
 
+    // ═══════════════════════════════════════════════════
+    // ACTIVATION LADDER — users who never published
+    // ═══════════════════════════════════════════════════
+    case 'activation_draft_waiting': {
+      const title = String(d.draft_title || (isFr ? 'votre brouillon' : 'your draft'));
+      const percent = Number(d.percent || 0);
+      const resumeUrl = String(d.resume_url || 'https://siteviral.com/admin/drafts');
+      const bar = `<div style="background:#222;border-radius:999px;height:10px;overflow:hidden;margin:10px 0">
+        <div style="width:${Math.max(4, Math.min(100, percent))}%;height:10px;background:${blue}"></div></div>
+        <p style="margin:0;font-size:12px;color:#aaa">${percent}% ${isFr ? 'généré' : 'generated'}</p>`;
+      return isFr
+        ? { subject: `⏳ "${title}" est encore en brouillon`, html: wrap(`
+            <h1 style="color:${blue};font-size:22px">Votre création vous attend</h1>
+            <p>Bonjour ${d.name || ''},</p>
+            <p>Vous avez commencé <strong>"${title}"</strong> mais il n'est pas encore publié. Reprenez là où vous vous êtes arrêté — tout est sauvegardé.</p>
+            ${bar}
+            ${cta(resumeUrl, 'Reprendre en 1 clic')}
+            <p style="font-size:12px;color:#888">Il ne reste que le prix et la publication pour commencer à vendre.</p>
+          `, lang) }
+        : { subject: `⏳ "${title}" is still a draft`, html: wrap(`
+            <h1 style="color:${blue};font-size:22px">Your creation is waiting</h1>
+            <p>Hello ${d.name || ''},</p>
+            <p>You started <strong>"${title}"</strong> but it isn't published yet. Pick up right where you left off — everything is saved.</p>
+            ${bar}
+            ${cta(resumeUrl, 'Resume in one click')}
+            <p style="font-size:12px;color:#888">All that's left is a price and publishing to start selling.</p>
+          `, lang) };
+    }
+
+    case 'activation_publish_3_taps': {
+      const title = String(d.draft_title || (isFr ? 'votre création' : 'your creation'));
+      const url = String(d.resume_url || 'https://siteviral.com/admin/products');
+      const steps = (a: string, b: string, c: string) =>
+        `<ol style="padding-left:20px;line-height:1.9;color:#ddd;font-size:14px"><li>${a}</li><li>${b}</li><li>${c}</li></ol>`;
+      return isFr
+        ? { subject: '💸 À 3 clics de votre première vente', html: wrap(`
+            <h1 style="color:${green};font-size:22px">3 clics. C'est tout.</h1>
+            <p>Bonjour ${d.name || ''},</p>
+            <p><strong>"${title}"</strong> est prêt. Voici ce qui reste :</p>
+            ${steps('Ouvrez votre création', 'Fixez un prix', 'Appuyez sur Publier')}
+            ${cta(url, 'Fixer un prix et publier')}
+            <p style="font-size:12px;color:#888">Une fois publié, votre lien de vente est partageable partout : WhatsApp, TikTok, Facebook.</p>
+          `, lang) }
+        : { subject: '💸 3 taps from your first sale', html: wrap(`
+            <h1 style="color:${green};font-size:22px">3 taps. That's it.</h1>
+            <p>Hello ${d.name || ''},</p>
+            <p><strong>"${title}"</strong> is ready. Here's what's left:</p>
+            ${steps('Open your creation', 'Set a price', 'Hit Publish')}
+            ${cta(url, 'Set a price and publish')}
+            <p style="font-size:12px;color:#888">Once live, your sales link is shareable anywhere: WhatsApp, TikTok, Facebook.</p>
+          `, lang) };
+    }
+
+    case 'activation_no_creation_yet':
+      return isFr
+        ? { subject: '📖 Votre premier livre, écrit en 5 minutes', html: wrap(`
+            <h1 style="color:${blue};font-size:22px">Commençons par une seule chose</h1>
+            <p>Bonjour ${d.name || ''},</p>
+            <p>Vous n'avez encore rien créé — et c'est normal, la page blanche fait peur. Sauf que sur Siteviral, vous n'écrivez pas : vous choisissez un sujet, l'IA rédige.</p>
+            <ul style="padding-left:20px;line-height:2;color:#ddd;font-size:14px">
+              <li>📖 Un ebook complet</li>
+              <li>🎓 Une formation avec quiz et certificat</li>
+              <li>🎨 Un livre pour enfants illustré</li>
+            </ul>
+            ${cta('https://siteviral.com/ecrire', 'Créer ma première œuvre')}
+            <p style="font-size:12px;color:#888">Aucune compétence technique requise. Vos crédits quotidiens sont déjà disponibles.</p>
+          `, lang) }
+        : { subject: '📖 Your first book, written in 5 minutes', html: wrap(`
+            <h1 style="color:${blue};font-size:22px">Let's start with just one thing</h1>
+            <p>Hello ${d.name || ''},</p>
+            <p>You haven't created anything yet — that's normal, a blank page is intimidating. Except on Siteviral you don't write: you pick a topic, the AI writes.</p>
+            <ul style="padding-left:20px;line-height:2;color:#ddd;font-size:14px">
+              <li>📖 A complete ebook</li>
+              <li>🎓 A course with quizzes and a certificate</li>
+              <li>🎨 An illustrated children's book</li>
+            </ul>
+            ${cta('https://siteviral.com/ecrire', 'Create my first work')}
+            <p style="font-size:12px;color:#888">No technical skills needed. Your daily credits are already waiting.</p>
+          `, lang) };
+
+    case 'activation_published_no_traffic': {
+      const title = String(d.product_title || (isFr ? 'votre produit' : 'your product'));
+      const link = String(d.share_url || 'https://siteviral.com/admin');
+      return isFr
+        ? { subject: `📣 "${title}" est en ligne — partagez-le maintenant`, html: wrap(`
+            <h1 style="color:${orange};font-size:22px">Publié, mais encore invisible</h1>
+            <p>Bonjour ${d.name || ''},</p>
+            <p><strong>"${title}"</strong> est en ligne mais n'a presque pas été vu. Les premières ventes viennent toujours de votre réseau direct.</p>
+            <ol style="padding-left:20px;line-height:1.9;color:#ddd;font-size:14px">
+              <li>Copiez votre lien de vente</li>
+              <li>Envoyez-le à 10 personnes (WhatsApp, statut, groupes)</li>
+              <li>Activez l'affiliation pour que d'autres vendent pour vous</li>
+            </ol>
+            ${cta(link, 'Récupérer mon lien')}
+          `, lang) }
+        : { subject: `📣 "${title}" is live — now share it`, html: wrap(`
+            <h1 style="color:${orange};font-size:22px">Published, but still invisible</h1>
+            <p>Hello ${d.name || ''},</p>
+            <p><strong>"${title}"</strong> is live but has had almost no views. First sales always come from your direct network.</p>
+            <ol style="padding-left:20px;line-height:1.9;color:#ddd;font-size:14px">
+              <li>Copy your sales link</li>
+              <li>Send it to 10 people (WhatsApp, status, groups)</li>
+              <li>Turn on affiliation so others sell for you</li>
+            </ol>
+            ${cta(link, 'Get my link')}
+          `, lang) };
+    }
+
+    case 'activation_last_call':
+      return isFr
+        ? { subject: '🤝 On le fait avec vous ?', html: wrap(`
+            <h1 style="color:${blue};font-size:22px">Laissez-nous vous aider</h1>
+            <p>Bonjour ${d.name || ''},</p>
+            <p>Vous êtes inscrit depuis deux semaines sans rien publier. Souvent, il manque juste une idée ou une réponse.</p>
+            <p>Répondez à cet email avec <strong>votre sujet</strong> et notre équipe vous guide jusqu'à la publication. Vous pouvez aussi demander à Viral Studio de tout générer pour vous.</p>
+            ${cta('https://siteviral.com/ecrire', 'Générer avec Viral Studio')}
+            <p style="font-size:12px;color:#888">Un vrai humain lit chaque réponse : support@siteviral.com</p>
+          `, lang) }
+        : { subject: '🤝 Want us to do it with you?', html: wrap(`
+            <h1 style="color:${blue};font-size:22px">Let us help you</h1>
+            <p>Hello ${d.name || ''},</p>
+            <p>You joined two weeks ago and haven't published anything yet. Usually all that's missing is one idea or one answer.</p>
+            <p>Reply to this email with <strong>your topic</strong> and our team will walk you to publication. You can also ask Viral Studio to generate everything for you.</p>
+            ${cta('https://siteviral.com/ecrire', 'Generate with Viral Studio')}
+            <p style="font-size:12px;color:#888">A real human reads every reply: support@siteviral.com</p>
+          `, lang) };
+
+    case 'payout_ready_verify': {
+      const amount = String(d.amount || '0');
+      const currency = String(d.currency || 'USD');
+      const url = String(d.verify_url || 'https://siteviral.com/admin/settings');
+      const box = `<div style="background:#0d2540;border-left:3px solid ${green};padding:16px;border-radius:8px;margin:18px 0">
+        <p style="margin:0;font-size:12px;color:#9db8d6;text-transform:uppercase;letter-spacing:.12em">${isFr ? 'Disponible' : 'Available'}</p>
+        <p style="margin:4px 0 0;font-size:28px;font-weight:800;color:${green}">${amount} ${currency}</p></div>`;
+      return isFr
+        ? { subject: `💰 ${amount} ${currency} vous attendent — vérifiez votre identité`, html: wrap(`
+            <h1 style="color:${green};font-size:22px">Votre argent est prêt à être retiré</h1>
+            <p>Bonjour ${d.name || ''},</p>
+            ${box}
+            <p>Il ne manque qu'une étape : la <strong>vérification d'identité</strong>. C'est obligatoire pour envoyer de l'argent vers votre Mobile Money ou votre banque, et cela prend moins de 5 minutes.</p>
+            ${cta(url, 'Vérifier et retirer')}
+            <p style="font-size:12px;color:#888">Pièce d'identité + selfie. Vos données sont chiffrées et jamais partagées.</p>
+          `, lang) }
+        : { subject: `💰 ${amount} ${currency} is waiting — verify your identity`, html: wrap(`
+            <h1 style="color:${green};font-size:22px">Your money is ready to withdraw</h1>
+            <p>Hello ${d.name || ''},</p>
+            ${box}
+            <p>Only one step left: <strong>identity verification</strong>. It's required before we can send money to your Mobile Money or bank account, and it takes under 5 minutes.</p>
+            ${cta(url, 'Verify and withdraw')}
+            <p style="font-size:12px;color:#888">ID document + selfie. Your data is encrypted and never shared.</p>
+          `, lang) };
+    }
 
 
     default:
