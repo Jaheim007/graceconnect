@@ -342,15 +342,23 @@ export default function ActionHub() {
                       style={{
                         background:
                           'conic-gradient(from 0deg, transparent 0deg, transparent 260deg, hsl(var(--brand-blue) / 0.35) 330deg, hsl(0 0% 100% / 0.18) 352deg, transparent 360deg)',
-                        maskImage:
-                          'linear-gradient(#000 0 0)',
                       }}
+                    />
+                    {/* Masks the rotating light so only a thin edge glow remains */}
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-[1.5px] rounded-[14px] bg-[hsl(var(--cert-paper))] dark:bg-[#0e0d16]"
+                    />
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-[1.5px] rounded-[14px] bg-[hsl(var(--cert-paper-warm))]/70 dark:bg-white/[0.03]"
                     />
 
                     <span
                       aria-hidden
                       className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(120%_120%_at_0%_0%,hsl(var(--brand-blue)/0.12),transparent_60%)]"
                     />
+
 
                     <div className={cn(
                       'relative h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-inset ring-current/15 transition-transform duration-200 group-hover:scale-[1.06]',
