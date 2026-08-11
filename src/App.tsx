@@ -90,18 +90,7 @@ const ChurchEventRegisterPage = lazy(() => import("@/pages/church/ChurchEventReg
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 import { showServiceSurfaces } from "@/lib/siteviral/visibility";
 
-/**
- * HiddenSurface — renders a preserved service-marketplace page only while
- * SERVICE_MARKETPLACE_ENABLED is on. Otherwise sends visitors to the hub,
- * so no hidden vertical surface is reachable in the main experience.
- */
-function HiddenSurface({ children }: { children: React.ReactNode }) {
-  return showServiceSurfaces() ? <>{children}</> : <Navigate to="/" replace />;
-}
-/** Same guard for workspace/admin vertical panes — falls back to the unified dashboard. */
-function HiddenAdmin({ children }: { children: React.ReactNode }) {
-  return showServiceSurfaces() ? <>{children}</> : <Navigate to="/admin" replace />;
-}
+
 
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const ChurchesPage = lazy(() => import("@/pages/ChurchesPage"));
