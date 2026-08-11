@@ -37,7 +37,7 @@ function AdSelectionsTab() {
     { title: 'Produits Stars (Pub Conversion)', items: data?.stars, color: 'text-yellow-500', link: '/promo/stars' },
     { title: '🎁 Produits Gratuits (Pub Leads)', items: data?.gratuits, color: 'text-green-500', link: '/promo/gratuits' },
     { title: '📚 Catalogue (Pub Trafic)', items: data?.catalogue?.slice(0, 10), color: 'text-blue-500', link: '/promo/catalogue' },
-    { title: '⚡ Créations Viral AI Studio', items: data?.catalogue?.filter((p: any) => p.ai_generated)?.slice(0, 10), color: 'text-purple-500', link: '/promo/ai-creations' },
+    { title: '⚡ Créations Creators Studio', items: data?.catalogue?.filter((p: any) => p.ai_generated)?.slice(0, 10), color: 'text-purple-500', link: '/promo/ai-creations' },
   ];
 
   return (
@@ -101,7 +101,7 @@ function AdSelectionsTab() {
             </p>
           </div>
           <div className="p-3 bg-muted/50 rounded-lg">
-            <p className="font-medium mb-1">Pub 4 — Viral AI Studio</p>
+            <p className="font-medium mb-1">Pub 4 — Creators Studio</p>
             <p className="text-muted-foreground">
               "⚡ Tous ces livres ont été créés en quelques minutes avec notre IA.
               Toi aussi, crée le tien → siteviral.com/promo/ai-creations"

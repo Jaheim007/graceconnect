@@ -40,14 +40,14 @@ export default function PromoAICreationsPage() {
 
   return (
     <PromoLayout
-      title={isFr ? 'Créé avec Viral AI Studio' : 'Created with Viral AI Studio'}
+      title={isFr ? 'Créé avec Creators Studio' : 'Created with Creators Studio'}
       description={isFr
         ? 'Tous ces contenus ont été créés en quelques minutes grâce à notre intelligence artificielle'
         : 'All these products were created in minutes using our AI engine'}
-      seoTitle={isFr ? 'Créations Viral AI Studio - SiteViral' : 'Viral AI Studio Creations - SiteViral'}
+      seoTitle={isFr ? 'Créations Creators Studio - SiteViral' : 'Creators Studio Creations - SiteViral'}
       seoDesc={isFr
-        ? 'Découvre tous les livres et formations créés avec Viral AI Studio en quelques minutes'
-        : 'Discover all books and courses created with Viral AI Studio in just minutes'}
+        ? 'Découvre tous les livres et formations créés avec Creators Studio en quelques minutes'
+        : 'Discover all books and courses created with Creators Studio in just minutes'}
       emoji="⚡"
     >
       {isLoading && (
@@ -99,7 +99,7 @@ export default function PromoAICreationsPage() {
                 <h2 className="text-lg font-bold">{isFr ? 'Livres & Ebooks' : 'Books & Ebooks'}</h2>
                 <Badge variant="secondary" className="text-xs">{ebooks.length}</Badge>
                 <Badge className="text-[9px] bg-primary/20 text-primary border-0 ml-1">
-                  <Zap className="h-3 w-3 mr-0.5" /> Viral AI Studio
+                  <Zap className="h-3 w-3 mr-0.5" /> Creators Studio
                 </Badge>
               </div>
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -120,7 +120,7 @@ export default function PromoAICreationsPage() {
                 <h2 className="text-lg font-bold">{isFr ? 'Formations' : 'Courses'}</h2>
                 <Badge variant="secondary" className="text-xs">{courses.length}</Badge>
                 <Badge className="text-[9px] bg-primary/20 text-primary border-0 ml-1">
-                  <Zap className="h-3 w-3 mr-0.5" /> Viral AI Studio
+                  <Zap className="h-3 w-3 mr-0.5" /> Creators Studio
                 </Badge>
               </div>
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -146,7 +146,7 @@ export default function PromoAICreationsPage() {
             <Link to="/auth">
               <Button size="lg" className="gap-2">
                 <Zap className="h-4 w-4" />
-                {isFr ? 'Commencer avec Viral AI Studio' : 'Start with Viral AI Studio'}
+                {isFr ? 'Commencer avec Creators Studio' : 'Start with Creators Studio'}
               </Button>
             </Link>
           </motion.div>

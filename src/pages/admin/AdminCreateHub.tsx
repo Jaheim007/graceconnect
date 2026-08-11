@@ -52,10 +52,10 @@ export default function AdminCreateHub() {
         </div>
         <div>
           <h1 className="text-xl font-bold tracking-tight">
-            Viral AI Studio
+            Creators Studio
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isFr ? 'Créez vos contenus avec Viral AI Studio' : 'Create your content with Viral AI Studio'}
+            {isFr ? 'Créez vos contenus avec Creators Studio' : 'Create your content with Creators Studio'}
           </p>
         </div>
       </div>
@@ -85,7 +85,7 @@ export default function AdminCreateHub() {
             <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-primary/20 text-primary whitespace-nowrap">AI</span>
           </div>
           <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
-            {isFr ? 'Créez un ebook en 5 minutes avec Viral AI Studio' : 'Create an ebook in 5 minutes with Viral AI Studio'}
+            {isFr ? 'Créez un ebook en 5 minutes avec Creators Studio' : 'Create an ebook in 5 minutes with Creators Studio'}
           </p>
         </div>
         <ArrowRight className="relative h-4 w-4 text-primary shrink-0 group-hover:translate-x-1 transition-transform" />
@@ -116,7 +116,7 @@ export default function AdminCreateHub() {
             <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-500 whitespace-nowrap">AI</span>
           </div>
           <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
-            {isFr ? 'Créez une formation en 5 min avec Viral AI Studio' : 'Create a course in 5 min with Viral AI Studio'}
+            {isFr ? 'Créez une formation en 5 min avec Creators Studio' : 'Create a course in 5 min with Creators Studio'}
           </p>
         </div>
         <ArrowRight className="relative h-4 w-4 text-emerald-500 shrink-0 group-hover:translate-x-1 transition-transform" />
@@ -167,7 +167,7 @@ export default function AdminCreateHub() {
             {isFr ? 'Aucune création encore' : 'No creations yet'}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            {isFr ? 'Commencez par écrire un livre ou créer une formation avec Viral AI Studio' : 'Start by writing a book or creating a course with Viral AI Studio'}
+            {isFr ? 'Commencez par écrire un livre ou créer une formation avec Creators Studio' : 'Start by writing a book or creating a course with Creators Studio'}
           </p>
         </div>
       )}
