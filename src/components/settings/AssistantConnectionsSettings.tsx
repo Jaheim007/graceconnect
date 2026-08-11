@@ -36,6 +36,7 @@ export default function AssistantConnectionsSettings() {
   const isFr = locale === 'fr';
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
+  const [activeClient, setActiveClient] = useState<string>('chatgpt');
 
   const connectorUrl = useMemo(() => {
     const base = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.replace(/\/$/, '');
@@ -60,54 +61,66 @@ export default function AssistantConnectionsSettings() {
     }
   };
 
-  const steps = isFr
+  const clients = isFr
     ? [
         {
+          id: 'chatgpt',
           client: 'ChatGPT',
           items: [
-            'Ouvre Paramètres → Connecteurs → Ajouter un connecteur',
-            'Colle le lien ci-dessous, puis connecte-toi avec ton compte SiteViral',
-            'Dis simplement : « Crée un cours SiteViral sur … »',
+            { t: 'Ouvre ChatGPT', d: 'Paramètres → Connecteurs → « Ajouter un connecteur »' },
+            { t: 'Colle le lien du connecteur', d: 'Utilise le bouton Copier ci-dessus', paste: true },
+            { t: 'Connecte-toi à SiteViral', d: 'Une page SiteViral s\'ouvre : clique sur « Autoriser »' },
+            { t: 'Parle normalement', d: '« Crée un cours SiteViral sur la vente par WhatsApp »' },
           ],
         },
         {
+          id: 'claude',
           client: 'Claude',
           items: [
-            'Ouvre Settings → Connectors → Add custom connector',
-            'Colle le lien ci-dessous et valide l\'écran d\'autorisation SiteViral',
-            'Demande : « Démarre un livre sur … dans mon espace SiteViral »',
+            { t: 'Ouvre Claude', d: 'Settings → Connectors → « Add custom connector »' },
+            { t: 'Colle le lien du connecteur', d: 'Nom : SiteViral · URL : le lien copié', paste: true },
+            { t: 'Valide l\'autorisation', d: 'L\'écran SiteViral confirme l\'accès à ton compte' },
+            { t: 'Demande une création', d: '« Démarre un livre sur … dans mon espace SiteViral »' },
           ],
         },
         {
-          client: 'Autres assistants (Gemini CLI, Cursor…)',
+          id: 'other',
+          client: 'Autres (Gemini, Cursor…)',
           items: [
-            'Ajoute un serveur MCP distant avec ce même lien',
-            'L\'authentification se fait avec ton compte SiteViral (OAuth)',
+            { t: 'Ajoute un serveur MCP distant', d: 'Type : HTTP / streamable, avec ce même lien', paste: true },
+            { t: 'Authentification OAuth', d: 'Ton compte SiteViral sert d\'identifiant — aucune clé API à gérer' },
+            { t: 'Les outils apparaissent', d: '11 outils SiteViral : création, suivi, crédits, brouillons' },
           ],
         },
       ]
     : [
         {
+          id: 'chatgpt',
           client: 'ChatGPT',
           items: [
-            'Open Settings → Connectors → Add connector',
-            'Paste the link below, then sign in with your SiteViral account',
-            'Just say: "Create a SiteViral course about …"',
+            { t: 'Open ChatGPT', d: 'Settings → Connectors → "Add connector"' },
+            { t: 'Paste the connector link', d: 'Use the Copy button above', paste: true },
+            { t: 'Sign in to SiteViral', d: 'A SiteViral page opens: click "Allow"' },
+            { t: 'Just talk', d: '"Create a SiteViral course about selling on WhatsApp"' },
           ],
         },
         {
+          id: 'claude',
           client: 'Claude',
           items: [
-            'Open Settings → Connectors → Add custom connector',
-            'Paste the link below and approve the SiteViral consent screen',
-            'Ask: "Start a book about … in my SiteViral workspace"',
+            { t: 'Open Claude', d: 'Settings → Connectors → "Add custom connector"' },
+            { t: 'Paste the connector link', d: 'Name: SiteViral · URL: the copied link', paste: true },
+            { t: 'Approve access', d: 'The SiteViral screen confirms access to your account' },
+            { t: 'Ask for a creation', d: '"Start a book about … in my SiteViral workspace"' },
           ],
         },
         {
-          client: 'Other assistants (Gemini CLI, Cursor…)',
+          id: 'other',
+          client: 'Other (Gemini, Cursor…)',
           items: [
-            'Add a remote MCP server using the same link',
-            'Authentication uses your SiteViral account (OAuth)',
+            { t: 'Add a remote MCP server', d: 'Type: HTTP / streamable, using this same link', paste: true },
+            { t: 'OAuth authentication', d: 'Your SiteViral account is the login — no API key to manage' },
+            { t: 'Tools show up', d: '11 SiteViral tools: creation, progress, credits, drafts' },
           ],
         },
       ];
@@ -216,37 +229,99 @@ export default function AssistantConnectionsSettings() {
       </div>
 
       <div className="p-5 space-y-6">
-        {/* Connector URL */}
-        <div className="space-y-2">
-          <p className="text-xs font-medium">{isFr ? 'Lien du connecteur' : 'Connector link'}</p>
+        {/* Connector URL — the one thing to copy */}
+        <div className="rounded-2xl border border-primary/25 bg-primary/[0.04] p-4 space-y-2.5">
+          <div className="flex items-center gap-2">
+            <span className="h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+              1
+            </span>
+            <p className="text-xs font-semibold">
+              {isFr ? 'Copie ton lien de connexion' : 'Copy your connection link'}
+            </p>
+            <Badge variant="outline" className="ml-auto gap-1 text-[10px] border-emerald-500/40 text-emerald-600">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              {isFr ? 'En ligne' : 'Live'}
+            </Badge>
+          </div>
           <div className="flex flex-col sm:flex-row gap-2">
-            <code className="flex-1 min-w-0 rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-[11px] sm:text-xs break-all">
+            <code className="flex-1 min-w-0 rounded-xl border border-border bg-background px-3 py-2.5 text-[11px] sm:text-xs break-all">
               {connectorUrl}
             </code>
-            <Button
-              onClick={() => copy(connectorUrl, 'url')}
-              size="sm"
-              className="h-10 gap-1.5 shrink-0"
-            >
+            <Button onClick={() => copy(connectorUrl, 'url')} size="sm" className="h-10 gap-1.5 shrink-0">
               {copiedUrl ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-              {copiedUrl ? (isFr ? 'Copié' : 'Copied') : isFr ? 'Copier' : 'Copy'}
+              {copiedUrl ? (isFr ? 'Copié' : 'Copied') : isFr ? 'Copier le lien' : 'Copy link'}
             </Button>
           </div>
+          <p className="text-[11px] text-muted-foreground">
+            {isFr
+              ? 'C\'est la seule chose à copier. Aucune clé API, aucun terminal.'
+              : 'This is the only thing to copy. No API key, no terminal.'}
+          </p>
         </div>
 
-        {/* Steps per client */}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {steps.map((s) => (
-            <div key={s.client} className="rounded-xl border border-border/70 bg-muted/20 p-4">
-              <p className="text-xs font-semibold mb-2">{s.client}</p>
-              <ol className="space-y-1.5 text-[11px] text-muted-foreground list-decimal pl-4">
-                {s.items.map((i) => (
-                  <li key={i}>{i}</li>
+        {/* Step 2 — guided per client */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+              2
+            </span>
+            <p className="text-xs font-semibold">
+              {isFr ? 'Colle-le dans ton assistant' : 'Paste it into your assistant'}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5 p-1 rounded-xl bg-muted/40 border border-border/60 w-fit max-w-full">
+            {clients.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setActiveClient(c.id)}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all',
+                  activeClient === c.id
+                    ? 'bg-background shadow-sm text-foreground'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                {c.client}
+              </button>
+            ))}
+          </div>
+
+          {clients
+            .filter((c) => c.id === activeClient)
+            .map((c) => (
+              <motion.ol
+                key={c.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22 }}
+                className="relative space-y-3 pl-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-border"
+              >
+                {c.items.map((item, idx) => (
+                  <li key={item.t} className="relative">
+                    <span className="absolute -left-8 top-0 h-6 w-6 rounded-full border border-border bg-background text-[10px] font-semibold flex items-center justify-center text-muted-foreground">
+                      {idx + 1}
+                    </span>
+                    <p className="text-xs font-medium leading-6">{item.t}</p>
+                    <p className="text-[11px] text-muted-foreground">{item.d}</p>
+                    {item.paste && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => copy(connectorUrl, 'url')}
+                        className="mt-1.5 h-7 gap-1.5 text-[11px]"
+                      >
+                        {copiedUrl ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                        {isFr ? 'Copier le lien' : 'Copy link'}
+                      </Button>
+                    )}
+                  </li>
                 ))}
-              </ol>
-            </div>
-          ))}
+              </motion.ol>
+            ))}
         </div>
+
 
         {/* Sample prompts */}
         <div className="space-y-3">
