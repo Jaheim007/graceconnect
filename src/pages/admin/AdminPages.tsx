@@ -217,6 +217,15 @@ export function AdminCampaigns() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { fmt } = useDisplayCurrency();
+  /** Churches receive *giving*; every other platform type runs *campaigns*. */
+  const isChurch = currentOrg?.siteviral_type === 'church';
+  const pageTitle = isChurch
+    ? (isFr ? 'Dons' : 'Giving')
+    : (isFr ? 'Campagnes' : 'Campaigns');
+  const newLabel = isChurch
+    ? (isFr ? 'Nouvelle page de dons' : 'New giving page')
+    : (isFr ? 'Nouvelle campagne' : 'New campaign');
+
 
   const handleToggleActive = async (c: any) => {
     await db.from('donation_campaigns').update({ is_active: !c.is_active }).eq('id', c.id);
