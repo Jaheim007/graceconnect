@@ -17,7 +17,7 @@ import { useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { PageTour } from '@/components/onboarding/PageTour';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { LessonPlayerOverlay } from '@/components/programs/LessonPlayerOverlay';
@@ -58,6 +58,7 @@ export default function ResourcesPage() {
   const { toast } = useToast();
   const { t, locale } = useI18n();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [downloading, setDownloading] = useState<string | null>(null);
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
   const dateFnsLocale = locale === 'fr' ? fr : enUS;
