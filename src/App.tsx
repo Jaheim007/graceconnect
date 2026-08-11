@@ -284,7 +284,6 @@ const WatchPage = lazy(() => import("@/pages/WatchPage"));
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const DashboardRouter = lazy(() => import("@/pages/DashboardRouter"));
-const UserDashboard = lazy(() => import("@/pages/UserDashboard"));
 const DashboardExplorePage = lazy(() => import("@/pages/dashboard/DashboardExplorePage"));
 const PersonalActivityPage = lazy(() => import("@/pages/dashboard/PersonalActivityPage"));
 const PersonalMessagesPage = lazy(() => import("@/pages/dashboard/PersonalMessagesPage"));
