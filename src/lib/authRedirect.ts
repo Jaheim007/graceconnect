@@ -11,8 +11,8 @@ import { getIntent, clearIntent } from '@/lib/intent';
  *   4. Last-used workspace via sv_current_org_id → root org hydration restores it
  *   5. Unified account home for true zero-workspace users
  *
- * `/welcome-intent` is NEVER forced for a normal sign-in; it stays reachable
- * as an opt-in chooser only.
+ * `/welcome-intent` is only used for brand-new accounts (step 4); it is never
+ * forced on a returning sign-in.
  */
 export function resolvePostAuthRedirect(opts: {
   isNewUser: boolean;
@@ -48,7 +48,10 @@ export function resolvePostAuthRedirect(opts: {
     return safeReturnTo(intent.returnTo || null) || '/dashboard';
   }
 
-  // 4 + 5. Account home OR last-used workspace — OrgContext restores globally
+  // 4. Brand-new account → the single first-run intent step.
+  if (isNewUser) return '/welcome-intent';
+
+  // 5 + 6. Account home OR last-used workspace — OrgContext restores globally
   // before signed-in shells render, and /dashboard resolves to /admin when ready.
   return '/dashboard';
 }

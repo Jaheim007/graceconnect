@@ -177,7 +177,7 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 const VoiceAgentPage = lazy(() => import("@/pages/labs/VoiceAgentPage"));
 const TermsPage = lazy(() => import("@/pages/TermsPage"));
 const PrivacyPage = lazy(() => import("@/pages/PrivacyPage"));
-const AboutPage = lazy(() => import("@/pages/AboutPage"));
+const WelcomeIntentPage = lazy(() => import("@/pages/WelcomeIntentPage"));
 const PaymentSuccessPage = lazy(() => import("@/pages/PaymentSuccessPage"));
 const AMLPage = lazy(() => import("@/pages/AMLPage"));
 const RefundPolicyPage = lazy(() => import("@/pages/RefundPolicyPage"));
@@ -191,7 +191,7 @@ const CompliancePage = lazy(() => import("@/pages/CompliancePage"));
 const DPAPage = lazy(() => import("@/pages/DPAPage"));
 const SecurityPage = lazy(() => import("@/pages/SecurityPage"));
 const SubprocessorsPage = lazy(() => import("@/pages/SubprocessorsPage"));
-const FeaturesPage = lazy(() => import("@/pages/FeaturesPage"));
+
 const PublicAffiliationPage = lazy(() => import("@/pages/PublicAffiliationPage"));
 const AmbassadorTermsPage = lazy(() => import("@/pages/AmbassadorTermsPage"));
 const BecomePartnerPage = lazy(() => import("@/pages/BecomePartnerPage"));
@@ -478,8 +478,9 @@ const App = () => (
                 <Route path="/start-selling" element={<Navigate to="/create-org" replace />} />
                 {/* Buyer/provider intent chooser + interest picker: components kept,
                     hidden from the restored digital-first experience. */}
-                <Route path="/welcome-intent" element={showServiceSurfaces() ? <Navigate to="/looking-for" replace /> : <Navigate to="/dashboard" replace />} />
-                <Route path="/looking-for" element={showServiceSurfaces() ? <LazyLookingForPage /> : <Navigate to="/dashboard" replace />} />
+                {/* First-run intent step — one route for "what do you want to do first?" */}
+                <Route path="/welcome-intent" element={<RequireAuth><WelcomeIntentPage /></RequireAuth>} />
+                <Route path="/looking-for" element={showServiceSurfaces() ? <LazyLookingForPage /> : <Navigate to="/welcome-intent" replace />} />
                 <Route path="/services" element={<Navigate to="/discover" replace />} />
                 <Route path="/digital" element={<Navigate to="/discover?type=digital" replace />} />
                 <Route path="/digital/about" element={<Navigate to="/landing" replace />} />
@@ -553,7 +554,7 @@ const App = () => (
 
 
                 <Route path="/a-propos" element={<Navigate to="/landing" replace />} />
-                <Route path="/about" element={<AboutPage />} />
+                <Route path="/about" element={<Navigate to="/landing" replace />} />
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/tarifs" element={<Navigate to="/pricing" replace />} />
                 <Route path="/founders" element={<FoundersPage />} />
@@ -582,7 +583,7 @@ const App = () => (
                 <Route path="/dpa" element={<DPAPage />} />
                 <Route path="/security" element={<SecurityPage />} />
                 <Route path="/subprocessors" element={<SubprocessorsPage />} />
-                <Route path="/features" element={<FeaturesPage />} />
+                <Route path="/features" element={<Navigate to="/landing" replace />} />
                 <Route path="/affiliate-program" element={<PublicAffiliationPage />} />
                 <Route path="/ambassador-program" element={<PublicAffiliationPage />} />
                 <Route path="/ambassador" element={<Navigate to="/affiliate-program" replace />} />
