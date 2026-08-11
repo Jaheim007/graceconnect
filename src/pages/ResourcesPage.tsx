@@ -363,48 +363,13 @@ export default function ResourcesPage() {
                   <div className="text-left">
                     <p className="text-sm font-semibold">{org?.name || 'Plateforme'}</p>
                     <p className="text-[10px] text-muted-foreground">
-                      {(orgPurchases?.length || 0) + orgPrograms.length} {isFr ? 'produit(s)' : 'product(s)'}
+                      {orgPurchases?.length || 0} {isFr ? 'produit(s)' : 'product(s)'}
                     </p>
                   </div>
                 </button>
 
                 <div className="space-y-2 pl-2 border-l-2 border-primary/10">
-                  {orgPrograms.map((enrollment) => (
-                    <div key={enrollment.id} className="p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors space-y-2.5">
-                      <div className="flex gap-3 items-start">
-                        <div className="shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-muted">
-                          {enrollment.program.cover_image_url ? (
-                            <img src={enrollment.program.cover_image_url} alt={enrollment.program.title} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                              <GraduationCap className="h-5 w-5" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-sm truncate">{enrollment.program.title}</h3>
-                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                            <Badge variant="outline" className="text-[10px] capitalize gap-1 shrink-0">
-                              <GraduationCap className="h-2.5 w-2.5" />
-                              {isFr ? 'Cours' : 'Course'}
-                            </Badge>
-                            <Badge variant="secondary" className="text-[10px] shrink-0">
-                              {isFr ? 'Gratuit' : 'Free'}
-                            </Badge>
-                            <span className="text-[10px] text-muted-foreground">
-                              {format(new Date(enrollment.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        <Button size="sm" className="gap-1 h-7 text-[11px]" onClick={() => setActiveCourseId(enrollment.program_id)}>
-                          <Play className="h-3 w-3" />
-                          {isFr ? 'Suivre le cours' : 'Start course'}
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+
 
                   {orgPurchases?.map((purchase) => (
                     <div key={purchase.id} className="p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors space-y-2.5">
