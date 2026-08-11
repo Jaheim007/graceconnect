@@ -228,37 +228,99 @@ export default function AssistantConnectionsSettings() {
       </div>
 
       <div className="p-5 space-y-6">
-        {/* Connector URL */}
-        <div className="space-y-2">
-          <p className="text-xs font-medium">{isFr ? 'Lien du connecteur' : 'Connector link'}</p>
+        {/* Connector URL — the one thing to copy */}
+        <div className="rounded-2xl border border-primary/25 bg-primary/[0.04] p-4 space-y-2.5">
+          <div className="flex items-center gap-2">
+            <span className="h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+              1
+            </span>
+            <p className="text-xs font-semibold">
+              {isFr ? 'Copie ton lien de connexion' : 'Copy your connection link'}
+            </p>
+            <Badge variant="outline" className="ml-auto gap-1 text-[10px] border-emerald-500/40 text-emerald-600">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              {isFr ? 'En ligne' : 'Live'}
+            </Badge>
+          </div>
           <div className="flex flex-col sm:flex-row gap-2">
-            <code className="flex-1 min-w-0 rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-[11px] sm:text-xs break-all">
+            <code className="flex-1 min-w-0 rounded-xl border border-border bg-background px-3 py-2.5 text-[11px] sm:text-xs break-all">
               {connectorUrl}
             </code>
-            <Button
-              onClick={() => copy(connectorUrl, 'url')}
-              size="sm"
-              className="h-10 gap-1.5 shrink-0"
-            >
+            <Button onClick={() => copy(connectorUrl, 'url')} size="sm" className="h-10 gap-1.5 shrink-0">
               {copiedUrl ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-              {copiedUrl ? (isFr ? 'Copié' : 'Copied') : isFr ? 'Copier' : 'Copy'}
+              {copiedUrl ? (isFr ? 'Copié' : 'Copied') : isFr ? 'Copier le lien' : 'Copy link'}
             </Button>
           </div>
+          <p className="text-[11px] text-muted-foreground">
+            {isFr
+              ? 'C\'est la seule chose à copier. Aucune clé API, aucun terminal.'
+              : 'This is the only thing to copy. No API key, no terminal.'}
+          </p>
         </div>
 
-        {/* Steps per client */}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {steps.map((s) => (
-            <div key={s.client} className="rounded-xl border border-border/70 bg-muted/20 p-4">
-              <p className="text-xs font-semibold mb-2">{s.client}</p>
-              <ol className="space-y-1.5 text-[11px] text-muted-foreground list-decimal pl-4">
-                {s.items.map((i) => (
-                  <li key={i}>{i}</li>
+        {/* Step 2 — guided per client */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+              2
+            </span>
+            <p className="text-xs font-semibold">
+              {isFr ? 'Colle-le dans ton assistant' : 'Paste it into your assistant'}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5 p-1 rounded-xl bg-muted/40 border border-border/60 w-fit max-w-full">
+            {clients.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setActiveClient(c.id)}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all',
+                  activeClient === c.id
+                    ? 'bg-background shadow-sm text-foreground'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                {c.client}
+              </button>
+            ))}
+          </div>
+
+          {clients
+            .filter((c) => c.id === activeClient)
+            .map((c) => (
+              <motion.ol
+                key={c.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22 }}
+                className="relative space-y-3 pl-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-border"
+              >
+                {c.items.map((item, idx) => (
+                  <li key={item.t} className="relative">
+                    <span className="absolute -left-8 top-0 h-6 w-6 rounded-full border border-border bg-background text-[10px] font-semibold flex items-center justify-center text-muted-foreground">
+                      {idx + 1}
+                    </span>
+                    <p className="text-xs font-medium leading-6">{item.t}</p>
+                    <p className="text-[11px] text-muted-foreground">{item.d}</p>
+                    {item.paste && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => copy(connectorUrl, 'url')}
+                        className="mt-1.5 h-7 gap-1.5 text-[11px]"
+                      >
+                        {copiedUrl ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                        {isFr ? 'Copier le lien' : 'Copy link'}
+                      </Button>
+                    )}
+                  </li>
                 ))}
-              </ol>
-            </div>
-          ))}
+              </motion.ol>
+            ))}
         </div>
+
 
         {/* Sample prompts */}
         <div className="space-y-3">
