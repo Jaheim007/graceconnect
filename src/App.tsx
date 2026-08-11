@@ -458,37 +458,8 @@ const App = () => (
                 <Route path="/church/:slug/pdf/:pdfId" element={<ChurchSermonPdfBuyPage />} />
                 <Route path="/church/:slug/pdf/:pdfId/success" element={<ChurchSermonPdfSuccessPage />} />
                 <Route path="/church/:slug" element={<ChurchPublicProfile />} />
-                {/* SiteViral Home (artisans) — preserved surfaces, hidden until enabled.
-                    All legacy sub-paths fold into a single catch-all. */}
-                <Route path="/home" element={<HiddenSurface><Navigate to="/home/discover" replace /></HiddenSurface>} />
-                <Route path="/home/about" element={<HiddenSurface><HomeLanding /></HiddenSurface>} />
-                <Route path="/home/discover" element={<HiddenSurface><HomeDiscover /></HiddenSurface>} />
-                <Route path="/home/pro/onboarding" element={<HiddenSurface><HomeProviderOnboarding /></HiddenSurface>} />
-                <Route path="/home/pro/:slug" element={<HiddenSurface><HomeProviderPublic /></HiddenSurface>} />
-                <Route path="/home/*" element={<Navigate to="/dashboard" replace />} />
 
-                {/* SiteViral Events — preserved surfaces, hidden until enabled. */}
-                <Route path="/events" element={<HiddenSurface><Navigate to="/events/discover" replace /></HiddenSurface>} />
-                <Route path="/events/about" element={<HiddenSurface><EventsLanding /></HiddenSurface>} />
-                <Route path="/events/discover" element={<HiddenSurface><EventsDiscover /></HiddenSurface>} />
-                <Route path="/events/pro/onboarding" element={<HiddenSurface><EventsProviderOnboarding /></HiddenSurface>} />
-                <Route path="/events/pro/:slug" element={<HiddenSurface><EventsProviderPublic /></HiddenSurface>} />
-                <Route path="/events/*" element={<Navigate to="/dashboard" replace />} />
 
-                {/* SiteViral Learn (formerly Education) — preserved surfaces, hidden. */}
-                <Route path="/learn" element={<HiddenSurface><Navigate to="/learn/discover" replace /></HiddenSurface>} />
-                <Route path="/learn/about" element={<HiddenSurface><EducationLanding /></HiddenSurface>} />
-                <Route path="/learn/discover" element={<HiddenSurface><EducationDiscover /></HiddenSurface>} />
-                <Route path="/learn/pro/onboarding" element={<HiddenSurface><EducationTutorOnboarding /></HiddenSurface>} />
-                <Route path="/learn/pro/:slug" element={<HiddenSurface><EducationTutorPublic /></HiddenSurface>} />
-                <Route path="/learn/*" element={<Navigate to="/dashboard" replace />} />
-
-                {/* Legacy /education aliases → /learn */}
-                <Route path="/education" element={<Navigate to="/learn/discover" replace />} />
-                <Route path="/education/about" element={<Navigate to="/learn/about" replace />} />
-                <Route path="/education/discover" element={<Navigate to="/learn/discover" replace />} />
-                <Route path="/education/pro/onboarding" element={<Navigate to="/learn/pro/onboarding" replace />} />
-                <Route path="/education/*" element={<Navigate to="/learn/discover" replace />} />
 
 
 
