@@ -204,21 +204,21 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
         <Avatar src={triggerAvatar} name={triggerLabel} size="sm" />
       </button>
     ) : (
-      <button className="w-full p-2.5 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 hover:from-primary/15 hover:to-primary/10 transition-all text-left group">
+      <button className="w-full p-2.5 rounded-2xl bg-sidebar-foreground/[0.08] border border-sidebar-foreground/15 hover:bg-sidebar-foreground/[0.14] hover:border-sidebar-foreground/25 backdrop-blur-md transition-all text-left group">
         <div className="flex items-center gap-2.5">
           <Avatar src={triggerAvatar} name={triggerLabel} size="sm" />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <p className="text-xs font-bold text-primary truncate">{triggerLabel}</p>
+              <p className="text-xs font-bold text-sidebar-foreground truncate">{triggerLabel}</p>
               {displayOrg && isOrgVerifiedOrKyc(displayOrg.is_verified, (displayOrg as any).kyc_status) && (
                 <VerifiedBadge size="xs" showTooltip={false} />
               )}
             </div>
-            <p className="text-[10px] text-muted-foreground truncate">
+            <p className="text-[10px] text-sidebar-foreground/60 truncate">
               {isFr ? 'Gérer ma plateforme' : 'Manage my platform'}
             </p>
           </div>
-          <ChevronDown className="h-3.5 w-3.5 text-primary/60 shrink-0 group-hover:text-primary transition-colors" />
+          <ChevronDown className="h-3.5 w-3.5 text-sidebar-foreground/60 shrink-0 group-hover:text-sidebar-foreground transition-colors" />
         </div>
       </button>
     );
