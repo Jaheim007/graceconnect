@@ -54,69 +54,14 @@ const PageLoader = () => <RouteContentSkeleton />;
 // ─── Lazy-loaded pages ─── //
 // Public
 const ActionHub = lazy(() => import("@/pages/ActionHub"));
-const BeautyLanding = lazy(() => import("@/pages/beauty/BeautyLanding"));
-const BeautyActionHub = lazy(() => import("@/pages/beauty/BeautyActionHub"));
-const BeautyProviderOnboarding = lazy(() => import("@/pages/beauty/BeautyProviderOnboarding"));
-const BeautySearch = lazy(() => import("@/pages/beauty/BeautySearch"));
-const BeautyProviderProfile = lazy(() => import("@/pages/beauty/BeautyProviderProfile"));
-
-const BeautyBookingDetail = lazy(() => import("@/pages/beauty/BeautyBookingDetail"));
-const BeautyConversation = lazy(() => import("@/pages/beauty/BeautyConversation"));
-const BeautyProOverview = lazy(() => import("@/pages/beauty/pro/BeautyProOverview"));
-const BeautyProMessagesPane = lazy(() => import("@/pages/beauty/pro/BeautyProMessagesPane"));
-const BeautyProConversationPane = lazy(() => import("@/pages/beauty/pro/BeautyProConversationPane"));
-const BeautyProOrdersPane = lazy(() => import("@/pages/beauty/pro/BeautyProOrdersPane"));
-const BeautyProRevenuePane = lazy(() => import("@/pages/beauty/pro/BeautyProRevenuePane"));
-const BeautyProSettingsPane = lazy(() => import("@/pages/beauty/pro/BeautyProSettingsPane"));
-const BeautyKYCPage = lazy(() => import("@/pages/beauty/BeautyKYCPage"));
-// SiteViral Home
-const HomeActionHub = lazy(() => import("@/pages/home/HomeActionHub"));
-const HomeLanding = lazy(() => import("@/pages/home/HomeLanding"));
-const HomeDiscover = lazy(() => import("@/pages/home/HomeDiscover"));
-const HomeProviderPublic = lazy(() => import("@/pages/home/HomeProviderPublic"));
-const HomeProviderOnboarding = lazy(() => import("@/pages/home/HomeProviderOnboarding"));
-const HomeConversation = lazy(() => import("@/pages/home/HomeConversation"));
-const HomeKYCPage = lazy(() => import("@/pages/home/HomeKYCPage"));
-const HomeProServices = lazy(() => import("@/pages/home/HomeProServices"));
-const HomeBookingDetail = lazy(() => import("@/pages/home/HomeBookingDetail"));
-// Pro shell (fixated dashboard) — desktop keeps sidebar visible, right pane routes.
-const HomeProOverview = lazy(() => import("@/pages/home/pro/HomeProOverview"));
-const HomeProMessagesPane = lazy(() => import("@/pages/home/pro/HomeProMessagesPane"));
-const HomeProConversationPane = lazy(() => import("@/pages/home/pro/HomeProConversationPane"));
-const HomeProOrdersPane = lazy(() => import("@/pages/home/pro/HomeProOrdersPane"));
-const HomeProRevenuePane = lazy(() => import("@/pages/home/pro/HomeProRevenuePane"));
-const HomeProSettingsPane = lazy(() => import("@/pages/home/pro/HomeProSettingsPane"));
-const EventsActionHub = lazy(() => import("@/pages/events/EventsActionHub"));
-const EventsLanding = lazy(() => import("@/pages/events/EventsLanding"));
-const EventsDiscover = lazy(() => import("@/pages/events/EventsDiscover"));
-const EventsProviderPublic = lazy(() => import("@/pages/events/EventsProviderPublic"));
-const EventsProviderOnboarding = lazy(() => import("@/pages/events/EventsProviderOnboarding"));
-const EventsProOverview = lazy(() => import("@/pages/events/pro/EventsProOverview"));
-const EventsProMessagesPane = lazy(() => import("@/pages/events/pro/EventsProMessagesPane"));
-const EventsProConversationPane = lazy(() => import("@/pages/events/pro/EventsProConversationPane"));
-const EventsProOrdersPane = lazy(() => import("@/pages/events/pro/EventsProOrdersPane"));
-const EventsProRevenuePane = lazy(() => import("@/pages/events/pro/EventsProRevenuePane"));
-const EventsProSettingsPane = lazy(() => import("@/pages/events/pro/EventsProSettingsPane"));
-const EventsConversation = lazy(() => import("@/pages/events/EventsConversation"));
-const EventsKYCPage = lazy(() => import("@/pages/events/EventsKYCPage"));
-const EventsProPackages = lazy(() => import("@/pages/events/EventsProPackages"));
-const EventsBookingDetail = lazy(() => import("@/pages/events/EventsBookingDetail"));
+// Hidden service verticals (Beauty / Home / Events / Learn) live in one module —
+// their pages are preserved there and mounted only when the marketplace flag is on.
+import {
+  hiddenVerticalPublicRoutes,
+  hiddenVerticalDashboardRoutes,
+  hiddenVerticalAdminRoutes,
+} from "@/routes/HiddenVerticalRoutes";
 const SuperadminEvents = lazy(() => import("@/pages/superadmin/SuperadminEvents"));
-const EducationActionHub = lazy(() => import("@/pages/education/EducationActionHub"));
-const EducationLanding = lazy(() => import("@/pages/education/EducationLanding"));
-const EducationDiscover = lazy(() => import("@/pages/education/EducationDiscover"));
-const EducationTutorPublic = lazy(() => import("@/pages/education/EducationTutorPublic"));
-const EducationTutorOnboarding = lazy(() => import("@/pages/education/EducationTutorOnboarding"));
-const EducationProOverview = lazy(() => import("@/pages/education/pro/EducationProOverview"));
-const EducationProMessagesPane = lazy(() => import("@/pages/education/pro/EducationProMessagesPane"));
-const EducationProConversationPane = lazy(() => import("@/pages/education/pro/EducationProConversationPane"));
-const EducationProOrdersPane = lazy(() => import("@/pages/education/pro/EducationProOrdersPane"));
-const EducationProRevenuePane = lazy(() => import("@/pages/education/pro/EducationProRevenuePane"));
-const EducationProSettingsPane = lazy(() => import("@/pages/education/pro/EducationProSettingsPane"));
-const EducationTutorSubjects = lazy(() => import("@/pages/education/EducationTutorSubjects"));
-const EducationKYCPage = lazy(() => import("@/pages/education/EducationKYCPage"));
-const EducationConversation = lazy(() => import("@/pages/education/EducationConversation"));
-const EducationBookingDetail = lazy(() => import("@/pages/education/EducationBookingDetail"));
 const SuperadminEducation = lazy(() => import("@/pages/superadmin/SuperadminEducation"));
 // SiteViral Church
 const ChurchActionHub = lazy(() => import("@/pages/church/ChurchActionHub"));
@@ -145,18 +90,7 @@ const ChurchEventRegisterPage = lazy(() => import("@/pages/church/ChurchEventReg
 const SuperAppHub = lazy(() => import("@/pages/SuperAppHub"));
 import { showServiceSurfaces } from "@/lib/siteviral/visibility";
 
-/**
- * HiddenSurface — renders a preserved service-marketplace page only while
- * SERVICE_MARKETPLACE_ENABLED is on. Otherwise sends visitors to the hub,
- * so no hidden vertical surface is reachable in the main experience.
- */
-function HiddenSurface({ children }: { children: React.ReactNode }) {
-  return showServiceSurfaces() ? <>{children}</> : <Navigate to="/" replace />;
-}
-/** Same guard for workspace/admin vertical panes — falls back to the unified dashboard. */
-function HiddenAdmin({ children }: { children: React.ReactNode }) {
-  return showServiceSurfaces() ? <>{children}</> : <Navigate to="/admin" replace />;
-}
+
 
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const ChurchesPage = lazy(() => import("@/pages/ChurchesPage"));
@@ -485,13 +419,10 @@ const App = () => (
                 <Route path="/digital" element={<Navigate to="/discover?type=digital" replace />} />
                 <Route path="/digital/about" element={<Navigate to="/landing" replace />} />
                 <Route path="/hub" element={<Navigate to="/discover" replace />} />
-                {/* SiteViral Beauty — preserved surfaces, hidden until enabled. */}
-                <Route path="/beauty" element={<HiddenSurface><Navigate to="/beauty/search" replace /></HiddenSurface>} />
-                <Route path="/beauty/about" element={<HiddenSurface><BeautyLanding /></HiddenSurface>} />
-                <Route path="/beauty/search" element={<HiddenSurface><BeautySearch /></HiddenSurface>} />
-                <Route path="/beauty/p/:slug" element={<HiddenSurface><BeautyProviderProfile /></HiddenSurface>} />
-                <Route path="/beauty/pro/onboarding" element={<HiddenSurface><BeautyProviderOnboarding /></HiddenSurface>} />
-                <Route path="/beauty/*" element={<Navigate to="/dashboard" replace />} />
+                {/* Hidden service verticals (Beauty / Home / Events / Learn) */}
+                {hiddenVerticalPublicRoutes()}
+
+
 
                 {/* SiteViral Church */}
                 <Route path="/church" element={<Navigate to="/churches" replace />} />
@@ -518,37 +449,8 @@ const App = () => (
                 <Route path="/church/:slug/pdf/:pdfId" element={<ChurchSermonPdfBuyPage />} />
                 <Route path="/church/:slug/pdf/:pdfId/success" element={<ChurchSermonPdfSuccessPage />} />
                 <Route path="/church/:slug" element={<ChurchPublicProfile />} />
-                {/* SiteViral Home (artisans) — preserved surfaces, hidden until enabled.
-                    All legacy sub-paths fold into a single catch-all. */}
-                <Route path="/home" element={<HiddenSurface><Navigate to="/home/discover" replace /></HiddenSurface>} />
-                <Route path="/home/about" element={<HiddenSurface><HomeLanding /></HiddenSurface>} />
-                <Route path="/home/discover" element={<HiddenSurface><HomeDiscover /></HiddenSurface>} />
-                <Route path="/home/pro/onboarding" element={<HiddenSurface><HomeProviderOnboarding /></HiddenSurface>} />
-                <Route path="/home/pro/:slug" element={<HiddenSurface><HomeProviderPublic /></HiddenSurface>} />
-                <Route path="/home/*" element={<Navigate to="/dashboard" replace />} />
 
-                {/* SiteViral Events — preserved surfaces, hidden until enabled. */}
-                <Route path="/events" element={<HiddenSurface><Navigate to="/events/discover" replace /></HiddenSurface>} />
-                <Route path="/events/about" element={<HiddenSurface><EventsLanding /></HiddenSurface>} />
-                <Route path="/events/discover" element={<HiddenSurface><EventsDiscover /></HiddenSurface>} />
-                <Route path="/events/pro/onboarding" element={<HiddenSurface><EventsProviderOnboarding /></HiddenSurface>} />
-                <Route path="/events/pro/:slug" element={<HiddenSurface><EventsProviderPublic /></HiddenSurface>} />
-                <Route path="/events/*" element={<Navigate to="/dashboard" replace />} />
 
-                {/* SiteViral Learn (formerly Education) — preserved surfaces, hidden. */}
-                <Route path="/learn" element={<HiddenSurface><Navigate to="/learn/discover" replace /></HiddenSurface>} />
-                <Route path="/learn/about" element={<HiddenSurface><EducationLanding /></HiddenSurface>} />
-                <Route path="/learn/discover" element={<HiddenSurface><EducationDiscover /></HiddenSurface>} />
-                <Route path="/learn/pro/onboarding" element={<HiddenSurface><EducationTutorOnboarding /></HiddenSurface>} />
-                <Route path="/learn/pro/:slug" element={<HiddenSurface><EducationTutorPublic /></HiddenSurface>} />
-                <Route path="/learn/*" element={<Navigate to="/dashboard" replace />} />
-
-                {/* Legacy /education aliases → /learn */}
-                <Route path="/education" element={<Navigate to="/learn/discover" replace />} />
-                <Route path="/education/about" element={<Navigate to="/learn/about" replace />} />
-                <Route path="/education/discover" element={<Navigate to="/learn/discover" replace />} />
-                <Route path="/education/pro/onboarding" element={<Navigate to="/learn/pro/onboarding" replace />} />
-                <Route path="/education/*" element={<Navigate to="/learn/discover" replace />} />
 
 
 
@@ -732,10 +634,7 @@ const App = () => (
                   <Route path="/dashboard/kyc" element={<Navigate to="/admin/kyc" replace />} />
                   <Route path="/dashboard/affiliation" element={<Navigate to="/admin/affiliation" replace />} />
                   <Route path="/dashboard/messages" element={<PersonalMessagesPage />} />
-                  <Route path="/dashboard/messages/beauty/:id" element={<BeautyConversation />} />
-                  <Route path="/dashboard/messages/home/:id" element={<HomeConversation />} />
-                  <Route path="/dashboard/messages/events/:id" element={<EventsConversation />} />
-                  <Route path="/dashboard/messages/learn/:id" element={<EducationConversation />} />
+                  {hiddenVerticalDashboardRoutes()}
                   <Route path="/dashboard/notifications" element={<Navigate to="/notifications" replace />} />
                   <Route path="/dashboard/settings" element={<Navigate to="/admin/settings" replace />} />
                   {/* Sidebar aliases → canonical pages */}
@@ -805,42 +704,8 @@ const App = () => (
                   <Route path="settings" element={<LazyAdminSettings />} />
                   
                   <Route path="sales" element={<AdminSales />} />
-                  {/* Hidden service-vertical workspaces — code preserved, unreachable */}
-                  <Route path="beauty" element={<HiddenAdmin><BeautyProOverview /></HiddenAdmin>} />
-                  <Route path="beauty/messages" element={<HiddenAdmin><BeautyProMessagesPane /></HiddenAdmin>}>
-                    <Route path=":id" element={<BeautyProConversationPane />} />
-                  </Route>
-                  <Route path="beauty/orders" element={<HiddenAdmin><BeautyProOrdersPane /></HiddenAdmin>} />
-                  <Route path="beauty/revenue" element={<HiddenAdmin><BeautyProRevenuePane /></HiddenAdmin>} />
-                  <Route path="beauty/settings" element={<HiddenAdmin><BeautyProSettingsPane /></HiddenAdmin>} />
-                  <Route path="beauty/kyc" element={<HiddenAdmin><BeautyKYCPage /></HiddenAdmin>} />
-                  <Route path="home" element={<HiddenAdmin><HomeProOverview /></HiddenAdmin>} />
-                  <Route path="home/messages" element={<HiddenAdmin><HomeProMessagesPane /></HiddenAdmin>}>
-                    <Route path=":id" element={<HomeProConversationPane />} />
-                  </Route>
-                  <Route path="home/orders" element={<HiddenAdmin><HomeProOrdersPane /></HiddenAdmin>} />
-                  <Route path="home/revenue" element={<HiddenAdmin><HomeProRevenuePane /></HiddenAdmin>} />
-                  <Route path="home/settings" element={<HiddenAdmin><HomeProSettingsPane /></HiddenAdmin>} />
-                  <Route path="home/services" element={<HiddenAdmin><HomeProServices /></HiddenAdmin>} />
-                  <Route path="home/kyc" element={<HiddenAdmin><HomeKYCPage /></HiddenAdmin>} />
-                  <Route path="events-service" element={<HiddenAdmin><EventsProOverview /></HiddenAdmin>} />
-                  <Route path="events-service/messages" element={<HiddenAdmin><EventsProMessagesPane /></HiddenAdmin>}>
-                    <Route path=":id" element={<EventsProConversationPane />} />
-                  </Route>
-                  <Route path="events-service/orders" element={<HiddenAdmin><EventsProOrdersPane /></HiddenAdmin>} />
-                  <Route path="events-service/revenue" element={<HiddenAdmin><EventsProRevenuePane /></HiddenAdmin>} />
-                  <Route path="events-service/settings" element={<HiddenAdmin><EventsProSettingsPane /></HiddenAdmin>} />
-                  <Route path="events-service/kyc" element={<HiddenAdmin><EventsKYCPage /></HiddenAdmin>} />
-                  <Route path="events-service/packages" element={<HiddenAdmin><EventsProPackages /></HiddenAdmin>} />
-                  <Route path="learn" element={<HiddenAdmin><EducationProOverview /></HiddenAdmin>} />
-                  <Route path="learn/messages" element={<HiddenAdmin><EducationProMessagesPane /></HiddenAdmin>}>
-                    <Route path=":id" element={<EducationProConversationPane />} />
-                  </Route>
-                  <Route path="learn/orders" element={<HiddenAdmin><EducationProOrdersPane /></HiddenAdmin>} />
-                  <Route path="learn/revenue" element={<HiddenAdmin><EducationProRevenuePane /></HiddenAdmin>} />
-                  <Route path="learn/settings" element={<HiddenAdmin><EducationProSettingsPane /></HiddenAdmin>} />
-                  <Route path="learn/kyc" element={<HiddenAdmin><EducationKYCPage /></HiddenAdmin>} />
-                  <Route path="learn/subjects" element={<HiddenAdmin><EducationTutorSubjects /></HiddenAdmin>} />
+                  {/* Hidden service-vertical workspaces — preserved, flag-gated */}
+                  {hiddenVerticalAdminRoutes()}
 
                   <Route path="church" element={<ChurchProDashboard />} />
                   <Route path="church/kyc" element={<ChurchKYCPage />} />
