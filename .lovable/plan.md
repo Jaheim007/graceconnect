@@ -1,91 +1,83 @@
-# SiteViral — Flow utilisateur optimal (refonte simplicité)
+# Deux flows oubliés : l'Acheteur et l'Ambassadeur
 
-## 1. Ce qu'est réellement le produit
+Le plan précédent couvrait le créateur (créer → vendre). Il manque deux profils qui arrivent sur SiteViral sans rien créer :
 
-Déduit du code : SiteViral est une **plateforme africaine de création et de monétisation de contenu**. Un utilisateur crée un livre, une formation ou un espace Église/ONG avec l'IA, puis le vend ou reçoit des dons — paiement carte (Stripe) ou Mobile Money (Paystack), commission 10% en gratuit, 0% en Pro.
+- **L'Acheteur** : il a reçu un lien, il a acheté un livre / une formation / un PDF. Il revient pour lire, télécharger, suivre sa formation.
+- **L'Ambassadeur** : il n'a rien à vendre ni à acheter. Il vient gagner de l'argent en partageant les produits des autres.
 
-- **Utilisateurs** : créateurs/coachs/pasteurs/ONG, majoritairement mobile, non techniques.
-- **Problème résolu** : produire et vendre un produit numérique sans compétences, sans site, sans agence.
-- **Fonction principale** : le pipeline IA → produit publié → lien de vente.
-- **Vraie valeur** : *« mon premier revenu numérique en une soirée »*.
+Aujourd'hui les briques existent (page Mes achats, inscriptions aux formations, affiliation, commissions), mais il n'y a **pas de parcours** : après connexion, l'acheteur atterrit sur un tableau de bord générique avec une barre de recherche et des catégories, et ses achats sont en 3e position dans la page.
 
-## 2. Audit du flow actuel (frictions vérifiées)
+---
 
-- `/` = `ActionHub` avec **6 tuiles pour un visiteur** dont 3 sont des actions de création concurrentes (livre, formation, Église/ONG) + Vendre + Gagner + Découvrir. L'utilisateur doit choisir sans savoir ce qui l'attend.
-- Le wizard livre (`WriteWizard`) a **11 étapes** (Source, Détails, Stratégie, Création, Aperçu, Illustrations, Couverture, Prix, Aperçu PDF, Publication, Célébration). Trop long avant la première récompense.
-- Création de plateforme (`CreateOrgPage`) = **3 étapes** (profil, nom, devise) avant toute création de contenu ; la devise est déjà auto-détectée, donc l'étape est presque inutile.
-- Après création : modale `OrgOnboardingWizard` **puis** `/admin` **puis** navigation → 3 couches avant d'agir.
-- Formation (`AdminProgramForm`) n'est pas un flow guidé mais un écran à onglets (925 lignes) ; le seul vrai verrou est « prix ou gratuit ».
-- Navigation : sidebar générée par features + **5 à 6 destinations « compte » fixes** + réglages/superadmin. Trop de portes pour un débutant.
-- Résultat : deux menus (ActionHub + sidebar) qui se recoupent, deux vocabulaires (Vendre / Revenus / Gagner), aucune notion d'« étape suivante unique ».
+## 1. Flow Acheteur — « Ma bibliothèque »
 
-## 3. Flow optimal — 6 étapes
+Objectif : après connexion, en moins de 3 secondes, l'acheteur voit **son** contenu et un seul bouton pour continuer.
 
-1. **Arrivée** — une seule question, trois choix maximum : *Un livre · Une formation · Un espace Église/ONG*. Il comprend : « je choisis ce que je veux créer ». Résultat : intention captée en < 10 s.
-2. **Une seule saisie** — « De quoi ça parle ? » (texte, photo d'écriture, ou audio). Il comprend : « je parle, l'IA fait le reste ». Résultat : la génération démarre.
-3. **Génération visible** — barre de progression + aperçu qui se remplit. Il comprend : « ça se fabrique pour moi ». Résultat : effet wow, il attend au lieu d'abandonner.
-4. **Aperçu du résultat** — son livre/formation réel, avec couverture générée. Un seul bouton : *Publier*. Résultat : preuve de valeur avant tout effort.
-5. **Prix en un geste** — 3 prix suggérés + « gratuit ». Le compte et l'espace sont créés **en arrière-plan** (nom = titre du produit, devise auto). Résultat : publié.
-6. **Lien de vente + partage** — lien copiable, boutons WhatsApp, et une seule prochaine action. Résultat : il peut encaisser.
+```text
+Lien reçu → Achat → Email/Succès → Connexion
+                                     ↓
+                        Accueil = "Reprends où tu t'es arrêté"
+                                     ↓
+                   [Lire mon livre]   [Continuer ma formation]
+                                     ↓
+                              Ma bibliothèque
+                     Livres · Formations · PDF · Reçus
+```
 
-Illustrations, stratégie éditoriale, aperçu PDF, nombre de chapitres : déplacés **après** publication, dans « Améliorer ».
+Ce qu'on construit :
 
-## 4. Version « débutant absolu »
+1. **Carte « Reprendre »** en tout premier sur l'accueil connecté : dernier livre acheté (bouton Lire / Télécharger) ou dernière formation avec sa barre de progression et le bouton « Continuer la leçon X ». Un seul bouton principal, pas de choix.
+2. **Réorganisation de l'accueil acheteur** : bibliothèque en haut, puis Explorer, puis (si concerné) rendez-vous à venir. La recherche descend, elle n'est plus la première chose vue.
+3. **Renommage** « Mes achats » → « Ma bibliothèque » partout (sidebar, menu mobile, barre du bas, hub) — un acheteur ne cherche pas une facture, il cherche son livre.
+4. **Bibliothèque unifiée** : la page regroupe déjà achats, formations, crédits, dons. On la restructure en onglets clairs — Livres & fichiers · Formations · Reçus — avec, pour chaque formation, la progression et le bouton Continuer.
+5. **Retour après paiement** : sur la page de succès, le bouton principal mène soit à la lecture immédiate, soit à « Créer mon compte pour retrouver mon achat » si l'acheteur n'était pas connecté — et après connexion il est renvoyé directement sur sa bibliothèque.
+6. **Zéro cul-de-sac** : si la bibliothèque est vide, une carte explique quoi faire (Explorer, ou devenir ambassadeur).
 
-- Une question par écran, une seule action primaire visible.
-- Zéro jargon : plus de « workspace », « organisation », « features », « modules ». On dit *mon espace*, *mon livre*, *mes ventes*.
-- Aucun formulaire long : tout ce qui peut être deviné est deviné (devise, langue, nom d'espace, catégorie).
-- Après publication : un seul encart « Ta prochaine étape » (une seule tâche à la fois).
+## 2. Flow Ambassadeur — « Gagner sans rien créer »
 
-## 5. Simplification radicale (−50%)
+Objectif : un visiteur qui veut juste gagner de l'argent obtient son premier lien de partage en 1 minute, sans créer de plateforme.
 
-**Supprimer de la vue par défaut** : étape Stratégie éditoriale, étape Illustrations, étape Aperçu PDF, étape Devise, choix « objectif », tuile *Gagner* pour les visiteurs, doublon *Vendre*/*Revenus*.
-**Fusionner** : *Vendre* + *Revenus* → **Ventes** ; *Découvrir* + *Explore* → **Découvrir** ; livre et formation → un seul point d'entrée **Créer**.
-**Automatiser** : création de l'espace, devise, langue, nom, catégorie, couverture, prix suggéré, choix KYC/KYB (déjà déduit de la catégorie).
-**Rendre invisible** : Paramètres avancés, API/Webhooks, promos, expériences, popups — regroupés derrière « Avancé ». Vérification d'identité affichée **uniquement** au moment du retrait.
+```text
+Arrivée → "Gagner de l'argent en partageant"
+            ↓
+   [Activer mon compte ambassadeur]  ← 1 tap, pas de formulaire
+            ↓
+   Catalogue à promouvoir (produits avec commission)
+            ↓
+   [Copier mon lien] / [Partager WhatsApp]
+            ↓
+   Suivi : clics · ventes · commissions · retrait
+```
 
-## 6. UX « waouh »
+Ce qu'on construit :
 
-- Aperçu qui se remplit ligne par ligne pendant la génération (perception de magie).
-- Confettis + son court à la publication, puis lien de vente déjà copié dans le presse-papier.
-- Micro-feedback : validation ✓ animée, boutons qui répondent au tap (scale 0.98), squelettes au lieu de spinners.
-- Messages courts et humains : « Ton livre est prêt. Mets-le en vente. » / « Ton premier lien de vente est prêt à être partagé. »
-- Transitions directionnelles (avance = glisse à gauche) pour donner un sens au parcours.
+1. **Entrée dédiée** : la carte « Gagner » du hub devient explicite (« Gagne une commission en partageant les livres et formations des autres ») et est visible aussi pour les visiteurs non connectés.
+2. **Activation en 1 tap** sur la page Gagner : un bouton « Activer mon compte ambassadeur » qui crée le lien d'affiliation en arrière-plan (mécanisme d'auto-inscription déjà en place), sans formulaire ni KYC à cette étape.
+3. **Catalogue ambassadeur** : liste des produits partageables avec la commission affichée en grand, recherche, et bouton Partager sur chaque carte qui génère le lien perso automatiquement.
+4. **Premier partage guidé** : après activation, une carte « Ton premier lien » avec copie en un tap + partage WhatsApp, puis un état « en attente du premier clic ».
+5. **Tableau de gains simple** : clics, ventes, commissions en attente, commissions payables, et bouton Retirer (le KYC n'est demandé qu'au moment du retrait, comme aujourd'hui pour les autres verticales).
+6. **Un ambassadeur reste un acheteur** : les deux mondes cohabitent dans la même navigation — Ma bibliothèque · Explorer · Gagner — sans jamais parler de « workspace » ni de « plateforme » à ces profils.
 
-## 7. Mobile
+## 3. Règle de navigation unifiée
 
-- Une action primaire fixe en bas de l'écran (pleine largeur, pouce).
-- 3 onglets seulement : **Créer · Découvrir · Mes ventes** (profil dans l'avatar).
-- Champs à saisie minimale : chips au lieu de listes déroulantes, dictée vocale mise en avant.
-- Sheets glissables plutôt que pages, retour toujours possible sans perdre le brouillon (déjà auto-sauvegardé).
+Après connexion, l'accueil s'adapte au profil sans lui demander de choisir :
 
-## 8. Conversion
+| Profil | Ce qu'il voit en premier |
+| --- | --- |
+| A acheté quelque chose | Reprendre la lecture / la formation |
+| Ambassadeur actif | Mes gains + partager un produit |
+| A une plateforme | Tableau de bord créateur (inchangé) |
+| Nouveau, rien | Explorer + les deux portes : Créer / Gagner |
 
-- Génération **avant** inscription : l'utilisateur voit son résultat, puis on demande le compte pour publier (l'infrastructure de reprise post-login existe déjà).
-- Prix suggérés + estimation de revenus (« 10 ventes = X FCFA ») à l'étape prix.
-- Relance des brouillons non publiés (moteur d'e-mails existant) : « Ton livre attend, il ne manque que le prix. »
-- Un seul CTA par écran, aucun lien secondaire concurrent.
-- Après première publication : proposer *Créer un deuxième produit* et *Gagner en partageant* (là seulement).
+---
 
-## 9. Flow « 1 minute wow »
+## Détails techniques
 
-`0:00` choisir *Un livre* → `0:10` dire le sujet → `0:15` génération animée → `0:45` aperçu réel → `0:50` prix en un tap → `0:60` lien de vente prêt à partager.
-
-## 10. Règles d'or
-
-1. Une question par écran, une seule action primaire.
-2. Le résultat avant l'effort : générer puis demander (compte, prix, réglages).
-3. Tout ce qui peut être deviné n'est jamais demandé.
-4. Deux menus = un menu ; deux mots pour la même chose = un mot.
-5. Jamais plus d'une « prochaine étape » affichée.
-
-## Détails techniques (implémentation)
-
-- **ActionHub** (`src/pages/ActionHub.tsx`) : réduire à 3 tuiles visiteur (Créer, Découvrir, Église/ONG) ; déplacer Vendre/Gagner/Revenus derrière l'état connecté.
-- **WriteWizard** (`src/components/write/WriteWizard.tsx`) : passer de 11 à 5 écrans visibles (Source → Génération → Aperçu → Prix → Partage) ; Stratégie / Illustrations / Cover avancée / Aperçu PDF déplacés dans un mode « Améliorer » post-publication, sans supprimer les composants existants.
-- **CreateOrgPage** (`src/pages/CreateOrgPage.tsx`) : supprimer l'étape devise (déjà auto-détectée) ; création implicite via `createWorkspace()` déclenchée par la publication, avec nom dérivé du titre et renommage possible plus tard.
-- **Navigation** (`src/lib/navigation/*`, `Sidebar.tsx`, `GlobalBottomNav.tsx`) : fusionner *Vendre* + *Revenus* en **Ventes**, *Explore* + *Découvrir* en **Découvrir** ; regrouper les items techniques sous « Avancé ».
-- **Formations** (`src/pages/admin/AdminProgramForm.tsx`) : ajouter un chemin guidé Générer → Aperçu → Prix → Publier, en gardant les onglets comme mode avancé.
-- **Vérification** (`verificationFlow.ts`) : afficher KYC/KYB uniquement à l'étape retrait, jamais pendant la création.
-
-Livraison suggérée par lots : (A) entrée + navigation fusionnée, (B) wizard livre 5 écrans + création d'espace implicite, (C) chemin guidé formation + polish waouh/mobile.
+- Nouveau hook `src/hooks/useMyLibrary.ts` : agrège `product_purchases` (+ `digital_products`), `program_enrollments` (+ `programs`), `church_sermon_pdf_purchases`, et expose `items`, `counts`, `continueItem`. La progression des formations réutilise `useCourseResume`.
+- Nouveaux composants sous `src/components/library/` : `ContinueCard.tsx`, `LibraryTabs.tsx`, `EmptyLibraryCard.tsx`.
+- `src/pages/dashboard/PersonalHome.tsx` : réordonnancement (Continue → bibliothèque → Explorer → rendez-vous) et branchement de la carte ambassadeur si aucun achat.
+- `src/pages/ResourcesPage.tsx` (`/my-purchases`) : passage en onglets, ajout de la progression et du bouton Continuer sur les formations (lecteur `LessonPlayerOverlay` déjà utilisé).
+- Libellés : `src/lib/navigation/actionNavItems.ts`, `Sidebar.tsx`, `MobileMenuDrawer.tsx`, `GlobalBottomNav.tsx` → « Ma bibliothèque » / « My library ».
+- Ambassadeur : nouveaux composants sous `src/components/gagner/` (`ActivateAmbassadorCard.tsx`, `AmbassadorCatalog.tsx`, `FirstLinkCard.tsx`) branchés sur `useAffiliateMarketplace` et `useAutoAffiliateCode` (RPC `self_enroll_affiliate`) — aucune nouvelle logique de commission.
+- `PaymentSuccessPage.tsx` : hiérarchie des CTA (lire maintenant / retrouver mon achat) et redirection post-connexion vers `/my-purchases`.
+- Aucun changement de base de données, de paiement, ni de logique de workspace. Tout est bilingue FR/EN via `useI18n`.
