@@ -16,6 +16,7 @@ import { ContinueBlock } from '@/components/home/ContinueBlock';
 import { SpaceBlock } from '@/components/home/SpaceBlock';
 import { EarningsBlock } from '@/components/home/EarningsBlock';
 import { UnlockRow } from '@/components/home/UnlockRow';
+import { getOnboardingIntent, intentToCapability } from '@/lib/siteviral/onboardingIntent';
 
 
 /**
@@ -138,7 +139,8 @@ export default function PersonalHome() {
 
   const orderedCapabilities: Capability[] = (() => {
     const base: Capability[] = ['learn', 'create', 'earn'];
-    const primary = caps.primaryCapability;
+    // Real activity wins; the welcome intent is only a fallback sorting hint.
+    const primary = caps.primaryCapability ?? intentToCapability(getOnboardingIntent());
     if (!primary) return base;
     return [primary, ...base.filter((c) => c !== primary)];
   })();

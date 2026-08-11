@@ -654,7 +654,7 @@ export async function onPaymentFailed(
     `Votre paiement de ${amount} ${currency} n'a pas pu être traité.`,
     'payment_failed',
     { amount, currency, reference },
-    'transaction', undefined, `/resources`,
+    'transaction', undefined, `/my-purchases`,
   );
 }
 
@@ -730,8 +730,8 @@ export async function onPurchaseConfirmed(
     '✅ Achat confirmé',
     `Votre achat de "${productName}" sur ${orgName} a été confirmé. Montant: ${amount} ${currency}`,
     'purchase_confirmation',
-    { product_name: productName, org_name: orgName, amount, currency, reference, access_link: 'https://siteviral.com/resources' },
-    'transaction', undefined, `/resources`,
+    { product_name: productName, org_name: orgName, amount, currency, reference, access_link: 'https://siteviral.com/my-purchases' },
+    'transaction', undefined, `/my-purchases`,
   );
 }
 

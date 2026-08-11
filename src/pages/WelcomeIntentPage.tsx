@@ -7,6 +7,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { useI18n } from '@/i18n/I18nContext';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { setOnboardingIntent, type OnboardingIntent } from '@/lib/siteviral/onboardingIntent';
 
 export default function WelcomeIntentPage() {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ export default function WelcomeIntentPage() {
       iconBg: 'bg-primary/10',
       iconColor: 'text-primary',
       badge: null as string | null,
-      route: '/resources',
+      route: '/my-purchases',
     }] : []),
     {
       key: 'create',
@@ -81,6 +82,8 @@ export default function WelcomeIntentPage() {
 
   const handleSelect = (intent: typeof intents[0]) => {
     markSeen();
+    // The intent is a sorting hint only — it never locks the user into a role.
+    setOnboardingIntent(intent.key as OnboardingIntent);
     if (user) {
       import('@/lib/db').then(({ db }) => {
         db.from('profiles').update({ onboarding_intent: intent.key }).eq('id', user.id);

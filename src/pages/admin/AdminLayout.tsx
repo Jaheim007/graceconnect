@@ -74,7 +74,7 @@ const groupLabels: Record<string, { label: string; icon: typeof BarChart3 }> = {
 // Mobile: keep the same primary navigation everywhere
 const mobilePrimaryLinks = [
   { to: '/dashboard', label: 'Home', icon: Home, end: true },
-  { to: '/resources', label: 'Purchases', icon: Package },
+  { to: '/my-purchases', label: 'Purchases', icon: Package },
   { to: '/admin/create', label: 'Create', icon: Plus },
   { to: '/gagner', label: 'Share', icon: Share2 },
 ];
