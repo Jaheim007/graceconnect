@@ -777,7 +777,7 @@ const App = () => (
                   <Route path="/settings" element={<ShortcutRedirect kind="settings" />} />
                   <Route path="/kyc" element={<ShortcutRedirect kind="kyc" />} />
                   <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/resources" element={<ResourcesPage />} />
+                  <Route path="/resources" element={<Navigate to="/my-purchases" replace />} />
                   <Route path="/my-donations" element={<MyDonationsPage />} />
                   <Route path="/dashboard" element={<DashboardRouter />} />
                   <Route path="/dashboard/home"       element={<DashboardRouter />} />
@@ -818,10 +818,10 @@ const App = () => (
                   <Route path="/bookmarks" element={<BookmarksPage />} />
                   <Route path="/wishlist" element={<Navigate to="/bookmarks" replace />} />
                   <Route path="/partner" element={<PartnerPortalPage />} />
-                  <Route path="/invoices" element={<MyInvoicesPage />} />
+                  <Route path="/my-invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
                   <Route path="/creator/analytics" element={<CreatorAdvancedAnalyticsPage />} />
-                  <Route path="/my-purchases?tab=courses" element={<Navigate to="/my-purchases?tab=courses" replace />} />
+                  <Route path="/invoices" element={<Navigate to="/my-purchases?tab=receipts" replace />} />
                   <Route path="/my-purchases" element={<ResourcesPage />} />
 
 
