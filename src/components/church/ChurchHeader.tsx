@@ -122,7 +122,7 @@ export function ChurchHeader({ showBack = true, right }: ChurchHeaderProps) {
                 {displayName || user.email}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate("/my-donations")}>
+              <DropdownMenuItem onClick={() => navigate("/my-purchases?tab=giving")}>
                 <HandHeart className="mr-2 h-4 w-4" />
                 {t("Mes dons", "My donations")}
               </DropdownMenuItem>

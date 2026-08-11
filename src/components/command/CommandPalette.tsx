@@ -43,7 +43,7 @@ export function CommandPalette() {
     const list: CmdItem[] = [
       { label: t('cmd.dashboard'), to: '/dashboard', icon: Home, group: t('cmd.my_space'), keywords: 'dashboard accueil home' },
       { label: t('cmd.my_purchases'), to: '/my-purchases', icon: Package, group: t('cmd.my_space'), keywords: 'purchases resources achats' },
-      { label: t('cmd.my_donations'), to: '/my-donations', icon: Heart, group: t('cmd.my_space'), keywords: 'donations dons' },
+      { label: t('cmd.my_donations'), to: '/my-purchases?tab=giving', icon: Heart, group: t('cmd.my_space'), keywords: 'donations dons' },
       { label: t('cmd.discover'), to: '/marketplace', icon: Store, group: t('cmd.my_space'), keywords: 'marketplace explore shop découvrir' },
       { label: t('cmd.notifications'), to: '/notifications', icon: Bell, group: t('cmd.my_space') },
       { label: t('cmd.profile'), to: '/profile', icon: User, group: t('cmd.my_space'), keywords: 'account settings profil' },

@@ -776,7 +776,7 @@ const App = () => (
                   <Route path="/kyc" element={<ShortcutRedirect kind="kyc" />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/resources" element={<Navigate to="/my-purchases" replace />} />
-                  <Route path="/my-donations" element={<Navigate to="/my-purchases?tab=giving" replace />} />
+                  <Route path="/my-purchases?tab=giving" element={<Navigate to="/my-purchases?tab=giving" replace />} />
                   <Route path="/dashboard" element={<DashboardRouter />} />
                   <Route path="/dashboard/home"       element={<DashboardRouter />} />
                   <Route path="/dashboard/activity"   element={<PersonalActivityPage />} />
