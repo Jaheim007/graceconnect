@@ -43,6 +43,13 @@ export default function AuthPage() {
     if (inviteCode) sessionStorage.setItem('sv_invite_code', inviteCode);
   }, [inviteCode]);
 
+  // Coming back from a guest checkout: the email is known, go straight to the
+  // magic-link step so claiming the purchase is a single tap.
+  useEffect(() => {
+    if (searchParams.get('email')) setMethod('magic-link');
+  }, [searchParams]);
+
+
   // Store intent for post-login redirect
   useEffect(() => {
     if (intent === 'ambassador' || intent === 'creator' || intent === 'partner') {
