@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, BarChart3, ShoppingBag, GraduationCap, Users, Megaphone, Settings, Compass, HandCoins, Menu as MenuIcon } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, BarChart3, ShoppingBag, GraduationCap, Users, Megaphone, Settings, Compass, HandCoins, Gift, Menu as MenuIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
+
 import { useLocation } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 
@@ -90,7 +92,8 @@ const MOBILE_STEPS: TourStep[] = [
   },
 ];
 
-const STEPS: TourStep[] = [
+function buildSteps(isChurch: boolean): TourStep[] {
+  return [
   {
     icon: <BarChart3 className="h-5 w-5" />,
     targets: ['[data-nav-route="/admin"]', '[data-nav-route="/dashboard"]'],
@@ -122,8 +125,28 @@ const STEPS: TourStep[] = [
     tip_en: 'A single PDF can become a full course.',
   },
   {
+    // Giving (churches) vs Campaigns (every other platform type) — the label
+    // must match exactly what the highlighted nav item says.
+    icon: <Gift className="h-5 w-5" />,
+    targets: ['[data-nav-route="/admin/campaigns"]'],
+    title_fr: isChurch ? 'Recevoir des dons' : 'Vos campagnes',
+    title_en: isChurch ? 'Receive giving' : 'Your campaigns',
+    desc_fr: isChurch
+      ? 'Votre page de dons : offrandes, dîmes et dons ponctuels, avec un lien à partager.'
+      : 'Lancez une collecte ou acceptez des cadeaux de votre audience, avec un lien à partager.',
+    desc_en: isChurch
+      ? 'Your giving page: offerings, tithes, and one-time gifts, with a link you can share.'
+      : 'Launch a fundraiser or accept gifts from your audience, with a link you can share.',
+    tip_fr: isChurch
+      ? 'La page de dons reste accessible même sans objectif fixé.'
+      : 'Fixez un objectif pour afficher une barre de progression.',
+    tip_en: isChurch
+      ? 'Your giving page stays reachable even without a goal set.'
+      : 'Set a goal to display a progress bar.',
+  },
+  {
     icon: <Megaphone className="h-5 w-5" />,
-    targets: ['[data-nav-route="/admin/campaigns"]', '[data-nav-route="/admin/events"]', '[data-nav-route="/admin/media"]'],
+    targets: ['[data-nav-route="/admin/announcements"]', '[data-nav-route="/admin/media"]', '[data-nav-route="/admin/events"]'],
     title_fr: 'Parler à votre audience',
     title_en: 'Reach your audience',
     desc_fr: 'Annonces, médias et événements pour garder votre communauté engagée.',
@@ -153,7 +176,9 @@ const STEPS: TourStep[] = [
     tip_fr: 'Complétez le KYC pour recevoir vos paiements.',
     tip_en: 'Complete KYC to receive your payouts.',
   },
-];
+  ];
+}
+
 
 interface Rect { top: number; left: number; width: number; height: number }
 
@@ -196,11 +221,13 @@ export function OnboardingTour() {
   const [step, setStep] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
   /** Only steps whose target actually exists in the current navigation. */
-  const [steps, setSteps] = useState<TourStep[]>(STEPS);
+  const [steps, setSteps] = useState<TourStep[]>(() => buildSteps(false));
   const { user } = useAuth();
+  const { currentOrg } = useOrg();
   const location = useLocation();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+  const isChurch = currentOrg?.siteviral_type === 'church';
 
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isHubRoute = location.pathname === '/' || location.pathname.startsWith('/dashboard');
@@ -214,14 +241,15 @@ export function OnboardingTour() {
     const done = LEGACY_TOUR_KEYS.some((k) => localStorage.getItem(k));
     if (done) return;
     const t = setTimeout(() => {
-      const base = window.innerWidth < 768 ? MOBILE_STEPS : STEPS;
+      const base = window.innerWidth < 768 ? MOBILE_STEPS : buildSteps(isChurch);
       const available = base.filter((s) => s.always || !!findEl(s.targets));
       setSteps(available.length > 0 ? available : base.filter((s) => s.always));
       setStep(0);
       setActive(true);
     }, 1000);
     return () => clearTimeout(t);
-  }, [user, isAdminRoute, isHubRoute]);
+  }, [user, isAdminRoute, isHubRoute, isChurch]);
+
 
   const current = steps[step] ?? steps[0];
 
