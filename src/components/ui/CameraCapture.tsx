@@ -130,7 +130,13 @@ export function CameraCapture({
     setError(null);
     try {
       const blob = await (await fetch(dataUrl)).blob();
-      const fileName = `${folder}/${Date.now()}-capture.jpg`;
+      let fileName = `${folder}/${Date.now()}-capture.jpg`;
+      if (bucket === 'private-products') {
+        const { data: authData } = await supabase.auth.getUser();
+        const uid = authData?.user?.id;
+        if (!uid) throw new Error('Not authenticated');
+        fileName = `${folder}/${uid}/${Date.now()}-capture.jpg`;
+      }
       const { error: uploadError } = await supabase.storage
         .from(bucket)
         .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });

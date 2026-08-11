@@ -65,7 +65,14 @@ export function FileUploader({
     try {
       const ext = file.name.split('.').pop();
       const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
-      const fileName = `${folder}/${Date.now()}-${safeName}`;
+      let fileName = `${folder}/${Date.now()}-${safeName}`;
+      if (bucket === 'private-products') {
+        // Private product files live under the uploader's own folder (RLS-scoped)
+        const { data: authData } = await supabase.auth.getUser();
+        const uid = authData?.user?.id;
+        if (!uid) throw new Error('Not authenticated');
+        fileName = `${folder}/${uid}/${Date.now()}-${safeName}`;
+      }
       const { error: uploadError } = await supabase.storage
         .from(bucket)
         .upload(fileName, file, { upsert: true });
