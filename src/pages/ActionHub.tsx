@@ -307,7 +307,7 @@ export default function ActionHub() {
 
             <div className="relative rounded-[24px] bg-[hsl(var(--cert-paper))]/95 dark:bg-[#0e0d16]/95 backdrop-blur-xl p-3 sm:p-4">
               <div className="grid gap-2.5 sm:grid-cols-2">
-                {actions.map((action) => (
+                {actions.map((action, idx) => (
                   <button
                     key={action.id}
                     onClick={() => handleAction(action)}
@@ -321,10 +321,25 @@ export default function ActionHub() {
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--brand-blue))]/50',
                     )}
                   >
+                    {/* Slow travelling sheen — never parks on one side */}
+                    <motion.span
+                      aria-hidden
+                      initial={{ x: '-160%' }}
+                      animate={{ x: '180%' }}
+                      transition={{
+                        duration: 9,
+                        ease: 'easeInOut',
+                        repeat: Infinity,
+                        repeatDelay: 4,
+                        delay: 0.8 + idx * 0.45,
+                      }}
+                      className="pointer-events-none absolute inset-y-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 dark:via-white/[0.07] to-transparent"
+                    />
                     <span
                       aria-hidden
                       className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(120%_120%_at_0%_0%,hsl(var(--brand-blue)/0.12),transparent_60%)]"
                     />
+
                     <div className={cn(
                       'relative h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-inset ring-current/15 transition-transform duration-200 group-hover:scale-[1.06]',
                       action.iconBg, action.iconColor
