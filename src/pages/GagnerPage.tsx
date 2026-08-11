@@ -224,7 +224,9 @@ export default function GagnerPage() {
 
 
         <SocialProofBanner />
+        <LiveEarningsTicker />
         <ActivateAmbassadorCard />
+
         <QuickShareWidget />
         <EarningsCalculator />
         <GagnerTabs />
