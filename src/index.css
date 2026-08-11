@@ -745,7 +745,7 @@ body > div[style*="position: fixed"][style*="opacity"] {
   background-color: hsl(var(--cert-paper));
   position: relative;
 }
-.dark .app-ambient { background-color: #08070f; }
+.dark .app-ambient { background-color: hsl(var(--background)); }
 .app-ambient::before,
 .app-ambient::after {
   content: '';
