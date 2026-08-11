@@ -61,22 +61,9 @@ export default function DashboardRouter() {
       </div>
     );
   }
-
-  // B) workspace ready → go to admin overview
-  if (currentOrg && canManage(currentOrg.id)) {
-    return <Navigate to="/admin" replace />;
-  }
-
-  // Auto-pick in progress (effect will fire) — brief skeleton, never a chooser
-  if (manageableOrgs.length > 0) {
-    return (
-      <div className="container max-w-2xl px-4 py-8 space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-24 w-full rounded-2xl" />
-      </div>
-    );
-  }
-
-  // D) zero manageable workspaces → account home
+  // Capabilities are cumulative: the unified home is the single entry point for
+  // everyone. Users with a space reach /admin from the "Mon espace" block or the
+  // sidebar — we never redirect away and hide their library / earnings.
   return <PersonalHome />;
 }
+
