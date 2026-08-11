@@ -49,13 +49,21 @@ export default function CreateOrgPage() {
   const worldParam = (searchParams.get('world') || searchParams.get('activity') || '') as SiteviralWorld;
   const presetWorld: SiteviralWorld | null = worldParam && worldParam in WORLDS ? worldParam : null;
 
+  // ?scope=faith — dedicated Church / NGO entry point: only faith-based
+  // profiles are offered (Creator & Community are hidden).
+  const faithScope = searchParams.get('scope') === 'faith';
+  const visibleProfiles = faithScope
+    ? PLATFORM_PROFILES.filter((p) => p.id === 'church' || p.id === 'ngo')
+    : PLATFORM_PROFILES;
+
   const presetProfile = profileForWorld(presetWorld);
   const [step, setStep] = useState(presetProfile ? 1 : 0); // 0=platform profile, 1=name, 2=currency + create
   const [loading, setLoading] = useState(false);
   const [resuming, setResuming] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [profileId, setProfileId] = useState<PlatformProfileId>(presetProfile ?? 'creator');
+  const [profileId, setProfileId] = useState<PlatformProfileId>(presetProfile ?? (faithScope ? 'church' : 'creator'));
   const profile = getPlatformProfile(profileId);
+
   const [selectedGoal, setSelectedGoal] = useState<string>(profile.objectives[0].id);
   const selectedWorld: SiteviralWorld = profile.world;
 
