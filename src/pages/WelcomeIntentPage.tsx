@@ -29,7 +29,7 @@ export default function WelcomeIntentPage() {
       iconBg: 'bg-primary/10',
       iconColor: 'text-primary',
       badge: null as string | null,
-      route: '/resources',
+      route: '/my-purchases',
     }] : []),
     {
       key: 'create',
