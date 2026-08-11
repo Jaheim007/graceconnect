@@ -44,6 +44,10 @@
     --sidebar-border: 220 55% 26%;
     --sidebar-ring: 212 92% 58%;
 
+    /* Brand blue accents (replaces the old gold trim) */
+    --brand-blue: 212 92% 50%;
+    --brand-blue-soft: 212 85% 66%;
+
     /* Custom tokens (brand blue) */
     --gold: 212 92% 50%;
     --gold-muted: 212 60% 92%;
@@ -118,6 +122,10 @@
     --sidebar-accent-foreground: 215 18% 90%;
     --sidebar-border: 220 42% 20%;
     --sidebar-ring: 212 95% 62%;
+
+    /* Brand blue accents */
+    --brand-blue: 212 95% 62%;
+    --brand-blue-soft: 212 90% 74%;
 
     /* Custom dark tokens */
     --gold: 212 95% 64%;
