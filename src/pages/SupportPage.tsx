@@ -19,6 +19,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
 import { sendEmailNotification } from '@/lib/api';
+import TicketScreenshot from '@/components/support/TicketScreenshot';
 
 const FAQS_EN = [
   {

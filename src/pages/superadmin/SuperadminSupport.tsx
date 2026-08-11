@@ -16,6 +16,7 @@ import {
   User, ArrowLeft, Loader2, MailCheck, RefreshCw, Mail, Image as ImageIcon
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import TicketScreenshot from '@/components/support/TicketScreenshot';
 
 const STATUS_COLORS: Record<string, string> = {
   open: 'bg-amber-500/15 text-amber-600',
