@@ -213,6 +213,9 @@ export type EmailTemplate =
   // Misc
   | 'flash_sale_alert' | 'promo_code_used' | 'org_verified'
   | 'waitlist_spot_available' | 'referral_reward'
+  // Activation ladder + payout ready
+  | 'activation_draft_waiting' | 'activation_publish_3_taps' | 'activation_no_creation_yet'
+  | 'activation_published_no_traffic' | 'activation_last_call' | 'payout_ready_verify'
   | 'credits_low' | 'credits_empty';
 
 export async function sendEmailNotification(
