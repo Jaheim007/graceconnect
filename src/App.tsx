@@ -818,7 +818,7 @@ const App = () => (
                   <Route path="/bookmarks" element={<BookmarksPage />} />
                   <Route path="/wishlist" element={<Navigate to="/bookmarks" replace />} />
                   <Route path="/partner" element={<PartnerPortalPage />} />
-                  <Route path="/invoices" element={<MyInvoicesPage />} />
+                  <Route path="/my-invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
                   <Route path="/creator/analytics" element={<CreatorAdvancedAnalyticsPage />} />
                   <Route path="/invoices" element={<Navigate to="/my-purchases?tab=receipts" replace />} />
