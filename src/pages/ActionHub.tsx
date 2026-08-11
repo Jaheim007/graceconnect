@@ -343,11 +343,12 @@ export default function ActionHub() {
             <Button
               variant="outline"
               size="sm"
-              className="h-9 rounded-xl border-[hsl(var(--brand-blue))]/30 bg-transparent px-4 text-xs font-semibold backdrop-blur-xl hover:border-[hsl(var(--brand-blue))]/60 hover:bg-[hsl(var(--brand-blue))]/10"
+              className="h-auto min-h-9 max-w-full whitespace-normal rounded-xl border-[hsl(var(--brand-blue))]/30 bg-transparent px-4 py-2 text-xs font-semibold leading-snug backdrop-blur-xl hover:border-[hsl(var(--brand-blue))]/60 hover:bg-[hsl(var(--brand-blue))]/10"
               onClick={() => navigate('/landing')}
             >
               {isFr ? 'En savoir plus sur SiteViral' : 'Learn more about SiteViral'}
-              <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+              <ArrowRight className="ml-1.5 h-3.5 w-3.5 shrink-0" />
+
             </Button>
 
           </motion.div>
