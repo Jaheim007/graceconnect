@@ -1,7 +1,7 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { APP_BASE_URL, errorResult, supabaseForUser, textResult } from "../supabase";
 
-const RELEVANT_ACTIONS = ["ai_course_structure", "generate_illustration", "ai_book_content"];
+const RELEVANT_ACTIONS = ["ai_course_structure", "ai_course_image", "generate_outline", "generate_book"];
 
 export default defineTool({
   name: "get_my_credits",

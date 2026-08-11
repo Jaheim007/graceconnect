@@ -564,7 +564,7 @@ ${lines}`, { org_id: org.id, drafts: rows });
 
 // src/lib/mcp/tools/get-my-credits.ts
 import { defineTool as defineTool11 } from "npm:@lovable.dev/mcp-js@0.20.0";
-var RELEVANT_ACTIONS = ["ai_course_structure", "generate_illustration", "ai_book_content"];
+var RELEVANT_ACTIONS = ["ai_course_structure", "ai_course_image", "generate_outline", "generate_book"];
 var get_my_credits_default = defineTool11({
   name: "get_my_credits",
   title: "Get my credits",
