@@ -402,6 +402,8 @@ export default function PersonalHome() {
             </Link>
           </div>
         </section>
+        )}
+
 
       </div>
     </div>
