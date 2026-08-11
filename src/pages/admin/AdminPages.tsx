@@ -19,8 +19,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, ChevronRight, Eye, EyeOff, Megaphone, CalendarDays, PackageOpen, Building2, Save, HandHeart, User, FolderOpen, Globe, SlidersHorizontal, ShieldCheck } from 'lucide-react';
+import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, ChevronRight, Eye, EyeOff, Megaphone, CalendarDays, PackageOpen, Building2, Save, HandHeart, User, FolderOpen, Globe, SlidersHorizontal, ShieldCheck, Bot } from 'lucide-react';
 import IdentityVerificationSettings from '@/components/verification/IdentityVerificationSettings';
+import AssistantConnectionsSettings from '@/components/settings/AssistantConnectionsSettings';
 
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -1428,9 +1429,13 @@ export function AdminSettings() {
     { key: 'domains', icon: Globe, tone: 'text-cyan-600 bg-cyan-500/10',
       titleFr: 'Domaines', titleEn: 'Domains',
       descFr: 'Connectez votre nom de domaine personnalisé', descEn: 'Connect your custom domain name' },
+    { key: 'assistants', icon: Bot, tone: 'text-indigo-600 bg-indigo-500/10',
+      titleFr: 'Connexions assistants', titleEn: 'Assistant connections',
+      descFr: 'Crée tes livres et cours depuis ChatGPT ou Claude', descEn: 'Create books and courses from ChatGPT or Claude' },
     { key: 'advanced', icon: SlidersHorizontal, tone: 'text-slate-600 bg-slate-500/10',
       titleFr: 'Avancé', titleEn: 'Advanced',
       descFr: 'Pixels de suivi, webhooks et pop-ups', descEn: 'Tracking pixels, webhooks and pop-ups' },
+
     ...(currentOrg?.owner_id === user?.id
       ? [{ key: 'danger', icon: AlertTriangle, tone: 'text-destructive bg-destructive/10',
           titleFr: 'Zone dangereuse', titleEn: 'Danger zone',
@@ -1512,6 +1517,9 @@ export function AdminSettings() {
             kycStatus={currentOrg.kyc_status}
           />
         )}
+
+        {/* ── ASSISTANT CONNECTIONS (ChatGPT / Claude / MCP) ── */}
+        {active?.key === 'assistants' && <AssistantConnectionsSettings />}
 
         {/* ── 1. PROFILE ── */}
 

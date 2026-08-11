@@ -12,7 +12,7 @@
   "mcp": {
     "server": {
       "name": "siteviral-mcp",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "title": "SiteViral MCP"
     },
     "tools": [
@@ -130,6 +130,250 @@
           },
           "required": [
             "organization_id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_my_credits",
+        "title": "Get my credits",
+        "description": "Show the signed-in user's SiteViral credit balance and the cost of the main AI generation actions, so a creation can be priced before it is launched.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_drafts",
+        "title": "List my drafts",
+        "description": "List the signed-in creator's recent SiteViral drafts (books, courses and other AI projects) with their status and a direct link into the app.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "org_id": {
+              "description": "Workspace id. Required only when the user has several.",
+              "type": "string"
+            },
+            "limit": {
+              "description": "How many drafts to return (1-25). Defaults to 10.",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_course_from_prompt",
+        "title": "Create a course draft from a brief",
+        "description": "Start an AI course draft on SiteViral from a plain brief (topic + options). Runs the same generation engine as the app, charges the user's credits, and returns a job id plus a link to the draft. The draft is never published automatically — the creator reviews, prices and publishes it in the app.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "topic": {
+              "type": "string",
+              "description": "What the course should teach. One or two sentences describing subject and goal."
+            },
+            "title": {
+              "description": "Optional course title. Generated from the topic when omitted.",
+              "type": "string"
+            },
+            "language": {
+              "description": "Course language. Defaults to French.",
+              "type": "string",
+              "enum": [
+                "fr",
+                "en"
+              ]
+            },
+            "tier": {
+              "description": "standard = 8-12 lessons, premium = 14-18 deeper lessons. Defaults to standard.",
+              "type": "string",
+              "enum": [
+                "standard",
+                "premium"
+              ]
+            },
+            "level": {
+              "description": "Audience level.",
+              "type": "string",
+              "enum": [
+                "beginner",
+                "intermediate",
+                "advanced"
+              ]
+            },
+            "generate_images": {
+              "description": "Generate one illustration per lesson. Costs extra credits. Defaults to false.",
+              "type": "boolean"
+            },
+            "org_id": {
+              "description": "Workspace id. Required only when the user has several.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "topic"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_course_from_text",
+        "title": "Create a course draft from pasted text",
+        "description": "Start an AI course draft on SiteViral from source material the user pastes (notes, transcript, article, outline). Uses the same document-to-course engine as the app and charges the user's credits. Returns a job id and a link to the draft; nothing is published automatically.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "source_text": {
+              "type": "string",
+              "description": "The raw source material to turn into a course."
+            },
+            "title": {
+              "description": "Optional course title.",
+              "type": "string"
+            },
+            "language": {
+              "description": "Course language. Defaults to French.",
+              "type": "string",
+              "enum": [
+                "fr",
+                "en"
+              ]
+            },
+            "tier": {
+              "description": "Defaults to standard.",
+              "type": "string",
+              "enum": [
+                "standard",
+                "premium"
+              ]
+            },
+            "level": {
+              "description": "Audience level.",
+              "type": "string",
+              "enum": [
+                "beginner",
+                "intermediate",
+                "advanced"
+              ]
+            },
+            "generate_images": {
+              "description": "One illustration per lesson (extra credits).",
+              "type": "boolean"
+            },
+            "org_id": {
+              "description": "Workspace id. Required only when the user has several.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_book_draft",
+        "title": "Create a book draft",
+        "description": "Create an ebook draft on SiteViral and generate its outline with AI. Uses the app's own Studio generation engine and the user's credits. Returns a job id and a link to the draft project, where the creator writes/expands chapters and decides on pricing and publishing.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "Working title of the book."
+            },
+            "topic": {
+              "type": "string",
+              "description": "What the book is about — subject, angle, promise."
+            },
+            "target_audience": {
+              "description": "Who the book is for.",
+              "type": "string"
+            },
+            "tone": {
+              "description": "Tone of voice, e.g. professional, warm, direct.",
+              "type": "string"
+            },
+            "chapter_count": {
+              "description": "Desired number of chapters (4-20). Defaults to 8.",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "language": {
+              "description": "Book language. Defaults to French.",
+              "type": "string",
+              "enum": [
+                "fr",
+                "en"
+              ]
+            },
+            "org_id": {
+              "description": "Workspace id. Required only when the user has several.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "topic"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_generation_status",
+        "title": "Get generation status",
+        "description": "Check the progress of a SiteViral AI generation job (course or book) started by create_course_from_prompt, create_course_from_text or create_book_draft.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "job_id": {
+              "type": "string",
+              "description": "The job id returned when the generation was started."
+            }
+          },
+          "required": [
+            "job_id"
           ]
         },
         "outputSchema": null
