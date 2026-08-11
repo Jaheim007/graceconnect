@@ -64,7 +64,11 @@ type EmailTemplate =
   | 'founder_welcome'
   | 'monthly_commission_recap_paid' | 'monthly_commission_recap_saved'
   | 'product_unpublished_no_cover'
-  | 'course_unpublished_no_price';
+  | 'course_unpublished_no_price'
+  // ═══ ACTIVATION LADDER (never published) + PAYOUT READY ═══
+  | 'activation_draft_waiting' | 'activation_publish_3_taps' | 'activation_no_creation_yet'
+  | 'activation_published_no_traffic' | 'activation_last_call'
+  | 'payout_ready_verify';
 
 
 type Lang = 'fr' | 'en';
