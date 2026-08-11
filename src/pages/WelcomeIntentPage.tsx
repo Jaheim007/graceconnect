@@ -81,6 +81,8 @@ export default function WelcomeIntentPage() {
 
   const handleSelect = (intent: typeof intents[0]) => {
     markSeen();
+    // The intent is a sorting hint only — it never locks the user into a role.
+    setOnboardingIntent(intent.key as OnboardingIntent);
     if (user) {
       import('@/lib/db').then(({ db }) => {
         db.from('profiles').update({ onboarding_intent: intent.key }).eq('id', user.id);
