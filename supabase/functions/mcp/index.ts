@@ -172,18 +172,445 @@ var get_org_analytics_default = defineTool5({
   }
 });
 
+// src/lib/mcp/tools/create-course-from-prompt.ts
+import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z4 } from "npm:zod@^4.4.3";
+
+// src/lib/mcp/supabase.ts
+import { createClient as createClient5 } from "npm:@supabase/supabase-js@^2.97.0";
+function runtimeEnv(name) {
+  const runtime = globalThis;
+  return runtime.Deno?.env?.get?.(name) ?? runtime.process?.env?.[name];
+}
+function configuredEnv(names) {
+  for (const name of names) {
+    const value = runtimeEnv(name)?.trim();
+    if (value) return value;
+  }
+  return void 0;
+}
+function supabaseProjectUrl() {
+  const url = configuredEnv(["SUPABASE_URL", "VITE_SUPABASE_URL"]);
+  if (!url) throw new Error("SUPABASE_URL (or VITE_SUPABASE_URL) is required");
+  return url.replace(/\/$/, "");
+}
+function supabasePublishableKey() {
+  const direct = configuredEnv(["SUPABASE_PUBLISHABLE_KEY", "VITE_SUPABASE_PUBLISHABLE_KEY"]);
+  if (direct) return direct;
+  const keyset = runtimeEnv("SUPABASE_PUBLISHABLE_KEYS");
+  if (keyset) {
+    try {
+      const parsed = JSON.parse(keyset);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        const keys = parsed;
+        const key = [keys.default, ...Object.values(keys)].find((v) => typeof v === "string" && v.trim().startsWith("sb_publishable_"))?.trim();
+        if (key) return key;
+      }
+    } catch {
+    }
+  }
+  const legacy = configuredEnv(["SUPABASE_ANON_KEY", "VITE_SUPABASE_ANON_KEY"]);
+  if (legacy) return legacy;
+  throw new Error("SUPABASE_PUBLISHABLE_KEY, SUPABASE_PUBLISHABLE_KEYS or SUPABASE_ANON_KEY is required");
+}
+function supabaseForUser(ctx) {
+  const token = ctx.getToken();
+  if (!token) throw new Error("supabaseForUser requires a verified OAuth token");
+  return createClient5(supabaseProjectUrl(), supabasePublishableKey(), {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+}
+var APP_BASE_URL = "https://siteviral.com";
+function textResult(text, structured) {
+  return {
+    content: [{ type: "text", text }],
+    ...structured ? { structuredContent: structured } : {}
+  };
+}
+function errorResult(text) {
+  return { content: [{ type: "text", text }], isError: true };
+}
+async function callEdgeFunction(ctx, name, body) {
+  const token = ctx.getToken();
+  if (!token) return { ok: false, status: 401, data: null, error: "Not authenticated" };
+  const res = await fetch(`${supabaseProjectUrl()}/functions/v1/${name}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      apikey: supabasePublishableKey()
+    },
+    body: JSON.stringify(body)
+  });
+  let data = null;
+  const raw = await res.text();
+  try {
+    data = raw ? JSON.parse(raw) : null;
+  } catch {
+    data = raw ? { error: raw.slice(0, 500) } : null;
+  }
+  if (!res.ok || data?.error) {
+    return { ok: false, status: res.status, data, error: data?.error || `${name} failed (${res.status})` };
+  }
+  return { ok: true, status: res.status, data };
+}
+async function resolveOrg(ctx, orgId) {
+  const supa = supabaseForUser(ctx);
+  const { data, error } = await supa.from("organization_members").select("role, organization_id, organizations(id, name)").eq("user_id", ctx.getUserId()).in("role", ["owner", "admin", "editor"]);
+  if (error) return { error: error.message };
+  const rows = (data ?? []).map((m) => ({
+    id: m.organization_id,
+    name: m.organizations?.name ?? "Workspace",
+    role: m.role
+  }));
+  if (rows.length === 0) {
+    return {
+      error: `No workspace found where you can create content. Create your platform first at ${APP_BASE_URL}/create-org`
+    };
+  }
+  if (orgId) {
+    const match = rows.find((r) => r.id === orgId);
+    if (!match) return { error: `You are not an owner/admin/editor of workspace ${orgId}.` };
+    return { org: match };
+  }
+  if (rows.length > 1) {
+    const list = rows.map((r) => `- ${r.name} (${r.id})`).join("\n");
+    return {
+      error: "You have several workspaces. Ask which one to use and pass its org_id:\n" + list
+    };
+  }
+  return { org: rows[0] };
+}
+
+// src/lib/mcp/tools/create-course-from-prompt.ts
+var create_course_from_prompt_default = defineTool6({
+  name: "create_course_from_prompt",
+  title: "Create a course draft from a brief",
+  description: "Start an AI course draft on SiteViral from a plain brief (topic + options). Runs the same generation engine as the app, charges the user's credits, and returns a job id plus a link to the draft. The draft is never published automatically \u2014 the creator reviews, prices and publishes it in the app.",
+  inputSchema: {
+    topic: z4.string().describe("What the course should teach. One or two sentences describing subject and goal."),
+    title: z4.string().optional().describe("Optional course title. Generated from the topic when omitted."),
+    language: z4.enum(["fr", "en"]).optional().describe("Course language. Defaults to French."),
+    tier: z4.enum(["standard", "premium"]).optional().describe("standard = 8-12 lessons, premium = 14-18 deeper lessons. Defaults to standard."),
+    level: z4.enum(["beginner", "intermediate", "advanced"]).optional().describe("Audience level."),
+    generate_images: z4.boolean().optional().describe("Generate one illustration per lesson. Costs extra credits. Defaults to false."),
+    org_id: z4.string().optional().describe("Workspace id. Required only when the user has several.")
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const topic = input.topic?.trim() ?? "";
+    if (topic.length < 10) return errorResult("Please give a fuller brief (at least 10 characters).");
+    if (topic.length > 2e3) return errorResult("The brief is too long \u2014 keep it under 2000 characters.");
+    const { org, error } = await resolveOrg(ctx, input.org_id);
+    if (!org) return errorResult(error ?? "No workspace available.");
+    const res = await callEdgeFunction(ctx, "course-from-document", {
+      org_id: org.id,
+      source: "prompt",
+      prompt: topic,
+      title: input.title?.trim() || void 0,
+      language: input.language ?? "fr",
+      tier: input.tier ?? "standard",
+      level: input.level ?? "beginner",
+      generate_images: input.generate_images === true
+    });
+    if (!res.ok) return errorResult(res.error ?? "Course generation could not be started.");
+    const projectId = res.data?.project_id;
+    const jobId = res.data?.job_id;
+    const link = `${APP_BASE_URL}/admin/programs/draft/${projectId}`;
+    return textResult(
+      `Course generation started in "${org.name}" (${input.tier ?? "standard"} tier).
+Job id: ${jobId}
+Draft: ${link}
+Use get_generation_status with this job id to follow progress. Nothing is published until the creator reviews and prices the course in the app.`,
+      { project_id: projectId, job_id: jobId, org_id: org.id, draft_url: link }
+    );
+  }
+});
+
+// src/lib/mcp/tools/create-course-from-text.ts
+import { defineTool as defineTool7 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z5 } from "npm:zod@^4.4.3";
+var MAX_CHARS = 12e4;
+var create_course_from_text_default = defineTool7({
+  name: "create_course_from_text",
+  title: "Create a course draft from pasted text",
+  description: "Start an AI course draft on SiteViral from source material the user pastes (notes, transcript, article, outline). Uses the same document-to-course engine as the app and charges the user's credits. Returns a job id and a link to the draft; nothing is published automatically.",
+  inputSchema: {
+    source_text: z5.string().describe("The raw source material to turn into a course."),
+    title: z5.string().optional().describe("Optional course title."),
+    language: z5.enum(["fr", "en"]).optional().describe("Course language. Defaults to French."),
+    tier: z5.enum(["standard", "premium"]).optional().describe("Defaults to standard."),
+    level: z5.enum(["beginner", "intermediate", "advanced"]).optional().describe("Audience level."),
+    generate_images: z5.boolean().optional().describe("One illustration per lesson (extra credits)."),
+    org_id: z5.string().optional().describe("Workspace id. Required only when the user has several.")
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const source = input.source_text?.trim() ?? "";
+    if (source.length < 400) {
+      return errorResult(
+        "The pasted text is too short to build a course from. Paste at least a few paragraphs, or use create_course_from_prompt instead."
+      );
+    }
+    if (source.length > MAX_CHARS) {
+      return errorResult(`The pasted text is too long (max ${MAX_CHARS} characters).`);
+    }
+    const { org, error } = await resolveOrg(ctx, input.org_id);
+    if (!org) return errorResult(error ?? "No workspace available.");
+    const supa = supabaseForUser(ctx);
+    const path = `mcp-text/${org.id}/${Date.now()}-${crypto.randomUUID()}.txt`;
+    const { error: upErr } = await supa.storage.from("media").upload(path, new Blob([source], { type: "text/plain" }), { contentType: "text/plain" });
+    if (upErr) return errorResult(`Could not store the source text: ${upErr.message}`);
+    const { data: urlData } = supa.storage.from("media").getPublicUrl(path);
+    const res = await callEdgeFunction(ctx, "course-from-document", {
+      org_id: org.id,
+      source: "document",
+      file_url: urlData.publicUrl,
+      file_name: `${(input.title?.trim() || "source").slice(0, 60)}.txt`,
+      mime: "text/plain",
+      title: input.title?.trim() || void 0,
+      language: input.language ?? "fr",
+      tier: input.tier ?? "standard",
+      level: input.level ?? "beginner",
+      generate_images: input.generate_images === true
+    });
+    if (!res.ok) return errorResult(res.error ?? "Course generation could not be started.");
+    const projectId = res.data?.project_id;
+    const jobId = res.data?.job_id;
+    const words = res.data?.words;
+    const link = `${APP_BASE_URL}/admin/programs/draft/${projectId}`;
+    return textResult(
+      `Course generation started in "${org.name}" from ${words ?? "the pasted"} words of source material.
+Job id: ${jobId}
+Draft: ${link}
+Use get_generation_status to follow progress. The creator reviews, prices and publishes in the app.`,
+      { project_id: projectId, job_id: jobId, org_id: org.id, draft_url: link, words }
+    );
+  }
+});
+
+// src/lib/mcp/tools/create-book-draft.ts
+import { defineTool as defineTool8 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z6 } from "npm:zod@^4.4.3";
+var create_book_draft_default = defineTool8({
+  name: "create_book_draft",
+  title: "Create a book draft",
+  description: "Create an ebook draft on SiteViral and generate its outline with AI. Uses the app's own Studio generation engine and the user's credits. Returns a job id and a link to the draft project, where the creator writes/expands chapters and decides on pricing and publishing.",
+  inputSchema: {
+    title: z6.string().describe("Working title of the book."),
+    topic: z6.string().describe("What the book is about \u2014 subject, angle, promise."),
+    target_audience: z6.string().optional().describe("Who the book is for."),
+    tone: z6.string().optional().describe("Tone of voice, e.g. professional, warm, direct."),
+    chapter_count: z6.number().int().optional().describe("Desired number of chapters (4-20). Defaults to 8."),
+    language: z6.enum(["fr", "en"]).optional().describe("Book language. Defaults to French."),
+    org_id: z6.string().optional().describe("Workspace id. Required only when the user has several.")
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const title = input.title?.trim() ?? "";
+    const topic = input.topic?.trim() ?? "";
+    if (title.length < 2) return errorResult("Please give the book a title.");
+    if (topic.length < 10) return errorResult("Please describe what the book is about (at least 10 characters).");
+    const chapters = Math.min(20, Math.max(4, Math.round(input.chapter_count ?? 8)));
+    const language = input.language ?? "fr";
+    const { org, error } = await resolveOrg(ctx, input.org_id);
+    if (!org) return errorResult(error ?? "No workspace available.");
+    const supa = supabaseForUser(ctx);
+    const { data: project, error: projErr } = await supa.from("ai_content_projects").insert({
+      organization_id: org.id,
+      created_by: ctx.getUserId(),
+      project_type: "ebook",
+      status: "draft",
+      title: title.slice(0, 200),
+      description: topic.slice(0, 2e3),
+      language,
+      tone: input.tone?.trim() || null,
+      target_audience: input.target_audience?.trim() || null,
+      data_json: {
+        topic,
+        style: "ebook",
+        chapterCount: chapters,
+        created_via: "mcp"
+      },
+      structure_json: { step: 1, chapters: [] }
+    }).select("id").single();
+    if (projErr || !project) {
+      return errorResult(`Could not create the book draft: ${projErr?.message ?? "unknown error"}`);
+    }
+    const created = await callEdgeFunction(ctx, "ai-create-job", {
+      org_id: org.id,
+      project_id: project.id,
+      job_type: "generate_outline",
+      input_params: {
+        title,
+        topic,
+        language,
+        chapter_count: chapters,
+        tone: input.tone?.trim() || void 0,
+        target_audience: input.target_audience?.trim() || void 0,
+        created_via: "mcp"
+      }
+    });
+    if (!created.ok) return errorResult(created.error ?? "Could not queue the outline generation.");
+    const jobId = created.data?.job_id ?? created.data?.id;
+    const run = await callEdgeFunction(ctx, "ai-run-job", { job_id: jobId });
+    const link = `${APP_BASE_URL}/admin/studio/projects/${project.id}`;
+    return textResult(
+      `Book draft "${title}" created in "${org.name}" with ${chapters} planned chapters.
+Job id: ${jobId}${run.ok ? "" : " (queued \u2014 the app will run it)"}
+Draft: ${link}
+Use get_generation_status to follow the outline generation. Chapters, cover, pricing and publishing happen in the app.`,
+      { project_id: project.id, job_id: jobId, org_id: org.id, draft_url: link, chapters }
+    );
+  }
+});
+
+// src/lib/mcp/tools/get-generation-status.ts
+import { defineTool as defineTool9 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z7 } from "npm:zod@^4.4.3";
+var get_generation_status_default = defineTool9({
+  name: "get_generation_status",
+  title: "Get generation status",
+  description: "Check the progress of a SiteViral AI generation job (course or book) started by create_course_from_prompt, create_course_from_text or create_book_draft.",
+  inputSchema: {
+    job_id: z7.string().describe("The job id returned when the generation was started.")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const supa = supabaseForUser(ctx);
+    const { data: job, error } = await supa.from("ai_generation_jobs").select("id, job_type, status, progress, error_message, project_id, created_at, completed_at").eq("id", input.job_id).maybeSingle();
+    if (error) return errorResult(error.message);
+    if (!job) return errorResult("Job not found (or it does not belong to you).");
+    let projectTitle = null;
+    let projectStatus = null;
+    if (job.project_id) {
+      const { data: project } = await supa.from("ai_content_projects").select("title, status, project_type").eq("id", job.project_id).maybeSingle();
+      projectTitle = project?.title ?? null;
+      projectStatus = project?.status ?? null;
+    }
+    const isCourse = job.job_type === "course_from_document" || job.job_type?.includes("course");
+    const link = job.project_id ? isCourse ? `${APP_BASE_URL}/admin/programs/draft/${job.project_id}` : `${APP_BASE_URL}/admin/studio/projects/${job.project_id}` : `${APP_BASE_URL}/admin/studio/jobs`;
+    const progress = typeof job.progress === "number" ? job.progress : 0;
+    let sentence;
+    if (job.status === "completed" || job.status === "succeeded") {
+      sentence = `"${projectTitle ?? "Your draft"}" is ready (100%). Open it here to review, price and publish: ${link}`;
+    } else if (job.status === "failed") {
+      sentence = `Generation failed: ${job.error_message ?? "unknown error"}. You can retry from ${link}`;
+    } else if (job.status === "queued") {
+      sentence = `"${projectTitle ?? "Your draft"}" is queued and will start in a moment.`;
+    } else {
+      sentence = `"${projectTitle ?? "Your draft"}" is still generating \u2014 ${progress}% done. Check again shortly.`;
+    }
+    return textResult(sentence, {
+      job_id: job.id,
+      status: job.status,
+      progress,
+      job_type: job.job_type,
+      project_id: job.project_id,
+      project_title: projectTitle,
+      project_status: projectStatus,
+      error_message: job.error_message ?? null,
+      draft_url: link
+    });
+  }
+});
+
+// src/lib/mcp/tools/list-my-drafts.ts
+import { defineTool as defineTool10 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z8 } from "npm:zod@^4.4.3";
+var list_my_drafts_default = defineTool10({
+  name: "list_my_drafts",
+  title: "List my drafts",
+  description: "List the signed-in creator's recent SiteViral drafts (books, courses and other AI projects) with their status and a direct link into the app.",
+  inputSchema: {
+    org_id: z8.string().optional().describe("Workspace id. Required only when the user has several."),
+    limit: z8.number().int().optional().describe("How many drafts to return (1-25). Defaults to 10.")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const { org, error } = await resolveOrg(ctx, input.org_id);
+    if (!org) return errorResult(error ?? "No workspace available.");
+    const limit = Math.min(25, Math.max(1, Math.round(input.limit ?? 10)));
+    const supa = supabaseForUser(ctx);
+    const { data, error: qErr } = await supa.from("ai_content_projects").select("id, title, project_type, status, language, updated_at").eq("organization_id", org.id).order("updated_at", { ascending: false }).limit(limit);
+    if (qErr) return errorResult(qErr.message);
+    const rows = (data ?? []).map((p) => ({
+      id: p.id,
+      title: p.title,
+      type: p.project_type,
+      status: p.status,
+      language: p.language,
+      updated_at: p.updated_at,
+      url: p.project_type === "course" ? `${APP_BASE_URL}/admin/programs/draft/${p.id}` : `${APP_BASE_URL}/admin/studio/projects/${p.id}`
+    }));
+    if (rows.length === 0) {
+      return textResult(`No drafts yet in "${org.name}".`, { org_id: org.id, drafts: [] });
+    }
+    const lines = rows.map((r) => `- ${r.title} \u2014 ${r.type}, ${r.status} (${r.language})
+  ${r.url}`).join("\n");
+    return textResult(`Recent drafts in "${org.name}":
+${lines}`, { org_id: org.id, drafts: rows });
+  }
+});
+
+// src/lib/mcp/tools/get-my-credits.ts
+import { defineTool as defineTool11 } from "npm:@lovable.dev/mcp-js@0.20.0";
+var RELEVANT_ACTIONS = ["ai_course_structure", "generate_illustration", "ai_book_content"];
+var get_my_credits_default = defineTool11({
+  name: "get_my_credits",
+  title: "Get my credits",
+  description: "Show the signed-in user's SiteViral credit balance and the cost of the main AI generation actions, so a creation can be priced before it is launched.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async (_input, ctx) => {
+    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const supa = supabaseForUser(ctx);
+    const { data: summary, error } = await supa.rpc("get_credit_summary", { _user_id: ctx.getUserId() });
+    if (error) return errorResult(error.message);
+    const { data: pricing } = await supa.from("credit_action_pricing").select("action_key, action_label, cost_standard, cost_premium").eq("is_active", true).in("action_key", RELEVANT_ACTIONS);
+    const balance = summary?.credits ?? summary?.balance ?? 0;
+    const priceLines = (pricing ?? []).map(
+      (p) => `- ${p.action_label || p.action_key}: ${p.cost_standard} credits (standard) / ${p.cost_premium} credits (premium)`
+    ).join("\n");
+    return textResult(
+      `Credit balance: ${balance}.
+${priceLines || "No active pricing found."}
+Top up credits at ${APP_BASE_URL}/credits`,
+      { balance, summary, pricing: pricing ?? [] }
+    );
+  }
+});
+
 // src/lib/mcp/index.ts
 var projectRef = "xzgpzbrgsxtcsktiprik";
 var mcp_default = defineMcp({
   name: "siteviral-mcp",
   title: "SiteViral MCP",
-  version: "0.1.0",
-  instructions: "Tools for SiteViral \u2014 the creator/organization platform. Use `who_am_i` to verify connectivity, `list_my_organizations` to discover the user's orgs, then `list_org_products`, `get_org_analytics`, or `list_my_purchases` for data.",
+  version: "0.2.0",
+  instructions: "Tools for SiteViral \u2014 the platform where creators build, sell and monetize digital content (books, courses, digital products).\n\nDiscovery: `who_am_i` verifies the connection, `list_my_organizations` lists the user's workspaces, `list_org_products`, `get_org_analytics` and `list_my_purchases` read data.\n\nCreation: `create_course_from_prompt` (course from a brief), `create_course_from_text` (course from pasted notes/transcript), `create_book_draft` (ebook + AI outline). Generation runs in the background: each tool returns a job id, then poll `get_generation_status` until it completes. `get_my_credits` shows the balance and action costs before launching a generation; `list_my_drafts` lists recent drafts.\n\nRules: never claim content is published \u2014 every creation lands as a DRAFT that the creator reviews, prices and publishes inside the app. Generations consume the user's credits, so confirm the brief (topic, language, tier, illustrations) before calling a creation tool. If the user has several workspaces, ask which one and pass its org_id.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated"
   }),
-  tools: [who_am_i_default, list_my_organizations_default, list_org_products_default, list_my_purchases_default, get_org_analytics_default]
+  tools: [
+    who_am_i_default,
+    list_my_organizations_default,
+    list_org_products_default,
+    list_my_purchases_default,
+    get_org_analytics_default,
+    get_my_credits_default,
+    list_my_drafts_default,
+    create_course_from_prompt_default,
+    create_course_from_text_default,
+    create_book_draft_default,
+    get_generation_status_default
+  ]
 });
 
 // lovable-mcp-supabase-entry.ts
