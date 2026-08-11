@@ -151,6 +151,15 @@ export function Sidebar() {
 
   const settingsAlreadyInNav = workspaceNav.some((it) => it.route.split('?')[0] === '/admin/settings');
 
+  /**
+   * The sidebar is always dark navy, so `text-primary` (deep navy in light
+   * theme) becomes invisible there. Remap it to a sidebar-safe blue.
+   */
+  const sidebarIconColor = (c?: string) => {
+    if (!c || c === 'text-primary') return 'text-blue-400';
+    return c.replace(/-500$/, '-400');
+  };
+
   const renderNavItem = (item: ActionNavItem) => {
     const active = isActive(item.route);
     const Icon = item.icon;
@@ -162,27 +171,28 @@ export function Sidebar() {
         data-nav-route={item.route.split('?')[0]}
         data-tour={`nav-${item.id}`}
         className={cn(
-          'group relative flex items-center gap-3 h-11 px-3 rounded-xl text-[13px] transition-all duration-200',
+          'group relative flex items-center gap-3 h-11 px-3 rounded-2xl text-[13px] transition-all duration-200',
           active
-            ? 'bg-primary/15 text-sidebar-foreground font-semibold border border-primary/25 shadow-[inset_0_1px_0_0_hsl(var(--sidebar-foreground)/0.08)]'
+            ? 'bg-gradient-to-r from-sidebar-foreground/[0.14] via-sidebar-foreground/[0.08] to-transparent text-sidebar-foreground font-semibold border border-sidebar-foreground/15 backdrop-blur-md shadow-[inset_0_1px_0_0_hsl(var(--sidebar-foreground)/0.18),0_8px_24px_-12px_hsl(var(--sidebar-background)/0.9)]'
             : 'font-medium text-sidebar-foreground/70 border border-transparent hover:text-sidebar-foreground hover:bg-sidebar-foreground/5 hover:translate-x-0.5',
         )}
       >
         <Icon
           className={cn(
             'h-[18px] w-[18px] shrink-0 transition-transform duration-200 group-hover:scale-110',
-            item.iconColor || 'text-sidebar-foreground/70',
+            sidebarIconColor(item.iconColor),
           )}
         />
         <span className="truncate">{isFr ? item.titleFr : item.titleEn}</span>
         {active && (
           <span
             aria-hidden
-            className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-primary shadow-[0_0_10px_2px_hsl(var(--primary)/0.7)]"
+            className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-blue-400 shadow-[0_0_10px_2px_hsl(217_91%_60%/0.7)]"
           />
         )}
       </Link>
     );
+
 
     const rowCollapsed = (
       <Link
