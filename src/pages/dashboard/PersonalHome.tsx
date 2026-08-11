@@ -16,6 +16,7 @@ import { ContinueBlock } from '@/components/home/ContinueBlock';
 import { SpaceBlock } from '@/components/home/SpaceBlock';
 import { EarningsBlock } from '@/components/home/EarningsBlock';
 import { UnlockRow } from '@/components/home/UnlockRow';
+import { getOnboardingIntent, intentToCapability } from '@/lib/siteviral/onboardingIntent';
 
 
 /**
