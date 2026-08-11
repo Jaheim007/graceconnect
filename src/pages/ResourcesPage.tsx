@@ -22,6 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { LessonPlayerOverlay } from '@/components/programs/LessonPlayerOverlay';
 import { formatCurrency } from '@/lib/currency';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -38,6 +39,8 @@ interface EnrolledProgram {
   id: string;
   program_id: string;
   created_at: string;
+  progress_percent: number | null;
+  last_active_at: string | null;
   program: {
     id: string;
     title: string;
@@ -67,7 +70,7 @@ export default function ResourcesPage() {
       if (!user) return [];
       const { data, error } = await db
         .from('program_enrollments')
-        .select('id, program_id, created_at, programs(id, title, description, cover_image_url, organization_id, is_free, price)')
+        .select('id, program_id, created_at, progress_percent, last_active_at, programs(id, title, description, cover_image_url, organization_id, is_free, price)')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -252,8 +255,28 @@ export default function ResourcesPage() {
           }}
         />
       ) : (
-        <div className="space-y-6">
+        <Tabs defaultValue={(purchases?.length || 0) === 0 && enrolledPrograms.length > 0 ? 'courses' : 'files'} className="space-y-5">
+          <TabsList className="w-full grid grid-cols-3 h-11">
+            <TabsTrigger value="files" className="gap-1 text-[11px]">
+              <BookOpen className="h-3.5 w-3.5" /> {isFr ? 'Livres & fichiers' : 'Books & files'}
+            </TabsTrigger>
+            <TabsTrigger value="courses" className="gap-1 text-[11px]">
+              <GraduationCap className="h-3.5 w-3.5" /> {isFr ? 'Formations' : 'Courses'}
+            </TabsTrigger>
+            <TabsTrigger value="receipts" className="gap-1 text-[11px]">
+              <Receipt className="h-3.5 w-3.5" /> {isFr ? 'Reçus' : 'Receipts'}
+            </TabsTrigger>
+          </TabsList>
+
+          {/* ─── Receipts: credits & donations ─── */}
+          <TabsContent value="receipts" className="space-y-6">
+          {creditPurchases.length === 0 && myDonations.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              {isFr ? 'Aucun reçu pour le moment.' : 'No receipts yet.'}
+            </p>
+          )}
           {/* ─── Credit Purchases ─── */}
+
           {creditPurchases.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center gap-2.5">
@@ -340,8 +363,12 @@ export default function ResourcesPage() {
             </div>
           )}
 
-          {/* ─── Products & Courses by Org ─── */}
-          {[...grouped.entries()].map(([orgId, { purchases: orgPurchases, programs: orgPrograms }]) => {
+          </TabsContent>
+
+          {/* ─── Books & files by Org ─── */}
+          <TabsContent value="files" className="space-y-6">
+          {[...grouped.entries()].filter(([, g]) => (g.purchases?.length || 0) > 0).map(([orgId, { purchases: orgPurchases }]) => {
+
             const org = orgMap.get(orgId);
             return (
               <div key={orgId} className="space-y-3">
@@ -359,48 +386,13 @@ export default function ResourcesPage() {
                   <div className="text-left">
                     <p className="text-sm font-semibold">{org?.name || 'Plateforme'}</p>
                     <p className="text-[10px] text-muted-foreground">
-                      {(orgPurchases?.length || 0) + orgPrograms.length} {isFr ? 'produit(s)' : 'product(s)'}
+                      {orgPurchases?.length || 0} {isFr ? 'produit(s)' : 'product(s)'}
                     </p>
                   </div>
                 </button>
 
                 <div className="space-y-2 pl-2 border-l-2 border-primary/10">
-                  {orgPrograms.map((enrollment) => (
-                    <div key={enrollment.id} className="p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors space-y-2.5">
-                      <div className="flex gap-3 items-start">
-                        <div className="shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-muted">
-                          {enrollment.program.cover_image_url ? (
-                            <img src={enrollment.program.cover_image_url} alt={enrollment.program.title} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                              <GraduationCap className="h-5 w-5" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-sm truncate">{enrollment.program.title}</h3>
-                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                            <Badge variant="outline" className="text-[10px] capitalize gap-1 shrink-0">
-                              <GraduationCap className="h-2.5 w-2.5" />
-                              {isFr ? 'Cours' : 'Course'}
-                            </Badge>
-                            <Badge variant="secondary" className="text-[10px] shrink-0">
-                              {isFr ? 'Gratuit' : 'Free'}
-                            </Badge>
-                            <span className="text-[10px] text-muted-foreground">
-                              {format(new Date(enrollment.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        <Button size="sm" className="gap-1 h-7 text-[11px]" onClick={() => setActiveCourseId(enrollment.program_id)}>
-                          <Play className="h-3 w-3" />
-                          {isFr ? 'Suivre le cours' : 'Start course'}
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+
 
                   {orgPurchases?.map((purchase) => (
                     <div key={purchase.id} className="p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors space-y-2.5">
@@ -472,8 +464,61 @@ export default function ResourcesPage() {
               </div>
             );
           })}
-        </div>
+          {(!purchases || purchases.length === 0) && (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              {isFr ? 'Aucun livre ni fichier pour le moment.' : 'No books or files yet.'}
+            </p>
+          )}
+          </TabsContent>
+
+          {/* ─── Courses ─── */}
+          <TabsContent value="courses" className="space-y-3">
+            {enrolledPrograms.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                {isFr ? 'Aucune formation pour le moment.' : 'No courses yet.'}
+              </p>
+            )}
+            {enrolledPrograms.map((enrollment) => {
+              const pct = Math.max(0, Math.min(100, Math.round(enrollment.progress_percent || 0)));
+              const started = pct > 0;
+              return (
+                <div key={enrollment.id} className="p-3 rounded-xl border border-border bg-card space-y-2.5">
+                  <div className="flex gap-3 items-start">
+                    <div className="shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-muted">
+                      {enrollment.program?.cover_image_url ? (
+                        <img src={enrollment.program.cover_image_url} alt={enrollment.program.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          <GraduationCap className="h-5 w-5" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm truncate">{enrollment.program?.title}</h3>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {orgMap.get(enrollment.program?.organization_id || '')?.name || ''}
+                      </p>
+                      <div className="mt-2 h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+                      </div>
+                      <p className="text-[10px] text-muted-foreground mt-1 tabular-nums">
+                        {pct}% {isFr ? 'terminé' : 'complete'}
+                      </p>
+                    </div>
+                  </div>
+                  <Button size="sm" className="gap-1 h-8 text-xs font-semibold" onClick={() => setActiveCourseId(enrollment.program_id)}>
+                    <Play className="h-3.5 w-3.5" />
+                    {started
+                      ? (isFr ? 'Continuer' : 'Continue')
+                      : (isFr ? 'Commencer' : 'Start')}
+                  </Button>
+                </div>
+              );
+            })}
+          </TabsContent>
+        </Tabs>
       )}
+
     </div>
   );
 }
