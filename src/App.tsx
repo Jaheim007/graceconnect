@@ -713,42 +713,8 @@ const App = () => (
                   <Route path="settings" element={<LazyAdminSettings />} />
                   
                   <Route path="sales" element={<AdminSales />} />
-                  {/* Hidden service-vertical workspaces — code preserved, unreachable */}
-                  <Route path="beauty" element={<HiddenAdmin><BeautyProOverview /></HiddenAdmin>} />
-                  <Route path="beauty/messages" element={<HiddenAdmin><BeautyProMessagesPane /></HiddenAdmin>}>
-                    <Route path=":id" element={<BeautyProConversationPane />} />
-                  </Route>
-                  <Route path="beauty/orders" element={<HiddenAdmin><BeautyProOrdersPane /></HiddenAdmin>} />
-                  <Route path="beauty/revenue" element={<HiddenAdmin><BeautyProRevenuePane /></HiddenAdmin>} />
-                  <Route path="beauty/settings" element={<HiddenAdmin><BeautyProSettingsPane /></HiddenAdmin>} />
-                  <Route path="beauty/kyc" element={<HiddenAdmin><BeautyKYCPage /></HiddenAdmin>} />
-                  <Route path="home" element={<HiddenAdmin><HomeProOverview /></HiddenAdmin>} />
-                  <Route path="home/messages" element={<HiddenAdmin><HomeProMessagesPane /></HiddenAdmin>}>
-                    <Route path=":id" element={<HomeProConversationPane />} />
-                  </Route>
-                  <Route path="home/orders" element={<HiddenAdmin><HomeProOrdersPane /></HiddenAdmin>} />
-                  <Route path="home/revenue" element={<HiddenAdmin><HomeProRevenuePane /></HiddenAdmin>} />
-                  <Route path="home/settings" element={<HiddenAdmin><HomeProSettingsPane /></HiddenAdmin>} />
-                  <Route path="home/services" element={<HiddenAdmin><HomeProServices /></HiddenAdmin>} />
-                  <Route path="home/kyc" element={<HiddenAdmin><HomeKYCPage /></HiddenAdmin>} />
-                  <Route path="events-service" element={<HiddenAdmin><EventsProOverview /></HiddenAdmin>} />
-                  <Route path="events-service/messages" element={<HiddenAdmin><EventsProMessagesPane /></HiddenAdmin>}>
-                    <Route path=":id" element={<EventsProConversationPane />} />
-                  </Route>
-                  <Route path="events-service/orders" element={<HiddenAdmin><EventsProOrdersPane /></HiddenAdmin>} />
-                  <Route path="events-service/revenue" element={<HiddenAdmin><EventsProRevenuePane /></HiddenAdmin>} />
-                  <Route path="events-service/settings" element={<HiddenAdmin><EventsProSettingsPane /></HiddenAdmin>} />
-                  <Route path="events-service/kyc" element={<HiddenAdmin><EventsKYCPage /></HiddenAdmin>} />
-                  <Route path="events-service/packages" element={<HiddenAdmin><EventsProPackages /></HiddenAdmin>} />
-                  <Route path="learn" element={<HiddenAdmin><EducationProOverview /></HiddenAdmin>} />
-                  <Route path="learn/messages" element={<HiddenAdmin><EducationProMessagesPane /></HiddenAdmin>}>
-                    <Route path=":id" element={<EducationProConversationPane />} />
-                  </Route>
-                  <Route path="learn/orders" element={<HiddenAdmin><EducationProOrdersPane /></HiddenAdmin>} />
-                  <Route path="learn/revenue" element={<HiddenAdmin><EducationProRevenuePane /></HiddenAdmin>} />
-                  <Route path="learn/settings" element={<HiddenAdmin><EducationProSettingsPane /></HiddenAdmin>} />
-                  <Route path="learn/kyc" element={<HiddenAdmin><EducationKYCPage /></HiddenAdmin>} />
-                  <Route path="learn/subjects" element={<HiddenAdmin><EducationTutorSubjects /></HiddenAdmin>} />
+                  {/* Hidden service-vertical workspaces — preserved, flag-gated */}
+                  {hiddenVerticalAdminRoutes()}
 
                   <Route path="church" element={<ChurchProDashboard />} />
                   <Route path="church/kyc" element={<ChurchKYCPage />} />
