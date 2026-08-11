@@ -60,54 +60,66 @@ export default function AssistantConnectionsSettings() {
     }
   };
 
-  const steps = isFr
+  const clients = isFr
     ? [
         {
+          id: 'chatgpt',
           client: 'ChatGPT',
           items: [
-            'Ouvre Paramètres → Connecteurs → Ajouter un connecteur',
-            'Colle le lien ci-dessous, puis connecte-toi avec ton compte SiteViral',
-            'Dis simplement : « Crée un cours SiteViral sur … »',
+            { t: 'Ouvre ChatGPT', d: 'Paramètres → Connecteurs → « Ajouter un connecteur »' },
+            { t: 'Colle le lien du connecteur', d: 'Utilise le bouton Copier ci-dessus', paste: true },
+            { t: 'Connecte-toi à SiteViral', d: 'Une page SiteViral s\'ouvre : clique sur « Autoriser »' },
+            { t: 'Parle normalement', d: '« Crée un cours SiteViral sur la vente par WhatsApp »' },
           ],
         },
         {
+          id: 'claude',
           client: 'Claude',
           items: [
-            'Ouvre Settings → Connectors → Add custom connector',
-            'Colle le lien ci-dessous et valide l\'écran d\'autorisation SiteViral',
-            'Demande : « Démarre un livre sur … dans mon espace SiteViral »',
+            { t: 'Ouvre Claude', d: 'Settings → Connectors → « Add custom connector »' },
+            { t: 'Colle le lien du connecteur', d: 'Nom : SiteViral · URL : le lien copié', paste: true },
+            { t: 'Valide l\'autorisation', d: 'L\'écran SiteViral confirme l\'accès à ton compte' },
+            { t: 'Demande une création', d: '« Démarre un livre sur … dans mon espace SiteViral »' },
           ],
         },
         {
-          client: 'Autres assistants (Gemini CLI, Cursor…)',
+          id: 'other',
+          client: 'Autres (Gemini, Cursor…)',
           items: [
-            'Ajoute un serveur MCP distant avec ce même lien',
-            'L\'authentification se fait avec ton compte SiteViral (OAuth)',
+            { t: 'Ajoute un serveur MCP distant', d: 'Type : HTTP / streamable, avec ce même lien', paste: true },
+            { t: 'Authentification OAuth', d: 'Ton compte SiteViral sert d\'identifiant — aucune clé API à gérer' },
+            { t: 'Les outils apparaissent', d: '11 outils SiteViral : création, suivi, crédits, brouillons' },
           ],
         },
       ]
     : [
         {
+          id: 'chatgpt',
           client: 'ChatGPT',
           items: [
-            'Open Settings → Connectors → Add connector',
-            'Paste the link below, then sign in with your SiteViral account',
-            'Just say: "Create a SiteViral course about …"',
+            { t: 'Open ChatGPT', d: 'Settings → Connectors → "Add connector"' },
+            { t: 'Paste the connector link', d: 'Use the Copy button above', paste: true },
+            { t: 'Sign in to SiteViral', d: 'A SiteViral page opens: click "Allow"' },
+            { t: 'Just talk', d: '"Create a SiteViral course about selling on WhatsApp"' },
           ],
         },
         {
+          id: 'claude',
           client: 'Claude',
           items: [
-            'Open Settings → Connectors → Add custom connector',
-            'Paste the link below and approve the SiteViral consent screen',
-            'Ask: "Start a book about … in my SiteViral workspace"',
+            { t: 'Open Claude', d: 'Settings → Connectors → "Add custom connector"' },
+            { t: 'Paste the connector link', d: 'Name: SiteViral · URL: the copied link', paste: true },
+            { t: 'Approve access', d: 'The SiteViral screen confirms access to your account' },
+            { t: 'Ask for a creation', d: '"Start a book about … in my SiteViral workspace"' },
           ],
         },
         {
-          client: 'Other assistants (Gemini CLI, Cursor…)',
+          id: 'other',
+          client: 'Other (Gemini, Cursor…)',
           items: [
-            'Add a remote MCP server using the same link',
-            'Authentication uses your SiteViral account (OAuth)',
+            { t: 'Add a remote MCP server', d: 'Type: HTTP / streamable, using this same link', paste: true },
+            { t: 'OAuth authentication', d: 'Your SiteViral account is the login — no API key to manage' },
+            { t: 'Tools show up', d: '11 SiteViral tools: creation, progress, credits, drafts' },
           ],
         },
       ];
