@@ -219,11 +219,13 @@ export function OnboardingTour() {
   const [step, setStep] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
   /** Only steps whose target actually exists in the current navigation. */
-  const [steps, setSteps] = useState<TourStep[]>(STEPS);
+  const [steps, setSteps] = useState<TourStep[]>(() => buildSteps(false));
   const { user } = useAuth();
+  const { currentOrg } = useOrg();
   const location = useLocation();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+  const isChurch = currentOrg?.siteviral_type === 'church';
 
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isHubRoute = location.pathname === '/' || location.pathname.startsWith('/dashboard');
@@ -237,14 +239,15 @@ export function OnboardingTour() {
     const done = LEGACY_TOUR_KEYS.some((k) => localStorage.getItem(k));
     if (done) return;
     const t = setTimeout(() => {
-      const base = window.innerWidth < 768 ? MOBILE_STEPS : STEPS;
+      const base = window.innerWidth < 768 ? MOBILE_STEPS : buildSteps(isChurch);
       const available = base.filter((s) => s.always || !!findEl(s.targets));
       setSteps(available.length > 0 ? available : base.filter((s) => s.always));
       setStep(0);
       setActive(true);
     }, 1000);
     return () => clearTimeout(t);
-  }, [user, isAdminRoute, isHubRoute]);
+  }, [user, isAdminRoute, isHubRoute, isChurch]);
+
 
   const current = steps[step] ?? steps[0];
 
