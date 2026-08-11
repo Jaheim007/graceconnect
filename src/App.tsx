@@ -205,8 +205,6 @@ const EventDetailPage = lazy(() => import("@/pages/EventDetailPage"));
 const ChangelogPage = lazy(() => import("@/pages/ChangelogPage"));
 const MaintenancePage = lazy(() => import("@/pages/MaintenancePage"));
 const GoRedirectPage = lazy(() => import("@/pages/GoRedirectPage"));
-const QuickStartPage = lazy(() => import("@/pages/QuickStartPage"));
-const QuickPublishPage = lazy(() => import("@/pages/QuickPublishPage"));
 const GagnerPage = lazy(() => import("@/pages/GagnerPage"));
 const EcrirePage = lazy(() => import("@/pages/EcrirePage"));
 const CreerFormationPage = lazy(() => import("@/pages/CreerFormationPage"));
@@ -288,7 +286,7 @@ const DashboardExplorePage = lazy(() => import("@/pages/dashboard/DashboardExplo
 const PersonalActivityPage = lazy(() => import("@/pages/dashboard/PersonalActivityPage"));
 const PersonalMessagesPage = lazy(() => import("@/pages/dashboard/PersonalMessagesPage"));
 const ResourcesPage = lazy(() => import("@/pages/ResourcesPage"));
-const MyDonationsPage = lazy(() => import("@/pages/MyDonationsPage"));
+
 const CreateOrgPage = lazy(() => import("@/pages/CreateOrgPage"));
 
 const SupportPage = lazy(() => import("@/pages/SupportPage"));
@@ -399,7 +397,7 @@ const LazyAdminSettings = lazy(() => import("@/pages/admin/AdminPages").then(m =
 
 const LazyStartSellingPage = lazy(() => import("@/pages/StartSellingPage"));
 const LazyStartFinishPage = lazy(() => import("@/pages/start/StartFinishPage"));
-const LazyIntentChooserPage = lazy(() => import("@/pages/IntentChooserPage"));
+
 const LazyLookingForPage = lazy(() => import("@/pages/LookingForPage"));
 
 const LazySuperadminOrgs = lazy(() => import("@/pages/superadmin/SuperadminPages").then(m => ({ default: m.SuperadminOrgs })));
@@ -480,7 +478,7 @@ const App = () => (
                 <Route path="/start-selling" element={<Navigate to="/create-org" replace />} />
                 {/* Buyer/provider intent chooser + interest picker: components kept,
                     hidden from the restored digital-first experience. */}
-                <Route path="/welcome-intent" element={showServiceSurfaces() ? <LazyIntentChooserPage /> : <Navigate to="/dashboard" replace />} />
+                <Route path="/welcome-intent" element={showServiceSurfaces() ? <Navigate to="/looking-for" replace /> : <Navigate to="/dashboard" replace />} />
                 <Route path="/looking-for" element={showServiceSurfaces() ? <LazyLookingForPage /> : <Navigate to="/dashboard" replace />} />
                 <Route path="/services" element={<Navigate to="/discover" replace />} />
                 <Route path="/digital" element={<Navigate to="/discover?type=digital" replace />} />
@@ -778,7 +776,7 @@ const App = () => (
                   <Route path="/kyc" element={<ShortcutRedirect kind="kyc" />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/resources" element={<Navigate to="/my-purchases" replace />} />
-                  <Route path="/my-donations" element={<MyDonationsPage />} />
+                  <Route path="/my-donations" element={<Navigate to="/my-purchases?tab=giving" replace />} />
                   <Route path="/dashboard" element={<DashboardRouter />} />
                   <Route path="/dashboard/home"       element={<DashboardRouter />} />
                   <Route path="/dashboard/activity"   element={<PersonalActivityPage />} />
@@ -803,8 +801,8 @@ const App = () => (
                   <Route path="/dashboard/explore"    element={<DashboardExplorePage />} />
                   <Route path="/dashboard/claim"      element={<Navigate to="/admin/affiliation" replace />} />
                   <Route path="/dashboard/revenue"    element={<Navigate to="/admin/sales" replace />} />
-                  <Route path="/quick-start" element={<QuickStartPage />} />
-                  <Route path="/quick-publish" element={<QuickPublishPage />} />
+                  <Route path="/quick-start" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/quick-publish" element={<Navigate to="/" replace />} />
                   {/* /create-org is public (moved above); auth prompted at final step */}
                   {/* Legacy type/goals onboarding retired — everything happens in /create-org + unified dashboard */}
                   <Route path="/onboarding/type" element={<Navigate to="/admin" replace />} />
