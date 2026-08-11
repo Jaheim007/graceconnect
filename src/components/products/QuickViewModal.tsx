@@ -121,7 +121,7 @@ export function QuickViewModal({ product, orgSlug, open, onClose, isPurchased }:
           {/* Actions */}
           <div className="flex gap-2">
             {isPurchased ? (
-              <Button className="flex-1 gap-2" onClick={() => { onClose(); navigate('/resources'); }}>
+              <Button className="flex-1 gap-2" onClick={() => { onClose(); navigate('/my-purchases'); }}>
                 <Eye className="h-4 w-4" /> Accéder
               </Button>
             ) : (

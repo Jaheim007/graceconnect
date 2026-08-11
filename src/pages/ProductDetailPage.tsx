@@ -698,7 +698,7 @@ export default function ProductDetailPage() {
                   if (!user) { navigate(`/auth?returnTo=${encodeURIComponent(buildShareUrl())}`); return; }
                   setPurchaseProduct(product as DigitalProduct);
                 }}
-                onAccess={() => navigate('/resources')}
+                onAccess={() => navigate('/my-purchases')}
               />
 
               <div className="pt-2 border-t border-border/40 space-y-2">
@@ -826,7 +826,7 @@ export default function ProductDetailPage() {
         productType={product.product_type || undefined}
         price={getEffectivePrice(product as any)}
         commissionRate={(product as any).commission_rate ?? (product as any).commission_percent ?? (org as any)?.affiliation_commission_percent ?? 20}
-        onGoToResources={() => { setShowCelebration(false); navigate('/resources'); }}
+        onGoToResources={() => { setShowCelebration(false); navigate('/my-purchases'); }}
       />
 
       {/* Mobile sticky buy bar */}
@@ -841,7 +841,7 @@ export default function ProductDetailPage() {
           if (!user) { navigate(`/auth?returnTo=${encodeURIComponent(buildShareUrl())}`); return; }
           setPurchaseProduct(product as DigitalProduct);
         }}
-        onAccess={() => navigate('/resources')}
+        onAccess={() => navigate('/my-purchases')}
       />
     </div>
   );

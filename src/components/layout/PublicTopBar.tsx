@@ -47,7 +47,7 @@ export function PublicTopBar() {
         </Button>
 
         {user && (
-          <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5 rounded-full hover:bg-primary/10" onClick={() => navigate('/resources')}>
+          <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5 rounded-full hover:bg-primary/10" onClick={() => navigate('/my-purchases')}>
             <BookOpen className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">{t('topbar.my_purchases')}</span>
           </Button>

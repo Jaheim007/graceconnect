@@ -296,7 +296,7 @@ export default function UserDashboard() {
           title={isFr ? 'Mes achats' : 'My purchases'}
           icon={Package}
           actions={purchases.length > 0 || programProgress.length > 0 ? (
-            <button onClick={() => navigate('/resources')} className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+            <button onClick={() => navigate('/my-purchases')} className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
               {isFr ? 'Tout voir' : 'View all'} <ArrowRight className="h-3 w-3" />
             </button>
           ) : undefined}
@@ -320,7 +320,7 @@ export default function UserDashboard() {
                     {purchases.slice(0, 3).map((purchase: any) => {
                       const product = purchase.digital_products;
                       return (
-                        <button key={purchase.id} onClick={() => navigate('/resources')} className="group text-left">
+                        <button key={purchase.id} onClick={() => navigate('/my-purchases')} className="group text-left">
                           <div className="aspect-[3/4] rounded-xl bg-muted overflow-hidden mb-1.5 ring-1 ring-border">
                             {product?.cover_image_url ? (
                               <img src={product.cover_image_url} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />

@@ -369,7 +369,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
                 size="sm"
                 variant="outline"
                 className="h-7 text-[11px] px-2.5 gap-1 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10"
-                onClick={(e) => { e.stopPropagation(); navigate('/resources'); }}
+                onClick={(e) => { e.stopPropagation(); navigate('/my-purchases'); }}
               >
                 <BookOpen className="h-3 w-3" /> {isFr ? 'Mes Ressources' : 'My Resources'}
               </Button>

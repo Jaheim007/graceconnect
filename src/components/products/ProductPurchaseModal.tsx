@@ -754,7 +754,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             )}
 
             <p className="text-xs text-muted-foreground">{isFr ? 'Un reçu a été envoyé à votre email.' : 'A receipt has been sent to your email.'}</p>
-            <Button onClick={() => { handleClose(); navigate('/resources'); }} className="w-full bg-primary text-primary-foreground gap-1.5">
+            <Button onClick={() => { handleClose(); navigate('/my-purchases'); }} className="w-full bg-primary text-primary-foreground gap-1.5">
               {isFr ? 'Accéder à mes ressources' : 'Go to my resources'}
             </Button>
             <Button variant="ghost" onClick={handleClose} className="text-muted-foreground">{isFr ? 'Fermer' : 'Close'}</Button>
