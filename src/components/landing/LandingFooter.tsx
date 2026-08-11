@@ -37,7 +37,7 @@ export function LandingFooter() {
               <li><Link to="/pour/influenceurs" className="hover:text-foreground transition-colors">{t('nav.persona_influencers')}</Link></li>
               <li><Link to="/pour/eglises" className="hover:text-foreground transition-colors">{t('nav.persona_churches')}</Link></li>
               <li><Link to="/pour/ong" className="hover:text-foreground transition-colors">{t('nav.persona_ngos')}</Link></li>
-              <li><Link to="/pour/coachs" className="hover:text-foreground transition-colors">{t('nav.persona_coaches')}</Link></li>
+              <li><Link to="/pour/coaches" className="hover:text-foreground transition-colors">{t('nav.persona_coaches')}</Link></li>
               <li><Link to="/pour/auteurs" className="hover:text-foreground transition-colors">{t('nav.persona_authors')}</Link></li>
               <li><Link to="/pour/entrepreneurs" className="hover:text-foreground transition-colors">{t('nav.persona_entrepreneurs')}</Link></li>
             </ul>
@@ -48,7 +48,7 @@ export function LandingFooter() {
             <h4 className="font-semibold text-sm">{t('landing.footer_resources')}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/blog" className="hover:text-foreground transition-colors">{t('landing.footer_blog')}</Link></li>
-              <li><Link to="/guide/vendre-ebook" className="hover:text-foreground transition-colors">{t('landing.footer_guides')}</Link></li>
+              <li><Link to="/guide/vendre-ebook-afrique" className="hover:text-foreground transition-colors">{t('landing.footer_guides')}</Link></li>
               <li><Link to="/calculateur" className="hover:text-foreground transition-colors">{t('landing.footer_calculator')}</Link></li>
               <li><Link to="/etudes-de-cas" className="hover:text-foreground transition-colors">{t('landing.footer_case_studies')}</Link></li>
               <li><Link to="/temoignages" className="hover:text-foreground transition-colors">{t('landing.footer_testimonials')}</Link></li>
