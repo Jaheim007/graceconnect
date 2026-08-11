@@ -257,21 +257,69 @@ export default function ResourcesPage() {
         />
       ) : (
         <Tabs defaultValue={
-          ['files', 'courses', 'receipts'].includes(searchParams.get('tab') || '')
+          ['files', 'courses', 'receipts', 'giving'].includes(searchParams.get('tab') || '')
             ? (searchParams.get('tab') as string)
             : ((purchases?.length || 0) === 0 && enrolledPrograms.length > 0 ? 'courses' : 'files')
         } className="space-y-5">
-          <TabsList className="w-full grid grid-cols-3 h-11">
+          <TabsList className="w-full grid grid-cols-4 h-11">
             <TabsTrigger value="files" className="gap-1 text-[11px]">
-              <BookOpen className="h-3.5 w-3.5" /> {isFr ? 'Livres & fichiers' : 'Books & files'}
+              <BookOpen className="h-3.5 w-3.5" /> {isFr ? 'Livres' : 'Books'}
             </TabsTrigger>
             <TabsTrigger value="courses" className="gap-1 text-[11px]">
               <GraduationCap className="h-3.5 w-3.5" /> {isFr ? 'Formations' : 'Courses'}
+            </TabsTrigger>
+            <TabsTrigger value="giving" className="gap-1 text-[11px]">
+              <Heart className="h-3.5 w-3.5" /> {isFr ? 'Dons' : 'Giving'}
             </TabsTrigger>
             <TabsTrigger value="receipts" className="gap-1 text-[11px]">
               <Receipt className="h-3.5 w-3.5" /> {isFr ? 'Reçus' : 'Receipts'}
             </TabsTrigger>
           </TabsList>
+
+          {/* ─── Giving: donation history ─── */}
+          <TabsContent value="giving" className="space-y-3">
+            {myDonations.length === 0 ? (
+              <div className="text-center py-12">
+                <Heart className="h-10 w-10 text-muted-foreground mx-auto mb-4 opacity-50" />
+                <p className="text-sm text-muted-foreground mb-4">
+                  {isFr ? "Tu n'as pas encore fait de don" : "You haven't made any donations yet"}
+                </p>
+                <Button onClick={() => navigate('/marketplace?tab=campaigns')} className="gap-2">
+                  <Heart className="h-4 w-4" /> {isFr ? 'Voir les campagnes actives' : 'View active campaigns'}
+                </Button>
+              </div>
+            ) : (
+              <>
+                <p className="text-xs text-muted-foreground">
+                  {myDonations.length} {isFr ? 'don(s)' : 'donation(s)'} · {isFr ? 'Total' : 'Total'} :{' '}
+                  {formatCurrency(
+                    myDonations.reduce((s: number, d: any) => s + (d.amount || 0), 0),
+                    (myDonations[0] as any)?.currency || undefined,
+                    locale,
+                  )}
+                </p>
+                {myDonations.map((don: any) => (
+                  <div key={don.id} className="flex items-center gap-3 p-4 rounded-xl bg-card border border-border">
+                    <div className="h-10 w-10 rounded-lg bg-rose-500/10 flex items-center justify-center shrink-0">
+                      <Heart className="h-5 w-5 text-rose-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {don.donation_campaigns?.title || don.organizations?.name || (isFr ? 'Don' : 'Donation')}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(don.completed_at || don.created_at), 'd MMM yyyy', { locale: dateFnsLocale })}
+                      </p>
+                    </div>
+                    <span className="text-sm font-bold text-rose-500">
+                      {formatCurrency(don.amount, don.currency || undefined, locale)}
+                    </span>
+                  </div>
+                ))}
+              </>
+            )}
+          </TabsContent>
+
 
           {/* ─── Receipts: credits & donations ─── */}
           <TabsContent value="receipts" className="space-y-6">

@@ -389,14 +389,14 @@ function GivingTab({ userId, isFr }: { userId?: string; isFr: boolean }) {
         icon={Gift}
         title={isFr ? 'Aucun don' : 'No giving yet'}
         hint={isFr ? 'Vos dons apparaîtront ici.' : 'Your donations will show up here.'}
-        cta={{ label: isFr ? 'Mes dons' : 'My giving', to: '/my-donations' }}
+        cta={{ label: isFr ? 'Mes dons' : 'My giving', to: '/my-purchases?tab=giving' }}
       />
     );
 
   return (
     <div className="space-y-2">
       {data.map((d: any) => (
-        <Link key={d.id} to="/my-donations" className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 hover:border-primary/40 transition">
+        <Link key={d.id} to="/my-purchases?tab=giving" className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 hover:border-primary/40 transition">
           <div className="h-11 w-11 rounded-xl bg-rose-500/10 text-rose-600 grid place-items-center text-lg shrink-0">🎁</div>
           <div className="min-w-0 flex-1">
             <div className="text-sm font-semibold truncate">
