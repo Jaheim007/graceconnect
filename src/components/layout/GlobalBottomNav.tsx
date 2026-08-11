@@ -61,7 +61,7 @@ export function GlobalBottomNav() {
     ? ([
         { id: 'overview', route: '/dashboard', icon: LayoutDashboard, fr: 'Accueil', en: 'Home' },
         { id: 'explore', route: '/dashboard/explore', icon: Compass, fr: 'Explorer', en: 'Explore' },
-        { id: 'purchases', route: '/my-purchases', icon: ShoppingBag, fr: 'Achats', en: 'Purchases' },
+        { id: 'purchases', route: '/my-purchases', icon: ShoppingBag, fr: 'Biblio', en: 'Library' },
         showServiceSurfaces()
           ? { id: 'messages', route: '/dashboard/messages', icon: MessageSquare, fr: 'Messages', en: 'Messages' }
           : { id: 'earn', route: '/gagner', icon: HandCoins, fr: 'Gagner', en: 'Earn' },
@@ -69,7 +69,7 @@ export function GlobalBottomNav() {
     : ([
         { id: 'overview', route: '/', icon: LayoutDashboard, fr: 'Accueil', en: 'Home' },
         { id: 'explore', route: '/discover', icon: Compass, fr: 'Explorer', en: 'Explore' },
-        { id: 'purchases', route: '/my-purchases', icon: ShoppingBag, fr: 'Achats', en: 'Purchases' },
+        { id: 'purchases', route: '/my-purchases', icon: ShoppingBag, fr: 'Biblio', en: 'Library' },
         { id: 'earn', route: '/gagner', icon: HandCoins, fr: 'Gagner', en: 'Earn' },
       ] as const);
 

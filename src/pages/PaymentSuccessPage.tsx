@@ -353,7 +353,7 @@ export default function PaymentSuccessPage() {
             </Button>
             <div className="flex gap-3">
               <Button variant="ghost" size="sm" onClick={() => navigate('/')}>{isFr ? 'Accueil' : 'Home'}</Button>
-              {user && <Button size="sm" onClick={() => navigate('/resources')}>{isFr ? 'Mes achats' : 'My purchases'}</Button>}
+              {user && <Button size="sm" onClick={() => navigate('/my-purchases')}>{isFr ? 'Ma bibliothèque' : 'My library'}</Button>}
             </div>
           </div>
         </motion.div>
@@ -530,8 +530,8 @@ export default function PaymentSuccessPage() {
                     />
                   )}
                   {user && (
-                    <Button onClick={() => navigate('/resources')} variant="outline" className="w-full gap-2">
-                      <Package className="h-4 w-4" /> {isFr ? 'Mes achats' : 'My purchases'}
+                    <Button onClick={() => navigate('/my-purchases')} variant="outline" className="w-full gap-2">
+                      <Package className="h-4 w-4" /> {isFr ? 'Ma bibliothèque' : 'My library'}
                     </Button>
                   )}
                   <Button onClick={() => navigate('/')} variant="ghost" className="w-full text-muted-foreground">
@@ -580,8 +580,8 @@ export default function PaymentSuccessPage() {
               </Button>
 
               {user && (
-                <Button onClick={() => navigate('/resources')} variant="ghost" className="w-full gap-2 text-muted-foreground">
-                  <Package className="h-4 w-4" /> {isFr ? 'Mes achats' : 'My purchases'}
+                <Button onClick={() => navigate('/my-purchases')} variant="ghost" className="w-full gap-2 text-muted-foreground">
+                  <Package className="h-4 w-4" /> {isFr ? 'Ma bibliothèque' : 'My library'}
                 </Button>
               )}
             </motion.div>
