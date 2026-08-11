@@ -164,10 +164,13 @@ export default function SuperadminSupport() {
               </p>
               <div className="flex flex-wrap gap-2">
                 {screenshotUrls.map((url: string, i: number) => (
-                  <button key={i} onClick={() => setPreviewImage(url)} className="block">
-                    <img src={url} alt={`Screenshot ${i + 1}`} 
-                      className="max-h-40 rounded-xl border border-border object-cover hover:opacity-80 transition-opacity cursor-pointer" />
-                  </button>
+                  <TicketScreenshot
+                    key={i}
+                    storedUrl={url}
+                    alt={`Screenshot ${i + 1}`}
+                    onClick={(signed) => setPreviewImage(signed)}
+                    className="max-h-40 rounded-xl border border-border object-cover hover:opacity-80 transition-opacity cursor-pointer"
+                  />
                 ))}
               </div>
             </div>

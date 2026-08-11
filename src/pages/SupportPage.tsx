@@ -431,9 +431,12 @@ export default function SupportPage() {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {urls.map((url: string, i: number) => (
-                      <a key={i} href={url} target="_blank" rel="noopener noreferrer">
-                        <img src={url} alt={`Screenshot ${i + 1}`} className="max-h-40 rounded-xl border border-border object-cover hover:opacity-80 transition-opacity" />
-                      </a>
+                      <TicketScreenshot
+                        key={i}
+                        storedUrl={url}
+                        alt={`Screenshot ${i + 1}`}
+                        className="max-h-40 rounded-xl border border-border object-cover hover:opacity-80 transition-opacity"
+                      />
                     ))}
                   </div>
                 </div>
