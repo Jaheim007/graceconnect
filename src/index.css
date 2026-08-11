@@ -738,3 +738,28 @@ body > div[style*="position: fixed"][style*="opacity"] {
 .beauty-gradient { background: var(--beauty-gradient); }
 .beauty-soft { background: var(--beauty-soft); }
 .beauty-shadow { box-shadow: var(--beauty-shadow); }
+
+/* ---------- App shell ambient backdrop (mirrors the Action Hub aesthetic) ---------- */
+.app-ambient {
+  background-color: hsl(var(--cert-paper));
+  position: relative;
+}
+.dark .app-ambient { background-color: #08070f; }
+.app-ambient::before,
+.app-ambient::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  border-radius: 9999px;
+  filter: blur(120px);
+  z-index: 0;
+}
+.app-ambient::before {
+  top: -30vh; left: -18vw; height: 70vh; width: 70vh;
+  background: radial-gradient(circle, hsl(var(--brand-blue) / 0.16), transparent 65%);
+}
+.app-ambient::after {
+  bottom: -30vh; right: -18vw; height: 65vh; width: 65vh;
+  background: radial-gradient(circle, hsl(var(--primary) / 0.14), transparent 65%);
+}
+.app-ambient > * { position: relative; z-index: 1; }

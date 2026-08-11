@@ -61,7 +61,7 @@ export function AppLayout() {
     <CompareProvider>
     <SkipToContent />
     <OfflineIndicator />
-    <div className="native-app-shell h-[100dvh] flex w-full bg-background overflow-hidden">
+    <div className="native-app-shell app-ambient h-[100dvh] flex w-full overflow-hidden">
       {!hideNav && (
         <nav className="hidden lg:flex shrink-0" aria-label="Navigation principale">
           <Sidebar />
