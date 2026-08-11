@@ -49,13 +49,21 @@ export default function CreateOrgPage() {
   const worldParam = (searchParams.get('world') || searchParams.get('activity') || '') as SiteviralWorld;
   const presetWorld: SiteviralWorld | null = worldParam && worldParam in WORLDS ? worldParam : null;
 
+  // ?scope=faith — dedicated Church / NGO entry point: only faith-based
+  // profiles are offered (Creator & Community are hidden).
+  const faithScope = searchParams.get('scope') === 'faith';
+  const visibleProfiles = faithScope
+    ? PLATFORM_PROFILES.filter((p) => p.id === 'church' || p.id === 'ngo')
+    : PLATFORM_PROFILES;
+
   const presetProfile = profileForWorld(presetWorld);
   const [step, setStep] = useState(presetProfile ? 1 : 0); // 0=platform profile, 1=name, 2=currency + create
   const [loading, setLoading] = useState(false);
   const [resuming, setResuming] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [profileId, setProfileId] = useState<PlatformProfileId>(presetProfile ?? 'creator');
+  const [profileId, setProfileId] = useState<PlatformProfileId>(presetProfile ?? (faithScope ? 'church' : 'creator'));
   const profile = getPlatformProfile(profileId);
+
   const [selectedGoal, setSelectedGoal] = useState<string>(profile.objectives[0].id);
   const selectedWorld: SiteviralWorld = profile.world;
 
@@ -262,11 +270,20 @@ export default function CreateOrgPage() {
               {step === 0 && (
                 <div className="space-y-5">
                   <div className="space-y-1">
-                    <h2 className="text-xl font-bold tracking-tight">{isFr ? 'Quel type de plateforme veux-tu bâtir ?' : 'What kind of platform do you want to build?'}</h2>
-                    <p className="text-sm text-muted-foreground">{isFr ? 'Choisis ton profil. Tu pourras activer d\'autres outils plus tard depuis les paramètres.' : 'Pick your profile. You can activate more tools later from settings.'}</p>
+                    <h2 className="text-xl font-bold tracking-tight">
+                      {faithScope
+                        ? (isFr ? 'Église ou ONG ?' : 'Church or NGO?')
+                        : (isFr ? 'Quel type de plateforme veux-tu bâtir ?' : 'What kind of platform do you want to build?')}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      {faithScope
+                        ? (isFr ? 'Choisis le type de ton organisation. Offrandes, dons, enseignements et ressources sont inclus.' : 'Pick your organization type. Offerings, donations, teachings and resources are included.')
+                        : (isFr ? 'Choisis ton profil. Tu pourras activer d\'autres outils plus tard depuis les paramètres.' : 'Pick your profile. You can activate more tools later from settings.')}
+                    </p>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    {PLATFORM_PROFILES.map((p) => {
+                    {visibleProfiles.map((p) => {
+
                       const active = profileId === p.id;
                       const Icon = p.icon;
                       return (

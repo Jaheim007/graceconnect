@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet } from 'lucide-react';
+import { ArrowRight, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet, Church } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -53,16 +53,12 @@ export default function ActionHub() {
     }
   };
 
-  /** Visitor menu — the core SiteViral actions, no marketplace surfaces. */
+  /** Visitor menu — Discover first, then the core creation actions. */
   const visitorActions = [
-    { id: 'write', icon: BookOpen, titleFr: 'Écrire un livre en 5 min', titleEn: 'Write a book in 5 min',
-      descFr: "Crée ton livre avec l'IA et vends-le", descEn: 'Create your book with AI and sell it',
-      route: '/ecrire', borderClass: 'border-primary/30 hover:border-primary/60',
-      iconBg: 'bg-primary/15', iconColor: 'text-primary' },
-    { id: 'course', icon: GraduationCap, titleFr: 'Créer une formation', titleEn: 'Create a formation',
-      descFr: 'Modules, leçons, quiz et certificats', descEn: 'Modules, lessons, quizzes and certificates',
-      route: '/creer-formation', borderClass: 'border-indigo-500/30 hover:border-indigo-500/60',
-      iconBg: 'bg-indigo-500/15', iconColor: 'text-indigo-500' },
+    { id: 'discover', icon: Compass, titleFr: 'Découvrir', titleEn: 'Discover',
+      descFr: 'Voir et acheter des livres, formations et plus', descEn: 'Browse & buy books, courses & more',
+      route: '/discover', borderClass: 'border-violet-500/30 hover:border-violet-500/60',
+      iconBg: 'bg-violet-500/15', iconColor: 'text-violet-500' },
     { id: 'sell', icon: Store, titleFr: 'Vendre', titleEn: 'Sell',
       descFr: 'Vends tes livres, formations et plus', descEn: 'Sell your books, courses & more',
       route: '/vendre', borderClass: 'border-amber-500/30 hover:border-amber-500/60',
@@ -71,10 +67,18 @@ export default function ActionHub() {
       descFr: 'Partage et touche des commissions', descEn: 'Share products and earn commissions',
       route: '/gagner', borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-500' },
-    { id: 'discover', icon: Compass, titleFr: 'Découvrir', titleEn: 'Discover',
-      descFr: 'Voir et acheter des livres, formations et plus', descEn: 'Browse & buy books, courses & more',
-      route: '/discover', borderClass: 'border-violet-500/30 hover:border-violet-500/60',
-      iconBg: 'bg-violet-500/15', iconColor: 'text-violet-500' },
+    { id: 'faith', icon: Church, titleFr: 'Créer un espace Église / ONG', titleEn: 'Create a Church / NGO space',
+      descFr: 'Offrandes, dons, enseignements et ressources', descEn: 'Offerings, donations, teachings & resources',
+      route: '/create-org?scope=faith', borderClass: 'border-sky-500/30 hover:border-sky-500/60',
+      iconBg: 'bg-sky-500/15', iconColor: 'text-sky-500' },
+    { id: 'write', icon: BookOpen, titleFr: 'Écrire un livre en 5 min', titleEn: 'Write a book in 5 min',
+      descFr: "Crée ton livre avec l'IA et vends-le", descEn: 'Create your book with AI and sell it',
+      route: '/ecrire', borderClass: 'border-primary/30 hover:border-primary/60',
+      iconBg: 'bg-primary/15', iconColor: 'text-primary' },
+    { id: 'course', icon: GraduationCap, titleFr: 'Créer une formation', titleEn: 'Create a formation',
+      descFr: 'Modules, leçons, quiz et certificats', descEn: 'Modules, lessons, quizzes and certificates',
+      route: '/creer-formation', borderClass: 'border-indigo-500/30 hover:border-indigo-500/60',
+      iconBg: 'bg-indigo-500/15', iconColor: 'text-indigo-500' },
   ];
 
   const baseAuthed = getActionNavItems({
@@ -109,14 +113,15 @@ export default function ActionHub() {
         iconBg: 'bg-teal-500/15', iconColor: 'text-teal-500',
       });
     }
-    // Intent-first ordering: what do you want to DO comes before account surfaces.
-    const order = ['write', 'course', 'sell', 'claim', 'discover', 'overview', 'purchases', 'sales', 'superadmin'];
+    // Ordering: my dashboard → discover → purchases → sell → revenue → earn → create.
+    const order = ['overview', 'discover', 'purchases', 'sell', 'sales', 'claim', 'write', 'course', 'superadmin'];
     const rank = (id: string) => {
       const i = order.indexOf(id);
       return i === -1 ? order.length : i;
     };
     return items.sort((a, b) => rank(a.id) - rank(b.id));
   })();
+
 
   const actions = user ? authedActions : visitorActions;
 
@@ -294,14 +299,15 @@ export default function ActionHub() {
           >
             <motion.div
               aria-hidden
-              initial={{ x: '-130%' }}
-              animate={{ x: '150%' }}
-              transition={{ duration: 2.6, delay: 0.5, ease: 'easeInOut' }}
+              initial={{ x: '-140%' }}
+              animate={{ x: '160%' }}
+              transition={{ duration: 7, delay: 0.4, ease: 'easeInOut', repeat: Infinity, repeatDelay: 3.5 }}
               className="pointer-events-none absolute inset-y-0 z-20 w-1/3 bg-gradient-to-r from-transparent via-white/25 dark:via-white/10 to-transparent"
             />
+
             <div className="relative rounded-[24px] bg-[hsl(var(--cert-paper))]/95 dark:bg-[#0e0d16]/95 backdrop-blur-xl p-3 sm:p-4">
               <div className="grid gap-2.5 sm:grid-cols-2">
-                {actions.map((action) => (
+                {actions.map((action, idx) => (
                   <button
                     key={action.id}
                     onClick={() => handleAction(action)}
@@ -315,10 +321,25 @@ export default function ActionHub() {
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--brand-blue))]/50',
                     )}
                   >
+                    {/* Slow travelling sheen — never parks on one side */}
+                    <motion.span
+                      aria-hidden
+                      initial={{ x: '-160%' }}
+                      animate={{ x: '180%' }}
+                      transition={{
+                        duration: 9,
+                        ease: 'easeInOut',
+                        repeat: Infinity,
+                        repeatDelay: 4,
+                        delay: 0.8 + idx * 0.45,
+                      }}
+                      className="pointer-events-none absolute inset-y-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 dark:via-white/[0.07] to-transparent"
+                    />
                     <span
                       aria-hidden
                       className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(120%_120%_at_0%_0%,hsl(var(--brand-blue)/0.12),transparent_60%)]"
                     />
+
                     <div className={cn(
                       'relative h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-inset ring-current/15 transition-transform duration-200 group-hover:scale-[1.06]',
                       action.iconBg, action.iconColor
