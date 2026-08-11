@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet, Church } from 'lucide-react';
+import { ArrowRight, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet, HeartHandshake } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -67,7 +67,7 @@ export default function ActionHub() {
       descFr: 'Partage et touche des commissions', descEn: 'Share products and earn commissions',
       route: '/gagner', borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-500' },
-    { id: 'faith', icon: Church, titleFr: 'Créer un espace Église / ONG', titleEn: 'Create a Church / NGO space',
+    { id: 'faith', icon: HeartHandshake, titleFr: 'Créer un espace Église / ONG', titleEn: 'Create a Church / NGO space',
       descFr: 'Offrandes, dons, enseignements et ressources', descEn: 'Offerings, donations, teachings & resources',
       route: '/create-org?scope=faith', borderClass: 'border-sky-500/30 hover:border-sky-500/60',
       iconBg: 'bg-sky-500/15', iconColor: 'text-sky-500' },
@@ -297,15 +297,21 @@ export default function ActionHub() {
                 'linear-gradient(135deg, hsl(var(--brand-blue-soft)/0.9), hsl(var(--brand-blue)/0.45) 35%, hsl(var(--brand-blue-soft)/0.85) 55%, hsl(var(--brand-blue)/0.45) 80%, hsl(var(--brand-blue-soft)/0.9))',
             }}
           >
-            <motion.div
+            {/* Light that travels around the component's border */}
+            <motion.span
               aria-hidden
-              initial={{ x: '-140%' }}
-              animate={{ x: '160%' }}
-              transition={{ duration: 7, delay: 0.4, ease: 'easeInOut', repeat: Infinity, repeatDelay: 3.5 }}
-              className="pointer-events-none absolute inset-y-0 z-20 w-1/3 bg-gradient-to-r from-transparent via-white/25 dark:via-white/10 to-transparent"
+              initial={{ rotate: 0 }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, ease: 'linear', repeat: Infinity }}
+              className="pointer-events-none absolute left-1/2 top-1/2 z-10 aspect-square w-[160%] -translate-x-1/2 -translate-y-1/2"
+              style={{
+                background:
+                  'conic-gradient(from 0deg, transparent 0deg, transparent 250deg, hsl(0 0% 100% / 0.85) 320deg, hsl(0 0% 100% / 0.15) 350deg, transparent 360deg)',
+              }}
             />
 
-            <div className="relative rounded-[24px] bg-[hsl(var(--cert-paper))]/95 dark:bg-[#0e0d16]/95 backdrop-blur-xl p-3 sm:p-4">
+
+            <div className="relative z-20 rounded-[24px] bg-[hsl(var(--cert-paper))]/95 dark:bg-[#0e0d16]/95 backdrop-blur-xl p-3 sm:p-4">
               <div className="grid gap-2.5 sm:grid-cols-2">
                 {actions.map((action, idx) => (
                   <button
@@ -321,24 +327,38 @@ export default function ActionHub() {
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--brand-blue))]/50',
                     )}
                   >
-                    {/* Slow travelling sheen — never parks on one side */}
+                    {/* Light looping around the button's edge */}
                     <motion.span
                       aria-hidden
-                      initial={{ x: '-160%' }}
-                      animate={{ x: '180%' }}
+                      initial={{ rotate: 0 }}
+                      animate={{ rotate: 360 }}
                       transition={{
-                        duration: 9,
-                        ease: 'easeInOut',
+                        duration: 10,
+                        ease: 'linear',
                         repeat: Infinity,
-                        repeatDelay: 4,
-                        delay: 0.8 + idx * 0.45,
+                        delay: idx * 0.6,
                       }}
-                      className="pointer-events-none absolute inset-y-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 dark:via-white/[0.07] to-transparent"
+                      className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[180%] -translate-x-1/2 -translate-y-1/2 opacity-70"
+                      style={{
+                        background:
+                          'conic-gradient(from 0deg, transparent 0deg, transparent 260deg, hsl(var(--brand-blue) / 0.35) 330deg, hsl(0 0% 100% / 0.18) 352deg, transparent 360deg)',
+                      }}
                     />
+                    {/* Masks the rotating light so only a thin edge glow remains */}
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-[1.5px] rounded-[14px] bg-[hsl(var(--cert-paper))] dark:bg-[#0e0d16]"
+                    />
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-[1.5px] rounded-[14px] bg-[hsl(var(--cert-paper-warm))]/70 dark:bg-white/[0.03]"
+                    />
+
                     <span
                       aria-hidden
                       className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(120%_120%_at_0%_0%,hsl(var(--brand-blue)/0.12),transparent_60%)]"
                     />
+
 
                     <div className={cn(
                       'relative h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-inset ring-current/15 transition-transform duration-200 group-hover:scale-[1.06]',
