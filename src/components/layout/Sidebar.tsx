@@ -68,7 +68,7 @@ export function Sidebar() {
         })()
       : [];
 
-  const hasWorkspaceHome = workspaceNav.some((it) => it.route.split('?')[0] === '/admin');
+  const hasWorkspaceHome = workspaceNav.some((it) => it.route.split('?')[0] === '/dashboard');
 
   const accountNav: ActionNavItem[] = user
     ? [
@@ -93,13 +93,6 @@ export function Sidebar() {
           route: '/my-purchases',
           borderClass: '', iconBg: '', iconColor: 'text-primary',
         },
-        {
-          id: 'acc-programs', icon: GraduationCap, emoji: '',
-          titleFr: 'Mes cours', titleEn: 'My courses',
-          descFr: 'Formations suivies et progression', descEn: 'Courses & progress',
-          route: '/my-programs',
-          borderClass: '', iconBg: '', iconColor: 'text-sky-400',
-        },
         ...(showServiceSurfaces() ? [{
           id: 'acc-messages', icon: MessageSquare, emoji: '',
           titleFr: 'Messages', titleEn: 'Messages',
@@ -122,8 +115,8 @@ export function Sidebar() {
    * Deduped by route so nothing appears twice.
    */
   const unifiedNav: ActionNavItem[] = (() => {
-    const overview = workspaceNav.filter((it) => it.route.split('?')[0] === '/admin');
-    const rest = workspaceNav.filter((it) => it.route.split('?')[0] !== '/admin');
+    const overview = workspaceNav.filter((it) => it.route.split('?')[0] === '/dashboard');
+    const rest = workspaceNav.filter((it) => it.route.split('?')[0] !== '/dashboard');
     const merged = [...overview, ...accountNav, ...rest];
     const seen = new Set<string>();
     return merged.filter((it) => {
@@ -140,10 +133,9 @@ export function Sidebar() {
   const isActive = (route: string) => {
     if (route === '/') return location.pathname === '/';
     const clean = route.split('?')[0];
-    if (clean === '/admin') return location.pathname === '/admin' || location.pathname === '/admin/';
+    if (clean === '/dashboard') return location.pathname === '/dashboard';
     if (clean === '/dashboard/messages') return location.pathname.startsWith('/dashboard/messages');
     if (clean === '/my-purchases') return location.pathname === '/my-purchases';
-    if (clean === '/my-programs') return location.pathname.startsWith('/my-programs');
     if (clean === '/gagner') return location.pathname === '/gagner';
     if (clean === '/dashboard/explore') return location.pathname.startsWith('/dashboard/explore');
     return location.pathname.startsWith(clean);

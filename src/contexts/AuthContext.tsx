@@ -198,6 +198,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       applySession(newSession);
 
+      // Claim any purchases made as a guest with this email (library recovery)
+      if (newSession?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        (async () => {
+          try {
+            const { data: claimed } = await supabase.rpc('claim_guest_purchases' as any);
+            if (typeof claimed === 'number' && claimed > 0) {
+              window.dispatchEvent(new CustomEvent('guest-purchases-claimed', { detail: { count: claimed } }));
+            }
+          } catch {}
+        })();
+      }
+
       if (newSession?.user && event === 'SIGNED_IN' && newSession.user.email) {
         const createdAt = new Date(newSession.user.created_at).getTime();
         const now = Date.now();

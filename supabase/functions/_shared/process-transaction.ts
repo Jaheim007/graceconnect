@@ -286,11 +286,14 @@ export async function processTransaction(
         } catch (_) { /* non-fatal */ }
       }
       if (!resolvedUserId) {
-        console.error(`[process-transaction] CRITICAL: No user_id for product purchase ref=${reference} email=${buyer_email || donor_email}`);
-        throw new TransactionError('User identification required for product purchase. Please log in and try again.', 400);
+        // Guest purchase: keep it, identified by buyer_email. It is claimed
+        // automatically (claim_guest_purchases) when that email signs in.
+        console.warn(`[process-transaction] Guest purchase (no user_id) ref=${reference} email=${buyer_email || donor_email}`);
+      } else {
+        console.warn(`[process-transaction] Resolved user_id from email lookup: ${resolvedUserId} for ref=${reference}`);
       }
-      console.warn(`[process-transaction] Resolved user_id from email lookup: ${resolvedUserId} for ref=${reference}`);
     }
+
 
     // Resolve buyer info: use explicit params, fallback to donor fields, then profile lookup
     let resolvedBuyerName = buyer_name || donor_name || null;

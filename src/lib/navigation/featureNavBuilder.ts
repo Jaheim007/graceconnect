@@ -229,7 +229,7 @@ export function buildFeatureNavItems(
     id: 'dashboard', icon: LayoutDashboard, tone: 'primary',
     titleFr: 'Accueil', titleEn: 'Home',
     descFr: 'Tableau de bord', descEn: 'Dashboard',
-    route: '/admin',
+    route: '/dashboard',
   });
 
   // (Removed) My Purchases — this is an ACCOUNT-level destination, not a

@@ -111,7 +111,7 @@ export function CourseCompletionSlide({
     );
   }, [mode, user, programId, existingCert]);
 
-  const shareUrl = programId ? `/program/${programId}` : '/my-programs';
+  const shareUrl = programId ? `/program/${programId}` : '/my-purchases?tab=courses';
   const shareDescription = isFr
     ? `🎓 Je viens de terminer le cours « ${courseTitle} » et j'ai obtenu ${overallStarRating}/5 étoiles ! Découvre ce cours 👉`
     : `🎓 I just completed the course "${courseTitle}" and got ${overallStarRating}/5 stars! Check out this course 👉`;

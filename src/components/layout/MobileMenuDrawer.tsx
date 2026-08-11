@@ -85,9 +85,6 @@ export function MobileMenuDrawer({ onClose }: Props) {
     { id: 'acc-purchases', icon: ShoppingBag, emoji: '', titleFr: 'Ma bibliothèque', titleEn: 'My library',
       descFr: '', descEn: '', route: '/my-purchases',
       borderClass: '', iconBg: 'bg-primary/12', iconColor: 'text-primary' },
-    { id: 'acc-programs', icon: GraduationCap, emoji: '', titleFr: 'Mes cours', titleEn: 'My courses',
-      descFr: '', descEn: '', route: '/my-programs',
-      borderClass: '', iconBg: 'bg-sky-500/12', iconColor: 'text-sky-500' },
     ...(showServiceSurfaces() ? [{
       id: 'acc-messages', icon: MessageSquare, emoji: '', titleFr: 'Messages', titleEn: 'Messages',
       descFr: '', descEn: '', route: '/dashboard/messages',
@@ -101,8 +98,8 @@ export function MobileMenuDrawer({ onClose }: Props) {
 
   /** ONE dashboard nav: overview, then what you own, then what you sell. */
   const unifiedNav: ActionNavItem[] = (() => {
-    const overview = workspaceNav.filter((it) => it.route.split('?')[0] === '/admin');
-    const rest = workspaceNav.filter((it) => it.route.split('?')[0] !== '/admin');
+    const overview = workspaceNav.filter((it) => it.route.split('?')[0] === '/dashboard');
+    const rest = workspaceNav.filter((it) => it.route.split('?')[0] !== '/dashboard');
     const seen = new Set<string>();
     return [...overview, ...accountNav, ...rest].filter((it) => {
       const key = it.route.split('?')[0];
@@ -114,9 +111,8 @@ export function MobileMenuDrawer({ onClose }: Props) {
 
   const isActive = (route: string) => {
     const clean = route.split('?')[0];
-    if (clean === '/admin') return location.pathname === '/admin';
+    if (clean === '/dashboard') return location.pathname === '/dashboard';
     if (clean === '/my-purchases') return location.pathname === '/my-purchases';
-    if (clean === '/my-programs') return location.pathname.startsWith('/my-programs');
     if (clean === '/gagner') return location.pathname === '/gagner';
     return location.pathname === clean || location.pathname.startsWith(clean + '/');
   };

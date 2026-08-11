@@ -119,7 +119,7 @@ export default function MyReviewsPage() {
                 : 'After each purchase, you can share your experience to help the community.'}
             </p>
             <Button asChild size="sm" className="gap-1.5">
-              <Link to="/my-programs">
+              <Link to="/my-purchases?tab=courses">
                 <Pencil className="h-3.5 w-3.5" />
                 {isFr ? 'Voir mes achats' : 'See my purchases'}
               </Link>

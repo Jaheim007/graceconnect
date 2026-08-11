@@ -284,7 +284,6 @@ const WatchPage = lazy(() => import("@/pages/WatchPage"));
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const DashboardRouter = lazy(() => import("@/pages/DashboardRouter"));
-const UserDashboard = lazy(() => import("@/pages/UserDashboard"));
 const DashboardExplorePage = lazy(() => import("@/pages/dashboard/DashboardExplorePage"));
 const PersonalActivityPage = lazy(() => import("@/pages/dashboard/PersonalActivityPage"));
 const PersonalMessagesPage = lazy(() => import("@/pages/dashboard/PersonalMessagesPage"));
@@ -301,7 +300,6 @@ const BookmarksPage = lazy(() => import("@/pages/BookmarksPage"));
 // WishlistPage merged into BookmarksPage
 const NotificationPreferencesPage = lazy(() => import("@/pages/NotificationPreferencesPage"));
 const MyInvoicesPage = lazy(() => import("@/pages/MyInvoicesPage"));
-const MyProgramsPage = lazy(() => import("@/pages/MyProgramsPage"));
 const MyReviewsPage = lazy(() => import("@/pages/MyReviewsPage"));
 const UserAnalyticsPage = lazy(() => import("@/pages/UserAnalyticsPage"));
 const CreatorAdvancedAnalyticsPage = lazy(() => import("@/pages/CreatorAdvancedAnalyticsPage"));
@@ -823,7 +821,7 @@ const App = () => (
                   <Route path="/invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
                   <Route path="/creator/analytics" element={<CreatorAdvancedAnalyticsPage />} />
-                  <Route path="/my-programs" element={<MyProgramsPage />} />
+                  <Route path="/my-purchases?tab=courses" element={<Navigate to="/my-purchases?tab=courses" replace />} />
                   <Route path="/my-purchases" element={<ResourcesPage />} />
 
 
@@ -833,7 +831,7 @@ const App = () => (
 
                   {/* Admin — inside AppLayout for seamless navigation */}
                   <Route path="/admin" element={<RequireOrgManage><AdminShell /></RequireOrgManage>}>
-                  <Route index element={<UserDashboard />} />
+                  <Route index element={<Navigate to="/dashboard" replace />} />
                   <Route path="create" element={<AdminCreateHub />} />
                   <Route path="content" element={<AdminContentHub />} />
                   <Route path="people" element={<AdminPeople />} />
