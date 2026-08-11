@@ -245,7 +245,7 @@ export function AdminCampaigns() {
   };
 
   return (
-    <AdminPageShell title={isFr ? 'Campagnes de dons' : 'Donation campaigns'} newRoute="/admin/campaigns/new" newLabel={isFr ? 'Nouvelle campagne' : 'New campaign'} backRoute="/admin/content">
+    <AdminPageShell title={pageTitle} newRoute="/admin/campaigns/new" newLabel={newLabel} backRoute="/admin/content">
       {currentOrg?.kyc_status === 'none' && (
         <div className="p-3 rounded-xl bg-primary/8 border border-primary/20 text-xs text-foreground mb-3 flex items-center gap-2">
           <span>💡</span>
@@ -256,10 +256,16 @@ export function AdminCampaigns() {
         </div>
       )}
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
-        <EmptyState variant="campaigns" action={{ label: isFr ? 'Nouvelle campagne' : 'New campaign', onClick: () => navigate('/admin/campaigns/new') }} />
+        <EmptyState variant="campaigns" action={{ label: newLabel, onClick: () => navigate('/admin/campaigns/new') }} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <h2 className="font-semibold text-sm">{items.length} {isFr ? 'campagne' : 'campaign'}{items.length > 1 ? 's' : ''}</h2>
+          <h2 className="font-semibold text-sm">
+            {items.length}{' '}
+            {isChurch
+              ? (isFr ? (items.length > 1 ? 'pages de dons' : 'page de dons') : (items.length > 1 ? 'giving pages' : 'giving page'))
+              : (isFr ? (items.length > 1 ? 'campagnes' : 'campagne') : (items.length > 1 ? 'campaigns' : 'campaign'))}
+          </h2>
+
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
             {items.map(c => (
               <motion.div key={c.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
