@@ -423,6 +423,12 @@ export function SmartCameraCapture({
         const uid = authData?.user?.id;
         if (!uid) throw new Error('Not authenticated');
         fileName = `${folder}/${uid}/${Date.now()}-capture.jpg`;
+      } else if (bucket === 'kyc-documents') {
+        const { data: authData } = await supabase.auth.getUser();
+        const uid = authData?.user?.id;
+        if (!uid) throw new Error('Not authenticated');
+        const sub = folder.replace(/^kyc\//, '').replace(/^\/+|\/+$/g, '');
+        fileName = `kyc/${uid}/${sub ? `${sub}/` : ''}${Date.now()}-capture.jpg`;
       }
       const { error: uploadError } = await supabase.storage
         .from(bucket)

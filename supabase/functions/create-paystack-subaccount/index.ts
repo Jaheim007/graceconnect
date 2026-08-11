@@ -123,14 +123,19 @@ Deno.serve(async (req) => {
 
     const subaccountCode = psData.data.subaccount_code;
 
-    // Save to organization with all payout details
+    // Save non-sensitive routing info on the organization
     await db.from('organizations').update({
       paystack_subaccount_code: subaccountCode,
       country_code: orgCountry,
       payout_method: effectivePayoutMethod,
+    }).eq('id', organization_id);
+
+    // Sensitive Mobile Money details live in a private, owner-only table
+    await db.from('org_payout_accounts').upsert({
+      organization_id,
       momo_provider: effectivePayoutMethod === 'mobile_money' ? momo_provider : null,
       momo_number: effectivePayoutMethod === 'mobile_money' ? momo_number : null,
-    }).eq('id', organization_id);
+    }, { onConflict: 'organization_id' });
 
     // Audit log
     await db.from('audit_logs').insert({

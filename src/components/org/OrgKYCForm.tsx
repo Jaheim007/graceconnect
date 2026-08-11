@@ -306,8 +306,8 @@ export default function OrgKYCForm({ orgId, orgCategory, kycStatus }: Props) {
                 <CameraCapture
                   value={idDocUrl}
                   onChange={setIdDocUrl}
-                  folder={`kyc/${orgId}/identity`}
-                  bucket="org-uploads"
+                  folder={`org/${orgId}/identity`}
+                  bucket="kyc-documents"
                   label="Document d'identité"
                   hint="Prenez une photo claire de votre pièce d'identité (recto puis verso)"
                 />
@@ -319,8 +319,8 @@ export default function OrgKYCForm({ orgId, orgCategory, kycStatus }: Props) {
                 <CameraCapture
                   value={selfieUrl}
                   onChange={setSelfieUrl}
-                  folder={`kyc/${orgId}/selfie`}
-                  bucket="org-uploads"
+                  folder={`org/${orgId}/selfie`}
+                  bucket="kyc-documents"
                   label="Selfie avec pièce d'identité"
                   hint="Prenez un selfie en tenant votre pièce d'identité visible à côté de votre visage"
                 />
@@ -417,8 +417,8 @@ export default function OrgKYCForm({ orgId, orgCategory, kycStatus }: Props) {
                 <FileUploader
                   value={orgDocUrl}
                   onChange={setOrgDocUrl}
-                  folder={`kyc/${orgId}/org-docs`}
-                  bucket="org-uploads"
+                  folder={`org/${orgId}/org-docs`}
+                  bucket="kyc-documents"
                   accept="image/*,.pdf"
                   label="Document de l'organisation"
                   hint="Récépissé, certificat, statuts ou autorisation officielle (PDF ou image)"

@@ -8687,6 +8687,45 @@ export type Database = {
           },
         ]
       }
+      org_payout_accounts: {
+        Row: {
+          created_at: string
+          momo_number: string | null
+          momo_provider: string | null
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          momo_number?: string | null
+          momo_provider?: string | null
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          momo_number?: string | null
+          momo_provider?: string | null
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_payout_accounts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_payout_accounts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+        ]
+      }
       org_photos: {
         Row: {
           caption: string | null
@@ -8925,8 +8964,6 @@ export type Database = {
           leader_name: string | null
           leader_title: string | null
           logo_url: string | null
-          momo_number: string | null
-          momo_provider: string | null
           monetization_enabled: boolean | null
           name: string
           offerings_enabled: boolean
@@ -8982,8 +9019,6 @@ export type Database = {
           leader_name?: string | null
           leader_title?: string | null
           logo_url?: string | null
-          momo_number?: string | null
-          momo_provider?: string | null
           monetization_enabled?: boolean | null
           name: string
           offerings_enabled?: boolean
@@ -9039,8 +9074,6 @@ export type Database = {
           leader_name?: string | null
           leader_title?: string | null
           logo_url?: string | null
-          momo_number?: string | null
-          momo_provider?: string | null
           monetization_enabled?: boolean | null
           name?: string
           offerings_enabled?: boolean

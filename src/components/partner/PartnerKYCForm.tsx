@@ -120,8 +120,8 @@ export default function PartnerKYCForm({ partnerId, kycStatus, rejectionReason }
           <FileUploader
             value={docUrl}
             onChange={setDocUrl}
-            folder={`partner-kyc/${partnerId}`}
-            bucket="org-uploads"
+            folder={`partner/${partnerId}`}
+            bucket="kyc-documents"
             accept="image/*,.pdf"
             label={isFr ? 'Document d\'identité' : 'ID document'}
             hint={isFr ? 'Carte d\'identité, passeport ou permis de conduire (PDF ou image)' : 'National ID, passport or driver\'s license (PDF or image)'}
@@ -133,8 +133,8 @@ export default function PartnerKYCForm({ partnerId, kycStatus, rejectionReason }
           <FileUploader
             value={selfieUrl}
             onChange={setSelfieUrl}
-            folder={`partner-kyc/${partnerId}/selfie`}
-            bucket="org-uploads"
+            folder={`partner/${partnerId}/selfie`}
+            bucket="kyc-documents"
             accept="image/*"
             label="Selfie"
             hint={isFr ? 'Photo récente tenant votre pièce d\'identité' : 'Recent photo holding your ID document'}

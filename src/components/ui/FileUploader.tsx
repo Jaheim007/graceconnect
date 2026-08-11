@@ -72,13 +72,20 @@ export function FileUploader({
         const uid = authData?.user?.id;
         if (!uid) throw new Error('Not authenticated');
         fileName = `${folder}/${uid}/${Date.now()}-${safeName}`;
+      } else if (bucket === 'kyc-documents') {
+        // Identity documents: private bucket, strictly scoped to kyc/<uid>/
+        const { data: authData } = await supabase.auth.getUser();
+        const uid = authData?.user?.id;
+        if (!uid) throw new Error('Not authenticated');
+        const sub = folder.replace(/^kyc\//, '').replace(/^\/+|\/+$/g, '');
+        fileName = `kyc/${uid}/${sub ? `${sub}/` : ''}${Date.now()}-${safeName}`;
       }
       const { error: uploadError } = await supabase.storage
         .from(bucket)
         .upload(fileName, file, { upsert: true });
       if (uploadError) throw uploadError;
-      if (bucket === 'private-products') {
-        // For private bucket, store the path reference (served via signed URLs)
+      if (bucket === 'private-products' || bucket === 'kyc-documents') {
+        // For private buckets, store the path reference (served via signed URLs)
         const fullUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/${bucket}/${fileName}`;
         onChange(fullUrl);
         setUrlInput(fullUrl);
