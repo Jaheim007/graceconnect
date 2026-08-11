@@ -131,30 +131,31 @@ export function CookieConsent() {
               )}
             </AnimatePresence>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {showPrefs ? (
                 <>
-                  <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => setShowPrefs(false)}>
+                  <Button variant="outline" size="sm" className="flex-1 min-w-[7rem] text-xs" onClick={() => setShowPrefs(false)}>
                     {isFr ? 'Retour' : 'Back'}
                   </Button>
-                  <Button size="sm" className="flex-1 text-xs" onClick={handleSavePrefs}>
+                  <Button size="sm" className="flex-1 min-w-[7rem] text-xs" onClick={handleSavePrefs}>
                     {isFr ? 'Sauvegarder' : 'Save'}
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => setShowPrefs(true)}>
-                    <Settings2 className="h-3 w-3" /> {isFr ? 'Personnaliser' : 'Customize'}
+                  <Button variant="ghost" size="sm" className="text-xs gap-1 min-w-0 shrink" onClick={() => setShowPrefs(true)}>
+                    <Settings2 className="h-3 w-3 shrink-0" /> <span className="truncate">{isFr ? 'Personnaliser' : 'Customize'}</span>
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={handleRejectAll}>
+                  <Button variant="outline" size="sm" className="flex-1 min-w-[5.5rem] text-xs" onClick={handleRejectAll}>
                     {isFr ? 'Refuser' : 'Reject'}
                   </Button>
-                  <Button size="sm" className="flex-1 text-xs" onClick={handleAcceptAll}>
+                  <Button size="sm" className="flex-1 min-w-[5.5rem] text-xs" onClick={handleAcceptAll}>
                     {isFr ? 'Accepter tout' : 'Accept all'}
                   </Button>
                 </>
               )}
             </div>
+
           </div>
         </motion.div>
       )}
