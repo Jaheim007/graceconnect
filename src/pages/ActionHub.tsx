@@ -53,16 +53,12 @@ export default function ActionHub() {
     }
   };
 
-  /** Visitor menu — the core SiteViral actions, no marketplace surfaces. */
+  /** Visitor menu — Discover first, then the core creation actions. */
   const visitorActions = [
-    { id: 'write', icon: BookOpen, titleFr: 'Écrire un livre en 5 min', titleEn: 'Write a book in 5 min',
-      descFr: "Crée ton livre avec l'IA et vends-le", descEn: 'Create your book with AI and sell it',
-      route: '/ecrire', borderClass: 'border-primary/30 hover:border-primary/60',
-      iconBg: 'bg-primary/15', iconColor: 'text-primary' },
-    { id: 'course', icon: GraduationCap, titleFr: 'Créer une formation', titleEn: 'Create a formation',
-      descFr: 'Modules, leçons, quiz et certificats', descEn: 'Modules, lessons, quizzes and certificates',
-      route: '/creer-formation', borderClass: 'border-indigo-500/30 hover:border-indigo-500/60',
-      iconBg: 'bg-indigo-500/15', iconColor: 'text-indigo-500' },
+    { id: 'discover', icon: Compass, titleFr: 'Découvrir', titleEn: 'Discover',
+      descFr: 'Voir et acheter des livres, formations et plus', descEn: 'Browse & buy books, courses & more',
+      route: '/discover', borderClass: 'border-violet-500/30 hover:border-violet-500/60',
+      iconBg: 'bg-violet-500/15', iconColor: 'text-violet-500' },
     { id: 'sell', icon: Store, titleFr: 'Vendre', titleEn: 'Sell',
       descFr: 'Vends tes livres, formations et plus', descEn: 'Sell your books, courses & more',
       route: '/vendre', borderClass: 'border-amber-500/30 hover:border-amber-500/60',
@@ -71,10 +67,18 @@ export default function ActionHub() {
       descFr: 'Partage et touche des commissions', descEn: 'Share products and earn commissions',
       route: '/gagner', borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-500' },
-    { id: 'discover', icon: Compass, titleFr: 'Découvrir', titleEn: 'Discover',
-      descFr: 'Voir et acheter des livres, formations et plus', descEn: 'Browse & buy books, courses & more',
-      route: '/discover', borderClass: 'border-violet-500/30 hover:border-violet-500/60',
-      iconBg: 'bg-violet-500/15', iconColor: 'text-violet-500' },
+    { id: 'faith', icon: Church, titleFr: 'Créer un espace Église / ONG', titleEn: 'Create a Church / NGO space',
+      descFr: 'Offrandes, dons, enseignements et ressources', descEn: 'Offerings, donations, teachings & resources',
+      route: '/create-org?scope=faith', borderClass: 'border-sky-500/30 hover:border-sky-500/60',
+      iconBg: 'bg-sky-500/15', iconColor: 'text-sky-500' },
+    { id: 'write', icon: BookOpen, titleFr: 'Écrire un livre en 5 min', titleEn: 'Write a book in 5 min',
+      descFr: "Crée ton livre avec l'IA et vends-le", descEn: 'Create your book with AI and sell it',
+      route: '/ecrire', borderClass: 'border-primary/30 hover:border-primary/60',
+      iconBg: 'bg-primary/15', iconColor: 'text-primary' },
+    { id: 'course', icon: GraduationCap, titleFr: 'Créer une formation', titleEn: 'Create a formation',
+      descFr: 'Modules, leçons, quiz et certificats', descEn: 'Modules, lessons, quizzes and certificates',
+      route: '/creer-formation', borderClass: 'border-indigo-500/30 hover:border-indigo-500/60',
+      iconBg: 'bg-indigo-500/15', iconColor: 'text-indigo-500' },
   ];
 
   const baseAuthed = getActionNavItems({
@@ -109,14 +113,15 @@ export default function ActionHub() {
         iconBg: 'bg-teal-500/15', iconColor: 'text-teal-500',
       });
     }
-    // Intent-first ordering: what do you want to DO comes before account surfaces.
-    const order = ['write', 'course', 'sell', 'claim', 'discover', 'overview', 'purchases', 'sales', 'superadmin'];
+    // Ordering: my dashboard → discover → purchases → sell → revenue → earn → create.
+    const order = ['overview', 'discover', 'purchases', 'sell', 'sales', 'claim', 'write', 'course', 'superadmin'];
     const rank = (id: string) => {
       const i = order.indexOf(id);
       return i === -1 ? order.length : i;
     };
     return items.sort((a, b) => rank(a.id) - rank(b.id));
   })();
+
 
   const actions = user ? authedActions : visitorActions;
 
