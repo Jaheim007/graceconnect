@@ -821,7 +821,7 @@ const App = () => (
                   <Route path="/invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
                   <Route path="/creator/analytics" element={<CreatorAdvancedAnalyticsPage />} />
-                  <Route path="/my-programs" element={<Navigate to="/my-purchases?tab=courses" replace />} />
+                  <Route path="/my-purchases?tab=courses" element={<Navigate to="/my-purchases?tab=courses" replace />} />
                   <Route path="/my-purchases" element={<ResourcesPage />} />
 
 

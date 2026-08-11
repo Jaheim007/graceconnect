@@ -359,7 +359,7 @@ export default function PersonalHome() {
 
           <div className="grid gap-2 sm:grid-cols-2">
             <Link
-              to="/my-programs"
+              to="/my-purchases?tab=courses"
               className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 hover:border-primary/40 transition"
             >
               <div className="h-10 w-10 rounded-xl bg-sky-500/10 grid place-items-center shrink-0">

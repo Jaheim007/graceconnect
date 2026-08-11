@@ -67,7 +67,7 @@ export function LandingNav() {
                   {isFr ? 'Mon compte' : 'My account'}
                 </DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => navigate('/dashboard')} className="text-sm gap-2"><User className="h-4 w-4" /> Dashboard</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/my-programs')} className="text-sm gap-2"><Package className="h-4 w-4" /> {isFr ? 'Mes achats' : 'My purchases'}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/my-purchases?tab=courses')} className="text-sm gap-2"><Package className="h-4 w-4" /> {isFr ? 'Mes achats' : 'My purchases'}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/billing')} className="text-sm gap-2"><CreditCard className="h-4 w-4" /> {isFr ? 'Mon abonnement' : 'Subscription'}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/my-reviews')} className="text-sm gap-2"><MessageSquare className="h-4 w-4" /> {isFr ? 'Mes avis' : 'My reviews'}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/referrals')} className="text-sm gap-2"><Gift className="h-4 w-4" /> {isFr ? 'Parrainage' : 'Referrals'}</DropdownMenuItem>

@@ -151,7 +151,7 @@ function PurchasesTab({ userId, isFr }: { userId?: string; isFr: boolean }) {
       {data.map((p: any) => (
         <Link
           key={p.id}
-          to="/my-programs"
+          to="/my-purchases?tab=courses"
           className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 hover:border-primary/40 transition"
         >
           <div className="h-12 w-12 rounded-xl bg-primary/10 grid place-items-center overflow-hidden shrink-0">
