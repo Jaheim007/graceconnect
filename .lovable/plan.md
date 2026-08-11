@@ -1,83 +1,88 @@
-# Deux flows oubliés : l'Acheteur et l'Ambassadeur
+# Un seul utilisateur, trois casquettes : le flow unifié
 
-Le plan précédent couvrait le créateur (créer → vendre). Il manque deux profils qui arrivent sur SiteViral sans rien créer :
+Tu as raison, et c'est le vrai problème : aujourd'hui le code force l'utilisateur dans **un seul rôle exclusif**, alors qu'une même personne est souvent acheteur + ambassadeur + créateur en même temps.
 
-- **L'Acheteur** : il a reçu un lien, il a acheté un livre / une formation / un PDF. Il revient pour lire, télécharger, suivre sa formation.
-- **L'Ambassadeur** : il n'a rien à vendre ni à acheter. Il vient gagner de l'argent en partageant les produits des autres.
+## Diagnostic (vérifié dans le code)
 
-Aujourd'hui les briques existent (page Mes achats, inscriptions aux formations, affiliation, commissions), mais il n'y a **pas de parcours** : après connexion, l'acheteur atterrit sur un tableau de bord générique avec une barre de recherche et des catégories, et ses achats sont en 3e position dans la page.
+| Endroit | Ce qu'il fait aujourd'hui | Pourquoi c'est faux |
+| --- | --- | --- |
+| `useUserProfile.ts` | Retourne UN profil : si org → `creator`, sinon si lien d'affiliation → `ambassador`, sinon `buyer` | Un créateur qui a acheté un livre est classé « creator » : sa bibliothèque disparaît |
+| `useUserKind.ts` | `provider` / `buyer` / `new`, exclusifs, et les achats ne sont même pas vérifiés si l'utilisateur a une org | Même angle mort |
+| `DashboardRouter.tsx` | Si une org existe → redirection immédiate vers `/admin` | Le créateur ne peut plus atteindre ses achats ni ses gains depuis l'accueil |
+| `WelcomeIntentPage.tsx` | Fait choisir UNE intention, enregistrée dans `profiles.onboarding_intent` | Enferme l'utilisateur dans un rôle dès le départ |
+| `PersonalHome.tsx` | Rendue seulement quand l'utilisateur n'a aucune org | Les acheteurs-créateurs ne la voient jamais |
+
+Conclusion : le problème n'est pas « il manque un flow acheteur » ni « il manque un flow ambassadeur ». Le problème est **l'exclusivité des rôles**. La bonne architecture est un accueil unique, adaptatif, où chaque casquette apparaît dès qu'un signal existe, et disparaît quand elle n'a pas de sens.
 
 ---
 
-## 1. Flow Acheteur — « Ma bibliothèque »
+## Le modèle : 3 capacités, pas 3 utilisateurs
 
-Objectif : après connexion, en moins de 3 secondes, l'acheteur voit **son** contenu et un seul bouton pour continuer.
-
-```text
-Lien reçu → Achat → Email/Succès → Connexion
-                                     ↓
-                        Accueil = "Reprends où tu t'es arrêté"
-                                     ↓
-                   [Lire mon livre]   [Continuer ma formation]
-                                     ↓
-                              Ma bibliothèque
-                     Livres · Formations · PDF · Reçus
-```
-
-Ce qu'on construit :
-
-1. **Carte « Reprendre »** en tout premier sur l'accueil connecté : dernier livre acheté (bouton Lire / Télécharger) ou dernière formation avec sa barre de progression et le bouton « Continuer la leçon X ». Un seul bouton principal, pas de choix.
-2. **Réorganisation de l'accueil acheteur** : bibliothèque en haut, puis Explorer, puis (si concerné) rendez-vous à venir. La recherche descend, elle n'est plus la première chose vue.
-3. **Renommage** « Mes achats » → « Ma bibliothèque » partout (sidebar, menu mobile, barre du bas, hub) — un acheteur ne cherche pas une facture, il cherche son livre.
-4. **Bibliothèque unifiée** : la page regroupe déjà achats, formations, crédits, dons. On la restructure en onglets clairs — Livres & fichiers · Formations · Reçus — avec, pour chaque formation, la progression et le bouton Continuer.
-5. **Retour après paiement** : sur la page de succès, le bouton principal mène soit à la lecture immédiate, soit à « Créer mon compte pour retrouver mon achat » si l'acheteur n'était pas connecté — et après connexion il est renvoyé directement sur sa bibliothèque.
-6. **Zéro cul-de-sac** : si la bibliothèque est vide, une carte explique quoi faire (Explorer, ou devenir ambassadeur).
-
-## 2. Flow Ambassadeur — « Gagner sans rien créer »
-
-Objectif : un visiteur qui veut juste gagner de l'argent obtient son premier lien de partage en 1 minute, sans créer de plateforme.
+Chaque utilisateur possède 3 capacités indépendantes, cumulables :
 
 ```text
-Arrivée → "Gagner de l'argent en partageant"
-            ↓
-   [Activer mon compte ambassadeur]  ← 1 tap, pas de formulaire
-            ↓
-   Catalogue à promouvoir (produits avec commission)
-            ↓
-   [Copier mon lien] / [Partager WhatsApp]
-            ↓
-   Suivi : clics · ventes · commissions · retrait
+              APPRENDRE            GAGNER              CRÉER
+              (acheteur)        (ambassadeur)        (créateur)
+signal :   1 achat / 1 formation  1 lien d'affiliation   1 espace
+surface :  Ma bibliothèque        Gagner                 Mon espace
 ```
 
-Ce qu'on construit :
+Un seul accueil : `/dashboard`. Il montre des blocs, un par capacité active, dans un ordre déterminé par la **dernière action réelle** de l'utilisateur — pas par un rôle figé.
 
-1. **Entrée dédiée** : la carte « Gagner » du hub devient explicite (« Gagne une commission en partageant les livres et formations des autres ») et est visible aussi pour les visiteurs non connectés.
-2. **Activation en 1 tap** sur la page Gagner : un bouton « Activer mon compte ambassadeur » qui crée le lien d'affiliation en arrière-plan (mécanisme d'auto-inscription déjà en place), sans formulaire ni KYC à cette étape.
-3. **Catalogue ambassadeur** : liste des produits partageables avec la commission affichée en grand, recherche, et bouton Partager sur chaque carte qui génère le lien perso automatiquement.
-4. **Premier partage guidé** : après activation, une carte « Ton premier lien » avec copie en un tap + partage WhatsApp, puis un état « en attente du premier clic ».
-5. **Tableau de gains simple** : clics, ventes, commissions en attente, commissions payables, et bouton Retirer (le KYC n'est demandé qu'au moment du retrait, comme aujourd'hui pour les autres verticales).
-6. **Un ambassadeur reste un acheteur** : les deux mondes cohabitent dans la même navigation — Ma bibliothèque · Explorer · Gagner — sans jamais parler de « workspace » ni de « plateforme » à ces profils.
+```text
+Connexion → /dashboard (accueil unique)
+   │
+   ├─ Bloc "Reprendre"      → si achat ou formation en cours (le plus récent)
+   ├─ Bloc "Mon espace"     → si espace existant (ventes du jour, action suivante)
+   ├─ Bloc "Mes gains"      → si ambassadeur (commissions, partager un produit)
+   └─ Bloc "Débloquer"      → les capacités encore inactives, 1 tap chacune
+```
 
-## 3. Règle de navigation unifiée
+## Règles d'or du flow
 
-Après connexion, l'accueil s'adapte au profil sans lui demander de choisir :
+1. **Aucune redirection automatique qui masque les autres casquettes.** `/dashboard` reste l'accueil pour tout le monde, y compris ceux qui ont un espace ; `/admin` devient une destination, plus une redirection forcée.
+2. **L'ordre suit l'activité, pas le rôle.** Si tu as vendu hier, l'espace est en haut ; si tu lis un livre, la lecture est en haut. Une seule règle : le bloc le plus récemment utilisé passe premier.
+3. **Une capacité ne s'affiche jamais vide.** Pas d'achat = pas de bloc bibliothèque, mais une carte « Débloquer » discrète.
+4. **Ajouter une casquette = 1 tap, jamais un formulaire.** Devenir ambassadeur = un bouton. Créer un espace = le flow existant. Acheter = Explorer.
+5. **Navigation unique et stable** pour tous : Accueil · Ma bibliothèque · Explorer · Gagner · Mon espace (ce dernier n'apparaît que s'il existe). Aucun libellé technique (« workspace », « features »).
+6. **Plus de choix d'intention bloquant.** `/welcome-intent` devient facultatif et n'enferme plus l'utilisateur : l'intention choisie ne fait que trier les blocs de l'accueil.
 
-| Profil | Ce qu'il voit en premier |
-| --- | --- |
-| A acheté quelque chose | Reprendre la lecture / la formation |
-| Ambassadeur actif | Mes gains + partager un produit |
-| A une plateforme | Tableau de bord créateur (inchangé) |
-| Nouveau, rien | Explorer + les deux portes : Créer / Gagner |
+## Ce qu'on construit
+
+### A. Le socle : capacités cumulables
+Remplacer la classification exclusive par un hook `useUserCapabilities` qui renvoie `{ canLearn, canEarn, canCreate }` + les données de tête de chaque bloc (dernier contenu à reprendre, gains en attente, espace actif) et un `primaryCapability` calculé sur la dernière activité. `useUserProfile` / `useUserKind` sont conservés en façade pour ne rien casser, mais réimplémentés au-dessus du nouveau hook.
+
+### B. L'accueil unifié
+`/dashboard` rend toujours l'accueil adaptatif (plus de saut vers `/admin`). Trois blocs autonomes :
+- **Reprendre** : dernier livre (Lire / Télécharger) ou dernière formation avec progression et « Continuer la leçon X ».
+- **Mon espace** : chiffre du jour, prochaine action utile, accès à l'admin.
+- **Mes gains** : commissions en attente, bouton « Partager un produit » qui génère le lien perso.
+Plus une rangée « Débloquer » pour les capacités inactives.
+
+### C. Le flow Acheteur (complété)
+- « Mes achats » devient **Ma bibliothèque**, en onglets : Livres & fichiers · Formations · Reçus, avec progression et bouton Continuer.
+- Accessible pour tous, y compris les créateurs.
+- Après paiement : lecture immédiate si connecté ; sinon « Crée ton compte pour retrouver ton achat » puis retour direct sur la bibliothèque.
+
+### D. Le flow Ambassadeur (complété)
+- Activation en 1 tap (« Activer mon compte ambassadeur »), sans formulaire, KYC seulement au retrait.
+- Catalogue de produits partageables avec la commission affichée, bouton Partager qui crée le lien automatiquement.
+- Carte « Ton premier lien » avec copie et partage WhatsApp, puis suivi clics / ventes / commissions.
+
+### E. Le flow Créateur (préservé)
+Inchangé dans son fonctionnement, mais il cesse d'être exclusif : le créateur garde sa bibliothèque et ses gains visibles depuis l'accueil.
 
 ---
 
 ## Détails techniques
 
-- Nouveau hook `src/hooks/useMyLibrary.ts` : agrège `product_purchases` (+ `digital_products`), `program_enrollments` (+ `programs`), `church_sermon_pdf_purchases`, et expose `items`, `counts`, `continueItem`. La progression des formations réutilise `useCourseResume`.
-- Nouveaux composants sous `src/components/library/` : `ContinueCard.tsx`, `LibraryTabs.tsx`, `EmptyLibraryCard.tsx`.
-- `src/pages/dashboard/PersonalHome.tsx` : réordonnancement (Continue → bibliothèque → Explorer → rendez-vous) et branchement de la carte ambassadeur si aucun achat.
-- `src/pages/ResourcesPage.tsx` (`/my-purchases`) : passage en onglets, ajout de la progression et du bouton Continuer sur les formations (lecteur `LessonPlayerOverlay` déjà utilisé).
-- Libellés : `src/lib/navigation/actionNavItems.ts`, `Sidebar.tsx`, `MobileMenuDrawer.tsx`, `GlobalBottomNav.tsx` → « Ma bibliothèque » / « My library ».
-- Ambassadeur : nouveaux composants sous `src/components/gagner/` (`ActivateAmbassadorCard.tsx`, `AmbassadorCatalog.tsx`, `FirstLinkCard.tsx`) branchés sur `useAffiliateMarketplace` et `useAutoAffiliateCode` (RPC `self_enroll_affiliate`) — aucune nouvelle logique de commission.
-- `PaymentSuccessPage.tsx` : hiérarchie des CTA (lire maintenant / retrouver mon achat) et redirection post-connexion vers `/my-purchases`.
-- Aucun changement de base de données, de paiement, ni de logique de workspace. Tout est bilingue FR/EN via `useI18n`.
+- Nouveau `src/hooks/useUserCapabilities.ts` : agrège en une passe `product_purchases`, `program_enrollments`, `church_sermon_pdf_purchases`, `affiliate_links`, `partner_commissions` et les orgs manageables de `OrgContext`. Réutilise `useCourseResume` pour la progression.
+- `useUserProfile.ts` et `useUserKind.ts` : réécrits comme adaptateurs au-dessus de `useUserCapabilities` (mêmes signatures, aucun appel à corriger ailleurs).
+- `src/pages/DashboardRouter.tsx` : suppression du `Navigate to="/admin"` forcé ; sélection de l'org courante conservée, mais l'accueil adaptatif est rendu dans tous les cas.
+- `src/pages/dashboard/PersonalHome.tsx` : devient l'accueil unifié, composé de nouveaux blocs `src/components/home/ContinueBlock.tsx`, `SpaceBlock.tsx`, `EarningsBlock.tsx`, `UnlockRow.tsx`, ordonnés par `primaryCapability`.
+- `src/pages/ResourcesPage.tsx` (`/my-purchases`) : passage en onglets + progression + Continuer (via `LessonPlayerOverlay` déjà en place).
+- Ambassadeur : `src/components/gagner/ActivateAmbassadorCard.tsx`, `AmbassadorCatalog.tsx`, `FirstLinkCard.tsx` branchés sur `useAffiliateMarketplace` et `useAutoAffiliateCode` (RPC `self_enroll_affiliate`) — aucune nouvelle logique de commission.
+- Libellés « Ma bibliothèque » / « My library » dans `src/lib/navigation/actionNavItems.ts`, `Sidebar.tsx`, `MobileMenuDrawer.tsx`, `GlobalBottomNav.tsx`, et ajout de l'entrée Gagner pour tous les connectés.
+- `PaymentSuccessPage.tsx` : hiérarchie des CTA et redirection post-connexion vers la bibliothèque.
+- `WelcomeIntentPage.tsx` : l'intention devient un simple tri, plus un aiguillage bloquant.
+- Aucun changement de base de données, de paiement, de commissions ni de logique d'espace. Tout bilingue FR/EN via `useI18n`, mobile d'abord.
