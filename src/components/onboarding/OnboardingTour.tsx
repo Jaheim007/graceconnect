@@ -5,6 +5,8 @@ import { X, ChevronLeft, ChevronRight, BarChart3, ShoppingBag, GraduationCap, Us
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
+
 import { useLocation } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 
