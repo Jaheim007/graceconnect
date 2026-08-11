@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { forwardRef, useState } from 'react';
 import { DigitalProduct } from '@/types/database';
 import { ReportContentDialog } from '@/components/reports/ReportContentDialog';
 import { stripHtml } from '@/lib/formatText';
@@ -43,7 +43,10 @@ const coverAspectClass: Record<string, string> = {
   other: 'aspect-video',
 };
 
-export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideCommission: hideCommissionProp, hideShare: hideShareProp }: ProductCardProps) {
+function ProductCardImpl(
+  { product, onPurchase, index = 0, isPurchased, hideCommission: hideCommissionProp, hideShare: hideShareProp }: ProductCardProps,
+  ref: React.Ref<HTMLDivElement>,
+) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -169,6 +172,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
 
   return (
     <div
+      ref={ref}
       className="bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/30 transition-all duration-200 group cursor-pointer"
       onClick={handleCardClick}
     >
@@ -417,3 +421,6 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
     </div>
   );
 }
+
+export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(ProductCardImpl);
+ProductCard.displayName = 'ProductCard';

@@ -1,27 +1,34 @@
 # A→Z flow: what's left
 
-The navigation and surface simplification is done: one dashboard, one library (with Books / Courses / Receipts / Giving tabs), one intention screen, guest purchases claimed at login, orphan pages retired. Three real items remain, and none are new screens.
+The structural simplification is done: one adaptive dashboard, one library with tabs, one creation entry (`/create-org`), guest-purchase claiming at login, retired duplicate pages, and the daily activation email schedule. What has **not** been done is proving the whole path works end to end on a real device, and cleaning the last few loose ends visible in the route table.
 
-## 1. Activation emails never fire on their own
-The activation ladder (D+1 → D+14) exists as an edge function but nothing calls it. Other engines in the project run on scheduled jobs; this one has none, so a user who signs up and stops gets no follow-up.
+So the answer is: nothing big is missing in architecture. What remains is verification plus small polish.
 
-Action: add a once-a-day scheduled trigger for the activation engine, with an idempotency guard so a user can never receive the same stage twice.
+## 1. End-to-end verification pass (the real remaining work)
 
-## 2. First-run: the empty dashboard
-A brand-new account with no purchase and no space lands on the unified home with blocks that are all empty states. The intention chosen at signup only reorders those blocks.
+Walk each path in a real browser (mobile 390px and desktop) and capture what actually happens, then fix only what breaks:
 
-Action: when the account has zero activity, collapse the home into a single primary action derived from the intention (learn → Discover, create → create a space, earn → activate ambassador), and keep the rest as one quiet secondary row. No new page.
+- Visitor: `/` Action Hub → Discover → open a product → guest checkout → success screen → "Save it to my library" → magic-link sign-in → item appears in library.
+- New signup: sign up → intent question → dashboard first-run hero → do the suggested first action.
+- Creator: create platform → create a course (AI) → publish → appears in Discover → buy from another account.
+- Church: create church space → sermon + Giving page → public church profile → give.
+- Returning buyer: library tabs (Books / Courses / Giving / Receipts) → resume a course → certificate → public verification page.
 
-## 3. Checkout return path for guests
-Guest purchases are now claimed at login, but the success page asks the guest to create an account without carrying the purchased item forward visually, so the reason to sign up is weak.
+Each broken step becomes a small targeted fix in the same pass, not a redesign.
 
-Action: on the success screen, show the purchased item plus a single "Save it to my library" action that pre-fills the email used at checkout, then land directly on the item in the library.
+## 2. Loose ends in the route table
 
-## Not worth doing
-- Merging Discover and the SuperApp hub: they serve different intents and the service surfaces are already feature-gated.
-- Further route pruning: remaining paths are intentional redirects that keep old links alive.
+- Legacy service verticals (`/beauty/*`, `/home/*`, `/events/*`, `/learn/*`, `/education/*`) still carry long alias chains behind `HiddenSurface`. Collapse each vertical to a single guarded entry plus one catch-all redirect, removing ~60 dead alias routes.
+- Several `/pour/*` persona pages and `/showcase`, `/temoignages`, `/comparer` are public but unlinked from the current landing/nav. Either link them from the landing footer or retire them so the public surface matches the nav.
+- `/digital/about`, `/a-propos` and `/landing` all render the same landing page. Keep `/landing` as canonical and redirect the other two.
+
+## 3. Guardrails so it stays simple
+
+- Add a short "one route per job" note to project memory so future work doesn't reintroduce parallel dashboards or a second library.
+- Verify the activation email schedule actually fired once (check the job run + one sent email) rather than assuming.
 
 ## Technical notes
-- Item 1: scheduled job invoking the existing activation function; guard on the existing send-log so re-runs are safe.
-- Item 2: purely presentational logic in the unified home using the existing capabilities hook and stored intention.
-- Item 3: changes limited to the payment success screen and the claim call already wired into auth.
+
+- Verification uses Playwright against the local dev server with a restored session; screenshots per step.
+- Route collapsing is confined to `src/App.tsx` plus any internal links found by search; no page component logic changes.
+- No database or edge-function changes are needed for this phase except reading the cron/email logs.

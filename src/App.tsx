@@ -482,28 +482,16 @@ const App = () => (
                 <Route path="/looking-for" element={showServiceSurfaces() ? <LazyLookingForPage /> : <Navigate to="/dashboard" replace />} />
                 <Route path="/services" element={<Navigate to="/discover" replace />} />
                 <Route path="/digital" element={<Navigate to="/discover?type=digital" replace />} />
-                <Route path="/digital/about" element={<LandingPage />} />
+                <Route path="/digital/about" element={<Navigate to="/landing" replace />} />
                 <Route path="/hub" element={<Navigate to="/discover" replace />} />
-                {/* SiteViral Beauty */}
+                {/* SiteViral Beauty — preserved surfaces, hidden until enabled. */}
                 <Route path="/beauty" element={<HiddenSurface><Navigate to="/beauty/search" replace /></HiddenSurface>} />
                 <Route path="/beauty/about" element={<HiddenSurface><BeautyLanding /></HiddenSurface>} />
                 <Route path="/beauty/search" element={<HiddenSurface><BeautySearch /></HiddenSurface>} />
                 <Route path="/beauty/p/:slug" element={<HiddenSurface><BeautyProviderProfile /></HiddenSurface>} />
-                <Route path="/beauty/book/:serviceId" element={<Navigate to="/beauty/search" replace />} />
-                <Route path="/beauty/bookings" element={<Navigate to="/admin/beauty/orders" replace />} />
-                <Route path="/beauty/bookings/:id" element={<Navigate to="/admin/beauty/orders" replace />} />
-                <Route path="/beauty/messages" element={<Navigate to="/admin/beauty/messages" replace />} />
-                <Route path="/beauty/messages/:id" element={<IdRedirect toBase="/admin/beauty/messages" />} />
-
                 <Route path="/beauty/pro/onboarding" element={<HiddenSurface><BeautyProviderOnboarding /></HiddenSurface>} />
-                <Route path="/beauty/pro" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/beauty/pro/messages" element={<Navigate to="/admin/beauty/messages" replace />} />
-                <Route path="/beauty/pro/messages/:id" element={<IdRedirect toBase="/admin/beauty/messages" />} />
-                <Route path="/beauty/pro/orders" element={<Navigate to="/admin/beauty/orders" replace />} />
-                <Route path="/beauty/pro/revenue" element={<Navigate to="/admin/beauty/revenue" replace />} />
-                <Route path="/beauty/pro/settings" element={<Navigate to="/admin/beauty/settings" replace />} />
-                <Route path="/beauty/pro/kyc" element={<Navigate to="/admin/beauty/kyc" replace />} />
-                <Route path="/beauty/pro/dashboard" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/beauty/*" element={<Navigate to="/dashboard" replace />} />
+
                 {/* SiteViral Church */}
                 <Route path="/church" element={<Navigate to="/churches" replace />} />
                 <Route path="/church/about" element={<ChurchLanding />} />
@@ -529,89 +517,42 @@ const App = () => (
                 <Route path="/church/:slug/pdf/:pdfId" element={<ChurchSermonPdfBuyPage />} />
                 <Route path="/church/:slug/pdf/:pdfId/success" element={<ChurchSermonPdfSuccessPage />} />
                 <Route path="/church/:slug" element={<ChurchPublicProfile />} />
-                {/* SiteViral Home */}
+                {/* SiteViral Home (artisans) — preserved surfaces, hidden until enabled.
+                    All legacy sub-paths fold into a single catch-all. */}
                 <Route path="/home" element={<HiddenSurface><Navigate to="/home/discover" replace /></HiddenSurface>} />
                 <Route path="/home/about" element={<HiddenSurface><HomeLanding /></HiddenSurface>} />
                 <Route path="/home/discover" element={<HiddenSurface><HomeDiscover /></HiddenSurface>} />
                 <Route path="/home/pro/onboarding" element={<HiddenSurface><HomeProviderOnboarding /></HiddenSurface>} />
-
-                <Route path="/home/pro" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/home/pro/messages" element={<Navigate to="/admin/home/messages" replace />} />
-                <Route path="/home/pro/messages/:id" element={<IdRedirect toBase="/admin/home/messages" />} />
-                <Route path="/home/pro/orders" element={<Navigate to="/admin/home/orders" replace />} />
-                <Route path="/home/pro/revenue" element={<Navigate to="/admin/home/revenue" replace />} />
-                <Route path="/home/pro/settings" element={<Navigate to="/admin/home/settings" replace />} />
-                <Route path="/home/pro/services" element={<Navigate to="/admin/home/services" replace />} />
-                <Route path="/home/pro/kyc" element={<Navigate to="/admin/home/kyc" replace />} />
-
-                <Route path="/home/messages" element={<Navigate to="/admin/home/messages" replace />} />
-                <Route path="/home/messages/:id" element={<IdRedirect toBase="/admin/home/messages" />} />
-                <Route path="/home/bookings" element={<Navigate to="/admin/home/orders" replace />} />
-                <Route path="/home/booking/:id" element={<Navigate to="/admin/home/orders" replace />} />
                 <Route path="/home/pro/:slug" element={<HiddenSurface><HomeProviderPublic /></HiddenSurface>} />
+                <Route path="/home/*" element={<Navigate to="/dashboard" replace />} />
 
-
-                {/* SiteViral Events */}
+                {/* SiteViral Events — preserved surfaces, hidden until enabled. */}
                 <Route path="/events" element={<HiddenSurface><Navigate to="/events/discover" replace /></HiddenSurface>} />
                 <Route path="/events/about" element={<HiddenSurface><EventsLanding /></HiddenSurface>} />
                 <Route path="/events/discover" element={<HiddenSurface><EventsDiscover /></HiddenSurface>} />
                 <Route path="/events/pro/onboarding" element={<HiddenSurface><EventsProviderOnboarding /></HiddenSurface>} />
-                <Route path="/events/pro" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/events/pro/messages" element={<Navigate to="/admin/events-service/messages" replace />} />
-                <Route path="/events/pro/messages/:id" element={<IdRedirect toBase="/admin/events-service/messages" />} />
-                <Route path="/events/pro/orders" element={<Navigate to="/admin/events-service/orders" replace />} />
-                <Route path="/events/pro/revenue" element={<Navigate to="/admin/events-service/revenue" replace />} />
-                <Route path="/events/pro/settings" element={<Navigate to="/admin/events-service/settings" replace />} />
-                <Route path="/events/pro/kyc" element={<Navigate to="/admin/events-service/kyc" replace />} />
-                <Route path="/events/pro/packages" element={<Navigate to="/admin/events-service/packages" replace />} />
-                <Route path="/events/pro/dashboard" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/events/messages" element={<Navigate to="/admin/events-service/messages" replace />} />
-                <Route path="/events/messages/:id" element={<IdRedirect toBase="/admin/events-service/messages" />} />
-                <Route path="/events/bookings" element={<Navigate to="/admin/events-service/orders" replace />} />
-                <Route path="/events/booking/:id" element={<Navigate to="/admin/events-service/orders" replace />} />
-
                 <Route path="/events/pro/:slug" element={<HiddenSurface><EventsProviderPublic /></HiddenSurface>} />
+                <Route path="/events/*" element={<Navigate to="/dashboard" replace />} />
 
-                {/* SiteViral Learn (formerly Education) */}
+                {/* SiteViral Learn (formerly Education) — preserved surfaces, hidden. */}
                 <Route path="/learn" element={<HiddenSurface><Navigate to="/learn/discover" replace /></HiddenSurface>} />
                 <Route path="/learn/about" element={<HiddenSurface><EducationLanding /></HiddenSurface>} />
                 <Route path="/learn/discover" element={<HiddenSurface><EducationDiscover /></HiddenSurface>} />
                 <Route path="/learn/pro/onboarding" element={<HiddenSurface><EducationTutorOnboarding /></HiddenSurface>} />
-                <Route path="/learn/pro" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/learn/pro/messages" element={<Navigate to="/admin/learn/messages" replace />} />
-                <Route path="/learn/pro/messages/:id" element={<IdRedirect toBase="/admin/learn/messages" />} />
-                <Route path="/learn/pro/orders" element={<Navigate to="/admin/learn/orders" replace />} />
-                <Route path="/learn/pro/revenue" element={<Navigate to="/admin/learn/revenue" replace />} />
-                <Route path="/learn/pro/settings" element={<Navigate to="/admin/learn/settings" replace />} />
-                <Route path="/learn/pro/kyc" element={<Navigate to="/admin/learn/kyc" replace />} />
-                <Route path="/learn/pro/subjects" element={<Navigate to="/admin/learn/subjects" replace />} />
-                <Route path="/learn/pro/dashboard" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/learn/messages" element={<Navigate to="/admin/learn/messages" replace />} />
-                <Route path="/learn/messages/:id" element={<IdRedirect toBase="/admin/learn/messages" />} />
-                <Route path="/learn/bookings" element={<Navigate to="/admin/learn/orders" replace />} />
-                <Route path="/learn/booking/:id" element={<Navigate to="/admin/learn/orders" replace />} />
-
                 <Route path="/learn/pro/:slug" element={<HiddenSurface><EducationTutorPublic /></HiddenSurface>} />
-                {/* Legacy /education aliases */}
-                <Route path="/education" element={<HiddenSurface><Navigate to="/learn/discover" replace /></HiddenSurface>} />
-                <Route path="/education/about" element={<HiddenSurface><EducationLanding /></HiddenSurface>} />
-                <Route path="/education/discover" element={<HiddenSurface><EducationDiscover /></HiddenSurface>} />
-                <Route path="/education/pro/onboarding" element={<HiddenSurface><EducationTutorOnboarding /></HiddenSurface>} />
-                <Route path="/education/pro" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/education/pro/kyc" element={<Navigate to="/admin/learn/kyc" replace />} />
-                <Route path="/education/pro/subjects" element={<Navigate to="/admin/learn/subjects" replace />} />
-                <Route path="/education/pro/revenue" element={<Navigate to="/admin/learn/revenue" replace />} />
+                <Route path="/learn/*" element={<Navigate to="/dashboard" replace />} />
 
-                <Route path="/education/messages" element={<Navigate to="/admin/learn/messages" replace />} />
-                <Route path="/education/messages/:id" element={<IdRedirect toBase="/admin/learn/messages" />} />
-                <Route path="/education/bookings" element={<Navigate to="/admin/learn/orders" replace />} />
-                <Route path="/education/booking/:id" element={<Navigate to="/admin/learn/orders" replace />} />
-
-                <Route path="/education/pro/:slug" element={<HiddenSurface><EducationTutorPublic /></HiddenSurface>} />
+                {/* Legacy /education aliases → /learn */}
+                <Route path="/education" element={<Navigate to="/learn/discover" replace />} />
+                <Route path="/education/about" element={<Navigate to="/learn/about" replace />} />
+                <Route path="/education/discover" element={<Navigate to="/learn/discover" replace />} />
+                <Route path="/education/pro/onboarding" element={<Navigate to="/learn/pro/onboarding" replace />} />
+                <Route path="/education/*" element={<Navigate to="/learn/discover" replace />} />
 
 
 
-                <Route path="/a-propos" element={<LandingPage />} />
+
+                <Route path="/a-propos" element={<Navigate to="/landing" replace />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/tarifs" element={<Navigate to="/pricing" replace />} />
