@@ -1,11 +1,30 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bot, Check, Copy, ExternalLink, Info, ShieldCheck } from 'lucide-react';
+import {
+  Bot,
+  Check,
+  Copy,
+  ExternalLink,
+  Info,
+  ShieldCheck,
+  Sparkles,
+  Wand2,
+  BookOpen,
+  GraduationCap,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
+
+type SamplePrompt = {
+  icon: React.ElementType;
+  labelFr: string;
+  labelEn: string;
+  textFr: string;
+  textEn: string;
+};
 
 /**
  * Assistant connections — lets a creator plug SiteViral into ChatGPT, Claude,
@@ -15,21 +34,25 @@ import { cn } from '@/lib/utils';
 export default function AssistantConnectionsSettings() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
-  const [copied, setCopied] = useState(false);
+  const [copiedUrl, setCopiedUrl] = useState(false);
+  const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
 
   const connectorUrl = useMemo(() => {
-    const base = import.meta.env.VITE_SUPABASE_URL as string | undefined;
     const ref = import.meta.env.VITE_SUPABASE_PROJECT_ID as string | undefined;
-    const origin = base?.replace(/\/$/, '') || (ref ? `https://${ref}.supabase.co` : '');
-    return `${origin}/functions/v1/mcp`;
+    return `https://${ref ?? 'project-ref-unset'}.supabase.co/functions/v1/mcp`;
   }, []);
 
-  const copy = async () => {
+  const copy = async (text: string, kind: 'url' | string) => {
     try {
-      await navigator.clipboard.writeText(connectorUrl);
-      setCopied(true);
-      toast.success(isFr ? 'Lien du connecteur copié' : 'Connector link copied');
-      window.setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(text);
+      if (kind === 'url') {
+        setCopiedUrl(true);
+        window.setTimeout(() => setCopiedUrl(false), 2000);
+      } else {
+        setCopiedPrompt(kind);
+        window.setTimeout(() => setCopiedPrompt(null), 2000);
+      }
+      toast.success(isFr ? 'Copié dans le presse-papiers' : 'Copied to clipboard');
     } catch {
       toast.error(isFr ? 'Copie impossible' : 'Could not copy');
     }
@@ -54,7 +77,7 @@ export default function AssistantConnectionsSettings() {
           ],
         },
         {
-          client: isFr ? 'Autres assistants (Gemini CLI, Cursor…)' : 'Other assistants',
+          client: 'Autres assistants (Gemini CLI, Cursor…)',
           items: [
             'Ajoute un serveur MCP distant avec ce même lien',
             'L\'authentification se fait avec ton compte SiteViral (OAuth)',
@@ -115,6 +138,54 @@ export default function AssistantConnectionsSettings() {
         'Delete existing content',
       ];
 
+  const samples: SamplePrompt[] = isFr
+    ? [
+        {
+          icon: GraduationCap,
+          labelFr: 'Cours rapide',
+          labelEn: 'Quick course',
+          textFr: 'Crée un cours SiteViral premium en français sur la vente par WhatsApp, niveau débutant, avec des illustrations.',
+          textEn: 'Create a premium SiteViral course in French about selling on WhatsApp, beginner level, with illustrations.',
+        },
+        {
+          icon: BookOpen,
+          labelFr: 'Livre',
+          labelEn: 'Book',
+          textFr: 'Démarre un ebook SiteViral intitulé "Les 7 secrets pour monétiser son audience" pour entrepreneurs africains, ton direct.',
+          textEn: 'Start a SiteViral ebook titled "The 7 secrets to monetizing your audience" for African entrepreneurs, direct tone.',
+        },
+        {
+          icon: Wand2,
+          labelFr: 'À partir de notes',
+          labelEn: 'From notes',
+          textFr: 'Transforme ces notes en cours standard : [colle ton texte ici].',
+          textEn: 'Turn these notes into a standard course: [paste your text here].',
+        },
+      ]
+    : [
+        {
+          icon: GraduationCap,
+          labelFr: 'Cours rapide',
+          labelEn: 'Quick course',
+          textFr: 'Crée un cours SiteViral premium en français sur la vente par WhatsApp, niveau débutant, avec des illustrations.',
+          textEn: 'Create a premium SiteViral course in English about selling on WhatsApp, beginner level, with illustrations.',
+        },
+        {
+          icon: BookOpen,
+          labelFr: 'Livre',
+          labelEn: 'Book',
+          textFr: 'Démarre un ebook SiteViral intitulé "Les 7 secrets pour monétiser son audience" pour entrepreneurs africains, ton direct.',
+          textEn: 'Start a SiteViral ebook titled "The 7 secrets to monetizing your audience" for African entrepreneurs, direct tone.',
+        },
+        {
+          icon: Wand2,
+          labelFr: 'À partir de notes',
+          labelEn: 'From notes',
+          textFr: 'Transforme ces notes en cours standard : [colle ton texte ici].',
+          textEn: 'Turn these notes into a standard course: [paste your text here].',
+        },
+      ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -137,12 +208,12 @@ export default function AssistantConnectionsSettings() {
           </p>
         </div>
         <Badge variant="secondary" className="ml-auto gap-1 text-[10px]">
-          <ShieldCheck className="h-3 w-3" />
-          {isFr ? 'Connexion sécurisée' : 'Secure sign-in'}
+          <Sparkles className="h-3 w-3" />
+          {isFr ? 'Nouveau' : 'New'}
         </Badge>
       </div>
 
-      <div className="p-5 space-y-5">
+      <div className="p-5 space-y-6">
         {/* Connector URL */}
         <div className="space-y-2">
           <p className="text-xs font-medium">{isFr ? 'Lien du connecteur' : 'Connector link'}</p>
@@ -150,9 +221,13 @@ export default function AssistantConnectionsSettings() {
             <code className="flex-1 min-w-0 rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-[11px] sm:text-xs break-all">
               {connectorUrl}
             </code>
-            <Button onClick={copy} size="sm" className="h-10 gap-1.5 shrink-0">
-              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-              {copied ? (isFr ? 'Copié' : 'Copied') : isFr ? 'Copier' : 'Copy'}
+            <Button
+              onClick={() => copy(connectorUrl, 'url')}
+              size="sm"
+              className="h-10 gap-1.5 shrink-0"
+            >
+              {copiedUrl ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {copiedUrl ? (isFr ? 'Copié' : 'Copied') : isFr ? 'Copier' : 'Copy'}
             </Button>
           </div>
         </div>
@@ -169,6 +244,41 @@ export default function AssistantConnectionsSettings() {
               </ol>
             </div>
           ))}
+        </div>
+
+        {/* Sample prompts */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Wand2 className="h-4 w-4 text-primary" />
+            <p className="text-xs font-semibold">{isFr ? 'Exemples de prompts' : 'Sample prompts'}</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {samples.map((s) => {
+              const Icon = s.icon;
+              const text = isFr ? s.textFr : s.textEn;
+              const label = isFr ? s.labelFr : s.labelEn;
+              const isCopied = copiedPrompt === label;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => copy(text, label)}
+                  className={cn(
+                    'text-left rounded-xl border border-border/70 bg-muted/20 p-3.5 transition-all',
+                    'hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm',
+                    'active:scale-[0.99]'
+                  )}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon className="h-3.5 w-3.5 text-primary" />
+                    <span className="text-[11px] font-medium">{label}</span>
+                    {isCopied && <Check className="h-3 w-3 text-emerald-600 ml-auto" />}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground line-clamp-3">{text}</p>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Permissions */}
