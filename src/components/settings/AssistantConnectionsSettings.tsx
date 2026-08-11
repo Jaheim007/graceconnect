@@ -36,6 +36,7 @@ export default function AssistantConnectionsSettings() {
   const isFr = locale === 'fr';
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
+  const [activeClient, setActiveClient] = useState<string>('chatgpt');
 
   const connectorUrl = useMemo(() => {
     const base = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.replace(/\/$/, '');
