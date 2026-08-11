@@ -6,17 +6,16 @@ const corsHeaders = {
 };
 
 /**
- * activation-engine — the "never published" ladder + payout-ready alert.
+ * activation-engine — the "never published" activation ladder.
  *
  * Runs daily via pg_cron. Each email is sent at most once per user (deduped
- * against email_logs), except payout_ready_verify which repeats every 14 days.
+ * against email_logs). No payout reminders are sent to creators.
  *
  *  D+1   activation_draft_waiting        → has a draft, nothing published
  *  D+2   activation_no_creation_yet      → created nothing at all
  *  D+3   activation_publish_3_taps       → content ready/unpublished, no price or not live
  *  D+7   activation_published_no_traffic → published but zero sales
  *  D+14  activation_last_call            → still nothing published
- *  any   payout_ready_verify             → money available but identity not verified
  */
 
 type Lang = 'fr' | 'en';
@@ -34,7 +33,6 @@ Deno.serve(async (req) => {
     activation_publish_3_taps: 0,
     activation_published_no_traffic: 0,
     activation_last_call: 0,
-    payout_ready_verify: 0,
   };
 
   const now = Date.now();
@@ -229,49 +227,9 @@ Deno.serve(async (req) => {
       if (await send('activation_last_call', u.id, {})) results.activation_last_call++;
     }
 
-    // ═══════════════════════════════════════════════
-    // Payout-ready alert (money available, identity unverified)
-    // ═══════════════════════════════════════════════
-    const { data: orgs } = await db
-      .from('organizations')
-      .select('id, name, owner_id, currency, kyc_status')
-      .eq('is_active', true)
-      .limit(1000);
+    // NOTE: no payout reminders are sent to creators — payout requests are
+    // always user-initiated by design.
 
-    for (const org of orgs || []) {
-      const verified = ['level1', 'level2', 'approved'].includes(String(org.kyc_status || ''));
-      if (verified) continue;
-
-      const { data: kyc } = await db
-        .from('kyc_submissions')
-        .select('id')
-        .eq('organization_id', org.id)
-        .in('status', ['level1', 'level2', 'approved', 'pending'])
-        .limit(1);
-      if (kyc?.length) continue; // already submitted or approved
-
-      const [purchases, offerings] = await Promise.all([
-        db.from('product_purchases').select('organization_amount, currency')
-          .eq('organization_id', org.id).eq('status', 'completed').limit(1000),
-        db.from('offering_transactions').select('organization_amount, currency')
-          .eq('organization_id', org.id).eq('status', 'completed').limit(1000),
-      ]);
-      const rows = [...(purchases.data || []), ...(offerings.data || [])] as { organization_amount: number | null }[];
-      const total = rows.reduce((s, r) => s + Number(r.organization_amount || 0), 0);
-      if (total <= 0) continue;
-
-      const currency = String(org.currency || 'USD');
-      const amount = currency === 'XAF' || currency === 'XOF'
-        ? Math.round(total).toLocaleString('fr-FR')
-        : total.toFixed(2);
-
-      const ok = await send('payout_ready_verify', org.owner_id, {
-        amount,
-        currency,
-        verify_url: 'https://siteviral.com/admin/settings',
-      }, { organization_id: org.id, repeatWithinHours: 14 * 24 });
-      if (ok) results.payout_ready_verify++;
-    }
 
     console.log('[activation-engine]', results);
     return new Response(JSON.stringify({ ok: true, results }), {
