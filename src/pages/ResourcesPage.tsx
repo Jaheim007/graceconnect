@@ -252,8 +252,28 @@ export default function ResourcesPage() {
           }}
         />
       ) : (
-        <div className="space-y-6">
+        <Tabs defaultValue={(purchases?.length || 0) === 0 && enrolledPrograms.length > 0 ? 'courses' : 'files'} className="space-y-5">
+          <TabsList className="w-full grid grid-cols-3 h-11">
+            <TabsTrigger value="files" className="gap-1 text-[11px]">
+              <BookOpen className="h-3.5 w-3.5" /> {isFr ? 'Livres & fichiers' : 'Books & files'}
+            </TabsTrigger>
+            <TabsTrigger value="courses" className="gap-1 text-[11px]">
+              <GraduationCap className="h-3.5 w-3.5" /> {isFr ? 'Formations' : 'Courses'}
+            </TabsTrigger>
+            <TabsTrigger value="receipts" className="gap-1 text-[11px]">
+              <Receipt className="h-3.5 w-3.5" /> {isFr ? 'Reçus' : 'Receipts'}
+            </TabsTrigger>
+          </TabsList>
+
+          {/* ─── Receipts: credits & donations ─── */}
+          <TabsContent value="receipts" className="space-y-6">
+          {creditPurchases.length === 0 && myDonations.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              {isFr ? 'Aucun reçu pour le moment.' : 'No receipts yet.'}
+            </p>
+          )}
           {/* ─── Credit Purchases ─── */}
+
           {creditPurchases.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center gap-2.5">
