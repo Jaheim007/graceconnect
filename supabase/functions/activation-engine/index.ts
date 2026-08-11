@@ -229,49 +229,9 @@ Deno.serve(async (req) => {
       if (await send('activation_last_call', u.id, {})) results.activation_last_call++;
     }
 
-    // ═══════════════════════════════════════════════
-    // Payout-ready alert (money available, identity unverified)
-    // ═══════════════════════════════════════════════
-    const { data: orgs } = await db
-      .from('organizations')
-      .select('id, name, owner_id, currency, kyc_status')
-      .eq('is_active', true)
-      .limit(1000);
+    // NOTE: no payout reminders are sent to creators — payout requests are
+    // always user-initiated by design.
 
-    for (const org of orgs || []) {
-      const verified = ['level1', 'level2', 'approved'].includes(String(org.kyc_status || ''));
-      if (verified) continue;
-
-      const { data: kyc } = await db
-        .from('kyc_submissions')
-        .select('id')
-        .eq('organization_id', org.id)
-        .in('status', ['level1', 'level2', 'approved', 'pending'])
-        .limit(1);
-      if (kyc?.length) continue; // already submitted or approved
-
-      const [purchases, offerings] = await Promise.all([
-        db.from('product_purchases').select('organization_amount, currency')
-          .eq('organization_id', org.id).eq('status', 'completed').limit(1000),
-        db.from('offering_transactions').select('organization_amount, currency')
-          .eq('organization_id', org.id).eq('status', 'completed').limit(1000),
-      ]);
-      const rows = [...(purchases.data || []), ...(offerings.data || [])] as { organization_amount: number | null }[];
-      const total = rows.reduce((s, r) => s + Number(r.organization_amount || 0), 0);
-      if (total <= 0) continue;
-
-      const currency = String(org.currency || 'USD');
-      const amount = currency === 'XAF' || currency === 'XOF'
-        ? Math.round(total).toLocaleString('fr-FR')
-        : total.toFixed(2);
-
-      const ok = await send('payout_ready_verify', org.owner_id, {
-        amount,
-        currency,
-        verify_url: 'https://siteviral.com/admin/settings',
-      }, { organization_id: org.id, repeatWithinHours: 14 * 24 });
-      if (ok) results.payout_ready_verify++;
-    }
 
     console.log('[activation-engine]', results);
     return new Response(JSON.stringify({ ok: true, results }), {
