@@ -484,26 +484,14 @@ const App = () => (
                 <Route path="/digital" element={<Navigate to="/discover?type=digital" replace />} />
                 <Route path="/digital/about" element={<LandingPage />} />
                 <Route path="/hub" element={<Navigate to="/discover" replace />} />
-                {/* SiteViral Beauty */}
+                {/* SiteViral Beauty — preserved surfaces, hidden until enabled. */}
                 <Route path="/beauty" element={<HiddenSurface><Navigate to="/beauty/search" replace /></HiddenSurface>} />
                 <Route path="/beauty/about" element={<HiddenSurface><BeautyLanding /></HiddenSurface>} />
                 <Route path="/beauty/search" element={<HiddenSurface><BeautySearch /></HiddenSurface>} />
                 <Route path="/beauty/p/:slug" element={<HiddenSurface><BeautyProviderProfile /></HiddenSurface>} />
-                <Route path="/beauty/book/:serviceId" element={<Navigate to="/beauty/search" replace />} />
-                <Route path="/beauty/bookings" element={<Navigate to="/admin/beauty/orders" replace />} />
-                <Route path="/beauty/bookings/:id" element={<Navigate to="/admin/beauty/orders" replace />} />
-                <Route path="/beauty/messages" element={<Navigate to="/admin/beauty/messages" replace />} />
-                <Route path="/beauty/messages/:id" element={<IdRedirect toBase="/admin/beauty/messages" />} />
-
                 <Route path="/beauty/pro/onboarding" element={<HiddenSurface><BeautyProviderOnboarding /></HiddenSurface>} />
-                <Route path="/beauty/pro" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/beauty/pro/messages" element={<Navigate to="/admin/beauty/messages" replace />} />
-                <Route path="/beauty/pro/messages/:id" element={<IdRedirect toBase="/admin/beauty/messages" />} />
-                <Route path="/beauty/pro/orders" element={<Navigate to="/admin/beauty/orders" replace />} />
-                <Route path="/beauty/pro/revenue" element={<Navigate to="/admin/beauty/revenue" replace />} />
-                <Route path="/beauty/pro/settings" element={<Navigate to="/admin/beauty/settings" replace />} />
-                <Route path="/beauty/pro/kyc" element={<Navigate to="/admin/beauty/kyc" replace />} />
-                <Route path="/beauty/pro/dashboard" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/beauty/*" element={<Navigate to="/dashboard" replace />} />
+
                 {/* SiteViral Church */}
                 <Route path="/church" element={<Navigate to="/churches" replace />} />
                 <Route path="/church/about" element={<ChurchLanding />} />
