@@ -155,22 +155,28 @@
     box-sizing: border-box;
   }
   html {
-    overflow-x: hidden;
-    max-width: 100vw;
+    width: 100%;
+    overflow-x: clip;
+    max-width: 100%;
+    overscroll-behavior-x: none;
     -webkit-text-size-adjust: 100%;
   }
   body {
     @apply bg-background text-foreground antialiased font-sans;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    overflow-x: hidden;
-    max-width: 100vw;
+    width: 100%;
+    overflow-x: clip;
+    max-width: 100%;
+    overscroll-behavior-x: none;
     -webkit-overflow-scrolling: touch;
   }
 
   #root {
-    overflow-x: hidden;
-    max-width: 100vw;
+    width: 100%;
+    overflow-x: clip;
+    max-width: 100%;
     min-height: 100dvh;
+    overscroll-behavior-x: none;
   }
   /* Prevent flex/grid children from overflowing their container */
   .flex > *, .grid > *, .inline-flex > * {
@@ -529,6 +535,21 @@ body > div[style*="position: fixed"][style*="opacity"] {
 }
 
 @media (max-width: 1023.98px) {
+  /* Mobile is a single vertical app surface. Prevent off-canvas decoration,
+     transforms and browser rubber-banding from opening a blank right gutter. */
+  #root,
+  .native-app-shell,
+  .native-public-screen,
+  main,
+  .native-main-scroll,
+  [data-scroll-container] {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+    touch-action: pan-y;
+  }
+
   body:has(.native-bottom-nav-shell) {
     --sv-nav-clearance: calc(env(safe-area-inset-bottom, 0px) + 5.75rem);
     --sv-fab-offset: calc(env(safe-area-inset-bottom, 0px) + 6.25rem);
@@ -680,8 +701,9 @@ body::-webkit-scrollbar,
    gutter that showed as an empty band on the right. */
 html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
+  overscroll-behavior-x: none;
 }
 
 
@@ -779,6 +801,8 @@ body {
 .app-ambient {
   background-color: hsl(var(--cert-paper));
   position: relative;
+  overflow: clip;
+  isolation: isolate;
 }
 .dark .app-ambient { background-color: hsl(var(--background)); }
 .app-ambient::before,
