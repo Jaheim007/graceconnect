@@ -256,7 +256,11 @@ export default function ResourcesPage() {
           }}
         />
       ) : (
-        <Tabs defaultValue={(purchases?.length || 0) === 0 && enrolledPrograms.length > 0 ? 'courses' : 'files'} className="space-y-5">
+        <Tabs defaultValue={
+          ['files', 'courses', 'receipts'].includes(searchParams.get('tab') || '')
+            ? (searchParams.get('tab') as string)
+            : ((purchases?.length || 0) === 0 && enrolledPrograms.length > 0 ? 'courses' : 'files')
+        } className="space-y-5">
           <TabsList className="w-full grid grid-cols-3 h-11">
             <TabsTrigger value="files" className="gap-1 text-[11px]">
               <BookOpen className="h-3.5 w-3.5" /> {isFr ? 'Livres & fichiers' : 'Books & files'}
