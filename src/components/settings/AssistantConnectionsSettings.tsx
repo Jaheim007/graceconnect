@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Bot,
@@ -10,6 +10,10 @@ import {
   Wand2,
   BookOpen,
   GraduationCap,
+  ArrowRight,
+  ArrowLeft,
+  ShieldCheck,
+  MousePointerClick,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,8 +35,9 @@ type ClientDef = {
   settingsUrl?: string;
   hintFr: string;
   hintEn: string;
-  stepsFr: string[];
-  stepsEn: string[];
+  /** What the user must click once the assistant screen is open. */
+  actionFr: string;
+  actionEn: string;
 };
 
 const CLIENTS: ClientDef[] = [
@@ -40,18 +45,10 @@ const CLIENTS: ClientDef[] = [
     id: 'chatgpt',
     name: 'ChatGPT',
     settingsUrl: 'https://chatgpt.com/#settings/Connectors',
-    hintFr: 'Plans payants (Plus, Pro, Business)',
-    hintEn: 'Paid plans (Plus, Pro, Business)',
-    stepsFr: [
-      'Clique sur « Ouvrir les connecteurs ChatGPT » ci-dessous.',
-      'Choisis « Ajouter un connecteur », puis colle le lien (déjà copié).',
-      'Clique sur « Autoriser » sur la page SiteViral qui s\'ouvre.',
-    ],
-    stepsEn: [
-      'Click "Open ChatGPT connectors" below.',
-      'Choose "Add connector", then paste the link (already copied).',
-      'Click "Allow" on the SiteViral page that opens.',
-    ],
+    hintFr: 'Plans Plus, Pro et Business',
+    hintEn: 'Plus, Pro and Business plans',
+    actionFr: '« Ajouter un connecteur » → colle le lien → Créer',
+    actionEn: '"Add connector" → paste the link → Create',
   },
   {
     id: 'claude',
@@ -59,45 +56,54 @@ const CLIENTS: ClientDef[] = [
     settingsUrl: 'https://claude.ai/settings/connectors',
     hintFr: 'Web et application de bureau',
     hintEn: 'Web and desktop app',
-    stepsFr: [
-      'Clique sur « Ouvrir les connecteurs Claude » ci-dessous.',
-      '« Add custom connector » → nom : SiteViral → colle le lien.',
-      'Valide l\'autorisation SiteViral.',
-    ],
-    stepsEn: [
-      'Click "Open Claude connectors" below.',
-      '"Add custom connector" → name: SiteViral → paste the link.',
-      'Approve the SiteViral authorization.',
-    ],
+    actionFr: '« Add custom connector » → colle le lien → Add',
+    actionEn: '"Add custom connector" → paste the link → Add',
   },
   {
     id: 'other',
     name: 'Autre assistant',
     hintFr: 'Gemini, Cursor, Copilot…',
     hintEn: 'Gemini, Cursor, Copilot…',
-    stepsFr: [
-      'Ajoute un serveur MCP distant (type HTTP / streamable).',
-      'Colle le lien SiteViral comme URL du serveur.',
-      'Connecte-toi avec ton compte SiteViral : aucune clé API.',
-    ],
-    stepsEn: [
-      'Add a remote MCP server (HTTP / streamable type).',
-      'Paste the SiteViral link as the server URL.',
-      'Sign in with your SiteViral account: no API key.',
-    ],
+    actionFr: 'Ajoute un serveur MCP distant → colle le lien comme URL',
+    actionEn: 'Add a remote MCP server → paste the link as the URL',
   },
 ];
 
+const STORAGE_KEY = 'sv_connectors_done';
+
 /**
  * Connectors — plug SiteViral into ChatGPT, Claude or any MCP assistant.
- * One click copies the link and opens the assistant's connector screen.
+ * Guided 3-click flow: choose the assistant, open it with the link copied, confirm.
  */
 export default function AssistantConnectionsSettings() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
-  const [openClient, setOpenClient] = useState<ClientDef | null>(null);
+  const [client, setClient] = useState<ClientDef | null>(null);
+  const [step, setStep] = useState(1);
+  const [done, setDone] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) setDone(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const markDone = (id: string) => {
+    setDone((prev) => {
+      const next = prev.includes(id) ? prev : [...prev, id];
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  };
 
   const connectorUrl = useMemo(() => {
     const base = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.replace(/\/$/, '');
@@ -123,10 +129,18 @@ export default function AssistantConnectionsSettings() {
     }
   };
 
-  const startConnection = async (client: ClientDef) => {
+  /** Click 1 — pick the assistant: link is copied straight away. */
+  const startConnection = async (c: ClientDef) => {
+    setClient(c);
+    setStep(1);
     const ok = await copy(connectorUrl, 'url');
-    if (ok) toast.success(isFr ? 'Lien copié — colle-le dans ton assistant' : 'Link copied — paste it in your assistant');
-    setOpenClient(client);
+    if (ok) toast.success(isFr ? 'Lien copié ✓' : 'Link copied ✓');
+  };
+
+  /** Click 2 — open the assistant's connector screen. */
+  const openAssistant = () => {
+    if (client?.settingsUrl) window.open(client.settingsUrl, '_blank', 'noopener,noreferrer');
+    setStep(2);
   };
 
   const samples = [
@@ -161,6 +175,9 @@ export default function AssistantConnectionsSettings() {
     ? ['Publier ou fixer un prix', 'Toucher aux paiements ou aux retraits', 'Supprimer un contenu']
     : ['Publish or set a price', 'Touch payments or payouts', 'Delete content'];
 
+  const clientLabel = (c: ClientDef) =>
+    c.id === 'other' ? (isFr ? 'Autre assistant' : 'Other assistant') : c.name;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -189,34 +206,53 @@ export default function AssistantConnectionsSettings() {
       <div className="p-5 space-y-6">
         {/* Add a connection */}
         <div className="space-y-2.5">
-          <p className="text-xs font-semibold">{isFr ? 'Ajouter une connexion' : 'Add a connection'}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs font-semibold">{isFr ? 'Ajouter une connexion' : 'Add a connection'}</p>
+            <Badge variant="secondary" className="text-[10px] gap-1">
+              <MousePointerClick className="h-3 w-3" />
+              {isFr ? '3 clics, une seule fois' : '3 clicks, once'}
+            </Badge>
+          </div>
           <div className="grid gap-2.5 sm:grid-cols-3">
-            {CLIENTS.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => startConnection(c)}
-                className={cn(
-                  'text-left rounded-xl border border-border/70 bg-muted/20 p-3.5 transition-all',
-                  'hover:border-primary/40 hover:bg-primary/[0.04] hover:shadow-sm active:scale-[0.99]'
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="h-7 w-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <Plus className="h-3.5 w-3.5" />
-                  </span>
-                  <span className="text-xs font-medium truncate">
-                    {c.id === 'other' ? (isFr ? 'Autre assistant' : 'Other assistant') : c.name}
-                  </span>
-                </div>
-                <p className="text-[11px] text-muted-foreground mt-2">{isFr ? c.hintFr : c.hintEn}</p>
-              </button>
-            ))}
+            {CLIENTS.map((c) => {
+              const isDone = done.includes(c.id);
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => startConnection(c)}
+                  className={cn(
+                    'text-left rounded-xl border p-3.5 transition-all active:scale-[0.99]',
+                    isDone
+                      ? 'border-emerald-500/40 bg-emerald-500/[0.06]'
+                      : 'border-border/70 bg-muted/20 hover:border-primary/40 hover:bg-primary/[0.04] hover:shadow-sm'
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={cn(
+                        'h-7 w-7 rounded-lg flex items-center justify-center shrink-0',
+                        isDone ? 'bg-emerald-500/15 text-emerald-600' : 'bg-primary/10 text-primary'
+                      )}
+                    >
+                      {isDone ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                    </span>
+                    <span className="text-xs font-medium truncate">{clientLabel(c)}</span>
+                    {isDone && (
+                      <span className="ml-auto text-[10px] font-medium text-emerald-600">
+                        {isFr ? 'Connecté' : 'Connected'}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-2">{isFr ? c.hintFr : c.hintEn}</p>
+                </button>
+              );
+            })}
           </div>
           <p className="text-[11px] text-muted-foreground">
             {isFr
-              ? 'Un clic copie ton lien et ouvre l\'écran de connexion de l\'assistant. Aucune clé API, aucun terminal.'
-              : 'One click copies your link and opens the assistant\'s connection screen. No API key, no terminal.'}
+              ? 'Aucune clé API, aucun terminal : on copie ton lien et on t\'emmène au bon écran.'
+              : 'No API key, no terminal: we copy your link and take you to the right screen.'}
           </p>
         </div>
 
@@ -291,60 +327,149 @@ export default function AssistantConnectionsSettings() {
         </div>
       </div>
 
-      {/* Connection dialog */}
-      <Dialog open={!!openClient} onOpenChange={(o) => !o && setOpenClient(null)}>
+      {/* Guided connection dialog */}
+      <Dialog
+        open={!!client}
+        onOpenChange={(o) => {
+          if (!o) {
+            setClient(null);
+            setStep(1);
+          }
+        }}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="text-base">
-              {isFr ? 'Connecter' : 'Connect'}{' '}
-              {openClient?.id === 'other'
-                ? isFr
-                  ? 'un autre assistant'
-                  : 'another assistant'
-                : openClient?.name}
+              {isFr ? 'Connecter' : 'Connect'} {client ? clientLabel(client) : ''}
             </DialogTitle>
             <DialogDescription className="text-xs">
-              {isFr
-                ? 'Ton lien est déjà copié. Il reste 3 étapes, une seule fois.'
-                : 'Your link is already copied. 3 steps left, once and for all.'}
+              {isFr ? `Étape ${step} sur 3` : `Step ${step} of 3`}
             </DialogDescription>
           </DialogHeader>
 
-          <ol className="relative space-y-3 pl-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-border">
-            {(isFr ? openClient?.stepsFr : openClient?.stepsEn)?.map((step, idx) => (
-              <li key={step} className="relative">
-                <span className="absolute -left-8 top-0 h-6 w-6 rounded-full border border-border bg-background text-[10px] font-semibold flex items-center justify-center text-muted-foreground">
-                  {idx + 1}
-                </span>
-                <p className="text-xs leading-6">{step}</p>
-              </li>
+          {/* progress */}
+          <div className="flex gap-1.5">
+            {[1, 2, 3].map((s) => (
+              <span
+                key={s}
+                className={cn(
+                  'h-1.5 flex-1 rounded-full transition-colors',
+                  s <= step ? 'bg-primary' : 'bg-border'
+                )}
+              />
             ))}
-          </ol>
-
-          <div className="rounded-xl border border-border bg-muted/20 p-3 space-y-2">
-            <code className="block text-[11px] break-all">{connectorUrl}</code>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 gap-1.5 text-[11px]"
-              onClick={async () => {
-                const ok = await copy(connectorUrl, 'url');
-                if (ok) toast.success(isFr ? 'Lien copié' : 'Link copied');
-              }}
-            >
-              {copiedUrl ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-              {isFr ? 'Copier à nouveau' : 'Copy again'}
-            </Button>
           </div>
 
-          {openClient?.settingsUrl && (
-            <Button
-              className="w-full gap-1.5"
-              onClick={() => window.open(openClient.settingsUrl!, '_blank', 'noopener')}
-            >
-              <ExternalLink className="h-4 w-4" />
-              {isFr ? `Ouvrir les connecteurs ${openClient.name}` : `Open ${openClient.name} connectors`}
-            </Button>
+          {step === 1 && (
+            <div className="space-y-4">
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/[0.06] p-3.5 flex gap-2.5">
+                <Check className="h-4 w-4 text-emerald-600 shrink-0 mt-px" />
+                <div className="min-w-0">
+                  <p className="text-xs font-medium">{isFr ? 'Ton lien est copié' : 'Your link is copied'}</p>
+                  <code className="block text-[10px] text-muted-foreground break-all mt-1">{connectorUrl}</code>
+                </div>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                {isFr
+                  ? 'On ouvre maintenant l\'écran des connecteurs de ton assistant dans un nouvel onglet.'
+                  : 'We now open your assistant\'s connector screen in a new tab.'}
+              </p>
+              <Button className="w-full gap-2" onClick={openAssistant}>
+                {client?.settingsUrl ? (
+                  <>
+                    <ExternalLink className="h-4 w-4" />
+                    {isFr ? `Ouvrir ${clientLabel(client!)}` : `Open ${clientLabel(client!)}`}
+                  </>
+                ) : (
+                  <>
+                    {isFr ? 'J\'ouvre mon assistant' : 'I opened my assistant'}
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </Button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const ok = await copy(connectorUrl, 'url');
+                  if (ok) toast.success(isFr ? 'Lien copié' : 'Link copied');
+                }}
+                className="w-full text-[11px] text-muted-foreground hover:text-foreground inline-flex items-center justify-center gap-1.5"
+              >
+                {copiedUrl ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                {isFr ? 'Copier le lien à nouveau' : 'Copy the link again'}
+              </button>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-4">
+              <div className="rounded-xl border border-border bg-muted/20 p-3.5 space-y-2">
+                <p className="text-xs font-medium">{isFr ? 'Dans l\'onglet ouvert' : 'In the tab that opened'}</p>
+                <p className="text-xs text-muted-foreground leading-6">
+                  {isFr ? client?.actionFr : client?.actionEn}
+                </p>
+              </div>
+              <div className="rounded-xl border border-primary/25 bg-primary/[0.05] p-3.5 flex gap-2.5">
+                <ShieldCheck className="h-4 w-4 text-primary shrink-0 mt-px" />
+                <p className="text-[11px] text-muted-foreground">
+                  {isFr
+                    ? 'Une page SiteViral s\'affichera : clique sur « Autoriser ». C\'est la seule connexion à faire.'
+                    : 'A SiteViral page will appear: click "Allow". That is the only sign-in needed.'}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => setStep(1)}>
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  {isFr ? 'Retour' : 'Back'}
+                </Button>
+                <Button className="flex-1 gap-2" onClick={() => { setStep(3); if (client) markDone(client.id); }}>
+                  {isFr ? 'C\'est fait' : 'Done'}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-4">
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/[0.06] p-4 text-center">
+                <div className="mx-auto h-9 w-9 rounded-full bg-emerald-500/15 flex items-center justify-center mb-2">
+                  <Check className="h-4.5 w-4.5 text-emerald-600" />
+                </div>
+                <p className="text-sm font-semibold">
+                  {isFr ? 'Connecté 🎉' : 'Connected 🎉'}
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  {isFr
+                    ? 'Teste tout de suite en collant ce message dans ton assistant.'
+                    : 'Try it right away by pasting this message into your assistant.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  const ok = await copy(samples[0].text, samples[0].label);
+                  if (ok) toast.success(isFr ? 'Prompt copié' : 'Prompt copied');
+                }}
+                className="w-full text-left rounded-xl border border-border bg-muted/20 p-3.5 hover:border-primary/40 transition-colors"
+              >
+                <div className="flex items-center gap-2 mb-1.5">
+                  <GraduationCap className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-[11px] font-medium">{isFr ? 'Prompt de test' : 'Test prompt'}</span>
+                  <Copy className="h-3 w-3 text-muted-foreground ml-auto" />
+                </div>
+                <p className="text-[11px] text-muted-foreground">{samples[0].text}</p>
+              </button>
+              <Button
+                className="w-full"
+                onClick={() => {
+                  setClient(null);
+                  setStep(1);
+                }}
+              >
+                {isFr ? 'Terminer' : 'Finish'}
+              </Button>
+            </div>
           )}
         </DialogContent>
       </Dialog>
