@@ -425,13 +425,10 @@ const App = () => (
                 <Route path="/digital" element={<Navigate to="/discover?type=digital" replace />} />
                 <Route path="/digital/about" element={<Navigate to="/landing" replace />} />
                 <Route path="/hub" element={<Navigate to="/discover" replace />} />
-                {/* SiteViral Beauty — preserved surfaces, hidden until enabled. */}
-                <Route path="/beauty" element={<HiddenSurface><Navigate to="/beauty/search" replace /></HiddenSurface>} />
-                <Route path="/beauty/about" element={<HiddenSurface><BeautyLanding /></HiddenSurface>} />
-                <Route path="/beauty/search" element={<HiddenSurface><BeautySearch /></HiddenSurface>} />
-                <Route path="/beauty/p/:slug" element={<HiddenSurface><BeautyProviderProfile /></HiddenSurface>} />
-                <Route path="/beauty/pro/onboarding" element={<HiddenSurface><BeautyProviderOnboarding /></HiddenSurface>} />
-                <Route path="/beauty/*" element={<Navigate to="/dashboard" replace />} />
+                {/* Hidden service verticals (Beauty / Home / Events / Learn) */}
+                {hiddenVerticalPublicRoutes()}
+
+
 
                 {/* SiteViral Church */}
                 <Route path="/church" element={<Navigate to="/churches" replace />} />
