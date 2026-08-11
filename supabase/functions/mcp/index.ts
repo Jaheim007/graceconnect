@@ -488,12 +488,14 @@ var get_generation_status_default = defineTool9({
     if (!job) return errorResult("Job not found (or it does not belong to you).");
     let projectTitle = null;
     let projectStatus = null;
+    let projectType = null;
     if (job.project_id) {
       const { data: project } = await supa.from("ai_content_projects").select("title, status, project_type").eq("id", job.project_id).maybeSingle();
       projectTitle = project?.title ?? null;
       projectStatus = project?.status ?? null;
+      projectType = project?.project_type ?? null;
     }
-    const isCourse = job.job_type === "course_from_document" || job.job_type?.includes("course");
+    const isCourse = projectType === "course_pack";
     const link = job.project_id ? isCourse ? `${APP_BASE_URL}/admin/programs/draft/${job.project_id}` : `${APP_BASE_URL}/admin/studio/projects/${job.project_id}` : `${APP_BASE_URL}/admin/studio/jobs`;
     const progress = typeof job.progress === "number" ? job.progress : 0;
     let sentence;
@@ -514,6 +516,7 @@ var get_generation_status_default = defineTool9({
       project_id: job.project_id,
       project_title: projectTitle,
       project_status: projectStatus,
+      project_type: projectType,
       error_message: job.error_message ?? null,
       draft_url: link
     });
@@ -547,7 +550,7 @@ var list_my_drafts_default = defineTool10({
       status: p.status,
       language: p.language,
       updated_at: p.updated_at,
-      url: p.project_type === "course" ? `${APP_BASE_URL}/admin/programs/draft/${p.id}` : `${APP_BASE_URL}/admin/studio/projects/${p.id}`
+      url: p.project_type === "course_pack" ? `${APP_BASE_URL}/admin/programs/draft/${p.id}` : `${APP_BASE_URL}/admin/studio/projects/${p.id}`
     }));
     if (rows.length === 0) {
       return textResult(`No drafts yet in "${org.name}".`, { org_id: org.id, drafts: [] });

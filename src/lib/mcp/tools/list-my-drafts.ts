@@ -37,7 +37,7 @@ export default defineTool({
       language: p.language,
       updated_at: p.updated_at,
       url:
-        p.project_type === "course"
+        p.project_type === "course_pack"
           ? `${APP_BASE_URL}/admin/programs/draft/${p.id}`
           : `${APP_BASE_URL}/admin/studio/projects/${p.id}`,
     }));

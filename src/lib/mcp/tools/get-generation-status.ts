@@ -26,6 +26,7 @@ export default defineTool({
 
     let projectTitle: string | null = null;
     let projectStatus: string | null = null;
+    let projectType: string | null = null;
     if (job.project_id) {
       const { data: project } = await supa
         .from("ai_content_projects")
@@ -34,9 +35,10 @@ export default defineTool({
         .maybeSingle();
       projectTitle = (project as any)?.title ?? null;
       projectStatus = (project as any)?.status ?? null;
+      projectType = (project as any)?.project_type ?? null;
     }
 
-    const isCourse = job.job_type === "course_from_document" || job.job_type?.includes("course");
+    const isCourse = projectType === "course_pack";
     const link = job.project_id
       ? isCourse
         ? `${APP_BASE_URL}/admin/programs/draft/${job.project_id}`
@@ -63,6 +65,7 @@ export default defineTool({
       project_id: job.project_id,
       project_title: projectTitle,
       project_status: projectStatus,
+      project_type: projectType,
       error_message: job.error_message ?? null,
       draft_url: link,
     });
