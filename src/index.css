@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 65% 15%;
 
-    --primary: 220 75% 45%;
+    --primary: 224 88% 24%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 30% 94%;
@@ -23,7 +23,7 @@
     --muted: 220 20% 95%;
     --muted-foreground: 220 15% 45%;
 
-    --accent: 212 92% 50%;
+    --accent: 224 88% 24%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -31,26 +31,26 @@
 
     --border: 220 20% 90%;
     --input: 220 20% 90%;
-    --ring: 220 75% 45%;
+    --ring: 224 88% 24%;
 
     --radius: 0.75rem;
 
     --sidebar-background: 220 70% 18%;
     --sidebar-foreground: 220 15% 92%;
-    --sidebar-primary: 212 92% 58%;
+    --sidebar-primary: 224 80% 46%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 60% 24%;
     --sidebar-accent-foreground: 220 15% 92%;
     --sidebar-border: 220 55% 26%;
-    --sidebar-ring: 212 92% 58%;
+    --sidebar-ring: 224 80% 46%;
 
     /* Brand blue accents (replaces the old gold trim) */
-    --brand-blue: 212 92% 50%;
-    --brand-blue-soft: 212 85% 66%;
+    --brand-blue: 224 88% 24%;
+    --brand-blue-soft: 224 70% 42%;
 
     /* Custom tokens (brand blue) */
-    --gold: 212 92% 50%;
-    --gold-muted: 212 60% 92%;
+    --gold: 224 88% 24%;
+    --gold-muted: 224 55% 93%;
 
     /* Certificate print palette (fixed — mirrors the printed PDF, never themed) */
     --cert-paper: 45 40% 98%;
@@ -65,14 +65,14 @@
     --surface-elevated: 0 0% 100%;
     --hero-gradient: linear-gradient(135deg, hsl(220 70% 14%) 0%, hsl(220 65% 22%) 100%);
     --card-gradient: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(220 20% 97%) 100%);
-    --gold-gradient: linear-gradient(135deg, hsl(212 92% 55%) 0%, hsl(224 80% 45%) 100%);
+    --gold-gradient: linear-gradient(135deg, hsl(224 88% 28%) 0%, hsl(224 90% 18%) 100%);
     --glass: hsla(0, 0%, 100%, 0.8);
     --glass-premium: hsla(0, 0%, 100%, 0.6);
     --shadow-card: 0 1px 3px 0 hsla(220, 70%, 15%, 0.06), 0 1px 2px -1px hsla(220, 70%, 15%, 0.04);
     --shadow-elevated: 0 4px 20px -4px hsla(220, 70%, 15%, 0.12), 0 2px 6px -2px hsla(220, 70%, 15%, 0.06);
     --shadow-premium: 0 8px 32px -8px hsla(220, 70%, 15%, 0.14), 0 4px 12px -4px hsla(220, 70%, 15%, 0.08);
-    --glow-primary: 0 0 20px -4px hsla(220, 75%, 45%, 0.25);
-    --glow-accent: 0 0 20px -4px hsla(212, 92%, 50%, 0.25);
+    --glow-primary: 0 0 20px -4px hsla(224, 88%, 24%, 0.28);
+    --glow-accent: 0 0 20px -4px hsla(224, 88%, 24%, 0.28);
     --glow-emerald: 0 0 20px -4px hsla(155, 75%, 40%, 0.25);
     --premium-gradient: linear-gradient(135deg, hsl(220 20% 98%) 0%, hsl(220 30% 95%) 50%, hsl(220 20% 97%) 100%);
     --stat-gradient: linear-gradient(160deg, hsl(0 0% 100%) 0%, hsl(220 25% 96%) 100%);
@@ -95,8 +95,8 @@
     --popover: 220 50% 17%;
     --popover-foreground: 215 20% 94%;
 
-    --primary: 212 95% 62%;
-    --primary-foreground: 220 70% 10%;
+    --primary: 40 84% 55%;
+    --primary-foreground: 224 90% 12%;
 
     --secondary: 220 45% 22%;
     --secondary-foreground: 215 20% 88%;
@@ -104,44 +104,44 @@
     --muted: 220 40% 20%;
     --muted-foreground: 215 18% 62%;
 
-    --accent: 212 95% 62%;
-    --accent-foreground: 220 70% 10%;
+    --accent: 40 84% 55%;
+    --accent-foreground: 224 90% 12%;
 
     --destructive: 0 72% 52%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 220 38% 24%;
     --input: 220 40% 21%;
-    --ring: 212 95% 62%;
+    --ring: 40 84% 55%;
 
     --sidebar-background: 220 58% 11%;
     --sidebar-foreground: 215 18% 90%;
-    --sidebar-primary: 212 95% 62%;
-    --sidebar-primary-foreground: 220 70% 10%;
+    --sidebar-primary: 40 84% 55%;
+    --sidebar-primary-foreground: 224 90% 12%;
     --sidebar-accent: 220 48% 18%;
     --sidebar-accent-foreground: 215 18% 90%;
     --sidebar-border: 220 42% 20%;
-    --sidebar-ring: 212 95% 62%;
+    --sidebar-ring: 40 84% 55%;
 
     /* Brand blue accents */
-    --brand-blue: 212 95% 62%;
-    --brand-blue-soft: 212 90% 74%;
+    --brand-blue: 40 84% 55%;
+    --brand-blue-soft: 40 90% 68%;
 
     /* Custom dark tokens */
-    --gold: 212 95% 64%;
-    --gold-muted: 212 45% 24%;
+    --gold: 40 88% 58%;
+    --gold-muted: 38 40% 22%;
     --surface: 220 52% 15%;
     --surface-elevated: 220 48% 19%;
     --hero-gradient: linear-gradient(135deg, hsl(220 58% 10%) 0%, hsl(220 52% 18%) 100%);
     --card-gradient: linear-gradient(145deg, hsl(220 50% 16%) 0%, hsl(220 48% 20%) 100%);
-    --gold-gradient: linear-gradient(135deg, hsl(212 95% 62%) 0%, hsl(224 85% 52%) 100%);
+    --gold-gradient: linear-gradient(135deg, hsl(43 92% 62%) 0%, hsl(33 88% 48%) 100%);
     --glass: hsla(220, 50%, 14%, 0.88);
     --glass-premium: hsla(220, 50%, 16%, 0.7);
     --shadow-card: 0 1px 3px 0 hsla(220, 60%, 6%, 0.4), 0 1px 2px -1px hsla(220, 60%, 6%, 0.3);
     --shadow-elevated: 0 4px 20px -4px hsla(220, 60%, 6%, 0.5), 0 2px 6px -2px hsla(220, 60%, 6%, 0.3);
     --shadow-premium: 0 8px 32px -8px hsla(220, 60%, 4%, 0.6), 0 4px 12px -4px hsla(220, 60%, 4%, 0.4);
-    --glow-primary: 0 0 24px -4px hsla(212, 95%, 62%, 0.3);
-    --glow-accent: 0 0 24px -4px hsla(212, 95%, 62%, 0.3);
+    --glow-primary: 0 0 24px -4px hsla(40, 88%, 56%, 0.32);
+    --glow-accent: 0 0 24px -4px hsla(40, 88%, 56%, 0.32);
     --glow-emerald: 0 0 24px -4px hsla(155, 75%, 45%, 0.3);
     --premium-gradient: linear-gradient(135deg, hsl(220 50% 16%) 0%, hsl(220 48% 20%) 50%, hsl(220 45% 18%) 100%);
     --stat-gradient: linear-gradient(160deg, hsl(220 50% 17%) 0%, hsl(220 48% 21%) 100%);
