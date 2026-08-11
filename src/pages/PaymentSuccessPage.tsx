@@ -106,6 +106,7 @@ export default function PaymentSuccessPage() {
           external_link: product?.external_link, cover_image_url: product?.cover_image_url,
           org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_slug: org?.slug,
           org_logo: org?.logo_url, leader_name: org?.leader_name, leader_title: org?.leader_title,
+          buyer_email: purchase.buyer_email || null,
           commission_rate: 10,
         };
       }
