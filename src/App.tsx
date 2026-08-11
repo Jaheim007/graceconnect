@@ -300,7 +300,6 @@ const BookmarksPage = lazy(() => import("@/pages/BookmarksPage"));
 // WishlistPage merged into BookmarksPage
 const NotificationPreferencesPage = lazy(() => import("@/pages/NotificationPreferencesPage"));
 const MyInvoicesPage = lazy(() => import("@/pages/MyInvoicesPage"));
-const MyProgramsPage = lazy(() => import("@/pages/MyProgramsPage"));
 const MyReviewsPage = lazy(() => import("@/pages/MyReviewsPage"));
 const UserAnalyticsPage = lazy(() => import("@/pages/UserAnalyticsPage"));
 const CreatorAdvancedAnalyticsPage = lazy(() => import("@/pages/CreatorAdvancedAnalyticsPage"));
@@ -822,7 +821,7 @@ const App = () => (
                   <Route path="/invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
                   <Route path="/creator/analytics" element={<CreatorAdvancedAnalyticsPage />} />
-                  <Route path="/my-programs" element={<MyProgramsPage />} />
+                  <Route path="/my-programs" element={<Navigate to="/my-purchases?tab=courses" replace />} />
                   <Route path="/my-purchases" element={<ResourcesPage />} />
 
 
@@ -832,7 +831,7 @@ const App = () => (
 
                   {/* Admin — inside AppLayout for seamless navigation */}
                   <Route path="/admin" element={<RequireOrgManage><AdminShell /></RequireOrgManage>}>
-                  <Route index element={<UserDashboard />} />
+                  <Route index element={<Navigate to="/dashboard" replace />} />
                   <Route path="create" element={<AdminCreateHub />} />
                   <Route path="content" element={<AdminContentHub />} />
                   <Route path="people" element={<AdminPeople />} />
