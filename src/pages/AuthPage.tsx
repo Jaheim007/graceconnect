@@ -22,7 +22,7 @@ export default function AuthPage() {
   const [searchParams] = useSearchParams();
   const [method, setMethod] = useState<'choose' | 'magic-link' | 'otp-verify'>('choose');
   
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(() => searchParams.get('email') || '');
   const [otpCode, setOtpCode] = useState('');
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -42,6 +42,13 @@ export default function AuthPage() {
   useEffect(() => {
     if (inviteCode) sessionStorage.setItem('sv_invite_code', inviteCode);
   }, [inviteCode]);
+
+  // Coming back from a guest checkout: the email is known, go straight to the
+  // magic-link step so claiming the purchase is a single tap.
+  useEffect(() => {
+    if (searchParams.get('email')) setMethod('magic-link');
+  }, [searchParams]);
+
 
   // Store intent for post-login redirect
   useEffect(() => {

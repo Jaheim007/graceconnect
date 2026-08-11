@@ -16,6 +16,7 @@ import { ContinueBlock } from '@/components/home/ContinueBlock';
 import { SpaceBlock } from '@/components/home/SpaceBlock';
 import { EarningsBlock } from '@/components/home/EarningsBlock';
 import { UnlockRow } from '@/components/home/UnlockRow';
+import { FirstRunHero } from '@/components/home/FirstRunHero';
 import { getOnboardingIntent, intentToCapability } from '@/lib/siteviral/onboardingIntent';
 
 
@@ -137,13 +138,19 @@ export default function PersonalHome() {
     ) : null,
   };
 
+  // Fallback sorting hint from the welcome intent — never a role lock.
+  const intentCapability = intentToCapability(getOnboardingIntent());
+
   const orderedCapabilities: Capability[] = (() => {
     const base: Capability[] = ['learn', 'create', 'earn'];
     // Real activity wins; the welcome intent is only a fallback sorting hint.
-    const primary = caps.primaryCapability ?? intentToCapability(getOnboardingIntent());
+    const primary = caps.primaryCapability ?? intentCapability;
     if (!primary) return base;
     return [primary, ...base.filter((c) => c !== primary)];
   })();
+
+  // Brand new account: zero purchase, zero space, zero affiliate link.
+  const isFirstRun = !caps.isLoading && !caps.canLearn && !caps.canCreate && !caps.canEarn;
 
   return (
     <div className="native-page-screen bg-background">
@@ -159,15 +166,25 @@ export default function PersonalHome() {
             {isFr ? `Bonjour ${displayName} 👋` : `Hi ${displayName} 👋`}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isFr ? 'Que cherchez-vous aujourd\u2019hui ?' : 'What are you looking for today?'}
+            {isFirstRun
+              ? (isFr ? 'Une seule chose à faire pour commencer.' : 'One thing to do to get started.')
+              : (isFr ? 'Que cherchez-vous aujourd\u2019hui ?' : 'What are you looking for today?')}
           </p>
         </div>
 
-        {/* Capability blocks — ordered by the user's most recent activity */}
-        {orderedCapabilities.map((c) => capabilityBlocks[c])}
+        {isFirstRun ? (
+          /* One primary action, everything else stays quiet */
+          <FirstRunHero primary={intentCapability ?? 'learn'} />
+        ) : (
+          <>
+            {/* Capability blocks — ordered by the user's most recent activity */}
+            {orderedCapabilities.map((c) => capabilityBlocks[c])}
 
-        {/* Doors to the capabilities not activated yet */}
-        <UnlockRow capabilities={caps.inactiveCapabilities} />
+            {/* Doors to the capabilities not activated yet */}
+            <UnlockRow capabilities={caps.inactiveCapabilities} />
+          </>
+        )}
+
 
 
 
@@ -338,6 +355,7 @@ export default function PersonalHome() {
         </section>
 
         {/* Explore CTA — icon matches the "Explorer" item in the sidebar */}
+        {!isFirstRun && (
         <section className="space-y-2">
           <Link
             to="/dashboard/explore"
@@ -386,6 +404,8 @@ export default function PersonalHome() {
             </Link>
           </div>
         </section>
+        )}
+
 
       </div>
     </div>
