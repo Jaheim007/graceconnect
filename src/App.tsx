@@ -55,7 +55,12 @@ const PageLoader = () => <RouteContentSkeleton />;
 // Public
 const ActionHub = lazy(() => import("@/pages/ActionHub"));
 // Hidden service verticals (Beauty / Home / Events / Learn) live in one module —
-// see @/routes/HiddenVerticalRoutes. Their pages are preserved there.
+// their pages are preserved there and mounted only when the marketplace flag is on.
+import {
+  hiddenVerticalPublicRoutes,
+  hiddenVerticalDashboardRoutes,
+  hiddenVerticalAdminRoutes,
+} from "@/routes/HiddenVerticalRoutes";
 const SuperadminEvents = lazy(() => import("@/pages/superadmin/SuperadminEvents"));
 const SuperadminEducation = lazy(() => import("@/pages/superadmin/SuperadminEducation"));
 // SiteViral Church
