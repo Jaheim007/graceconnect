@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef, Fragment } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -648,6 +648,21 @@ export default function WriteWizard() {
 
     toast({ title: `✅ ${t('write.draft_loaded')}` });
   }, [draftId, saveCurrentDraftNow, step, syncDraftList, toast, t]);
+
+  // Deep link: /ecrire?project=<id> opens that exact draft (used by MCP imports)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const deepLinkRef = useRef<string | null>(null);
+  useEffect(() => {
+    const target = searchParams.get('project');
+    if (!target || !user?.id || deepLinkRef.current === target) return;
+    deepLinkRef.current = target;
+    (async () => {
+      await handleLoadDraft(`db:${target}`);
+      const next = new URLSearchParams(searchParams);
+      next.delete('project');
+      setSearchParams(next, { replace: true });
+    })();
+  }, [searchParams, setSearchParams, user?.id, handleLoadDraft]);
 
   // Auto-save to localStorage on state/step change
   useEffect(() => {
