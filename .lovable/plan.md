@@ -10,11 +10,27 @@ SiteViral does **not** rewrite a single sentence. It assembles: structures the c
 **Mode B — Generate (unchanged)**
 "Create me a course on X." Brief in, SiteViral's engine writes it. Exactly as today.
 
-## Standard vs Premium — how we decide (your question)
+## Credits are never shown as numbers (your correction)
+
+No assistant reply ever says "6 credits", "this will cost X", or shows a balance. It just works, quietly, the way data does on a phone — the user keeps creating, credits keep flowing, and they never feel a meter running.
+
+What a reply looks like:
+
+> Draft ready — 11 chapters, Premium import. Open it here: …
+
+What it never looks like: *"Premium import, 6 credits, balance 14.5."*
+
+The **only** moment credits are ever mentioned is when there aren't enough. Then the assistant says exactly one thing:
+
+> Not enough credits on your SiteViral account. Add credits here: siteviral.com/credits — then ask me again.
+
+Nothing is created and nothing is charged in that case. `get_my_credits` stays available if the user explicitly asks "how many credits do I have?", but the assistant is instructed never to volunteer it and never to quote costs before an action.
+
+## Standard vs Premium — how we decide
 
 Never by judging the content, and never by asking the user a word they don't understand.
 
-In the app today, Standard/Premium is simply **size**: a Standard book caps at 8 chapters, Premium goes up to 20; a Standard course is 8–12 lessons, Premium 14–18. The user picks it on a card that shows the credit cost.
+In the app today, Standard/Premium is simply **size**: a Standard book caps at 8 chapters, Premium goes up to 20; a Standard course is 8–12 lessons, Premium 14–18.
 
 So on import we derive it **mechanically from what the assistant actually sent**:
 
@@ -25,45 +41,48 @@ So on import we derive it **mechanically from what the assistant actually sent**
 | Course with 12 lessons or fewer | Standard |
 | Course with 13+ lessons | Premium |
 
-No interpretation, no surprises: the user paid for what they sent. The tool reply always states it out loud — *"11 chapters → Premium import, 6 credits."* And the assistant is instructed to announce the cost **before** calling the import, using `get_my_credits`, so the user can trim to 8 chapters if they'd rather stay Standard.
+The reply names the tier ("Premium import") because that describes what they got — never the price.
 
 ## Images — the assistant asks, always
 
-Someone connecting SiteViral to ChatGPT knows we generate visuals, so the instructions make the assistant ask a single clear question before importing, with prices:
+Someone connecting SiteViral to ChatGPT knows we generate visuals, so the instructions make the assistant ask one clear question before importing — **without prices**:
 
 > "Do you want visuals? 1) None, 2) Cover only, 3) Cover + one image per chapter/lesson, 4) Images only."
 
-Options on the import tools: `cover` (yes/no) and `illustrations` (`none` | `one_per_chapter` / `one_per_lesson`). If the user hasn't said anything, the assistant asks — it never assumes and never silently spends.
+Options on the import tools: `cover` (yes/no) and `illustrations` (`none` | `one_per_chapter` / `one_per_lesson`). If the user hasn't said anything, the assistant asks — it never assumes and never silently spends on visuals.
 
-## Credits — and parity with the app
+## Credits — what we actually charge for
 
-Import must cost credits: we assemble, store, build the modules/lessons/slides and the PDF-ready output. Only the writing is skipped.
+You're right about the principle: **we don't charge for importing.** They already paid for their ChatGPT, and the connection to SiteViral is free. Pasting text in is not a service.
 
-New actions:
+What we charge for is **generation** — the moment our AI does work:
 
-| Action | Standard | Premium |
+| Situation | What our AI does | Charged |
 | --- | --- | --- |
-| `import_book` (assemble an imported book) | 4 | 6 |
-| `import_course` (assemble an imported course) | 6 | 9 |
+| Import, no visuals | Nothing generative — we assemble and store the text they wrote | **Small assembly fee, 1 credit** (book or course, any tier) |
+| Import + cover | Generates a cover image | cover price, as in the app |
+| Import + one image per chapter/lesson | Generates each image | per-image price, as in the app |
+| "Generate it on SiteViral" (Mode B) | Writes the whole book/course | full generation price, as in the app |
 
-**Nothing about existing in-app pricing changes.** Verified against the live price list, and the connector reuses the exact same keys and amounts:
+The 1-credit assembly fee is deliberately small enough to be invisible — a free user's 20 daily credits covers 20 imports — but it isn't zero, so the pipeline can't be hammered for free, and it keeps the rule you set intact: everything that runs through our system touches credits.
+
+**Nothing about existing in-app pricing changes.** Verified against the live price list; the connector reuses the exact same keys and amounts:
 
 | What | In app today | Over MCP |
 | --- | --- | --- |
-| Full AI book (`generate_book`) | 18 / 30 | 18 / 30 — identical |
-| Full AI course (`ai_course_structure`) | 16 / 28 | 16 / 28 — identical |
-| Cover (`generate_cover`) | 7.5 / 12 | 7.5 / 12 — identical |
-| Image per lesson (`ai_course_image`) | 1.5 / 2.5 | 1.5 / 2.5 — identical |
+| Full AI book (`generate_book`) | 18 / 30 | identical |
+| Full AI course (`ai_course_structure`) | 16 / 28 | identical |
+| Cover (`generate_cover`) | 7.5 / 12 | identical |
+| Image per lesson (`ai_course_image`) | 1.5 / 2.5 | identical |
 
-Margin check: import at 4–9 credits is deliberately cheaper than generating (16–30) because we don't pay for the long generation, but it's never free, and it can't be gamed — a user sending 20 chapters pays Premium, and images are priced per unit exactly as in the app.
-
-Daily-credit reality: a free user gets 20/day, so 3 imported books or 3 imported courses without visuals, or 1 import with a cover. Full generation stays the premium path.
+Margin logic: the expensive part is long-form generation and images, and both stay at full app price. Import skips the writing, so it costs almost nothing to serve — 1 credit covers the assembly, storage and PDF-ready build.
 
 Money rules identical to the rest of the platform:
-- Charged once, with an idempotency key — a retried tool call never double-charges.
-- Visuals charged separately, only when requested.
-- Not enough credits → exact message ("Crédits insuffisants — 8.5 available, 6 required") + top-up link, nothing created, nothing charged.
-- Same hourly generation cooldowns and the same auto-refund on failure.
+- Charged once, with an idempotency key — a retried tool call never double-charges, and re-sending a chunk never re-charges.
+- Visuals charged separately, only when explicitly requested.
+- Insufficient credits → the single message above, nothing created, nothing charged.
+- Same hourly cooldowns and the same auto-refund if a generation fails.
+
 
 ## How we know which mode the user wants
 
@@ -92,11 +111,13 @@ Claude shows the draft link because it reads the tool reply; ChatGPT sometimes d
 ## Technical notes
 
 - New tools in `src/lib/mcp/tools/`: `import_book_from_content`, `add_book_chapters`, `import_course_from_content`, `add_course_lessons`, `get_draft_link`; registered in `src/lib/mcp/index.ts`, then the `mcp` function is redeployed and the manifest re-extracted.
-- Long content arrives in chunks (chapters 1–3, then 4–6…) since one tool call can't carry a whole book. Appends are idempotent by order index. Tier is computed on the **final** chapter/lesson count: the import fee is taken at Standard on creation, and topped up by the difference if later appends push it into Premium.
-- Two rows added to `credit_action_pricing` (`import_book`, `import_course`) by migration; existing rows untouched. Charging goes through the shared `consumeCreditsWithRefund` / `credit_transactions` helpers, so balances, alerts, history and refunds behave like every other action.
+- Long content arrives in chunks (chapters 1–3, then 4–6…) since one tool call can't carry a whole book. Appends are idempotent by order index. The 1-credit assembly fee is charged once, on creation of the draft, so appends are free — tier only affects the label shown, not the fee.
+- One row added to `credit_action_pricing` (`import_assemble`, cost 1 / 1) by migration; existing rows untouched. Charging goes through the shared `consumeCreditsWithRefund` / `credit_transactions` helpers, so balances, alerts, history and refunds behave like every other action.
+- Tool replies are built by a small helper that formats draft link + tier + next step and **never interpolates a credit amount**; the only credit string an assistant can receive is the insufficient-credits message. `get_my_credits` keeps returning the balance for explicit questions, and the connector instructions forbid quoting costs proactively.
 - A thin `import-content` edge function does the work, because credits must be debited server-side with the service role; the MCP tool calls it with the user's token, like the other creation tools.
 - Book import writes `structure_json.chapters` / `data_json.chapters` (`{ id, title, content, order }`) — the shape `/ecrire`, the PDF export and product conversion already read. Course import writes the `course_pack` shape `ai-project-to-program` consumes (modules → lessons → slides); the exact mapping is verified against that function before the tool is written.
 - Visuals reuse `ai-generate-course-cover` / `ai-generate-course-lesson-images` — no new image pipeline, no new prices.
 
 ## Verification
-From both ChatGPT and Claude: develop a course in conversation, import it in 3 chunks with cover + one image per lesson, then check that (a) the lesson text in the app is byte-identical to what the assistant wrote, (b) the debit equals import fee + cover + images, charged once, (c) re-sending a chunk neither duplicates nor re-charges, (d) an 11-chapter book is billed Premium and says so, (e) the draft link shows up in both assistants, (f) a user below the fee gets a clean "insufficient credits" with nothing created, (g) an in-app book and course generation still debit exactly 18/16 as before.
+From both ChatGPT and Claude: develop a course in conversation, import it in 3 chunks with cover + one image per lesson, then check that (a) the lesson text in the app is byte-identical to what the assistant wrote, (b) **no reply anywhere mentions a credit amount**, (c) the debit is 1 credit for the assembly plus the standard cover/image prices, charged once, (d) re-sending a chunk neither duplicates nor re-charges, (e) an 11-chapter book is announced as "Premium import" with no number, (f) the draft link shows up in both assistants, (g) a user with no credits gets the single insufficient-credits message with a top-up link and nothing is created, (h) an in-app book and course generation still debit exactly 18 / 16 as before.
+
