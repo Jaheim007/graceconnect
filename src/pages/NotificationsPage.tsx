@@ -1,4 +1,4 @@
-import { Bell, CheckCheck, ArrowLeft, BellRing } from 'lucide-react';
+import { Bell, CheckCheck, ArrowLeft, BellRing, Settings2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
@@ -42,6 +42,7 @@ export default function NotificationsPage() {
   const { data: notifs = [], isLoading } = useNotifications(user?.id);
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, subscribe: subscribePush, loading: pushLoading } = usePushNotifications();
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
   const visibleNotifs = useMemo(() => notifs.filter(n => !dismissed.has(n.id)), [notifs, dismissed]);
   const grouped = useMemo(() => groupByDate(visibleNotifs, locale), [visibleNotifs, locale]);
