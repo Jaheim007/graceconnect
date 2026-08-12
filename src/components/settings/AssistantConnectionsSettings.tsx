@@ -145,31 +145,42 @@ export default function AssistantConnectionsSettings() {
 
   const samples = [
     {
+      icon: Wand2,
+      label: isFr ? 'Écris avec lui, puis envoie' : 'Write with it, then send',
+      text: isFr
+        ? "Écrivons ensemble un livre sur la vente par WhatsApp, chapitre par chapitre. Quand j'aurai validé, envoie le texte complet vers SiteViral."
+        : 'Let us write a book about selling on WhatsApp together, chapter by chapter. Once I approve it, send the full text to SiteViral.',
+    },
+    {
+      icon: BookOpen,
+      label: isFr ? 'Depuis mes notes' : 'From my notes',
+      text: isFr
+        ? 'Transforme ces notes en formation, puis envoie-la vers SiteViral : [colle ton texte].'
+        : 'Turn these notes into a course, then send it to SiteViral: [paste your text].',
+    },
+    {
       icon: GraduationCap,
-      label: isFr ? 'Une formation' : 'A course',
+      label: isFr ? 'Laisse SiteViral écrire' : 'Let SiteViral write',
       text: isFr
         ? 'Crée une formation SiteViral sur la vente par WhatsApp, avec images.'
         : 'Create a SiteViral course about selling on WhatsApp, with images.',
     },
-    {
-      icon: BookOpen,
-      label: isFr ? 'Un livre' : 'A book',
-      text: isFr
-        ? 'Démarre un livre SiteViral sur comment monétiser son audience.'
-        : 'Start a SiteViral book about monetizing your audience.',
-    },
-    {
-      icon: Wand2,
-      label: isFr ? 'Depuis mes notes' : 'From my notes',
-      text: isFr
-        ? 'Transforme ces notes en formation SiteViral : [colle ton texte].'
-        : 'Turn these notes into a SiteViral course: [paste your text].',
-    },
   ];
 
   const can = isFr
-    ? ['Créer des brouillons de livres et de formations', 'Suivre une génération en cours', 'Voir tes crédits et tes brouillons']
-    : ['Create book and course drafts', 'Follow a running generation', 'See your credits and drafts'];
+    ? [
+        'Envoyer vers SiteViral le texte que tu as écrit avec lui, mot pour mot',
+        'Créer des brouillons de livres et de formations',
+        'Générer la couverture et les images si tu le demandes',
+        'Te renvoyer le lien du brouillon',
+      ]
+    : [
+        'Send the text you wrote with it to SiteViral, word for word',
+        'Create book and course drafts',
+        'Generate the cover and images when you ask',
+        'Give you back the draft link',
+      ];
+
 
   const cannot = isFr
     ? ['Publier ou fixer un prix', 'Toucher aux paiements ou aux retraits', 'Supprimer un contenu']
