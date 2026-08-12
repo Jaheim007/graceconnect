@@ -458,7 +458,7 @@ var create_book_draft_default = defineTool8({
     if (!created.ok) return errorResult(created.error ?? "Could not queue the outline generation.");
     const jobId = created.data?.job_id ?? created.data?.id;
     const run = await callEdgeFunction(ctx, "ai-run-job", { job_id: jobId });
-    const link = `${APP_BASE_URL}/ecrire`;
+    const link = `${APP_BASE_URL}/ecrire?project=${project.id}`;
     return textResult(
       `Book draft "${title}" created in "${org.name}" with ${chapters} planned chapters.
 Job id: ${jobId}${run.ok ? "" : " (queued \u2014 the app will run it)"}
@@ -550,7 +550,7 @@ var list_my_drafts_default = defineTool10({
       status: p.status,
       language: p.language,
       updated_at: p.updated_at,
-      url: p.project_type === "course_pack" ? `${APP_BASE_URL}/admin/programs/draft/${p.id}` : `${APP_BASE_URL}/ecrire`
+      url: p.project_type === "course_pack" ? `${APP_BASE_URL}/admin/programs/draft/${p.id}` : `${APP_BASE_URL}/ecrire?project=${p.id}`
     }));
     if (rows.length === 0) {
       return textResult(`No drafts yet in "${org.name}".`, { org_id: org.id, drafts: [] });
@@ -888,7 +888,7 @@ var get_draft_link_default = defineTool16({
     if (error) return errorResult(error.message);
     const project = (data ?? [])[0];
     if (!project) return errorResult("No draft found.");
-    const link = project.project_type === "ebook" ? `${APP_BASE_URL}/ecrire` : `${APP_BASE_URL}/admin/programs/draft/${project.id}`;
+    const link = project.project_type === "ebook" ? `${APP_BASE_URL}/ecrire?project=${project.id}` : `${APP_BASE_URL}/admin/programs/draft/${project.id}`;
     return textResult(
       `${link}
 
@@ -904,8 +904,8 @@ var projectRef = "xzgpzbrgsxtcsktiprik";
 var mcp_default = defineMcp({
   name: "siteviral-mcp",
   title: "SiteViral MCP",
-  version: "0.5.0",
-  instructions: "Tools for SiteViral \u2014 the platform where creators build, sell and monetize digital content (books, courses, digital products).\n\nTWO WAYS TO CREATE. Pick by where the content comes from:\n1. IMPORT (default when the user developed the content with you). The user shaped the book or course in this conversation \u2014 audience, angle, chapter by chapter, lesson by lesson, possibly from their notes, audios or links. Use `import_book_from_content` / `import_course_from_content`, then `add_book_chapters` / `add_course_lessons` for the remaining batches (max 6 items per call, always pass start_order). Send the COMPLETE final text you wrote together, never a summary \u2014 SiteViral assembles it and does not rewrite a single sentence. Thin payloads are rejected.\n2. GENERATE (only when the user has just an idea and wants SiteViral to write it). Use `create_course_from_prompt`, `create_course_from_text` or `create_book_draft`, then poll `get_generation_status`.\n\nBEFORE ANY IMPORT, ask one question about visuals: none / cover only / cover + one image per chapter or lesson / images only. Never assume, never generate visuals the user did not ask for.\n\nCREDITS \u2014 NEVER TALK ABOUT THEM. Do not quote, estimate, sum, or announce credit costs, and do not report balances unless the user explicitly asks 'how many credits do I have?'. Creating content just works. The ONLY time credits come up is when a tool returns an insufficient-credits message: repeat that message as-is with the top-up link, and nothing else.\n\nIDS. After an import, the reply prints project_id and org_id. Reuse those exact values for the next batch. NEVER invent, guess or send placeholder ids \u2014 if you no longer have them, call `add_book_chapters` / `add_course_lessons` without ids and SiteViral appends to the same draft.\n\nALWAYS SHOW THE LINK. Every creation or status reply starts with the draft link on its own line. Show it to the user as a clickable link in your next message, every single time. `get_draft_link` re-fetches it on request.\n\nDiscovery: `who_am_i`, `list_my_organizations`, `list_org_products`, `get_org_analytics`, `list_my_purchases`, `list_my_drafts`.\n\nRules: never claim content is published \u2014 everything lands as a DRAFT that the creator reviews, prices and publishes inside the app. If the user has several workspaces, ask which one and pass its org_id.",
+  version: "0.6.0",
+  instructions: "Tools for SiteViral \u2014 the platform where creators build, sell and monetize digital content (books, courses, digital products).\n\nTWO WAYS TO CREATE. Pick by where the content comes from:\n1. IMPORT (default when the user developed the content with you). The user shaped the book or course in this conversation \u2014 audience, angle, chapter by chapter, lesson by lesson, possibly from their notes, audios or links. Use `import_book_from_content` / `import_course_from_content`, then `add_book_chapters` / `add_course_lessons` for the remaining batches (max 12 items per call, always pass start_order AND total_chapters/total_lessons). Send the COMPLETE final text you wrote together, never a summary \u2014 SiteViral assembles it and does not rewrite a single sentence. Thin payloads are rejected.\n2. GENERATE (only when the user has just an idea and wants SiteViral to write it). Use `create_course_from_prompt`, `create_course_from_text` or `create_book_draft`, then poll `get_generation_status`.\n\nBEFORE ANY IMPORT, ask one question about visuals: none / cover only / cover + one image per chapter or lesson / images only. Never assume, never generate visuals the user did not ask for.\n\nCREDITS \u2014 NEVER TALK ABOUT THEM. Do not quote, estimate, sum, or announce credit costs, and do not report balances unless the user explicitly asks 'how many credits do I have?'. Creating content just works. The ONLY time credits come up is when a tool returns an insufficient-credits message: repeat that message as-is with the top-up link, and nothing else.\n\nIDS. After an import, the reply prints project_id and org_id. Reuse those exact values for the next batch. NEVER invent, guess or send placeholder ids \u2014 if you no longer have them, call `add_book_chapters` / `add_course_lessons` without ids and SiteViral appends to the same draft.\n\nFINISH THE IMPORT. Always declare the real total (total_chapters / total_lessons) on the first call. Every reply tells you how many items are in the draft out of that total; while items are missing you MUST keep calling add_book_chapters / add_course_lessons in the same turn and must NOT tell the user the book or course is ready. A 16-chapter book that lands as 6 chapters is a failure.\n\nALWAYS SHOW THE LINK. Every creation or status reply starts with the draft link on its own line. Show it to the user as a clickable link in your next message, every single time. `get_draft_link` re-fetches it on request.\n\nDiscovery: `who_am_i`, `list_my_organizations`, `list_org_products`, `get_org_analytics`, `list_my_purchases`, `list_my_drafts`.\n\nRules: never claim content is published \u2014 everything lands as a DRAFT that the creator reviews, prices and publishes inside the app. If the user has several workspaces, ask which one and pass its org_id.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated"
