@@ -114,7 +114,7 @@ export function importReply(data: any, opts: { kind: "book" | "course"; appended
   if (Number(data?.images_generated) > 0) lines.push(`${data.images_generated} illustration(s) generated.`);
   if (Number(data?.images_missing) > 0) {
     lines.push(
-      `${data.images_missing} illustration(s) are still missing — call finish_draft_visuals NOW with the ids below (illustrations: true) and repeat until none remain.`,
+      `The remaining ${data.images_missing} illustration(s) are being generated right now in the background — SiteViral finishes them automatically, they will all be in the draft in a few minutes. Tell the user the illustrations are finishing, and do NOT call finish_draft_visuals unless the user says some are still missing later.`,
     );
   }
   if (data?.visuals_stopped_for_credits) {
