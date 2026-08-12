@@ -315,13 +315,22 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
           {/* Mini book cover */}
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
             <div className="bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 p-6 flex justify-center">
-              <div className="w-[140px] aspect-[3/4] rounded-lg bg-gradient-to-br from-primary to-accent flex flex-col items-center justify-center p-3 shadow-xl">
-                
-                <h3 className="text-primary-foreground font-extrabold text-[10px] leading-tight text-center line-clamp-3 break-words">
-                  {titleDraft || t('write.my_book')}
-                </h3>
-              </div>
+              {state.coverUrl ? (
+                <img
+                  src={state.coverUrl}
+                  alt={titleDraft || t('write.my_book')}
+                  className="w-[140px] aspect-[3/4] object-cover rounded-lg shadow-xl"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="w-[140px] aspect-[3/4] rounded-lg bg-gradient-to-br from-primary to-accent flex flex-col items-center justify-center p-3 shadow-xl">
+                  <h3 className="text-primary-foreground font-extrabold text-[10px] leading-tight text-center line-clamp-3 break-words">
+                    {titleDraft || t('write.my_book')}
+                  </h3>
+                </div>
+              )}
             </div>
+
 
             {/* Editable title */}
             <div className="px-4 pt-3 pb-2">
