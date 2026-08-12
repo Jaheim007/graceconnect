@@ -198,9 +198,8 @@ export async function renderFlyer(opts: RenderFlyerOptions): Promise<string> {
     ctx.fill();
   }
   ctx.restore();
-
   // ── Brand mark ──
-  const markSize = Math.round(w * 0.075);
+  const markSize = Math.round(w * 0.07);
   ctx.fillStyle = th.accent;
   roundRect(ctx, M, M, markSize, markSize, markSize * 0.28);
   ctx.fill();
@@ -212,115 +211,133 @@ export async function renderFlyer(opts: RenderFlyerOptions): Promise<string> {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = th.inkSoft;
-  ctx.font = `600 ${Math.round(w * 0.026)}px ${body}`;
-  ctx.fillText(opts.brandLabel || 'SiteViral', M + markSize + Math.round(w * 0.025), M + markSize * 0.62);
+  ctx.font = `600 ${Math.round(w * 0.024)}px ${body}`;
+  ctx.fillText(opts.brandLabel || 'SiteViral', M + markSize + Math.round(w * 0.022), M + markSize * 0.64);
 
-  // ── Cover panel ──
-  const coverW = Math.round(w * 0.44);
-  const coverH = Math.round(coverW * 1.4);
-  const coverX = w - bandW - Math.round(w * 0.04) - coverW * 0.72;
-  const coverY = Math.round(h * (opts.format === 'story' ? 0.30 : 0.34));
+  // ── Vertical budget, computed from the bottom up so nothing ever collides ──
+  const qrSize = Math.round(w * 0.15);
+  const footerTop = h - M - qrSize;
+  const ctaH = Math.round(w * 0.095);
+  const ctaY = footerTop - Math.round(w * 0.07) - ctaH;
+  const priceSize = Math.round(w * 0.066);
+  const priceBaseline = ctaY - Math.round(w * 0.038);
+  const contentTop = M + markSize + Math.round(h * 0.045);
+  const contentBottom = priceBaseline - priceSize - Math.round(w * 0.03);
+
+  // ── Cover panel (right side, opaque so the band never bleeds through) ──
+  const coverW = Math.round(w * 0.36);
+  const coverX = w - bandW - Math.round(w * 0.04) + Math.round(bandW * 0.35) - coverW;
+  const coverH = Math.min(Math.round(coverW * 1.45), contentBottom - contentTop);
+  const coverY = contentTop + Math.max(0, Math.round((contentBottom - contentTop - coverH) / 2));
   ctx.save();
   ctx.shadowColor = 'rgba(0,0,0,0.45)';
-  ctx.shadowBlur = Math.round(w * 0.05);
-  ctx.shadowOffsetY = Math.round(w * 0.02);
-  ctx.fillStyle = th.panel;
-  roundRect(ctx, coverX, coverY, coverW, coverH, Math.round(w * 0.02));
+  ctx.shadowBlur = Math.round(w * 0.045);
+  ctx.shadowOffsetY = Math.round(w * 0.018);
+  ctx.fillStyle = th.bg;
+  roundRect(ctx, coverX, coverY, coverW, coverH, Math.round(w * 0.018));
   ctx.fill();
   ctx.restore();
 
   const img = opts.coverUrl ? await loadImage(opts.coverUrl) : null;
   ctx.save();
-  roundRect(ctx, coverX, coverY, coverW, coverH, Math.round(w * 0.02));
+  roundRect(ctx, coverX, coverY, coverW, coverH, Math.round(w * 0.018));
   ctx.clip();
+  ctx.fillStyle = th.panel;
+  ctx.fillRect(coverX, coverY, coverW, coverH);
   if (img) {
     drawCover(ctx, img, coverX, coverY, coverW, coverH);
   } else {
-    ctx.fillStyle = th.panel;
-    ctx.fillRect(coverX, coverY, coverW, coverH);
     ctx.fillStyle = th.inkSoft;
-    ctx.font = `700 ${Math.round(w * 0.05)}px ${heading}`;
+    const phSize = Math.round(w * 0.038);
+    ctx.font = `700 ${phSize}px ${heading}`;
     ctx.textAlign = 'center';
-    const tl = wrap(ctx, opts.title, coverW - Math.round(w * 0.06), 4);
+    const tl = wrap(ctx, opts.title, coverW - Math.round(w * 0.05), 4);
     tl.forEach((line, i) =>
-      ctx.fillText(line, coverX + coverW / 2, coverY + coverH / 2 - ((tl.length - 1) * 0.5 - i) * w * 0.06),
+      ctx.fillText(line, coverX + coverW / 2, coverY + coverH / 2 - ((tl.length - 1) / 2 - i) * phSize * 1.25),
     );
     ctx.textAlign = 'left';
   }
   ctx.restore();
-  // thin frame
   ctx.strokeStyle = th.accent;
-  ctx.lineWidth = Math.max(2, Math.round(w * 0.004));
-  roundRect(ctx, coverX, coverY, coverW, coverH, Math.round(w * 0.02));
+  ctx.lineWidth = Math.max(2, Math.round(w * 0.0035));
+  roundRect(ctx, coverX, coverY, coverW, coverH, Math.round(w * 0.018));
   ctx.stroke();
 
-  // ── Text column (left of the cover) ──
-  const colW = coverX - M - Math.round(w * 0.04);
-  let y = Math.round(h * (opts.format === 'story' ? 0.24 : 0.22));
+  // ── Text column (left of the cover), auto-fitted into the budget ──
+  const colW = coverX - M - Math.round(w * 0.045);
+  const bylineH = opts.byline ? Math.round(w * 0.05) : 0;
+  const authorH = opts.author ? Math.round(w * 0.055) : 0;
+  const benefitSize = Math.round(w * 0.03);
+  const benefitLinesMax = 3;
+
+  ctx.font = `400 ${benefitSize}px ${body}`;
+  const benefitLines = opts.benefit ? wrap(ctx, opts.benefit, colW, benefitLinesMax) : [];
+  const benefitH = benefitLines.length ? benefitLines.length * Math.round(benefitSize * 1.4) + Math.round(w * 0.012) : 0;
+
+  const availableForTitle = contentBottom - contentTop - bylineH - authorH - benefitH;
+  let titleSize = Math.round(w * 0.088);
+  let titleLines: string[] = [];
+  const minTitle = Math.round(w * 0.042);
+  for (;;) {
+    ctx.font = `800 ${titleSize}px ${heading}`;
+    titleLines = wrap(ctx, opts.title, colW, 5);
+    const needed = titleLines.length * titleSize * 1.08;
+    if (needed <= availableForTitle || titleSize <= minTitle) break;
+    titleSize -= Math.round(w * 0.004);
+  }
+
+  let y = contentTop;
 
   if (opts.byline) {
     ctx.fillStyle = th.accent;
-    ctx.font = `700 ${Math.round(w * 0.024)}px ${body}`;
-    ctx.fillText(opts.byline.toUpperCase(), M, y);
-    y += Math.round(w * 0.05);
+    ctx.font = `700 ${Math.round(w * 0.023)}px ${body}`;
+    ctx.fillText(opts.byline.toUpperCase(), M, y + Math.round(w * 0.023));
+    y += bylineH;
   }
 
-  // Title
-  const titleSize = Math.round(w * (opts.title.length > 42 ? 0.075 : 0.095));
   ctx.fillStyle = th.ink;
   ctx.font = `800 ${titleSize}px ${heading}`;
-  const titleLines = wrap(ctx, opts.title, colW, 4);
   for (const line of titleLines) {
     ctx.fillText(line, M, y + titleSize * 0.85);
     y += Math.round(titleSize * 1.08);
   }
 
-  // Author
   if (opts.author) {
-    y += Math.round(w * 0.018);
     ctx.fillStyle = th.inkSoft;
-    ctx.font = `600 ${Math.round(w * 0.028)}px ${body}`;
-    ctx.fillText(opts.author, M, y + Math.round(w * 0.028));
-    y += Math.round(w * 0.055);
+    ctx.font = `600 ${Math.round(w * 0.027)}px ${body}`;
+    ctx.fillText(opts.author, M, y + Math.round(w * 0.032));
+    y += authorH;
   }
 
-  // Benefit line
-  if (opts.benefit) {
-    y += Math.round(w * 0.012);
+  if (benefitLines.length) {
     ctx.fillStyle = th.inkSoft;
-    const bSize = Math.round(w * 0.032);
-    ctx.font = `400 ${bSize}px ${body}`;
-    const bLines = wrap(ctx, opts.benefit, colW, 3);
-    for (const line of bLines) {
-      ctx.fillText(line, M, y + bSize);
-      y += Math.round(bSize * 1.4);
+    ctx.font = `400 ${benefitSize}px ${body}`;
+    y += Math.round(w * 0.012);
+    for (const line of benefitLines) {
+      ctx.fillText(line, M, y + benefitSize);
+      y += Math.round(benefitSize * 1.4);
     }
   }
 
-  // Price
-  y += Math.round(w * 0.04);
+  // ── Price ──
   ctx.fillStyle = th.ink;
-  ctx.font = `800 ${Math.round(w * 0.072)}px ${heading}`;
-  ctx.fillText(opts.priceLabel, M, y + Math.round(w * 0.06));
-  y += Math.round(w * 0.115);
+  ctx.font = `800 ${priceSize}px ${heading}`;
+  ctx.fillText(opts.priceLabel, M, priceBaseline);
 
-  // CTA button
-  const ctaH = Math.round(w * 0.095);
-  ctx.font = `800 ${Math.round(w * 0.034)}px ${heading}`;
-  const ctaW = Math.min(colW, ctx.measureText(opts.ctaLabel).width + Math.round(w * 0.12));
+  // ── CTA button ──
+  ctx.font = `800 ${Math.round(w * 0.032)}px ${heading}`;
+  const ctaW = Math.min(colW, ctx.measureText(opts.ctaLabel).width + Math.round(w * 0.11));
   ctx.fillStyle = th.accent;
-  roundRect(ctx, M, y, ctaW, ctaH, ctaH / 2);
+  roundRect(ctx, M, ctaY, ctaW, ctaH, ctaH / 2);
   ctx.fill();
   ctx.fillStyle = th.accentInk;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(opts.ctaLabel, M + ctaW / 2, y + ctaH / 2 + 1);
+  ctx.fillText(opts.ctaLabel, M + ctaW / 2, ctaY + ctaH / 2 + 1);
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
 
-  // ── Footer: link + QR ──
-  const qrSize = Math.round(w * 0.17);
-  const footerY = h - M - qrSize;
+  // ── Footer: QR + link ──
   try {
     const qrUrl = await QRCode.toDataURL(opts.link, {
       margin: 1,
@@ -330,29 +347,31 @@ export async function renderFlyer(opts: RenderFlyerOptions): Promise<string> {
     const qrImg = await loadImage(qrUrl);
     if (qrImg) {
       ctx.fillStyle = '#ffffff';
-      roundRect(ctx, M, footerY, qrSize, qrSize, Math.round(w * 0.014));
+      roundRect(ctx, M, footerTop, qrSize, qrSize, Math.round(w * 0.012));
       ctx.fill();
       const pad = Math.round(qrSize * 0.06);
-      ctx.drawImage(qrImg, M + pad, footerY + pad, qrSize - pad * 2, qrSize - pad * 2);
+      ctx.drawImage(qrImg, M + pad, footerTop + pad, qrSize - pad * 2, qrSize - pad * 2);
     }
   } catch {
     /* QR is optional */
   }
 
   const linkText = opts.link.replace(/^https?:\/\//, '');
+  const linkX = M + qrSize + Math.round(w * 0.03);
+  const linkMaxW = coverX + Math.round(w * 0.1) - linkX;
+  const linkSize = Math.round(w * 0.027);
   ctx.fillStyle = th.ink;
-  ctx.font = `700 ${Math.round(w * 0.03)}px ${body}`;
-  const linkX = M + qrSize + Math.round(w * 0.035);
-  const linkLines = wrap(ctx, linkText, w - linkX - bandW - Math.round(w * 0.08), 2);
+  ctx.font = `700 ${linkSize}px ${body}`;
+  const linkLines = wrap(ctx, linkText, linkMaxW, 2);
   linkLines.forEach((line, i) =>
-    ctx.fillText(line, linkX, footerY + qrSize * 0.45 + i * Math.round(w * 0.042)),
+    ctx.fillText(line, linkX, footerTop + Math.round(qrSize * 0.42) + i * Math.round(linkSize * 1.35)),
   );
   ctx.fillStyle = th.inkSoft;
-  ctx.font = `500 ${Math.round(w * 0.022)}px ${body}`;
+  ctx.font = `500 ${Math.round(w * 0.021)}px ${body}`;
   ctx.fillText(
-    'Scanne ou clique le lien',
+    'Scanne le QR ou clique le lien',
     linkX,
-    footerY + qrSize * 0.45 + linkLines.length * Math.round(w * 0.042) + Math.round(w * 0.008),
+    footerTop + Math.round(qrSize * 0.42) + linkLines.length * Math.round(linkSize * 1.35) + Math.round(w * 0.01),
   );
 
   return canvas.toDataURL('image/png');
