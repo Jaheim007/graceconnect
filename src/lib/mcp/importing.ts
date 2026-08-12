@@ -24,6 +24,7 @@ export interface ImportPayload {
   source_assistant?: string;
   cover?: boolean;
   illustrations?: boolean;
+  total_items?: number;
   items: Array<{ title?: string; content: string; order?: number }>;
   idempotency_key?: string;
 }
