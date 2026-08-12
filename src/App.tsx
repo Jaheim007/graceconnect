@@ -279,7 +279,6 @@ const AdminCampaignForm = lazy(() => import("@/pages/admin/AdminCampaignForm").t
 const AdminProductForm = lazy(() => import("@/pages/admin/AdminProductForm").then(m => ({ default: m.ProductForm })));
 
 // AI Studio
-const StudioHome = lazy(() => import("@/pages/admin/studio/StudioHome"));
 const StudioProjectsList = lazy(() => import("@/pages/admin/studio/StudioProjectsList"));
 const ProjectWizard = lazy(() => import("@/pages/admin/studio/ProjectWizard"));
 const ProjectOverview = lazy(() => import("@/pages/admin/studio/ProjectOverview"));
