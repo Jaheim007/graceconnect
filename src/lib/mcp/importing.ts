@@ -42,12 +42,57 @@ export async function callImport(ctx: ToolContext, payload: ImportPayload) {
 }
 
 /**
+ * Find the draft to append to when the assistant did not keep the ids from the
+ * first import call (most clients only read the text of a tool reply).
+ */
+export async function resolveDraft(
+  ctx: ToolContext,
+  kind: "book" | "course",
+  projectId?: string,
+): Promise<{ project_id?: string; org_id?: string; title?: string; error?: string }> {
+  const supa = supabaseForUser(ctx);
+  const type = kind === "book" ? "ebook" : "course_pack";
+
+  let q = supa
+    .from("ai_content_projects")
+    .select("id, title, organization_id, project_type, updated_at")
+    .order("updated_at", { ascending: false })
+    .limit(1);
+
+  if (projectId) {
+    q = supa
+      .from("ai_content_projects")
+      .select("id, title, organization_id, project_type, updated_at")
+      .eq("id", projectId)
+      .limit(1);
+  } else {
+    q = q.eq("project_type", type);
+  }
+
+  const { data, error } = await q;
+  if (error) return { error: error.message };
+  const row = (data ?? [])[0] as any;
+  if (!row) {
+    return {
+      error: projectId
+        ? `No draft found with id ${projectId}.`
+        : `No ${kind} draft found. Create it first with import_${kind}_from_content.`,
+    };
+  }
+  return { project_id: row.id as string, org_id: row.organization_id as string, title: row.title as string };
+}
+
+/**
  * Draft link first, on its own line — some assistants only surface the first
  * line of a tool reply. Tier is named, never priced.
+ *
+ * The ids are printed in the text on purpose: most MCP clients never read
+ * structuredContent, so without this an assistant cannot append the next batch.
  */
 export function importReply(data: any, opts: { kind: "book" | "course"; appended?: boolean }) {
   const unit = opts.kind === "book" ? "chapters" : "lessons";
   const link = (data?.draft_url as string) || `${APP_BASE_URL}/ecrire`;
+  const nextTool = opts.kind === "book" ? "add_book_chapters" : "add_course_lessons";
 
   const lines = [
     link,
@@ -69,6 +114,12 @@ export function importReply(data: any, opts: { kind: "book" | "course"; appended
 
   lines.push(
     "",
+    "IDS FOR THE NEXT BATCH — copy these exact values, never invent them:",
+    `project_id: ${data?.project_id}`,
+    `org_id: ${data?.org_id}`,
+    `Send the remaining ${unit} with ${nextTool} using those ids and start_order: ${Number(data?.item_count || 0)}.`,
+    `If you lost them, call ${nextTool} without ids: SiteViral appends to this same draft.`,
+    "",
     "Show this draft link to the user as a clickable link in your next message.",
     "Next: open the draft to review, price and publish it.",
   );
@@ -78,9 +129,12 @@ export function importReply(data: any, opts: { kind: "book" | "course"; appended
     project_id: data?.project_id,
     org_id: data?.org_id,
     item_count: data?.item_count,
+    next_tool: nextTool,
+    next_start_order: Number(data?.item_count || 0),
     tier: data?.tier,
     verbatim: true,
     cover_generated: !!data?.cover_generated,
     images_generated: Number(data?.images_generated || 0),
   });
 }
+

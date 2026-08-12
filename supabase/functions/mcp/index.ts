@@ -213,7 +213,7 @@ function supabasePublishableKey() {
   if (legacy) return legacy;
   throw new Error("SUPABASE_PUBLISHABLE_KEY, SUPABASE_PUBLISHABLE_KEYS or SUPABASE_ANON_KEY is required");
 }
-function supabaseForUser(ctx) {
+function supabaseForUser2(ctx) {
   const token = ctx.getToken();
   if (!token) throw new Error("supabaseForUser requires a verified OAuth token");
   return createClient5(supabaseProjectUrl(), supabasePublishableKey(), {
@@ -256,7 +256,7 @@ async function callEdgeFunction(ctx, name, body) {
   return { ok: true, status: res.status, data };
 }
 async function resolveOrg(ctx, orgId) {
-  const supa = supabaseForUser(ctx);
+  const supa = supabaseForUser2(ctx);
   const { data, error } = await supa.from("organization_members").select("role, organization_id, organizations(id, name)").eq("user_id", ctx.getUserId()).in("role", ["owner", "admin", "editor"]);
   if (error) return { error: error.message };
   const rows = (data ?? []).map((m) => ({
@@ -360,7 +360,7 @@ var create_course_from_text_default = defineTool7({
     }
     const { org, error } = await resolveOrg(ctx, input.org_id);
     if (!org) return errorResult(error ?? "No workspace available.");
-    const supa = supabaseForUser(ctx);
+    const supa = supabaseForUser2(ctx);
     const path = `mcp-text/${org.id}/${Date.now()}-${crypto.randomUUID()}.txt`;
     const { error: upErr } = await supa.storage.from("media").upload(path, new Blob([source], { type: "text/plain" }), { contentType: "text/plain" });
     if (upErr) return errorResult(`Could not store the source text: ${upErr.message}`);
@@ -419,7 +419,7 @@ var create_book_draft_default = defineTool8({
     const language = input.language ?? "fr";
     const { org, error } = await resolveOrg(ctx, input.org_id);
     if (!org) return errorResult(error ?? "No workspace available.");
-    const supa = supabaseForUser(ctx);
+    const supa = supabaseForUser2(ctx);
     const { data: project, error: projErr } = await supa.from("ai_content_projects").insert({
       organization_id: org.id,
       created_by: ctx.getUserId(),
@@ -482,7 +482,7 @@ var get_generation_status_default = defineTool9({
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (input, ctx) => {
     if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
-    const supa = supabaseForUser(ctx);
+    const supa = supabaseForUser2(ctx);
     const { data: job, error } = await supa.from("ai_generation_jobs").select("id, job_type, status, progress, error_message, project_id, created_at, completed_at").eq("id", input.job_id).maybeSingle();
     if (error) return errorResult(error.message);
     if (!job) return errorResult("Job not found (or it does not belong to you).");
@@ -540,7 +540,7 @@ var list_my_drafts_default = defineTool10({
     const { org, error } = await resolveOrg(ctx, input.org_id);
     if (!org) return errorResult(error ?? "No workspace available.");
     const limit = Math.min(25, Math.max(1, Math.round(input.limit ?? 10)));
-    const supa = supabaseForUser(ctx);
+    const supa = supabaseForUser2(ctx);
     const { data, error: qErr } = await supa.from("ai_content_projects").select("id, title, project_type, status, language, updated_at").eq("organization_id", org.id).order("updated_at", { ascending: false }).limit(limit);
     if (qErr) return errorResult(qErr.message);
     const rows = (data ?? []).map((p) => ({
@@ -573,7 +573,7 @@ var get_my_credits_default = defineTool11({
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_input, ctx) => {
     if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
-    const supa = supabaseForUser(ctx);
+    const supa = supabaseForUser2(ctx);
     const { data: summary, error } = await supa.rpc("get_credit_summary", { _user_id: ctx.getUserId() });
     if (error) return errorResult(error.message);
     const { data: pricing } = await supa.from("credit_action_pricing").select("action_key, action_label, cost_standard, cost_premium").eq("is_active", true).in("action_key", RELEVANT_ACTIONS);
@@ -609,6 +609,7 @@ async function callImport(ctx, payload) {
 function importReply(data, opts) {
   const unit = opts.kind === "book" ? "chapters" : "lessons";
   const link = data?.draft_url || `${APP_BASE_URL}/ecrire`;
+  const nextTool = opts.kind === "book" ? "add_book_chapters" : "add_course_lessons";
   const lines = [
     link,
     "",
@@ -624,6 +625,12 @@ function importReply(data, opts) {
   }
   lines.push(
     "",
+    "IDS FOR THE NEXT BATCH \u2014 copy these exact values, never invent them:",
+    `project_id: ${data?.project_id}`,
+    `org_id: ${data?.org_id}`,
+    `Send the remaining ${unit} with ${nextTool} using those ids and start_order: ${Number(data?.item_count || 0)}.`,
+    `If you lost them, call ${nextTool} without ids: SiteViral appends to this same draft.`,
+    "",
     "Show this draft link to the user as a clickable link in your next message.",
     "Next: open the draft to review, price and publish it."
   );
@@ -632,6 +639,8 @@ function importReply(data, opts) {
     project_id: data?.project_id,
     org_id: data?.org_id,
     item_count: data?.item_count,
+    next_tool: nextTool,
+    next_start_order: Number(data?.item_count || 0),
     tier: data?.tier,
     verbatim: true,
     cover_generated: !!data?.cover_generated,
@@ -822,7 +831,7 @@ var get_draft_link_default = defineTool16({
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (input, ctx) => {
     if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
-    const supa = supabaseForUser(ctx);
+    const supa = supabaseForUser2(ctx);
     let query = supa.from("ai_content_projects").select("id, title, project_type, status, updated_at").order("updated_at", { ascending: false }).limit(1);
     if (input.project_id) query = supa.from("ai_content_projects").select("id, title, project_type, status, updated_at").eq("id", input.project_id).limit(1);
     const { data, error } = await query;
