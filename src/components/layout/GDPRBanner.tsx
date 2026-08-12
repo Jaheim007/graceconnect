@@ -32,7 +32,7 @@ export function GDPRBanner() {
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 100, opacity: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="fixed bottom-0 left-0 right-0 z-[100] p-4 lg:pb-6"
+      className="fixed bottom-0 left-0 right-0 z-[100] p-4 pb-[calc(env(safe-area-inset-bottom,0px)+6rem)] lg:pb-6"
     >
       <div className="container max-w-2xl mx-auto">
         <div className="bg-card border border-border rounded-2xl shadow-elevated p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">

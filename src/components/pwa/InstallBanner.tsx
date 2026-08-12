@@ -33,6 +33,12 @@ export function InstallBanner() {
     const shown = parseInt(localStorage.getItem(SHOWN_KEY) || '0', 10);
     if (shown >= MAX_SHOWS) return;
 
+    // Never compete with the cookie consent banner (same corner on tablets).
+    const cookieDecided = (() => {
+      try { return !!localStorage.getItem('sv-cookie-consent'); } catch { return false; }
+    })();
+    if (!cookieDecided) return;
+
     const timer = setTimeout(() => {
       setVisible(true);
       localStorage.setItem(SHOWN_KEY, String(shown + 1));
@@ -73,7 +79,7 @@ export function InstallBanner() {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="fixed bottom-20 lg:bottom-6 left-4 right-4 z-[60] max-w-md mx-auto"
+        className="fixed z-[60] left-4 right-4 mx-auto max-w-md bottom-[calc(env(safe-area-inset-bottom,0px)+6rem)] sm:left-auto sm:right-4 sm:mx-0 sm:w-[min(26rem,calc(100vw-2rem))] lg:bottom-6 lg:right-6"
       >
         <div className="bg-card border border-border rounded-2xl p-4 shadow-elevated">
           <div className="flex items-start gap-3">
