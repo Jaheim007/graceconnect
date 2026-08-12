@@ -336,6 +336,9 @@ export function AdminProducts() {
   const isFr = locale === 'fr';
   const { fmtPrice } = useDisplayCurrency();
   const [chariowOpen, setChariowOpen] = useState(false);
+  const [flyerProduct, setFlyerProduct] = useState<any | null>(null);
+
+
 
   const handleBulkPublish = async (ids: string[]) => {
     // Exclude moderated products from bulk publish
