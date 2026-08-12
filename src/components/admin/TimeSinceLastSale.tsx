@@ -49,7 +49,7 @@ export function TimeSinceLastSale() {
 
   const tips = hoursAgo === null
     ? [
-        { icon: Zap, text: isFr ? 'Créez votre premier produit avec l\'IA' : 'Create your first product with AI', action: () => navigate('/admin/studio') },
+        { icon: Zap, text: isFr ? 'Créez votre premier produit avec l\'IA' : 'Create your first product with AI', action: () => navigate('/ecrire') },
         { icon: Share2, text: isFr ? 'Partagez votre page sur WhatsApp' : 'Share your page on WhatsApp', action: () => window.open(`https://wa.me/?text=${encodeURIComponent(`${isFr ? 'Découvrez' : 'Discover'} ${currentOrg?.name} ! 👉 https://siteviral.com/org/${currentOrg?.slug}`)}`, '_blank') },
       ]
     : hoursAgo < 48
@@ -59,7 +59,7 @@ export function TimeSinceLastSale() {
         ]
       : [
           { icon: TrendingUp, text: isFr ? 'Créez une vente flash (-30%)' : 'Create a flash sale (-30%)', action: () => navigate('/admin/products') },
-          { icon: Zap, text: isFr ? 'Créez un nouveau produit IA' : 'Create a new AI product', action: () => navigate('/admin/studio') },
+          { icon: Zap, text: isFr ? 'Créez un nouveau produit IA' : 'Create a new AI product', action: () => navigate('/ecrire') },
           { icon: Share2, text: isFr ? 'Relancez vos contacts par email' : 'Re-engage your contacts by email', action: () => navigate('/admin/contacts') },
         ];
 

@@ -182,7 +182,7 @@ export function TTFSProgressTracker() {
           <div className="grid grid-cols-3 gap-2">
             {[
               { label: 'Vendre un contenu existant', to: '/admin/products/new', icon: BookOpen },
-              { label: 'Créer avec l\'IA', to: '/admin/studio', icon: Zap },
+              { label: 'Créer avec l\'IA', to: '/ecrire', icon: Zap },
               { label: 'Créer un cours', to: '/admin/programs/new', icon: Users },
             ].map(a => (
               <Button

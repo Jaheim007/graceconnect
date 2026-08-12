@@ -55,8 +55,8 @@ export const FEATURE_ROUTES: Record<SiteviralFeatureKey, FeatureRoute> = {
     setupVerbFr: 'Configurer', setupVerbEn: 'Set up',
   },
   ai_book_creation: {
-    setupRoute: '/admin/studio',
-    firstActionRoute: '/admin/studio/projects/new',
+    setupRoute: '/ecrire',
+    firstActionRoute: '/ecrire',
     firstActionFr: 'Créez votre premier livre avec l\'IA',
     firstActionEn: 'Create your first book with AI',
     setupVerbFr: 'Ouvrir Studio', setupVerbEn: 'Open Studio',

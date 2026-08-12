@@ -56,7 +56,7 @@ export function CommandPalette() {
     if (hasOrgs && canManageOrg) {
       list.push(
         { label: t('cmd.admin_overview'), to: '/admin', icon: BarChart3, group: t('cmd.my_platform'), keywords: 'overview admin' },
-        { label: t('cmd.ai_studio'), to: '/admin/studio', icon: Zap, group: t('cmd.my_platform'), keywords: 'ai studio content viral' },
+        { label: t('cmd.ai_studio'), to: '/ecrire', icon: Zap, group: t('cmd.my_platform'), keywords: 'ai studio content viral' },
         { label: t('cmd.media'), to: '/admin/media', icon: Play, group: t('cmd.my_platform'), keywords: 'media video audio' },
         { label: t('cmd.photos'), to: '/admin/photos', icon: Camera, group: t('cmd.my_platform') },
         { label: t('cmd.announcements'), to: '/admin/announcements', icon: Megaphone, group: t('cmd.my_platform'), keywords: 'announcements annonces' },
