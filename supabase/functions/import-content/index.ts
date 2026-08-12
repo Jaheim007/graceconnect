@@ -92,6 +92,9 @@ Deno.serve(async (req) => {
     const items: IncomingItem[] = Array.isArray(body?.items) ? body.items : [];
     const wantCover = body?.cover === true;
     const illustrations = body?.illustrations === true;
+    const declaredTotal = Number.isFinite(Number(body?.total_items))
+      ? Math.min(MAX_TOTAL_ITEMS, Math.max(1, Math.round(Number(body.total_items))))
+      : 0;
 
     if (!orgId) return jsonResp({ error: 'org_id required' }, 400);
     if (items.length === 0 && !projectId) return jsonResp({ error: 'items required' }, 400);
