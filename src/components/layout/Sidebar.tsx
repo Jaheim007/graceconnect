@@ -245,10 +245,26 @@ export function Sidebar() {
         className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-sidebar-foreground/15 to-transparent"
       />
 
-      {/* Logo */}
-      <div className={cn('relative flex items-center h-16 px-4', collapsed && 'justify-center px-0')}>
+      {/* Logo + collapse toggle */}
+      <div
+        className={cn(
+          'relative flex h-16 px-4',
+          collapsed ? 'flex-col items-center justify-center px-0 gap-1' : 'flex-row items-center justify-between',
+        )}
+      >
         <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className={cn(
+            'flex items-center justify-center rounded-xl text-sidebar-foreground/60 transition-colors hover:text-sidebar-foreground hover:bg-sidebar-foreground/10',
+            collapsed ? 'h-7 w-7' : 'h-8 w-8',
+          )}
+        >
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </button>
       </div>
+
 
       {/* Workspace switcher */}
       {user && (
