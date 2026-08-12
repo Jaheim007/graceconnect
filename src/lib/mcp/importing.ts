@@ -112,6 +112,11 @@ export function importReply(data: any, opts: { kind: "book" | "course"; appended
 
   if (data?.cover_generated) lines.push("Cover generated.");
   if (Number(data?.images_generated) > 0) lines.push(`${data.images_generated} illustration(s) generated.`);
+  if (Number(data?.images_missing) > 0) {
+    lines.push(
+      `${data.images_missing} illustration(s) are still missing — call finish_draft_visuals NOW with the ids below (illustrations: true) and repeat until none remain.`,
+    );
+  }
   if (data?.visuals_stopped_for_credits) {
     lines.push(
       "Some visuals were not generated: not enough credits on the SiteViral account. " +
@@ -161,6 +166,7 @@ export function importReply(data: any, opts: { kind: "book" | "course"; appended
     verbatim: true,
     cover_generated: !!data?.cover_generated,
     images_generated: Number(data?.images_generated || 0),
+    images_missing: Number(data?.images_missing || 0),
   });
 }
 

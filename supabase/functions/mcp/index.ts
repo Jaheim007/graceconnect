@@ -641,6 +641,11 @@ function importReply(data, opts) {
   ];
   if (data?.cover_generated) lines.push("Cover generated.");
   if (Number(data?.images_generated) > 0) lines.push(`${data.images_generated} illustration(s) generated.`);
+  if (Number(data?.images_missing) > 0) {
+    lines.push(
+      `${data.images_missing} illustration(s) are still missing \u2014 call finish_draft_visuals NOW with the ids below (illustrations: true) and repeat until none remain.`
+    );
+  }
   if (data?.visuals_stopped_for_credits) {
     lines.push(
       `Some visuals were not generated: not enough credits on the SiteViral account. Add credits at ${APP_BASE_URL}/credits, then ask for the visuals again.`
@@ -684,7 +689,8 @@ function importReply(data, opts) {
     tier: data?.tier,
     verbatim: true,
     cover_generated: !!data?.cover_generated,
-    images_generated: Number(data?.images_generated || 0)
+    images_generated: Number(data?.images_generated || 0),
+    images_missing: Number(data?.images_missing || 0)
   });
 }
 
@@ -899,13 +905,46 @@ Show this draft link to the user as a clickable link in your next message.`,
   }
 });
 
+// src/lib/mcp/tools/finish-draft-visuals.ts
+import { defineTool as defineTool17 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z14 } from "npm:zod@^4.4.3";
+var finish_draft_visuals_default = defineTool17({
+  name: "finish_draft_visuals",
+  title: "Finish the visuals of a draft",
+  description: "Generate the visuals that are still missing on an existing book or course draft (cover and/or one image per chapter/lesson). Visuals are produced in batches of 6 per call: while a reply says illustrations are still missing, call this tool again in the same turn until none remain. Never mention credit costs.",
+  inputSchema: {
+    kind: z14.enum(["book", "course"]).describe("Which kind of draft to complete."),
+    project_id: z14.string().optional().describe("Draft id. Omit to use the most recent draft of that kind."),
+    org_id: z14.string().optional().describe("Workspace id. Optional; resolved from the draft when omitted."),
+    cover: z14.boolean().optional().describe("Generate the cover if the draft has none. Defaults to false."),
+    illustrations: z14.boolean().optional().describe("Generate one image per chapter/lesson still without an image. Defaults to true.")
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
+    const kind = input.kind;
+    const draft = await resolveDraft(ctx, kind, input.project_id);
+    if (!draft.project_id || !draft.org_id) return errorResult(draft.error ?? "Could not find the draft.");
+    const res = await callImport(ctx, {
+      kind,
+      org_id: draft.org_id,
+      project_id: draft.project_id,
+      cover: input.cover === true,
+      illustrations: input.illustrations !== false,
+      items: []
+    });
+    if (!res.ok) return errorResult(res.error ?? "Could not generate the visuals.");
+    return importReply(res.data, { kind, appended: true });
+  }
+});
+
 // src/lib/mcp/index.ts
 var projectRef = "xzgpzbrgsxtcsktiprik";
 var mcp_default = defineMcp({
   name: "siteviral-mcp",
   title: "SiteViral MCP",
-  version: "0.6.0",
-  instructions: "Tools for SiteViral \u2014 the platform where creators build, sell and monetize digital content (books, courses, digital products).\n\nTWO WAYS TO CREATE. Pick by where the content comes from:\n1. IMPORT (default when the user developed the content with you). The user shaped the book or course in this conversation \u2014 audience, angle, chapter by chapter, lesson by lesson, possibly from their notes, audios or links. Use `import_book_from_content` / `import_course_from_content`, then `add_book_chapters` / `add_course_lessons` for the remaining batches (max 12 items per call, always pass start_order AND total_chapters/total_lessons). Send the COMPLETE final text you wrote together, never a summary \u2014 SiteViral assembles it and does not rewrite a single sentence. Thin payloads are rejected.\n2. GENERATE (only when the user has just an idea and wants SiteViral to write it). Use `create_course_from_prompt`, `create_course_from_text` or `create_book_draft`, then poll `get_generation_status`.\n\nBEFORE ANY IMPORT, ask one question about visuals: none / cover only / cover + one image per chapter or lesson / images only. Never assume, never generate visuals the user did not ask for.\n\nCREDITS \u2014 NEVER TALK ABOUT THEM. Do not quote, estimate, sum, or announce credit costs, and do not report balances unless the user explicitly asks 'how many credits do I have?'. Creating content just works. The ONLY time credits come up is when a tool returns an insufficient-credits message: repeat that message as-is with the top-up link, and nothing else.\n\nIDS. After an import, the reply prints project_id and org_id. Reuse those exact values for the next batch. NEVER invent, guess or send placeholder ids \u2014 if you no longer have them, call `add_book_chapters` / `add_course_lessons` without ids and SiteViral appends to the same draft.\n\nFINISH THE IMPORT. Always declare the real total (total_chapters / total_lessons) on the first call. Every reply tells you how many items are in the draft out of that total; while items are missing you MUST keep calling add_book_chapters / add_course_lessons in the same turn and must NOT tell the user the book or course is ready. A 16-chapter book that lands as 6 chapters is a failure.\n\nALWAYS SHOW THE LINK. Every creation or status reply starts with the draft link on its own line. Show it to the user as a clickable link in your next message, every single time. `get_draft_link` re-fetches it on request.\n\nDiscovery: `who_am_i`, `list_my_organizations`, `list_org_products`, `get_org_analytics`, `list_my_purchases`, `list_my_drafts`.\n\nRules: never claim content is published \u2014 everything lands as a DRAFT that the creator reviews, prices and publishes inside the app. If the user has several workspaces, ask which one and pass its org_id.",
+  version: "0.7.0",
+  instructions: "Tools for SiteViral \u2014 the platform where creators build, sell and monetize digital content (books, courses, digital products).\n\nTWO WAYS TO CREATE. Pick by where the content comes from:\n1. IMPORT (default when the user developed the content with you). The user shaped the book or course in this conversation \u2014 audience, angle, chapter by chapter, lesson by lesson, possibly from their notes, audios or links. Use `import_book_from_content` / `import_course_from_content`, then `add_book_chapters` / `add_course_lessons` for the remaining batches (max 12 items per call, always pass start_order AND total_chapters/total_lessons). Send the COMPLETE final text you wrote together, never a summary \u2014 SiteViral assembles it and does not rewrite a single sentence. Thin payloads are rejected.\n2. GENERATE (only when the user has just an idea and wants SiteViral to write it). Use `create_course_from_prompt`, `create_course_from_text` or `create_book_draft`, then poll `get_generation_status`.\n\nBEFORE ANY IMPORT, ask one question about visuals: none / cover only / cover + one image per chapter or lesson / images only. Never assume, never generate visuals the user did not ask for.\n\nCREDITS \u2014 NEVER TALK ABOUT THEM. Do not quote, estimate, sum, or announce credit costs, and do not report balances unless the user explicitly asks 'how many credits do I have?'. Creating content just works. The ONLY time credits come up is when a tool returns an insufficient-credits message: repeat that message as-is with the top-up link, and nothing else.\n\nIDS. After an import, the reply prints project_id and org_id. Reuse those exact values for the next batch. NEVER invent, guess or send placeholder ids \u2014 if you no longer have them, call `add_book_chapters` / `add_course_lessons` without ids and SiteViral appends to the same draft.\n\nFINISH THE IMPORT. Always declare the real total (total_chapters / total_lessons) on the first call. Every reply tells you how many items are in the draft out of that total; while items are missing you MUST keep calling add_book_chapters / add_course_lessons in the same turn and must NOT tell the user the book or course is ready. A 16-chapter book that lands as 6 chapters is a failure.\n\nVISUALS COME IN BATCHES OF 6. When a reply says illustrations are still missing, call `finish_draft_visuals` again in the same turn until none remain \u2014 a 16-chapter book with 6 images is a failure.\n\nALWAYS SHOW THE LINK. Every creation or status reply starts with the draft link on its own line. Show it to the user as a clickable link in your next message, every single time. `get_draft_link` re-fetches it on request.\n\nDiscovery: `who_am_i`, `list_my_organizations`, `list_org_products`, `get_org_analytics`, `list_my_purchases`, `list_my_drafts`.\n\nRules: never claim content is published \u2014 everything lands as a DRAFT that the creator reviews, prices and publishes inside the app. If the user has several workspaces, ask which one and pass its org_id.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated"
@@ -923,6 +962,7 @@ var mcp_default = defineMcp({
     add_book_chapters_default,
     import_course_from_content_default,
     add_course_lessons_default,
+    finish_draft_visuals_default,
     create_course_from_prompt_default,
     create_course_from_text_default,
     create_book_draft_default,
