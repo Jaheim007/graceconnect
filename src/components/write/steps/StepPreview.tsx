@@ -371,7 +371,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
                   {chaptersDraft.length}
                 </span>
               </div>
-              <div className="max-h-[320px] overflow-y-auto overscroll-contain [scrollbar-width:thin]" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <div className="toc-scroll max-h-[320px] overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
                 <div className="px-2 pb-2 space-y-0.5">
 
                   {chaptersDraft.map((chapter, i) => (
