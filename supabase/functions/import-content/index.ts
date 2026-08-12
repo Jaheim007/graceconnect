@@ -155,6 +155,32 @@ Deno.serve(async (req) => {
       if (title.length < 2) return jsonResp({ error: 'title required' }, 400);
       const language = (typeof body?.language === 'string' ? body.language : 'fr').slice(0, 5).toLowerCase();
 
+      // --- Dedupe: never create a second draft for the same import ---
+      // An assistant that lost the ids and calls the import tool again must land
+      // on the SAME draft, otherwise chapters split across two drafts.
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data: recent } = await admin
+        .from('ai_content_projects')
+        .select('*')
+        .eq('organization_id', orgId)
+        .eq('created_by', auth.userId)
+        .eq('project_type', kind === 'book' ? 'ebook' : 'course_pack')
+        .ilike('title', title)
+        .gte('created_at', since)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (recent && (recent.data_json as any)?.created_via === 'mcp_import') {
+        project = recent;
+      }
+    }
+
+    if (!project) {
+      const title = plain(body?.title || '').slice(0, 200);
+      const language = (typeof body?.language === 'string' ? body.language : 'fr').slice(0, 5).toLowerCase();
+
+
       // Small assembly fee — charged once per draft, idempotent on the caller key.
       try {
         await consumeCreditsOrThrow({
