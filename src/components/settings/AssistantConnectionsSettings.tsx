@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   ShieldCheck,
   MousePointerClick,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -70,6 +71,7 @@ const CLIENTS: ClientDef[] = [
 ];
 
 const STORAGE_KEY = 'sv_connectors_done';
+const MCP_VERSION = '0.4.0';
 
 /**
  * Connectors — plug SiteViral into ChatGPT, Claude or any MCP assistant.
@@ -265,6 +267,40 @@ export default function AssistantConnectionsSettings() {
               ? 'Aucune clé API, aucun terminal : on copie ton lien et on t\'emmène au bon écran.'
               : 'No API key, no terminal: we copy your link and take you to the right screen.'}
           </p>
+        </div>
+
+        {/* Refresh connection */}
+        <div className="rounded-xl border border-amber-500/25 bg-amber-500/[0.06] p-4 space-y-3">
+          <div className="flex items-start gap-2.5">
+            <RefreshCw className="h-4 w-4 text-amber-600 shrink-0 mt-px" />
+            <div className="min-w-0">
+              <p className="text-xs font-semibold">
+                {isFr ? 'Rafraîchir la connexion' : 'Refresh the connection'}
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                {isFr
+                  ? 'Claude, ChatGPT et les autres assistants gardent la liste des outils en mémoire. Quand SiteViral ajoute de nouvelles fonctions, supprime puis ré-ajoute le connecteur pour voir la dernière version.'
+                  : 'Claude, ChatGPT and other assistants cache the tool list. When SiteViral adds new features, remove and re-add the connector to see the latest version.'}
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline" className="text-[10px] gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              {isFr ? 'Version actuelle' : 'Current version'}: {MCP_VERSION}
+            </Badge>
+            <button
+              type="button"
+              onClick={async () => {
+                const ok = await copy(connectorUrl, 'url');
+                if (ok) toast.success(isFr ? 'Lien copié — supprime puis ré-ajoute le connecteur' : 'Link copied — remove then re-add the connector');
+              }}
+              className="text-[11px] font-medium text-amber-700 dark:text-amber-400 hover:underline inline-flex items-center gap-1.5"
+            >
+              <Copy className="h-3 w-3" />
+              {isFr ? 'Copier le lien pour reconnecter' : 'Copy link to reconnect'}
+            </button>
+          </div>
         </div>
 
         {/* Prompts */}
