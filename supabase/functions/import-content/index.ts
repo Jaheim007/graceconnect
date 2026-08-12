@@ -214,6 +214,7 @@ Deno.serve(async (req) => {
             imported: true,
             import_source: plain(body?.source_assistant || 'external assistant').slice(0, 60),
             created_via: 'mcp_import',
+            ...(declaredTotal ? { import_expected_count: declaredTotal } : {}),
             ...(kind === 'course' ? { course: { lessons: [] } } : { chapters: [] }),
           },
           structure_json: kind === 'book' ? { step: 4, chapters: [] } : { step: 2 },
