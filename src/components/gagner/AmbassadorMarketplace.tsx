@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { getEffectivePrice } from '@/lib/effectivePrice';
 import { motion } from 'framer-motion';
-import { Search, Zap, TrendingUp, ExternalLink } from 'lucide-react';
+import { Search, Zap, TrendingUp, ExternalLink, ImageIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,9 +9,11 @@ import { useAffiliateMarketplace } from '@/hooks/useAffiliateMarketplace';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { db } from '@/lib/db';
 import { toast } from 'sonner';
 import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
+import { FlyerDialog } from '@/components/flyer/FlyerDialog';
 
 export function AmbassadorMarketplace() {
   const [search, setSearch] = useState('');
@@ -19,7 +21,72 @@ export function AmbassadorMarketplace() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [enrollingOrg, setEnrollingOrg] = useState<string | null>(null);
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const [flyer, setFlyer] = useState<null | {
+    title: string;
+    author?: string | null;
+    benefit?: string | null;
+    priceLabel: string;
+    coverUrl?: string | null;
+    link: string;
+    byline?: string | null;
+  }>(null);
+  const [flyerLoading, setFlyerLoading] = useState<string | null>(null);
+
+  /** Ambassador flyer: same engine as the seller's, but with the referral link. */
+  const openFlyer = async (product: any) => {
+    const org = product.organizations;
+    if (!user) {
+      navigate('/auth?intent=ambassador&redirect=/gagner');
+      return;
+    }
+    setFlyerLoading(product.id);
+    try {
+      let code: string | null = null;
+      const { data: existing } = await db
+        .from('affiliate_links')
+        .select('code')
+        .eq('user_id', user.id)
+        .eq('organization_id', org?.id)
+        .eq('is_active', true)
+        .maybeSingle();
+      code = existing?.code || null;
+
+      if (!code) {
+        await supabase.rpc('self_enroll_affiliate', { _org_id: org?.id });
+        const { data: fresh } = await db
+          .from('affiliate_links')
+          .select('code')
+          .eq('user_id', user.id)
+          .eq('organization_id', org?.id)
+          .eq('is_active', true)
+          .maybeSingle();
+        code = fresh?.code || null;
+      }
+
+      const path = `/org/${org?.slug}/${product.slug || product.id}`;
+      const link = `${window.location.origin}${path}${code ? `?ref=${code}` : ''}`;
+      setFlyer({
+        title: product.title,
+        author: org?.name,
+        benefit: product.description ? String(product.description).slice(0, 140) : null,
+        priceLabel: product.is_free
+          ? t('amb.free')
+          : formatCurrency(getEffectivePrice(product), product.currency || DEFAULT_CURRENCY),
+        coverUrl: product.cover_image_url,
+        link,
+        byline: code
+          ? locale === 'fr' ? 'Lien ambassadeur' : 'Ambassador link'
+          : null,
+      });
+    } catch (err: any) {
+      toast.error(err?.message || t('common.error'));
+    } finally {
+      setFlyerLoading(null);
+    }
+  };
+
+
 
   const handleEnroll = async (orgId: string, orgSlug: string) => {
     if (!user) {
@@ -139,6 +206,18 @@ export function AmbassadorMarketplace() {
                     <Button
                       size="sm"
                       className="flex-1 gap-1.5 h-8 text-xs"
+                      disabled={flyerLoading === product.id}
+                      onClick={() => openFlyer(product)}
+                    >
+                      <ImageIcon className="h-3.5 w-3.5" />
+                      {flyerLoading === product.id
+                        ? locale === 'fr' ? 'Préparation…' : 'Preparing…'
+                        : locale === 'fr' ? 'Mon visuel' : 'My flyer'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 gap-1.5 px-2 text-xs"
                       disabled={enrollingOrg === org?.id}
                       onClick={() => handleEnroll(org?.id, org?.slug)}
                     >
@@ -160,6 +239,15 @@ export function AmbassadorMarketplace() {
           })}
         </div>
       )}
+
+      {flyer && (
+        <FlyerDialog
+          open={!!flyer}
+          onOpenChange={(o) => !o && setFlyer(null)}
+          {...flyer}
+        />
+      )}
     </div>
   );
 }
+

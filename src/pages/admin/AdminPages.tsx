@@ -19,7 +19,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, ChevronRight, Eye, EyeOff, Megaphone, CalendarDays, PackageOpen, Building2, Save, HandHeart, User, FolderOpen, Globe, SlidersHorizontal, ShieldCheck, Bot } from 'lucide-react';
+import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, ChevronRight, Eye, EyeOff, Megaphone, CalendarDays, PackageOpen, Building2, Save, HandHeart, User, FolderOpen, Globe, SlidersHorizontal, ShieldCheck, Bot, Image as ImageIcon } from 'lucide-react';
+import { FlyerDialog } from '@/components/flyer/FlyerDialog';
 import IdentityVerificationSettings from '@/components/verification/IdentityVerificationSettings';
 import AssistantConnectionsSettings from '@/components/settings/AssistantConnectionsSettings';
 
@@ -336,6 +337,9 @@ export function AdminProducts() {
   const isFr = locale === 'fr';
   const { fmtPrice } = useDisplayCurrency();
   const [chariowOpen, setChariowOpen] = useState(false);
+  const [flyerProduct, setFlyerProduct] = useState<any | null>(null);
+
+
 
   const handleBulkPublish = async (ids: string[]) => {
     // Exclude moderated products from bulk publish
@@ -507,10 +511,15 @@ export function AdminProducts() {
                 </div>
 
                 <div className="flex items-center gap-0.5 shrink-0 sm:opacity-60 sm:group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-primary" title={isFr ? 'Visuel à partager' : 'Share flyer'}
+                    onClick={(e) => { e.stopPropagation(); setFlyerProduct(p); }}>
+                    <ImageIcon className="h-3.5 w-3.5" />
+                  </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title={isFr ? 'Voir' : 'View'}
                     onClick={(e) => { e.stopPropagation(); navigate(`/org/${currentOrg?.slug}/product/${p.id}`); }}>
                     <Eye className="h-3.5 w-3.5" />
                   </Button>
+
                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title={isFr ? 'Modifier' : 'Edit'}
                     onClick={(e) => { e.stopPropagation(); navigate(`/admin/products/${p.id}/edit`); }}>
                     <Pencil className="h-3.5 w-3.5" />
@@ -550,6 +559,18 @@ export function AdminProducts() {
       )}
     </AdminPageShell>
     <ChariowImportDialog open={chariowOpen} onOpenChange={setChariowOpen} />
+    {flyerProduct && (
+      <FlyerDialog
+        open={!!flyerProduct}
+        onOpenChange={(o) => !o && setFlyerProduct(null)}
+        title={flyerProduct.title}
+        author={currentOrg?.name}
+        benefit={flyerProduct.description ? String(flyerProduct.description).slice(0, 140) : null}
+        priceLabel={rawFormatPrice(flyerProduct.price || 0, flyerProduct.is_free, flyerProduct.currency)}
+        coverUrl={flyerProduct.cover_image_url}
+        link={`${window.location.origin}/org/${currentOrg?.slug}/product/${flyerProduct.id}`}
+      />
+    )}
     </>
   );
 }
