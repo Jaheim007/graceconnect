@@ -27,6 +27,7 @@ const MIN_CHAPTER_CHARS = 400;
 const MIN_LESSON_CHARS = 300;
 const MAX_ITEMS_PER_CALL = 12;
 const MAX_TOTAL_ITEMS = 20;
+const MAX_IMAGES_PER_CALL = 6;
 
 const INSUFFICIENT =
   'Not enough credits on your SiteViral account. Add credits at https://siteviral.com/credits, then try again.';
@@ -374,7 +375,7 @@ async function generateVisuals(opts: {
 }) {
   const { admin, auth, orgId, project, kind, tier, items, wantCover, illustrations } = opts;
   const geminiKey = Deno.env.get('GEMINI_API_KEY');
-  const result = { cover_generated: false, images_generated: 0, visuals_stopped_for_credits: false };
+  const result = { cover_generated: false, images_generated: 0, images_missing: 0, visuals_stopped_for_credits: false };
   if (!geminiKey || (!wantCover && !illustrations)) return result;
 
   const styleGuide =
@@ -426,10 +427,32 @@ async function generateVisuals(opts: {
 
   // --- One image per chapter / lesson ---
   if (illustrations && !result.visuals_stopped_for_credits) {
+    // Only the items that still have no image, and at most MAX_IMAGES_PER_CALL
+    // per invocation so the function never times out mid-way (that is what used
+    // to leave a 16-chapter book with only 6 illustrations).
+    const { data: current } = await admin
+      .from('ai_content_projects')
+      .select('data_json')
+      .eq('id', project.id)
+      .single();
+    const currentJson = (current?.data_json || {}) as any;
+    const existingBookImages = (currentJson.chapter_illustrations || {}) as Record<string, string>;
+
+    const hasImage = (item: any, index: number) =>
+      kind === 'book'
+        ? !!existingBookImages[item?.id || `ch-${index + 1}`]
+        : !!item?.image_url;
+
+    const pending = items
+      .map((item, index) => ({ item, index }))
+      .filter(({ item, index }) => !hasImage(item, index));
+
+    result.images_missing = Math.max(0, pending.length - MAX_IMAGES_PER_CALL);
+    const batch = pending.slice(0, MAX_IMAGES_PER_CALL);
+
     const images: Record<number, string> = {};
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item?.image_url) continue;
+    for (let b = 0; b < batch.length; b++) {
+      const { item, index: i } = batch[b];
       let debited = 0;
       try {
         const debit = await consumeCreditsOrThrow({
@@ -459,7 +482,7 @@ async function generateVisuals(opts: {
           try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: debited, source: opts.imageActionKey, expiresInDays: 30 }); } catch (_) { /* best effort */ }
         }
       }
-      if (i < items.length - 1) await new Promise((r) => setTimeout(r, 1200));
+      if (b < batch.length - 1) await new Promise((r) => setTimeout(r, 400));
     }
 
     if (Object.keys(images).length > 0) {
