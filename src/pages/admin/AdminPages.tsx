@@ -510,10 +510,15 @@ export function AdminProducts() {
                 </div>
 
                 <div className="flex items-center gap-0.5 shrink-0 sm:opacity-60 sm:group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-primary" title={isFr ? 'Visuel à partager' : 'Share flyer'}
+                    onClick={(e) => { e.stopPropagation(); setFlyerProduct(p); }}>
+                    <ImageIcon className="h-3.5 w-3.5" />
+                  </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title={isFr ? 'Voir' : 'View'}
                     onClick={(e) => { e.stopPropagation(); navigate(`/org/${currentOrg?.slug}/product/${p.id}`); }}>
                     <Eye className="h-3.5 w-3.5" />
                   </Button>
+
                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title={isFr ? 'Modifier' : 'Edit'}
                     onClick={(e) => { e.stopPropagation(); navigate(`/admin/products/${p.id}/edit`); }}>
                     <Pencil className="h-3.5 w-3.5" />
