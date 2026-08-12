@@ -559,6 +559,18 @@ export function AdminProducts() {
       )}
     </AdminPageShell>
     <ChariowImportDialog open={chariowOpen} onOpenChange={setChariowOpen} />
+    {flyerProduct && (
+      <FlyerDialog
+        open={!!flyerProduct}
+        onOpenChange={(o) => !o && setFlyerProduct(null)}
+        title={flyerProduct.title}
+        author={currentOrg?.name}
+        benefit={flyerProduct.description ? String(flyerProduct.description).slice(0, 140) : null}
+        priceLabel={rawFormatPrice(flyerProduct.price || 0, flyerProduct.is_free, flyerProduct.currency)}
+        coverUrl={flyerProduct.cover_image_url}
+        link={`${window.location.origin}/org/${currentOrg?.slug}/${flyerProduct.slug || flyerProduct.id}`}
+      />
+    )}
     </>
   );
 }
