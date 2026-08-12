@@ -1,83 +1,69 @@
-# Who we target, what we charge, and the console that answers both
+# Acquisition first: bring buyers, guarantee the first sale, then measure
 
-You are right on both points, and they change the plan. Your mentor's church is our biggest account and our own tool — it cannot be used as proof of anything, neither of product-market fit nor of willingness to pay 10%. And the segment should not be defined by "Ivorian" — it should be defined by something we can find in several countries.
+You are right that the technical work is not the bottleneck. The bottleneck is that a seller publishes, gets no sale for weeks, and quits. Commission percentage does not fix that; demand does. So this plan is about demand, with the fee math corrected and measurement reduced to what actually informs decisions.
 
-## Point 1: the mentor account is excluded from now on
+## First, the fee math — 0% cannot mean we pay the processor
 
-Mission Peniel ABC is 93 of 188 sales and 80 000 of 138 000 FCFA. With it removed, here is the real, unbiased picture of everything that has ever sold:
+You are correct, and this is important: GeniusPay bills us per transaction (Wave CI ~1.5%, Mobile Money ~3.5%, card/Stripe ~5%). If a buyer pays 1 000 and we show the seller 1 000 and owe them 1 000, we lose the processing cost on every single transaction. At any volume that kills us.
 
-| Account | Type | Sales | Buyers | Revenue | Active from → to |
-|---|---|---|---|---|---|
-| NCho Yao | faith teacher | 48 | 47 | 31 500 | 21 Feb → 20 Jun |
-| Eliteseditions | author | 9 | 9 | 5 000 | 24 Mar → 1 May |
-| Zion | faith | 7 | 7 | 7 000 | 4 May → 12 May |
-| Loic Zeze's books | business author | 5 | 5 | 10 000 | 23 Mar → 30 Mar |
-| ZELTIN MALTA | faith | 5 | 5 | 1 500 | 25 Feb → 7 Mar |
-| 10 others | mixed | 1–4 each | 1–3 | 0–1 500 | days, then stop |
+So the rule becomes: **payment cost is always passed through and shown by name; SiteViral's own margin is what we set to zero or low.**
 
-So the honest reading is: **one real external account (NCho Yao, 47 distinct buyers) proved the model works, and nobody has been retained past ~4 weeks.** That is not "churches are our market". It is "we have one repeatable case and a retention problem". The console must flag internal/mentor accounts and exclude them from every metric by default, otherwise every number we look at for the next year will be his.
+- Every transaction is displayed as three lines everywhere (product page for the seller, dashboard, payout statement): **gross paid by buyer → payment fee (Wave / MoMo / card, shown at the real rate) → SiteViral fee → net to you.** No hidden math, no surprise at payout.
+- **Offerings, tithes and donations: 0% SiteViral fee, payment cost passed through.** We can say honestly "we take nothing on your offerings" without losing money.
+- **Paid content: 5% SiteViral fee on top of the payment cost** (not instead of it), with 0% on a flat monthly plan for sellers with volume. On card payments where the processor takes ~5%, the seller sees that it is the card that is expensive, not us — and we nudge buyers toward Wave/MoMo, which is cheaper for everyone.
+- Optionally, an org-level switch: "who absorbs the payment fee" — seller (default) or buyer (added at checkout). Churches often prefer the donor covering it.
 
-## Point 2: the segment, defined so it exists in many countries
+This is a change to fee display and payout math, so it ships as its own step, behind the existing per-org fee overrides so nobody's numbers change mid-cycle.
 
-Not "Ivorian church". The pattern that actually repeats across the paying accounts is:
+## The three audiences (all three matter, and they feed each other)
 
-**A teacher with an audience who sells written teaching to that audience, in French, paid by Mobile Money.** Faith is the biggest sub-group (NCho Yao, Zion, Zeltin, the mentor), but Eliteseditions and Loic Zeze are secular authors doing the exact same motion with the same tool.
+1. **Has content already** — a book, a teaching, a training. Needs: upload, price, get paid. Fastest to a first sale.
+2. **Has no content yet** — comes to create it with the AI. Needs: from idea to a finished ebook in one session. This is our strongest differentiator.
+3. **Has no content and does not want any** — sells other people's products for a commission. This audience is the demand engine: they bring buyers to sellers, which is exactly what is missing today.
 
-That definition travels: francophone Africa (CI, SN, TG, BF, ML, BJ, CM, GA, CD, GN) plus the francophone diaspora (FR, BE, CA, US) — where the buyers have cards and much higher willingness to pay. We already have signups from TG, BF, SN, CM, GH, FR, US and a seller from Gabon, so the shape is not CI-only, it is CI-heavy because that is where the mentor's network is.
+The landing page therefore has one promise and three doors: "Create it, sell it, or earn by selling others' — you get paid by Mobile Money." Each door leads to its own page (Create with AI / I already have content / Earn as an affiliate), plus the Church page as the strongest proof vertical. All French first.
 
-Practical consequence: the landing page speaks to "a teacher/author with an audience", with faith as the strongest proof case and the strongest single vertical page, not as the whole product. One core page + a dedicated church page + a dedicated author page, all in French, English later.
+## The acquisition and first-sale engine (the core of this plan)
 
-## Point 3: is 10% too much? Almost certainly the wrong lever right now
+**1. Turn affiliates into the traffic machine.** One-tap enrollment, no approval, no minimum. Every published product is automatically listed in an affiliate marketplace with its commission rate visible. Affiliates get a personal link, a WhatsApp-ready message, and a visual, generated for them. Real-time earnings, small payout minimum, visible leaderboard. This gives audience-less people a reason to arrive daily, and gives sellers buyers without doing marketing themselves.
 
-Total platform fees we have ever earned: **13 000 FCFA (~20 EUR)**, of which ~11 200 came from faith accounts and most of that from your mentor. Credit packs earned 9 000 FCFA from 4 purchases. Active subscriptions: 0.
+**2. A "launch kit" generated at publish time.** The moment a seller publishes, we generate for them: a square visual, a WhatsApp message, a Facebook caption, a story image, and a short link — in their language, about their product. One tap to share. This market sells on WhatsApp and Facebook mobile; today we make them invent the post themselves, and most never post at all.
 
-At this scale, whether we take 5% or 10% changes almost nothing for us — but it changes a lot for how easy we are to say yes to. So the recommendation:
+**3. Guarantee the first 100 views, not just the first sale.** On publish, the product automatically gets: Discover placement for its first days, inclusion in the next buyer broadcast, an affiliate marketplace listing, and a free short link. The seller sees a live counter of views and shares so "nothing is happening" becomes visible progress instead of silence.
 
-- **Offerings, tithes and donations: 0% platform commission.** Pass through only the payment cost. Taking a cut of a tithe is the single fastest way to lose a church, and the money there is not ours to price. This is also a real differentiator to say out loud.
-- **Paid content (ebooks, courses, PDFs): drop the standard rate from 10% to 5%,** while offering **0% commission on a paid plan** (a flat monthly fee, priced in FCFA at a level a working pastor or author accepts). Sellers with volume move to the plan; small sellers stay free and cheap.
-- **Keep credits for AI generation as they are** — that is the part people have actually paid for voluntarily, and it scales with usage rather than punishing success.
-- Do not decide the exact numbers on my read alone: the pricing question goes into the seller survey (block below) and into a visible pricing page we can A/B, so the number comes from sellers rather than from us guessing.
+**4. Activate the demand side we already have.** We have ~110 buyers and ~290 accounts, and no one talks to them. Weekly "new this week" broadcast (email + WhatsApp-shareable page), free lead-magnet products to capture new buyers cheaply, and a re-engagement sequence for buyers who bought once (22% already bought twice — that is our best asset).
 
-## Landing page changes
+**5. Recruit sellers who bring their own crowd.** One leader with a congregation or a following equals dozens of buyers on day one; a lone author equals none. So outreach targets people who already have an audience — churches, ministries, coaches, teachers, editors — across francophone Africa and the diaspora, not only Côte d'Ivoire. Concretely: a referral flow where an existing seller invites another leader, and a short partner/ambassador pitch page they can forward.
 
-- Speak to "teachers and authors who already have an audience", French first, phone first (39% of tracked events are mobile, main referrer is Facebook mobile).
-- State the price model openly: free to start, 5% on sales, **0% on offerings**, Mobile Money in and out, payout in FCFA. Transparency is a feature in this market.
-- Replace the invented figures in `PlatformStatsBar` / `usePlatformStats` with real numbers or with no numbers at all — at this scale, inflated stats read as fake.
-- Two dedicated segment pages under the core page: Church / Ministry, and Author / Coach. Not one page pretending to be everything, not a whole product built for churches only.
-- One primary CTA: publish your first paid resource.
+**6. Break the discouragement loop directly.** For any seller with 0 sales after 14 days, the product itself intervenes: what is missing (price too high, no cover, no description, never shared), a one-tap fix, the launch kit again, and the option to push it to affiliates with a higher commission. Silence gets answered with an action, not an empty dashboard.
 
-## The internal console: `/superadmin/acquisition`
+## Measurement, cut down to what changes decisions
 
-Every block has an "exclude internal & mentor accounts" toggle, on by default.
+One page, `/superadmin/acquisition`, with an "exclude internal & mentor accounts" toggle on by default — your mentor's church is ~half of all sales and would otherwise hide the truth in every chart.
 
-1. **Traffic and acquisition** — sessions by day/week, first-touch source (Meta, Facebook mobile, Google, Canva, WhatsApp, direct), referrers, entry pages, country, device, language, hour-of-day and day-of-week (current peak 21h).
-2. **Signups and conversion** — signups per day, then signup → workspace → product created → published → first sale, with percentage and median time at each step, split by source and by country.
-3. **Money in** — platform fees, credit pack sales, subscriptions, GMV, per day/month/year with year-to-date, and effective take rate per seller.
-4. **Money out and unit economics** — a manual `marketing_spend` ledger (channel, campaign, amount, date) so we can compute CAC, cost per signup, cost per paying seller, and fees vs spend. Nothing records ad spend today, so this is unmeasurable until we enter it.
-5. **Segments** — workspaces grouped by category and by country, with products, published, sold, revenue, last activity — so a segment we did not predict can announce itself.
-6. **Retention and decay** — signup-month cohorts with share still creating/selling at M+1/M+2/M+3 (this is the actual problem: nobody except the mentor passed 4 weeks), plus exportable lists of sellers who published but never sold, and sellers dormant 30+ days.
-7. **Content reality** — product mix, AI vs manual, price distribution of items that actually sold, top titles, top themes.
+1. **Where people come from** — sessions and signups by source (Meta, Facebook mobile, WhatsApp, Google, direct), referrers, entry pages, country, device, hour of day.
+2. **The two funnels that matter** — seller: signup → workspace → product → published → shared → first sale (with median time at each step); buyer: visit → product page → checkout started → paid.
+3. **First-sale health** — how many sellers ever sold, median days to first sale, how many published and never sold, how many are 30+ days dormant, exportable for outreach.
+4. **Affiliate performance** — active affiliates, clicks, conversions, revenue they generated for sellers.
+5. **Money** — GMV, our fees, payment costs paid out, credit packs, plans, and a manual `marketing_spend` ledger so CAC and cost per paying seller are computable. Nothing records ad spend today, so that number is unmeasurable until we enter it.
 
-## Instrumentation we need first
-
-- A real `page_view` event on every public page with referrer, UTM, device, country, language. Only 18 UTM events exist in total and no pageview event, so "where did they come from" is unanswerable for almost all visits today.
-- `first_touch_source` / `first_touch_referrer` / `first_touch_at` on the profile at signup, so cohorts can be cut by channel forever.
-- An `is_internal` flag on organizations so the mentor and our own test spaces stop polluting the data.
-- A `marketing_spend` table you fill in per campaign.
-- A 6-question seller survey: who you are, what you publish, what country, where you heard about SiteViral, what stopped you from publishing again, and **what commission or monthly price you would accept**. This is how the pricing decision gets made with evidence instead of instinct.
+Plus a short seller survey (who you are, what country, what you publish, where you found us, what stopped you, what fee or monthly price you would accept) — so pricing gets decided with answers instead of instinct.
 
 ## Technical notes
 
-- Events reuse `client_events` and the existing `useUtmCapture` / `useClientAnalytics` hooks; new columns on `profiles` and `organizations`, plus a new `marketing_spend` table with GRANTs and superadmin-only RLS.
-- Console reads via security-definer RPCs restricted to superadmins (`get_acquisition_overview`, `get_activation_funnel`, `get_signup_cohorts`, `get_segment_matrix`, `get_money_overview`), each taking an `_exclude_internal` argument, mirroring `useAdvancedAnalytics.ts`.
-- Country on `organizations` is dirty (89 nulls, free-text "GABON", "Côte d’Ivoire"); read country from `profiles.country` and normalise org country separately.
-- The commission change touches the fee configuration and payout math, so it ships as its own step, after the console proves what we currently earn, and behind existing per-org fee overrides so current sellers are not surprised mid-cycle.
-- Phases 1–3 do not touch dashboards, auth, payments or workspace logic. Phase 4 is presentation-only. Phase 5 is the pricing change.
+- Instrumentation first: a real `page_view` event on every public page with referrer/UTM/device/country (today there are only 18 UTM events and no pageview event, so attribution is blind), `first_touch_*` fields on the profile at signup, an `is_internal` flag on organizations, and a `marketing_spend` table — all with GRANTs and superadmin-only RLS.
+- The console reads via superadmin-only security-definer RPCs (`get_acquisition_overview`, `get_seller_funnel`, `get_first_sale_health`, `get_affiliate_performance`, `get_money_overview`), each accepting `_exclude_internal`, following the `useAdvancedAnalytics.ts` pattern.
+- Launch kit reuses the existing image generation and short-link systems; broadcasts reuse the `send-email` function and the activation engine already in place.
+- Affiliate marketplace, links and commissions already exist in the schema — this is mostly surfacing and simplifying them, not new infrastructure.
+- Replace the inflated numbers in `usePlatformStats` / `PlatformStatsBar` with real ones or none; at this scale invented stats read as fake.
+- Fee display and payout changes are isolated to the fee/payout layer; nothing else in dashboards, auth or workspace logic changes.
 
 ## Order of work
 
-1. Instrumentation + `is_internal` flag (so all analysis is honest from day one).
-2. `/superadmin/acquisition` console, seven blocks, mentor excluded by default.
-3. Seller survey + dormant-seller export, and direct outreach to the ~15 accounts that once sold.
-4. Landing page: core "teachers and authors" page + Church page + Author page, transparent pricing.
-5. Pricing change: 0% on offerings, 5% on sales, flat plan at 0%, decided with survey data in hand.
+1. Instrumentation + `is_internal` flag, so every number after this is honest.
+2. Launch kit at publish + guaranteed first-100-views placement + the 0-sales intervention.
+3. Affiliate engine simplified to one tap, with WhatsApp-ready assets and a visible marketplace.
+4. Landing page: one promise, three doors (create / already have content / earn), plus the Church page; transparent fees.
+5. Buyer broadcast + lead magnets + re-engagement of existing buyers.
+6. `/superadmin/acquisition` console and the seller survey.
+7. Fee model: gross → payment fee → SiteViral fee → net shown everywhere, 0% on offerings, 5% on sales, 0% on a flat plan.
