@@ -652,17 +652,21 @@ export default function WriteWizard() {
   // Deep link: /ecrire?project=<id> opens that exact draft (used by MCP imports)
   const [searchParams, setSearchParams] = useSearchParams();
   const deepLinkRef = useRef<string | null>(null);
+  const [openingDeepLink, setOpeningDeepLink] = useState(!!searchParams.get('project'));
   useEffect(() => {
     const target = searchParams.get('project');
     if (!target || !user?.id || deepLinkRef.current === target) return;
     deepLinkRef.current = target;
+    setOpeningDeepLink(true);
     (async () => {
       await handleLoadDraft(`db:${target}`);
       const next = new URLSearchParams(searchParams);
       next.delete('project');
       setSearchParams(next, { replace: true });
+      setOpeningDeepLink(false);
     })();
   }, [searchParams, setSearchParams, user?.id, handleLoadDraft]);
+
 
   // Auto-save to localStorage on state/step change
   useEffect(() => {
