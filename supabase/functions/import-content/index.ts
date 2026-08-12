@@ -283,9 +283,12 @@ Deno.serve(async (req) => {
         project_id: project.id,
         org_id: orgId,
         item_count: chapters.length,
+        expected_item_count: expectedTotal || null,
+        remaining: expectedTotal ? Math.max(0, expectedTotal - chapters.length) : null,
+        complete: expectedTotal ? chapters.length >= expectedTotal : null,
         tier,
         tier_label: tier === 'premium' ? 'Premium import' : 'Standard import',
-        draft_url: 'https://siteviral.com/ecrire',
+        draft_url: `https://siteviral.com/ecrire?project=${project.id}`,
         verbatim: true,
         ...visuals,
       });
