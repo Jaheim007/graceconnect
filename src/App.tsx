@@ -742,8 +742,8 @@ const App = () => (
                   <Route path="programs/:id/edit" element={<AdminProgramForm />} />
                   <Route path="learner-progress" element={<AdminLearnerProgress />} />
                   {/* AI Studio */}
-                  <Route path="studio" element={<StudioHome />} />
-                  <Route path="studio/projects" element={<Navigate to="/admin/studio" replace />} />
+                  <Route path="studio" element={<Navigate to="/ecrire" replace />} />
+                  <Route path="studio/projects" element={<Navigate to="/ecrire" replace />} />
                   <Route path="studio/projects/new" element={<ProjectWizard />} />
                   <Route path="studio/projects/:id" element={<ProjectOverview />} />
                   <Route path="studio/projects/:id/editor" element={<ProjectEditor />} />

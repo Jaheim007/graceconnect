@@ -110,7 +110,7 @@ export const TYPE_PRESENTATION: Record<SiteviralType, TypePresentation> = {
     emptyPrompts: {
       digital_products:      { fr: 'Ajouter votre premier produit',        en: 'Add your first product',           route: '/admin/products/new' },
       ai_formation_creation: { fr: 'Créer votre première formation',       en: 'Create your first formation',      route: '/admin/programs/new' },
-      ai_book_creation:      { fr: 'Créer votre premier livre avec l\'IA', en: 'Create your first AI book',        route: '/admin/studio'       },
+      ai_book_creation:      { fr: 'Créer votre premier livre avec l\'IA', en: 'Create your first AI book',        route: '/ecrire'       },
       events:                { fr: 'Créer un premier événement',           en: 'Create your first event',          route: '/admin/events/new'   },
       product_comments:      { fr: 'Activer les commentaires produits',    en: 'Enable product comments',          route: '/admin/settings'     },
     },
