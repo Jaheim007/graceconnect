@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   MousePointerClick,
   RefreshCw,
+  Unplug,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -105,6 +106,19 @@ export default function AssistantConnectionsSettings() {
       }
       return next;
     });
+  };
+
+  const undo = (id: string) => {
+    setDone((prev) => {
+      const next = prev.filter((x) => x !== id);
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+    toast.success(isFr ? 'Connexion retirée ici' : 'Connection removed here');
   };
 
   const connectorUrl = useMemo(() => {
