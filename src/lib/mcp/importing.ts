@@ -6,7 +6,7 @@
  * credits message returned by the edge function.
  */
 import type { ToolContext } from "@lovable.dev/mcp-js";
-import { APP_BASE_URL, callEdgeFunction, textResult } from "./supabase";
+import { APP_BASE_URL, callEdgeFunction, supabaseForUser, textResult } from "./supabase";
 
 export interface ImportItemInput {
   title?: string;
