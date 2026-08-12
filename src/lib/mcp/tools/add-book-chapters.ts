@@ -17,7 +17,8 @@ export default defineTool({
     project_id: z.string().optional().describe("Draft id returned by import_book_from_content. Omit it if you do not have the exact value — SiteViral then appends to your most recent book draft. Never invent an id."),
     org_id: z.string().optional().describe("Workspace id returned by import_book_from_content. Optional; resolved from the draft when omitted."),
     chapters: z.array(ChapterSchema).describe("Next chapters, in order, with their full text."),
-    start_order: z.number().int().describe("0-based index of the first chapter in this batch (e.g. 6 for chapters 7-12)."),
+    start_order: z.number().int().describe("0-based index of the first chapter in this batch (e.g. 12 for chapters 13-16)."),
+    total_chapters: z.number().int().optional().describe("TOTAL number of chapters the finished book must have. Pass it so SiteViral can confirm nothing is missing."),
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
   handler: async (input, ctx) => {
@@ -25,7 +26,7 @@ export default defineTool({
 
     const chapters = (input.chapters ?? []).filter((c) => c?.content?.trim());
     if (chapters.length === 0) return errorResult("Send at least one chapter with its full text.");
-    if (chapters.length > 6) return errorResult("Send at most 6 chapters per call.");
+    if (chapters.length > 12) return errorResult("Send at most 12 chapters per call.");
     const draft = await resolveDraft(ctx, "book", input.project_id);
     if (!draft.project_id || !draft.org_id) return errorResult(draft.error ?? "Could not find the draft to append to.");
 
@@ -33,6 +34,7 @@ export default defineTool({
       kind: "book",
       org_id: draft.org_id,
       project_id: draft.project_id,
+      total_items: input.total_chapters,
       items: itemsWithOrder(chapters, input.start_order),
     });
 
