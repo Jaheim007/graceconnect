@@ -21,7 +21,7 @@ const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "project-ref-unse
 export default defineMcp({
   name: "siteviral-mcp",
   title: "SiteViral MCP",
-  version: "0.3.0",
+  version: "0.4.0",
   instructions:
     "Tools for SiteViral — the platform where creators build, sell and monetize digital content (books, courses, digital products).\n\n" +
     "TWO WAYS TO CREATE. Pick by where the content comes from:\n" +
