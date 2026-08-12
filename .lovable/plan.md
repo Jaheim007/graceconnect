@@ -48,11 +48,16 @@ For the record: your mentor's church is ~half of all sales ever, so it is exclud
 
 The killer today is silence: someone publishes, nothing happens for weeks, they quit. Six moves, in order of impact.
 
-**1. Launch kit generated at publish.** The moment a product goes live, we generate a square visual, a WhatsApp message, a Facebook caption, a story image and a short link — in their language, about their product. One tap to share. Today we ask people to invent the post themselves, and most never post.
+**1. Launch kit generated at publish — with a real flyer at its centre.** The moment a product goes live, we generate a ready-to-post pack: a poster-style flyer, a square version for feeds, a story version, a WhatsApp message, a Facebook caption and a short link — in their language, about their product. One tap to share or download. Today we ask people to invent the post themselves, and most never post.
 
-**2. Guaranteed first 100 views.** On publish, the product automatically gets Discover placement for its first days, a slot in the next buyer broadcast, an affiliate marketplace listing, and its short link. The seller watches views and shares climb, so "nothing is happening" becomes visible progress.
+The flyer is the piece that makes this work, because it is the one asset people actually paste into WhatsApp, Facebook and their own websites. Your Canva mock is the right instinct — brand block of colour, one bold promise, the cover treated as the hero, a single clear action. Ours is generated, not designed by hand: SiteViral brand navy with the gold accent, the product cover placed large in a coloured panel, the real title and author, one benefit line, the price in the buyer's currency, the short link plus a QR code, and the SiteViral mark for credibility. Three formats out of one template — poster (4:5 / A4-ish, for websites and print), square (1:1, feeds), story (9:16). A small set of themes (navy/gold, dark, light, church) so it never looks like everyone else's. No stock illustration, no invented statistics — cover, title, price, link.
 
-**3. Affiliates as the traffic machine.** One-tap enrolment, no approval, no minimum. Every published product is listed with its commission visible. Each affiliate gets a personal link plus ready-made WhatsApp assets, live earnings, a low payout threshold and a leaderboard. This gives audience-less people a daily reason to come, and gives sellers buyers without marketing.
+**2. The same flyer engine for ambassadors.** An affiliate opens any product in the marketplace and gets the same flyer instantly, with the link swapped for their personal referral link and their name or handle on it, so what they post pays them. No design step, no waiting on the seller: see a product you believe in, tap, post. This is what turns a browsing affiliate into a poster on the same day, and it is the cheapest traffic we will ever get.
+
+**3. Guaranteed first 100 views.** On publish, the product automatically gets Discover placement for its first days, a slot in the next buyer broadcast, an affiliate marketplace listing, and its short link. The seller watches views and shares climb, so "nothing is happening" becomes visible progress.
+
+**4. Affiliates as the traffic machine.** One-tap enrolment, no approval, no minimum. Every published product is listed with its commission visible. Each affiliate gets a personal link plus the flyer pack, live earnings and a low payout threshold. This gives audience-less people a daily reason to come, and gives sellers buyers without marketing.
+
 
 **4. Wake up the demand side we already have.** ~110 buyers and ~290 accounts nobody talks to. Weekly "new this week" broadcast (email + a shareable page), free lead-magnet products to capture buyers cheaply, and a second-purchase sequence — 22% of buyers already bought twice, that is our best asset.
 
