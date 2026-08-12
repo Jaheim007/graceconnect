@@ -248,11 +248,15 @@ export function Sidebar() {
       {/* Logo + collapse toggle */}
       <div
         className={cn(
-          'relative flex h-16 px-4',
-          collapsed ? 'flex-col items-center justify-center px-0 gap-1' : 'flex-row items-center justify-between',
+          'relative flex shrink-0',
+          collapsed
+            ? 'flex-col items-center justify-center gap-2 px-0 py-3'
+            : 'h-16 flex-row items-center justify-between px-4',
         )}
       >
-        <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
+        <div className={cn('flex items-center justify-center', collapsed && 'w-full')}>
+          <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
+        </div>
         <button
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}

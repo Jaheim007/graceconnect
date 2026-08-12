@@ -1,4 +1,4 @@
-import { Bell, CheckCheck, ArrowLeft, BellRing } from 'lucide-react';
+import { Bell, CheckCheck, ArrowLeft, BellRing, Settings2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
@@ -42,6 +42,7 @@ export default function NotificationsPage() {
   const { data: notifs = [], isLoading } = useNotifications(user?.id);
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, subscribe: subscribePush, loading: pushLoading } = usePushNotifications();
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
   const visibleNotifs = useMemo(() => notifs.filter(n => !dismissed.has(n.id)), [notifs, dismissed]);
   const grouped = useMemo(() => groupByDate(visibleNotifs, locale), [visibleNotifs, locale]);
@@ -67,29 +68,68 @@ export default function NotificationsPage() {
   };
 
   const unreadCount = visibleNotifs.filter((n) => !n.is_read).length;
+  const listed = filter === 'unread' ? visibleNotifs.filter((n) => !n.is_read) : visibleNotifs;
+  const groupedList = useMemo(() => groupByDate(listed, locale), [listed, locale]);
 
   return (
     <div className="min-h-screen bg-background">
       <SEOHead title="Notifications — Siteviral" noindex />
 
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/40 px-4 h-14 flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <h1 className="font-semibold text-base">{t('page.notifications')}</h1>
-          {unreadCount > 0 && (
-            <p className="text-xs text-primary font-medium">
-              {unreadCount} {locale === 'fr' ? 'non lue' : 'unread'}{unreadCount > 1 ? 's' : ''}
-            </p>
-          )}
+      <div className="relative overflow-hidden border-b border-border/40">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_120%_at_0%_0%,hsl(var(--primary)/0.16),transparent_65%)]"
+        />
+        <div className="relative container max-w-xl px-4 pt-4 pb-4">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-muted-foreground" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex-1 min-w-0">
+              <h1 className="truncate text-xl font-black tracking-tight">{t('page.notifications')}</h1>
+              <p className="text-xs text-muted-foreground">
+                {unreadCount > 0
+                  ? `${unreadCount} ${locale === 'fr' ? 'non lue' : 'unread'}${unreadCount > 1 ? 's' : ''}`
+                  : locale === 'fr' ? 'Tout est à jour' : 'All caught up'}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-full text-muted-foreground"
+              aria-label={locale === 'fr' ? 'Préférences' : 'Preferences'}
+              onClick={() => navigate('/notification-preferences')}
+            >
+              <Settings2 className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Filters + mark all */}
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex items-center gap-1 rounded-full border border-border/60 bg-card/70 p-1 backdrop-blur">
+              {(['all', 'unread'] as const).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={cn(
+                    'rounded-full px-3 py-1 text-[11px] font-bold transition-colors',
+                    filter === f ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {f === 'all'
+                    ? (locale === 'fr' ? 'Toutes' : 'All')
+                    : `${locale === 'fr' ? 'Non lues' : 'Unread'}${unreadCount ? ` · ${unreadCount}` : ''}`}
+                </button>
+              ))}
+            </div>
+            {unreadCount > 0 && (
+              <Button variant="ghost" size="sm" onClick={markAllRead} className="ml-auto h-8 gap-1.5 rounded-full text-xs text-muted-foreground hover:text-foreground">
+                <CheckCheck className="h-3.5 w-3.5" /> {t('page.notifications_mark_all')}
+              </Button>
+            )}
+          </div>
         </div>
-        {unreadCount > 0 && (
-          <Button variant="ghost" size="sm" onClick={markAllRead} className="gap-1.5 text-xs h-8 text-muted-foreground hover:text-foreground">
-            <CheckCheck className="h-3.5 w-3.5" /> {t('page.notifications_mark_all')}
-          </Button>
-        )}
       </div>
 
       <div className="container max-w-xl py-4 space-y-4">
@@ -124,14 +164,22 @@ export default function NotificationsPage() {
         )}
 
         {/* Notification list */}
-        {isLoading ? <SkeletonRow count={5} /> : visibleNotifs.length === 0 ? (
-          <EmptyState variant="generic" title={t('page.notifications_empty')} description={t('page.notifications_empty_desc')} />
+        {isLoading ? <SkeletonRow count={5} /> : listed.length === 0 ? (
+          <EmptyState
+            variant="generic"
+            title={filter === 'unread' ? (locale === 'fr' ? 'Aucune non lue' : 'Nothing unread') : t('page.notifications_empty')}
+            description={t('page.notifications_empty_desc')}
+          />
         ) : (
-          <div className="space-y-6">
-            {grouped.map(([dateLabel, items]) => (
+          <div className="space-y-5">
+            {groupedList.map(([dateLabel, items]) => (
               <div key={dateLabel}>
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-3 mb-2">{dateLabel}</p>
-                <div className="space-y-0.5">
+                <div className="mb-2 flex items-center gap-2 px-1">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{dateLabel}</p>
+                  <span className="h-px flex-1 bg-border/60" />
+                  <span className="text-[11px] font-semibold text-muted-foreground/70">{items.length}</span>
+                </div>
+                <div className="space-y-2">
                   <AnimatePresence mode="popLayout">
                     {items.map((n) => (
                       <NotificationItem
@@ -149,6 +197,7 @@ export default function NotificationsPage() {
           </div>
         )}
       </div>
+
     </div>
   );
 }
