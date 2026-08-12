@@ -79,6 +79,44 @@ function courseTier(count: number): CreditTier {
   return count > 12 ? 'premium' : 'standard';
 }
 
+/**
+ * Illustrations are generated 6 per invocation so the function never times out.
+ * When some are still missing we chain another visuals-only pass ourselves, in
+ * the background, so a 16-chapter book always ends up with 16 illustrations —
+ * without depending on the external assistant to call us again.
+ */
+function continueVisualsInBackground(opts: {
+  functionsUrl: string;
+  authHeader: string;
+  kind: Kind;
+  orgId: string;
+  projectId: string;
+  pass: number;
+}) {
+  if (opts.pass >= 6) return; // hard stop: 6 passes x 6 images covers the 20-item max
+  const run = fetch(`${opts.functionsUrl}/import-content`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: opts.authHeader },
+    body: JSON.stringify({
+      kind: opts.kind,
+      org_id: opts.orgId,
+      project_id: opts.projectId,
+      items: [],
+      cover: false,
+      illustrations: true,
+      visuals_pass: opts.pass + 1,
+    }),
+  })
+    .then((r) => r.text())
+    .then(() => {})
+    .catch((e) => console.error('visuals continuation failed:', e));
+
+  try {
+    // @ts-ignore Deno Deploy background tasks
+    if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime?.waitUntil) EdgeRuntime.waitUntil(run);
+  } catch (_) { /* fire and forget */ }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
@@ -93,6 +131,8 @@ Deno.serve(async (req) => {
     const items: IncomingItem[] = Array.isArray(body?.items) ? body.items : [];
     const wantCover = body?.cover === true;
     const illustrations = body?.illustrations === true;
+    const visualsPass = Number.isFinite(Number(body?.visuals_pass)) ? Math.max(0, Math.round(Number(body.visuals_pass))) : 0;
+    const authHeader = req.headers.get('Authorization') ?? '';
     const declaredTotal = Number.isFinite(Number(body?.total_items))
       ? Math.min(MAX_TOTAL_ITEMS, Math.max(1, Math.round(Number(body.total_items))))
       : 0;
@@ -278,6 +318,13 @@ Deno.serve(async (req) => {
         imageActionKey: 'generate_illustration',
       });
 
+      if (Number((visuals as any).images_missing) > 0 && !visuals.visuals_stopped_for_credits) {
+        continueVisualsInBackground({
+          functionsUrl: `${auth.supabaseUrl}/functions/v1`,
+          authHeader, kind, orgId, projectId: project.id, pass: visualsPass,
+        });
+      }
+
       return jsonResp({
         ok: true,
         kind,
@@ -330,6 +377,13 @@ Deno.serve(async (req) => {
       coverActionKey: 'generate_cover',
       imageActionKey: 'ai_course_image',
     });
+
+    if (Number((visuals as any).images_missing) > 0 && !visuals.visuals_stopped_for_credits) {
+      continueVisualsInBackground({
+        functionsUrl: `${auth.supabaseUrl}/functions/v1`,
+        authHeader, kind, orgId, projectId: project.id, pass: visualsPass,
+      });
+    }
 
     return jsonResp({
       ok: true,
