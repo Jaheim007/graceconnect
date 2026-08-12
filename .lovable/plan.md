@@ -59,11 +59,11 @@ The flyer is the piece that makes this work, because it is the one asset people 
 **4. Affiliates as the traffic machine.** One-tap enrolment, no approval, no minimum. Every published product is listed with its commission visible. Each affiliate gets a personal link plus the flyer pack, live earnings and a low payout threshold. This gives audience-less people a daily reason to come, and gives sellers buyers without marketing.
 
 
-**4. Wake up the demand side we already have.** ~110 buyers and ~290 accounts nobody talks to. Weekly "new this week" broadcast (email + a shareable page), free lead-magnet products to capture buyers cheaply, and a second-purchase sequence — 22% of buyers already bought twice, that is our best asset.
+**5. Wake up the demand side we already have.** ~110 buyers and ~290 accounts nobody talks to. Weekly "new this week" broadcast (email + a shareable page), free lead-magnet products to capture buyers cheaply, and a second-purchase sequence — 22% of buyers already bought twice, that is our best asset.
 
-**5. Recruit sellers who arrive with a crowd.** One leader with a congregation equals dozens of buyers on day one; a lone author equals none. So: a seller-invites-a-leader referral flow, and a short forwardable pitch page for churches, ministries, coaches and editors.
+**6. Recruit sellers who arrive with a crowd.** One leader with a congregation equals dozens of buyers on day one; a lone author equals none. So: a seller-invites-a-leader referral flow, and a short forwardable pitch page for churches, ministries, coaches and editors.
 
-**6. Break the discouragement loop in-product.** Zero sales after 14 days triggers a real intervention: what is missing (price too high, no cover, no description, never shared), a one-tap fix, the launch kit again, and the option to push it to affiliates at a higher commission. Silence gets answered with an action.
+**7. Break the discouragement loop in-product.** Zero sales after 14 days triggers a real intervention: what is missing (price too high, no cover, no description, never shared), a one-tap fix, the flyer pack again, and the option to push it to affiliates at a higher commission. Silence gets answered with an action.
 
 Landing page follows from this: one promise, three doors — *Create it with AI / I already have my content / Earn by selling others'* — with the Church page as the strongest proof vertical, French first, phone first, and the 10% / 0%-on-offerings stated openly. The invented numbers in `usePlatformStats` get replaced with real ones or removed; at this scale fake stats read as fake.
 
