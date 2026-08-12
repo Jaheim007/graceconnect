@@ -206,6 +206,18 @@ export function AmbassadorMarketplace() {
                     <Button
                       size="sm"
                       className="flex-1 gap-1.5 h-8 text-xs"
+                      disabled={flyerLoading === product.id}
+                      onClick={() => openFlyer(product)}
+                    >
+                      <ImageIcon className="h-3.5 w-3.5" />
+                      {flyerLoading === product.id
+                        ? locale === 'fr' ? 'Préparation…' : 'Preparing…'
+                        : locale === 'fr' ? 'Mon visuel' : 'My flyer'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 gap-1.5 px-2 text-xs"
                       disabled={enrollingOrg === org?.id}
                       onClick={() => handleEnroll(org?.id, org?.slug)}
                     >
@@ -227,6 +239,15 @@ export function AmbassadorMarketplace() {
           })}
         </div>
       )}
+
+      {flyer && (
+        <FlyerDialog
+          open={!!flyer}
+          onOpenChange={(o) => !o && setFlyer(null)}
+          {...flyer}
+        />
+      )}
     </div>
   );
 }
+
