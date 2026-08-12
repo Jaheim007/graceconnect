@@ -363,13 +363,17 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
 
             {/* Table of contents */}
             <div className="border-t border-border">
-              <div className="px-4 py-2">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+              <div className="px-4 py-2 flex items-center justify-between gap-2">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                   {t('write.toc')}
                 </p>
+                <span className="text-[10px] font-semibold text-primary bg-primary/10 rounded-full px-2 py-0.5 shrink-0">
+                  {chaptersDraft.length}
+                </span>
               </div>
-              <ScrollArea className="max-h-[240px]">
+              <div className="max-h-[320px] overflow-y-auto overscroll-contain [scrollbar-width:thin]" style={{ WebkitOverflowScrolling: 'touch' }}>
                 <div className="px-2 pb-2 space-y-0.5">
+
                   {chaptersDraft.map((chapter, i) => (
                     <div
                       key={chapter.id}
