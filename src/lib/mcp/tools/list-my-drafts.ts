@@ -39,7 +39,7 @@ export default defineTool({
       url:
         p.project_type === "course_pack"
           ? `${APP_BASE_URL}/admin/programs/draft/${p.id}`
-          : `${APP_BASE_URL}/admin/studio/projects/${p.id}`,
+          : `${APP_BASE_URL}/ecrire`,
     }));
 
     if (rows.length === 0) {

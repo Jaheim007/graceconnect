@@ -85,7 +85,7 @@ export default defineTool({
 
     const jobId = ((created.data as any)?.job_id ?? (created.data as any)?.id) as string;
     const run = await callEdgeFunction(ctx, "ai-run-job", { job_id: jobId });
-    const link = `${APP_BASE_URL}/admin/studio/projects/${project.id}`;
+    const link = `${APP_BASE_URL}/ecrire`;
 
     return textResult(
       `Book draft "${title}" created in "${org.name}" with ${chapters} planned chapters.\n` +

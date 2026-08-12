@@ -42,8 +42,8 @@ export default defineTool({
     const link = job.project_id
       ? isCourse
         ? `${APP_BASE_URL}/admin/programs/draft/${job.project_id}`
-        : `${APP_BASE_URL}/admin/studio/projects/${job.project_id}`
-      : `${APP_BASE_URL}/admin/studio/jobs`;
+        : `${APP_BASE_URL}/ecrire`
+      : `${APP_BASE_URL}/ecrire`;
 
     const progress = typeof job.progress === "number" ? job.progress : 0;
     let sentence: string;

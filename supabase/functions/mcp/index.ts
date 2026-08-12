@@ -458,7 +458,7 @@ var create_book_draft_default = defineTool8({
     if (!created.ok) return errorResult(created.error ?? "Could not queue the outline generation.");
     const jobId = created.data?.job_id ?? created.data?.id;
     const run = await callEdgeFunction(ctx, "ai-run-job", { job_id: jobId });
-    const link = `${APP_BASE_URL}/admin/studio/projects/${project.id}`;
+    const link = `${APP_BASE_URL}/ecrire`;
     return textResult(
       `Book draft "${title}" created in "${org.name}" with ${chapters} planned chapters.
 Job id: ${jobId}${run.ok ? "" : " (queued \u2014 the app will run it)"}
@@ -496,7 +496,7 @@ var get_generation_status_default = defineTool9({
       projectType = project?.project_type ?? null;
     }
     const isCourse = projectType === "course_pack";
-    const link = job.project_id ? isCourse ? `${APP_BASE_URL}/admin/programs/draft/${job.project_id}` : `${APP_BASE_URL}/admin/studio/projects/${job.project_id}` : `${APP_BASE_URL}/admin/studio/jobs`;
+    const link = job.project_id ? isCourse ? `${APP_BASE_URL}/admin/programs/draft/${job.project_id}` : `${APP_BASE_URL}/ecrire` : `${APP_BASE_URL}/ecrire`;
     const progress = typeof job.progress === "number" ? job.progress : 0;
     let sentence;
     if (job.status === "completed" || job.status === "succeeded") {
@@ -550,7 +550,7 @@ var list_my_drafts_default = defineTool10({
       status: p.status,
       language: p.language,
       updated_at: p.updated_at,
-      url: p.project_type === "course_pack" ? `${APP_BASE_URL}/admin/programs/draft/${p.id}` : `${APP_BASE_URL}/admin/studio/projects/${p.id}`
+      url: p.project_type === "course_pack" ? `${APP_BASE_URL}/admin/programs/draft/${p.id}` : `${APP_BASE_URL}/ecrire`
     }));
     if (rows.length === 0) {
       return textResult(`No drafts yet in "${org.name}".`, { org_id: org.id, drafts: [] });
