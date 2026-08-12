@@ -235,6 +235,8 @@ Deno.serve(async (req) => {
 
     const dataJson = (project.data_json || {}) as any;
     const structJson = (project.structure_json || {}) as any;
+    const expectedTotal = declaredTotal || Number(dataJson.import_expected_count) || 0;
+    if (declaredTotal) dataJson.import_expected_count = declaredTotal;
 
     // --- Append items idempotently by order index ---
     if (kind === 'book') {
