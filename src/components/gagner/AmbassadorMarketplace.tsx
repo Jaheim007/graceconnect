@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { getEffectivePrice } from '@/lib/effectivePrice';
 import { motion } from 'framer-motion';
-import { Search, Zap, TrendingUp, ExternalLink } from 'lucide-react';
+import { Search, Zap, TrendingUp, ExternalLink, ImageIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,9 +9,11 @@ import { useAffiliateMarketplace } from '@/hooks/useAffiliateMarketplace';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { db } from '@/lib/db';
 import { toast } from 'sonner';
 import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
+import { FlyerDialog } from '@/components/flyer/FlyerDialog';
 
 export function AmbassadorMarketplace() {
   const [search, setSearch] = useState('');
