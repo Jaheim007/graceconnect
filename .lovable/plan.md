@@ -1,59 +1,81 @@
-# Bring your own content: ChatGPT / Claude / Gemini writes it, SiteViral keeps it
+# Bring your own content: ChatGPT / Claude / Gemini writes it, SiteViral assembles and keeps it
 
-## You're right, and here's the distinction
+## The two modes
 
-Today the connector only supports one mode: **brief in → SiteViral generates**. That's the wrong default for someone who has just spent an hour in ChatGPT shaping their audience, angle and every chapter. Re-generating from a summary of that work does change the content — the model rewrites it.
+**Mode A — Import (new, and the one connected assistants should use most)**
+The user does the whole reflection inside ChatGPT / Claude / Gemini — audience, angle, chapter by chapter, lesson by lesson, from their audios, links, notes. Then the assistant sends **the finished text** to SiteViral.
 
-So we add the mode you described, and make it the primary one for connected assistants:
+SiteViral does **not** rewrite a single sentence. It assembles: structures the chapters/lessons into a real book or course, builds the draft, and — only if asked — generates the cover and the illustrations.
 
-**Mode A — Import (new, becomes the default over MCP)**
-The assistant sends the *actual finished text* — chapter by chapter, lesson by lesson. SiteViral stores it **verbatim**. No AI pass, no rewriting, no credits burned on generation. It lands in the app as a draft the creator can edit, illustrate, price and publish.
+**Mode B — Generate (unchanged)**
+"Create me a course on X." Brief in, SiteViral's engine writes it. Exactly as today.
 
-**Mode B — Generate (what exists today, kept)**
-Short brief in, SiteViral's engine writes it. Still ideal for "make me a course on X" and for in-app Creators Studio.
+## Credits — corrected
 
-The assistant picks based on what the user actually has: full content → import; just an idea → generate.
+You're right: import must cost credits. Assembling a book or a course is real work on our side (structuring, building modules/lessons/slides, storage, PDF-ready output), and images/cover are pure AI cost.
 
-## What gets added
+New paid actions added to the credit price list:
 
-### Book import
-| Tool | Purpose |
-| --- | --- |
-| `create_book_from_content` | Title, language, audience + an array of chapters (`title` + full `content` in markdown). Stored word-for-word. Returns the draft link (`/ecrire`). |
-| `add_book_chapters` | Appends more chapters to an existing draft. Needed because a real book exceeds what one tool call can carry — the assistant sends chapters 1–3, then 4–6, etc. |
-| `finish_book_import` | Marks the import complete and returns a summary (chapters, word count, link). |
+| Action | Standard | Premium |
+| --- | --- | --- |
+| `import_book` — assemble an imported book | 4 | 6 |
+| `import_course` — assemble an imported course | 6 | 9 |
+| Cover (optional) | existing `generate_cover` 7.5 | 12 |
+| Illustration per lesson/chapter (optional) | existing `ai_course_image` 1.5 | 2.5 |
 
-### Course import
-| Tool | Purpose |
-| --- | --- |
-| `create_course_from_content` | Title, language, level + modules and lessons with their real lesson text. Stored verbatim as a course draft, opened at `/admin/programs/draft/:id`. |
-| `add_course_lessons` | Same chunking mechanism for long courses. |
+Why much cheaper than generating (16–30 credits): we're not writing the content, so we're not paying for the long generation. But it isn't free, and the rule stays coherent — **every creation on SiteViral consumes credits**.
 
-Quizzes, flashcards, cover and illustrations stay optional in-app steps (they can still be generated later, on the creator's request, with the existing engines and pricing rules).
+Daily-credit reality check: a free user gets 20/day. That's 3 imported books or 3 imported courses a day without images — comfortable — while a full AI generation still costs 16–30, so the incentive stays where you want it.
 
-### Nothing else changes
-- Still a draft, always. No assistant can publish or set a price.
-- Still the user's own identity and workspace, same owner/admin/editor rules.
-- The existing generate tools (`create_course_from_prompt`, `create_course_from_text`, `create_book_draft`) stay exactly as they are.
+Money rules kept as they are today:
+- Charged once per import, with an idempotency key, so a retried tool call never double-charges.
+- Images and cover are charged separately and only when the user asked for them.
+- Not enough credits → the assistant gets the exact message ("Crédits insuffisants — 8.5 available, 6 required") plus the link to buy credits. Nothing is created, nothing is charged.
+- Failures auto-refund through the existing refund-on-failure path.
 
-### The assistant needs to be told how to behave
-The connector's instructions get rewritten so ChatGPT/Claude/Gemini:
-1. help the user develop the content in chat (audience, outline, chapters, from their audios, links, notes),
-2. then **send the finished text** through the import tools — not a summary,
-3. send it in chunks and confirm each chunk landed,
-4. never claim the book is published.
+## How we know which mode the user wants (your real concern)
+
+We never guess from a prompt. It's decided by **which tool the assistant calls**, and the tool names make it unambiguous:
+
+- `import_book_from_content` / `import_course_from_content` → "here is the text, don't touch it"
+- `create_book_draft` / `create_course_from_prompt` → "here's the idea, write it"
+
+Three safeguards on top:
+1. The import tools **refuse thin payloads**. A "chapter" of 200 characters is a summary, not content — the tool errors and tells the assistant to send the real text or use the generate tool instead.
+2. The connector instructions state the rule plainly: *if the user already wrote or developed the content in this conversation, use the import tools and send the text verbatim; never summarise it.*
+3. Every import reply says out loud what happened: *"Imported verbatim — SiteViral did not rewrite your text."* So the user sees, in the assistant, which path was taken.
+
+## Images
+
+Since somebody who connects SiteViral to ChatGPT already knows we generate images, the import tools take:
+- `generate_cover` (yes/no)
+- `illustrations`: `none` | `one_per_chapter` (or per lesson)
+
+The assistant is instructed to **ask before spending** and to state the extra cost. Images are generated by SiteViral's existing image pipeline — text still untouched.
+
+## The missing link problem (ChatGPT vs Claude)
+
+Claude shows the draft link because it reads the tool's text reply. ChatGPT sometimes swallows it. Fixes:
+
+1. **The link is the first line of every tool reply**, on its own, plus repeated in the structured result — impossible to lose in the middle of a paragraph.
+2. The tool reply ends with an explicit instruction to the assistant: *"Show this draft link to the user, as a clickable link, in your next message."*
+3. The connector instructions add a hard rule: *after every creation or status check, always show the draft link.*
+4. A small `get_draft_link` tool, so if the assistant still drops it, the user just says "give me the link" and it's one call away.
+
+## What still doesn't change
+- Everything lands as a **draft**. No assistant can publish, price, or delete.
+- Acting as the signed-in user, own workspace, owner/admin/editor rules unchanged.
+- Books open at `/ecrire`, courses at `/admin/programs/draft/:id`.
+- The existing generate tools stay exactly as they are.
 
 ## Technical notes
 
-- New tools under `src/lib/mcp/tools/`, registered in `src/lib/mcp/index.ts`; the Vite plugin regenerates `supabase/functions/mcp/index.ts`, then the `mcp` function is redeployed and the manifest re-extracted.
-- Book import writes directly to `ai_content_projects` with the shape the `/ecrire` editor already reads (`structure_json.chapters` / `data_json.chapters`: `{ id, title, content, order }`) — the same shape `ai-run-job` produces, so the editor, PDF export and product conversion all work unchanged, without running a job.
-- Course import writes an `ai_content_projects` row of type `course_pack` whose structure matches what `ai-project-to-program` consumes (modules → lessons → slides), so the existing review/finalize path in `/admin/programs/draft/:id` turns it into a real program. Exact field mapping is verified against `ai-project-to-program` before writing the tool.
-- Chunked appends are idempotent by chapter/lesson order so a retried tool call can't duplicate content.
-- Import charges no generation credits (nothing is generated); a small ledger entry can be recorded for accounting if you want it.
-- Size guards in handler code (per-call character cap, clear tool errors telling the assistant to split), not in the input schemas.
+- New tools in `src/lib/mcp/tools/`: `import_book_from_content`, `add_book_chapters`, `import_course_from_content`, `add_course_lessons`, `get_draft_link`; registered in `src/lib/mcp/index.ts`, then the `mcp` function is redeployed and the manifest re-extracted.
+- Long content is sent in chunks (chapters 1–3, then 4–6…), because one tool call can't carry a whole book. Appends are idempotent by order index, so a retry can't duplicate content. The import fee is charged once, on creation.
+- Two new rows in `credit_action_pricing` (`import_book`, `import_course`) via migration; charging goes through the existing `consumeCreditsWithRefund` + `credit_transactions` idempotency helpers, so balances, alerts and history behave like every other action.
+- Import needs a thin edge function (`import-content`) rather than direct table writes, because credits must be debited server-side with the service role — the MCP tool calls it with the user's token, exactly like the other creation tools.
+- Book import writes `structure_json.chapters` / `data_json.chapters` (`{ id, title, content, order }`) — the shape `/ecrire` and the PDF/product pipelines already read. Course import writes the `course_pack` shape `ai-project-to-program` consumes (modules → lessons → slides); exact field mapping is verified against that function before writing the tool.
+- Cover/illustration options reuse `ai-generate-course-cover` / `ai-generate-course-lesson-images`; no new image pipeline.
 
 ## Verification
-Connect from Claude, develop a book across a real conversation, import it in 3 chunks, then open `/ecrire` and confirm the chapters are **byte-identical** to what the assistant wrote, unpublished and unpriced. Repeat once for a course.
-
-## One open question
-For course import: should imported lessons also get quizzes/flashcards automatically (generated by SiteViral, extra credits), or stay text-only until the creator asks in the app? My recommendation: text-only by default.
+From ChatGPT and from Claude: develop a course in conversation, import it in 3 chunks with `illustrations: one_per_chapter`, confirm (a) the lesson text in the app is byte-identical to what the assistant wrote, (b) credits debited = import fee + images, once, (c) a second call with the same chunk doesn't duplicate or re-charge, (d) the draft link appears in both assistants' replies, (e) a user under the fee gets a clean "insufficient credits" and nothing is created.
