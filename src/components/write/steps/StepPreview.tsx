@@ -404,7 +404,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
                     </div>
                   ))}
                 </div>
-              </ScrollArea>
+              </div>
               <div className="px-3 pb-3">
                 <Button type="button" variant="ghost" size="sm" className="w-full gap-1 text-xs h-8" onClick={addChapter}>
                   <Plus className="h-3 w-3" /> {t('write.add_chapter')}
