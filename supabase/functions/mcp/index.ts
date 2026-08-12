@@ -629,10 +629,14 @@ function importReply(data, opts) {
   const unit = opts.kind === "book" ? "chapters" : "lessons";
   const link = data?.draft_url || `${APP_BASE_URL}/ecrire`;
   const nextTool = opts.kind === "book" ? "add_book_chapters" : "add_course_lessons";
+  const count = Number(data?.item_count || 0);
+  const expected = Number(data?.expected_item_count || 0);
+  const remaining = expected ? Math.max(0, expected - count) : 0;
+  const complete = expected ? remaining === 0 : void 0;
   const lines = [
     link,
     "",
-    opts.appended ? `Added \u2014 the draft now holds ${data?.item_count} ${unit} (${data?.tier_label}).` : `Draft ready \u2014 ${data?.item_count} ${unit}, ${data?.tier_label}.`,
+    expected ? `${count} of ${expected} ${unit} are in the draft (${data?.tier_label}).` : opts.appended ? `Added \u2014 the draft now holds ${count} ${unit} (${data?.tier_label}).` : `Draft ready \u2014 ${count} ${unit}, ${data?.tier_label}.`,
     "Imported verbatim \u2014 SiteViral did not rewrite your text."
   ];
   if (data?.cover_generated) lines.push("Cover generated.");
@@ -646,20 +650,37 @@ function importReply(data, opts) {
     "",
     "IDS FOR THE NEXT BATCH \u2014 copy these exact values, never invent them:",
     `project_id: ${data?.project_id}`,
-    `org_id: ${data?.org_id}`,
-    `Send the remaining ${unit} with ${nextTool} using those ids and start_order: ${Number(data?.item_count || 0)}.`,
-    `If you lost them, call ${nextTool} without ids: SiteViral appends to this same draft.`,
+    `org_id: ${data?.org_id}`
+  );
+  if (complete === false) {
+    lines.push(
+      "",
+      `NOT FINISHED \u2014 ${remaining} ${unit} are still missing.`,
+      `Call ${nextTool} NOW with the next batch (up to 12 ${unit} per call), project_id above and start_order: ${count}.`,
+      "Do NOT tell the user the import is done, and do NOT stop, until this reply says the draft is complete."
+    );
+  } else {
+    lines.push(
+      `If more ${unit} remain, send them with ${nextTool} using those ids and start_order: ${count}.`,
+      `If you lost the ids, call ${nextTool} without them: SiteViral appends to this same draft.`
+    );
+    if (complete === true) lines.push(`All ${expected} ${unit} are in the draft \u2014 the import is complete.`);
+  }
+  lines.push(
     "",
-    "Show this draft link to the user as a clickable link in your next message.",
+    "Show this draft link to the user as a clickable link in your next message \u2014 it opens the exact draft.",
     "Next: open the draft to review, price and publish it."
   );
   return textResult(lines.join("\n"), {
     draft_url: link,
     project_id: data?.project_id,
     org_id: data?.org_id,
-    item_count: data?.item_count,
+    item_count: count,
+    expected_item_count: expected || null,
+    remaining: expected ? remaining : null,
+    complete: complete ?? null,
     next_tool: nextTool,
-    next_start_order: Number(data?.item_count || 0),
+    next_start_order: count,
     tier: data?.tier,
     verbatim: true,
     cover_generated: !!data?.cover_generated,
