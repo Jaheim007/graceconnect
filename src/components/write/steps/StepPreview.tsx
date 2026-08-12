@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Zap, BookOpen, ChevronRight, RefreshCw, Expand, MessageSquareText, Loader2, GripVertical, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { Textarea } from '@/components/ui/textarea';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { useI18n } from '@/i18n/I18nContext';
