@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   MousePointerClick,
   RefreshCw,
+  Unplug,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -105,6 +106,19 @@ export default function AssistantConnectionsSettings() {
       }
       return next;
     });
+  };
+
+  const undo = (id: string) => {
+    setDone((prev) => {
+      const next = prev.filter((x) => x !== id);
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+    toast.success(isFr ? 'Connexion retirée ici' : 'Connection removed here');
   };
 
   const connectorUrl = useMemo(() => {
@@ -230,15 +244,13 @@ export default function AssistantConnectionsSettings() {
             {CLIENTS.map((c) => {
               const isDone = done.includes(c.id);
               return (
-                <button
+                <div
                   key={c.id}
-                  type="button"
-                  onClick={() => startConnection(c)}
                   className={cn(
-                    'text-left rounded-xl border p-3.5 transition-all active:scale-[0.99]',
+                    'rounded-xl border p-3.5 transition-all',
                     isDone
                       ? 'border-emerald-500/40 bg-emerald-500/[0.06]'
-                      : 'border-border/70 bg-muted/20 hover:border-primary/40 hover:bg-primary/[0.04] hover:shadow-sm'
+                      : 'border-border/70 bg-muted/20 hover:border-primary/40 hover:bg-primary/[0.04]'
                   )}
                 >
                   <div className="flex items-center gap-2">
@@ -258,7 +270,39 @@ export default function AssistantConnectionsSettings() {
                     )}
                   </div>
                   <p className="text-[11px] text-muted-foreground mt-2">{isFr ? c.hintFr : c.hintEn}</p>
-                </button>
+
+                  {isDone ? (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 px-2 text-[11px] gap-1.5"
+                        onClick={() => startConnection(c)}
+                      >
+                        <RefreshCw className="h-3 w-3" />
+                        {isFr ? 'Mettre à jour' : 'Update'}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-[11px] gap-1.5 text-muted-foreground hover:text-destructive"
+                        onClick={() => undo(c.id)}
+                      >
+                        <Unplug className="h-3 w-3" />
+                        {isFr ? 'Retirer' : 'Remove'}
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      size="sm"
+                      className="mt-3 h-7 px-2.5 text-[11px] gap-1.5"
+                      onClick={() => startConnection(c)}
+                    >
+                      {isFr ? 'Connecter' : 'Connect'}
+                      <ArrowRight className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -269,72 +313,19 @@ export default function AssistantConnectionsSettings() {
           </p>
         </div>
 
-        {/* Refresh connection */}
-        <div className="rounded-xl border border-amber-500/25 bg-amber-500/[0.06] p-4 space-y-3">
-          <div className="flex items-start gap-2.5">
-            <RefreshCw className="h-4 w-4 text-amber-600 shrink-0 mt-px" />
-            <div className="min-w-0">
-              <p className="text-xs font-semibold">
-                {isFr ? 'Rafraîchir la connexion' : 'Refresh the connection'}
-              </p>
-              <p className="text-[11px] text-muted-foreground mt-1">
-                {isFr
-                  ? 'Claude, ChatGPT et les autres assistants gardent la liste des outils en mémoire. Quand SiteViral ajoute de nouvelles fonctions, supprime puis ré-ajoute le connecteur pour voir la dernière version.'
-                  : 'Claude, ChatGPT and other assistants cache the tool list. When SiteViral adds new features, remove and re-add the connector to see the latest version.'}
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="text-[10px] gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-              {isFr ? 'Version actuelle' : 'Current version'}: {MCP_VERSION}
-            </Badge>
-            <button
-              type="button"
-              onClick={async () => {
-                const ok = await copy(connectorUrl, 'url');
-                if (ok) toast.success(isFr ? 'Lien copié — supprime puis ré-ajoute le connecteur' : 'Link copied — remove then re-add the connector');
-              }}
-              className="text-[11px] font-medium text-amber-700 dark:text-amber-400 hover:underline inline-flex items-center gap-1.5"
-            >
-              <Copy className="h-3 w-3" />
-              {isFr ? 'Copier le lien pour reconnecter' : 'Copy link to reconnect'}
-            </button>
-          </div>
+        {/* Keep it up to date — plain language */}
+        <div className="rounded-xl border border-border/70 bg-muted/20 p-4 flex flex-wrap items-center gap-3">
+          <RefreshCw className="h-4 w-4 text-primary shrink-0" />
+          <p className="text-[11px] text-muted-foreground flex-1 min-w-[200px]">
+            {isFr
+              ? 'Ton assistant ne fait rien de nouveau ? Clique sur « Mettre à jour » : il suffit de retirer la connexion chez lui, puis de la remettre avec le même lien.'
+              : "Assistant not picking up new features? Click “Update”: remove the connection on its side, then add it back with the same link."}
+          </p>
+          <Badge variant="outline" className="text-[10px]">
+            v{MCP_VERSION}
+          </Badge>
         </div>
 
-        {/* Prompts */}
-        <div className="space-y-2.5">
-          <p className="text-xs font-semibold">{isFr ? 'Puis demande simplement' : 'Then just ask'}</p>
-          <div className="grid gap-2.5 sm:grid-cols-3">
-            {samples.map((s) => {
-              const Icon = s.icon;
-              const isCopied = copiedPrompt === s.label;
-              return (
-                <button
-                  key={s.label}
-                  type="button"
-                  onClick={async () => {
-                    const ok = await copy(s.text, s.label);
-                    if (ok) toast.success(isFr ? 'Prompt copié' : 'Prompt copied');
-                  }}
-                  className="text-left rounded-xl border border-border/70 bg-muted/20 p-3.5 transition-all hover:border-primary/40 hover:bg-primary/[0.03]"
-                >
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <Icon className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-[11px] font-medium">{s.label}</span>
-                    {isCopied ? (
-                      <Check className="h-3 w-3 text-emerald-600 ml-auto" />
-                    ) : (
-                      <Copy className="h-3 w-3 text-muted-foreground ml-auto" />
-                    )}
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">{s.text}</p>
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Permissions */}
         <div className="grid gap-3 sm:grid-cols-2">
