@@ -17,7 +17,8 @@ export default defineTool({
     project_id: z.string().optional().describe("Draft id returned by import_course_from_content. Omit it if you do not have the exact value — SiteViral then appends to your most recent course draft. Never invent an id."),
     org_id: z.string().optional().describe("Workspace id returned by import_course_from_content. Optional; resolved from the draft when omitted."),
     lessons: z.array(LessonSchema).describe("Next lessons, in order, with their full text."),
-    start_order: z.number().int().describe("0-based index of the first lesson in this batch (e.g. 6 for lessons 7-12)."),
+    start_order: z.number().int().describe("0-based index of the first lesson in this batch (e.g. 12 for lessons 13-16)."),
+    total_lessons: z.number().int().optional().describe("TOTAL number of lessons the finished course must have. Pass it so SiteViral can confirm nothing is missing."),
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
   handler: async (input, ctx) => {
@@ -25,7 +26,7 @@ export default defineTool({
 
     const lessons = (input.lessons ?? []).filter((l) => l?.content?.trim());
     if (lessons.length === 0) return errorResult("Send at least one lesson with its full text.");
-    if (lessons.length > 6) return errorResult("Send at most 6 lessons per call.");
+    if (lessons.length > 12) return errorResult("Send at most 12 lessons per call.");
     const draft = await resolveDraft(ctx, "course", input.project_id);
     if (!draft.project_id || !draft.org_id) return errorResult(draft.error ?? "Could not find the draft to append to.");
 
@@ -33,6 +34,7 @@ export default defineTool({
       kind: "course",
       org_id: draft.org_id,
       project_id: draft.project_id,
+      total_items: input.total_lessons,
       items: itemsWithOrder(lessons, input.start_order),
     });
 

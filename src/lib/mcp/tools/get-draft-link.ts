@@ -33,7 +33,7 @@ export default defineTool({
     if (!project) return errorResult("No draft found.");
 
     const link = project.project_type === "ebook"
-      ? `${APP_BASE_URL}/ecrire`
+      ? `${APP_BASE_URL}/ecrire?project=${project.id}`
       : `${APP_BASE_URL}/admin/programs/draft/${project.id}`;
 
     return textResult(

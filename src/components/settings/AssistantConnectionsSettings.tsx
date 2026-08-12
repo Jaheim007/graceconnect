@@ -72,7 +72,7 @@ const CLIENTS: ClientDef[] = [
 ];
 
 const STORAGE_KEY = 'sv_connectors_done';
-const MCP_VERSION = '0.4.0';
+const MCP_VERSION = '0.6.0';
 
 /**
  * Connectors — plug SiteViral into ChatGPT, Claude or any MCP assistant.

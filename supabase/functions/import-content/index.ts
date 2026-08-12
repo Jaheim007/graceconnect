@@ -92,6 +92,9 @@ Deno.serve(async (req) => {
     const items: IncomingItem[] = Array.isArray(body?.items) ? body.items : [];
     const wantCover = body?.cover === true;
     const illustrations = body?.illustrations === true;
+    const declaredTotal = Number.isFinite(Number(body?.total_items))
+      ? Math.min(MAX_TOTAL_ITEMS, Math.max(1, Math.round(Number(body.total_items))))
+      : 0;
 
     if (!orgId) return jsonResp({ error: 'org_id required' }, 400);
     if (items.length === 0 && !projectId) return jsonResp({ error: 'items required' }, 400);
@@ -152,6 +155,32 @@ Deno.serve(async (req) => {
       if (title.length < 2) return jsonResp({ error: 'title required' }, 400);
       const language = (typeof body?.language === 'string' ? body.language : 'fr').slice(0, 5).toLowerCase();
 
+      // --- Dedupe: never create a second draft for the same import ---
+      // An assistant that lost the ids and calls the import tool again must land
+      // on the SAME draft, otherwise chapters split across two drafts.
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data: recent } = await admin
+        .from('ai_content_projects')
+        .select('*')
+        .eq('organization_id', orgId)
+        .eq('created_by', auth.userId)
+        .eq('project_type', kind === 'book' ? 'ebook' : 'course_pack')
+        .ilike('title', title)
+        .gte('created_at', since)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (recent && (recent.data_json as any)?.created_via === 'mcp_import') {
+        project = recent;
+      }
+    }
+
+    if (!project) {
+      const title = plain(body?.title || '').slice(0, 200);
+      const language = (typeof body?.language === 'string' ? body.language : 'fr').slice(0, 5).toLowerCase();
+
+
       // Small assembly fee — charged once per draft, idempotent on the caller key.
       try {
         await consumeCreditsOrThrow({
@@ -185,6 +214,7 @@ Deno.serve(async (req) => {
             imported: true,
             import_source: plain(body?.source_assistant || 'external assistant').slice(0, 60),
             created_via: 'mcp_import',
+            ...(declaredTotal ? { import_expected_count: declaredTotal } : {}),
             ...(kind === 'course' ? { course: { lessons: [] } } : { chapters: [] }),
           },
           structure_json: kind === 'book' ? { step: 4, chapters: [] } : { step: 2 },
@@ -205,6 +235,8 @@ Deno.serve(async (req) => {
 
     const dataJson = (project.data_json || {}) as any;
     const structJson = (project.structure_json || {}) as any;
+    const expectedTotal = declaredTotal || Number(dataJson.import_expected_count) || 0;
+    if (declaredTotal) dataJson.import_expected_count = declaredTotal;
 
     // --- Append items idempotently by order index ---
     if (kind === 'book') {
@@ -251,9 +283,12 @@ Deno.serve(async (req) => {
         project_id: project.id,
         org_id: orgId,
         item_count: chapters.length,
+        expected_item_count: expectedTotal || null,
+        remaining: expectedTotal ? Math.max(0, expectedTotal - chapters.length) : null,
+        complete: expectedTotal ? chapters.length >= expectedTotal : null,
         tier,
         tier_label: tier === 'premium' ? 'Premium import' : 'Standard import',
-        draft_url: 'https://siteviral.com/ecrire',
+        draft_url: `https://siteviral.com/ecrire?project=${project.id}`,
         verbatim: true,
         ...visuals,
       });
@@ -301,6 +336,9 @@ Deno.serve(async (req) => {
       project_id: project.id,
       org_id: orgId,
       item_count: lessons.length,
+      expected_item_count: expectedTotal || null,
+      remaining: expectedTotal ? Math.max(0, expectedTotal - lessons.length) : null,
+      complete: expectedTotal ? lessons.length >= expectedTotal : null,
       tier,
       tier_label: tier === 'premium' ? 'Premium import' : 'Standard import',
       draft_url: `https://siteviral.com/admin/programs/draft/${project.id}`,

@@ -458,7 +458,7 @@ var create_book_draft_default = defineTool8({
     if (!created.ok) return errorResult(created.error ?? "Could not queue the outline generation.");
     const jobId = created.data?.job_id ?? created.data?.id;
     const run = await callEdgeFunction(ctx, "ai-run-job", { job_id: jobId });
-    const link = `${APP_BASE_URL}/ecrire`;
+    const link = `${APP_BASE_URL}/ecrire?project=${project.id}`;
     return textResult(
       `Book draft "${title}" created in "${org.name}" with ${chapters} planned chapters.
 Job id: ${jobId}${run.ok ? "" : " (queued \u2014 the app will run it)"}
@@ -550,7 +550,7 @@ var list_my_drafts_default = defineTool10({
       status: p.status,
       language: p.language,
       updated_at: p.updated_at,
-      url: p.project_type === "course_pack" ? `${APP_BASE_URL}/admin/programs/draft/${p.id}` : `${APP_BASE_URL}/ecrire`
+      url: p.project_type === "course_pack" ? `${APP_BASE_URL}/admin/programs/draft/${p.id}` : `${APP_BASE_URL}/ecrire?project=${p.id}`
     }));
     if (rows.length === 0) {
       return textResult(`No drafts yet in "${org.name}".`, { org_id: org.id, drafts: [] });
@@ -629,10 +629,14 @@ function importReply(data, opts) {
   const unit = opts.kind === "book" ? "chapters" : "lessons";
   const link = data?.draft_url || `${APP_BASE_URL}/ecrire`;
   const nextTool = opts.kind === "book" ? "add_book_chapters" : "add_course_lessons";
+  const count = Number(data?.item_count || 0);
+  const expected = Number(data?.expected_item_count || 0);
+  const remaining = expected ? Math.max(0, expected - count) : 0;
+  const complete = expected ? remaining === 0 : void 0;
   const lines = [
     link,
     "",
-    opts.appended ? `Added \u2014 the draft now holds ${data?.item_count} ${unit} (${data?.tier_label}).` : `Draft ready \u2014 ${data?.item_count} ${unit}, ${data?.tier_label}.`,
+    expected ? `${count} of ${expected} ${unit} are in the draft (${data?.tier_label}).` : opts.appended ? `Added \u2014 the draft now holds ${count} ${unit} (${data?.tier_label}).` : `Draft ready \u2014 ${count} ${unit}, ${data?.tier_label}.`,
     "Imported verbatim \u2014 SiteViral did not rewrite your text."
   ];
   if (data?.cover_generated) lines.push("Cover generated.");
@@ -646,20 +650,37 @@ function importReply(data, opts) {
     "",
     "IDS FOR THE NEXT BATCH \u2014 copy these exact values, never invent them:",
     `project_id: ${data?.project_id}`,
-    `org_id: ${data?.org_id}`,
-    `Send the remaining ${unit} with ${nextTool} using those ids and start_order: ${Number(data?.item_count || 0)}.`,
-    `If you lost them, call ${nextTool} without ids: SiteViral appends to this same draft.`,
+    `org_id: ${data?.org_id}`
+  );
+  if (complete === false) {
+    lines.push(
+      "",
+      `NOT FINISHED \u2014 ${remaining} ${unit} are still missing.`,
+      `Call ${nextTool} NOW with the next batch (up to 12 ${unit} per call), project_id above and start_order: ${count}.`,
+      "Do NOT tell the user the import is done, and do NOT stop, until this reply says the draft is complete."
+    );
+  } else {
+    lines.push(
+      `If more ${unit} remain, send them with ${nextTool} using those ids and start_order: ${count}.`,
+      `If you lost the ids, call ${nextTool} without them: SiteViral appends to this same draft.`
+    );
+    if (complete === true) lines.push(`All ${expected} ${unit} are in the draft \u2014 the import is complete.`);
+  }
+  lines.push(
     "",
-    "Show this draft link to the user as a clickable link in your next message.",
+    "Show this draft link to the user as a clickable link in your next message \u2014 it opens the exact draft.",
     "Next: open the draft to review, price and publish it."
   );
   return textResult(lines.join("\n"), {
     draft_url: link,
     project_id: data?.project_id,
     org_id: data?.org_id,
-    item_count: data?.item_count,
+    item_count: count,
+    expected_item_count: expected || null,
+    remaining: expected ? remaining : null,
+    complete: complete ?? null,
     next_tool: nextTool,
-    next_start_order: Number(data?.item_count || 0),
+    next_start_order: count,
     tier: data?.tier,
     verbatim: true,
     cover_generated: !!data?.cover_generated,
@@ -675,7 +696,7 @@ var ChapterSchema = z9.object({
 var import_book_from_content_default = defineTool12({
   name: "import_book_from_content",
   title: "Import a book (your own text)",
-  description: "Import a book the user already wrote WITH YOU into SiteViral. Send the complete, final text of each chapter \u2014 SiteViral assembles it into a book draft and does NOT rewrite a single sentence. Use this whenever the content was developed in this conversation. Never summarise: send the full text. Before calling, ask the user about visuals: none, cover only, cover + one image per chapter, or images only. Send at most 6 chapters per call, then append the rest with add_book_chapters. Never mention or estimate credit costs to the user.",
+  description: "Import a book the user already wrote WITH YOU into SiteViral. Send the complete, final text of each chapter \u2014 SiteViral assembles it into a book draft and does NOT rewrite a single sentence. Use this whenever the content was developed in this conversation. Never summarise: send the full text. Before calling, ask the user about visuals: none, cover only, cover + one image per chapter, or images only. Send at most 12 chapters per call, then append the rest with add_book_chapters (always pass total_chapters so SiteViral can tell you what is missing). Never mention or estimate credit costs to the user.",
   inputSchema: {
     title: z9.string().describe("Book title."),
     chapters: z9.array(ChapterSchema).describe("Chapters in reading order, with their full text."),
@@ -684,6 +705,7 @@ var import_book_from_content_default = defineTool12({
     language: z9.enum(["fr", "en", "es", "pt", "de", "it", "ar", "sw"]).optional().describe("Language of the text. Defaults to French."),
     cover: z9.boolean().optional().describe("Generate a cover image. Ask the user first."),
     illustrations: z9.boolean().optional().describe("Generate one illustration per chapter. Ask the user first."),
+    total_chapters: z9.number().int().optional().describe("TOTAL number of chapters the finished book must have (e.g. 16 even if you only send 12 now). Always pass it: SiteViral then tells you how many are still missing."),
     org_id: z9.string().optional().describe("Workspace id. Required only when the user has several.")
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
@@ -693,8 +715,8 @@ var import_book_from_content_default = defineTool12({
     if (title.length < 2) return errorResult("Please give the book a title.");
     const chapters = (input.chapters ?? []).filter((c) => c?.content?.trim());
     if (chapters.length === 0) return errorResult("Send at least one chapter with its full text.");
-    if (chapters.length > 6) {
-      return errorResult("Send at most 6 chapters per call, then add the rest with add_book_chapters.");
+    if (chapters.length > 12) {
+      return errorResult("Send at most 12 chapters per call, then add the rest with add_book_chapters.");
     }
     const { org, error } = await resolveOrg(ctx, input.org_id);
     if (!org) return errorResult(error ?? "No workspace available.");
@@ -708,6 +730,7 @@ var import_book_from_content_default = defineTool12({
       source_assistant: "external assistant",
       cover: input.cover === true,
       illustrations: input.illustrations === true,
+      total_items: input.total_chapters,
       items: itemsWithOrder(chapters, 0),
       idempotency_key: `import-book:${ctx.getUserId()}:${title.toLowerCase()}:${chapters.length}`
     });
@@ -731,20 +754,22 @@ var add_book_chapters_default = defineTool13({
     project_id: z10.string().optional().describe("Draft id returned by import_book_from_content. Omit it if you do not have the exact value \u2014 SiteViral then appends to your most recent book draft. Never invent an id."),
     org_id: z10.string().optional().describe("Workspace id returned by import_book_from_content. Optional; resolved from the draft when omitted."),
     chapters: z10.array(ChapterSchema2).describe("Next chapters, in order, with their full text."),
-    start_order: z10.number().int().describe("0-based index of the first chapter in this batch (e.g. 6 for chapters 7-12).")
+    start_order: z10.number().int().describe("0-based index of the first chapter in this batch (e.g. 12 for chapters 13-16)."),
+    total_chapters: z10.number().int().optional().describe("TOTAL number of chapters the finished book must have. Pass it so SiteViral can confirm nothing is missing.")
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
   handler: async (input, ctx) => {
     if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
     const chapters = (input.chapters ?? []).filter((c) => c?.content?.trim());
     if (chapters.length === 0) return errorResult("Send at least one chapter with its full text.");
-    if (chapters.length > 6) return errorResult("Send at most 6 chapters per call.");
+    if (chapters.length > 12) return errorResult("Send at most 12 chapters per call.");
     const draft = await resolveDraft(ctx, "book", input.project_id);
     if (!draft.project_id || !draft.org_id) return errorResult(draft.error ?? "Could not find the draft to append to.");
     const res = await callImport(ctx, {
       kind: "book",
       org_id: draft.org_id,
       project_id: draft.project_id,
+      total_items: input.total_chapters,
       items: itemsWithOrder(chapters, input.start_order)
     });
     if (!res.ok) return errorResult(res.error ?? "Could not add the chapters.");
@@ -762,7 +787,7 @@ var LessonSchema = z11.object({
 var import_course_from_content_default = defineTool14({
   name: "import_course_from_content",
   title: "Import a course (your own text)",
-  description: "Import a course the user already wrote WITH YOU into SiteViral. Send the complete, final text of each lesson \u2014 SiteViral assembles it into a course draft (lessons and slides) and does NOT rewrite a single sentence. Use this whenever the content was developed in this conversation. Never summarise: send the full text. Before calling, ask the user about visuals: none, cover only, cover + one image per lesson, or images only. Send at most 6 lessons per call, then append the rest with add_course_lessons. Never mention or estimate credit costs to the user.",
+  description: "Import a course the user already wrote WITH YOU into SiteViral. Send the complete, final text of each lesson \u2014 SiteViral assembles it into a course draft (lessons and slides) and does NOT rewrite a single sentence. Use this whenever the content was developed in this conversation. Never summarise: send the full text. Before calling, ask the user about visuals: none, cover only, cover + one image per lesson, or images only. Send at most 12 lessons per call, then append the rest with add_course_lessons (always pass total_lessons so SiteViral can tell you what is missing). Never mention or estimate credit costs to the user.",
   inputSchema: {
     title: z11.string().describe("Course title."),
     lessons: z11.array(LessonSchema).describe("Lessons in teaching order, with their full text."),
@@ -771,6 +796,7 @@ var import_course_from_content_default = defineTool14({
     language: z11.enum(["fr", "en", "es", "pt", "de", "it", "ar", "sw"]).optional().describe("Language of the text. Defaults to French."),
     cover: z11.boolean().optional().describe("Generate a cover image. Ask the user first."),
     illustrations: z11.boolean().optional().describe("Generate one illustration per lesson. Ask the user first."),
+    total_lessons: z11.number().int().optional().describe("TOTAL number of lessons the finished course must have (e.g. 16 even if you only send 12 now). Always pass it: SiteViral then tells you how many are still missing."),
     org_id: z11.string().optional().describe("Workspace id. Required only when the user has several.")
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
@@ -780,8 +806,8 @@ var import_course_from_content_default = defineTool14({
     if (title.length < 2) return errorResult("Please give the course a title.");
     const lessons = (input.lessons ?? []).filter((l) => l?.content?.trim());
     if (lessons.length === 0) return errorResult("Send at least one lesson with its full text.");
-    if (lessons.length > 6) {
-      return errorResult("Send at most 6 lessons per call, then add the rest with add_course_lessons.");
+    if (lessons.length > 12) {
+      return errorResult("Send at most 12 lessons per call, then add the rest with add_course_lessons.");
     }
     const { org, error } = await resolveOrg(ctx, input.org_id);
     if (!org) return errorResult(error ?? "No workspace available.");
@@ -795,6 +821,7 @@ var import_course_from_content_default = defineTool14({
       source_assistant: "external assistant",
       cover: input.cover === true,
       illustrations: input.illustrations === true,
+      total_items: input.total_lessons,
       items: itemsWithOrder(lessons, 0),
       idempotency_key: `import-course:${ctx.getUserId()}:${title.toLowerCase()}:${lessons.length}`
     });
@@ -818,20 +845,22 @@ var add_course_lessons_default = defineTool15({
     project_id: z12.string().optional().describe("Draft id returned by import_course_from_content. Omit it if you do not have the exact value \u2014 SiteViral then appends to your most recent course draft. Never invent an id."),
     org_id: z12.string().optional().describe("Workspace id returned by import_course_from_content. Optional; resolved from the draft when omitted."),
     lessons: z12.array(LessonSchema2).describe("Next lessons, in order, with their full text."),
-    start_order: z12.number().int().describe("0-based index of the first lesson in this batch (e.g. 6 for lessons 7-12).")
+    start_order: z12.number().int().describe("0-based index of the first lesson in this batch (e.g. 12 for lessons 13-16)."),
+    total_lessons: z12.number().int().optional().describe("TOTAL number of lessons the finished course must have. Pass it so SiteViral can confirm nothing is missing.")
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
   handler: async (input, ctx) => {
     if (!ctx.isAuthenticated()) return errorResult("Not authenticated");
     const lessons = (input.lessons ?? []).filter((l) => l?.content?.trim());
     if (lessons.length === 0) return errorResult("Send at least one lesson with its full text.");
-    if (lessons.length > 6) return errorResult("Send at most 6 lessons per call.");
+    if (lessons.length > 12) return errorResult("Send at most 12 lessons per call.");
     const draft = await resolveDraft(ctx, "course", input.project_id);
     if (!draft.project_id || !draft.org_id) return errorResult(draft.error ?? "Could not find the draft to append to.");
     const res = await callImport(ctx, {
       kind: "course",
       org_id: draft.org_id,
       project_id: draft.project_id,
+      total_items: input.total_lessons,
       items: itemsWithOrder(lessons, input.start_order)
     });
     if (!res.ok) return errorResult(res.error ?? "Could not add the lessons.");
@@ -859,7 +888,7 @@ var get_draft_link_default = defineTool16({
     if (error) return errorResult(error.message);
     const project = (data ?? [])[0];
     if (!project) return errorResult("No draft found.");
-    const link = project.project_type === "ebook" ? `${APP_BASE_URL}/ecrire` : `${APP_BASE_URL}/admin/programs/draft/${project.id}`;
+    const link = project.project_type === "ebook" ? `${APP_BASE_URL}/ecrire?project=${project.id}` : `${APP_BASE_URL}/admin/programs/draft/${project.id}`;
     return textResult(
       `${link}
 
@@ -875,8 +904,8 @@ var projectRef = "xzgpzbrgsxtcsktiprik";
 var mcp_default = defineMcp({
   name: "siteviral-mcp",
   title: "SiteViral MCP",
-  version: "0.5.0",
-  instructions: "Tools for SiteViral \u2014 the platform where creators build, sell and monetize digital content (books, courses, digital products).\n\nTWO WAYS TO CREATE. Pick by where the content comes from:\n1. IMPORT (default when the user developed the content with you). The user shaped the book or course in this conversation \u2014 audience, angle, chapter by chapter, lesson by lesson, possibly from their notes, audios or links. Use `import_book_from_content` / `import_course_from_content`, then `add_book_chapters` / `add_course_lessons` for the remaining batches (max 6 items per call, always pass start_order). Send the COMPLETE final text you wrote together, never a summary \u2014 SiteViral assembles it and does not rewrite a single sentence. Thin payloads are rejected.\n2. GENERATE (only when the user has just an idea and wants SiteViral to write it). Use `create_course_from_prompt`, `create_course_from_text` or `create_book_draft`, then poll `get_generation_status`.\n\nBEFORE ANY IMPORT, ask one question about visuals: none / cover only / cover + one image per chapter or lesson / images only. Never assume, never generate visuals the user did not ask for.\n\nCREDITS \u2014 NEVER TALK ABOUT THEM. Do not quote, estimate, sum, or announce credit costs, and do not report balances unless the user explicitly asks 'how many credits do I have?'. Creating content just works. The ONLY time credits come up is when a tool returns an insufficient-credits message: repeat that message as-is with the top-up link, and nothing else.\n\nIDS. After an import, the reply prints project_id and org_id. Reuse those exact values for the next batch. NEVER invent, guess or send placeholder ids \u2014 if you no longer have them, call `add_book_chapters` / `add_course_lessons` without ids and SiteViral appends to the same draft.\n\nALWAYS SHOW THE LINK. Every creation or status reply starts with the draft link on its own line. Show it to the user as a clickable link in your next message, every single time. `get_draft_link` re-fetches it on request.\n\nDiscovery: `who_am_i`, `list_my_organizations`, `list_org_products`, `get_org_analytics`, `list_my_purchases`, `list_my_drafts`.\n\nRules: never claim content is published \u2014 everything lands as a DRAFT that the creator reviews, prices and publishes inside the app. If the user has several workspaces, ask which one and pass its org_id.",
+  version: "0.6.0",
+  instructions: "Tools for SiteViral \u2014 the platform where creators build, sell and monetize digital content (books, courses, digital products).\n\nTWO WAYS TO CREATE. Pick by where the content comes from:\n1. IMPORT (default when the user developed the content with you). The user shaped the book or course in this conversation \u2014 audience, angle, chapter by chapter, lesson by lesson, possibly from their notes, audios or links. Use `import_book_from_content` / `import_course_from_content`, then `add_book_chapters` / `add_course_lessons` for the remaining batches (max 12 items per call, always pass start_order AND total_chapters/total_lessons). Send the COMPLETE final text you wrote together, never a summary \u2014 SiteViral assembles it and does not rewrite a single sentence. Thin payloads are rejected.\n2. GENERATE (only when the user has just an idea and wants SiteViral to write it). Use `create_course_from_prompt`, `create_course_from_text` or `create_book_draft`, then poll `get_generation_status`.\n\nBEFORE ANY IMPORT, ask one question about visuals: none / cover only / cover + one image per chapter or lesson / images only. Never assume, never generate visuals the user did not ask for.\n\nCREDITS \u2014 NEVER TALK ABOUT THEM. Do not quote, estimate, sum, or announce credit costs, and do not report balances unless the user explicitly asks 'how many credits do I have?'. Creating content just works. The ONLY time credits come up is when a tool returns an insufficient-credits message: repeat that message as-is with the top-up link, and nothing else.\n\nIDS. After an import, the reply prints project_id and org_id. Reuse those exact values for the next batch. NEVER invent, guess or send placeholder ids \u2014 if you no longer have them, call `add_book_chapters` / `add_course_lessons` without ids and SiteViral appends to the same draft.\n\nFINISH THE IMPORT. Always declare the real total (total_chapters / total_lessons) on the first call. Every reply tells you how many items are in the draft out of that total; while items are missing you MUST keep calling add_book_chapters / add_course_lessons in the same turn and must NOT tell the user the book or course is ready. A 16-chapter book that lands as 6 chapters is a failure.\n\nALWAYS SHOW THE LINK. Every creation or status reply starts with the draft link on its own line. Show it to the user as a clickable link in your next message, every single time. `get_draft_link` re-fetches it on request.\n\nDiscovery: `who_am_i`, `list_my_organizations`, `list_org_products`, `get_org_analytics`, `list_my_purchases`, `list_my_drafts`.\n\nRules: never claim content is published \u2014 everything lands as a DRAFT that the creator reviews, prices and publishes inside the app. If the user has several workspaces, ask which one and pass its org_id.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated"
