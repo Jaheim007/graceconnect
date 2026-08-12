@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Zap, BookOpen, ChevronRight, RefreshCw, Expand, MessageSquareText, Loader2, GripVertical, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { Textarea } from '@/components/ui/textarea';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { useI18n } from '@/i18n/I18nContext';
@@ -315,13 +315,22 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
           {/* Mini book cover */}
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
             <div className="bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 p-6 flex justify-center">
-              <div className="w-[140px] aspect-[3/4] rounded-lg bg-gradient-to-br from-primary to-accent flex flex-col items-center justify-center p-3 shadow-xl">
-                
-                <h3 className="text-primary-foreground font-extrabold text-[10px] leading-tight text-center line-clamp-3 break-words">
-                  {titleDraft || t('write.my_book')}
-                </h3>
-              </div>
+              {state.coverUrl ? (
+                <img
+                  src={state.coverUrl}
+                  alt={titleDraft || t('write.my_book')}
+                  className="w-[140px] aspect-[3/4] object-cover rounded-lg shadow-xl"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="w-[140px] aspect-[3/4] rounded-lg bg-gradient-to-br from-primary to-accent flex flex-col items-center justify-center p-3 shadow-xl">
+                  <h3 className="text-primary-foreground font-extrabold text-[10px] leading-tight text-center line-clamp-3 break-words">
+                    {titleDraft || t('write.my_book')}
+                  </h3>
+                </div>
+              )}
             </div>
+
 
             {/* Editable title */}
             <div className="px-4 pt-3 pb-2">
@@ -354,13 +363,17 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
 
             {/* Table of contents */}
             <div className="border-t border-border">
-              <div className="px-4 py-2">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+              <div className="px-4 py-2 flex items-center justify-between gap-2">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                   {t('write.toc')}
                 </p>
+                <span className="text-[10px] font-semibold text-primary bg-primary/10 rounded-full px-2 py-0.5 shrink-0">
+                  {chaptersDraft.length}
+                </span>
               </div>
-              <ScrollArea className="max-h-[240px]">
+              <div className="toc-scroll max-h-[320px] overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
                 <div className="px-2 pb-2 space-y-0.5">
+
                   {chaptersDraft.map((chapter, i) => (
                     <div
                       key={chapter.id}
@@ -391,7 +404,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
                     </div>
                   ))}
                 </div>
-              </ScrollArea>
+              </div>
               <div className="px-3 pb-3">
                 <Button type="button" variant="ghost" size="sm" className="w-full gap-1 text-xs h-8" onClick={addChapter}>
                   <Plus className="h-3 w-3" /> {t('write.add_chapter')}

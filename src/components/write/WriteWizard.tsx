@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect, useRef, Fragment } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -606,7 +608,9 @@ export default function WriteWizard() {
           projectId: project.id,
         };
 
-        const restoredStep = clampDraftStep(typeof structJson.step === 'number' ? structJson.step : 4);
+        let restoredStep = clampDraftStep(typeof structJson.step === 'number' ? structJson.step : 4);
+        // Imported / generated drafts open straight on the review & preview step
+        if (restoredState.chapters.length > 0 && restoredStep < 4) restoredStep = 4;
 
         // Create a local draft from it
         const newDraftId = createDraftId();
@@ -652,17 +656,21 @@ export default function WriteWizard() {
   // Deep link: /ecrire?project=<id> opens that exact draft (used by MCP imports)
   const [searchParams, setSearchParams] = useSearchParams();
   const deepLinkRef = useRef<string | null>(null);
+  const [openingDeepLink, setOpeningDeepLink] = useState(!!searchParams.get('project'));
   useEffect(() => {
     const target = searchParams.get('project');
     if (!target || !user?.id || deepLinkRef.current === target) return;
     deepLinkRef.current = target;
+    setOpeningDeepLink(true);
     (async () => {
       await handleLoadDraft(`db:${target}`);
       const next = new URLSearchParams(searchParams);
       next.delete('project');
       setSearchParams(next, { replace: true });
+      setOpeningDeepLink(false);
     })();
   }, [searchParams, setSearchParams, user?.id, handleLoadDraft]);
+
 
   // Auto-save to localStorage on state/step change
   useEffect(() => {
@@ -1043,6 +1051,12 @@ export default function WriteWizard() {
         </>
       )}
 
+      {openingDeepLink ? (
+        <div className="min-h-[60dvh] flex flex-col items-center justify-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">{t('write.loading_studio')}</p>
+        </div>
+      ) : (
       <div className={`container px-4 ${step === 4 ? 'max-w-5xl' : 'max-w-2xl'}`}>
         <AnimatePresence mode="wait">
           <motion.div
@@ -1078,6 +1092,7 @@ export default function WriteWizard() {
           </motion.div>
         </AnimatePresence>
       </div>
+      )}
     </div>
 
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>

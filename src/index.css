@@ -697,6 +697,24 @@ body::-webkit-scrollbar,
   display: none;
 }
 
+/* Opt-in visible thin scrollbar for inner lists (table of contents, etc.)
+   so users can tell there is more content below. */
+.toc-scroll {
+  scrollbar-width: thin !important;
+  -ms-overflow-style: auto !important;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+}
+.toc-scroll::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+  display: block !important;
+}
+.toc-scroll::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.35);
+  border-radius: 9999px;
+}
+
+
 /* No outer page scroll behind the app shell: kills the second scrollbar
    gutter that showed as an empty band on the right. */
 html,
