@@ -48,17 +48,22 @@ For the record: your mentor's church is ~half of all sales ever, so it is exclud
 
 The killer today is silence: someone publishes, nothing happens for weeks, they quit. Six moves, in order of impact.
 
-**1. Launch kit generated at publish.** The moment a product goes live, we generate a square visual, a WhatsApp message, a Facebook caption, a story image and a short link — in their language, about their product. One tap to share. Today we ask people to invent the post themselves, and most never post.
+**1. Launch kit generated at publish — with a real flyer at its centre.** The moment a product goes live, we generate a ready-to-post pack: a poster-style flyer, a square version for feeds, a story version, a WhatsApp message, a Facebook caption and a short link — in their language, about their product. One tap to share or download. Today we ask people to invent the post themselves, and most never post.
 
-**2. Guaranteed first 100 views.** On publish, the product automatically gets Discover placement for its first days, a slot in the next buyer broadcast, an affiliate marketplace listing, and its short link. The seller watches views and shares climb, so "nothing is happening" becomes visible progress.
+The flyer is the piece that makes this work, because it is the one asset people actually paste into WhatsApp, Facebook and their own websites. Your Canva mock is the right instinct — brand block of colour, one bold promise, the cover treated as the hero, a single clear action. Ours is generated, not designed by hand: SiteViral brand navy with the gold accent, the product cover placed large in a coloured panel, the real title and author, one benefit line, the price in the buyer's currency, the short link plus a QR code, and the SiteViral mark for credibility. Three formats out of one template — poster (4:5 / A4-ish, for websites and print), square (1:1, feeds), story (9:16). A small set of themes (navy/gold, dark, light, church) so it never looks like everyone else's. No stock illustration, no invented statistics — cover, title, price, link.
 
-**3. Affiliates as the traffic machine.** One-tap enrolment, no approval, no minimum. Every published product is listed with its commission visible. Each affiliate gets a personal link plus ready-made WhatsApp assets, live earnings, a low payout threshold and a leaderboard. This gives audience-less people a daily reason to come, and gives sellers buyers without marketing.
+**2. The same flyer engine for ambassadors.** An affiliate opens any product in the marketplace and gets the same flyer instantly, with the link swapped for their personal referral link and their name or handle on it, so what they post pays them. No design step, no waiting on the seller: see a product you believe in, tap, post. This is what turns a browsing affiliate into a poster on the same day, and it is the cheapest traffic we will ever get.
 
-**4. Wake up the demand side we already have.** ~110 buyers and ~290 accounts nobody talks to. Weekly "new this week" broadcast (email + a shareable page), free lead-magnet products to capture buyers cheaply, and a second-purchase sequence — 22% of buyers already bought twice, that is our best asset.
+**3. Guaranteed first 100 views.** On publish, the product automatically gets Discover placement for its first days, a slot in the next buyer broadcast, an affiliate marketplace listing, and its short link. The seller watches views and shares climb, so "nothing is happening" becomes visible progress.
 
-**5. Recruit sellers who arrive with a crowd.** One leader with a congregation equals dozens of buyers on day one; a lone author equals none. So: a seller-invites-a-leader referral flow, and a short forwardable pitch page for churches, ministries, coaches and editors.
+**4. Affiliates as the traffic machine.** One-tap enrolment, no approval, no minimum. Every published product is listed with its commission visible. Each affiliate gets a personal link plus the flyer pack, live earnings and a low payout threshold. This gives audience-less people a daily reason to come, and gives sellers buyers without marketing.
 
-**6. Break the discouragement loop in-product.** Zero sales after 14 days triggers a real intervention: what is missing (price too high, no cover, no description, never shared), a one-tap fix, the launch kit again, and the option to push it to affiliates at a higher commission. Silence gets answered with an action.
+
+**5. Wake up the demand side we already have.** ~110 buyers and ~290 accounts nobody talks to. Weekly "new this week" broadcast (email + a shareable page), free lead-magnet products to capture buyers cheaply, and a second-purchase sequence — 22% of buyers already bought twice, that is our best asset.
+
+**6. Recruit sellers who arrive with a crowd.** One leader with a congregation equals dozens of buyers on day one; a lone author equals none. So: a seller-invites-a-leader referral flow, and a short forwardable pitch page for churches, ministries, coaches and editors.
+
+**7. Break the discouragement loop in-product.** Zero sales after 14 days triggers a real intervention: what is missing (price too high, no cover, no description, never shared), a one-tap fix, the flyer pack again, and the option to push it to affiliates at a higher commission. Silence gets answered with an action.
 
 Landing page follows from this: one promise, three doors — *Create it with AI / I already have my content / Earn by selling others'* — with the Church page as the strongest proof vertical, French first, phone first, and the 10% / 0%-on-offerings stated openly. The invented numbers in `usePlatformStats` get replaced with real ones or removed; at this scale fake stats read as fake.
 
@@ -79,14 +84,16 @@ Plus a 6-question seller survey (who, country, what you publish, where you found
 - Instrumentation first: a real `page_view` event on every public page with referrer/UTM/device/country (today there are 18 UTM events and no pageview event, so attribution is blind), `first_touch_*` fields set at signup, an `is_internal` flag on organizations, and a `marketing_spend` table — each with GRANTs and superadmin-only RLS.
 - Console reads through superadmin-only security-definer RPCs (`get_acquisition_overview`, `get_seller_funnel`, `get_first_sale_health`, `get_affiliate_performance`, `get_money_overview`), each taking `_exclude_internal`, following the `useAdvancedAnalytics.ts` pattern.
 - Fee work is display + payout math only: a shared helper that computes payment cost per method (Wave / MoMo / card, from a configurable rate table), stores it on the transaction, and renders the same four-line breakdown everywhere. Offerings pass `platform_fee = 0`. Existing per-org fee overrides keep working so no current seller's numbers change mid-cycle. `usePaymentGateway` routing is untouched.
-- Launch kit reuses the existing image generation and short-link systems; broadcasts reuse `send-email` and the activation engine; affiliate links, commissions and marketplace tables already exist — this is surfacing and simplifying, not new infrastructure.
+- Flyer engine: one templating layer rendering the three formats (poster / square / story) from product data — cover image, title, author, benefit line, price via `formatCurrency`, short link from `useShortLink`, and a generated QR code. Rendered in-browser to a canvas so it is instant and costs no AI credits, downloadable as PNG and shareable through the Web Share API on phones. Themes are token-driven (navy/gold, dark, light, church) so they stay on brand. The affiliate variant swaps in the referral link from `affiliate_links` and the affiliate's display name — same component, different link source.
+- Broadcasts reuse `send-email` and the activation engine; affiliate links, commissions and marketplace tables already exist — this is surfacing and simplifying, not new infrastructure.
 
 ## Order of work
 
-1. Instrumentation + `is_internal` flag, so every number after this is honest.
-2. Launch kit at publish, guaranteed first-100-views placement, and the 14-day zero-sales intervention.
-3. Affiliate engine reduced to one tap, with WhatsApp-ready assets and a visible marketplace.
-4. Landing page: one promise, three doors, plus the Church page, with fees stated openly.
-5. Buyer broadcast, lead magnets, second-purchase sequence.
-6. Fee transparency: the four-line breakdown everywhere, 10% all-inclusive on sales, 0% margin on offerings.
-7. `/superadmin/acquisition` console and the seller survey.
+1. **Instrumentation + `is_internal` flag** — page views with source/country/device, first-touch fields at signup, mentor/internal exclusion. Everything after this is measured honestly.
+2. **Flyer engine + launch kit at publish** — three formats, brand themes, WhatsApp/Facebook captions, short link. Shown the second a product goes live.
+3. **Ambassador flyer + one-tap affiliate engine** — same flyer with the referral link, visible marketplace with commissions, live earnings, low payout threshold.
+4. **First-sale guarantees** — automatic Discover placement and broadcast slot on publish, plus the 14-day zero-sales intervention.
+5. **Landing page transformation** — one promise, three doors (*Create it with AI / I already have my content / Earn by selling others'*), Church page as the proof vertical, French first, phone first, fees stated openly, invented stats removed.
+6. **Buyer side** — weekly "new this week" broadcast, free lead magnets, second-purchase sequence.
+7. **Fee transparency** — the four-line breakdown everywhere, 10% all-inclusive on sales, 0% margin on offerings.
+8. **`/superadmin/acquisition` console + seller survey** — so the next decisions come from data and from sellers.
