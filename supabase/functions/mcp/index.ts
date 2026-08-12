@@ -606,6 +606,25 @@ function itemsWithOrder(items, startOrder) {
 async function callImport(ctx, payload) {
   return callEdgeFunction(ctx, "import-content", payload);
 }
+async function resolveDraft(ctx, kind, projectId) {
+  const supa = supabaseForUser(ctx);
+  const type = kind === "book" ? "ebook" : "course_pack";
+  let q = supa.from("ai_content_projects").select("id, title, organization_id, project_type, updated_at").order("updated_at", { ascending: false }).limit(1);
+  if (projectId) {
+    q = supa.from("ai_content_projects").select("id, title, organization_id, project_type, updated_at").eq("id", projectId).limit(1);
+  } else {
+    q = q.eq("project_type", type);
+  }
+  const { data, error } = await q;
+  if (error) return { error: error.message };
+  const row = (data ?? [])[0];
+  if (!row) {
+    return {
+      error: projectId ? `No draft found with id ${projectId}.` : `No ${kind} draft found. Create it first with import_${kind}_from_content.`
+    };
+  }
+  return { project_id: row.id, org_id: row.organization_id, title: row.title };
+}
 function importReply(data, opts) {
   const unit = opts.kind === "book" ? "chapters" : "lessons";
   const link = data?.draft_url || `${APP_BASE_URL}/ecrire`;
@@ -707,10 +726,10 @@ var ChapterSchema2 = z10.object({
 var add_book_chapters_default = defineTool13({
   name: "add_book_chapters",
   title: "Add chapters to an imported book",
-  description: "Append more chapters to a book draft created with import_book_from_content. Use this to send a long book in several calls (chapters 1-6, then 7-12\u2026). Always pass start_order = the index of the first chapter in this batch (0-based), so a repeated call overwrites instead of duplicating. Send the full text, never a summary. Never mention credit costs.",
+  description: "Append more chapters to a book draft created with import_book_from_content. Use this to send a long book in several calls (chapters 1-6, then 7-12\u2026). Always pass start_order = the index of the first chapter in this batch (0-based), so a repeated call overwrites instead of duplicating. If you do not have the exact project_id/org_id from the import step, leave them out \u2014 never send placeholder or invented ids. Send the full text, never a summary. Never mention credit costs.",
   inputSchema: {
-    project_id: z10.string().describe("Draft id returned by import_book_from_content."),
-    org_id: z10.string().describe("Workspace id returned by import_book_from_content."),
+    project_id: z10.string().optional().describe("Draft id returned by import_book_from_content. Omit it if you do not have the exact value \u2014 SiteViral then appends to your most recent book draft. Never invent an id."),
+    org_id: z10.string().optional().describe("Workspace id returned by import_book_from_content. Optional; resolved from the draft when omitted."),
     chapters: z10.array(ChapterSchema2).describe("Next chapters, in order, with their full text."),
     start_order: z10.number().int().describe("0-based index of the first chapter in this batch (e.g. 6 for chapters 7-12).")
   },
@@ -720,11 +739,12 @@ var add_book_chapters_default = defineTool13({
     const chapters = (input.chapters ?? []).filter((c) => c?.content?.trim());
     if (chapters.length === 0) return errorResult("Send at least one chapter with its full text.");
     if (chapters.length > 6) return errorResult("Send at most 6 chapters per call.");
-    if (!input.project_id || !input.org_id) return errorResult("project_id and org_id are required.");
+    const draft = await resolveDraft(ctx, "book", input.project_id);
+    if (!draft.project_id || !draft.org_id) return errorResult(draft.error ?? "Could not find the draft to append to.");
     const res = await callImport(ctx, {
       kind: "book",
-      org_id: input.org_id,
-      project_id: input.project_id,
+      org_id: draft.org_id,
+      project_id: draft.project_id,
       items: itemsWithOrder(chapters, input.start_order)
     });
     if (!res.ok) return errorResult(res.error ?? "Could not add the chapters.");
@@ -793,10 +813,10 @@ var LessonSchema2 = z12.object({
 var add_course_lessons_default = defineTool15({
   name: "add_course_lessons",
   title: "Add lessons to an imported course",
-  description: "Append more lessons to a course draft created with import_course_from_content. Use this to send a long course in several calls (lessons 1-6, then 7-12\u2026). Always pass start_order = the index of the first lesson in this batch (0-based), so a repeated call overwrites instead of duplicating. Send the full text, never a summary. Never mention credit costs.",
+  description: "Append more lessons to a course draft created with import_course_from_content. Use this to send a long course in several calls (lessons 1-6, then 7-12\u2026). Always pass start_order = the index of the first lesson in this batch (0-based), so a repeated call overwrites instead of duplicating. If you do not have the exact project_id/org_id from the import step, leave them out \u2014 never send placeholder or invented ids. Send the full text, never a summary. Never mention credit costs.",
   inputSchema: {
-    project_id: z12.string().describe("Draft id returned by import_course_from_content."),
-    org_id: z12.string().describe("Workspace id returned by import_course_from_content."),
+    project_id: z12.string().optional().describe("Draft id returned by import_course_from_content. Omit it if you do not have the exact value \u2014 SiteViral then appends to your most recent course draft. Never invent an id."),
+    org_id: z12.string().optional().describe("Workspace id returned by import_course_from_content. Optional; resolved from the draft when omitted."),
     lessons: z12.array(LessonSchema2).describe("Next lessons, in order, with their full text."),
     start_order: z12.number().int().describe("0-based index of the first lesson in this batch (e.g. 6 for lessons 7-12).")
   },
@@ -806,11 +826,12 @@ var add_course_lessons_default = defineTool15({
     const lessons = (input.lessons ?? []).filter((l) => l?.content?.trim());
     if (lessons.length === 0) return errorResult("Send at least one lesson with its full text.");
     if (lessons.length > 6) return errorResult("Send at most 6 lessons per call.");
-    if (!input.project_id || !input.org_id) return errorResult("project_id and org_id are required.");
+    const draft = await resolveDraft(ctx, "course", input.project_id);
+    if (!draft.project_id || !draft.org_id) return errorResult(draft.error ?? "Could not find the draft to append to.");
     const res = await callImport(ctx, {
       kind: "course",
-      org_id: input.org_id,
-      project_id: input.project_id,
+      org_id: draft.org_id,
+      project_id: draft.project_id,
       items: itemsWithOrder(lessons, input.start_order)
     });
     if (!res.ok) return errorResult(res.error ?? "Could not add the lessons.");
