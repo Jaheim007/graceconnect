@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { RotatingWords } from './RotatingWords';
 import { HeroAurora } from './HeroAurora';
 import { setPendingAction } from '@/lib/pendingAction';
