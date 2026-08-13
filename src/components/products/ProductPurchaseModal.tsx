@@ -6,6 +6,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { BuyerFeeNote } from '@/components/payments/FeeBreakdown';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -509,6 +510,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                       <div className="flex justify-between font-semibold border-t border-border pt-1 mt-1">
                         <span>Total</span><span className="text-primary">{fmt(finalPrice)}</span>
                       </div>
+                      {finalPrice > 0 && <BuyerFeeNote className="mt-2" />}
                     </div>
                   )}
                 </div>

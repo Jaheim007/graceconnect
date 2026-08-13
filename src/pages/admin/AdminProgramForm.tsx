@@ -47,6 +47,7 @@ import { CourseIntelligencePanel } from '@/components/programs/CourseIntelligenc
 import { MobilePreviewOverlay } from '@/components/programs/MobilePreviewOverlay';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { askConfirm } from '@/components/ui/confirm-dialog';
+import { FeeBreakdown } from '@/components/payments/FeeBreakdown';
 
 const CONTENT_TYPES = [
   { value: 'text', label: 'Text', labelFr: 'Texte', icon: FileText },
@@ -809,6 +810,16 @@ export function ProgramForm() {
                   <p className="mt-1 text-[11px] text-destructive">
                     {isFr ? `Minimum ${minAiPrice.toLocaleString()} ${currency}.` : `Minimum ${minAiPrice.toLocaleString()} ${currency}.`}
                   </p>
+                )}
+                {price > 0 && (!isFree || isAiGenerated) && (
+                  <FeeBreakdown
+                    className="mt-3 max-w-md"
+                    amount={price}
+                    currency={currency}
+                    platformFeePercent={currentOrg?.platform_fee_percent}
+                    affiliateCommissionPercent={currentOrg?.affiliation_commission_percent}
+                    includeAffiliate={!!currentOrg?.affiliation_enabled}
+                  />
                 )}
               </div>
             </div>

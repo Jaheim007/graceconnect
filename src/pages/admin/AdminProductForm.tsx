@@ -38,6 +38,7 @@ import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
 // AIDescriptionButton removed — use "Aide IA" in the RichTextEditor toolbar instead
 import { SocialSnippetsViewer } from '@/components/products/SocialSnippetsViewer';
 import { SuggestedPriceHint } from '@/components/admin/SuggestedPriceHint';
+import { FeeBreakdown } from '@/components/payments/FeeBreakdown';
 import { ContextTip } from '@/components/admin/ContextualTooltips';
 import { PrintableQRCode } from '@/components/sharing/PrintableQRCode';
 import { ContentVersionHistory } from '@/components/admin/ContentVersionHistory';
@@ -445,6 +446,16 @@ export function ProductForm() {
             <Input type="number" {...register('price')} disabled={isFree || watch('is_pwyw')} placeholder="Ex: 5000" className={watch('is_pwyw') ? 'opacity-50 cursor-not-allowed' : ''} />
             {watch('is_pwyw') && <p className="text-[11px] text-amber-600">💰 {isFr ? '"Prix libre" est activé — le prix ci-dessus sert de prix suggéré.' : '"Pay What You Want" is active — the price above is used as suggested price.'}</p>}
             {!isFree && !watch('is_pwyw') && <SuggestedPriceHint productType={watch('product_type') || 'pdf'} />}
+            {!isFree && (watch('price') || 0) > 0 && (
+              <FeeBreakdown
+                className="mt-3"
+                amount={Number(watch('price')) || 0}
+                currency={effectiveCurrency}
+                platformFeePercent={currentOrg?.platform_fee_percent}
+                affiliateCommissionPercent={currentOrg?.affiliation_commission_percent}
+                includeAffiliate={!!currentOrg?.affiliation_enabled}
+              />
+            )}
           </div>
         </div>
 
