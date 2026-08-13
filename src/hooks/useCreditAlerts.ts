@@ -5,7 +5,8 @@ import { useCreditsBalance } from '@/hooks/useCredits';
 import { useI18n } from '@/i18n/I18nContext';
 import { toast } from 'sonner';
 
-const LOW_THRESHOLD = 50;
+// Daily grant is 20 credits, so "low" must be well below that.
+const LOW_THRESHOLD = 5;
 
 /**
  * Watches the signed-in user's credit balance and:
