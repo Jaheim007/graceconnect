@@ -48,12 +48,18 @@ export function AuthorHero() {
           transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as [number, number, number, number], delay },
         };
 
-  const idList = identities[fr ? 'fr' : 'en'];
-  const identityWords = idList.map((i) => i.label);
-
   const examples = fr
     ? ['Discipline financière', 'Préparer un mariage chrétien', 'Apprendre la couture', 'Devenir un bon leader']
     : ['Financial discipline', 'Preparing a Christian marriage', 'Learn tailoring', 'Becoming a good leader'];
+
+  // Rotating placeholder — shows real book ideas instead of a static prompt.
+  const [phIndex, setPhIndex] = useState(0);
+  useEffect(() => {
+    if (reduce) return;
+    const id = setInterval(() => setPhIndex((i) => (i + 1) % examples.length), 3000);
+    return () => clearInterval(id);
+  }, [reduce, examples.length]);
+
 
   const generatePreview = async (topicOverride?: string) => {
     const topic = (topicOverride ?? idea).trim();
