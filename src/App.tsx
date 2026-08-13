@@ -483,6 +483,9 @@ const App = () => (
                 <Route path="/faq" element={<FAQPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/compliance" element={<CompliancePage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/cgu" element={<Navigate to="/terms" replace />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/dpa" element={<DPAPage />} />
                 <Route path="/security" element={<SecurityPage />} />
                 <Route path="/subprocessors" element={<SubprocessorsPage />} />
