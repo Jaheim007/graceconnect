@@ -774,6 +774,7 @@ const App = () => (
                   <Route path="exports" element={<SuperadminExports />} />
                   <Route path="settings" element={<SuperadminSettings />} />
                   <Route path="investor" element={<SuperadminInvestorSnapshot />} />
+                  <Route path="acquisition" element={<SuperadminAcquisition />} />
                   <Route path="risk" element={<SuperadminRiskAML />} />
                   <Route path="directory" element={<SuperadminDirectory />} />
                   <Route path="marketplace-moderation" element={<SuperadminMarketplaceModeration />} />
