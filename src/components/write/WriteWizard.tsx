@@ -671,6 +671,21 @@ export default function WriteWizard() {
     })();
   }, [searchParams, setSearchParams, user?.id, handleLoadDraft]);
 
+  // Deep link: /ecrire?idea=<topic> pre-fills the topic from the landing hero
+  const ideaRef = useRef<string | null>(null);
+  useEffect(() => {
+    const idea = searchParams.get('idea');
+    if (!idea || ideaRef.current === idea) return;
+    ideaRef.current = idea;
+    const topic = idea.slice(0, 300);
+    setState((prev) => (prev.topic ? prev : { ...prev, topic, source: 'idea' }));
+    const next = new URLSearchParams(searchParams);
+    next.delete('idea');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
+
+
+
 
   // Auto-save to localStorage on state/step change
   useEffect(() => {
