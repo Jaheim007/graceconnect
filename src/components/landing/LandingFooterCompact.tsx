@@ -8,49 +8,58 @@ export function LandingFooterCompact() {
 
   const columns: { title: string; links: { to: string; label: string }[] }[] = [
     {
+      title: isFr ? 'Créer' : 'Create',
+      links: [
+        { to: '/ecrire',          label: isFr ? 'Écrire un livre'      : 'Write a book' },
+        { to: '/creer-formation', label: isFr ? 'Créer une formation'  : 'Create a formation' },
+        { to: '/create-org',      label: isFr ? 'Créer ma plateforme'  : 'Create my platform' },
+        { to: '/pour/auteurs',    label: isFr ? 'Pour les auteurs'     : 'For authors' },
+        { to: '/pour/enseignants',label: isFr ? 'Pour les enseignants' : 'For teachers' },
+        { to: '/pour/coaches',    label: isFr ? 'Pour les coachs'      : 'For coaches' },
+      ],
+    },
+    {
       title: isFr ? 'Découvrir' : 'Discover',
       links: [
-        { to: '/discover',                 label: isFr ? 'Explorer'          : 'Explore' },
-        { to: '/discover?type=digital',    label: isFr ? 'Produits digitaux' : 'Digital products' },
-        { to: '/discover?type=ebook',      label: isFr ? 'Livres'            : 'Books' },
-        { to: '/discover?type=course',     label: isFr ? 'Formations'        : 'Formations' },
+        { to: '/discover',              label: isFr ? 'Explorer'    : 'Explore' },
+        { to: '/discover?type=ebook',   label: isFr ? 'Livres'      : 'Books' },
+        { to: '/discover?type=course',  label: isFr ? 'Formations'  : 'Formations' },
+        { to: '/my-purchases',          label: isFr ? 'Mes achats'  : 'My purchases' },
       ],
     },
     {
-      title: isFr ? 'Pour les clients' : 'For customers',
+      title: isFr ? 'Gagner' : 'Earn',
       links: [
-        { to: '/#how',            label: isFr ? 'Comment ça marche' : 'How it works' },
-        { to: '/dashboard',       label: isFr ? 'Mon activité'      : 'Activity' },
-        { to: '/bookmarks',       label: isFr ? 'Enregistrés'       : 'Saved' },
-        { to: '/contact',         label: isFr ? 'Aide'              : 'Help' },
-        { to: '/refund-policy',   label: isFr ? 'Remboursement'     : 'Refund policy' },
+        { to: '/gagner',    label: isFr ? "Vendre les produits des autres" : "Sell other people's products" },
+        { to: '/referrals', label: isFr ? "Programme d'affiliation"        : 'Affiliate program' },
+        { to: '/partenaires', label: isFr ? 'Devenir partenaire'           : 'Become a partner' },
       ],
     },
     {
-      title: isFr ? 'Pour les créateurs' : 'For creators',
+      title: isFr ? 'Églises & ONG' : 'Churches & NGOs',
       links: [
-        { to: '/create-org',      label: isFr ? 'Créer ma plateforme'      : 'Create my platform' },
-        { to: '/ecrire',          label: isFr ? 'Écrire un livre'          : 'Write a book' },
-        { to: '/creer-formation', label: isFr ? 'Créer une formation'      : 'Create a formation' },
-        { to: '/referrals',       label: isFr ? 'Programme d\'affiliation' : 'Earn / affiliation' },
-      ],
-    },
-
-    {
-      title: isFr ? 'Pour les églises' : 'For churches',
-      links: [
-        { to: '/churches',                label: isFr ? 'SiteViral pour les églises' : 'SiteViral for churches' },
-        { to: '/church/pro/onboarding',   label: isFr ? 'Créer un espace église'    : 'Create a church space' },
+        { to: '/churches',              label: isFr ? 'SiteViral pour les églises' : 'SiteViral for churches' },
+        { to: '/church/pro/onboarding', label: isFr ? 'Créer un espace église'     : 'Create a church space' },
+        { to: '/pour/eglises',          label: isFr ? 'Pour les pasteurs'          : 'For pastors' },
+        { to: '/pour/associations',     label: isFr ? 'Pour les associations'      : 'For associations' },
       ],
     },
     {
       title: isFr ? 'Entreprise' : 'Company',
       links: [
-        { to: '/about',    label: isFr ? 'À propos'        : 'About' },
-        { to: '/contact',  label: 'Contact' },
-        { to: '/terms',    label: isFr ? 'CGU'             : 'Terms' },
-        { to: '/privacy',  label: isFr ? 'Confidentialité' : 'Privacy' },
-        { to: '/security', label: isFr ? 'Sécurité'        : 'Security' },
+        { to: '/contact', label: isFr ? 'Aide & contact' : 'Help & contact' },
+        { to: '/status',  label: isFr ? 'Statut'         : 'Status' },
+        { to: '/founders', label: isFr ? 'Fondateurs'    : 'Founders' },
+      ],
+    },
+    {
+      title: isFr ? 'Légal' : 'Legal',
+      links: [
+        { to: '/terms',         label: isFr ? 'CGU'             : 'Terms' },
+        { to: '/privacy',       label: isFr ? 'Confidentialité' : 'Privacy' },
+        { to: '/refund-policy', label: isFr ? 'Remboursements'  : 'Refunds' },
+        { to: '/payout-policy', label: isFr ? 'Versements'      : 'Payouts' },
+        { to: '/security',      label: isFr ? 'Sécurité'        : 'Security' },
       ],
     },
   ];
@@ -58,13 +67,13 @@ export function LandingFooterCompact() {
   return (
     <footer className="border-t border-border bg-card/40">
       <div className="container px-4 sm:px-6 py-14">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-6">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-7">
           <div className="lg:col-span-1 space-y-4">
             <SiteLogo size="md" linked={false} />
             <p className="text-xs text-muted-foreground max-w-[240px] leading-relaxed">
               {isFr
-                ? 'Trouvez un produit, un service ou un professionnel — ou proposez le vôtre.'
-                : 'Find a product, a service or a professional — or offer your own.'}
+                ? 'Écris ton livre ou ta formation, vends-le sur ta propre page, reçois ton argent en Mobile Money.'
+                : 'Write your book or formation, sell it on your own page, get paid by Mobile Money.'}
             </p>
           </div>
 
@@ -89,8 +98,8 @@ export function LandingFooterCompact() {
             © {new Date().getFullYear()} Hacktualiz Inc. {isFr ? 'Tous droits réservés.' : 'All rights reserved.'}
           </p>
           <div className="flex items-center gap-4 text-xs">
+            <Link to="/churches" className="text-muted-foreground hover:text-foreground">{isFr ? 'Églises' : 'Churches'}</Link>
             <Link to="/status" className="text-muted-foreground hover:text-foreground">{isFr ? 'Statut' : 'Status'}</Link>
-            <Link to="/refund-policy" className="text-muted-foreground hover:text-foreground">{isFr ? 'Remboursement' : 'Refund'}</Link>
             <Link to="/security" className="text-muted-foreground hover:text-foreground">{isFr ? 'Sécurité' : 'Security'}</Link>
           </div>
         </div>
