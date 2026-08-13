@@ -509,6 +509,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                       <div className="flex justify-between font-semibold border-t border-border pt-1 mt-1">
                         <span>Total</span><span className="text-primary">{fmt(finalPrice)}</span>
                       </div>
+                      {finalPrice > 0 && <BuyerFeeNote className="mt-2" />}
                     </div>
                   )}
                 </div>
