@@ -523,9 +523,10 @@ export function AdminProducts() {
                 </div>
 
                 <div className="flex items-center gap-0.5 shrink-0 sm:opacity-60 sm:group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-primary" title={isFr ? 'Visuel à partager' : 'Share flyer'}
+                  <Button variant="secondary" size="sm" className="h-8 rounded-lg gap-1.5 px-2.5 font-semibold text-primary" title={isFr ? 'Visuel à partager (statut WhatsApp)' : 'Share flyer (WhatsApp status)'}
                     onClick={(e) => { e.stopPropagation(); markShared(p.id); setFlyerProduct(p); }}>
                     <ImageIcon className="h-3.5 w-3.5" />
+                    <span className="text-[11px]">{isFr ? 'Flyer' : 'Flyer'}</span>
                   </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title={isFr ? 'Voir' : 'View'}
                     onClick={(e) => { e.stopPropagation(); navigate(`/org/${currentOrg?.slug}/product/${p.id}`); }}>
