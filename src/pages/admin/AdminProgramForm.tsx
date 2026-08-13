@@ -47,6 +47,7 @@ import { CourseIntelligencePanel } from '@/components/programs/CourseIntelligenc
 import { MobilePreviewOverlay } from '@/components/programs/MobilePreviewOverlay';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { askConfirm } from '@/components/ui/confirm-dialog';
+import { FeeBreakdown } from '@/components/payments/FeeBreakdown';
 
 const CONTENT_TYPES = [
   { value: 'text', label: 'Text', labelFr: 'Texte', icon: FileText },
