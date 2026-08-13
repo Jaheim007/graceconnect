@@ -30,7 +30,7 @@ function clip(text: string, max = 200): string {
 }
 
 /** Strip HTML tags and return clean plain text for OG descriptions */
-function clip(stripHtml(html: string): string {
+function stripHtml(html: string): string {
   return html
     .replace(/<[^>]*>/g, ' ')       // replace tags with space
     .replace(/&nbsp;/gi, ' ')
