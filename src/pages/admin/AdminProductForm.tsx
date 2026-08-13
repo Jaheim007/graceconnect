@@ -38,6 +38,7 @@ import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
 // AIDescriptionButton removed — use "Aide IA" in the RichTextEditor toolbar instead
 import { SocialSnippetsViewer } from '@/components/products/SocialSnippetsViewer';
 import { SuggestedPriceHint } from '@/components/admin/SuggestedPriceHint';
+import { FeeBreakdown } from '@/components/payments/FeeBreakdown';
 import { ContextTip } from '@/components/admin/ContextualTooltips';
 import { PrintableQRCode } from '@/components/sharing/PrintableQRCode';
 import { ContentVersionHistory } from '@/components/admin/ContentVersionHistory';
