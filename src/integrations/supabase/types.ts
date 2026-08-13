@@ -7582,6 +7582,45 @@ export type Database = {
           },
         ]
       }
+      marketing_spend: {
+        Row: {
+          amount: number
+          campaign: string | null
+          channel: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          note: string | null
+          spend_date: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          campaign?: string | null
+          channel: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          note?: string | null
+          spend_date?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          campaign?: string | null
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          note?: string | null
+          spend_date?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       marketplace_template_clones: {
         Row: {
           amount_paid: number
@@ -8956,6 +8995,7 @@ export type Database = {
           fts_vector: unknown
           id: string
           is_active: boolean | null
+          is_internal: boolean
           is_suspended: boolean | null
           is_verified: boolean | null
           kyc_status: Database["public"]["Enums"]["kyc_status"] | null
@@ -9011,6 +9051,7 @@ export type Database = {
           fts_vector?: unknown
           id?: string
           is_active?: boolean | null
+          is_internal?: boolean
           is_suspended?: boolean | null
           is_verified?: boolean | null
           kyc_status?: Database["public"]["Enums"]["kyc_status"] | null
@@ -9066,6 +9107,7 @@ export type Database = {
           fts_vector?: unknown
           id?: string
           is_active?: boolean | null
+          is_internal?: boolean
           is_suspended?: boolean | null
           is_verified?: boolean | null
           kyc_status?: Database["public"]["Enums"]["kyc_status"] | null
@@ -10323,6 +10365,11 @@ export type Database = {
           email_marketing_opted_out: boolean
           enabled_modules: string[]
           first_action_at: string | null
+          first_touch_campaign: string | null
+          first_touch_medium: string | null
+          first_touch_page: string | null
+          first_touch_referrer: string | null
+          first_touch_source: string | null
           id: string
           onboarding_intent: string | null
           payout_account_name: string | null
@@ -10351,6 +10398,11 @@ export type Database = {
           email_marketing_opted_out?: boolean
           enabled_modules?: string[]
           first_action_at?: string | null
+          first_touch_campaign?: string | null
+          first_touch_medium?: string | null
+          first_touch_page?: string | null
+          first_touch_referrer?: string | null
+          first_touch_source?: string | null
           id: string
           onboarding_intent?: string | null
           payout_account_name?: string | null
@@ -10379,6 +10431,11 @@ export type Database = {
           email_marketing_opted_out?: boolean
           enabled_modules?: string[]
           first_action_at?: string | null
+          first_touch_campaign?: string | null
+          first_touch_medium?: string | null
+          first_touch_page?: string | null
+          first_touch_referrer?: string | null
+          first_touch_source?: string | null
           id?: string
           onboarding_intent?: string | null
           payout_account_name?: string | null

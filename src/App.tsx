@@ -33,6 +33,7 @@ import { ShortcutRedirect } from "@/components/layout/ShortcutRedirect";
 import { FloatingProofToast } from "@/components/social-proof/FloatingProofToast";
 import { DomainRouter } from "@/components/layout/DomainRouter";
 import { ReferralCapture } from "@/components/referral/ReferralCapture";
+import { PageViewTracker } from "@/components/analytics/PageViewTracker";
 import { NativePushBootstrap } from "@/components/pwa/NativePushBootstrap";
 
 /** Redirect /store/:slug → /org/:slug/store */
@@ -372,6 +373,7 @@ const App = () => (
               <OfflineBanner />
               <ScrollToTop />
               <ReferralCapture />
+              <PageViewTracker />
               <NativePushBootstrap />
               <GDPRBanner />
               <FloatingProofToast />

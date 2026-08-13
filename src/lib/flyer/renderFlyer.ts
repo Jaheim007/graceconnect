@@ -390,12 +390,15 @@ export function buildFlyerCaptions(opts: {
     return {
       whatsapp: `📖 *${title}*\n${benefit ? `${benefit}\n` : ''}Prix : ${priceLabel}\n\n👉 ${link}\n\nPaiement Mobile Money / Wave. Accès immédiat après paiement.`,
       facebook: `${title}\n\n${benefit ? `${benefit}\n\n` : ''}Disponible dès maintenant — ${priceLabel}.\nPaiement mobile, accès immédiat.\n\n${link}`,
+      email: `Objet : ${title}\n\nBonjour,\n\nJe viens de publier « ${title} ».${benefit ? `\n${benefit}` : ''}\n\nPrix : ${priceLabel}\nLien direct : ${link}\n\nLe paiement se fait par Mobile Money, Wave ou carte, et l'accès est immédiat après le paiement.\n\nMerci et bonne lecture.`,
       short: `${title} — ${priceLabel} 👉 ${link}`,
     };
   }
   return {
     whatsapp: `📖 *${title}*\n${benefit ? `${benefit}\n` : ''}Price: ${priceLabel}\n\n👉 ${link}\n\nMobile Money / card accepted. Instant access after payment.`,
     facebook: `${title}\n\n${benefit ? `${benefit}\n\n` : ''}Available now — ${priceLabel}.\nMobile payment, instant access.\n\n${link}`,
+    email: `Subject: ${title}\n\nHi,\n\nI just published "${title}".${benefit ? `\n${benefit}` : ''}\n\nPrice: ${priceLabel}\nDirect link: ${link}\n\nPayment by Mobile Money, Wave or card, with instant access after payment.\n\nThanks and enjoy.`,
     short: `${title} — ${priceLabel} 👉 ${link}`,
   };
 }
+
