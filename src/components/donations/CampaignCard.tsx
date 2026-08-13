@@ -10,8 +10,8 @@ import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import { useI18n } from '@/i18n/I18nContext';
-import {
 import { truncateWords } from '@/lib/truncateText';
+import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
