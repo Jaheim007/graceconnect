@@ -57,6 +57,9 @@ import { ReadingProgressBar } from '@/components/ui/ReadingProgressBar';
 import { ProductTableOfContents } from '@/components/products/ProductTableOfContents';
 import { PixelInjector } from '@/components/org/PixelInjector';
 import { ContactSellerWidget } from '@/components/products/ContactSellerWidget';
+import { FlyerDialog } from '@/components/flyer/FlyerDialog';
+import { truncateWords } from '@/lib/truncateText';
+import { Image as ImageIcon } from 'lucide-react';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -86,6 +89,7 @@ export default function ProductDetailPage() {
   const [copied, setCopied] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [flyerOpen, setFlyerOpen] = useState(false);
 
   // Track recently viewed
   useEffect(() => {
