@@ -810,6 +810,16 @@ export function ProgramForm() {
                     {isFr ? `Minimum ${minAiPrice.toLocaleString()} ${currency}.` : `Minimum ${minAiPrice.toLocaleString()} ${currency}.`}
                   </p>
                 )}
+                {price > 0 && (!isFree || isAiGenerated) && (
+                  <FeeBreakdown
+                    className="mt-3 max-w-md"
+                    amount={price}
+                    currency={currency}
+                    platformFeePercent={currentOrg?.platform_fee_percent}
+                    affiliateCommissionPercent={currentOrg?.affiliation_commission_percent}
+                    includeAffiliate={!!currentOrg?.affiliation_enabled}
+                  />
+                )}
               </div>
             </div>
 
