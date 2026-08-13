@@ -188,6 +188,9 @@ verify_jwt = false
 [functions.generate-editorial-strategy]
 verify_jwt = false
 
+[functions.guest-book-outline]
+verify_jwt = false
+
 [functions.generate-illustration]
 verify_jwt = false
 
