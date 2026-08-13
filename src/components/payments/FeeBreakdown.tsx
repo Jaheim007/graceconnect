@@ -78,3 +78,22 @@ export function FeeBreakdown({ className, variant = 'card', title, ...input }: F
     </div>
   );
 }
+
+/**
+ * Buyer-side transparency line: the displayed price is the final price.
+ * Never shows the seller's fee split — buyers don't pay it.
+ */
+export function BuyerFeeNote({ className }: { className?: string }) {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  return (
+    <p className={cn('flex items-start gap-1.5 text-[11px] leading-snug text-muted-foreground', className)}>
+      <Info className="mt-0.5 h-3 w-3 shrink-0" />
+      <span>
+        {isFr
+          ? 'Prix final — aucun frais ajouté au paiement. Accès immédiat après confirmation.'
+          : 'Final price — no fee added at checkout. Instant access once confirmed.'}
+      </span>
+    </p>
+  );
+}
