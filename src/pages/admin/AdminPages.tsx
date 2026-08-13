@@ -562,6 +562,9 @@ export function AdminProducts() {
             ))}
           </motion.div>
         </div>
+        </div>
+
+
 
       )}
     </AdminPageShell>
