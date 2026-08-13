@@ -817,6 +817,8 @@ export default function ProgramDetailPage() {
                 </Button>
               )}
 
+              {!hasAccess && isPaidCourse && <BuyerFeeNote />}
+
               {/* Free preview — no account required */}
               {!hasAccess && totalLessons > 0 && (
                 <Button
