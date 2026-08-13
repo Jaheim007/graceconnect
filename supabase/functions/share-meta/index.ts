@@ -425,7 +425,7 @@ Deno.serve(async (req) => {
   const explicitImg = reqUrl.searchParams.get('image');
 
   const title = (explicitTitle || meta?.title || DEFAULT_TITLE).slice(0, 180);
-  const description = (explicitDesc || meta?.description || DEFAULT_DESCRIPTION), 200);
+  const description = clip(explicitDesc || meta?.description || DEFAULT_DESCRIPTION, 200);
   let image = explicitImg || meta?.image || DEFAULT_IMAGE;
   try { image = new URL(image).toString(); } catch { image = DEFAULT_IMAGE; }
 
