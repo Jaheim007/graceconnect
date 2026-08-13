@@ -21,6 +21,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, ChevronRight, Eye, EyeOff, Megaphone, CalendarDays, PackageOpen, Building2, Save, HandHeart, User, FolderOpen, Globe, SlidersHorizontal, ShieldCheck, Bot, Image as ImageIcon } from 'lucide-react';
 import { FlyerDialog } from '@/components/flyer/FlyerDialog';
+import { FirstSaleCoach } from '@/components/products/FirstSaleCoach';
+import { markShared } from '@/lib/firstSale';
 import IdentityVerificationSettings from '@/components/verification/IdentityVerificationSettings';
 import AssistantConnectionsSettings from '@/components/settings/AssistantConnectionsSettings';
 
@@ -442,7 +444,14 @@ export function AdminProducts() {
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
         <EmptyState variant="purchases" title={isFr ? 'Aucun produit' : 'No products'} action={{ label: isFr ? 'Nouveau produit' : 'New product', onClick: () => navigate('/admin/products/new') }} />
       ) : (
+        <div className="space-y-4">
+        <FirstSaleCoach
+          products={items}
+          onShare={(p) => { markShared(p.id); setFlyerProduct(p); }}
+          onEdit={(p) => navigate(`/admin/products/${p.id}/edit`)}
+        />
         <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-4">
+
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-baseline gap-2">
               <h2 className="font-heading text-base font-bold tracking-tight">{items.length}</h2>
@@ -512,7 +521,7 @@ export function AdminProducts() {
 
                 <div className="flex items-center gap-0.5 shrink-0 sm:opacity-60 sm:group-hover:opacity-100 transition-opacity">
                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-primary" title={isFr ? 'Visuel à partager' : 'Share flyer'}
-                    onClick={(e) => { e.stopPropagation(); setFlyerProduct(p); }}>
+                    onClick={(e) => { e.stopPropagation(); markShared(p.id); setFlyerProduct(p); }}>
                     <ImageIcon className="h-3.5 w-3.5" />
                   </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title={isFr ? 'Voir' : 'View'}
@@ -555,6 +564,9 @@ export function AdminProducts() {
             ))}
           </motion.div>
         </div>
+        </div>
+
+
 
       )}
     </AdminPageShell>

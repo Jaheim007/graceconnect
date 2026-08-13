@@ -13,6 +13,7 @@ import { CategoryCarousels } from '@/components/discover/CategoryCarousels';
 import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
 import { RecentlyViewedProducts } from '@/components/discover/RecentlyViewedProducts';
 import { BuyerCreatorBanner } from '@/components/discover/BuyerCreatorBanner';
+import { JustLaunchedSection } from '@/components/discover/JustLaunchedSection';
 
 export default function DiscoverPage() {
   const [search, setSearch] = useState('');
@@ -59,6 +60,9 @@ export default function DiscoverPage() {
 
         {/* Recently viewed — personal relevance */}
         {!isSearching && <RecentlyViewedProducts />}
+
+        {/* Guaranteed placement for newly published products */}
+        {!isSearching && <JustLaunchedSection />}
 
         {/* Categories & products */}
         {!isSearching && <CategoryCarousels />}
