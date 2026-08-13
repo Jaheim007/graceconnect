@@ -114,37 +114,53 @@ export function AuthorHero() {
     navigate('/auth?mode=signup');
   };
 
-  const CurrentIdentityIcon = BookOpen;
+  const proofs = fr
+    ? [
+        { icon: Zap, label: 'Plan + chapitre 1 en 30 secondes' },
+        { icon: BookOpen, label: 'Aucun compte pour essayer' },
+        { icon: Wallet, label: 'Vends en Mobile Money' },
+      ]
+    : [
+        { icon: Zap, label: 'Outline + chapter 1 in 30 seconds' },
+        { icon: BookOpen, label: 'No account to try' },
+        { icon: Wallet, label: 'Sell with Mobile Money' },
+      ];
 
   return (
     <section className="relative overflow-hidden border-b border-border bg-background">
       <HeroAurora />
       <div className="container relative max-w-4xl px-4 sm:px-6 pt-16 pb-14 sm:pt-24 sm:pb-20 text-center">
-        <motion.div {...rise(0)} className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider backdrop-blur-sm">
-          <CurrentIdentityIcon className="h-3 w-3 text-primary shrink-0" />
-          <span className="text-muted-foreground">
-            {fr ? 'Deviens le prochain' : 'Be the next'} <RotatingWords words={identityWords} interval={2600} className="text-foreground" />
+        <motion.div {...rise(0)} className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.07] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider backdrop-blur-sm">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
+          </span>
+          <span className="text-primary">
+            {fr ? 'Aperçu gratuit · sans compte' : 'Free preview · no account'}
           </span>
         </motion.div>
 
         <motion.h1
           {...rise(0.06)}
-          className="mt-5 text-[2.25rem] leading-[1.08] sm:text-6xl font-black tracking-tight text-balance"
+          className="mt-6 text-[2.35rem] leading-[1.06] sm:text-[4.25rem] sm:leading-[1.02] font-black tracking-tight text-balance"
         >
-          {fr ? 'Écris ton livre ici.' : 'Write your book here.'}
+          {fr ? 'Tout le monde a un livre en soi.' : 'Everyone has a book inside them.'}
+          <span className="mt-1 block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
+            {fr ? 'Le tien commence ici.' : 'Yours starts here.'}
+          </span>
         </motion.h1>
 
         <motion.p
           {...rise(0.12)}
-          className="mx-auto mt-4 max-w-xl text-sm sm:text-lg leading-relaxed text-muted-foreground text-pretty"
+          className="mx-auto mt-5 max-w-xl text-sm sm:text-lg leading-relaxed text-muted-foreground text-pretty"
         >
           {fr
-            ? "De l'idée au livre, généré en direct. Aperçu gratuit — pas de compte requis."
-            : 'From idea to book, generated live. Free preview — no account required.'}
+            ? "Tu as déjà l'idée. Écris une phrase, et on écrit le plan et le premier chapitre devant toi — gratuitement."
+            : 'You already have the idea. Write one sentence and we write the outline and first chapter in front of you — free.'}
         </motion.p>
 
         <motion.div {...rise(0.18)} className="mx-auto mt-9 max-w-2xl">
-          <div className="rounded-2xl border border-border bg-card/80 p-2.5 shadow-sm backdrop-blur-sm focus-within:border-primary/60 transition-colors">
+          <div className="group relative rounded-2xl border border-border bg-card/80 p-2.5 shadow-lg shadow-primary/5 backdrop-blur-sm transition-all focus-within:border-primary/60 focus-within:shadow-xl focus-within:shadow-primary/10">
             <label htmlFor="idea" className="sr-only">
               {fr ? 'Quel livre veux-tu écrire ?' : 'What book do you want to write?'}
             </label>
@@ -154,7 +170,11 @@ export function AuthorHero() {
                 value={idea}
                 onChange={(e) => setIdea(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !loading && handleStart()}
-                placeholder={fr ? 'Quel livre veux-tu écrire ?' : 'What book do you want to write?'}
+                placeholder={
+                  fr
+                    ? `Ex. : ${examples[phIndex]}`
+                    : `e.g. ${examples[phIndex]}`
+                }
                 className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm sm:text-base outline-none placeholder:text-muted-foreground"
               />
               <Button
@@ -165,14 +185,14 @@ export function AuthorHero() {
                 {loading ? (
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                 ) : (
-                  <Sparkles className="h-4 w-4" />
+                  <PenLine className="h-4 w-4" />
                 )}
                 {fr ? 'Écrire mon livre' : 'Write my book'}
               </Button>
             </div>
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+          <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2">
             {examples.map((ex) => (
               <button
                 key={ex}
@@ -181,10 +201,19 @@ export function AuthorHero() {
                   setIdea(ex);
                   if (!user) generatePreview(ex);
                 }}
-                className="rounded-full border border-border bg-card px-3 py-1.5 text-[11px] sm:text-xs font-semibold text-muted-foreground hover:border-primary/50 hover:text-foreground transition-colors"
+                className="rounded-full border border-border bg-card/70 px-3 py-1.5 text-[11px] sm:text-xs font-semibold text-muted-foreground backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:text-foreground hover:shadow-sm"
               >
                 {ex}
               </button>
+            ))}
+          </div>
+
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5">
+            {proofs.map((p) => (
+              <span key={p.label} className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-muted-foreground">
+                <p.icon className="h-3.5 w-3.5 text-primary shrink-0" />
+                {p.label}
+              </span>
             ))}
           </div>
 
@@ -197,6 +226,7 @@ export function AuthorHero() {
             <ArrowRight className="h-3.5 w-3.5" />
           </button>
         </motion.div>
+
 
         <AnimatePresence>
           {error && (
