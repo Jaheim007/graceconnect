@@ -323,12 +323,70 @@ export default function ResourcesPage() {
 
           {/* ─── Receipts: credits & donations ─── */}
           <TabsContent value="receipts" className="space-y-6">
-          {creditPurchases.length === 0 && myDonations.length === 0 && (
+          {(purchases?.length || 0) === 0 && creditPurchases.length === 0 && myDonations.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-8">
               {isFr ? 'Aucun reçu pour le moment.' : 'No receipts yet.'}
             </p>
           )}
+
+          {/* ─── Product purchases: one invoice per purchase ─── */}
+          {(purchases?.length || 0) > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <ShoppingBag className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">{isFr ? 'Mes achats' : 'My purchases'}</p>
+                  <p className="text-[10px] text-muted-foreground">{purchases!.length} {isFr ? 'facture(s)' : 'invoice(s)'}</p>
+                </div>
+              </div>
+              <div className="space-y-2 pl-2 border-l-2 border-primary/20">
+                {purchases!.map((purchase: any) => {
+                  const org = orgMap.get(purchase.product.organization_id) as any;
+                  return (
+                    <div key={purchase.id} className="p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors flex items-center gap-3">
+                      <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Receipt className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm truncate">{purchase.product.title}</h3>
+                        <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                          {org?.name && <Badge variant="outline" className="text-[10px] shrink-0">{org.name}</Badge>}
+                          <span className="text-[10px] text-muted-foreground">
+                            {format(new Date(purchase.completed_at || purchase.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-sm font-semibold shrink-0">{formatCurrency(purchase.amount, purchase.currency || 'XOF')}</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1 h-8 text-[11px] shrink-0"
+                        onClick={() => downloadInvoice({
+                          invoiceNumber: purchase.invoice_number || `SV-${purchase.id.slice(0, 8).toUpperCase()}`,
+                          date: purchase.completed_at || purchase.created_at,
+                          buyerName: user?.user_metadata?.display_name || user?.email || '',
+                          buyerEmail: user?.email || '',
+                          productTitle: purchase.product.title,
+                          amount: purchase.amount,
+                          currency: purchase.currency || 'XOF',
+                          orgName: org?.name || '',
+                          orgLogo: org?.logo_url || undefined,
+                          reference: purchase.paystack_reference || purchase.id,
+                        })}
+                      >
+                        <Download className="h-3 w-3" /> {isFr ? 'Facture' : 'Invoice'}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* ─── Credit Purchases ─── */}
+
 
           {creditPurchases.length > 0 && (
             <div className="space-y-3">
