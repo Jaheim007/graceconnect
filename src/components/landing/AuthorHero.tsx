@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles, BookOpen, GraduationCap, Church, Target } from 'lucide-react';
+import { ArrowRight, PenLine, BookOpen, Wallet, Zap } from 'lucide-react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { RotatingWords } from './RotatingWords';
 import { HeroAurora } from './HeroAurora';
 import { setPendingAction } from '@/lib/pendingAction';
 import { cn } from '@/lib/utils';
+
 
 const GUEST_PREVIEW_KEY = 'sv_guest_book_preview';
 
