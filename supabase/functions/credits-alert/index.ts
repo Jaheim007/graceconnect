@@ -12,7 +12,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const LOW_THRESHOLD = 50;
+// Daily grant is 20 credits/day, so only warn when really low.
+const LOW_THRESHOLD = 5;
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
