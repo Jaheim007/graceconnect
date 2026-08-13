@@ -19,6 +19,16 @@ const escapeHtml = (v: string) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
+/** Truncate at a word boundary so previews never cut mid-word */
+function clip(text: string, max = 200): string {
+  const t = (text || '').replace(/\s+/g, ' ').trim();
+  if (t.length <= max) return t;
+  const slice = t.slice(0, max);
+  const lastSpace = slice.lastIndexOf(' ');
+  const cut = lastSpace > max * 0.5 ? slice.slice(0, lastSpace) : slice;
+  return cut.replace(/[\s,;:.!?\u2014\u2013-]+$/, '') + '\u2026';
+}
+
 /** Strip HTML tags and return clean plain text for OG descriptions */
 function stripHtml(html: string): string {
   return html
@@ -137,7 +147,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
       const orgName = (data as any).organizations?.name || 'Siteviral';
       return {
         title: `${data.title} — ${orgName}`,
-        description: stripHtml(data.description || `Découvrez ${data.title}`).slice(0, 300),
+        description: clip(stripHtml(data.description || `Découvrez ${data.title}`), 200),
         image: data.cover_image_url || DEFAULT_IMAGE,
       };
     }
@@ -155,7 +165,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
     if (data)
       return {
         title: `${data.name} — Siteviral`,
-        description: stripHtml(data.description || `Découvrez ${data.name} sur Siteviral`).slice(0, 300),
+        description: clip(stripHtml(data.description || `Découvrez ${data.name} sur Siteviral`), 200),
         image: data.banner_url || data.logo_url || DEFAULT_IMAGE,
       };
   }
@@ -176,7 +186,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
         const orgName = (data as any).organizations?.name || 'Siteviral';
         return {
           title: `${data.title} — ${orgName}`,
-          description: stripHtml(data.description || `Découvrez ${data.title}`).slice(0, 300),
+          description: clip(stripHtml(data.description || `Découvrez ${data.title}`), 200),
           image: data.cover_image_url || DEFAULT_IMAGE,
         };
       }
@@ -196,7 +206,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
       const orgName = (data as any).organizations?.name || 'Siteviral';
       return {
         title: `${data.title} — ${orgName}`,
-        description: stripHtml(data.description || `Soutenez ${data.title}`).slice(0, 300),
+        description: clip(stripHtml(data.description || `Soutenez ${data.title}`), 200),
         image: data.image_url || DEFAULT_IMAGE,
       };
     }
@@ -215,7 +225,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
       const orgName = (data as any).organizations?.name || 'Siteviral';
       return {
         title: `${data.title} — ${orgName}`,
-        description: stripHtml(data.description || `Événement sur Siteviral`).slice(0, 300),
+        description: clip(stripHtml(data.description || `Événement sur Siteviral`), 200),
         image: data.image_url || DEFAULT_IMAGE,
       };
     }
@@ -234,7 +244,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
       const orgName = (data as any).organizations?.name || 'Siteviral';
       return {
         title: `${data.title} — ${orgName}`,
-        description: stripHtml(data.body || '').slice(0, 300),
+        description: clip(stripHtml(data.body || ''), 200),
         image: data.image_url || DEFAULT_IMAGE,
       };
     }
@@ -253,7 +263,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
       const orgName = (data as any).organizations?.name || 'Siteviral';
       return {
         title: `${data.title} — ${orgName}`,
-        description: stripHtml(data.description || `Soutenez ${data.title}`).slice(0, 300),
+        description: clip(stripHtml(data.description || `Soutenez ${data.title}`), 200),
         image: data.image_url || DEFAULT_IMAGE,
       };
     }
@@ -415,7 +425,7 @@ Deno.serve(async (req) => {
   const explicitImg = reqUrl.searchParams.get('image');
 
   const title = (explicitTitle || meta?.title || DEFAULT_TITLE).slice(0, 180);
-  const description = (explicitDesc || meta?.description || DEFAULT_DESCRIPTION).slice(0, 300);
+  const description = clip(explicitDesc || meta?.description || DEFAULT_DESCRIPTION, 200);
   let image = explicitImg || meta?.image || DEFAULT_IMAGE;
   try { image = new URL(image).toString(); } catch { image = DEFAULT_IMAGE; }
 

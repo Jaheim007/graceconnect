@@ -24,6 +24,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useCompare } from './ProductCompareDrawer';
 import { useI18n } from '@/i18n/I18nContext';
+import { truncateWords } from '@/lib/truncateText';
 
 interface ProductCardProps {
   product: DigitalProduct & { slug?: string };
@@ -106,14 +107,14 @@ function ProductCardImpl(
       return await getOrCreateShortLink({
         targetPath,
         title: product.title,
-        description: stripHtml(product.description || '').slice(0, 155) || undefined,
+        description: truncateWords(stripHtml(product.description || ''), 155) || undefined,
         image: product.cover_image_url || undefined,
       });
     } catch {
       return buildSocialShareUrl({
         targetUrl: `${window.location.origin}${targetPath}`,
         title: product.title,
-        description: stripHtml(product.description || '').slice(0, 155) || undefined,
+        description: truncateWords(stripHtml(product.description || ''), 155) || undefined,
         image: product.cover_image_url || undefined,
       });
     }

@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/i18n/I18nContext';
 import { buildCourseShareUrl } from '@/lib/coursePreview';
 import { cn } from '@/lib/utils';
+import { truncateWords } from '@/lib/truncateText';
 
 interface ShareCourseMenuProps {
   programId: string;
@@ -24,7 +25,7 @@ export function ShareCourseMenu({ programId, title, description = '', variant = 
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const url = buildCourseShareUrl(programId);
-  const text = `${title}${description ? ` — ${description.slice(0, 120)}` : ''}`;
+  const text = `${title}${description ? ` — ${truncateWords(description, 120)}` : ''}`;
 
   const copy = async () => {
     try {

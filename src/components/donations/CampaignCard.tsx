@@ -10,6 +10,7 @@ import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import { useI18n } from '@/i18n/I18nContext';
+import { truncateWords } from '@/lib/truncateText';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -32,7 +33,7 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
     const fallback = buildSocialShareUrl({
       targetUrl: `${window.location.origin}${targetPath}`,
       title: campaign.title,
-      description: stripHtml(campaign.description || '').slice(0, 155) || undefined,
+      description: truncateWords(stripHtml(campaign.description || ''), 155) || undefined,
       image: campaign.image_url || undefined,
     });
     setShareUrl(fallback);
@@ -40,7 +41,7 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
     getOrCreateShortLink({
       targetPath,
       title: campaign.title,
-      description: stripHtml(campaign.description || '').slice(0, 155) || undefined,
+      description: truncateWords(stripHtml(campaign.description || ''), 155) || undefined,
       image: campaign.image_url || undefined,
     })
       .then((url) => setShareUrl(url))

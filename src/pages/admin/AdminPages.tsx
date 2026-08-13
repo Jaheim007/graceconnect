@@ -58,6 +58,7 @@ import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { ChariowImportDialog } from '@/components/chariow/ChariowImportDialog';
 import { DomainSettings as DomainSettingsWidget } from '@/components/admin/DomainSettings';
 import { CountrySelector } from '@/components/ui/CountrySelector';
+import { truncateWords } from '@/lib/truncateText';
 
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
@@ -522,9 +523,10 @@ export function AdminProducts() {
                 </div>
 
                 <div className="flex items-center gap-0.5 shrink-0 sm:opacity-60 sm:group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-primary" title={isFr ? 'Visuel à partager' : 'Share flyer'}
+                  <Button variant="secondary" size="sm" className="h-8 rounded-lg gap-1.5 px-2.5 font-semibold text-primary" title={isFr ? 'Visuel à partager (statut WhatsApp)' : 'Share flyer (WhatsApp status)'}
                     onClick={(e) => { e.stopPropagation(); markShared(p.id); setFlyerProduct(p); }}>
                     <ImageIcon className="h-3.5 w-3.5" />
+                    <span className="text-[11px]">{isFr ? 'Flyer' : 'Flyer'}</span>
                   </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title={isFr ? 'Voir' : 'View'}
                     onClick={(e) => { e.stopPropagation(); navigate(`/org/${currentOrg?.slug}/product/${p.id}`); }}>
@@ -579,7 +581,7 @@ export function AdminProducts() {
         onOpenChange={(o) => !o && setFlyerProduct(null)}
         title={flyerProduct.title}
         author={currentOrg?.name}
-        benefit={flyerProduct.description ? String(flyerProduct.description).slice(0, 140) : null}
+        benefit={flyerProduct.description ? truncateWords(String(flyerProduct.description), 140) : null}
         priceLabel={rawFormatPrice(flyerProduct.price || 0, flyerProduct.is_free, flyerProduct.currency)}
         coverUrl={flyerProduct.cover_image_url}
         link={`${window.location.origin}/org/${currentOrg?.slug}/product/${flyerProduct.id}`}
