@@ -303,6 +303,7 @@ const SuperadminSettings = lazy(() => import("@/pages/superadmin/SuperadminSetti
 const SuperadminExports = lazy(() => import("@/pages/superadmin/SuperadminExports"));
 const SuperadminInvestorSnapshot = lazy(() => import("@/pages/superadmin/SuperadminInvestorSnapshot"));
 const SuperadminAcquisition = lazy(() => import("@/pages/superadmin/SuperadminAcquisition"));
+const NewThisWeekPage = lazy(() => import("@/pages/NewThisWeekPage"));
 const SuperadminRiskAML = lazy(() => import("@/pages/superadmin/SuperadminRiskAML"));
 const SuperadminDirectory = lazy(() => import("@/pages/superadmin/SuperadminDirectory"));
 const SuperadminEmailLogs = lazy(() => import("@/pages/superadmin/SuperadminEmailLogs"));
@@ -579,6 +580,7 @@ const App = () => (
                 <Route path="/store/:slug" element={<StoreRedirect />} />
                 {/* Discover — uses AdaptiveLayout (sidebar when logged in) */}
                 <Route path="/discover" element={<DiscoverPage />} />
+                <Route path="/new-this-week" element={<NewThisWeekPage />} />
                 <Route path="/marketplace/templates" element={<MarketplaceTemplatesPage />} />
                 <Route path="/marketplace/templates/:id" element={<MarketplaceTemplateDetailPage />} />
 

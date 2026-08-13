@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
         const itemsHtml = items
           .slice(0, 6)
           .map((p: any) => {
-            const url = `${SITE}/${p.organizations?.slug}/p/${p.slug || p.id}`;
+            const url = `${SITE}/org/${p.organizations?.slug}/p/${p.slug || p.id}`;
             const price = p.is_free ? 'Gratuit / Free' : `${p.price ?? 0} ${p.currency ?? ''}`;
             return `<div style="border:1px solid #333;border-radius:12px;padding:12px;margin:10px 0">
               <a href="${url}" style="color:#1a66e6;font-weight:bold;text-decoration:none">${esc(String(p.title || ''))}</a>
