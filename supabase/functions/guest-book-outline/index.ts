@@ -1,5 +1,6 @@
 import { corsHeaders, jsonResp } from '../_shared/auth.ts';
-import { aiGenerateText, extractJson } from '../_shared/ai-fallback.ts';
+import { aiGenerateText } from '../_shared/ai-fallback.ts';
+import { extractJson } from '../_shared/ai-gemini.ts';
 
 // Simple per-IP daily rate limit. Memory-only across a single edge-function
 // instance, but enough to stop casual abuse and keep the preview cheap.
