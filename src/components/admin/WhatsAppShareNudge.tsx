@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { useI18n } from '@/i18n/I18nContext';
+import { truncateWords } from '@/lib/truncateText';
 
 export function WhatsAppShareNudge() {
   const { currentOrg } = useOrg();
@@ -28,7 +29,7 @@ export function WhatsAppShareNudge() {
     const productUrl = `${baseUrl}/org/${orgSlug}/product/${product.slug || product.id}`;
     const price = fmtPrice(product.price || 0, product.is_free, product.currency);
     return encodeURIComponent(
-      `🔥 ${product.title}\n\n${(product.description || '').slice(0, 100)}...\n\n💰 ${price}\n\n👉 ${productUrl}\n\nVia ${currentOrg?.name || 'SiteViral'}`
+      `🔥 ${product.title}\n\n${truncateWords(product.description, 120)}\n\n💰 ${price}\n\n👉 ${productUrl}\n\nVia ${currentOrg?.name || 'SiteViral'}`
     );
   };
 
