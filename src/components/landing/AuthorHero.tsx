@@ -27,20 +27,6 @@ interface GuestPreview {
   locale: string;
 }
 
-const identities = {
-  fr: [
-    { label: 'auteur', icon: BookOpen },
-    { label: 'professeur', icon: GraduationCap },
-    { label: 'pasteur', icon: Church },
-    { label: 'coach', icon: Target },
-  ],
-  en: [
-    { label: 'author', icon: BookOpen },
-    { label: 'teacher', icon: GraduationCap },
-    { label: 'pastor', icon: Church },
-    { label: 'coach', icon: Target },
-  ],
-};
 
 export function AuthorHero() {
   const navigate = useNavigate();
