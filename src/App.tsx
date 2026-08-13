@@ -302,6 +302,7 @@ const SuperadminActivityFeed = lazy(() => import("@/pages/superadmin/SuperadminA
 const SuperadminSettings = lazy(() => import("@/pages/superadmin/SuperadminSettings"));
 const SuperadminExports = lazy(() => import("@/pages/superadmin/SuperadminExports"));
 const SuperadminInvestorSnapshot = lazy(() => import("@/pages/superadmin/SuperadminInvestorSnapshot"));
+const SuperadminAcquisition = lazy(() => import("@/pages/superadmin/SuperadminAcquisition"));
 const SuperadminRiskAML = lazy(() => import("@/pages/superadmin/SuperadminRiskAML"));
 const SuperadminDirectory = lazy(() => import("@/pages/superadmin/SuperadminDirectory"));
 const SuperadminEmailLogs = lazy(() => import("@/pages/superadmin/SuperadminEmailLogs"));
