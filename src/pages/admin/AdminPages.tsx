@@ -22,6 +22,7 @@ import { Switch } from '@/components/ui/switch';
 import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, ChevronRight, Eye, EyeOff, Megaphone, CalendarDays, PackageOpen, Building2, Save, HandHeart, User, FolderOpen, Globe, SlidersHorizontal, ShieldCheck, Bot, Image as ImageIcon } from 'lucide-react';
 import { FlyerDialog } from '@/components/flyer/FlyerDialog';
 import { FirstSaleCoach } from '@/components/products/FirstSaleCoach';
+import { SellerSurveyCard } from '@/components/growth/SellerSurveyCard';
 import { markShared } from '@/lib/firstSale';
 import IdentityVerificationSettings from '@/components/verification/IdentityVerificationSettings';
 import AssistantConnectionsSettings from '@/components/settings/AssistantConnectionsSettings';
