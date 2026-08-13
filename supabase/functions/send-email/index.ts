@@ -68,7 +68,9 @@ type EmailTemplate =
   // ═══ ACTIVATION LADDER (never published) + PAYOUT READY ═══
   | 'activation_draft_waiting' | 'activation_publish_3_taps' | 'activation_no_creation_yet'
   | 'activation_published_no_traffic' | 'activation_last_call'
-  | 'payout_ready_verify';
+  | 'payout_ready_verify'
+  // ═══ BUYER SIDE ═══
+  | 'buyer_weekly_new' | 'buyer_second_purchase';
 
 
 type Lang = 'fr' | 'en';
