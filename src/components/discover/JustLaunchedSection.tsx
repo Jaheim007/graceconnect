@@ -19,19 +19,37 @@ export function JustLaunchedSection() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
+const MIN_CARDS = 8;
+
   const { data: products = [] } = useQuery({
     queryKey: ['discover-just-launched'],
     queryFn: async () => {
       const since = new Date(Date.now() - LAUNCH_WINDOW_DAYS * 86_400_000).toISOString();
-      const { data } = await db
+      const base = () => db
         .from('digital_products')
         .select('*, organizations(name, slug, logo_url, currency, is_verified, kyc_status, category)')
         .eq('is_published', true)
-        .eq('is_express_demo', false)
+        .eq('is_express_demo', false);
+
+      const { data: inWindow } = await base()
         .gte('created_at', since)
         .order('created_at', { ascending: false })
-        .limit(8);
-      return (data || []).map((p: any) => ({
+        .limit(MIN_CARDS);
+
+      let rows = inWindow || [];
+
+      // Keep the shelf full: if very few products launched recently, top it up
+      // with the most recent published ones so the marketplace never looks empty.
+      if (rows.length < MIN_CARDS) {
+        const { data: recent } = await base()
+          .lt('created_at', since)
+          .order('created_at', { ascending: false })
+          .limit(MIN_CARDS - rows.length);
+        const seen = new Set(rows.map((p: any) => p.id));
+        rows = [...rows, ...(recent || []).filter((p: any) => !seen.has(p.id))];
+      }
+
+      return rows.map((p: any) => ({
         ...p,
         organization_name: p.organizations?.name,
         organization_slug: p.organizations?.slug,

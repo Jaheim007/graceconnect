@@ -34,7 +34,7 @@ export function SpaceBlock({ spaceName, spaceCount }: { spaceName: string | null
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
           <Link
-            to="/admin"
+            to="/admin/settings"
             onClick={() => markSurfaceVisit('create')}
             className="flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 text-sm font-semibold transition hover:border-amber-500/40"
           >
