@@ -13,7 +13,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem('gc_theme') as Theme | null;
     if (saved) return saved;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    // Default to light for public pages; OS preference still wins if no saved choice.
+    return 'light';
   });
 
   // Track whether user has explicitly chosen a theme

@@ -370,15 +370,55 @@ function consumeAssistantPrefill(): Partial<WriteState> | null {
   }
 }
 
+interface GuestBookPreview {
+  topic: string;
+  title: string;
+  subtitle: string;
+  chapters: { title: string; summary?: string }[];
+  openingChapter: string;
+  locale: string;
+}
+
+const GUEST_PREVIEW_KEY = 'sv_guest_book_preview';
+
+/** A live preview generated on the landing page for visitors without an account. */
+function consumeGuestPreview(): Partial<WriteState> | null {
+  try {
+    const raw = sessionStorage.getItem(GUEST_PREVIEW_KEY);
+    if (!raw) return null;
+    sessionStorage.removeItem(GUEST_PREVIEW_KEY);
+    const parsed = JSON.parse(raw) as GuestBookPreview;
+    if (!parsed || !parsed.title || !Array.isArray(parsed.chapters)) return null;
+
+    const chapters: WriteChapter[] = parsed.chapters.map((ch, i) => ({
+      id: `ch-${i + 1}`,
+      title: ch.title,
+      content: i === 0 && parsed.openingChapter ? parsed.openingChapter : (ch.summary || ''),
+    }));
+
+    return {
+      source: 'idea',
+      topic: parsed.topic || parsed.title,
+      title: parsed.title,
+      subtitle: parsed.subtitle || '',
+      chapters,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export default function WriteWizard() {
   const bootstrapRef = useRef<LoadedWriteDraft | null>(null);
   if (!bootstrapRef.current) {
     const loaded = loadInitialDraft();
     const prefill = consumeAssistantPrefill();
+    const guestPreview = consumeGuestPreview();
     bootstrapRef.current = prefill
-      // Fresh draft, pre-loaded with the assistant brief, straight to the details step.
       ? { id: createDraftId(), state: toHydratedState(prefill), step: 1, updatedAt: null }
-      : loaded;
+      : guestPreview
+        ? { id: createDraftId(), state: toHydratedState(guestPreview), step: 4, updatedAt: null }
+        : loaded;
   }
 
   const bootstrap = bootstrapRef.current;

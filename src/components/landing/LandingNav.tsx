@@ -1,11 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Menu, X, ArrowRight, User, LogOut, CreditCard, Zap, Gift, BarChart3, Package, Settings, ShieldCheck, MessageSquare, Church } from 'lucide-react';
+import { Menu, X, ArrowRight, User, LogOut, CreditCard, BarChart3, Package, Settings, ShieldCheck, MessageSquare, Gift, Church, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { GlobalPreferencesSelector } from '@/components/global/GlobalPreferencesSelector';
 import { PlanBadge } from '@/components/billing/PlanBadge';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,7 @@ export function LandingNav() {
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
   const { user, profile, signOut, isSuperadmin } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const nativeApp = isNativePlatform();
 
   const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
@@ -33,13 +35,12 @@ export function LandingNav() {
       nativeApp ? 'native-landing-topbar bg-background/95' : 'bg-background/85'
     )}>
       <div className="container flex items-center justify-between h-16 sm:h-[72px] px-4 sm:px-6">
-        {/* Left cluster: logo only — the crowded link row was removed */}
+        {/* Left cluster: logo only */}
         <div className="flex items-center">
           <Link to="/" className="flex items-center shrink-0" aria-label="SiteViral">
             <SiteLogo size="md" animate linked={false} />
           </Link>
         </div>
-
 
         {/* Right cluster */}
         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -47,6 +48,16 @@ export function LandingNav() {
           <div className="hidden sm:block">
             <GlobalPreferencesSelector />
           </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 hidden sm:inline-flex rounded-full hover:bg-muted/60"
+            onClick={toggleTheme}
+            aria-label={isFr ? 'Changer de thème' : 'Toggle theme'}
+          >
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
 
           {user ? (
             <DropdownMenu>
@@ -84,23 +95,16 @@ export function LandingNav() {
             <>
               <Button
                 variant="ghost"
-                onClick={() => navigate('/create-org')}
-                className="hidden md:inline-flex text-sm font-semibold h-10 px-4"
-              >
-                {isFr ? 'Créer ma plateforme' : 'Create my platform'}
-              </Button>
-              <Button
-                variant="ghost"
                 onClick={() => navigate('/auth?mode=signin')}
                 className="hidden sm:inline-flex text-sm font-semibold h-10 px-4"
               >
                 {isFr ? 'Se connecter' : 'Sign in'}
               </Button>
               <Button
-                onClick={() => navigate('/auth?mode=signup')}
-                className="h-10 px-4 sm:px-5 text-sm font-semibold gap-1.5 bg-foreground text-background hover:bg-foreground/90"
+                onClick={() => navigate('/create-org')}
+                className="h-10 px-4 sm:px-5 text-sm font-semibold gap-1.5"
               >
-                {isFr ? 'Créer un compte' : 'Create account'}
+                {isFr ? 'Créer ma plateforme' : 'Create my platform'}
                 <ArrowRight className="h-3.5 w-3.5 hidden sm:block" />
               </Button>
             </>
@@ -125,22 +129,29 @@ export function LandingNav() {
             <nav className="container px-4 py-4 space-y-1">
               <div className="flex items-center justify-between px-1">
                 <GlobalPreferencesSelector />
-                <Link to="/churches" onClick={() => setMenuOpen(false)}
-                  className="text-sm font-semibold text-foreground/80 inline-flex items-center gap-1.5">
-                  <Church className="h-4 w-4" /> {isFr ? 'Pour les églises' : 'For churches'}
-                </Link>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-full hover:bg-muted/60"
+                  onClick={() => { toggleTheme(); setMenuOpen(false); }}
+                  aria-label={isFr ? 'Changer de thème' : 'Toggle theme'}
+                >
+                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </Button>
               </div>
+
+              <Link to="/churches" onClick={() => setMenuOpen(false)}
+                className="text-sm font-semibold text-foreground/80 inline-flex items-center gap-1.5 px-1 py-2">
+                <Church className="h-4 w-4" /> {isFr ? 'Pour les églises' : 'For churches'}
+              </Link>
 
               {!user && (
                 <div className="pt-3 border-t border-border/60 mt-2 space-y-2">
-                  <Button variant="outline" className="w-full h-11 font-semibold" onClick={() => { navigate('/create-org'); setMenuOpen(false); }}>
-                    {isFr ? 'Créer ma plateforme' : 'Create my platform'}
+                  <Button className="w-full h-11 font-semibold gap-1.5" onClick={() => { navigate('/create-org'); setMenuOpen(false); }}>
+                    {isFr ? 'Créer ma plateforme' : 'Create my platform'} <ArrowRight className="h-3.5 w-3.5" />
                   </Button>
                   <Button variant="ghost" className="w-full h-11 font-semibold" onClick={() => { navigate('/auth?mode=signin'); setMenuOpen(false); }}>
                     {isFr ? 'Se connecter' : 'Sign in'}
-                  </Button>
-                  <Button className="w-full h-11 font-semibold gap-1.5" onClick={() => { navigate('/auth?mode=signup'); setMenuOpen(false); }}>
-                    {isFr ? 'Créer un compte' : 'Create account'} <ArrowRight className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               )}
