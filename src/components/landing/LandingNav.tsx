@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Menu, X, ArrowRight, User, LogOut, CreditCard, Zap, Gift, BarChart3, Package, Settings, ShieldCheck, MessageSquare, Church, Sun, Moon } from 'lucide-react';
+import { Menu, X, ArrowRight, User, LogOut, CreditCard, BarChart3, Package, Settings, ShieldCheck, MessageSquare, Gift, Church, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
