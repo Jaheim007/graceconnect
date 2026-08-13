@@ -442,7 +442,14 @@ export function AdminProducts() {
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
         <EmptyState variant="purchases" title={isFr ? 'Aucun produit' : 'No products'} action={{ label: isFr ? 'Nouveau produit' : 'New product', onClick: () => navigate('/admin/products/new') }} />
       ) : (
+        <div className="space-y-4">
+        <FirstSaleCoach
+          products={items}
+          onShare={(p) => setFlyerProduct(p)}
+          onEdit={(p) => navigate(`/admin/products/${p.id}/edit`)}
+        />
         <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-4">
+
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-baseline gap-2">
               <h2 className="font-heading text-base font-bold tracking-tight">{items.length}</h2>
