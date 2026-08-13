@@ -445,6 +445,7 @@ export function AdminProducts() {
         <EmptyState variant="purchases" title={isFr ? 'Aucun produit' : 'No products'} action={{ label: isFr ? 'Nouveau produit' : 'New product', onClick: () => navigate('/admin/products/new') }} />
       ) : (
         <div className="space-y-4">
+        <SellerSurveyCard />
         <FirstSaleCoach
           products={items}
           onShare={(p) => { markShared(p.id); setFlyerProduct(p); }}
