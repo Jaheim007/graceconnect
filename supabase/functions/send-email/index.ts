@@ -1407,6 +1407,45 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
           `, lang) };
     }
 
+    // ═══ BUYER SIDE ═══
+    case 'buyer_weekly_new': {
+      const url = String(d.page_url || 'https://siteviral.com/new-this-week');
+      const list = String(d.items_html || '');
+      return isFr
+        ? { subject: `✨ Les nouveautés de la semaine (${d.count || 0})`, html: wrap(`
+            <h1 style="color:${blue};font-size:22px">Nouveau cette semaine</h1>
+            <p>Bonjour ${d.name || ''},</p>
+            <p>Voici ce que les créateurs ont publié ces 7 derniers jours :</p>
+            ${list}
+            ${cta(url, 'Tout voir')}
+            <p style="font-size:12px;color:#888">Partagez la page à un ami — elle est publique.</p>
+          `, lang) }
+        : { subject: `✨ New this week (${d.count || 0})`, html: wrap(`
+            <h1 style="color:${blue};font-size:22px">New this week</h1>
+            <p>Hello ${d.name || ''},</p>
+            <p>Here's what creators published in the last 7 days:</p>
+            ${list}
+            ${cta(url, 'See everything')}
+            <p style="font-size:12px;color:#888">Share the page with a friend — it's public.</p>
+          `, lang) };
+    }
+
+    case 'buyer_second_purchase': {
+      const url = String(d.page_url || 'https://siteviral.com/discover');
+      return isFr
+        ? { subject: `Après « ${d.first_title || 'votre achat'} », ceci pourrait vous plaire`, html: wrap(`
+            <h1 style="color:${blue};font-size:22px">La suite logique</h1>
+            <p>Bonjour ${d.name || ''},</p>
+            <p>Vous avez acheté <strong>${d.first_title || ''}</strong>. D'autres créateurs publient dans le même esprit — et certains contenus sont gratuits.</p>
+            ${cta(url, 'Voir les recommandations')}
+          `, lang) }
+        : { subject: `After "${d.first_title || 'your purchase'}", you might like this`, html: wrap(`
+            <h1 style="color:${blue};font-size:22px">The natural next step</h1>
+            <p>Hello ${d.name || ''},</p>
+            <p>You bought <strong>${d.first_title || ''}</strong>. Other creators publish in the same vein — and some content is free.</p>
+            ${cta(url, 'See recommendations')}
+          `, lang) };
+    }
 
     default:
       throw new Error(`Unknown template: ${template}`);
