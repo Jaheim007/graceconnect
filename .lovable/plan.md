@@ -1,72 +1,83 @@
 # Landing page: "Write your book here, live" + light mode by default
 
-## The big idea (yes, it's the right one)
+## Verdict on the big idea
 
-Your YouTube analogy is the strongest thing in this whole message: *YouTube made everyone a creator — SiteViral makes everyone an author.* So the landing page should not sell writing a book. It should **be** the writing of a book.
+The idea is **good — actually the best direction for the landing page**, but only if the free part is strictly capped. Here's the argument.
 
-New hero flow, on `/landing` itself:
+### Why it works
+Rork, ChatGPT, YouTube, every modern product-led tool uses the same pattern: **the landing page is the demo.** They don't describe what they do; they let you do it. The user who comes to SiteViral doesn't want to "buy a writing tool" — they want to stop staring at a blank page. If the landing page writes their first chapter in real time, they get the emotional win before any signup gate. That is a much stronger hook than a headline and a screenshot.
+
+The YouTube analogy is also precise: YouTube didn't say "upload videos and monetize"; it made the act of uploading effortless. For SiteViral, the equivalent is: type one sentence, see a book outline appear. The barrier between visitor and author collapses.
+
+### The risk (and why it is still the right call)
+The risk is cost. Generating an outline + chapter one is cheap; generating a full 8-chapter book with covers and images is not. So the free layer must stop at **outline + first chapter**. Everything after that is behind the account. This keeps the "wow" moment free without giving away the expensive product.
+
+The risk of abuse is real, so we add a daily per-device/per-IP limit on guest previews. A few free previews per day is enough for a real visitor to test the promise; a bot farm hits the wall.
+
+### Why the Rork-style rotating people can work for us — but differently
+Rork cycles "Be the next [George]" with a profile image. The effect is aspirational: "you could be this person." For SiteViral, random faces would feel fake. Our version should cycle **creator categories** instead, because those are the real outcomes we enable:
 
 ```text
-1. Headline (the promise)          "YouTube made everyone a creator.
-                                    SiteViral makes everyone an author."
-2. One line, one field             "What book do you want to write?"
-   [ title / topic ..............................] [ Write my book ]
-3. Live generation, right there    animated: outline appears line by line
-   (no account, no credits)        "Chapter 1... Chapter 2... Chapter 8"
-4. Preview panel                   real chapter titles + the opening
-                                   paragraphs of chapter 1, scrollable
-5. The gate (only here)            "Your book is ready. Create your account
-                                    to keep it, finish it and sell it."
-                                   -> Google / email, in a sheet on the page
-6. After sign-up                   land straight in /ecrire on the preview
-                                   step, with the exact book they just made
+FR: "Deviens le prochain [auteur] / [professeur] / [pasteur] / [coach]"
+EN: "Be the next [author] / [teacher] / [pastor] / [coach]"
 ```
 
-The value is delivered *before* the ask. That's the whole trick, and it replaces the vague search bar — the field stays, but it stops being a "search bar" and becomes the book field, with a real result attached to it.
+Each word can carry a small icon or badge. The rotation keeps the headline alive, and it makes the page about the visitor's possible identity, not about our product. It also lets us cover our four verticals without building four separate landing pages.
 
-### What is free vs. gated
-- Free for guests, no credits: the outline (chapter titles) + the opening of chapter 1.
-- Gated behind sign-up: keeping the book, generating the full chapters, covers, images, pricing, publishing.
+## The new `/landing` flow
 
-That keeps the "wow, it wrote my book" moment free without giving away the expensive full generation. To avoid abuse, guest generations are rate-limited per device/IP (a few per day) and the free taste never writes to a user's library until they sign up.
+```text
+1. Aspirational headline (rotating identity)  "Deviens le prochain auteur"
+                                                word swaps: auteur, professeur, pasteur, coach
+2. Sub-line                                     "Ton livre existe déjà. Il est juste encore dans ta tête."
+3. One input + action                           "Quel livre veux-tu écrire ?"
+   [ title / topic ..............................] [ Écrire mon livre ]
+4. Live preview (no account, no credits)         animated outline + chapter 1 opening
+5. The gate (only when preview is ready)        "Ton livre est prêt. Crée ton compte pour le garder,
+                                                le finir et le vendre."
+                                                -> Google / email / Apple (sheet on the same page)
+6. After sign-up                                land in /ecrire preview step with the exact book
+```
 
-### Copy direction (talks to them, not about us)
-Replace "Deviens le prochain auteur qui vit de ce qu'il enseigne" with something that names their real feeling: they already know something worth teaching, they've just never had a book. Examples to use:
-- FR: "Tu sais déjà quelque chose que d'autres paieraient pour apprendre." / "Ton livre existe déjà. Il est juste encore dans ta tête."
-- EN: "You already know something people would pay to learn." / "Your book already exists. It's just still in your head."
-Sub-line stays concrete: written with AI, published on your own page, paid by Wave, Orange Money or MTN.
+The input field replaces the current search bar, but it now has a clear job: it is the first sentence of their book. The examples below become one-tap starters.
 
-## Animated background (the Rork feel)
+## What stays free vs. what is gated
+- Free, no account, no credits: a 6–10 chapter outline + the first 300–500 words of chapter 1.
+- Gated behind account: saving the project, generating the full book, covers, illustrations, pricing, publishing, selling.
 
-A calm, slow, always-moving backdrop behind the hero — not a gimmick:
-- soft drifting gradient blobs (very slow, 30–40s loops) in brand blue,
-- a faint grid / dot field that slowly parallaxes,
-- a subtle grain overlay so it reads premium rather than "CSS demo",
-- fully disabled on `prefers-reduced-motion`, GPU transforms only (`translate3d`, no layout thrash), lighter version on mobile.
+This preserves the magic moment while protecting our AI budget.
 
-It works in both themes: light = pale blue haze on near-white; dark = deep navy glow.
+## Animated background (Rork feel, SiteViral execution)
 
-## Light mode as default + theme toggle back on public pages
+Calm, slow, always-moving backdrop behind the hero:
+- soft drifting gradient blobs in brand blue (30–40s loops),
+- a faint dot grid or subtle grain so it reads premium, not "demo CSS",
+- GPU-only transforms, disabled on reduced-motion,
+- lighter on mobile to protect battery and scroll.
 
-- Default theme becomes **light** when the visitor has no saved preference (today it follows the OS, so most phones open dark). The saved preference still wins.
-- A small sun/moon toggle returns to the public pages: landing nav, `/churches` nav, and the public footer — so light/dark is switchable everywhere, not only inside the app.
+Works in both themes: light = pale blue haze on off-white; dark = deep navy glow.
+
+## Light mode by default + theme toggle on public pages
+
+- Default theme becomes **light** when the visitor has no saved preference. The saved preference still wins.
+- A small sun/moon toggle returns to public pages: landing nav, church nav, public footer. Dark mode is not removed; it becomes a choice, not a forced default.
 
 ## One CTA, not two
 
-The nav gets rid of the "Create an account" / "Create my platform" confusion:
-- primary (filled) button: **Create my platform**
-- secondary (text): **Sign in**
-- language selector + theme toggle stay.
-Signed-in visitors keep the avatar menu as today.
+The nav currently has "Créer ma plateforme" and "Créer un compte" side-by-side. That is confusing. We replace it with:
+- primary (filled) button: **Créer ma plateforme**
+- secondary (text): **Se connecter**
+- language selector + theme toggle stay
 
-## Technical notes
+For signed-in visitors, the avatar menu stays as today.
 
-- `AuthorHero.tsx` is rewritten into a hero + live "book studio" panel; new `HeroAurora.tsx` for the animated background (pure CSS/Tailwind keyframes + framer-motion, no new dependency).
-- New public edge function `guest-book-outline` (verify_jwt = false) that takes a title/topic + locale and returns chapter titles plus the first chapter's opening, with per-IP daily rate limiting and no database write for guests. Uses the existing Gemini setup.
-- The guest result is held in `sessionStorage`; after sign-up (existing auth sheet / `/auth` with a return path) `WriteWizard` picks it up and creates the real project, landing the user on the preview step. This reuses the existing `?project=`/`?idea=` deep-link logic already in `WriteWizard.tsx`.
-- Theme default changes in `src/contexts/ThemeContext.tsx` and the pre-render script in `src/main.tsx`; toggle added to `LandingNav.tsx`, `ChurchNav`, `LandingFooterCompact.tsx`.
-- Nav CTA cleanup in `LandingNav.tsx` only; no auth, payment or dashboard logic is touched.
-- Mobile notifications (your other topic) are not in this plan — separate pass once the landing is done.
+## Technical plan
+
+- `AuthorHero.tsx` becomes a hero + live "book studio" panel. New `HeroAurora.tsx` for the animated background (CSS/Tailwind + framer-motion, no new dependency).
+- New `guest-book-outline` Edge Function (verify_jwt = false): takes a title/topic + locale, returns chapter titles + chapter 1 opening, with per-IP daily rate limiting. No database writes for guests.
+- Guest preview result held in `sessionStorage`. After signup, `/ecrire` picks it up and creates the real project using the existing `?project=`/`?idea=` deep-link logic in `WriteWizard.tsx`.
+- Theme default changed in `src/contexts/ThemeContext.tsx` and `src/main.tsx` pre-render script. Theme toggle added to `LandingNav.tsx`, `ChurchNav.tsx`, and `LandingFooterCompact.tsx`.
+- Nav CTA cleaned up in `LandingNav.tsx` only. No auth, payment, dashboard, or marketplace logic is touched.
 
 ## Out of scope
-No changes to dashboards, pricing, marketplace data or the church funnel beyond adding the theme toggle.
+No changes to dashboards, pricing, marketplace data, or the church funnel beyond the theme toggle and the optional rotating identity words in the hero (which could be shared text only).
