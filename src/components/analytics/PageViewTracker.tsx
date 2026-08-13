@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { captureFirstTouch, getFirstTouch, guessCountry } from '@/lib/analytics/firstTouch';
-import { getStoredUtm } from '@/lib/utm';
+import { captureUtm } from '@/lib/utm';
 
 const FT_SYNCED_KEY = 'sv_first_touch_synced';
 
@@ -26,7 +26,7 @@ export function PageViewTracker() {
 
     captureFirstTouch();
     const ft = getFirstTouch();
-    const utm = getStoredUtm();
+    const utm = captureUtm();
 
     trackEvent(
       'page_view',
