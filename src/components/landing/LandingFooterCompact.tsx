@@ -1,9 +1,13 @@
 import { Link } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
+import { Sun, Moon } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { Button } from '@/components/ui/button';
 
 export function LandingFooterCompact() {
   const { locale } = useI18n();
+  const { theme, toggleTheme } = useTheme();
   const isFr = locale === 'fr';
 
   const columns: { title: string; links: { to: string; label: string }[] }[] = [
@@ -101,6 +105,16 @@ export function LandingFooterCompact() {
             <Link to="/churches" className="text-muted-foreground hover:text-foreground">{isFr ? 'Églises' : 'Churches'}</Link>
             <Link to="/status" className="text-muted-foreground hover:text-foreground">{isFr ? 'Statut' : 'Status'}</Link>
             <Link to="/security" className="text-muted-foreground hover:text-foreground">{isFr ? 'Sécurité' : 'Security'}</Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 gap-1.5 text-xs"
+              onClick={toggleTheme}
+              aria-label={isFr ? 'Changer de thème' : 'Toggle theme'}
+            >
+              {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+              {theme === 'dark' ? (isFr ? 'Clair' : 'Light') : (isFr ? 'Sombre' : 'Dark')}
+            </Button>
           </div>
         </div>
       </div>

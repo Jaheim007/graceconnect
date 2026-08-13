@@ -1,8 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Church, ArrowRight } from 'lucide-react';
+import { Church, ArrowRight, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlobalPreferencesSelector } from '@/components/global/GlobalPreferencesSelector';
 import { useI18n } from '@/i18n/I18nContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 /**
  * Dedicated header for the standalone church funnel (/churches).
@@ -10,6 +11,7 @@ import { useI18n } from '@/i18n/I18nContext';
  */
 export function ChurchNav({ onStart }: { onStart: () => void }) {
   const { locale } = useI18n();
+  const { theme, toggleTheme } = useTheme();
   const fr = locale === 'fr';
   const navigate = useNavigate();
 
@@ -32,6 +34,15 @@ export function ChurchNav({ onStart }: { onStart: () => void }) {
           <div className="hidden sm:block">
             <GlobalPreferencesSelector />
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 hidden sm:inline-flex rounded-full hover:bg-muted/60"
+            onClick={toggleTheme}
+            aria-label={fr ? 'Changer de thème' : 'Toggle theme'}
+          >
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
           <Button
             variant="ghost"
             onClick={() => navigate('/auth?mode=signin')}

@@ -56,8 +56,7 @@ window.addEventListener('error', (event) => {
 });
 
 // Apply saved theme before first render to avoid FOUC
-const savedTheme = localStorage.getItem('gc_theme')
-  || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+const savedTheme = localStorage.getItem('gc_theme') || 'light';
 document.documentElement.classList.add(savedTheme);
 // Set PWA theme-color immediately to prevent white flash on status bar
 const themeColorValue = savedTheme === 'dark' ? '#09090b' : '#ffffff';
