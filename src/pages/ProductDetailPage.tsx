@@ -57,6 +57,9 @@ import { ReadingProgressBar } from '@/components/ui/ReadingProgressBar';
 import { ProductTableOfContents } from '@/components/products/ProductTableOfContents';
 import { PixelInjector } from '@/components/org/PixelInjector';
 import { ContactSellerWidget } from '@/components/products/ContactSellerWidget';
+import { FlyerDialog } from '@/components/flyer/FlyerDialog';
+import { truncateWords } from '@/lib/truncateText';
+import { Image as ImageIcon } from 'lucide-react';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -86,6 +89,7 @@ export default function ProductDetailPage() {
   const [copied, setCopied] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [flyerOpen, setFlyerOpen] = useState(false);
 
   // Track recently viewed
   useEffect(() => {
@@ -715,6 +719,18 @@ export default function ProductDetailPage() {
                   <WishlistButton productId={product.id} variant="full" />
                 </div>
                 <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 h-8 text-[11px] font-semibold"
+                    onClick={async () => {
+                      if (user && !affiliateCode) await ensureAffiliateCode();
+                      setFlyerOpen(true);
+                    }}
+                  >
+                    <ImageIcon className="h-3.5 w-3.5" />
+                    {isFr ? 'Créer un visuel à partager' : 'Create a shareable flyer'}
+                  </Button>
                   <PrintableQRCode
                     productTitle={product.title}
                     productUrl={buildShareUrl()}
@@ -724,6 +740,18 @@ export default function ProductDetailPage() {
                     currency={(product as any).currency}
                   />
                 </div>
+
+                <FlyerDialog
+                  open={flyerOpen}
+                  onOpenChange={setFlyerOpen}
+                  title={product.title}
+                  author={org?.name}
+                  benefit={truncateWords(stripHtml(product.description || ''), 140) || null}
+                  priceLabel={formatPrice(getEffectivePrice(product as any) as number, (product as any).is_free, (product as any).currency, locale)}
+                  coverUrl={(product as any).cover_image_url || (product as any).cover_url}
+                  link={buildShareUrl()}
+                />
+
                 {user && (
                   <button
                     className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-destructive transition-colors"
