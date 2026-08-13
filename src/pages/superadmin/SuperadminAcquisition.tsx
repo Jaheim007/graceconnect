@@ -10,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAcquisitionConsole } from '@/hooks/useAcquisitionConsole';
-import { downloadCsv } from '@/lib/csvExport';
+import { downloadCSV } from '@/lib/csvExport';
 
 const RANGES = [7, 30, 90] as const;
 
@@ -209,7 +209,7 @@ export default function SuperadminAcquisition() {
                 size="sm"
                 variant="outline"
                 className="h-7 rounded-lg text-xs"
-                onClick={() => downloadCsv('never-sold-products', (h?.never_sold ?? []) as any[])}
+                onClick={() => downloadCSV((h?.never_sold ?? []) as any[], 'never-sold-products')}
               >
                 Export CSV
               </Button>
@@ -258,7 +258,7 @@ export default function SuperadminAcquisition() {
                 size="sm"
                 variant="outline"
                 className="h-7 rounded-lg text-xs"
-                onClick={() => downloadCsv('dormant-sellers', (h?.dormant_sellers ?? []) as any[])}
+                onClick={() => downloadCSV((h?.dormant_sellers ?? []) as any[], 'dormant-sellers')}
               >
                 Export CSV
               </Button>
@@ -325,7 +325,7 @@ export default function SuperadminAcquisition() {
           <Panel
             title="Free-text notes"
             action={
-              <Button size="sm" variant="outline" className="h-7 rounded-lg text-xs" onClick={() => downloadCsv('seller-surveys', (surveys.data ?? []) as any[])}>
+              <Button size="sm" variant="outline" className="h-7 rounded-lg text-xs" onClick={() => downloadCSV((surveys.data ?? []) as any[], 'seller-surveys')}>
                 Export CSV
               </Button>
             }
