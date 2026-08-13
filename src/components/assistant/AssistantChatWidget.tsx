@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { X, Mic, Send, Loader2, Coins, RotateCcw, BookOpen, GraduationCap, Radio, Image as ImageIcon } from 'lucide-react';
+import { X, Mic, Send, Loader2, Coins, RotateCcw, BookOpen, GraduationCap, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,7 +16,6 @@ import { useVoiceDictation } from '@/hooks/useVoiceDictation';
 import { useCreditsBalance } from '@/hooks/useCredits';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
 import botAsset from '@/assets/viral-studio-bot.gif.asset.json';
-import { canUseVoiceAgent, VOICE_AGENT_ROUTE } from '@/lib/access/voiceAgentAccess';
 import { useIsTyping } from '@/hooks/useIsTyping';
 
 
