@@ -78,22 +78,11 @@ export function AuthorHero() {
     setPreview(null);
 
     try {
-      const { functionsUrl, anonKey } = await import('@/integrations/supabase/client').then((m) => ({
-        functionsUrl: m.supabase.functions.url,
-        anonKey: m.supabase.supabaseKey,
-      }));
-
-      const res = await fetch(`${functionsUrl}/guest-book-outline`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          apikey: anonKey,
-        },
-        body: JSON.stringify({ topic, locale }),
+      const { data, error: fnErr } = await supabase.functions.invoke('guest-book-outline', {
+        body: { topic, locale },
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Failed to generate preview');
+      if (fnErr) throw fnErr;
 
       const result: GuestPreview = {
         topic,
