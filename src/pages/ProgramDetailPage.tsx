@@ -1,3 +1,4 @@
+import { BuyerFeeNote } from '@/components/payments/FeeBreakdown';
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
