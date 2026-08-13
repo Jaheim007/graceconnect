@@ -122,7 +122,7 @@ export function AuthorHero() {
     navigate('/auth?mode=signup');
   };
 
-  const CurrentIdentityIcon = idList.find((i) => i.label === (preview ? 'auteur' : undefined))?.icon || BookOpen;
+  const CurrentIdentityIcon = BookOpen;
 
   return (
     <section className="relative overflow-hidden border-b border-border bg-background">
