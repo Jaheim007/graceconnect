@@ -19,6 +19,7 @@ const linkGroups = [
     items: [
       { to: '/superadmin', label: 'Overview', icon: LayoutDashboard, end: true },
       { to: '/superadmin/command-center', label: 'Command Center', icon: Shield },
+      { to: '/superadmin/acquisition', label: 'Acquisition', icon: Target },
       { to: '/superadmin/health', label: 'Health', icon: Activity },
     ],
   },
