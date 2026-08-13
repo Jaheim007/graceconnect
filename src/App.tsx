@@ -302,6 +302,7 @@ const SuperadminActivityFeed = lazy(() => import("@/pages/superadmin/SuperadminA
 const SuperadminSettings = lazy(() => import("@/pages/superadmin/SuperadminSettings"));
 const SuperadminExports = lazy(() => import("@/pages/superadmin/SuperadminExports"));
 const SuperadminInvestorSnapshot = lazy(() => import("@/pages/superadmin/SuperadminInvestorSnapshot"));
+const SuperadminAcquisition = lazy(() => import("@/pages/superadmin/SuperadminAcquisition"));
 const SuperadminRiskAML = lazy(() => import("@/pages/superadmin/SuperadminRiskAML"));
 const SuperadminDirectory = lazy(() => import("@/pages/superadmin/SuperadminDirectory"));
 const SuperadminEmailLogs = lazy(() => import("@/pages/superadmin/SuperadminEmailLogs"));
@@ -773,6 +774,7 @@ const App = () => (
                   <Route path="exports" element={<SuperadminExports />} />
                   <Route path="settings" element={<SuperadminSettings />} />
                   <Route path="investor" element={<SuperadminInvestorSnapshot />} />
+                  <Route path="acquisition" element={<SuperadminAcquisition />} />
                   <Route path="risk" element={<SuperadminRiskAML />} />
                   <Route path="directory" element={<SuperadminDirectory />} />
                   <Route path="marketplace-moderation" element={<SuperadminMarketplaceModeration />} />

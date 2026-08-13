@@ -11310,6 +11310,63 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_surveys: {
+        Row: {
+          audience_size: string | null
+          biggest_blocker: string | null
+          content_type: string | null
+          created_at: string
+          found_via: string | null
+          id: string
+          main_goal: string | null
+          note: string | null
+          organization_id: string | null
+          price_expectation: string | null
+          user_id: string
+        }
+        Insert: {
+          audience_size?: string | null
+          biggest_blocker?: string | null
+          content_type?: string | null
+          created_at?: string
+          found_via?: string | null
+          id?: string
+          main_goal?: string | null
+          note?: string | null
+          organization_id?: string | null
+          price_expectation?: string | null
+          user_id: string
+        }
+        Update: {
+          audience_size?: string | null
+          biggest_blocker?: string | null
+          content_type?: string | null
+          created_at?: string
+          found_via?: string | null
+          id?: string
+          main_goal?: string | null
+          note?: string | null
+          organization_id?: string | null
+          price_expectation?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_surveys_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_surveys_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
+          },
+        ]
+      }
       short_links: {
         Row: {
           clicks: number
@@ -12561,6 +12618,14 @@ export type Database = {
       }
       founders_remaining: { Args: never; Returns: number }
       generate_certificate_number: { Args: never; Returns: string }
+      get_acquisition_overview: {
+        Args: { p_days?: number; p_exclude_internal?: boolean }
+        Returns: Json
+      }
+      get_affiliate_performance: {
+        Args: { p_days?: number; p_exclude_internal?: boolean }
+        Returns: Json
+      }
       get_billing_usage_stats: {
         Args: { _user_id: string }
         Returns: {
@@ -12584,6 +12649,10 @@ export type Database = {
         }[]
       }
       get_credit_summary: { Args: { _user_id: string }; Returns: Json }
+      get_first_sale_health: {
+        Args: { p_exclude_internal?: boolean; p_limit?: number }
+        Returns: Json
+      }
       get_founders_wall: {
         Args: never
         Returns: {
@@ -12592,6 +12661,10 @@ export type Database = {
           display_name: string
           slot_number: number
         }[]
+      }
+      get_money_overview: {
+        Args: { p_days?: number; p_exclude_internal?: boolean }
+        Returns: Json
       }
       get_monthly_commission_recap: {
         Args: { _month_key?: string; _user_id: string }
@@ -12662,6 +12735,10 @@ export type Database = {
           unique_buyers: number
           units_sold: number
         }[]
+      }
+      get_seller_funnel: {
+        Args: { p_days?: number; p_exclude_internal?: boolean }
+        Returns: Json
       }
       get_theme_counts: {
         Args: never
