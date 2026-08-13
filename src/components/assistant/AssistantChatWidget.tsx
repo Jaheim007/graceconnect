@@ -169,18 +169,7 @@ export function AssistantChatWidget() {
                 <p className="text-[10px] text-muted-foreground">{copy.free}</p>
               </div>
               <div className="flex items-center gap-1">
-                {/* Internal voice-agent test — renders only for allowlisted UIDs. */}
-                {canUseVoiceAgent(user?.id) && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => { setOpen(false); navigate(VOICE_AGENT_ROUTE); }}
-                    aria-label="Voice agent"
-                  >
-                    <Radio className="h-3.5 w-3.5" />
-                  </Button>
-                )}
+
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={reset} aria-label={isFr ? 'Nouvelle discussion' : 'New chat'}>
                   <RotateCcw className="h-3.5 w-3.5" />
                 </Button>
