@@ -305,3 +305,6 @@ verify_jwt = false
 
 [functions.activation-engine]
 verify_jwt = false
+
+[functions.buyer-digest]
+verify_jwt = false
