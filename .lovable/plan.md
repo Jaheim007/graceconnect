@@ -1,83 +1,80 @@
-# /landing as a two-sided marketplace entry
+# /landing — three audiences, one page, clear hierarchy
 
-## Summary
+## The strategic call
 
-Transform `/landing` from a single-author "write your book" demo into a two-sided marketplace entry that speaks to **two people**:
+Yes, address all three audiences on `/landing`. But **not with equal weight**. Three co-equal choices is the single most common way a landing page loses conversions — visitors given three equivalent doors pick none. The fix is hierarchy, not fewer doors.
 
-1. **Creators who already have content** — books, ebooks, PDFs, courses, audio — and want to sell it directly.
-2. **Ambassadors who have no content** — but want to earn money by promoting other people's products.
+Ranking, based on acquisition cost and what the business needs right now:
 
-The page will be simpler, more direct, and more professional. It will keep the AI writing feature as a creator tool but no longer lead with it as the only value proposition.
+1. **Primary — the person with no book yet.** Cheapest to acquire: no account, no assets, instant free demo. This is the emotional hook and stays the hero exactly as it is today.
+2. **Strong secondary — the person who already has content elsewhere.** Highest value: they can transact within days. They don't convert on a demo, they convert on fees, payout method, and migration effort.
+3. **Tertiary but visible — the person who wants to earn without creating.** Easiest to acquire in volume, but brings no supply. An early marketplace dies from missing supply, not missing promoters. Promoting an empty catalog also looks bad. So: present it clearly, don't lead with it.
 
-## Why this direction
+Nothing is removed. The book writer keeps the hero. The other two get their own real, well-designed sections instead of being buried in one small text link.
 
-The previous "write your book" hero only captures one audience: aspiring authors who need to start from zero. But a large part of your traffic already has a sermon, a course, a PDF, or a guide ready to sell. Ignoring them leaves revenue on the table.
+## What changes
 
-At the same time, the ambassador program is a real product path. People who don't create content can still distribute it and earn commission. A marketplace landing page that clearly presents both sides is more honest and doubles the addressable audience.
+### 1. Hero stays as-is (audience 1)
+`AuthorHero` keeps its position, headline, free guest generation, and preview. No copy rewrite, no demotion.
 
-This is also a better strategic fit for the brand: SiteViral is a platform where content is created **and** distributed, not just a writing assistant.
+One change only: the existing small "J'ai déjà mon contenu" text link becomes a proper, visible secondary action — still below the primary field, but with enough weight that a content owner sees it immediately instead of scanning past it.
 
-## Key design decisions
+### 2. New section: "You already have content" (audience 2)
+A dedicated section directly under the hero — the first thing after the fold, so a content owner reaches it fast.
 
-- **One page, two doors.** The hero will show two equally clear paths, not a single search bar. Each path has its own headline, benefit line, and CTA.
-- **Creator path** stays the product-led demo: write or upload your book, preview it, publish it, get paid.
-- **Ambassador path** is the new front-door to the existing `/gagner` flow: browse products, share a link, earn commission.
-- **AI writing feature** is kept as a feature section for creators, but it is no longer the only CTA.
-- **Light mode remains the default.**
-- **No "Be the next…" identity rotation.** The copy will be plain and direct, not prescriptive about who the user should become.
+This audience needs different arguments than the book writer. Not "we'll help you write" but:
 
-## Proposed page structure
+- **Bring what you already have.** PDF, ebook, course, audio, sermon recordings.
+- **Keep more of each sale.** 10% all-inclusive vs 30–65% on Western platforms. Concrete side-by-side.
+- **Get paid the way you actually get paid.** Wave, Orange Money, MTN — not a card-only payout that never arrives.
+- **Migrating is fast.** Upload, price, share a link. Emphasis on low switching effort, since this person already has a platform.
 
-1. **LandingNav** — keep, ensure theme toggle is present.
-2. **New Hero: `MarketplaceHero`** — two-card/split layout:
-   - Left: *"I have content to sell"* → "Publish your book, course, or guide. Get paid by Mobile Money."
-     - CTA: "Create my store" → `/auth?mode=signup&intent=creator` or `/create-org`
-   - Right: *"I want to earn without creating content"* → "Share products and earn 5–50% commission on each sale."
-     - CTA: "Start earning" → `/gagner` (or `/auth?intent=ambassador&redirect=/gagner` for guests)
-3. **Trust bar** — keep existing stats/proof, maybe add "creators + ambassadors" wording.
-4. **How it works** — three simple steps that work for both sides: upload or pick, share, get paid.
-5. **AI writing feature section** — show the existing `AuthorHero` / guest preview as a creator tool, but lower on the page. Headline: *"Don't have a book yet? We can help you write it."*
-6. **Ambassador preview** — reuse `LandingAmbassadorSection` with the earnings simulator and featured products.
-7. **Fee transparency** — keep `FeeTransparency`, make sure 10% all-inclusive is clear for creators and commission range is clear for ambassadors.
-8. **Final CTA** — repeat the two-door choice.
-9. **LandingFooterCompact** — add links to both paths.
+CTA: "Publish what I already have" → `/create-org` (signed in) or `/auth?mode=signup&intent=creator` (guest).
 
-## Technical changes
+### 3. Ambassador section keeps its place lower on the page (audience 3)
+Reuse the existing `LandingAmbassadorSection` — it already has the earnings simulator, the 5–50% commission range, and the three-step explanation. Placed after the creator arguments and fee transparency, so it lands once the visitor understands there's real content to promote.
 
-### Files to edit
+Copy stays honest: earn by sharing other people's products, no content of your own required.
 
-- `src/pages/LandingPage.tsx` — reorder sections, remove `AuthorHero` from top, add new hero.
-- `src/components/landing/AuthorHero.tsx` — keep but adjust copy so it can be used as a lower "write your book" feature section, not the main hero.
-- `src/components/landing/MarketplaceHero.tsx` — **new** dual-path hero component.
-- `src/components/landing/LandingAmbassadorSection.tsx` — reuse as-is, maybe adjust CTA to match `/gagner` intent.
-- `src/components/landing/FeeTransparency.tsx` — keep, maybe add a one-line note about ambassador commissions.
-- `src/components/landing/LandingFooterCompact.tsx` — add "Earn" / "Become an ambassador" link.
-- `src/components/landing/LandingNav.tsx` — ensure the nav links to both `/gagner` and `/landing` clearly.
-- `src/components/landing/LandingFirstWin.tsx` — consider updating copy to reflect both creator and ambassador paths (currently French-only, hardcoded).
+CTA: "Start earning" → `/gagner`, or `/auth?mode=signup&intent=ambassador&redirect=/gagner` for guests.
 
-### Routing / auth handoff
+### 4. Final CTA becomes a three-door recap
+`CoreFinalCTA` restructured to name all three paths once, plainly, at the bottom — for the visitor who scrolled everything and now wants to pick. This is the one place where the three appear side by side, and it's safe there because the visitor is already informed.
 
-- Creator CTA for guests: `/auth?mode=signup&intent=creator` → after auth, redirect to `/create-org` or `/dashboard` onboarding.
-- Ambassador CTA for guests: `/auth?mode=signup&intent=ambassador&redirect=/gagner` → after auth, redirect to `/gagner`.
-- Both flows already exist in `AuthContext` / `AuthRedirectPage` or can be handled with the existing `redirect` query param.
+## Page order
 
-### Copy direction
+```text
+LandingNav
+AnnouncementStrip
+AuthorHero              <- audience 1, unchanged, primary
+[NEW] AlreadyHaveContent <- audience 2, strong secondary
+ProductShot
+LandingTrustShield
+FeeTransparency          <- serves audiences 1 and 2
+LandingAmbassadorSection <- audience 3
+CoreFinalCTA             <- three-door recap
+LandingFooterCompact
+```
 
-- Hero headline (FR): *"Vends ce que tu sais. Ou fais vendre ceux qui savent."*
-- Hero headline (EN): *"Sell what you know. Or help others sell what they know."*
-- Creator card: *"J'ai déjà un contenu à vendre"* / *"I already have content to sell"*
-- Ambassador card: *"Je veux gagner sans créer de contenu"* / *"I want to earn without creating content"*
+## Technical notes
 
-## What we are NOT changing
+**New file**
+- `src/components/landing/AlreadyHaveContent.tsx` — audience 2 section. Bilingual via `useI18n`, semantic design tokens only, `Reveal`/framer-motion for entry animation consistent with the rest of the page.
 
-- No new database tables or edge functions.
-- No changes to the ambassador program logic; it already works via `affiliate_links` and `/gagner`.
-- No changes to the AI writing pipeline (`guest-book-outline`, `WriteWizard`, etc.).
-- No changes to dashboards, auth, payments, or workspace logic.
+**Edited files**
+- `src/pages/LandingPage.tsx` — mount the new section, add `LandingAmbassadorSection` (lazy), reorder as above.
+- `src/components/landing/AuthorHero.tsx` — upgrade the "I already have my content" link to a visible secondary action anchoring to the new section. Hero copy untouched.
+- `src/components/landing/CoreFinalCTA.tsx` — restructure into the three-door recap.
+- `src/components/landing/LandingFooterCompact.tsx` — ensure all three intents are linked.
+- `src/pages/LandingPage.tsx` SEO — broaden title/description so it reflects selling existing content and earning by promoting, not only AI book writing.
 
-## Success criteria
+**Auth handoff** — uses existing `intent` and `redirect` query params plus `setPendingAction`; no new routing logic.
 
-- A new visitor on `/landing` can answer in 2 seconds: *"Is this for me if I have content, or for me if I just want to earn?"*
-- Both CTAs are above the fold on desktop and stacked on mobile.
-- The page still feels premium and professional, not like a generic template.
-- The AI writing feature is still discoverable but no longer the only message.
+**Not touched** — no database changes, no edge functions, no changes to the AI writing pipeline, ambassador/affiliate logic, dashboards, auth, payments, or workspace logic.
+
+## How we'll know it worked
+
+- A content owner landing on the page hits their argument within one scroll, not five.
+- The free book demo still converts as the primary hook — it isn't diluted by competing CTAs at the same visual weight.
+- The ambassador path is reachable without being the first thing a visitor sees.
+- On mobile, each section reads as one clear message per screen, never three competing buttons above the fold.
