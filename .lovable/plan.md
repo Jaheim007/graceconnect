@@ -14,29 +14,51 @@ The risk is cost. Generating an outline + chapter one is cheap; generating a ful
 
 The risk of abuse is real, so we add a daily per-device/per-IP limit on guest previews. A few free previews per day is enough for a real visitor to test the promise; a bot farm hits the wall.
 
-### Why the Rork-style rotating people can work for us — but differently
-Rork cycles "Be the next [George]" with a profile image. The effect is aspirational: "you could be this person." For SiteViral, random faces would feel fake. Our version should cycle **creator categories** instead, because those are the real outcomes we enable:
+### One shared entry, not three separate landing pages
+The three audiences (author, teacher, pastor/coach) share the same core need: **turn what they know into a book or formation they can sell**. One shared `/landing` hero is the right default because it avoids duplicating the expensive live-preview engine and keeps the brand simple. The headline can still speak to each audience by rotating the identity word.
+
+Vertical pages stay for audiences with a genuinely different promise:
+- `/churches` already exists for the giving/sermon use case.
+- `/teachers` and `/coaches` can be added later if their messaging diverges far enough to need their own flow. For now, they share `/landing`.
+
+### Headline options — moving past "Be the next"
+"Be the next author" sounds like a motivational poster. The headline should feel like a **conversation starter**, not a claim. The live demo makes the strongest claim, so the text can be simpler.
+
+Recommended direction (rotating identity, plain promise):
 
 ```text
-FR: "Deviens le prochain [auteur] / [professeur] / [pasteur] / [coach]"
-EN: "Be the next [author] / [teacher] / [pastor] / [coach]"
+FR: "Écris ton livre de [auteur] / [professeur] / [pasteur] / [coach] ici."
+EN: "Write your [author] / [teacher] / [pastor] / [coach] book here."
 ```
 
-Each word can carry a small icon or badge. The rotation keeps the headline alive, and it makes the page about the visitor's possible identity, not about our product. It also lets us cover our four verticals without building four separate landing pages.
+Alternatives to test:
+
+```text
+FR: "De l'idée au livre. En un clic."
+EN: "From idea to book. In one click."
+
+FR: "Ton livre existe déjà. Il est juste encore dans ta tête."
+EN: "Your book already exists. It's just still in your head."
+
+FR: "Commence ton livre maintenant. Finis-le quand tu veux."
+EN: "Start your book now. Finish it whenever you want."
+```
+
+The rotating identity can stay in the sub-headline or as a small animated badge if the main headline becomes too static.
 
 ## The new `/landing` flow
 
 ```text
-1. Aspirational headline (rotating identity)  "Deviens le prochain auteur"
-                                                word swaps: auteur, professeur, pasteur, coach
-2. Sub-line                                     "Ton livre existe déjà. Il est juste encore dans ta tête."
-3. One input + action                           "Quel livre veux-tu écrire ?"
+1. Headline (plain, direct)                 "Écris ton livre ici."
+2. Rotating identity badge (optional)        [auteur] → [professeur] → [pasteur] → [coach]
+3. Sub-line                                  "De l'idée au livre, généré en direct."
+4. One input + action                        "Quel livre veux-tu écrire ?"
    [ title / topic ..............................] [ Écrire mon livre ]
-4. Live preview (no account, no credits)         animated outline + chapter 1 opening
-5. The gate (only when preview is ready)        "Ton livre est prêt. Crée ton compte pour le garder,
-                                                le finir et le vendre."
-                                                -> Google / email / Apple (sheet on the same page)
-6. After sign-up                                land in /ecrire preview step with the exact book
+5. Live preview (no account, no credits)     animated outline + chapter 1 opening
+6. The gate (only when preview is ready)     "Ton livre est prêt. Crée ton compte pour le garder,
+                                             le finir et le vendre."
+                                             -> Google / email / Apple (sheet on the same page)
+7. After sign-up                             land in /ecrire preview step with the exact book
 ```
 
 The input field replaces the current search bar, but it now has a clear job: it is the first sentence of their book. The examples below become one-tap starters.
