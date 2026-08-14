@@ -33,7 +33,7 @@ export function CategoryCarousels({ category, onCategoryChange, hideRail }: Cate
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
-  const labels = useCategoryLabels();
+  
 
 
   const isCourseCategory = activeCategory === 'course';
