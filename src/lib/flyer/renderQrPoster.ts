@@ -399,13 +399,15 @@ async function renderCard(opts: RenderQrPosterOptions): Promise<string> {
   const rcx = px + panel / 2;
   ctx.textAlign = 'center';
   ctx.fillStyle = th.ink;
-  ctx.font = `700 ${Math.round(w * 0.026)}px ${BODY}`;
+  ctx.font = `700 ${Math.round(w * 0.023)}px ${BODY}`;
   const scanY = py + panel + scanGap;
-  ctx.fillText(opts.scanLabel, rcx, scanY);
+  for (const line of wrap(ctx, opts.scanLabel, panel, 2)) {
+    ctx.fillText(line, rcx, scanY);
+  }
   if (opts.footnote) {
     ctx.fillStyle = th.inkSoft;
     ctx.font = `500 ${Math.round(w * 0.018)}px ${BODY}`;
-    const fnLines = wrap(ctx, opts.footnote, panel + Math.round(w * 0.02), 2);
+    const fnLines = wrap(ctx, opts.footnote, panel, 2);
     let fy = scanY;
     for (const line of fnLines) {
       fy += Math.round(h * 0.028);
