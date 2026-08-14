@@ -663,13 +663,21 @@ export async function renderFlyer(opts: RenderFlyerOptions): Promise<string> {
       y += authorH;
     }
 
-    if (benefitLines.length) {
-      ctx.fillStyle = th.inkSoft;
-      ctx.font = `400 ${benefitSize}px ${BODY}`;
-      y += Math.round(w * 0.014);
-      for (const line of benefitLines) {
-        ctx.fillText(line, M, y + benefitSize);
-        y += Math.round(benefitSize * 1.45);
+    if (benefit) {
+      // Re-measure against the real remaining space so the description can
+      // never run into the price / CTA block (square format is the tightest).
+      const lineH = Math.round(benefitSize * 1.45);
+      const gap = Math.round(w * 0.014);
+      const room = contentBottom - (y + gap);
+      const maxLines = Math.max(0, Math.min(3, Math.floor(room / lineH)));
+      if (maxLines > 0) {
+        ctx.fillStyle = th.inkSoft;
+        ctx.font = `400 ${benefitSize}px ${BODY}`;
+        y += gap;
+        for (const line of wrap(ctx, benefit, colW, maxLines)) {
+          ctx.fillText(line, M, y + benefitSize);
+          y += lineH;
+        }
       }
     }
 
