@@ -518,34 +518,61 @@ export async function renderFlyer(opts: RenderFlyerOptions): Promise<string> {
   const isStory = opts.format === 'story';
 
   if (isStory) {
-    // ── Stacked, editorial layout for 9:16 ──
-    const contentTop = headerBottom + Math.round(h * 0.045);
-    const coverW = Math.round(w * 0.56);
-    const coverH = Math.round(coverW * 1.42);
+    // ── Stacked, editorial layout for 9:16 (budgeted from the bottom up) ──
+    const ctaH = Math.round(w * 0.098);
+    const ctaY = footerTop - Math.round(w * 0.1) - ctaH;
+    const priceSize = Math.round(w * 0.068);
+    const priceBaseline = ctaY - Math.round(w * 0.045);
+    const textBottom = priceBaseline - priceSize - Math.round(w * 0.03);
+    const colW = w - M * 2;
+
+    const contentTop = headerBottom + Math.round(h * 0.035);
+    const bylineH = opts.byline ? Math.round(w * 0.05) : 0;
+    const authorH = author ? Math.round(w * 0.058) : 0;
+    const benefitSize = Math.round(w * 0.03);
+
+    ctx.font = `400 ${benefitSize}px ${BODY}`;
+    let benefitLines = benefit ? wrap(ctx, benefit, colW, 2) : [];
+
+    // Title block sizing
+    let titleSize = Math.round(w * 0.082);
+    let titleLines: string[] = [];
+    const minTitle = Math.round(w * 0.05);
+    const blockH = () =>
+      bylineH +
+      titleLines.length * Math.round(titleSize * 1.1) +
+      authorH +
+      (benefitLines.length ? benefitLines.length * Math.round(benefitSize * 1.45) + Math.round(w * 0.014) : 0);
+
+    for (;;) {
+      ctx.font = `800 ${titleSize}px ${HEADING}`;
+      titleLines = wrap(ctx, title, colW, 3);
+      // Cover takes whatever is left above the text block
+      const textH = blockH();
+      const coverSpace = textBottom - contentTop - textH - Math.round(h * 0.03);
+      if (coverSpace >= Math.round(h * 0.3) || titleSize <= minTitle) break;
+      titleSize -= Math.round(w * 0.004);
+    }
+
+    // Drop the benefit if space is still tight
+    if (benefitLines.length) {
+      const coverSpace = textBottom - contentTop - blockH() - Math.round(h * 0.03);
+      if (coverSpace < Math.round(h * 0.3)) benefitLines = [];
+    }
+
+    const textH = blockH();
+    const coverMaxH = textBottom - contentTop - textH - Math.round(h * 0.035);
+    const coverW = Math.min(Math.round(w * 0.58), Math.round(coverMaxH / 1.42));
+    const coverH = Math.min(coverMaxH, Math.round(coverW * 1.42));
     paintCoverPanel(ctx, w, th, cover, title, Math.round((w - coverW) / 2), contentTop, coverW, coverH);
 
-    let y = contentTop + coverH + Math.round(h * 0.05);
-    const colW = w - M * 2;
+    let y = textBottom - textH;
 
     if (opts.byline) {
       ctx.fillStyle = th.accent;
       ctx.font = `700 ${Math.round(w * 0.024)}px ${BODY}`;
-      ctx.fillText(plainText(opts.byline).toUpperCase(), M, y);
-      y += Math.round(w * 0.05);
-    }
-
-    let titleSize = Math.round(w * 0.088);
-    let titleLines: string[] = [];
-    const minTitle = Math.round(w * 0.05);
-    const ctaH = Math.round(w * 0.098);
-    const priceSize = Math.round(w * 0.068);
-    const budget = footerTop - Math.round(w * 0.09) - ctaH - Math.round(w * 0.05) - priceSize - y;
-    for (;;) {
-      ctx.font = `800 ${titleSize}px ${HEADING}`;
-      titleLines = wrap(ctx, title, colW, 3);
-      const benefitSize = Math.round(w * 0.03);
-      if (titleLines.length * titleSize * 1.1 + (benefit ? benefitSize * 3.2 : 0) + (author ? w * 0.055 : 0) <= budget || titleSize <= minTitle) break;
-      titleSize -= Math.round(w * 0.004);
+      ctx.fillText(plainText(opts.byline).toUpperCase(), M, y + Math.round(w * 0.024));
+      y += bylineH;
     }
 
     ctx.fillStyle = th.ink;
@@ -559,27 +586,25 @@ export async function renderFlyer(opts: RenderFlyerOptions): Promise<string> {
       ctx.fillStyle = th.inkSoft;
       ctx.font = `600 ${Math.round(w * 0.028)}px ${BODY}`;
       ctx.fillText(author, M, y + Math.round(w * 0.032));
-      y += Math.round(w * 0.058);
+      y += authorH;
     }
 
-    if (benefit) {
-      const bs = Math.round(w * 0.03);
+    if (benefitLines.length) {
       ctx.fillStyle = th.inkSoft;
-      ctx.font = `400 ${bs}px ${BODY}`;
-      const lines = wrap(ctx, benefit, colW, 2);
+      ctx.font = `400 ${benefitSize}px ${BODY}`;
       y += Math.round(w * 0.014);
-      for (const line of lines) {
-        ctx.fillText(line, M, y + bs);
-        y += Math.round(bs * 1.45);
+      for (const line of benefitLines) {
+        ctx.fillText(line, M, y + benefitSize);
+        y += Math.round(benefitSize * 1.45);
       }
     }
 
-    const ctaY = footerTop - Math.round(w * 0.09) - ctaH;
     ctx.fillStyle = th.ink;
     ctx.font = `800 ${priceSize}px ${HEADING}`;
-    ctx.fillText(opts.priceLabel, M, ctaY - Math.round(w * 0.04));
+    ctx.fillText(opts.priceLabel, M, priceBaseline);
     paintCta(ctx, w, th, opts.ctaLabel, M, ctaY, colW);
   } else {
+
     // ── Split layout for poster / square ──
     const ctaH = Math.round(w * 0.098);
     const ctaY = footerTop - Math.round(w * 0.075) - ctaH;
