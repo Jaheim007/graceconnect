@@ -234,26 +234,17 @@ async function qrImage(link: string, size: number, th: Tokens): Promise<HTMLImag
   return loadImage(dataUrl);
 }
 
-export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<string> {
-  const { w, h } = QR_POSTER_FORMATS[opts.format];
-  const th = QR_POSTER_THEMES[opts.theme];
-  const canvas = document.createElement('canvas');
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext('2d')!;
-  const M = Math.round(w * 0.085);
-
-  const [logo, orgAvatar, cover] = await Promise.all([
-    loadImage(flyerLogo.url),
-    opts.orgAvatarUrl ? loadImage(opts.orgAvatarUrl) : Promise.resolve(null),
-    opts.coverUrl ? loadImage(opts.coverUrl) : Promise.resolve(null),
-  ]);
-
-  paintBackground(ctx, w, h, th);
-
-  // ── Brand row ───────────────────────────────────────────────
+function drawBrandRow(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  M: number,
+  y: number,
+  th: Tokens,
+  opts: RenderQrPosterOptions,
+  logo: HTMLImageElement | null,
+  orgAvatar: HTMLImageElement | null,
+): number {
   const markSize = Math.round(w * 0.072);
-  let y = M;
   ctx.save();
   roundRect(ctx, M, y, markSize, markSize, markSize * 0.28);
   ctx.clip();
@@ -267,8 +258,6 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('S', M + markSize / 2, y + markSize / 2 + 2);
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
   }
   ctx.restore();
 
@@ -284,7 +273,7 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
     const pad = Math.round(w * 0.017);
     ctx.font = `700 ${Math.round(w * 0.022)}px ${BODY}`;
     let label = orgName;
-    const maxLabelW = w * 0.32;
+    const maxLabelW = w * 0.3;
     while (ctx.measureText(label).width > maxLabelW && label.length > 6) label = label.slice(0, -2);
     if (label !== orgName) label = `${label.trimEnd()}…`;
     const labelW = ctx.measureText(label).width;
@@ -327,9 +316,191 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
     ctx.fillText(label, avX + avSize + pad * 0.7, pillY + pillH / 2 + 1);
   }
   ctx.textBaseline = 'alphabetic';
-  y += markSize + Math.round(h * 0.045);
+  ctx.textAlign = 'left';
+  return markSize;
+}
 
-  // ── Cover + title block ─────────────────────────────────────
+function drawFooter(ctx: CanvasRenderingContext2D, w: number, h: number, M: number, th: Tokens) {
+  const fy = h - M;
+  ctx.save();
+  ctx.globalAlpha = 0.32;
+  ctx.strokeStyle = th.ink;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(M, fy - Math.round(h * 0.03));
+  ctx.lineTo(w - M, fy - Math.round(h * 0.03));
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.fillStyle = th.inkSoft;
+  ctx.textAlign = 'center';
+  ctx.font = `700 ${Math.round(w * 0.021)}px ${BODY}`;
+  tracked(ctx, 'SITEVIRAL.COM', w / 2, fy, Math.round(w * 0.005));
+  ctx.textAlign = 'left';
+}
+
+function drawQrPanel(
+  ctx: CanvasRenderingContext2D,
+  qr: HTMLImageElement | null,
+  px: number,
+  py: number,
+  panel: number,
+  th: Tokens,
+  w: number,
+) {
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.35)';
+  ctx.shadowBlur = Math.round(w * 0.05);
+  ctx.shadowOffsetY = Math.round(w * 0.014);
+  roundRect(ctx, px, py, panel, panel, Math.round(panel * 0.09));
+  ctx.fillStyle = th.qrPaper;
+  ctx.fill();
+  ctx.restore();
+
+  const qrSize = Math.round(panel * 0.82);
+  if (qr) ctx.drawImage(qr, px + (panel - qrSize) / 2, py + (panel - qrSize) / 2, qrSize, qrSize);
+  paintTicks(ctx, px, py, panel, th);
+}
+
+/** Table card — a two-column tent card: identity on the left, QR on the right. */
+async function renderCard(opts: RenderQrPosterOptions): Promise<string> {
+  const { w, h } = QR_POSTER_FORMATS.card;
+  const th = QR_POSTER_THEMES[opts.theme];
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d')!;
+  const M = Math.round(w * 0.075);
+
+  const [logo, orgAvatar, cover] = await Promise.all([
+    loadImage(flyerLogo.url),
+    opts.orgAvatarUrl ? loadImage(opts.orgAvatarUrl) : Promise.resolve(null),
+    opts.coverUrl ? loadImage(opts.coverUrl) : Promise.resolve(null),
+  ]);
+
+  paintBackground(ctx, w, h, th);
+  const markH = drawBrandRow(ctx, w, M, M, th, opts, logo, orgAvatar);
+
+  const bandTop = M + markH + Math.round(h * 0.055);
+  const footerTop = h - M - Math.round(h * 0.075);
+  const bandH = footerTop - bandTop;
+
+  // Right column: QR panel + scan label
+  const panel = Math.round(w * 0.36);
+  const scanGap = Math.round(h * 0.05);
+  const scanH = Math.round(h * (opts.footnote ? 0.075 : 0.04));
+  const rightBlockH = panel + scanGap + scanH;
+  const px = w - M - panel;
+  const py = bandTop + Math.round((bandH - rightBlockH) / 2);
+
+  const qr = await qrImage(opts.link, panel * 2, th);
+  drawQrPanel(ctx, qr, px, py, panel, th, w);
+
+  const rcx = px + panel / 2;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = th.ink;
+  ctx.font = `700 ${Math.round(w * 0.026)}px ${BODY}`;
+  const scanY = py + panel + scanGap;
+  ctx.fillText(opts.scanLabel, rcx, scanY);
+  if (opts.footnote) {
+    ctx.fillStyle = th.inkSoft;
+    ctx.font = `500 ${Math.round(w * 0.018)}px ${BODY}`;
+    const fnLines = wrap(ctx, opts.footnote, panel + Math.round(w * 0.02), 2);
+    let fy = scanY;
+    for (const line of fnLines) {
+      fy += Math.round(h * 0.028);
+      ctx.fillText(line, rcx, fy);
+    }
+  }
+
+  // Left column: cover + eyebrow + title + price
+  const colW = px - M - Math.round(w * 0.055);
+  ctx.textAlign = 'left';
+
+  const coverW = cover ? Math.round(colW * 0.4) : 0;
+  const coverH = cover ? Math.round(coverW * 1.42) : 0;
+  const eyebrowH = opts.eyebrow ? Math.round(h * 0.042) : 0;
+  const titleSize = Math.round(w * 0.045);
+  ctx.font = `800 ${titleSize}px ${HEADING}`;
+  const titleLines = wrap(ctx, opts.title, colW, 3);
+  const lineH = Math.round(titleSize * 1.18);
+  const titleH = titleLines.length * lineH;
+  const priceH = opts.priceLabel ? Math.round(w * 0.058) + Math.round(h * 0.03) : 0;
+  const leftH = (cover ? coverH + Math.round(h * 0.035) : 0) + eyebrowH + titleH + priceH;
+
+  let ly = bandTop + Math.max(0, Math.round((bandH - leftH) / 2));
+
+  if (cover) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = Math.round(w * 0.03);
+    ctx.shadowOffsetY = Math.round(w * 0.01);
+    roundRect(ctx, M, ly, coverW, coverH, Math.round(coverW * 0.07));
+    ctx.fillStyle = th.panel;
+    ctx.fill();
+    ctx.restore();
+    ctx.save();
+    roundRect(ctx, M, ly, coverW, coverH, Math.round(coverW * 0.07));
+    ctx.clip();
+    drawCover(ctx, cover, M, ly, coverW, coverH);
+    ctx.restore();
+    ly += coverH + Math.round(h * 0.035);
+  }
+
+  if (opts.eyebrow) {
+    ctx.fillStyle = th.accent;
+    ctx.font = `700 ${Math.round(w * 0.019)}px ${BODY}`;
+    ctx.fillText(opts.eyebrow.toUpperCase(), M, ly + Math.round(h * 0.018));
+    ly += eyebrowH;
+  }
+
+  ctx.fillStyle = th.ink;
+  ctx.font = `800 ${titleSize}px ${HEADING}`;
+  for (const line of titleLines) {
+    ly += lineH;
+    ctx.fillText(line, M, ly - Math.round(lineH * 0.22));
+  }
+
+  if (opts.priceLabel) {
+    ly += Math.round(h * 0.03);
+    ctx.font = `800 ${Math.round(w * 0.028)}px ${BODY}`;
+    const tw = ctx.measureText(opts.priceLabel).width;
+    const padX = Math.round(w * 0.03);
+    const pillH = Math.round(w * 0.058);
+    const pillW = tw + padX * 2;
+    roundRect(ctx, M, ly, pillW, pillH, pillH / 2);
+    ctx.fillStyle = th.accent;
+    ctx.fill();
+    ctx.fillStyle = th.accentInk;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(opts.priceLabel, M + padX, ly + pillH / 2 + 1);
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  drawFooter(ctx, w, h, M, th);
+  return canvas.toDataURL('image/png');
+}
+
+export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<string> {
+  if (opts.format === 'card') return renderCard(opts);
+  const { w, h } = QR_POSTER_FORMATS.poster;
+  const th = QR_POSTER_THEMES[opts.theme];
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d')!;
+  const M = Math.round(w * 0.085);
+
+  const [logo, orgAvatar, cover] = await Promise.all([
+    loadImage(flyerLogo.url),
+    opts.orgAvatarUrl ? loadImage(opts.orgAvatarUrl) : Promise.resolve(null),
+    opts.coverUrl ? loadImage(opts.coverUrl) : Promise.resolve(null),
+  ]);
+
+  paintBackground(ctx, w, h, th);
+  const markH = drawBrandRow(ctx, w, M, M, th, opts, logo, orgAvatar);
+  let y = M + markH + Math.round(h * 0.045);
+
   ctx.textAlign = 'center';
   const cx = w / 2;
 
@@ -341,7 +512,7 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
   }
 
   if (cover) {
-    const cw = Math.round(w * (opts.format === 'card' ? 0.16 : 0.2));
+    const cw = Math.round(w * 0.2);
     const ch = Math.round(cw * 1.42);
     const cxx = cx - cw / 2;
     ctx.save();
@@ -360,10 +531,10 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
     y += ch + Math.round(h * 0.028);
   }
 
-  const titleSize = Math.round(w * (opts.format === 'card' ? 0.052 : 0.058));
+  const titleSize = Math.round(w * 0.058);
   ctx.font = `800 ${titleSize}px ${HEADING}`;
   ctx.fillStyle = th.ink;
-  const titleLines = wrap(ctx, opts.title, w - M * 2, opts.format === 'card' ? 2 : 3);
+  const titleLines = wrap(ctx, opts.title, w - M * 2, 3);
   const lineH = Math.round(titleSize * 1.16);
   for (const line of titleLines) {
     y += lineH;
@@ -387,7 +558,6 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
     y += pillH + Math.round(h * 0.022);
   }
 
-  // ── QR panel (the hero) ─────────────────────────────────────
   const scanGap = Math.round(h * 0.062);
   const scanBlockH = scanGap + Math.round(h * (opts.footnote ? 0.05 : 0.022));
   const footerH = M + Math.round(h * 0.035);
@@ -396,21 +566,10 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
   const px = cx - panel / 2;
   const py = y + Math.round((available - panel) / 2);
 
-  ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,0.35)';
-  ctx.shadowBlur = Math.round(w * 0.05);
-  ctx.shadowOffsetY = Math.round(w * 0.014);
-  roundRect(ctx, px, py, panel, panel, Math.round(panel * 0.09));
-  ctx.fillStyle = th.qrPaper;
-  ctx.fill();
-  ctx.restore();
+  const qr = await qrImage(opts.link, panel * 2, th);
+  drawQrPanel(ctx, qr, px, py, panel, th, w);
 
-  const qrSize = Math.round(panel * 0.82);
-  const qr = await qrImage(opts.link, qrSize * 2, th);
-  if (qr) ctx.drawImage(qr, px + (panel - qrSize) / 2, py + (panel - qrSize) / 2, qrSize, qrSize);
-  paintTicks(ctx, px, py, panel, th);
-
-  // Scan instruction
+  ctx.textAlign = 'center';
   ctx.fillStyle = th.ink;
   ctx.font = `700 ${Math.round(w * 0.028)}px ${BODY}`;
   const scanY = py + panel + scanGap;
@@ -422,21 +581,6 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
     ctx.fillText(opts.footnote, cx, scanY + Math.round(h * 0.026));
   }
 
-  // ── Footer signature ────────────────────────────────────────
-  const fy = h - M;
-  ctx.save();
-  ctx.globalAlpha = 0.35;
-  ctx.strokeStyle = th.ink;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(M, fy - Math.round(h * 0.026));
-  ctx.lineTo(w - M, fy - Math.round(h * 0.026));
-  ctx.stroke();
-  ctx.restore();
-
-  ctx.fillStyle = th.inkSoft;
-  ctx.font = `700 ${Math.round(w * 0.021)}px ${BODY}`;
-  tracked(ctx, 'SITEVIRAL.COM', cx, fy, Math.round(w * 0.005));
-
+  drawFooter(ctx, w, h, M, th);
   return canvas.toDataURL('image/png');
 }
