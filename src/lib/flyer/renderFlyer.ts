@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import logoS from '@/assets/logo-s.png';
+import flyerLogo from '@/assets/flyer-logo.png.asset.json';
 
 /**
  * Flyer engine — renders a share-ready promotional flyer for a product
@@ -274,13 +274,11 @@ async function paintBrandRow(
 ): Promise<number> {
   const markSize = Math.round(w * 0.075);
 
-  // Logo tile
+  // Logo tile (brand mark already has its own navy background)
   ctx.save();
   roundRect(ctx, M, M, markSize, markSize, markSize * 0.28);
   ctx.clip();
   if (logo) {
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(M, M, markSize, markSize);
     drawCover(ctx, logo, M, M, markSize, markSize);
   } else {
     ctx.fillStyle = th.accent;
@@ -296,11 +294,10 @@ async function paintBrandRow(
   ctx.restore();
 
   ctx.fillStyle = th.ink;
-  ctx.font = `700 ${Math.round(w * 0.026)}px ${BODY}`;
-  ctx.fillText(opts.brandLabel || 'SiteViral', M + markSize + Math.round(w * 0.02), M + markSize * 0.58);
-  ctx.fillStyle = th.inkSoft;
-  ctx.font = `500 ${Math.round(w * 0.019)}px ${BODY}`;
-  ctx.fillText('siteviral.com', M + markSize + Math.round(w * 0.02), M + markSize * 0.92);
+  ctx.font = `700 ${Math.round(w * 0.028)}px ${BODY}`;
+  ctx.textBaseline = 'middle';
+  ctx.fillText(opts.brandLabel || 'SiteViral', M + markSize + Math.round(w * 0.02), M + markSize / 2 + 1);
+  ctx.textBaseline = 'alphabetic';
 
   // Organization badge (right aligned)
   const orgName = (opts.orgName || '').trim();
@@ -505,7 +502,7 @@ export async function renderFlyer(opts: RenderFlyerOptions): Promise<string> {
   const scanLabel = opts.scanLabel || 'Scanne le QR code';
 
   const [logo, cover, orgAvatar] = await Promise.all([
-    loadImage(logoS),
+    loadImage(flyerLogo.url),
     opts.coverUrl ? loadImage(opts.coverUrl) : Promise.resolve(null),
     opts.orgAvatarUrl ? loadImage(opts.orgAvatarUrl) : Promise.resolve(null),
   ]);
