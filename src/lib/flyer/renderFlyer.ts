@@ -498,7 +498,10 @@ export async function renderFlyer(opts: RenderFlyerOptions): Promise<string> {
   const M = Math.round(w * 0.075);
   const title = plainText(opts.title) || opts.title;
   const benefit = plainText(opts.benefit);
-  const author = plainText(opts.author);
+  // The organization already appears in the header badge — never repeat it as a byline.
+  const rawAuthor = plainText(opts.author);
+  const orgLabel = (opts.orgName || '').trim().toLowerCase();
+  const author = orgLabel && rawAuthor.trim().toLowerCase() === orgLabel ? '' : rawAuthor;
   const scanLabel = opts.scanLabel || 'Scanne le QR code';
 
   const [logo, cover, orgAvatar] = await Promise.all([
