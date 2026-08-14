@@ -15,37 +15,26 @@ import { OfferingCard } from '@/components/offerings/OfferingCard';
 import { OfferingModal } from '@/components/offerings/OfferingModal';
 import { Offering } from '@/hooks/useOfferings';
 
-const CATEGORY_META = [
-  { value: '', emoji: '' },
-  { value: 'pdf', emoji: '📄' },
-  { value: 'ebook', emoji: '📚' },
-  { value: 'audio', emoji: '🎵' },
-  { value: 'video', emoji: '🎬' },
-  { value: 'course', emoji: '🎓' },
-  { value: 'link', emoji: '🔗' },
-  { value: 'campaigns', emoji: '❤️' },
-  { value: 'offerings', emoji: '🤲' },
-] as const;
+import { CategoryRail, type CategoryValue } from '@/components/discover/CategoryRail';
 
-type CategoryValue = typeof CATEGORY_META[number]['value'];
+interface CategoryCarouselsProps {
+  /** Controlled category (rail rendered elsewhere, e.g. in the page header). */
+  category?: CategoryValue;
+  onCategoryChange?: (v: CategoryValue) => void;
+  /** Hide the built-in rail when the page owns it. */
+  hideRail?: boolean;
+}
 
-export function CategoryCarousels() {
-  const [activeCategory, setActiveCategory] = useState<CategoryValue>('');
+export function CategoryCarousels({ category, onCategoryChange, hideRail }: CategoryCarouselsProps = {}) {
+  const [internalCategory, setInternalCategory] = useState<CategoryValue>('');
+  const activeCategory = category ?? internalCategory;
+  const setActiveCategory = onCategoryChange ?? setInternalCategory;
   const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
-  const labels: Record<string, string> = {
-    '': isFr ? 'Tout' : 'All',
-    pdf: 'PDF',
-    ebook: 'E-books',
-    audio: isFr ? 'Audio' : 'Audio',
-    video: isFr ? 'Vidéo' : 'Video',
-    course: isFr ? 'Cours' : 'Courses',
-    link: isFr ? 'Liens' : 'Links',
-    campaigns: isFr ? 'Campagnes' : 'Campaigns',
-    offerings: isFr ? 'Dons' : 'Donations',
-  };
+  
+
 
   const isCourseCategory = activeCategory === 'course';
   const isCampaignCategory = activeCategory === 'campaigns';
@@ -160,38 +149,9 @@ export function CategoryCarousels() {
 
   return (
     <div className="space-y-4 py-4">
-      {/* Category rail — glass segmented control with a sliding gradient pill */}
-      <ScrollArea className="w-full">
-        <div className="flex w-max gap-1 rounded-full border border-border/60 bg-card/60 p-1 backdrop-blur-md shadow-[0_10px_30px_-22px_hsl(var(--primary)/0.6)]">
-          {CATEGORY_META.map((cat) => {
-            const active = activeCategory === cat.value;
-            return (
-              <button
-                key={cat.value}
-                onClick={() => setActiveCategory(cat.value)}
-                aria-pressed={active}
-                className={cn(
-                  'relative shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-colors',
-                  active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {active && (
-                  <motion.span
-                    layoutId="explore-cat-pill"
-                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-                    className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-primary via-primary to-fuchsia-500 shadow-[0_6px_18px_-6px_hsl(var(--primary)/0.85)]"
-                  />
-                )}
-                <span className="relative flex items-center gap-1.5 whitespace-nowrap">
-                  {cat.emoji && <span className={cn('transition-transform', active && 'scale-110')}>{cat.emoji}</span>}
-                  {labels[cat.value]}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      {/* Category rail — hidden when the page renders it in its header */}
+      {!hideRail && <CategoryRail value={activeCategory} onChange={setActiveCategory} />}
+
 
 
       {/* Content */}

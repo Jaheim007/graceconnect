@@ -501,88 +501,139 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
 
   paintBackground(ctx, w, h, th);
   const markH = drawBrandRow(ctx, w, M, M, th, opts, logo, orgAvatar);
-  let y = M + markH + Math.round(h * 0.045);
 
-  ctx.textAlign = 'center';
   const cx = w / 2;
+  const contentW = w - M * 2;
+
+  /* ---- Measure everything first, then place with a fixed vertical rhythm.
+         This is what prevents the title from colliding with the price pill. ---- */
+  const top = M + markH + Math.round(h * 0.05);
+  const footerReserve = M + Math.round(h * 0.055);
+  const bottom = h - footerReserve;
+
+  const eyebrowH = opts.eyebrow ? Math.round(h * 0.03) : 0;
+  const gapAfterEyebrow = opts.eyebrow ? Math.round(h * 0.014) : 0;
+
+  let coverW = cover ? Math.round(w * 0.185) : 0;
+  let coverH = cover ? Math.round(coverW * 1.4) : 0;
+  const gapAfterCover = cover ? Math.round(h * 0.03) : 0;
+
+  // Title: shrink until it fits in at most 2 lines.
+  let titleSize = Math.round(w * 0.056);
+  let titleLines: string[] = [];
+  for (let i = 0; i < 6; i++) {
+    ctx.font = `800 ${titleSize}px ${HEADING}`;
+    const words = opts.title.trim().split(/\s+/);
+    const single = ctx.measureText(opts.title).width <= contentW;
+    titleLines = single ? [opts.title] : wrap(ctx, opts.title, contentW, 2);
+    const fitted = single || titleLines.join(' ').length >= opts.title.trim().length - 1 || words.length <= 2;
+    if (fitted || titleSize <= Math.round(w * 0.036)) break;
+    titleSize = Math.round(titleSize * 0.92);
+  }
+  ctx.font = `800 ${titleSize}px ${HEADING}`;
+  titleLines = ctx.measureText(opts.title).width <= contentW ? [opts.title] : wrap(ctx, opts.title, contentW, 2);
+  const titleLineH = Math.round(titleSize * 1.14);
+  const titleH = titleLines.length * titleLineH;
+
+  const priceFont = Math.round(w * 0.031);
+  const pricePillH = opts.priceLabel ? Math.round(w * 0.066) : 0;
+  const gapBeforePrice = opts.priceLabel ? Math.round(h * 0.03) : 0;
+
+  const scanFont = Math.round(w * 0.028);
+  const footFont = Math.round(w * 0.021);
+  const scanH = Math.round(h * 0.032) + (opts.footnote ? Math.round(h * 0.03) : 0);
+  const gapBeforeQr = Math.round(h * 0.04);
+  const gapAfterQr = Math.round(h * 0.045);
+
+  const fixed =
+    eyebrowH + gapAfterEyebrow +
+    coverH + gapAfterCover +
+    titleH + gapBeforePrice + pricePillH +
+    gapBeforeQr + gapAfterQr + scanH;
+
+  let panel = Math.min(Math.round(w * 0.56), bottom - top - fixed);
+  if (panel < Math.round(w * 0.42) && cover) {
+    // Reclaim room from the cover before shrinking the QR — the QR is the hero.
+    const need = Math.round(w * 0.42) - panel;
+    const shrink = Math.min(need, coverH - Math.round(w * 0.16));
+    coverH -= shrink;
+    coverW = Math.round(coverH / 1.4);
+    panel += shrink;
+  }
+  panel = Math.max(Math.round(w * 0.38), panel);
+
+  let y = top;
 
   if (opts.eyebrow) {
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = th.accent;
     ctx.font = `700 ${Math.round(w * 0.021)}px ${BODY}`;
-    tracked(ctx, opts.eyebrow.toUpperCase(), cx, y, Math.round(w * 0.006));
-    y += Math.round(h * 0.028);
+    tracked(ctx, opts.eyebrow.toUpperCase(), cx, y + Math.round(eyebrowH * 0.72), Math.round(w * 0.006));
+    y += eyebrowH + gapAfterEyebrow;
   }
 
-  if (cover) {
-    const cw = Math.round(w * 0.2);
-    const ch = Math.round(cw * 1.42);
-    const cxx = cx - cw / 2;
+  if (cover && coverH > 0) {
+    const cxx = cx - coverW / 2;
     ctx.save();
     ctx.shadowColor = 'rgba(0,0,0,0.45)';
     ctx.shadowBlur = Math.round(w * 0.035);
     ctx.shadowOffsetY = Math.round(w * 0.012);
-    roundRect(ctx, cxx, y, cw, ch, Math.round(cw * 0.07));
+    roundRect(ctx, cxx, y, coverW, coverH, Math.round(coverW * 0.07));
     ctx.fillStyle = th.panel;
     ctx.fill();
     ctx.restore();
     ctx.save();
-    roundRect(ctx, cxx, y, cw, ch, Math.round(cw * 0.07));
+    roundRect(ctx, cxx, y, coverW, coverH, Math.round(coverW * 0.07));
     ctx.clip();
-    drawCover(ctx, cover, cxx, y, cw, ch);
+    drawCover(ctx, cover, cxx, y, coverW, coverH);
     ctx.restore();
-    y += ch + Math.round(h * 0.028);
+    y += coverH + gapAfterCover;
   }
 
-  const titleSize = Math.round(w * 0.058);
-  ctx.font = `800 ${titleSize}px ${HEADING}`;
+  // Title — baseline placed inside its own measured block, never past titleH.
+  ctx.textAlign = 'center';
   ctx.fillStyle = th.ink;
-  const titleLines = wrap(ctx, opts.title, w - M * 2, 3);
-  const lineH = Math.round(titleSize * 1.16);
-  for (const line of titleLines) {
-    y += lineH;
-    ctx.fillText(line, cx, y);
-  }
-  y += Math.round(h * 0.022);
+  ctx.font = `800 ${titleSize}px ${HEADING}`;
+  titleLines.forEach((line, i) => {
+    ctx.fillText(line, cx, y + i * titleLineH + Math.round(titleSize * 0.9));
+  });
+  y += titleH;
 
   if (opts.priceLabel) {
-    ctx.font = `800 ${Math.round(w * 0.03)}px ${BODY}`;
+    y += gapBeforePrice;
+    ctx.font = `800 ${priceFont}px ${BODY}`;
     const tw = ctx.measureText(opts.priceLabel).width;
-    const padX = Math.round(w * 0.035);
-    const pillH = Math.round(w * 0.062);
+    const padX = Math.round(w * 0.038);
     const pillW = tw + padX * 2;
-    roundRect(ctx, cx - pillW / 2, y, pillW, pillH, pillH / 2);
+    roundRect(ctx, cx - pillW / 2, y, pillW, pricePillH, pricePillH / 2);
     ctx.fillStyle = th.accent;
     ctx.fill();
     ctx.fillStyle = th.accentInk;
     ctx.textBaseline = 'middle';
-    ctx.fillText(opts.priceLabel, cx, y + pillH / 2 + 1);
+    ctx.fillText(opts.priceLabel, cx, y + pricePillH / 2 + 1);
     ctx.textBaseline = 'alphabetic';
-    y += pillH + Math.round(h * 0.022);
+    y += pricePillH;
   }
 
-  const scanGap = Math.round(h * 0.062);
-  const scanBlockH = scanGap + Math.round(h * (opts.footnote ? 0.05 : 0.022));
-  const footerH = M + Math.round(h * 0.035);
-  const available = h - y - scanBlockH - footerH - Math.round(h * 0.012);
-  const panel = Math.max(Math.round(w * 0.34), Math.min(Math.round(w * 0.6), available));
+  y += gapBeforeQr;
   const px = cx - panel / 2;
-  const py = y + Math.round((available - panel) / 2);
-
   const qr = await qrImage(opts.link, panel * 2, th);
-  drawQrPanel(ctx, qr, px, py, panel, th, w);
+  drawQrPanel(ctx, qr, px, y, panel, th, w);
+  y += panel + gapAfterQr;
 
   ctx.textAlign = 'center';
   ctx.fillStyle = th.ink;
-  ctx.font = `700 ${Math.round(w * 0.028)}px ${BODY}`;
-  const scanY = py + panel + scanGap;
-  ctx.fillText(opts.scanLabel, cx, scanY);
+  ctx.font = `700 ${scanFont}px ${BODY}`;
+  ctx.fillText(opts.scanLabel, cx, y + Math.round(scanFont * 0.9));
 
   if (opts.footnote) {
     ctx.fillStyle = th.inkSoft;
-    ctx.font = `500 ${Math.round(w * 0.021)}px ${BODY}`;
-    ctx.fillText(opts.footnote, cx, scanY + Math.round(h * 0.026));
+    ctx.font = `500 ${footFont}px ${BODY}`;
+    ctx.fillText(opts.footnote, cx, y + Math.round(h * 0.032) + Math.round(footFont * 0.9));
   }
 
   drawFooter(ctx, w, h, M, th);
   return canvas.toDataURL('image/png');
 }
+
