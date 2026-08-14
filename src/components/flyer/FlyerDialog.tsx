@@ -366,7 +366,7 @@ export function FlyerDialog({
                 </Button>
                 <Button onClick={handleDownloadQr} variant="ghost" size="sm" className="gap-1.5 text-xs">
                   <QrCode className="h-3.5 w-3.5" />
-                  {t('QR code', 'QR code')}
+                  {t('Carte QR', 'QR card')}
                 </Button>
               </div>
               <Button
