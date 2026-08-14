@@ -181,13 +181,28 @@ export function FlyerDialog({
 
   const handleDownloadQr = async () => {
     try {
-      const url = await QRCode.toDataURL(effectiveLink, { width: 900, margin: 2 });
-      downloadDataUrl(url, `${fileName.replace(/\.png$/, '')}-qr.png`);
-      toast.success(t('QR code téléchargé', 'QR code downloaded'));
+      const qrTheme: QrPosterTheme =
+        theme === 'church' ? 'church' : theme === 'light' ? 'ivory' : 'navy';
+      const url = await renderQrPoster({
+        format: 'card',
+        theme: qrTheme,
+        title,
+        link: effectiveLink,
+        coverUrl,
+        orgName,
+        orgAvatarUrl,
+        priceLabel,
+        eyebrow: byline || (isFr ? 'À découvrir' : 'Available now'),
+        scanLabel: t('Scannez avec votre téléphone', 'Scan with your phone'),
+        footnote: t('Paiement Mobile Money · Accès immédiat', 'Mobile Money payment · Instant access'),
+      });
+      downloadDataUrl(url, `${fileName.replace(/\.png$/, '')}-qr-card.png`);
+      toast.success(t('Carte QR téléchargée', 'QR card downloaded'));
     } catch {
       toast.error(t('QR code indisponible', 'QR code unavailable'));
     }
   };
+
 
   const handleDownloadAll = async () => {
     setBulkBusy(true);
