@@ -28,6 +28,10 @@ export interface FlyerDialogProps {
   link: string;
   /** Small line above the title, e.g. "Partagé par Jean" */
   byline?: string | null;
+  /** Organization / workspace name shown as a badge on the flyer */
+  orgName?: string | null;
+  /** Organization logo / avatar shown in the badge */
+  orgAvatarUrl?: string | null;
   defaultTheme?: FlyerTheme;
 }
 
@@ -54,6 +58,8 @@ export function FlyerDialog({
   coverUrl,
   link,
   byline,
+  orgName,
+  orgAvatarUrl,
   defaultTheme = 'navy',
 }: FlyerDialogProps) {
   const { locale } = useI18n();
@@ -90,6 +96,9 @@ export function FlyerDialog({
       coverUrl,
       link: effectiveLink,
       byline,
+      orgName,
+      orgAvatarUrl,
+      scanLabel: t('Scanne le QR code', 'Scan the QR code'),
       ctaLabel: t('Je le veux', 'Get it now'),
     })
       .then((url) => {
@@ -105,7 +114,7 @@ export function FlyerDialog({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, format, theme, title, author, benefit, priceLabel, coverUrl, effectiveLink, byline]);
+  }, [open, format, theme, title, author, benefit, priceLabel, coverUrl, effectiveLink, byline, orgName, orgAvatarUrl]);
 
   const fileName = useMemo(
     () => `${title.toLowerCase().replace(/[^a-z0-9]+/gi, '-').slice(0, 40)}-${format}.png`,
@@ -194,6 +203,9 @@ export function FlyerDialog({
           coverUrl,
           link: effectiveLink,
           byline,
+          orgName,
+          orgAvatarUrl,
+          scanLabel: t('Scanne le QR code', 'Scan the QR code'),
           ctaLabel: t('Je le veux', 'Get it now'),
         });
         downloadDataUrl(url, `${fileName.replace(/-[a-z]+\.png$/, '')}-${f}.png`);
