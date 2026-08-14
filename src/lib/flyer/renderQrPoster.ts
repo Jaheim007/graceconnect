@@ -210,7 +210,7 @@ function paintTicks(ctx: CanvasRenderingContext2D, x: number, y: number, s: numb
     [x, y + s, 1, -1],
     [x + s, y + s, -1, -1],
   ];
-  const off = Math.round(s * 0.05);
+  const off = Math.round(s * 0.075);
   for (const [cx, cy, dx, dy] of corners) {
     ctx.beginPath();
     ctx.moveTo(cx - dx * off, cy - dy * off + dy * 0);
@@ -388,7 +388,7 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
   }
 
   // ── QR panel (the hero) ─────────────────────────────────────
-  const scanGap = Math.round(h * 0.034);
+  const scanGap = Math.round(h * 0.05);
   const scanBlockH = scanGap + Math.round(h * (opts.footnote ? 0.05 : 0.022));
   const footerH = M + Math.round(h * 0.035);
   const available = h - y - scanBlockH - footerH - Math.round(h * 0.012);
