@@ -15,37 +15,26 @@ import { OfferingCard } from '@/components/offerings/OfferingCard';
 import { OfferingModal } from '@/components/offerings/OfferingModal';
 import { Offering } from '@/hooks/useOfferings';
 
-const CATEGORY_META = [
-  { value: '', emoji: '' },
-  { value: 'pdf', emoji: '📄' },
-  { value: 'ebook', emoji: '📚' },
-  { value: 'audio', emoji: '🎵' },
-  { value: 'video', emoji: '🎬' },
-  { value: 'course', emoji: '🎓' },
-  { value: 'link', emoji: '🔗' },
-  { value: 'campaigns', emoji: '❤️' },
-  { value: 'offerings', emoji: '🤲' },
-] as const;
+import { CATEGORY_META, CategoryRail, useCategoryLabels, type CategoryValue } from '@/components/discover/CategoryRail';
 
-type CategoryValue = typeof CATEGORY_META[number]['value'];
+interface CategoryCarouselsProps {
+  /** Controlled category (rail rendered elsewhere, e.g. in the page header). */
+  category?: CategoryValue;
+  onCategoryChange?: (v: CategoryValue) => void;
+  /** Hide the built-in rail when the page owns it. */
+  hideRail?: boolean;
+}
 
-export function CategoryCarousels() {
-  const [activeCategory, setActiveCategory] = useState<CategoryValue>('');
+export function CategoryCarousels({ category, onCategoryChange, hideRail }: CategoryCarouselsProps = {}) {
+  const [internalCategory, setInternalCategory] = useState<CategoryValue>('');
+  const activeCategory = category ?? internalCategory;
+  const setActiveCategory = onCategoryChange ?? setInternalCategory;
   const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
-  const labels: Record<string, string> = {
-    '': isFr ? 'Tout' : 'All',
-    pdf: 'PDF',
-    ebook: 'E-books',
-    audio: isFr ? 'Audio' : 'Audio',
-    video: isFr ? 'Vidéo' : 'Video',
-    course: isFr ? 'Cours' : 'Courses',
-    link: isFr ? 'Liens' : 'Links',
-    campaigns: isFr ? 'Campagnes' : 'Campaigns',
-    offerings: isFr ? 'Dons' : 'Donations',
-  };
+  const labels = useCategoryLabels();
+
 
   const isCourseCategory = activeCategory === 'course';
   const isCampaignCategory = activeCategory === 'campaigns';
