@@ -234,7 +234,7 @@ async function qrImage(link: string, size: number, th: Tokens): Promise<HTMLImag
   return loadImage(dataUrl);
 }
 
-export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<Blob> {
+export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<string> {
   const { w, h } = QR_POSTER_FORMATS[opts.format];
   const th = QR_POSTER_THEMES[opts.theme];
   const canvas = document.createElement('canvas');
@@ -428,7 +428,5 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<Blob>
   ctx.font = `700 ${Math.round(w * 0.021)}px ${BODY}`;
   tracked(ctx, 'SITEVIRAL.COM', cx, fy, Math.round(w * 0.005));
 
-  return new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('canvas toBlob failed'))), 'image/png');
-  });
+  return canvas.toDataURL('image/png');
 }
