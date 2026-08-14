@@ -736,6 +736,7 @@ export default function ProductDetailPage() {
                     productUrl={buildShareUrl()}
                     coverImageUrl={(product as any).cover_image_url || (product as any).cover_url}
                     orgName={org?.name}
+                    orgAvatarUrl={(org as any)?.logo_url}
                     price={getEffectivePrice(product as any) as number}
                     currency={(product as any).currency}
                   />

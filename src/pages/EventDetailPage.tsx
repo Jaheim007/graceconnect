@@ -220,6 +220,7 @@ export default function EventDetailPage() {
               productUrl={socialShareUrl}
               coverImageUrl={(event as any).cover_image_url || (event as any).image_url}
               orgName={org?.name}
+              orgAvatarUrl={(org as any)?.logo_url}
             />
           </div>
 

@@ -390,6 +390,7 @@ export function ProductForm() {
               productUrl={productUrl}
               coverImageUrl={watch('cover_image_url')}
               orgName={currentOrg?.name}
+              orgAvatarUrl={(currentOrg as any)?.logo_url}
               price={watch('price')}
               currency={currentOrg?.currency || 'XOF'}
             />
