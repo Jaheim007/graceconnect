@@ -30,6 +30,8 @@ export function AmbassadorMarketplace() {
     coverUrl?: string | null;
     link: string;
     byline?: string | null;
+    orgName?: string | null;
+    orgAvatarUrl?: string | null;
   }>(null);
   const [flyerLoading, setFlyerLoading] = useState<string | null>(null);
 
@@ -74,6 +76,8 @@ export function AmbassadorMarketplace() {
           ? t('amb.free')
           : formatCurrency(getEffectivePrice(product), product.currency || DEFAULT_CURRENCY),
         coverUrl: product.cover_image_url,
+        orgName: org?.name,
+        orgAvatarUrl: org?.logo_url,
         link,
         byline: code
           ? locale === 'fr' ? 'Lien ambassadeur' : 'Ambassador link'

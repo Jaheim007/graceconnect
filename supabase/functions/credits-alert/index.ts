@@ -45,6 +45,18 @@ Deno.serve(async (req) => {
     } catch { /* no body */ }
     const isFr = locale === 'fr';
 
+    // Make sure today's daily credits have been granted before alerting.
+    // A session that crosses midnight would otherwise see an expired balance
+    // of 0 and trigger a false "out of credits" email.
+    try {
+      const { data: grant } = await admin.rpc('grant_daily_credits', { _user_id: user.id });
+      if ((grant as any)?.ok) {
+        return json({ ok: true, skipped: 'daily_granted', balance: (grant as any).balance });
+      }
+    } catch (e) {
+      console.warn('[credits-alert] daily grant check failed', e);
+    }
+
     // Authoritative balance (never trust the client)
     const { data: summary, error: sumErr } = await admin.rpc('get_credit_summary', {
       _user_id: user.id,
@@ -54,6 +66,7 @@ Deno.serve(async (req) => {
     const balance = Number((summary as any)?.balance ?? 0);
     const alertType = balance <= 0.5 ? 'credits_empty' : balance <= LOW_THRESHOLD ? 'credits_low' : null;
     if (!alertType) return json({ ok: true, skipped: 'balance_ok', balance });
+
 
     // Dedupe: one alert per type per day
     const { error: logErr } = await admin.from('credit_alert_log').insert({

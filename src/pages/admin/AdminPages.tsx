@@ -584,6 +584,8 @@ export function AdminProducts() {
         benefit={flyerProduct.description ? truncateWords(String(flyerProduct.description), 140) : null}
         priceLabel={rawFormatPrice(flyerProduct.price || 0, flyerProduct.is_free, flyerProduct.currency)}
         coverUrl={flyerProduct.cover_image_url}
+        orgName={currentOrg?.name}
+        orgAvatarUrl={(currentOrg as any)?.logo_url}
         link={`${window.location.origin}/org/${currentOrg?.slug}/product/${flyerProduct.id}`}
       />
     )}
