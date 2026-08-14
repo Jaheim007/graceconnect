@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Loader2, Download, Share2, Copy, Check, ImageIcon, MessageCircle, Facebook, QrCode, Scissors, Images } from 'lucide-react';
-import QRCode from 'qrcode';
+import { renderQrPoster, type QrPosterTheme } from '@/lib/flyer/renderQrPoster';
 import { getOrCreateShortLink } from '@/lib/shareMeta';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -181,13 +181,28 @@ export function FlyerDialog({
 
   const handleDownloadQr = async () => {
     try {
-      const url = await QRCode.toDataURL(effectiveLink, { width: 900, margin: 2 });
-      downloadDataUrl(url, `${fileName.replace(/\.png$/, '')}-qr.png`);
-      toast.success(t('QR code téléchargé', 'QR code downloaded'));
+      const qrTheme: QrPosterTheme =
+        theme === 'church' ? 'church' : theme === 'light' ? 'ivory' : 'navy';
+      const url = await renderQrPoster({
+        format: 'card',
+        theme: qrTheme,
+        title,
+        link: effectiveLink,
+        coverUrl,
+        orgName,
+        orgAvatarUrl,
+        priceLabel,
+        eyebrow: byline || (isFr ? 'À découvrir' : 'Available now'),
+        scanLabel: t('Scannez avec votre téléphone', 'Scan with your phone'),
+        footnote: t('Paiement Mobile Money · Accès immédiat', 'Mobile Money payment · Instant access'),
+      });
+      downloadDataUrl(url, `${fileName.replace(/\.png$/, '')}-qr-card.png`);
+      toast.success(t('Carte QR téléchargée', 'QR card downloaded'));
     } catch {
       toast.error(t('QR code indisponible', 'QR code unavailable'));
     }
   };
+
 
   const handleDownloadAll = async () => {
     setBulkBusy(true);
@@ -351,7 +366,7 @@ export function FlyerDialog({
                 </Button>
                 <Button onClick={handleDownloadQr} variant="ghost" size="sm" className="gap-1.5 text-xs">
                   <QrCode className="h-3.5 w-3.5" />
-                  {t('QR code', 'QR code')}
+                  {t('Carte QR', 'QR card')}
                 </Button>
               </div>
               <Button
