@@ -652,6 +652,7 @@ export async function renderFlyer(opts: RenderFlyerOptions): Promise<string> {
     ctx.fillStyle = th.ink;
     ctx.font = `800 ${titleSize}px ${HEADING}`;
     for (const line of titleLines) {
+      if (y + titleSize > contentBottom) break;
       ctx.fillText(line, M, y + titleSize * 0.85);
       y += Math.round(titleSize * 1.08);
     }
