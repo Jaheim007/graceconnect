@@ -749,6 +749,8 @@ export default function ProductDetailPage() {
                   benefit={truncateWords(stripHtml(product.description || ''), 140) || null}
                   priceLabel={formatPrice(getEffectivePrice(product as any) as number, (product as any).is_free, (product as any).currency, locale)}
                   coverUrl={(product as any).cover_image_url || (product as any).cover_url}
+                  orgName={org?.name}
+                  orgAvatarUrl={(org as any)?.logo_url}
                   link={buildShareUrl()}
                 />
 
