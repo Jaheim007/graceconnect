@@ -387,8 +387,8 @@ async function renderCard(opts: RenderQrPosterOptions): Promise<string> {
 
   // Right column: QR panel + scan label
   const panel = Math.round(w * 0.36);
-  const scanGap = Math.round(h * 0.05);
-  const scanH = Math.round(h * (opts.footnote ? 0.075 : 0.04));
+  const scanGap = Math.round(h * 0.075);
+  const scanH = Math.round(h * (opts.footnote ? 0.12 : 0.06));
   const rightBlockH = panel + scanGap + scanH;
   const px = w - M - panel;
   const py = bandTop + Math.round((bandH - rightBlockH) / 2);
@@ -400,18 +400,18 @@ async function renderCard(opts: RenderQrPosterOptions): Promise<string> {
   ctx.textAlign = 'center';
   ctx.fillStyle = th.ink;
   ctx.font = `700 ${Math.round(w * 0.023)}px ${BODY}`;
-  const scanY = py + panel + scanGap;
-  for (const line of wrap(ctx, opts.scanLabel, panel, 2)) {
-    ctx.fillText(line, rcx, scanY);
+  let sy = py + panel + scanGap;
+  const scanLines = wrap(ctx, opts.scanLabel, panel, 2);
+  for (const line of scanLines) {
+    ctx.fillText(line, rcx, sy);
+    sy += Math.round(h * 0.032);
   }
   if (opts.footnote) {
     ctx.fillStyle = th.inkSoft;
     ctx.font = `500 ${Math.round(w * 0.018)}px ${BODY}`;
-    const fnLines = wrap(ctx, opts.footnote, panel, 2);
-    let fy = scanY;
-    for (const line of fnLines) {
-      fy += Math.round(h * 0.028);
-      ctx.fillText(line, rcx, fy);
+    for (const line of wrap(ctx, opts.footnote, panel, 2)) {
+      sy += Math.round(h * 0.026);
+      ctx.fillText(line, rcx, sy);
     }
   }
 
