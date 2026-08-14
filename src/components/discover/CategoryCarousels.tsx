@@ -15,7 +15,7 @@ import { OfferingCard } from '@/components/offerings/OfferingCard';
 import { OfferingModal } from '@/components/offerings/OfferingModal';
 import { Offering } from '@/hooks/useOfferings';
 
-import { CATEGORY_META, CategoryRail, useCategoryLabels, type CategoryValue } from '@/components/discover/CategoryRail';
+import { CategoryRail, type CategoryValue } from '@/components/discover/CategoryRail';
 
 interface CategoryCarouselsProps {
   /** Controlled category (rail rendered elsewhere, e.g. in the page header). */
