@@ -388,7 +388,7 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
   }
 
   // ── QR panel (the hero) ─────────────────────────────────────
-  const scanGap = Math.round(h * 0.05);
+  const scanGap = Math.round(h * 0.062);
   const scanBlockH = scanGap + Math.round(h * (opts.footnote ? 0.05 : 0.022));
   const footerH = M + Math.round(h * 0.035);
   const available = h - y - scanBlockH - footerH - Math.round(h * 0.012);
