@@ -14,6 +14,7 @@ const CategoryCarousels = lazy(() => import('@/components/discover/CategoryCarou
 const RecentlyViewedProducts = lazy(() => import('@/components/discover/RecentlyViewedProducts').then(m => ({ default: m.RecentlyViewedProducts })));
 const ExploreSearchResults = lazy(() => import('@/components/discover/ExploreSearchResults').then(m => ({ default: m.ExploreSearchResults })));
 import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
+import { CategoryRail, type CategoryValue } from '@/components/discover/CategoryRail';
 import { BUYER_WORLDS, SERVICE_WORLDS, normalizeBuyerWorld, type BuyerWorld } from '@/lib/siteviral/buyerWorlds';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 
@@ -48,6 +49,7 @@ export default function DashboardExplorePage() {
 
   const [search, setSearch] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
+  const [category, setCategory] = useState<CategoryValue>('');
   const debouncedSearch = useDebounce(search, 300);
   const isSearching = debouncedSearch.length > 0;
 
@@ -151,6 +153,11 @@ export default function DashboardExplorePage() {
           </div>
 
 
+          {/* Content-type filters, directly under the search bar */}
+          {!isSearching && !world && (
+            <CategoryRail value={category} onChange={setCategory} layoutId="dash-explore-cat-pill" />
+          )}
+
           {/* World chip row — services only (Church has its own platform) */}
           {showServiceSurfaces() && (
           <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
@@ -203,7 +210,7 @@ export default function DashboardExplorePage() {
           <InterestHub />
           <Suspense fallback={null}>
             <RecentlyViewedProducts />
-            <CategoryCarousels />
+            <CategoryCarousels category={category} onCategoryChange={setCategory} hideRail />
             <FeaturedSection />
             <div>
               <ForYouFeed />
