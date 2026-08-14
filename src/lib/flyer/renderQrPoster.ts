@@ -257,10 +257,18 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
   ctx.save();
   roundRect(ctx, M, y, markSize, markSize, markSize * 0.28);
   ctx.clip();
-  if (logo) drawCover(ctx, logo, M, y, markSize, markSize);
-  else {
+  if (logo) {
+    drawCover(ctx, logo, M, y, markSize, markSize);
+  } else {
     ctx.fillStyle = th.accent;
     ctx.fillRect(M, y, markSize, markSize);
+    ctx.fillStyle = th.accentInk;
+    ctx.font = `800 ${Math.round(markSize * 0.6)}px ${HEADING}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('S', M + markSize / 2, y + markSize / 2 + 2);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
   }
   ctx.restore();
 
@@ -380,9 +388,11 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
   }
 
   // ── QR panel (the hero) ─────────────────────────────────────
-  const footerH = Math.round(h * (opts.format === 'card' ? 0.1 : 0.095));
-  const available = h - y - footerH - Math.round(h * 0.03);
-  const panel = Math.min(Math.round(w * 0.6), available);
+  const scanGap = Math.round(h * 0.034);
+  const scanBlockH = scanGap + Math.round(h * (opts.footnote ? 0.05 : 0.022));
+  const footerH = Math.round(h * 0.055);
+  const available = h - y - scanBlockH - footerH - Math.round(h * 0.02);
+  const panel = Math.max(Math.round(w * 0.34), Math.min(Math.round(w * 0.6), available));
   const px = cx - panel / 2;
   const py = y + Math.round((available - panel) / 2);
 
@@ -403,7 +413,7 @@ export async function renderQrPoster(opts: RenderQrPosterOptions): Promise<strin
   // Scan instruction
   ctx.fillStyle = th.ink;
   ctx.font = `700 ${Math.round(w * 0.028)}px ${BODY}`;
-  const scanY = py + panel + Math.round(h * 0.038);
+  const scanY = py + panel + scanGap;
   ctx.fillText(opts.scanLabel, cx, scanY);
 
   if (opts.footnote) {
