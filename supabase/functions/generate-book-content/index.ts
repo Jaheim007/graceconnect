@@ -1015,7 +1015,7 @@ Deno.serve(async (req) => {
     if (auth instanceof Response) return auth;
     const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
 
-    const { title, subtitle, authorName, topic, style, pageCount, chapterCount: requestedChapterCount, keywords, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy, religiousTradition, prayerFormat, tier } = await req.json();
+    const { title, subtitle, authorName, topic, style, pageCount, chapterCount: requestedChapterCount, keywords, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy, religiousTradition, prayerFormat, tier, outline } = await req.json();
 
     if (!title && !topic) {
       return new Response(JSON.stringify({ error: 'title or topic required' }), {
