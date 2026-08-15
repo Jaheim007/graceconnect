@@ -12,6 +12,7 @@ import { db } from '@/lib/db';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { useExpressSetup } from '@/hooks/useExpressSetup';
+import { hasPendingBookDraft } from '@/lib/write/pendingBookDraft';
 
 const GOALS = [
   { id: 'sell', icon: ShoppingBag, title: 'Vendre des ressources', desc: 'Ebooks, fichiers digitaux', color: 'from-violet-500/20 to-purple-500/20 border-violet-500/30' },
@@ -72,7 +73,8 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
 
   const handleFinish = () => {
     onClose();
-    if (selected.includes('sell')) navigate('/admin/products/new');
+    if (hasPendingBookDraft()) navigate('/ecrire');
+    else if (selected.includes('sell')) navigate('/admin/products/new');
     else if (selected.includes('donate')) navigate('/admin/campaigns/new');
     else navigate('/admin');
   };

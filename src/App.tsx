@@ -25,7 +25,6 @@ import { TrialBillingBanner } from "@/components/billing/TrialBillingBanner";
 import { CreditAlertWatcher } from "@/components/credits/CreditAlertWatcher";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { RequireAuth, RequireSuperadmin, RequireOrgManage } from "@/components/layout/RouteGuard";
-import { GDPRBanner } from "@/components/layout/GDPRBanner";
 import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
 import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { SkipLink } from "@/components/layout/SkipLink";
@@ -377,7 +376,6 @@ const App = () => (
               <ReferralCapture />
               <PageViewTracker />
               <NativePushBootstrap />
-              <GDPRBanner />
               <FloatingProofToast />
               <DomainRouter />
               <TrialBillingBanner />
