@@ -5,6 +5,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { Store } from 'lucide-react';
 import { GuestGate } from '@/components/auth/GuestGate';
 import { Navigate } from 'react-router-dom';
+import { PlatformOnboardingScreen } from '@/components/platform/PlatformOnboardingScreen';
 
 export default function VendrePage() {
   const { user } = useAuth();
@@ -17,7 +18,15 @@ export default function VendrePage() {
     // create a second platform.
     if (isLoadingOrgs) return null;
     const manageable = userOrgs.find((o) => canManage(o.id));
-    return <Navigate to={manageable ? '/admin/products' : '/create-org'} replace />;
+    if (manageable) return <Navigate to="/admin/products" replace />;
+    return (
+      <PlatformOnboardingScreen
+        redirectTo="/admin/products"
+        defaultWorld="digital"
+        title={isFr ? 'Crée ta boutique' : 'Create your store'}
+        subtitle={isFr ? 'Trois questions, puis tu ajoutes ton premier produit.' : 'Three quick questions, then you add your first product.'}
+      />
+    );
   }
 
   return (

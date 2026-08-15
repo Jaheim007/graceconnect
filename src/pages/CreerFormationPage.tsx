@@ -5,6 +5,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { GraduationCap } from 'lucide-react';
 import { GuestGate } from '@/components/auth/GuestGate';
 import { Navigate } from 'react-router-dom';
+import { PlatformOnboardingScreen } from '@/components/platform/PlatformOnboardingScreen';
 
 export default function CreerFormationPage() {
   const { user } = useAuth();
@@ -17,7 +18,15 @@ export default function CreerFormationPage() {
     // create a second platform.
     if (isLoadingOrgs) return null;
     const manageable = userOrgs.find((o) => canManage(o.id));
-    return <Navigate to={manageable ? '/admin/programs' : '/create-org'} replace />;
+    if (manageable) return <Navigate to="/admin/programs" replace />;
+    return (
+      <PlatformOnboardingScreen
+        redirectTo="/admin/programs"
+        defaultWorld="education"
+        title={isFr ? 'Crée ton école en ligne' : 'Create your online school'}
+        subtitle={isFr ? 'Trois questions, puis on passe à ta formation.' : 'Three quick questions, then we build your course.'}
+      />
+    );
   }
 
   return (
