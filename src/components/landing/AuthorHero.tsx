@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight, ArrowUp, BookOpen, Sparkle, Wallet, Zap } from 'lucide-react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { HeroAurora } from './HeroAurora';
 import { setPendingAction } from '@/lib/pendingAction';
 import { cn } from '@/lib/utils';
-
+import { useOrg } from '@/contexts/OrgContext';
+import { useDomainResolver } from '@/hooks/useDomainResolver';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 
 const GUEST_PREVIEW_KEY = 'sv_guest_book_preview';
 
