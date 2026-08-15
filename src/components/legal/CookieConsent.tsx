@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Cookie, X, Settings2 } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { isNativePlatform } from '@/lib/capacitor';
+
 
 const CONSENT_KEY = 'sv-cookie-consent';
 
@@ -64,7 +67,12 @@ export function CookieConsent() {
     setVisible(false);
   };
 
-  return (
+  // Rendered in a portal so no transformed / filtered ancestor (app ambient shell,
+  // motion wrappers) can reposition or clip the fixed banner — this is what made it
+  // float in the wrong place on iPad / tablets.
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       {visible && (
         <motion.div
@@ -72,8 +80,9 @@ export function CookieConsent() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed left-4 right-4 z-[60] bottom-[calc(env(safe-area-inset-bottom,0px)+6rem)] sm:left-auto sm:right-4 sm:w-[min(26rem,calc(100vw-2rem))] lg:bottom-6 lg:right-6 lg:max-w-md"
+          className="fixed z-[120] inset-x-3 bottom-[calc(env(safe-area-inset-bottom,0px)+5.5rem)] w-auto max-w-[26rem] mx-auto sm:mx-0 sm:inset-x-auto sm:right-4 sm:w-[min(24rem,calc(100vw-2rem))] lg:bottom-6 lg:right-6"
         >
+
           <div className="rounded-2xl border border-border bg-card shadow-2xl p-5 space-y-4">
             <div className="flex items-start gap-3">
               <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -156,9 +165,16 @@ export function CookieConsent() {
               )}
             </div>
 
+            <p className="text-[10px] text-muted-foreground/80">
+              <Link to="/privacy" className="underline hover:text-foreground">
+                {isFr ? 'Politique de confidentialité' : 'Privacy policy'}
+              </Link>
+            </p>
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
+
