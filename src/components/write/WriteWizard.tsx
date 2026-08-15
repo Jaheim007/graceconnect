@@ -459,6 +459,7 @@ export default function WriteWizard() {
   const { user } = useAuth();
   const { currentOrg, userOrgs } = useOrg();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
   const STEP_LABELS = isFr ? STEP_LABELS_FR : STEP_LABELS_EN;
@@ -716,7 +717,6 @@ export default function WriteWizard() {
   }, [draftId, saveCurrentDraftNow, step, syncDraftList, toast, t]);
 
   // Deep link: /ecrire?project=<id> opens that exact draft (used by MCP imports)
-  const [searchParams, setSearchParams] = useSearchParams();
   const deepLinkRef = useRef<string | null>(null);
   const [openingDeepLink, setOpeningDeepLink] = useState(!!searchParams.get('project'));
   useEffect(() => {
