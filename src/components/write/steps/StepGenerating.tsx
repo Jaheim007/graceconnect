@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState, WriteChapter } from '../WriteWizard';
-import { hasGeneratedContent, isFullyWritten } from '../utils/hasGeneratedContent';
+import { isFullyWritten } from '../utils/hasGeneratedContent';
 import { resolveRequestedBookLanguage } from '../utils/bookLanguage';
 
 interface Props {
