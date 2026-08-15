@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Cookie, X, Settings2 } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { isNativePlatform } from '@/lib/capacitor';
+
 
 const CONSENT_KEY = 'sv-cookie-consent';
 
