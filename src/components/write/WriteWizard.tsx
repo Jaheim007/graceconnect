@@ -1123,24 +1123,11 @@ export default function WriteWizard() {
     }
   }, [publishing, state, user, publicationOrgId, update, toast, t, draftId, navigate, syncDraftList, refetchOrgs, setCurrentOrg]);
 
-  const setupIntentRef = useRef<'pricing' | 'publish'>('publish');
-
-  /** Cover → Pricing: the platform (name + currency) must exist before pricing. */
-  const goToPricing = useCallback(() => {
-    if (!publicationOrgId) {
-      setupIntentRef.current = 'pricing';
-      setPlatformSetupOpen(true);
-      return;
-    }
-    next();
-  }, [publicationOrgId, next]);
-
   const startPublishing = useCallback(() => {
     if (publishing) return;
-    // No platform yet → ask name + currency first (never auto-create a nameless one)
+    // No platform yet → full-page platform step (what you sell + name + currency)
     if (!publicationOrgId) {
-      setupIntentRef.current = 'publish';
-      setPlatformSetupOpen(true);
+      setStep(PLATFORM_STEP);
       return;
     }
     setPublishingStage('preparing');
@@ -1148,11 +1135,11 @@ export default function WriteWizard() {
     void handlePublish();
   }, [publishing, handlePublish, publicationOrgId]);
 
-  const handlePlatformSetupConfirm = useCallback(async ({ name, currency }: { name: string; currency: string }) => {
+  const handlePlatformSetupConfirm = useCallback(async ({ name, currency, world }: PlatformSetupValues) => {
     if (creatingPlatform) return;
     setCreatingPlatform(true);
     try {
-      const { orgId, org } = await createWorkspace({ name, world: 'digital', currency });
+      const { orgId, org } = await createWorkspace({ name, world, currency });
       if (org) setCurrentOrg(org as any);
       await refetchOrgs();
       setSearchParams((prev) => {
@@ -1160,13 +1147,7 @@ export default function WriteWizard() {
         params.set('org', orgId);
         return params;
       }, { replace: true });
-      setPlatformSetupOpen(false);
       setWillCreateOrg(true);
-
-      if (setupIntentRef.current === 'pricing') {
-        next();
-        return;
-      }
       setPublishingStage('preparing');
       setStep(PUBLISHING_STEP);
       void handlePublish(orgId);
@@ -1179,7 +1160,7 @@ export default function WriteWizard() {
     } finally {
       setCreatingPlatform(false);
     }
-  }, [creatingPlatform, handlePublish, refetchOrgs, setCurrentOrg, setSearchParams, toast, isFr, next]);
+  }, [creatingPlatform, handlePublish, refetchOrgs, setCurrentOrg, setSearchParams, toast, isFr]);
 
 
 
