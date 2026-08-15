@@ -284,7 +284,7 @@ export function Sidebar() {
 
 
       {/* Superadmin + Settings + Sign out */}
-      <div className={cn('relative border-t border-sidebar-foreground/10 bg-sidebar-foreground/[0.03] backdrop-blur-sm', collapsed ? 'px-1.5 py-2' : 'px-3 py-2')}>
+      <div className={cn('relative shrink-0 border-t border-sidebar-foreground/10 bg-sidebar-foreground/[0.03] backdrop-blur-sm', collapsed ? 'px-1.5 py-2' : 'px-3 py-2')}>
 
         {isSuperadmin && (
           collapsed ? (
