@@ -321,32 +321,6 @@ export function Sidebar() {
           )
         )}
 
-        {user && !settingsAlreadyInNav && canManageCurrentOrg && (
-          collapsed ? (
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <Link
-                  to="/admin/settings"
-                  aria-label={isFr ? 'Paramètres' : 'Settings'}
-                  className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-foreground/5"
-                >
-                  <Settings className="h-[18px] w-[18px]" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right"><p className="text-xs font-semibold">{isFr ? 'Paramètres' : 'Settings'}</p></TooltipContent>
-            </Tooltip>
-          ) : (
-            <Link
-              to="/admin/settings"
-              data-tour="nav-settings"
-              data-nav-route="/admin/settings"
-              className="flex items-center gap-2.5 h-11 px-3 rounded-xl text-[13px] font-medium text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-foreground/5"
-            >
-              <Settings className="h-[18px] w-[18px] shrink-0" />
-              <span>{isFr ? 'Paramètres' : 'Settings'}</span>
-            </Link>
-          )
-        )}
         {collapsed ? (
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
