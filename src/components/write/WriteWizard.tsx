@@ -1151,7 +1151,9 @@ export default function WriteWizard() {
             )}
             {step === 1 && <StepParams state={state} update={update} onNext={next} onBack={back} />}
             {step === 2 && <StepEditorialStrategy state={state} update={update} onNext={next} onBack={back} />}
-            {step === 3 && <StepGenerating state={state} update={update} onNext={next} onBack={back} />}
+            {step === 3 && (needsToneChoice
+              ? <StepBookStyle state={state} update={update} onNext={() => { /* stay on step 3: generation starts once the voice is set */ }} />
+              : <StepGenerating state={state} update={update} onNext={next} onBack={back} />)}
             {step === 4 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
             {step === ILLUSTRATIONS_STEP && <StepIllustrations state={state} update={update} onNext={next} onBack={back} />}
             {step === COVER_STEP && <StepCover state={state} update={update} onNext={next} onBack={back} />}
