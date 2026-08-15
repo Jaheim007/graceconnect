@@ -165,8 +165,11 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         const plannedTitle = state.plannedOutline?.[i]?.title;
         const safeTitle = (plannedTitle || chapter?.title || existing?.title || `${t('write.chapter_label')} ${i + 1}`).trim();
         // Keep a chapter the author already has (e.g. the opening chapter written
-        // on the landing page) instead of overwriting it.
-        const keptContent = isWritten(existing?.content) ? existing.content : '';
+        // on the landing page) instead of overwriting it. Exception: if the author
+        // picked a non-neutral voice after signing in, the neutral opening chapter
+        // is rewritten so the whole book sounds consistent.
+        const rewriteOpening = !!state.landingTonePreset && state.landingTonePreset !== 'neutral';
+        const keptContent = (rewriteOpening && i === 0) ? '' : (isWritten(existing?.content) ? existing.content : '');
         finalChapters.push({
           id: existing?.id || chapter?.id || `ch-${i + 1}`,
           title: safeTitle,
