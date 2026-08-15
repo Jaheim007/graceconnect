@@ -117,7 +117,17 @@ export function Sidebar() {
   const unifiedNav: ActionNavItem[] = (() => {
     const overview = workspaceNav.filter((it) => it.route.split('?')[0] === '/dashboard');
     const rest = workspaceNav.filter((it) => it.route.split('?')[0] !== '/dashboard');
-    const merged = [...overview, ...accountNav, ...rest];
+    // Settings belongs in the menu itself (last row), not stranded in the footer.
+    const settingsItem: ActionNavItem[] = canManageCurrentOrg
+      ? [{
+          id: 'settings', icon: Settings, emoji: '',
+          titleFr: 'Paramètres', titleEn: 'Settings',
+          descFr: 'Gérer ma plateforme', descEn: 'Manage my platform',
+          route: '/admin/settings',
+          borderClass: '', iconBg: '', iconColor: 'text-sidebar-foreground/75',
+        } as ActionNavItem]
+      : [];
+    const merged = [...overview, ...accountNav, ...rest, ...settingsItem];
     const seen = new Set<string>();
     return merged.filter((it) => {
       const key = it.route.split('?')[0];
@@ -141,7 +151,6 @@ export function Sidebar() {
     return location.pathname.startsWith(clean);
   };
 
-  const settingsAlreadyInNav = workspaceNav.some((it) => it.route.split('?')[0] === '/admin/settings');
 
   /**
    * The sidebar is always dark navy, so `text-primary` (deep navy in light
@@ -311,32 +320,6 @@ export function Sidebar() {
           )
         )}
 
-        {user && !settingsAlreadyInNav && canManageCurrentOrg && (
-          collapsed ? (
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <Link
-                  to="/admin/settings"
-                  aria-label={isFr ? 'Paramètres' : 'Settings'}
-                  className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-foreground/5"
-                >
-                  <Settings className="h-[18px] w-[18px]" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right"><p className="text-xs font-semibold">{isFr ? 'Paramètres' : 'Settings'}</p></TooltipContent>
-            </Tooltip>
-          ) : (
-            <Link
-              to="/admin/settings"
-              data-tour="nav-settings"
-              data-nav-route="/admin/settings"
-              className="flex items-center gap-2.5 h-11 px-3 rounded-xl text-[13px] font-medium text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-foreground/5"
-            >
-              <Settings className="h-[18px] w-[18px] shrink-0" />
-              <span>{isFr ? 'Paramètres' : 'Settings'}</span>
-            </Link>
-          )
-        )}
         {collapsed ? (
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>

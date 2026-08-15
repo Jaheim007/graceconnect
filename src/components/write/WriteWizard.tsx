@@ -457,7 +457,7 @@ export default function WriteWizard() {
   const [publishingStage, setPublishingStage] = useState<PublishingStage>('preparing');
   const [willCreateOrg, setWillCreateOrg] = useState(false);
   const { user } = useAuth();
-  const { currentOrg } = useOrg();
+  const { currentOrg, userOrgs } = useOrg();
   const navigate = useNavigate();
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
@@ -953,7 +953,7 @@ export default function WriteWizard() {
         _cover_url: state.coverUrl || null,
         _description: richDescription,
         _file_url: null,
-        _org_id: currentOrg?.id || null,
+        _org_id: currentOrg?.id || userOrgs[0]?.id || null,
       });
 
       if (error) throw error;
@@ -978,14 +978,14 @@ export default function WriteWizard() {
           .eq('id', result.project_id);
       }
 
-      if (result.project_id && result.organization_id) {
+      if (result.project_id && (result.org_id ?? result.organization_id)) {
         const assetInserts: any[] = [];
 
         // Cover asset
         if (state.coverUrl) {
           assetInserts.push({
             project_id: result.project_id,
-            organization_id: result.organization_id,
+            organization_id: (result.org_id ?? result.organization_id),
             asset_type: 'image',
             file_url: state.coverUrl,
             label: 'Couverture',
@@ -1002,7 +1002,7 @@ export default function WriteWizard() {
           if (illUrl) {
             assetInserts.push({
               project_id: result.project_id,
-              organization_id: result.organization_id,
+              organization_id: (result.org_id ?? result.organization_id),
               asset_type: 'illustration',
               file_url: illUrl,
               label: `Illustration ch. ${idx + 1}`,
@@ -1021,10 +1021,10 @@ export default function WriteWizard() {
       setPublishingStage('pdf');
       let generatedPdfUrl: string | null = null;
 
-      if (result.project_id && result.organization_id) {
+      if (result.project_id && (result.org_id ?? result.organization_id)) {
         const { data: pdfData, error: pdfError } = await supabase.functions.invoke('ai-generate-pdf', {
           body: {
-            org_id: result.organization_id,
+            org_id: (result.org_id ?? result.organization_id),
             project_id: result.project_id,
             format: 'ebook',
             page_size: 'A4',
