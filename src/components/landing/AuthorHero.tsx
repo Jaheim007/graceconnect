@@ -210,30 +210,42 @@ export function AuthorHero() {
 
           </div>
 
-          <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2">
-            {examples.map((ex) => (
-              <button
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            {examples.map((ex, i) => (
+              <motion.button
                 key={ex}
                 type="button"
+                initial={reduce ? undefined : { opacity: 0, y: 8, scale: 0.96 }}
+                animate={reduce ? undefined : { opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.3 + i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={reduce ? undefined : { y: -3, scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => {
                   setIdea(ex);
                   if (!user) generatePreview(ex);
                 }}
-                className="rounded-full border border-border bg-card/70 px-3 py-1.5 text-[11px] sm:text-xs font-semibold text-muted-foreground backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:text-foreground hover:shadow-sm"
+                className="rounded-full border border-border bg-card/70 px-3.5 py-2 text-[11px] sm:text-xs font-semibold text-muted-foreground backdrop-blur-sm transition-colors hover:border-primary/50 hover:text-foreground"
               >
                 {ex}
-              </button>
+              </motion.button>
             ))}
           </div>
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5">
-            {proofs.map((p) => (
-              <span key={p.label} className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-muted-foreground">
+            {proofs.map((p, i) => (
+              <motion.span
+                key={p.label}
+                initial={reduce ? undefined : { opacity: 0, y: 8 }}
+                animate={reduce ? undefined : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.55 + i * 0.09 }}
+                className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-muted-foreground"
+              >
                 <p.icon className="h-3.5 w-3.5 text-primary shrink-0" />
                 {p.label}
-              </span>
+              </motion.span>
             ))}
           </div>
+
 
           <button
             type="button"
