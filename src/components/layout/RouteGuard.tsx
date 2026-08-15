@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Navigate as Nav, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -65,11 +65,20 @@ export function RequireSuperadmin({ children }: { children: ReactNode }) {
 // direct admin loads and sends true zero-workspace users to creation.
 export function RequireOrgManage({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
-  const { currentOrg, currentOrgRole, isLoadingOrgs, userOrgs, canManage, setCurrentOrg } = useOrg();
+  const { currentOrg, currentOrgRole, isLoadingOrgs, userOrgs, canManage, setCurrentOrg, refetchOrgs } = useOrg();
+  const [checkingWorkspace, setCheckingWorkspace] = useState(false);
+  const [checkedUserId, setCheckedUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user || loading || isLoadingOrgs || currentOrg || userOrgs.length > 0 || checkedUserId === user.id) return;
+    setCheckedUserId(user.id);
+    setCheckingWorkspace(true);
+    void refetchOrgs().finally(() => setCheckingWorkspace(false));
+  }, [user, loading, isLoadingOrgs, currentOrg, userOrgs.length, checkedUserId, refetchOrgs]);
 
   if (loading) return <GuardFallback />;
   if (!user) return <Nav to="/auth" replace />;
-  if (isLoadingOrgs) return <GuardFallback />;
+  if (isLoadingOrgs || checkingWorkspace || (user && !currentOrg && userOrgs.length === 0 && checkedUserId !== user.id)) return <GuardFallback />;
 
   if (!currentOrg) {
     const firstManageable = userOrgs.find((o) => canManage(o.id));
