@@ -16,7 +16,8 @@ export function hasPendingBookDraft(): boolean {
   }
 }
 
-/** Where to land after onboarding is skipped. */
-export function postOnboardingRoute(): string {
-  return hasPendingBookDraft() ? '/ecrire' : '/admin';
+/** Where to land after platform creation, preserving the exact target workspace. */
+export function postPlatformCreationRoute(orgId?: string): string {
+  if (!hasPendingBookDraft()) return '/admin';
+  return orgId ? `/ecrire?org=${encodeURIComponent(orgId)}` : '/ecrire';
 }

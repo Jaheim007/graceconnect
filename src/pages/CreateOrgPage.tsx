@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,8 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ChevronRight, Building2, Check, Rocket, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
-import { OrgOnboardingWizard } from '@/components/onboarding/OrgOnboardingWizard';
-import { postOnboardingRoute } from '@/lib/write/pendingBookDraft';
+import { postPlatformCreationRoute } from '@/lib/write/pendingBookDraft';
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
@@ -61,7 +60,7 @@ export default function CreateOrgPage() {
   const [step, setStep] = useState(presetProfile ? 1 : 0); // 0=platform profile, 1=name, 2=currency + create
   const [loading, setLoading] = useState(false);
   const [resuming, setResuming] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const creatingRef = useRef(false);
   const [profileId, setProfileId] = useState<PlatformProfileId>(presetProfile ?? (faithScope ? 'church' : 'creator'));
   const profile = getPlatformProfile(profileId);
 
@@ -110,6 +109,7 @@ export default function CreateOrgPage() {
 
 
   const onSubmit = async () => {
+    if (creatingRef.current) return;
     const valid = await form.trigger();
     if (!valid) return;
 
@@ -127,6 +127,7 @@ export default function CreateOrgPage() {
     }
 
 
+    creatingRef.current = true;
     setLoading(true);
     const data = form.getValues();
 
@@ -183,7 +184,7 @@ export default function CreateOrgPage() {
         navigate('/dashboard');
         return;
       }
-      setShowOnboarding(true);
+      navigate(postPlatformCreationRoute(orgId), { replace: true });
 
     } catch (err: any) {
       const msg = err?.message || String(err);
@@ -193,6 +194,7 @@ export default function CreateOrgPage() {
         toast({ title: isFr ? 'Erreur' : 'Error', description: msg, variant: 'destructive' });
       }
     } finally {
+      creatingRef.current = false;
       setLoading(false);
     }
   };
@@ -210,8 +212,6 @@ export default function CreateOrgPage() {
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(60%_40%_at_15%_0%,hsl(var(--primary)/0.14),transparent_70%),radial-gradient(50%_40%_at_90%_10%,hsl(var(--accent)/0.14),transparent_70%)]" />
 
       <SEOHead title="Créer ma plateforme — Siteviral" description="Crée ta plateforme en 30 secondes. Vends, collecte des dons, et active tes ambassadeurs." noindex />
-      <OrgOnboardingWizard open={showOnboarding} onClose={() => { setShowOnboarding(false); navigate(postOnboardingRoute()); }} />
-
       {/* Top bar with brand */}
       <header className="w-full border-b border-border/40 bg-background/70 backdrop-blur">
         <div className="mx-auto max-w-5xl px-4 h-14 flex items-center justify-between">

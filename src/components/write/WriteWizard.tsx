@@ -465,6 +465,7 @@ export default function WriteWizard() {
   const { toast } = useToast();
   const [dbDrafts, setDbDrafts] = useState<SavedWriteDraftSummary[]>([]);
   const orgCurrency = currentOrg?.currency || null;
+  const publicationOrgId = searchParams.get('org') || currentOrg?.id || userOrgs[0]?.id || null;
 
   // Load DB-backed projects (previously generated books)
   useEffect(() => {
@@ -953,7 +954,7 @@ export default function WriteWizard() {
         _cover_url: state.coverUrl || null,
         _description: richDescription,
         _file_url: null,
-        _org_id: currentOrg?.id || userOrgs[0]?.id || null,
+        _org_id: publicationOrgId,
       });
 
       if (error) throw error;
@@ -1102,7 +1103,7 @@ export default function WriteWizard() {
     } finally {
       setPublishing(false);
     }
-  }, [publishing, state, user, update, toast, t]);
+  }, [publishing, state, user, publicationOrgId, update, toast, t, draftId, navigate, syncDraftList]);
 
   const startPublishing = useCallback(() => {
     if (publishing) return;
