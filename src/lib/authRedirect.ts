@@ -40,18 +40,15 @@ export function resolvePostAuthRedirect(opts: {
   if (intent) {
     clearIntent();
     if (intent.kind === 'provider') {
-      // Brand-new provider → onboarding; existing → their dashboard.
+      // Brand-new provider → onboarding; existing → home.
       const safe = safeReturnTo(intent.returnTo || null);
-      return isNewUser ? (safe || '/create-org') : (safe || '/dashboard');
+      return isNewUser ? (safe || '/create-org') : (safe || '/');
     }
-    // Client intent: just return to what they were doing, otherwise account home.
-    return safeReturnTo(intent.returnTo || null) || '/dashboard';
+    // Client intent: just return to what they were doing, otherwise home.
+    return safeReturnTo(intent.returnTo || null) || '/';
   }
 
-  // 4. Brand-new account → the single first-run intent step.
-  if (isNewUser) return '/welcome-intent';
-
-  // 5 + 6. Account home OR last-used workspace — OrgContext restores globally
-  // before signed-in shells render, and /dashboard resolves to /admin when ready.
-  return '/dashboard';
+  // 4. No CTA, no pending action → the unified home (ActionHub).
+  return '/';
 }
+
