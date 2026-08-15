@@ -30,6 +30,110 @@ interface GuestPreview {
   locale: string;
 }
 
+type PlatformType = 'creator' | 'church' | 'ngo' | 'community' | 'unknown';
+
+const SUGGESTION_SETS: Record<PlatformType, { fr: string[]; en: string[] }> = {
+  creator: {
+    fr: [
+      "L'Argent et la Paix : Sortir du Cycle de l'Inquiétude",
+      "Fil par Fil : Mon Chemin vers la Couture",
+      "Leader sans Diplôme : Ce que Personne ne M'a Appris",
+      "Ce que Personne ne M'a Dit",
+    ],
+    en: [
+      'Money and Peace: Breaking the Worry Cycle',
+      'Thread by Thread: My Journey into Tailoring',
+      'Leader Without a Degree: What No One Taught Me',
+      'What No One Told Me',
+    ],
+  },
+  church: {
+    fr: [
+      "Deux Cœurs, une Alliance : Se Préparer avant de Dire Oui",
+      "Le Feu qui ne s'Éteint Pas : Réveiller ce qui Dort en Nous",
+      "Ce que Personne ne M'a Dit",
+    ],
+    en: [
+      "Two Hearts, One Covenant: Preparing to Say Yes",
+      "The Fire That Doesn't Go Out: Awakening What Sleeps in Us",
+      'What No One Told Me',
+    ],
+  },
+  ngo: {
+    fr: [
+      "Ensemble on est Plus Forts : Ce que Notre Communauté m'a Appris",
+      "Ce que Personne ne M'a Dit",
+    ],
+    en: [
+      'Together We Are Stronger: What Our Community Taught Me',
+      'What No One Told Me',
+    ],
+  },
+  community: {
+    fr: [
+      "Ensemble on est Plus Forts : Ce que Notre Communauté m'a Appris",
+      "Ce que Personne ne M'a Dit",
+    ],
+    en: [
+      'Together We Are Stronger: What Our Community Taught Me',
+      'What No One Told Me',
+    ],
+  },
+  unknown: {
+    fr: [
+      "Ce que Personne ne M'a Dit",
+      "L'Argent et la Paix : Sortir du Cycle de l'Inquiétude",
+      "Deux Cœurs, une Alliance : Se Préparer avant de Dire Oui",
+      "Ensemble on est Plus Forts : Ce que Notre Communauté m'a Appris",
+    ],
+    en: [
+      'What No One Told Me',
+      'Money and Peace: Breaking the Worry Cycle',
+      'Two Hearts, One Covenant: Preparing to Say Yes',
+      'Together We Are Stronger: What Our Community Taught Me',
+    ],
+  },
+};
+
+const PLACEHOLDER_TOPICS = {
+  fr: ['Discipline financière', 'Préparer un mariage chrétien', 'Apprendre la couture', 'Devenir un bon leader'],
+  en: ['Financial discipline', 'Preparing a Christian marriage', 'Learn tailoring', 'Becoming a good leader'],
+};
+
+function mapOrgCategory(category: string): PlatformType {
+  if (category === 'church' || category === 'ministry') return 'church';
+  if (category === 'ngo') return 'ngo';
+  if (category === 'community') return 'community';
+  return 'creator';
+}
+
+function useLandingPlatformType(): PlatformType {
+  const { currentOrg } = useOrg();
+  const resolver = useDomainResolver();
+  const [searchParams] = useSearchParams();
+  const typeParam = searchParams.get('type') as PlatformType | null;
+
+  const { data: resolvedOrg } = useQuery({
+    queryKey: ['landing-resolved-org-category', resolver.data?.orgId],
+    queryFn: async () => {
+      const { data, error } = await db
+        .from('organizations')
+        .select('category')
+        .eq('id', resolver.data!.orgId)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!resolver.data?.orgId && !currentOrg,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const validTypes: PlatformType[] = ['creator', 'church', 'ngo', 'community'];
+  if (typeParam && validTypes.includes(typeParam)) return typeParam;
+  if (currentOrg?.category) return mapOrgCategory(currentOrg.category);
+  if (resolvedOrg?.category) return mapOrgCategory(resolvedOrg.category);
+  return 'unknown';
+}
 
 export function AuthorHero() {
   const navigate = useNavigate();
@@ -42,6 +146,10 @@ export function AuthorHero() {
   const [preview, setPreview] = useState<GuestPreview | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const platformType = useLandingPlatformType();
+  const suggestions = SUGGESTION_SETS[platformType][fr ? 'fr' : 'en'];
+  const placeholders = PLACEHOLDER_TOPICS[fr ? 'fr' : 'en'];
+
   const rise = (delay: number) =>
     reduce
       ? {}
@@ -51,17 +159,13 @@ export function AuthorHero() {
           transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as [number, number, number, number], delay },
         };
 
-  const examples = fr
-    ? ['Discipline financière', 'Préparer un mariage chrétien', 'Apprendre la couture', 'Devenir un bon leader']
-    : ['Financial discipline', 'Preparing a Christian marriage', 'Learn tailoring', 'Becoming a good leader'];
-
-  // Rotating placeholder — shows real book ideas instead of a static prompt.
+  // Rotating placeholder — short topic prompts, not the book titles.
   const [phIndex, setPhIndex] = useState(0);
   useEffect(() => {
     if (reduce) return;
-    const id = setInterval(() => setPhIndex((i) => (i + 1) % examples.length), 3000);
+    const id = setInterval(() => setPhIndex((i) => (i + 1) % placeholders.length), 3000);
     return () => clearInterval(id);
-  }, [reduce, examples.length]);
+  }, [reduce, placeholders.length]);
 
 
   const generatePreview = async (topicOverride?: string) => {
