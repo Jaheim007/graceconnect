@@ -35,7 +35,7 @@ export default function AuthCallbackPage() {
         sessionStorage.removeItem('sv_auth_origin_domain');
         const savedReturnTo = sessionStorage.getItem('sv_auth_returnTo');
         sessionStorage.removeItem('sv_auth_returnTo');
-        const returnPath = safeReturnTo(savedReturnTo) || '/dashboard';
+        const returnPath = safeReturnTo(savedReturnTo) || '/';
         window.location.replace(`${originDomain}${returnPath}`);
         return;
       }

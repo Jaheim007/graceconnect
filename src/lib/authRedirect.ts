@@ -4,16 +4,13 @@ import { getIntent, clearIntent } from '@/lib/intent';
 /**
  * Decide where to send a freshly-authenticated user.
  *
- * Priority (Step-3 sign-in decision flow):
+ * Priority:
  *   1. Pending customer/provider action (validated returnTo)
  *   2. Explicit ?returnTo query param (validated)
  *   3. Explicit stored intent (provider / client) from a CTA
- *   4. Last-used workspace via sv_current_org_id → root org hydration restores it
- *   5. Unified account home for true zero-workspace users
- *
- * `/welcome-intent` is only used for brand-new accounts (step 4); it is never
- * forced on a returning sign-in.
+ *   4. Otherwise → home ('/'), for new and returning users alike.
  */
+
 export function resolvePostAuthRedirect(opts: {
   isNewUser: boolean;
   explicitReturnTo?: string | null;
@@ -40,18 +37,15 @@ export function resolvePostAuthRedirect(opts: {
   if (intent) {
     clearIntent();
     if (intent.kind === 'provider') {
-      // Brand-new provider → onboarding; existing → their dashboard.
+      // Brand-new provider → onboarding; existing → home.
       const safe = safeReturnTo(intent.returnTo || null);
-      return isNewUser ? (safe || '/create-org') : (safe || '/dashboard');
+      return isNewUser ? (safe || '/create-org') : (safe || '/');
     }
-    // Client intent: just return to what they were doing, otherwise account home.
-    return safeReturnTo(intent.returnTo || null) || '/dashboard';
+    // Client intent: just return to what they were doing, otherwise home.
+    return safeReturnTo(intent.returnTo || null) || '/';
   }
 
-  // 4. Brand-new account → the single first-run intent step.
-  if (isNewUser) return '/welcome-intent';
-
-  // 5 + 6. Account home OR last-used workspace — OrgContext restores globally
-  // before signed-in shells render, and /dashboard resolves to /admin when ready.
-  return '/dashboard';
+  // 4. No CTA, no pending action → the unified home (ActionHub).
+  return '/';
 }
+

@@ -63,7 +63,7 @@ export default function AuthPage() {
     if (savedIntent === 'ambassador' || savedIntent === 'creator') {
       sessionStorage.removeItem('sv_auth_intent');
       try { localStorage.setItem('sv_app_mode', savedIntent); } catch {}
-      const safe = safeReturnTo(returnTo) || '/dashboard';
+      const safe = safeReturnTo(returnTo) || '/';
       navigate(safe, { replace: true });
       return;
     }
