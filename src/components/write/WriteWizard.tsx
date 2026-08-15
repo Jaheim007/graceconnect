@@ -1146,6 +1146,7 @@ export default function WriteWizard() {
         description: err.message,
         variant: 'destructive',
       });
+      setPublishFlow(false);
       setStep(PDF_PREVIEW_STEP);
     } finally {
       setPublishing(false);
@@ -1160,6 +1161,7 @@ export default function WriteWizard() {
       return;
     }
     setPublishingStage('preparing');
+    setPublishFlow(true);
     setStep(PUBLISHING_STEP);
     void handlePublish();
   }, [publishing, handlePublish, publicationOrgId]);
@@ -1167,20 +1169,24 @@ export default function WriteWizard() {
   const handlePlatformSetupConfirm = useCallback(async ({ name, currency, world, category }: PlatformSetupValues) => {
     if (creatingPlatform) return;
     setCreatingPlatform(true);
+    // Pin the view to the publishing splash immediately: no flash back to the
+    // platform step while the workspace is being created.
+    setWillCreateOrg(true);
+    setPublishingStage('org');
+    setPublishFlow(true);
+    setStep(PUBLISHING_STEP);
     try {
       const { orgId, org } = await createWorkspace({ name, world, currency, category });
       if (org) setCurrentOrg(org as any);
       await refetchOrgs();
-      // Move to the publishing splash BEFORE touching the URL so the wizard
-      // never flashes back to the PDF preview step.
-      setWillCreateOrg(true);
       setPublishingStage('preparing');
-      setStep(PUBLISHING_STEP);
       // Deliberately do NOT touch the URL here: changing ?org= remounts/rehydrates
       // the wizard and bounced the user back to the PDF preview. We publish
       // straight through to the product editor with the new org id.
       await handlePublish(orgId);
     } catch (err: any) {
+      setPublishFlow(false);
+      setStep(PLATFORM_STEP);
       toast({
         title: isFr ? '❌ Création impossible' : '❌ Could not create platform',
         description: err?.message,
