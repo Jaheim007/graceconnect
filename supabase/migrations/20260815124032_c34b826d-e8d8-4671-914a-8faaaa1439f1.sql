@@ -1,0 +1,128 @@
+CREATE OR REPLACE FUNCTION public.create_book_quick(
+  _title text,
+  _style text DEFAULT 'ebook',
+  _page_count integer DEFAULT 20,
+  _price integer DEFAULT 2000,
+  _is_free boolean DEFAULT false,
+  _commission_rate integer DEFAULT 20,
+  _description text DEFAULT NULL,
+  _cover_url text DEFAULT NULL,
+  _file_url text DEFAULT NULL,
+  _chapters jsonb DEFAULT '[]',
+  _topic text DEFAULT NULL,
+  _org_id uuid DEFAULT NULL
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+DECLARE
+  _caller uuid;
+  _resolved_org_id uuid;
+  _product_id uuid;
+  _project_id uuid;
+  _slug text;
+  _org_slug text;
+  _profile record;
+  _created_org boolean := false;
+BEGIN
+  _caller := auth.uid();
+  IF _caller IS NULL THEN RAISE EXCEPTION 'Not authenticated'; END IF;
+
+  SELECT display_name INTO _profile FROM public.profiles WHERE id = _caller;
+
+  IF _org_id IS NOT NULL THEN
+    SELECT o.id, o.slug INTO _resolved_org_id, _org_slug
+    FROM public.organizations o
+    JOIN public.organization_members om ON om.organization_id = o.id
+    WHERE o.id = _org_id
+      AND om.user_id = _caller
+      AND om.role IN ('owner', 'admin', 'editor')
+    LIMIT 1;
+  END IF;
+
+  -- Fallback 1: any org the caller can manage (owner/admin/editor)
+  IF _resolved_org_id IS NULL THEN
+    SELECT o.id, o.slug INTO _resolved_org_id, _org_slug
+    FROM public.organizations o
+    JOIN public.organization_members om ON om.organization_id = o.id
+    WHERE om.user_id = _caller AND om.role IN ('owner', 'admin', 'editor')
+    ORDER BY (om.role = 'owner') DESC, o.created_at ASC
+    LIMIT 1;
+  END IF;
+
+  -- Fallback 2: org owned via organizations.owner_id even if membership row is missing
+  IF _resolved_org_id IS NULL THEN
+    SELECT o.id, o.slug INTO _resolved_org_id, _org_slug
+    FROM public.organizations o
+    WHERE o.owner_id = _caller
+    ORDER BY o.created_at ASC
+    LIMIT 1;
+
+    IF _resolved_org_id IS NOT NULL THEN
+      INSERT INTO public.organization_members (organization_id, user_id, role)
+      VALUES (_resolved_org_id, _caller, 'owner')
+      ON CONFLICT DO NOTHING;
+    END IF;
+  END IF;
+
+  -- Only create a platform when the user truly has none
+  IF _resolved_org_id IS NULL THEN
+    _org_slug := 'writer-' || left(replace(gen_random_uuid()::text, '-', ''), 8);
+    INSERT INTO public.organizations (name, slug, category, owner_id, currency, affiliation_enabled)
+    VALUES (
+      COALESCE(_profile.display_name, 'Mon espace') || '''s books',
+      _org_slug, 'business', _caller, 'XOF', true
+    ) RETURNING id INTO _resolved_org_id;
+
+    INSERT INTO public.organization_members (organization_id, user_id, role)
+    VALUES (_resolved_org_id, _caller, 'owner');
+    _created_org := true;
+  END IF;
+
+  _slug := lower(regexp_replace(_title, '[^a-zA-Z0-9]+', '-', 'g'));
+  _slug := trim(both '-' from _slug);
+  IF length(_slug) < 3 THEN _slug := 'book-' || left(replace(gen_random_uuid()::text, '-', ''), 6); END IF;
+
+  INSERT INTO public.ai_content_projects (
+    organization_id, created_by, project_type, title, objective,
+    data_json, status, target_length
+  ) VALUES (
+    _resolved_org_id, _caller, 'ebook', _title, _topic,
+    jsonb_build_object('style', _style, 'chapters', _chapters, 'page_count', _page_count),
+    'ready_to_publish', _page_count
+  ) RETURNING id INTO _project_id;
+
+  INSERT INTO public.digital_products (
+    organization_id, created_by, title, slug, description,
+    price, is_free, is_published, cover_image_url, file_url,
+    page_count, product_type, ai_generated, ai_project_id, publication_status
+  ) VALUES (
+    _resolved_org_id, _caller, _title, _slug, _description,
+    CASE WHEN _is_free THEN 0 ELSE _price END,
+    _is_free, false, _cover_url, _file_url,
+    _page_count, 'ebook', true, _project_id, 'draft'
+  ) RETURNING id INTO _product_id;
+
+  UPDATE public.ai_content_projects SET linked_product_id = _product_id WHERE id = _project_id;
+
+  IF _commission_rate IS DISTINCT FROM 20 THEN
+    UPDATE public.organizations SET affiliation_commission_percent = _commission_rate WHERE id = _resolved_org_id;
+  END IF;
+
+  INSERT INTO public.audit_logs (user_id, action, resource_type, resource_id, organization_id, metadata)
+  VALUES (_caller, 'studio.book_quick_created', 'digital_product', _product_id, _resolved_org_id,
+    jsonb_build_object('title', _title, 'price', _price, 'is_free', _is_free));
+
+  RETURN jsonb_build_object(
+    'ok', true,
+    'product_id', _product_id,
+    'project_id', _project_id,
+    'org_id', _resolved_org_id,
+    'organization_id', _resolved_org_id,
+    'org_slug', _org_slug,
+    'created_org', _created_org
+  );
+END;
+$$;
