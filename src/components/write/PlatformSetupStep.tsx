@@ -30,7 +30,7 @@ const WORLD_OPTIONS: { id: SiteviralWorld; icon: typeof Store; fr: string; en: s
   { id: 'digital', icon: BookOpen, fr: 'Livres & contenus numériques', en: 'Books & digital content', frDesc: 'Ebooks, guides, PDF, audio', enDesc: 'Ebooks, guides, PDFs, audio' },
   { id: 'education', icon: GraduationCap, fr: 'Formations & cours', en: 'Courses & training', frDesc: 'Modules, leçons, quiz, certificats', enDesc: 'Modules, lessons, quizzes, certificates' },
   { id: 'church', icon: Church, fr: 'Église / ONG', en: 'Church / NGO', frDesc: 'Enseignements, dons, offrandes', enDesc: 'Teachings, giving, donations' },
-  { id: 'digital_other', icon: Store, fr: 'Autre activité', en: 'Something else', frDesc: 'Je décide plus tard', enDesc: 'I will decide later' },
+  { id: 'events', icon: Store, fr: 'Événements & billets', en: 'Events & tickets', frDesc: 'Packages, billets, réservations', enDesc: 'Packages, tickets, bookings' },
 ];
 
 /**
