@@ -117,7 +117,17 @@ export function Sidebar() {
   const unifiedNav: ActionNavItem[] = (() => {
     const overview = workspaceNav.filter((it) => it.route.split('?')[0] === '/dashboard');
     const rest = workspaceNav.filter((it) => it.route.split('?')[0] !== '/dashboard');
-    const merged = [...overview, ...accountNav, ...rest];
+    // Settings belongs in the menu itself (last row), not stranded in the footer.
+    const settingsItem: ActionNavItem[] = canManageCurrentOrg
+      ? [{
+          id: 'settings', icon: Settings, emoji: '',
+          titleFr: 'Paramètres', titleEn: 'Settings',
+          descFr: 'Gérer ma plateforme', descEn: 'Manage my platform',
+          route: '/admin/settings',
+          borderClass: '', iconBg: '', iconColor: 'text-sidebar-foreground/75',
+        } as ActionNavItem]
+      : [];
+    const merged = [...overview, ...accountNav, ...rest, ...settingsItem];
     const seen = new Set<string>();
     return merged.filter((it) => {
       const key = it.route.split('?')[0];
