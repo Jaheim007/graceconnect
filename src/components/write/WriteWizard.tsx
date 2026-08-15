@@ -1166,7 +1166,7 @@ export default function WriteWizard() {
     } finally {
       setCreatingPlatform(false);
     }
-  }, [creatingPlatform, handlePublish, refetchOrgs, setCurrentOrg, setSearchParams, toast, isFr]);
+  }, [creatingPlatform, handlePublish, refetchOrgs, setCurrentOrg, toast, isFr]);
 
 
 

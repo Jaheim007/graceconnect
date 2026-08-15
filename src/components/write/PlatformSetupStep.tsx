@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Church, HeartHandshake, Loader2, Rocket, Users, Sparkles, Check } from 'lucide-react';
+import { ArrowLeft, Church, HeartHandshake, Loader2, Rocket, Users, PenLine, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
@@ -30,7 +30,7 @@ interface Props {
   subtitle?: string;
 }
 
-const ICONS = { creator: Sparkles, church: Church, ngo: HeartHandshake, community: Users } as const;
+const ICONS = { creator: PenLine, church: Church, ngo: HeartHandshake, community: Users } as const;
 
 /**
  * Full-page platform setup — asked once, near the end of the creation flow:
