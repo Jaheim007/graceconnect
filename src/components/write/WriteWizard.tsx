@@ -85,6 +85,8 @@ export interface WriteState {
   editorialStrategy?: EditorialStrategy;
   /** An outline already approved by the author (e.g. the plan shown on the landing page). */
   plannedOutline?: { title: string; summary?: string }[];
+  /** Voice preset chosen right after a landing-page preview (tone only, never platform type). */
+  landingTonePreset?: 'neutral' | 'spiritual' | 'study_guide' | 'business' | 'personal_growth' | 'story';
   chapters: WriteChapter[];
   chapterIllustrations: Record<string, string>; // chapter id -> image URL
   coverTemplate: number;
