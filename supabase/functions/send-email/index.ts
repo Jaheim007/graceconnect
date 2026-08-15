@@ -162,7 +162,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
                 <li>📚 Utiliser le Viral Studio pour produire des ressources</li>
               </ul>
             </div>
-            <p style="color:#888;font-size:13px">⏰ Ces crédits expirent dans 7 jours – profitez-en vite !</p>
+            <p style="color:#6b7383;font-size:13px">⏰ Ces crédits expirent dans 7 jours – profitez-en vite !</p>
             <p>Vous recevez aussi <strong>38,5 crédits gratuits chaque jour</strong> en vous connectant.</p>
             ${cta('https://siteviral.com/credits', 'Voir mes crédits')}
             ${cta('https://siteviral.com/dashboard', 'Accéder à mon espace')}
@@ -179,7 +179,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
                 <li>📚 Use the Viral Studio to produce resources</li>
               </ul>
             </div>
-            <p style="color:#888;font-size:13px">⏰ These credits expire in 7 days – use them quickly!</p>
+            <p style="color:#6b7383;font-size:13px">⏰ These credits expire in 7 days – use them quickly!</p>
             <p>You also receive <strong>38.5 free credits every day</strong> just by logging in.</p>
             ${cta('https://siteviral.com/credits', 'View my credits')}
             ${cta('https://siteviral.com/dashboard', 'Go to my dashboard')}
@@ -197,23 +197,23 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
 
     case 'onboarding_day7':
       return isFr
-        ? { subject: '💡 Astuces pour réussir – Siteviral', html: wrap(`<h1 style="color:${blue}">💡 Astuces de croissance</h1><p>Bonjour ${d.name || ''},</p><p>Voici comment tirer le meilleur parti de Siteviral :</p><ul style="color:#ccc"><li>Publiez du contenu pour engager votre audience</li><li>Lancez une campagne de collecte</li><li>Activez les ambassadeurs pour étendre votre portée</li><li>Utilisez les campagnes email pour rester connecté</li></ul>${cta('https://siteviral.com/dashboard', 'Commencer')}`, lang) }
-        : { subject: '💡 Tips for success – Siteviral', html: wrap(`<h1 style="color:${blue}">💡 Growth tips</h1><p>Hello ${d.name || ''},</p><p>Here's how to get the most out of Siteviral:</p><ul style="color:#ccc"><li>Publish content to engage your audience</li><li>Launch a fundraising campaign</li><li>Activate ambassadors to extend your reach</li><li>Use email campaigns to stay connected</li></ul>${cta('https://siteviral.com/dashboard', 'Get started')}`, lang) };
+        ? { subject: '💡 Astuces pour réussir – Siteviral', html: wrap(`<h1 style="color:${blue}">💡 Astuces de croissance</h1><p>Bonjour ${d.name || ''},</p><p>Voici comment tirer le meilleur parti de Siteviral :</p><ul style="color:#3d4757"><li>Publiez du contenu pour engager votre audience</li><li>Lancez une campagne de collecte</li><li>Activez les ambassadeurs pour étendre votre portée</li><li>Utilisez les campagnes email pour rester connecté</li></ul>${cta('https://siteviral.com/dashboard', 'Commencer')}`, lang) }
+        : { subject: '💡 Tips for success – Siteviral', html: wrap(`<h1 style="color:${blue}">💡 Growth tips</h1><p>Hello ${d.name || ''},</p><p>Here's how to get the most out of Siteviral:</p><ul style="color:#3d4757"><li>Publish content to engage your audience</li><li>Launch a fundraising campaign</li><li>Activate ambassadors to extend your reach</li><li>Use email campaigns to stay connected</li></ul>${cta('https://siteviral.com/dashboard', 'Get started')}`, lang) };
 
     case 'new_device_login':
       return isFr
-        ? { subject: '🔒 Nouvelle connexion détectée – Siteviral', html: wrap(`<h1 style="color:${orange}">🔒 Nouvelle Connexion Détectée</h1><p>Une nouvelle connexion à votre compte a été détectée.</p><p><strong>Appareil :</strong> ${d.device || 'Inconnu'}</p><p><strong>Heure :</strong> ${d.time || 'À l\'instant'}</p><p style="color:#999">Si ce n'était pas vous, changez votre mot de passe immédiatement.</p>`, lang) }
-        : { subject: '🔒 New login detected – Siteviral', html: wrap(`<h1 style="color:${orange}">🔒 New Login Detected</h1><p>A new login to your account was detected.</p><p><strong>Device:</strong> ${d.device || 'Unknown'}</p><p><strong>Time:</strong> ${d.time || 'Just now'}</p><p style="color:#999">If this wasn't you, change your password immediately.</p>`, lang) };
+        ? { subject: '🔒 Nouvelle connexion détectée – Siteviral', html: wrap(`<h1 style="color:${orange}">🔒 Nouvelle Connexion Détectée</h1><p>Une nouvelle connexion à votre compte a été détectée.</p><p><strong>Appareil :</strong> ${d.device || 'Inconnu'}</p><p><strong>Heure :</strong> ${d.time || 'À l\'instant'}</p><p style="color:#6b7383">Si ce n'était pas vous, changez votre mot de passe immédiatement.</p>`, lang) }
+        : { subject: '🔒 New login detected – Siteviral', html: wrap(`<h1 style="color:${orange}">🔒 New Login Detected</h1><p>A new login to your account was detected.</p><p><strong>Device:</strong> ${d.device || 'Unknown'}</p><p><strong>Time:</strong> ${d.time || 'Just now'}</p><p style="color:#6b7383">If this wasn't you, change your password immediately.</p>`, lang) };
 
     case 'password_changed':
       return isFr
-        ? { subject: '🔑 Mot de passe modifié – Siteviral', html: wrap(`<h1 style="color:${info}">🔑 Mot de passe modifié</h1><p>Votre mot de passe a été modifié avec succès.</p><p style="color:#999">Si vous n'êtes pas à l'origine de ce changement, contactez <a href="mailto:support@siteviral.com" style="color:${blue}">support@siteviral.com</a> immédiatement.</p>`, lang) }
-        : { subject: '🔑 Password changed – Siteviral', html: wrap(`<h1 style="color:${info}">🔑 Password Changed</h1><p>Your password was changed successfully.</p><p style="color:#999">If you didn't make this change, contact <a href="mailto:support@siteviral.com" style="color:${blue}">support@siteviral.com</a> immediately.</p>`, lang) };
+        ? { subject: '🔑 Mot de passe modifié – Siteviral', html: wrap(`<h1 style="color:${info}">🔑 Mot de passe modifié</h1><p>Votre mot de passe a été modifié avec succès.</p><p style="color:#6b7383">Si vous n'êtes pas à l'origine de ce changement, contactez <a href="mailto:support@siteviral.com" style="color:${blue}">support@siteviral.com</a> immédiatement.</p>`, lang) }
+        : { subject: '🔑 Password changed – Siteviral', html: wrap(`<h1 style="color:${info}">🔑 Password Changed</h1><p>Your password was changed successfully.</p><p style="color:#6b7383">If you didn't make this change, contact <a href="mailto:support@siteviral.com" style="color:${blue}">support@siteviral.com</a> immediately.</p>`, lang) };
 
     case 'email_changed':
       return isFr
-        ? { subject: '📧 Email mis à jour – Siteviral', html: wrap(`<h1 style="color:${info}">📧 Email mis à jour</h1><p>Votre email a été changé pour <strong>${d.new_email}</strong>.</p><p style="color:#999">Si vous n'êtes pas à l'origine de ce changement, contactez le support immédiatement.</p>`, lang) }
-        : { subject: '📧 Email updated – Siteviral', html: wrap(`<h1 style="color:${info}">📧 Email Updated</h1><p>Your email has been changed to <strong>${d.new_email}</strong>.</p><p style="color:#999">If you didn't make this change, contact support immediately.</p>`, lang) };
+        ? { subject: '📧 Email mis à jour – Siteviral', html: wrap(`<h1 style="color:${info}">📧 Email mis à jour</h1><p>Votre email a été changé pour <strong>${d.new_email}</strong>.</p><p style="color:#6b7383">Si vous n'êtes pas à l'origine de ce changement, contactez le support immédiatement.</p>`, lang) }
+        : { subject: '📧 Email updated – Siteviral', html: wrap(`<h1 style="color:${info}">📧 Email Updated</h1><p>Your email has been changed to <strong>${d.new_email}</strong>.</p><p style="color:#6b7383">If you didn't make this change, contact support immediately.</p>`, lang) };
 
     case 'account_deleted':
       return isFr
@@ -222,8 +222,8 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
 
     case 'data_export_ready':
       return isFr
-        ? { subject: '📦 Vos données sont prêtes – Siteviral', html: wrap(`<h1 style="color:${blue}">📦 Export de données prêt</h1><p>Votre export de données est prêt à être téléchargé.</p><p style="color:#999">Le lien expire dans 48 heures.</p>${cta(String(d.download_link || '#'), 'Télécharger mes données')}`, lang) }
-        : { subject: '📦 Your data is ready – Siteviral', html: wrap(`<h1 style="color:${blue}">📦 Data Export Ready</h1><p>Your data export is ready to download.</p><p style="color:#999">The link expires in 48 hours.</p>${cta(String(d.download_link || '#'), 'Download my data')}`, lang) };
+        ? { subject: '📦 Vos données sont prêtes – Siteviral', html: wrap(`<h1 style="color:${blue}">📦 Export de données prêt</h1><p>Votre export de données est prêt à être téléchargé.</p><p style="color:#6b7383">Le lien expire dans 48 heures.</p>${cta(String(d.download_link || '#'), 'Télécharger mes données')}`, lang) }
+        : { subject: '📦 Your data is ready – Siteviral', html: wrap(`<h1 style="color:${blue}">📦 Data Export Ready</h1><p>Your data export is ready to download.</p><p style="color:#6b7383">The link expires in 48 hours.</p>${cta(String(d.download_link || '#'), 'Download my data')}`, lang) };
 
     // ═══ RE-ENGAGEMENT ═══
     case 'inactive_7d':
@@ -259,7 +259,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             </div>
             <p>Vous avez <strong style="color:${green}">38,5 crédits gratuits par jour</strong> pour créer du contenu. Ne les laissez pas expirer !</p>
             ${cta('https://siteviral.com/welcome', '🚀 Commencer maintenant')}
-            <p style="color:#888;font-size:12px">Pas besoin de compétences techniques. L'IA fait tout le travail.</p>
+            <p style="color:#6b7383;font-size:12px">Pas besoin de compétences techniques. L'IA fait tout le travail.</p>
           `, lang) }
         : { subject: '🎨 Your AI studio is waiting – Create in 3 minutes!', html: wrap(`
             <h1 style="color:${blue}">🎨 Your AI studio is waiting!</h1>
@@ -276,7 +276,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             </div>
             <p>You get <strong style="color:${green}">38.5 free credits daily</strong> to create content. Don't let them expire!</p>
             ${cta('https://siteviral.com/welcome', '🚀 Get started now')}
-            <p style="color:#888;font-size:12px">No technical skills needed. AI does all the work.</p>
+            <p style="color:#6b7383;font-size:12px">No technical skills needed. AI does all the work.</p>
           `, lang) };
 
     case 'reactivation_no_product':
@@ -290,7 +290,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
               <p style="margin:8px 0 0">Les créateurs qui publient dans les 48h ont <strong>3x plus de chances</strong> de faire leur première vente.</p>
             </div>
             <p>Utilisez le <strong>Viral AI Studio</strong> pour créer automatiquement :</p>
-            <ul style="color:#ccc;line-height:2">
+            <ul style="color:#3d4757;line-height:2">
               <li>📚 Un ebook ou guide PDF</li>
               <li>🎓 Une formation complète avec modules</li>
               <li>🎨 Un livre de coloriage pour enfants</li>
@@ -306,7 +306,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
               <p style="margin:8px 0 0">Creators who publish within 48h are <strong>3x more likely</strong> to make their first sale.</p>
             </div>
             <p>Use the <strong>Viral AI Studio</strong> to automatically create:</p>
-            <ul style="color:#ccc;line-height:2">
+            <ul style="color:#3d4757;line-height:2">
               <li>📚 An ebook or PDF guide</li>
               <li>🎓 A complete course with modules</li>
               <li>🎨 A coloring book for kids</li>
@@ -330,7 +330,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
               </ol>
             </div>
             ${cta('https://siteviral.com/admin/share', '📤 Partager mon produit')}
-            <p style="color:#888;font-size:12px">Chaque partage peut déclencher une vente. Les ambassadeurs les plus actifs gagnent en moyenne 15 000 FCFA/semaine.</p>
+            <p style="color:#6b7383;font-size:12px">Chaque partage peut déclencher une vente. Les ambassadeurs les plus actifs gagnent en moyenne 15 000 FCFA/semaine.</p>
           `, lang) }
         : { subject: '🔥 Your product is waiting for its first buyers!', html: wrap(`
             <h1 style="color:${orange}">🔥 Time to take action!</h1>
@@ -346,7 +346,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
               </ol>
             </div>
             ${cta('https://siteviral.com/admin/share', '📤 Share my product')}
-            <p style="color:#888;font-size:12px">Every share can trigger a sale. The most active ambassadors earn an average of 15,000 XOF/week.</p>
+            <p style="color:#6b7383;font-size:12px">Every share can trigger a sale. The most active ambassadors earn an average of 15,000 XOF/week.</p>
           `, lang) };
 
     case 'reactivation_ambassador':
@@ -361,7 +361,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
               <p style="margin:8px 0 0;color:#7b1fa2;font-weight:bold">Aucun effort de création, juste du partage.</p>
             </div>
             <p>💡 <strong>Astuce :</strong> Partagez votre lien dans un groupe WhatsApp avec un message du type :</p>
-            <div style="background:#333;border-radius:8px;padding:12px;margin:12px 0;font-style:italic;color:#ccc;font-size:13px">
+            <div style="background:#f4f6fa;border-radius:8px;padding:12px;margin:12px 0;font-style:italic;color:#3d4757;font-size:13px">
               "J'ai trouvé cette ressource incroyable, ça peut vraiment aider 👉 [votre lien]"
             </div>
             ${cta('https://siteviral.com/admin/share', '🔗 Voir mes liens')}
@@ -376,7 +376,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
               <p style="margin:8px 0 0;color:#7b1fa2;font-weight:bold">No creation effort, just sharing.</p>
             </div>
             <p>💡 <strong>Tip:</strong> Share your link in a WhatsApp group with a message like:</p>
-            <div style="background:#333;border-radius:8px;padding:12px;margin:12px 0;font-style:italic;color:#ccc;font-size:13px">
+            <div style="background:#f4f6fa;border-radius:8px;padding:12px;margin:12px 0;font-style:italic;color:#3d4757;font-size:13px">
               "I found this incredible resource, it can really help 👉 [your link]"
             </div>
             ${cta('https://siteviral.com/admin/share', '🔗 View my links')}
@@ -384,8 +384,8 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
 
     case 'anniversary_1y':
       return isFr
-        ? { subject: '🎂 1 an sur Siteviral !', html: wrap(`<h1 style="color:${green}">🎂 Joyeux anniversaire !</h1><p>Bonjour ${d.name || ''},</p><p>Cela fait <strong>1 an</strong> que vous avez rejoint Siteviral ! Voici votre année en résumé :</p><ul style="color:#ccc"><li>Organisations rejointes : ${d.orgs_count || 0}</li></ul><p>Merci de faire partie de la communauté ! 🎉</p>`, lang) }
-        : { subject: '🎂 1 year on Siteviral!', html: wrap(`<h1 style="color:${green}">🎂 Happy Anniversary!</h1><p>Hello ${d.name || ''},</p><p>It's been <strong>1 year</strong> since you joined Siteviral! Here's your year in review:</p><ul style="color:#ccc"><li>Organizations joined: ${d.orgs_count || 0}</li></ul><p>Thank you for being part of the community! 🎉</p>`, lang) };
+        ? { subject: '🎂 1 an sur Siteviral !', html: wrap(`<h1 style="color:${green}">🎂 Joyeux anniversaire !</h1><p>Bonjour ${d.name || ''},</p><p>Cela fait <strong>1 an</strong> que vous avez rejoint Siteviral ! Voici votre année en résumé :</p><ul style="color:#3d4757"><li>Organisations rejointes : ${d.orgs_count || 0}</li></ul><p>Merci de faire partie de la communauté ! 🎉</p>`, lang) }
+        : { subject: '🎂 1 year on Siteviral!', html: wrap(`<h1 style="color:${green}">🎂 Happy Anniversary!</h1><p>Hello ${d.name || ''},</p><p>It's been <strong>1 year</strong> since you joined Siteviral! Here's your year in review:</p><ul style="color:#3d4757"><li>Organizations joined: ${d.orgs_count || 0}</li></ul><p>Thank you for being part of the community! 🎉</p>`, lang) };
 
     // ═══ DONATIONS ═══
     case 'donation_receipt':
@@ -421,8 +421,8 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     // ═══ PRODUCTS & PURCHASES ═══
     case 'purchase_confirmation':
       return isFr
-        ? { subject: `Achat confirmé – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">✅ Achat Confirmé</h1><p>Vous avez acheté <strong>${d.product_name}</strong> auprès de <strong>${d.org_name}</strong>.</p><p>Montant : ${d.amount} ${d.currency}</p><p>Référence : <code>${d.reference}</code></p>${d.access_link ? cta(String(d.access_link), 'Accéder à mon achat →') : ''}<p style="color:#999">Votre ressource est disponible dans votre bibliothèque « Mes achats ».</p>`, lang) }
-        : { subject: `Purchase confirmed – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">✅ Purchase Confirmed</h1><p>You purchased <strong>${d.product_name}</strong> from <strong>${d.org_name}</strong>.</p><p>Amount: ${d.amount} ${d.currency}</p><p>Reference: <code>${d.reference}</code></p>${d.access_link ? cta(String(d.access_link), 'Access my purchase →') : ''}<p style="color:#999">Your resource is available in your "My Purchases" library.</p>`, lang) };
+        ? { subject: `Achat confirmé – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">✅ Achat Confirmé</h1><p>Vous avez acheté <strong>${d.product_name}</strong> auprès de <strong>${d.org_name}</strong>.</p><p>Montant : ${d.amount} ${d.currency}</p><p>Référence : <code>${d.reference}</code></p>${d.access_link ? cta(String(d.access_link), 'Accéder à mon achat →') : ''}<p style="color:#6b7383">Votre ressource est disponible dans votre bibliothèque « Mes achats ».</p>`, lang) }
+        : { subject: `Purchase confirmed – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">✅ Purchase Confirmed</h1><p>You purchased <strong>${d.product_name}</strong> from <strong>${d.org_name}</strong>.</p><p>Amount: ${d.amount} ${d.currency}</p><p>Reference: <code>${d.reference}</code></p>${d.access_link ? cta(String(d.access_link), 'Access my purchase →') : ''}<p style="color:#6b7383">Your resource is available in your "My Purchases" library.</p>`, lang) };
 
     case 'new_purchase_received':
       return isFr
@@ -431,8 +431,8 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
 
     case 'download_ready':
       return isFr
-        ? { subject: `📥 Votre téléchargement est prêt – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">📥 Téléchargement Prêt</h1><p>Votre achat de <strong>${d.product_name}</strong> est prêt à être téléchargé.</p>${cta(String(d.download_link), 'Télécharger maintenant →')}<p style="font-size:12px;color:#999">Ce lien expire dans 24 heures.</p>`, lang) }
-        : { subject: `📥 Your download is ready – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">📥 Download Ready</h1><p>Your purchase of <strong>${d.product_name}</strong> is ready to download.</p>${cta(String(d.download_link), 'Download now →')}<p style="font-size:12px;color:#999">This link expires in 24 hours.</p>`, lang) };
+        ? { subject: `📥 Votre téléchargement est prêt – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">📥 Téléchargement Prêt</h1><p>Votre achat de <strong>${d.product_name}</strong> est prêt à être téléchargé.</p>${cta(String(d.download_link), 'Télécharger maintenant →')}<p style="font-size:12px;color:#6b7383">Ce lien expire dans 24 heures.</p>`, lang) }
+        : { subject: `📥 Your download is ready – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">📥 Download Ready</h1><p>Your purchase of <strong>${d.product_name}</strong> is ready to download.</p>${cta(String(d.download_link), 'Download now →')}<p style="font-size:12px;color:#6b7383">This link expires in 24 hours.</p>`, lang) };
 
     case 'first_sale_milestone':
       return isFr
@@ -457,8 +457,8 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
 
     case 'kyc_reminder':
       return isFr
-        ? { subject: `Vérifiez votre identité pour retirer vos revenus – ${d.org_name}`, html: wrap(`<h1 style="color:${orange}">🔐 Vérification requise pour vos retraits</h1><p><strong>${d.org_name}</strong> génère déjà des revenus, mais votre identité n'est pas encore vérifiée (statut : ${d.status || 'non commencé'}).</p><p>La vérification débloque les retraits et les versements. Elle prend environ 5 minutes.</p>${cta(String(d.verification_link || 'https://siteviral.com/admin/settings?s=verification'), 'Vérifier mon identité →')}<p style="font-size:12px;color:#999">Vous retrouverez cette page dans Paramètres → Vérification d'identité.</p>`, lang) }
-        : { subject: `Verify your identity to withdraw your earnings – ${d.org_name}`, html: wrap(`<h1 style="color:${orange}">🔐 Verification required for payouts</h1><p><strong>${d.org_name}</strong> is already earning, but your identity isn't verified yet (status: ${d.status || 'not started'}).</p><p>Verification unlocks withdrawals and payouts. It takes about 5 minutes.</p>${cta(String(d.verification_link || 'https://siteviral.com/admin/settings?s=verification'), 'Verify my identity →')}<p style="font-size:12px;color:#999">You can find this page anytime in Settings → Identity verification.</p>`, lang) };
+        ? { subject: `Vérifiez votre identité pour retirer vos revenus – ${d.org_name}`, html: wrap(`<h1 style="color:${orange}">🔐 Vérification requise pour vos retraits</h1><p><strong>${d.org_name}</strong> génère déjà des revenus, mais votre identité n'est pas encore vérifiée (statut : ${d.status || 'non commencé'}).</p><p>La vérification débloque les retraits et les versements. Elle prend environ 5 minutes.</p>${cta(String(d.verification_link || 'https://siteviral.com/admin/settings?s=verification'), 'Vérifier mon identité →')}<p style="font-size:12px;color:#6b7383">Vous retrouverez cette page dans Paramètres → Vérification d'identité.</p>`, lang) }
+        : { subject: `Verify your identity to withdraw your earnings – ${d.org_name}`, html: wrap(`<h1 style="color:${orange}">🔐 Verification required for payouts</h1><p><strong>${d.org_name}</strong> is already earning, but your identity isn't verified yet (status: ${d.status || 'not started'}).</p><p>Verification unlocks withdrawals and payouts. It takes about 5 minutes.</p>${cta(String(d.verification_link || 'https://siteviral.com/admin/settings?s=verification'), 'Verify my identity →')}<p style="font-size:12px;color:#6b7383">You can find this page anytime in Settings → Identity verification.</p>`, lang) };
 
     // ═══ ORG LIFECYCLE ═══
     case 'org_created':
@@ -494,45 +494,45 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     // ═══ ORG CREATOR ONBOARDING ═══
     case 'org_welcome_j0':
       return isFr
-        ? { subject: `🚀 Votre plateforme est prête – ${d.name}`, html: wrap(`<h1 style="color:${blue}">🚀 Bienvenue, créateur !</h1><p>Votre plateforme <strong>${d.name}</strong> vient d'être créée sur Siteviral.</p><p>Voici vos 3 premières étapes :</p><ol style="color:#ccc"><li><strong>Ajoutez votre logo</strong> – les visuels inspirent confiance</li><li><strong>Cliquez sur « Démarrage Express »</strong> pour créer un produit + campagne en 1 clic</li><li><strong>Partagez votre lien</strong> : <code>siteviral.com/org/${d.slug}</code></li></ol>${cta('https://siteviral.com/admin', 'Accéder à mon tableau de bord')}<p style="font-size:12px;color:#999">Vous pouvez publier et recevoir des paiements immédiatement. La vérification d'identité n'est requise que pour les retraits.</p>`, lang) }
-        : { subject: `🚀 Your platform is ready – ${d.name}`, html: wrap(`<h1 style="color:${blue}">🚀 Welcome, creator!</h1><p>Your platform <strong>${d.name}</strong> has just been created on Siteviral.</p><p>Here are your first 3 steps:</p><ol style="color:#ccc"><li><strong>Add your logo</strong> – visuals build trust</li><li><strong>Click "Quick Start"</strong> to create a product + campaign in 1 click</li><li><strong>Share your link</strong>: <code>siteviral.com/org/${d.slug}</code></li></ol>${cta('https://siteviral.com/admin', 'Go to my dashboard')}<p style="font-size:12px;color:#999">You can publish and receive payments immediately. Identity verification is only required for withdrawals.</p>`, lang) };
+        ? { subject: `🚀 Votre plateforme est prête – ${d.name}`, html: wrap(`<h1 style="color:${blue}">🚀 Bienvenue, créateur !</h1><p>Votre plateforme <strong>${d.name}</strong> vient d'être créée sur Siteviral.</p><p>Voici vos 3 premières étapes :</p><ol style="color:#3d4757"><li><strong>Ajoutez votre logo</strong> – les visuels inspirent confiance</li><li><strong>Cliquez sur « Démarrage Express »</strong> pour créer un produit + campagne en 1 clic</li><li><strong>Partagez votre lien</strong> : <code>siteviral.com/org/${d.slug}</code></li></ol>${cta('https://siteviral.com/admin', 'Accéder à mon tableau de bord')}<p style="font-size:12px;color:#6b7383">Vous pouvez publier et recevoir des paiements immédiatement. La vérification d'identité n'est requise que pour les retraits.</p>`, lang) }
+        : { subject: `🚀 Your platform is ready – ${d.name}`, html: wrap(`<h1 style="color:${blue}">🚀 Welcome, creator!</h1><p>Your platform <strong>${d.name}</strong> has just been created on Siteviral.</p><p>Here are your first 3 steps:</p><ol style="color:#3d4757"><li><strong>Add your logo</strong> – visuals build trust</li><li><strong>Click "Quick Start"</strong> to create a product + campaign in 1 click</li><li><strong>Share your link</strong>: <code>siteviral.com/org/${d.slug}</code></li></ol>${cta('https://siteviral.com/admin', 'Go to my dashboard')}<p style="font-size:12px;color:#6b7383">You can publish and receive payments immediately. Identity verification is only required for withdrawals.</p>`, lang) };
 
     case 'org_onboarding_j1':
       return isFr
-        ? { subject: `📌 Avez-vous publié votre premier contenu ? – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📌 Jour 1 — Premiers pas</h1><p>Bonjour,</p><p>Votre plateforme <strong>${d.org_name}</strong> a été créée hier. Avez-vous ajouté votre premier contenu ?</p><p style="background:#222;padding:12px;border-radius:8px;color:#ffdd57;font-size:13px">💡 ${d.tip}</p><p>Voici ce que vous pouvez faire aujourd'hui :</p><ul style="color:#ccc"><li>Publier un média (vidéo, audio, article)</li><li>Créer un produit ou un ebook</li><li>Lancer votre première campagne de dons</li></ul>${cta('https://siteviral.com/admin', 'Ouvrir mon dashboard')}`, lang) }
-        : { subject: `📌 Did you publish your first content? – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📌 Day 1 — First steps</h1><p>Hello,</p><p>Your platform <strong>${d.org_name}</strong> was created yesterday. Have you added your first content?</p><p style="background:#222;padding:12px;border-radius:8px;color:#ffdd57;font-size:13px">💡 ${d.tip}</p><p>Here's what you can do today:</p><ul style="color:#ccc"><li>Publish media (video, audio, article)</li><li>Create a product or ebook</li><li>Launch your first fundraising campaign</li></ul>${cta('https://siteviral.com/admin', 'Open my dashboard')}`, lang) };
+        ? { subject: `📌 Avez-vous publié votre premier contenu ? – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📌 Jour 1 — Premiers pas</h1><p>Bonjour,</p><p>Votre plateforme <strong>${d.org_name}</strong> a été créée hier. Avez-vous ajouté votre premier contenu ?</p><p style="background:#fff8e6;border-left:3px solid #d97706;padding:12px 14px;border-radius:8px;color:#8a5a00;font-size:13px">💡 ${d.tip}</p><p>Voici ce que vous pouvez faire aujourd'hui :</p><ul style="color:#3d4757"><li>Publier un média (vidéo, audio, article)</li><li>Créer un produit ou un ebook</li><li>Lancer votre première campagne de dons</li></ul>${cta('https://siteviral.com/admin', 'Ouvrir mon dashboard')}`, lang) }
+        : { subject: `📌 Did you publish your first content? – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📌 Day 1 — First steps</h1><p>Hello,</p><p>Your platform <strong>${d.org_name}</strong> was created yesterday. Have you added your first content?</p><p style="background:#fff8e6;border-left:3px solid #d97706;padding:12px 14px;border-radius:8px;color:#8a5a00;font-size:13px">💡 ${d.tip}</p><p>Here's what you can do today:</p><ul style="color:#3d4757"><li>Publish media (video, audio, article)</li><li>Create a product or ebook</li><li>Launch your first fundraising campaign</li></ul>${cta('https://siteviral.com/admin', 'Open my dashboard')}`, lang) };
 
     case 'org_onboarding_j3':
       return isFr
-        ? { subject: `🤝 Activez vos ambassadeurs – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🤝 Jour 3 — Passez à la vitesse supérieure</h1><p>Bonjour,</p><p>Votre plateforme <strong>${d.org_name}</strong> a 3 jours. C'est le moment d'activer la croissance virale !</p><p style="background:#222;padding:12px;border-radius:8px;color:#ffdd57;font-size:13px">💡 ${d.tip}</p><p><strong>Le Programme Ambassadeur</strong> permet à chaque visiteur de devenir promoteur de vos ressources et de gagner des commissions sur chaque vente.</p><ul style="color:#ccc"><li>Commission par défaut : 10%</li><li>Lien unique pour chaque ambassadeur</li><li>Suivi en temps réel des ventes</li></ul>${cta('https://siteviral.com/admin/settings', 'Activer les Ambassadeurs')}<p style="font-size:12px;color:#999">Programme Ambassadeur actuellement : <strong>${d.affiliation_enabled === 'oui' ? '✅ Activé' : '❌ Désactivé'}</strong></p>`, lang) }
-        : { subject: `🤝 Activate your ambassadors – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🤝 Day 3 — Level up</h1><p>Hello,</p><p>Your platform <strong>${d.org_name}</strong> is 3 days old. Time to activate viral growth!</p><p style="background:#222;padding:12px;border-radius:8px;color:#ffdd57;font-size:13px">💡 ${d.tip}</p><p><strong>The Ambassador Program</strong> lets every visitor become a promoter and earn commissions on each sale.</p><ul style="color:#ccc"><li>Default commission: 10%</li><li>Unique link for each ambassador</li><li>Real-time sales tracking</li></ul>${cta('https://siteviral.com/admin/settings', 'Activate Ambassadors')}<p style="font-size:12px;color:#999">Ambassador Program currently: <strong>${d.affiliation_enabled === 'oui' || d.affiliation_enabled === 'yes' ? '✅ Enabled' : '❌ Disabled'}</strong></p>`, lang) };
+        ? { subject: `🤝 Activez vos ambassadeurs – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🤝 Jour 3 — Passez à la vitesse supérieure</h1><p>Bonjour,</p><p>Votre plateforme <strong>${d.org_name}</strong> a 3 jours. C'est le moment d'activer la croissance virale !</p><p style="background:#fff8e6;border-left:3px solid #d97706;padding:12px 14px;border-radius:8px;color:#8a5a00;font-size:13px">💡 ${d.tip}</p><p><strong>Le Programme Ambassadeur</strong> permet à chaque visiteur de devenir promoteur de vos ressources et de gagner des commissions sur chaque vente.</p><ul style="color:#3d4757"><li>Commission par défaut : 10%</li><li>Lien unique pour chaque ambassadeur</li><li>Suivi en temps réel des ventes</li></ul>${cta('https://siteviral.com/admin/settings', 'Activer les Ambassadeurs')}<p style="font-size:12px;color:#6b7383">Programme Ambassadeur actuellement : <strong>${d.affiliation_enabled === 'oui' ? '✅ Activé' : '❌ Désactivé'}</strong></p>`, lang) }
+        : { subject: `🤝 Activate your ambassadors – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🤝 Day 3 — Level up</h1><p>Hello,</p><p>Your platform <strong>${d.org_name}</strong> is 3 days old. Time to activate viral growth!</p><p style="background:#fff8e6;border-left:3px solid #d97706;padding:12px 14px;border-radius:8px;color:#8a5a00;font-size:13px">💡 ${d.tip}</p><p><strong>The Ambassador Program</strong> lets every visitor become a promoter and earn commissions on each sale.</p><ul style="color:#3d4757"><li>Default commission: 10%</li><li>Unique link for each ambassador</li><li>Real-time sales tracking</li></ul>${cta('https://siteviral.com/admin/settings', 'Activate Ambassadors')}<p style="font-size:12px;color:#6b7383">Ambassador Program currently: <strong>${d.affiliation_enabled === 'oui' || d.affiliation_enabled === 'yes' ? '✅ Enabled' : '❌ Disabled'}</strong></p>`, lang) };
 
     // ═══ POST-PURCHASE → AMBASSADOR ═══
     case 'post_purchase_ambassador_j1':
       return isFr
-        ? { subject: '💰 Gagne de l\'argent en partageant ce que tu as acheté', html: wrap(`<h1 style="color:${green}">💰 Gagne en partageant</h1><p>Bonjour ${d.name || ''},</p><p>Tu as acheté <strong>« ${d.product_title} »</strong> — excellent choix !</p><p>Savais-tu que tu peux <strong>gagner de l'argent</strong> en le partageant ? Un seul partage WhatsApp peut te rapporter <span style="color:${green};font-size:18px;font-weight:bold">${d.commission} FCFA</span> par vente.</p>${cta('https://siteviral.com/gagner', 'Obtenir mon lien ambassadeur →')}<p style="font-size:12px;color:#999">Partage → Quelqu'un achète → Tu gagnes. C'est aussi simple que ça !</p>`, lang) }
-        : { subject: '💰 Earn money by sharing what you bought', html: wrap(`<h1 style="color:${green}">💰 Earn by sharing</h1><p>Hello ${d.name || ''},</p><p>You bought <strong>"${d.product_title}"</strong> — great choice!</p><p>Did you know you can <strong>earn money</strong> by sharing it? A single WhatsApp share can earn you <span style="color:${green};font-size:18px;font-weight:bold">${d.commission} XOF</span> per sale.</p>${cta('https://siteviral.com/gagner', 'Get my ambassador link →')}<p style="font-size:12px;color:#999">Share → Someone buys → You earn. It's that simple!</p>`, lang) };
+        ? { subject: '💰 Gagne de l\'argent en partageant ce que tu as acheté', html: wrap(`<h1 style="color:${green}">💰 Gagne en partageant</h1><p>Bonjour ${d.name || ''},</p><p>Tu as acheté <strong>« ${d.product_title} »</strong> — excellent choix !</p><p>Savais-tu que tu peux <strong>gagner de l'argent</strong> en le partageant ? Un seul partage WhatsApp peut te rapporter <span style="color:${green};font-size:18px;font-weight:bold">${d.commission} FCFA</span> par vente.</p>${cta('https://siteviral.com/gagner', 'Obtenir mon lien ambassadeur →')}<p style="font-size:12px;color:#6b7383">Partage → Quelqu'un achète → Tu gagnes. C'est aussi simple que ça !</p>`, lang) }
+        : { subject: '💰 Earn money by sharing what you bought', html: wrap(`<h1 style="color:${green}">💰 Earn by sharing</h1><p>Hello ${d.name || ''},</p><p>You bought <strong>"${d.product_title}"</strong> — great choice!</p><p>Did you know you can <strong>earn money</strong> by sharing it? A single WhatsApp share can earn you <span style="color:${green};font-size:18px;font-weight:bold">${d.commission} XOF</span> per sale.</p>${cta('https://siteviral.com/gagner', 'Get my ambassador link →')}<p style="font-size:12px;color:#6b7383">Share → Someone buys → You earn. It's that simple!</p>`, lang) };
 
     case 'post_purchase_ambassador_j5':
       return isFr
-        ? { subject: '🔥 Des gens cherchent ce que tu as acheté', html: wrap(`<h1 style="color:${orange}">🔥 Produit tendance</h1><p>Bonjour ${d.name || ''},</p><p><strong>« ${d.product_title} »</strong> se vend bien en ce moment !</p><p>Partage ton lien ambassadeur sur WhatsApp et gagne <span style="color:${green};font-weight:bold">${d.commission} FCFA</span> par vente.</p><p style="background:#222;padding:12px;border-radius:8px;color:#ffdd57;font-size:13px">🤳 Astuce : envoie le lien dans 3 groupes WhatsApp — les ambassadeurs actifs gagnent en moyenne 25 000 FCFA par semaine.</p>${cta('https://siteviral.com/gagner', 'Mon lien ambassadeur →')}`, lang) }
-        : { subject: '🔥 People are looking for what you bought', html: wrap(`<h1 style="color:${orange}">🔥 Trending product</h1><p>Hello ${d.name || ''},</p><p><strong>"${d.product_title}"</strong> is selling well right now!</p><p>Share your ambassador link on WhatsApp and earn <span style="color:${green};font-weight:bold">${d.commission} XOF</span> per sale.</p><p style="background:#222;padding:12px;border-radius:8px;color:#ffdd57;font-size:13px">🤳 Tip: send your link to 3 WhatsApp groups — active ambassadors earn an average of $50/week.</p>${cta('https://siteviral.com/gagner', 'My ambassador link →')}`, lang) };
+        ? { subject: '🔥 Des gens cherchent ce que tu as acheté', html: wrap(`<h1 style="color:${orange}">🔥 Produit tendance</h1><p>Bonjour ${d.name || ''},</p><p><strong>« ${d.product_title} »</strong> se vend bien en ce moment !</p><p>Partage ton lien ambassadeur sur WhatsApp et gagne <span style="color:${green};font-weight:bold">${d.commission} FCFA</span> par vente.</p><p style="background:#fff8e6;border-left:3px solid #d97706;padding:12px 14px;border-radius:8px;color:#8a5a00;font-size:13px">🤳 Astuce : envoie le lien dans 3 groupes WhatsApp — les ambassadeurs actifs gagnent en moyenne 25 000 FCFA par semaine.</p>${cta('https://siteviral.com/gagner', 'Mon lien ambassadeur →')}`, lang) }
+        : { subject: '🔥 People are looking for what you bought', html: wrap(`<h1 style="color:${orange}">🔥 Trending product</h1><p>Hello ${d.name || ''},</p><p><strong>"${d.product_title}"</strong> is selling well right now!</p><p>Share your ambassador link on WhatsApp and earn <span style="color:${green};font-weight:bold">${d.commission} XOF</span> per sale.</p><p style="background:#fff8e6;border-left:3px solid #d97706;padding:12px 14px;border-radius:8px;color:#8a5a00;font-size:13px">🤳 Tip: send your link to 3 WhatsApp groups — active ambassadors earn an average of $50/week.</p>${cta('https://siteviral.com/gagner', 'My ambassador link →')}`, lang) };
 
     case 'post_purchase_ambassador_j10':
       return isFr
-        ? { subject: '⏳ Tu n\'as pas encore partagé ?', html: wrap(`<h1 style="color:${orange}">⏳ Dernière chance</h1><p>Bonjour ${d.name || ''},</p><p>Tu as acheté <strong>« ${d.product_title} »</strong> il y a 10 jours, mais tu n'as pas encore partagé.</p><p>Pourtant, un seul partage peut te rapporter <span style="color:${green};font-weight:bold">${d.commission} FCFA</span> par vente.</p><p style="font-size:16px;font-weight:bold;color:#fff;text-align:center">Si 10 personnes achètent = <span style="color:${green}">${(d.commission as number) * 10} FCFA</span> pour toi !</p><p>💡 Tu n'as rien à investir, rien à créer. Tu partages, tu gagnes.</p>${cta('https://siteviral.com/gagner', 'Partager maintenant →')}`, lang) }
-        : { subject: '⏳ You haven\'t shared yet?', html: wrap(`<h1 style="color:${orange}">⏳ Last chance</h1><p>Hello ${d.name || ''},</p><p>You bought <strong>"${d.product_title}"</strong> 10 days ago, but haven't shared it yet.</p><p>Just one share can earn you <span style="color:${green};font-weight:bold">${d.commission} XOF</span> per sale.</p><p style="font-size:16px;font-weight:bold;color:#fff;text-align:center">If 10 friends buy = <span style="color:${green}">${(d.commission as number) * 10} XOF</span> for you!</p><p>💡 No investment, no creation needed. Share and earn.</p>${cta('https://siteviral.com/gagner', 'Share now →')}`, lang) };
+        ? { subject: '⏳ Tu n\'as pas encore partagé ?', html: wrap(`<h1 style="color:${orange}">⏳ Dernière chance</h1><p>Bonjour ${d.name || ''},</p><p>Tu as acheté <strong>« ${d.product_title} »</strong> il y a 10 jours, mais tu n'as pas encore partagé.</p><p>Pourtant, un seul partage peut te rapporter <span style="color:${green};font-weight:bold">${d.commission} FCFA</span> par vente.</p><p style="font-size:16px;font-weight:bold;color:#1b2333;text-align:center">Si 10 personnes achètent = <span style="color:${green}">${(d.commission as number) * 10} FCFA</span> pour toi !</p><p>💡 Tu n'as rien à investir, rien à créer. Tu partages, tu gagnes.</p>${cta('https://siteviral.com/gagner', 'Partager maintenant →')}`, lang) }
+        : { subject: '⏳ You haven\'t shared yet?', html: wrap(`<h1 style="color:${orange}">⏳ Last chance</h1><p>Hello ${d.name || ''},</p><p>You bought <strong>"${d.product_title}"</strong> 10 days ago, but haven't shared it yet.</p><p>Just one share can earn you <span style="color:${green};font-weight:bold">${d.commission} XOF</span> per sale.</p><p style="font-size:16px;font-weight:bold;color:#1b2333;text-align:center">If 10 friends buy = <span style="color:${green}">${(d.commission as number) * 10} XOF</span> for you!</p><p>💡 No investment, no creation needed. Share and earn.</p>${cta('https://siteviral.com/gagner', 'Share now →')}`, lang) };
 
     // ═══ BUYER → CREATOR ═══
     case 'buyer_to_creator':
       return isFr
-        ? { subject: '✨ Tu as acheté ${d.purchase_count} produits — crée le tien !', html: wrap(`<h1 style="color:${blue}">✨ Et si tu créais le tien ?</h1><p>Bonjour ${d.name || ''},</p><p>Tu as déjà acheté <strong>${d.purchase_count} produits</strong> sur SiteViral — tu connais bien ce qui se vend !</p><p style="font-size:15px;font-weight:bold;color:#fff">🤖 Crée ton propre livre en 5 minutes avec l'IA :</p><ul style="color:#ccc"><li>Choisis un sujet → L'IA écrit pour toi</li><li>Couverture générée automatiquement</li><li>Vends immédiatement sur SiteViral</li></ul><p style="background:#222;padding:12px;border-radius:8px;color:#ffdd57;font-size:13px">💡 Les créateurs sur SiteViral gagnent en moyenne 150 000 FCFA/mois. Tu n'as aucune excuse !</p>${cta('https://siteviral.com/ecrire', 'Créer mon livre avec l\'IA →')}`, lang) }
-        : { subject: '✨ You bought ${d.purchase_count} products — create yours!', html: wrap(`<h1 style="color:${blue}">✨ Why not create your own?</h1><p>Hello ${d.name || ''},</p><p>You've already bought <strong>${d.purchase_count} products</strong> on SiteViral — you know what sells!</p><p style="font-size:15px;font-weight:bold;color:#fff">🤖 Create your own book in 5 minutes with AI:</p><ul style="color:#ccc"><li>Pick a topic → AI writes for you</li><li>Cover generated automatically</li><li>Sell immediately on SiteViral</li></ul><p style="background:#222;padding:12px;border-radius:8px;color:#ffdd57;font-size:13px">💡 Creators on SiteViral earn an average of $250/month. You have no excuse!</p>${cta('https://siteviral.com/ecrire', 'Create my book with AI →')}`, lang) };
+        ? { subject: '✨ Tu as acheté ${d.purchase_count} produits — crée le tien !', html: wrap(`<h1 style="color:${blue}">✨ Et si tu créais le tien ?</h1><p>Bonjour ${d.name || ''},</p><p>Tu as déjà acheté <strong>${d.purchase_count} produits</strong> sur SiteViral — tu connais bien ce qui se vend !</p><p style="font-size:15px;font-weight:bold;color:#1b2333">🤖 Crée ton propre livre en 5 minutes avec l'IA :</p><ul style="color:#3d4757"><li>Choisis un sujet → L'IA écrit pour toi</li><li>Couverture générée automatiquement</li><li>Vends immédiatement sur SiteViral</li></ul><p style="background:#fff8e6;border-left:3px solid #d97706;padding:12px 14px;border-radius:8px;color:#8a5a00;font-size:13px">💡 Les créateurs sur SiteViral gagnent en moyenne 150 000 FCFA/mois. Tu n'as aucune excuse !</p>${cta('https://siteviral.com/ecrire', 'Créer mon livre avec l\'IA →')}`, lang) }
+        : { subject: '✨ You bought ${d.purchase_count} products — create yours!', html: wrap(`<h1 style="color:${blue}">✨ Why not create your own?</h1><p>Hello ${d.name || ''},</p><p>You've already bought <strong>${d.purchase_count} products</strong> on SiteViral — you know what sells!</p><p style="font-size:15px;font-weight:bold;color:#1b2333">🤖 Create your own book in 5 minutes with AI:</p><ul style="color:#3d4757"><li>Pick a topic → AI writes for you</li><li>Cover generated automatically</li><li>Sell immediately on SiteViral</li></ul><p style="background:#fff8e6;border-left:3px solid #d97706;padding:12px 14px;border-radius:8px;color:#8a5a00;font-size:13px">💡 Creators on SiteViral earn an average of $250/month. You have no excuse!</p>${cta('https://siteviral.com/ecrire', 'Create my book with AI →')}`, lang) };
 
     case 'visitor_to_creator':
       return isFr
-        ? { subject: '💡 Tu reviens souvent — crée ton contenu !', html: wrap(`<h1 style="color:${blue}">💡 Tu as sûrement une expertise</h1><p>Bonjour ${d.name || ''},</p><p>Tu as visité SiteViral <strong>${d.visits} fois</strong> ces derniers jours. Tu aimes le contenu de qualité !</p><p style="font-size:15px;font-weight:bold;color:#fff">Et si tu créais le tien ?</p><p>Avec le <strong>Viral AI Studio</strong>, tu peux :</p><ul style="color:#ccc"><li>📚 Écrire un ebook complet en 5 minutes</li><li>🎓 Créer une formation avec quiz</li><li>📖 Créer un livre pour enfants illustré</li></ul><p>Zéro rédaction. L'IA écrit, illustre et met en page pour toi.</p>${cta('https://siteviral.com/ecrire', 'Essayer le Studio IA →')}`, lang) }
-        : { subject: '💡 You visit often — create your content!', html: wrap(`<h1 style="color:${blue}">💡 You have expertise to share</h1><p>Hello ${d.name || ''},</p><p>You've visited SiteViral <strong>${d.visits} times</strong> recently. You love quality content!</p><p style="font-size:15px;font-weight:bold;color:#fff">Why not create your own?</p><p>With the <strong>Viral AI Studio</strong>, you can:</p><ul style="color:#ccc"><li>📚 Write a complete ebook in 5 minutes</li><li>🎓 Create a course with quizzes</li><li>📖 Create an illustrated children's book</li></ul><p>Zero writing. AI writes, illustrates and formats for you.</p>${cta('https://siteviral.com/ecrire', 'Try the AI Studio →')}`, lang) };
+        ? { subject: '💡 Tu reviens souvent — crée ton contenu !', html: wrap(`<h1 style="color:${blue}">💡 Tu as sûrement une expertise</h1><p>Bonjour ${d.name || ''},</p><p>Tu as visité SiteViral <strong>${d.visits} fois</strong> ces derniers jours. Tu aimes le contenu de qualité !</p><p style="font-size:15px;font-weight:bold;color:#1b2333">Et si tu créais le tien ?</p><p>Avec le <strong>Viral AI Studio</strong>, tu peux :</p><ul style="color:#3d4757"><li>📚 Écrire un ebook complet en 5 minutes</li><li>🎓 Créer une formation avec quiz</li><li>📖 Créer un livre pour enfants illustré</li></ul><p>Zéro rédaction. L'IA écrit, illustre et met en page pour toi.</p>${cta('https://siteviral.com/ecrire', 'Essayer le Studio IA →')}`, lang) }
+        : { subject: '💡 You visit often — create your content!', html: wrap(`<h1 style="color:${blue}">💡 You have expertise to share</h1><p>Hello ${d.name || ''},</p><p>You've visited SiteViral <strong>${d.visits} times</strong> recently. You love quality content!</p><p style="font-size:15px;font-weight:bold;color:#1b2333">Why not create your own?</p><p>With the <strong>Viral AI Studio</strong>, you can:</p><ul style="color:#3d4757"><li>📚 Write a complete ebook in 5 minutes</li><li>🎓 Create a course with quizzes</li><li>📖 Create an illustrated children's book</li></ul><p>Zero writing. AI writes, illustrates and formats for you.</p>${cta('https://siteviral.com/ecrire', 'Try the AI Studio →')}`, lang) };
 
     case 'first_commission_earned':
       return isFr
@@ -644,13 +644,13 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
 
     case 'affiliate_monthly_recap':
       return isFr
-        ? { subject: `📊 Récap mensuel ambassadeur`, html: wrap(`<h1 style="color:${blue}">📊 Récap Mensuel Ambassadeur</h1><p>Voici votre résumé pour <strong>${d.month}</strong> :</p><ul style="color:#ccc"><li>Clics : ${d.clicks || 0}</li><li>Conversions : ${d.conversions || 0}</li><li>Gains : ${d.earnings || 0} ${d.currency || 'XOF'}</li></ul>`, lang) }
-        : { subject: `📊 Monthly ambassador recap`, html: wrap(`<h1 style="color:${blue}">📊 Monthly Ambassador Recap</h1><p>Here's your summary for <strong>${d.month}</strong>:</p><ul style="color:#ccc"><li>Clicks: ${d.clicks || 0}</li><li>Conversions: ${d.conversions || 0}</li><li>Earnings: ${d.earnings || 0} ${d.currency || 'XOF'}</li></ul>`, lang) };
+        ? { subject: `📊 Récap mensuel ambassadeur`, html: wrap(`<h1 style="color:${blue}">📊 Récap Mensuel Ambassadeur</h1><p>Voici votre résumé pour <strong>${d.month}</strong> :</p><ul style="color:#3d4757"><li>Clics : ${d.clicks || 0}</li><li>Conversions : ${d.conversions || 0}</li><li>Gains : ${d.earnings || 0} ${d.currency || 'XOF'}</li></ul>`, lang) }
+        : { subject: `📊 Monthly ambassador recap`, html: wrap(`<h1 style="color:${blue}">📊 Monthly Ambassador Recap</h1><p>Here's your summary for <strong>${d.month}</strong>:</p><ul style="color:#3d4757"><li>Clicks: ${d.clicks || 0}</li><li>Conversions: ${d.conversions || 0}</li><li>Earnings: ${d.earnings || 0} ${d.currency || 'XOF'}</li></ul>`, lang) };
 
     case 'affiliate_new_product':
       return isFr
-        ? { subject: `🚀 Nouveau produit à promouvoir – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🚀 Nouveau Produit Disponible !</h1><p><strong>${d.org_name}</strong> vient d'ajouter un nouveau produit :</p><p style="font-size:18px;font-weight:bold;color:#fff">"${d.content_title}"</p>${d.price ? `<p>Prix : <strong>${d.price} ${d.currency || 'XOF'}</strong></p>` : ''}<p>Partagez-le avec votre audience pour gagner des commissions sur chaque vente !</p>${cta(d.org_link || 'https://siteviral.com', 'Voir le produit')}`, lang) }
-        : { subject: `🚀 New product to promote – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🚀 New Product Available!</h1><p><strong>${d.org_name}</strong> just added a new product:</p><p style="font-size:18px;font-weight:bold;color:#fff">"${d.content_title}"</p>${d.price ? `<p>Price: <strong>${d.price} ${d.currency || 'XOF'}</strong></p>` : ''}<p>Share it with your audience to earn commissions on every sale!</p>${cta(d.org_link || 'https://siteviral.com', 'View product')}`, lang) };
+        ? { subject: `🚀 Nouveau produit à promouvoir – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🚀 Nouveau Produit Disponible !</h1><p><strong>${d.org_name}</strong> vient d'ajouter un nouveau produit :</p><p style="font-size:18px;font-weight:bold;color:#1b2333">"${d.content_title}"</p>${d.price ? `<p>Prix : <strong>${d.price} ${d.currency || 'XOF'}</strong></p>` : ''}<p>Partagez-le avec votre audience pour gagner des commissions sur chaque vente !</p>${cta(d.org_link || 'https://siteviral.com', 'Voir le produit')}`, lang) }
+        : { subject: `🚀 New product to promote – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🚀 New Product Available!</h1><p><strong>${d.org_name}</strong> just added a new product:</p><p style="font-size:18px;font-weight:bold;color:#1b2333">"${d.content_title}"</p>${d.price ? `<p>Price: <strong>${d.price} ${d.currency || 'XOF'}</strong></p>` : ''}<p>Share it with your audience to earn commissions on every sale!</p>${cta(d.org_link || 'https://siteviral.com', 'View product')}`, lang) };
 
     case 'affiliate_new_campaign':
       return isFr
@@ -659,8 +659,8 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
 
     case 'affiliate_new_program':
       return isFr
-        ? { subject: `🎓 Nouvelle formation à promouvoir – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🎓 Nouvelle Formation Disponible</h1><p><strong>${d.org_name}</strong> propose une nouvelle formation :</p><p style="font-size:18px;font-weight:bold;color:#fff">"${d.content_title}"</p><p>Partagez-la pour gagner des commissions sur chaque inscription !</p>${cta(d.org_link || 'https://siteviral.com', 'Voir la formation')}`, lang) }
-        : { subject: `🎓 New program to promote – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🎓 New Program Available</h1><p><strong>${d.org_name}</strong> offers a new program:</p><p style="font-size:18px;font-weight:bold;color:#fff">"${d.content_title}"</p><p>Share it to earn commissions on every enrollment!</p>${cta(d.org_link || 'https://siteviral.com', 'View program')}`, lang) };
+        ? { subject: `🎓 Nouvelle formation à promouvoir – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🎓 Nouvelle Formation Disponible</h1><p><strong>${d.org_name}</strong> propose une nouvelle formation :</p><p style="font-size:18px;font-weight:bold;color:#1b2333">"${d.content_title}"</p><p>Partagez-la pour gagner des commissions sur chaque inscription !</p>${cta(d.org_link || 'https://siteviral.com', 'Voir la formation')}`, lang) }
+        : { subject: `🎓 New program to promote – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🎓 New Program Available</h1><p><strong>${d.org_name}</strong> offers a new program:</p><p style="font-size:18px;font-weight:bold;color:#1b2333">"${d.content_title}"</p><p>Share it to earn commissions on every enrollment!</p>${cta(d.org_link || 'https://siteviral.com', 'View program')}`, lang) };
 
     case 'affiliate_price_changed':
       return isFr
@@ -676,8 +676,8 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     case 'partner_welcome': {
       const inviteLink = `https://siteviral.com/create-org?partner=${encodeURIComponent(d.invite_code || '')}`;
       return isFr
-        ? { subject: `🤝 Bienvenue, Partenaire ! – Siteviral`, html: wrap(`<h1 style="color:${green}">🤝 Bienvenue au Programme Partenaires !</h1><p>Bonjour <strong>${d.name}</strong>,</p><p>Votre candidature a été <strong>approuvée</strong> ! 🎉</p><p>Votre <strong>lien d'invitation</strong> :</p><a href="${inviteLink}" style="display:block;background:#222;padding:16px;border-radius:8px;text-align:center;font-size:14px;margin:16px 0;color:${blue};word-break:break-all;text-decoration:none">${inviteLink}</a><p>Partagez ce lien avec les responsables d'organisations pour gagner des commissions récurrentes.</p>${cta('https://siteviral.com/partner', 'Accéder à mon Espace Partenaire')}`, lang) }
-        : { subject: `🤝 Welcome, Partner! – Siteviral`, html: wrap(`<h1 style="color:${green}">🤝 Welcome to the Partner Program!</h1><p>Hello <strong>${d.name}</strong>,</p><p>Your application has been <strong>approved</strong>! 🎉</p><p>Your <strong>invite link</strong>:</p><a href="${inviteLink}" style="display:block;background:#222;padding:16px;border-radius:8px;text-align:center;font-size:14px;margin:16px 0;color:${blue};word-break:break-all;text-decoration:none">${inviteLink}</a><p>Share this link with organization leaders to earn recurring commissions.</p>${cta('https://siteviral.com/partner', 'Go to my Partner Space')}`, lang) };
+        ? { subject: `🤝 Bienvenue, Partenaire ! – Siteviral`, html: wrap(`<h1 style="color:${green}">🤝 Bienvenue au Programme Partenaires !</h1><p>Bonjour <strong>${d.name}</strong>,</p><p>Votre candidature a été <strong>approuvée</strong> ! 🎉</p><p>Votre <strong>lien d'invitation</strong> :</p><a href="${inviteLink}" style="display:block;background:#f4f6fa;padding:16px;border-radius:8px;text-align:center;font-size:14px;margin:16px 0;color:${blue};word-break:break-all;text-decoration:none">${inviteLink}</a><p>Partagez ce lien avec les responsables d'organisations pour gagner des commissions récurrentes.</p>${cta('https://siteviral.com/partner', 'Accéder à mon Espace Partenaire')}`, lang) }
+        : { subject: `🤝 Welcome, Partner! – Siteviral`, html: wrap(`<h1 style="color:${green}">🤝 Welcome to the Partner Program!</h1><p>Hello <strong>${d.name}</strong>,</p><p>Your application has been <strong>approved</strong>! 🎉</p><p>Your <strong>invite link</strong>:</p><a href="${inviteLink}" style="display:block;background:#f4f6fa;padding:16px;border-radius:8px;text-align:center;font-size:14px;margin:16px 0;color:${blue};word-break:break-all;text-decoration:none">${inviteLink}</a><p>Share this link with organization leaders to earn recurring commissions.</p>${cta('https://siteviral.com/partner', 'Go to my Partner Space')}`, lang) };
     }
 
     case 'partner_rejected':
@@ -749,8 +749,8 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
 
     case 'ticket_replied':
       return isFr
-        ? { subject: `💬 Réponse au ticket #${d.ticket_id || ''}`, html: wrap(`<h1 style="color:${info}">💬 Nouvelle Réponse</h1><p>Un agent a répondu à votre ticket :</p><div style="background:#222;border-radius:8px;padding:16px;margin:12px 0;border-left:3px solid ${blue}">${d.reply_preview || ''}</div>${cta('https://siteviral.com/support', 'Voir le ticket →')}`, lang) }
-        : { subject: `💬 Reply to ticket #${d.ticket_id || ''}`, html: wrap(`<h1 style="color:${info}">💬 New Reply</h1><p>An agent replied to your ticket:</p><div style="background:#222;border-radius:8px;padding:16px;margin:12px 0;border-left:3px solid ${blue}">${d.reply_preview || ''}</div>${cta('https://siteviral.com/support', 'View ticket →')}`, lang) };
+        ? { subject: `💬 Réponse au ticket #${d.ticket_id || ''}`, html: wrap(`<h1 style="color:${info}">💬 Nouvelle Réponse</h1><p>Un agent a répondu à votre ticket :</p><div style="background:#f4f6fa;border-radius:8px;padding:16px;margin:12px 0;border-left:3px solid ${blue}">${d.reply_preview || ''}</div>${cta('https://siteviral.com/support', 'Voir le ticket →')}`, lang) }
+        : { subject: `💬 Reply to ticket #${d.ticket_id || ''}`, html: wrap(`<h1 style="color:${info}">💬 New Reply</h1><p>An agent replied to your ticket:</p><div style="background:#f4f6fa;border-radius:8px;padding:16px;margin:12px 0;border-left:3px solid ${blue}">${d.reply_preview || ''}</div>${cta('https://siteviral.com/support', 'View ticket →')}`, lang) };
 
     case 'ticket_resolved':
       return isFr
@@ -817,13 +817,13 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     // ═══ COMMENTS ═══
     case 'new_comment_received':
       return isFr
-        ? { subject: `💬 Nouveau commentaire – ${d.content_title}`, html: wrap(`<h1 style="color:${blue}">💬 Nouveau Commentaire</h1><p><strong>${d.commenter_name || 'Quelqu\'un'}</strong> a commenté votre ${d.content_type || 'contenu'} : <strong>"${d.content_title}"</strong>.</p><div style="background:#222;border-radius:8px;padding:12px;margin:12px 0;border-left:3px solid ${blue};color:#ccc">${d.comment_preview || ''}</div>`, lang) }
-        : { subject: `💬 New comment – ${d.content_title}`, html: wrap(`<h1 style="color:${blue}">💬 New Comment</h1><p><strong>${d.commenter_name || 'Someone'}</strong> commented on your ${d.content_type || 'content'}: <strong>"${d.content_title}"</strong>.</p><div style="background:#222;border-radius:8px;padding:12px;margin:12px 0;border-left:3px solid ${blue};color:#ccc">${d.comment_preview || ''}</div>`, lang) };
+        ? { subject: `💬 Nouveau commentaire – ${d.content_title}`, html: wrap(`<h1 style="color:${blue}">💬 Nouveau Commentaire</h1><p><strong>${d.commenter_name || 'Quelqu\'un'}</strong> a commenté votre ${d.content_type || 'contenu'} : <strong>"${d.content_title}"</strong>.</p><div style="background:#f4f6fa;border-radius:8px;padding:12px;margin:12px 0;border-left:3px solid ${blue};color:#3d4757">${d.comment_preview || ''}</div>`, lang) }
+        : { subject: `💬 New comment – ${d.content_title}`, html: wrap(`<h1 style="color:${blue}">💬 New Comment</h1><p><strong>${d.commenter_name || 'Someone'}</strong> commented on your ${d.content_type || 'content'}: <strong>"${d.content_title}"</strong>.</p><div style="background:#f4f6fa;border-radius:8px;padding:12px;margin:12px 0;border-left:3px solid ${blue};color:#3d4757">${d.comment_preview || ''}</div>`, lang) };
 
     case 'comment_reply':
       return isFr
-        ? { subject: `↩️ Réponse à votre commentaire`, html: wrap(`<h1 style="color:${blue}">↩️ Réponse à Votre Commentaire</h1><p><strong>${d.replier_name || 'Quelqu\'un'}</strong> a répondu à votre commentaire sur <strong>"${d.content_title}"</strong>.</p><div style="background:#222;border-radius:8px;padding:12px;margin:12px 0;border-left:3px solid ${blue};color:#ccc">${d.reply_preview || ''}</div>`, lang) }
-        : { subject: `↩️ Reply to your comment`, html: wrap(`<h1 style="color:${blue}">↩️ Reply to Your Comment</h1><p><strong>${d.replier_name || 'Someone'}</strong> replied to your comment on <strong>"${d.content_title}"</strong>.</p><div style="background:#222;border-radius:8px;padding:12px;margin:12px 0;border-left:3px solid ${blue};color:#ccc">${d.reply_preview || ''}</div>`, lang) };
+        ? { subject: `↩️ Réponse à votre commentaire`, html: wrap(`<h1 style="color:${blue}">↩️ Réponse à Votre Commentaire</h1><p><strong>${d.replier_name || 'Quelqu\'un'}</strong> a répondu à votre commentaire sur <strong>"${d.content_title}"</strong>.</p><div style="background:#f4f6fa;border-radius:8px;padding:12px;margin:12px 0;border-left:3px solid ${blue};color:#3d4757">${d.reply_preview || ''}</div>`, lang) }
+        : { subject: `↩️ Reply to your comment`, html: wrap(`<h1 style="color:${blue}">↩️ Reply to Your Comment</h1><p><strong>${d.replier_name || 'Someone'}</strong> replied to your comment on <strong>"${d.content_title}"</strong>.</p><div style="background:#f4f6fa;border-radius:8px;padding:12px;margin:12px 0;border-left:3px solid ${blue};color:#3d4757">${d.reply_preview || ''}</div>`, lang) };
 
     // ═══ SUBSCRIPTIONS ═══
     case 'subscription_renewed':
@@ -889,28 +889,28 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     // ═══ RECAPS ═══
     case 'weekly_recap_user':
       return isFr
-        ? { subject: `📬 Votre récap hebdomadaire – Siteviral`, html: wrap(`<h1 style="color:${blue}">📬 Récap Hebdomadaire</h1><p>Bonjour ${d.name || ''}, voici votre semaine :</p><ul style="color:#ccc"><li>Nouveaux contenus : ${d.new_content || 0}</li><li>Événements à venir : ${d.upcoming_events || 0}</li><li>Notifications : ${d.unread_notifications || 0}</li></ul>${cta('https://siteviral.com/marketplace', 'Voir les nouveautés')}`, lang) }
-        : { subject: `📬 Your weekly recap – Siteviral`, html: wrap(`<h1 style="color:${blue}">📬 Weekly Recap</h1><p>Hello ${d.name || ''}, here's your week:</p><ul style="color:#ccc"><li>New content: ${d.new_content || 0}</li><li>Upcoming events: ${d.upcoming_events || 0}</li><li>Notifications: ${d.unread_notifications || 0}</li></ul>${cta('https://siteviral.com/marketplace', 'See what\'s new')}`, lang) };
+        ? { subject: `📬 Votre récap hebdomadaire – Siteviral`, html: wrap(`<h1 style="color:${blue}">📬 Récap Hebdomadaire</h1><p>Bonjour ${d.name || ''}, voici votre semaine :</p><ul style="color:#3d4757"><li>Nouveaux contenus : ${d.new_content || 0}</li><li>Événements à venir : ${d.upcoming_events || 0}</li><li>Notifications : ${d.unread_notifications || 0}</li></ul>${cta('https://siteviral.com/marketplace', 'Voir les nouveautés')}`, lang) }
+        : { subject: `📬 Your weekly recap – Siteviral`, html: wrap(`<h1 style="color:${blue}">📬 Weekly Recap</h1><p>Hello ${d.name || ''}, here's your week:</p><ul style="color:#3d4757"><li>New content: ${d.new_content || 0}</li><li>Upcoming events: ${d.upcoming_events || 0}</li><li>Notifications: ${d.unread_notifications || 0}</li></ul>${cta('https://siteviral.com/marketplace', 'See what\'s new')}`, lang) };
 
     case 'daily_recap_admin':
       return isFr
-        ? { subject: `📊 Rapport quotidien – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📊 Rapport Quotidien</h1><p><strong>${d.org_name}</strong> – ${d.date}</p><ul style="color:#ccc"><li>Revenus : ${d.revenue || 0} ${d.currency || 'XOF'}</li><li>Nouveaux membres : ${d.new_members || 0}</li><li>Transactions : ${d.transactions || 0}</li></ul>`, lang) }
-        : { subject: `📊 Daily report – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📊 Daily Report</h1><p><strong>${d.org_name}</strong> – ${d.date}</p><ul style="color:#ccc"><li>Revenue: ${d.revenue || 0} ${d.currency || 'XOF'}</li><li>New members: ${d.new_members || 0}</li><li>Transactions: ${d.transactions || 0}</li></ul>`, lang) };
+        ? { subject: `📊 Rapport quotidien – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📊 Rapport Quotidien</h1><p><strong>${d.org_name}</strong> – ${d.date}</p><ul style="color:#3d4757"><li>Revenus : ${d.revenue || 0} ${d.currency || 'XOF'}</li><li>Nouveaux membres : ${d.new_members || 0}</li><li>Transactions : ${d.transactions || 0}</li></ul>`, lang) }
+        : { subject: `📊 Daily report – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📊 Daily Report</h1><p><strong>${d.org_name}</strong> – ${d.date}</p><ul style="color:#3d4757"><li>Revenue: ${d.revenue || 0} ${d.currency || 'XOF'}</li><li>New members: ${d.new_members || 0}</li><li>Transactions: ${d.transactions || 0}</li></ul>`, lang) };
 
     case 'daily_recap_superadmin':
       return isFr
-        ? { subject: `🔷 Rapport plateforme – Siteviral`, html: wrap(`<h1 style="color:${blue}">🔷 Rapport Plateforme – ${d.date}</h1><ul style="color:#ccc"><li>GMV : ${d.gmv || 0} XOF</li><li>Frais plateforme : ${d.platform_fees || 0} XOF</li><li>Nouveaux utilisateurs : ${d.new_users || 0}</li><li>Nouvelles organisations : ${d.new_orgs || 0}</li></ul>`, lang) }
-        : { subject: `🔷 Platform report – Siteviral`, html: wrap(`<h1 style="color:${blue}">🔷 Platform Report – ${d.date}</h1><ul style="color:#ccc"><li>GMV: ${d.gmv || 0} XOF</li><li>Platform fees: ${d.platform_fees || 0} XOF</li><li>New users: ${d.new_users || 0}</li><li>New organizations: ${d.new_orgs || 0}</li></ul>`, lang) };
+        ? { subject: `🔷 Rapport plateforme – Siteviral`, html: wrap(`<h1 style="color:${blue}">🔷 Rapport Plateforme – ${d.date}</h1><ul style="color:#3d4757"><li>GMV : ${d.gmv || 0} XOF</li><li>Frais plateforme : ${d.platform_fees || 0} XOF</li><li>Nouveaux utilisateurs : ${d.new_users || 0}</li><li>Nouvelles organisations : ${d.new_orgs || 0}</li></ul>`, lang) }
+        : { subject: `🔷 Platform report – Siteviral`, html: wrap(`<h1 style="color:${blue}">🔷 Platform Report – ${d.date}</h1><ul style="color:#3d4757"><li>GMV: ${d.gmv || 0} XOF</li><li>Platform fees: ${d.platform_fees || 0} XOF</li><li>New users: ${d.new_users || 0}</li><li>New organizations: ${d.new_orgs || 0}</li></ul>`, lang) };
 
     case 'monthly_recap_org':
       return isFr
-        ? { subject: `📊 Récap mensuel – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📊 Récap Mensuel</h1><p><strong>${d.org_name}</strong> – ${d.month}</p><ul style="color:#ccc"><li>Revenus : ${d.revenue || 0} ${d.currency || 'XOF'}</li><li>Nouveaux membres : ${d.new_members || 0}</li><li>Ventes : ${d.sales || 0}</li></ul>${cta('https://siteviral.com/admin/analytics', 'Voir les détails')}`, lang) }
-        : { subject: `📊 Monthly recap – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📊 Monthly Recap</h1><p><strong>${d.org_name}</strong> – ${d.month}</p><ul style="color:#ccc"><li>Revenue: ${d.revenue || 0} ${d.currency || 'XOF'}</li><li>New members: ${d.new_members || 0}</li><li>Sales: ${d.sales || 0}</li></ul>${cta('https://siteviral.com/admin/analytics', 'View details')}`, lang) };
+        ? { subject: `📊 Récap mensuel – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📊 Récap Mensuel</h1><p><strong>${d.org_name}</strong> – ${d.month}</p><ul style="color:#3d4757"><li>Revenus : ${d.revenue || 0} ${d.currency || 'XOF'}</li><li>Nouveaux membres : ${d.new_members || 0}</li><li>Ventes : ${d.sales || 0}</li></ul>${cta('https://siteviral.com/admin/analytics', 'Voir les détails')}`, lang) }
+        : { subject: `📊 Monthly recap – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📊 Monthly Recap</h1><p><strong>${d.org_name}</strong> – ${d.month}</p><ul style="color:#3d4757"><li>Revenue: ${d.revenue || 0} ${d.currency || 'XOF'}</li><li>New members: ${d.new_members || 0}</li><li>Sales: ${d.sales || 0}</li></ul>${cta('https://siteviral.com/admin/analytics', 'View details')}`, lang) };
 
     case 'weekly_ambassador_recap':
       return isFr
-        ? { subject: `📊 Récap ambassadeur – Semaine`, html: wrap(`<h1 style="color:${blue}">📊 Récap Ambassadeur</h1><p>Voici votre résumé de la semaine :</p><ul style="color:#ccc"><li>Clics : ${d.clicks || 0}</li><li>Conversions : ${d.conversions || 0}</li><li>Gains : ${d.earnings || 0} ${d.currency || 'XOF'}</li></ul>${cta('https://siteviral.com/affiliation', 'Mon espace ambassadeur')}`, lang) }
-        : { subject: `📊 Ambassador recap – Week`, html: wrap(`<h1 style="color:${blue}">📊 Ambassador Recap</h1><p>Here's your weekly summary:</p><ul style="color:#ccc"><li>Clicks: ${d.clicks || 0}</li><li>Conversions: ${d.conversions || 0}</li><li>Earnings: ${d.earnings || 0} ${d.currency || 'XOF'}</li></ul>${cta('https://siteviral.com/affiliation', 'My ambassador space')}`, lang) };
+        ? { subject: `📊 Récap ambassadeur – Semaine`, html: wrap(`<h1 style="color:${blue}">📊 Récap Ambassadeur</h1><p>Voici votre résumé de la semaine :</p><ul style="color:#3d4757"><li>Clics : ${d.clicks || 0}</li><li>Conversions : ${d.conversions || 0}</li><li>Gains : ${d.earnings || 0} ${d.currency || 'XOF'}</li></ul>${cta('https://siteviral.com/affiliation', 'Mon espace ambassadeur')}`, lang) }
+        : { subject: `📊 Ambassador recap – Week`, html: wrap(`<h1 style="color:${blue}">📊 Ambassador Recap</h1><p>Here's your weekly summary:</p><ul style="color:#3d4757"><li>Clicks: ${d.clicks || 0}</li><li>Conversions: ${d.conversions || 0}</li><li>Earnings: ${d.earnings || 0} ${d.currency || 'XOF'}</li></ul>${cta('https://siteviral.com/affiliation', 'My ambassador space')}`, lang) };
 
     // ═══ SUPERADMIN ALERTS ═══
     case 'fraud_alert':
@@ -926,8 +926,8 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     // ═══ MISC ═══
     case 'flash_sale_alert':
       return isFr
-        ? { subject: `⚡ Promo flash – ${d.product_name}`, html: wrap(`<h1 style="color:${red}">⚡ Promo Flash !</h1><p><strong>"${d.product_name}"</strong> de <strong>${d.org_name}</strong> est en promotion !</p><p><span style="text-decoration:line-through;color:#999">${d.original_price} ${d.currency}</span> → <strong style="color:${green}">${d.sale_price} ${d.currency}</strong></p>${cta('https://siteviral.com', 'En profiter →')}`, lang) }
-        : { subject: `⚡ Flash sale – ${d.product_name}`, html: wrap(`<h1 style="color:${red}">⚡ Flash Sale!</h1><p><strong>"${d.product_name}"</strong> from <strong>${d.org_name}</strong> is on sale!</p><p><span style="text-decoration:line-through;color:#999">${d.original_price} ${d.currency}</span> → <strong style="color:${green}">${d.sale_price} ${d.currency}</strong></p>${cta('https://siteviral.com', 'Get it now →')}`, lang) };
+        ? { subject: `⚡ Promo flash – ${d.product_name}`, html: wrap(`<h1 style="color:${red}">⚡ Promo Flash !</h1><p><strong>"${d.product_name}"</strong> de <strong>${d.org_name}</strong> est en promotion !</p><p><span style="text-decoration:line-through;color:#6b7383">${d.original_price} ${d.currency}</span> → <strong style="color:${green}">${d.sale_price} ${d.currency}</strong></p>${cta('https://siteviral.com', 'En profiter →')}`, lang) }
+        : { subject: `⚡ Flash sale – ${d.product_name}`, html: wrap(`<h1 style="color:${red}">⚡ Flash Sale!</h1><p><strong>"${d.product_name}"</strong> from <strong>${d.org_name}</strong> is on sale!</p><p><span style="text-decoration:line-through;color:#6b7383">${d.original_price} ${d.currency}</span> → <strong style="color:${green}">${d.sale_price} ${d.currency}</strong></p>${cta('https://siteviral.com', 'Get it now →')}`, lang) };
 
     case 'promo_code_used':
       return isFr
@@ -979,7 +979,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       const fallbackCta = isFr ? 'Voir mes notifications →' : 'View my notifications →';
       return {
         subject: `${d.title || '🔔 Notification'}`,
-        html: wrap(`<h1 style="color:${blue}">${d.title || '🔔 Notification'}</h1><p>${d.body || (isFr ? 'Vous avez une nouvelle notification sur Siteviral.' : 'You have a new notification on Siteviral.')}</p>${d.action_url ? cta(String(d.action_url), ctaText) : cta('https://siteviral.com/notifications', fallbackCta)}<p style="font-size:12px;color:#999">${isFr ? 'Vous recevez cet email car vous avez activé les notifications email.' : 'You receive this email because you enabled email notifications.'} <a href="https://siteviral.com/notification-preferences" style="color:${blue}">${manageText}</a></p>`, lang),
+        html: wrap(`<h1 style="color:${blue}">${d.title || '🔔 Notification'}</h1><p>${d.body || (isFr ? 'Vous avez une nouvelle notification sur Siteviral.' : 'You have a new notification on Siteviral.')}</p>${d.action_url ? cta(String(d.action_url), ctaText) : cta('https://siteviral.com/notifications', fallbackCta)}<p style="font-size:12px;color:#6b7383">${isFr ? 'Vous recevez cet email car vous avez activé les notifications email.' : 'You receive this email because you enabled email notifications.'} <a href="https://siteviral.com/notification-preferences" style="color:${blue}">${manageText}</a></p>`, lang),
       };
     }
 
@@ -995,7 +995,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
               <p>En tant qu'acheteur récent, votre retour d'expérience est particulièrement précieux. Il aidera non seulement <strong>${d.org_name}</strong> à s'améliorer, mais guidera aussi les futurs acheteurs dans leurs choix.</p>
               <p style="font-weight:600">Pourriez-vous prendre un instant pour partager votre avis ?</p>
               ${cta(String(d.review_url || 'https://siteviral.com'), 'Laisser un avis ⭐')}
-              <p style="color:#999;font-size:12px">C'est simple et rapide — 10 secondes suffisent pour faire la différence !</p>
+              <p style="color:#6b7383;font-size:12px">C'est simple et rapide — 10 secondes suffisent pour faire la différence !</p>
               <p style="margin-top:24px">À très bientôt,<br/>L'équipe <strong>${d.org_name}</strong></p>
             `, lang)
           }
@@ -1008,7 +1008,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
               <p>As a recent buyer, your feedback is incredibly valuable. It will help <strong>${d.org_name}</strong> improve and guide future buyers in their decisions.</p>
               <p style="font-weight:600">Could you take a moment to share your review?</p>
               ${cta(String(d.review_url || 'https://siteviral.com'), 'Leave a Review ⭐')}
-              <p style="color:#999;font-size:12px">It's quick and easy — just 10 seconds to make a difference!</p>
+              <p style="color:#6b7383;font-size:12px">It's quick and easy — just 10 seconds to make a difference!</p>
               <p style="margin-top:24px">See you soon,<br/>The <strong>${d.org_name}</strong> team</p>
             `, lang)
           };
@@ -1021,20 +1021,20 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       const emoji = actionEmojis[String(d.action)] || '⚠️';
       const emailSubject = d.subject ? String(d.subject) : `${emoji} Moderation – "${d.content_title}"`;
       const descriptionHtml = d.description
-        ? `<div style="background:#222;border-radius:8px;padding:16px;margin:16px 0;color:#ddd;font-size:14px;line-height:1.6;white-space:pre-wrap">${d.description}</div>`
+        ? `<div style="background:#f4f6fa;border-radius:8px;padding:16px;margin:16px 0;color:#ddd;font-size:14px;line-height:1.6;white-space:pre-wrap">${d.description}</div>`
         : '';
       const reasonHtml = d.reason
-        ? `<p style="color:#ccc;font-size:13px;margin:12px 0"><strong style="color:#eee">Reason:</strong> ${d.reason}</p>`
+        ? `<p style="color:#3d4757;font-size:13px;margin:12px 0"><strong style="color:#3d4757">Reason:</strong> ${d.reason}</p>`
         : '';
 
       return {
         subject: emailSubject,
         html: wrap(`
           <h1 style="color:${red}">${emoji} ${emailSubject}</h1>
-          <p style="color:#ccc">Content affected: <strong style="color:#eee">"${d.content_title}"</strong></p>
+          <p style="color:#3d4757">Content affected: <strong style="color:#3d4757">"${d.content_title}"</strong></p>
           ${reasonHtml}
           ${descriptionHtml}
-          <p style="color:#999;font-size:12px;margin-top:20px">If you believe this decision was made in error, please contact our support team at <a href="mailto:support@siteviral.com" style="color:#999">support@siteviral.com</a> or <a href="mailto:team@siteviral.com" style="color:#999">team@siteviral.com</a>.</p>
+          <p style="color:#6b7383;font-size:12px;margin-top:20px">If you believe this decision was made in error, please contact our support team at <a href="mailto:support@siteviral.com" style="color:#6b7383">support@siteviral.com</a> or <a href="mailto:team@siteviral.com" style="color:#6b7383">team@siteviral.com</a>.</p>
           ${cta('https://siteviral.com/admin/products', 'View my content')}
         `, lang),
         fromOverride: 'Siteviral Team <team@siteviral.com>',
@@ -1053,10 +1053,10 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
         subject: subj,
         html: wrap(`
           <p style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:${blue};margin:0 0 8px">${isFr ? 'Inspiration' : 'Inspiration'}</p>
-          <h1 style="color:#fff;margin:0 0 20px;font-size:22px;line-height:1.3">${headline}</h1>
+          <h1 style="color:#1b2333;margin:0 0 20px;font-size:22px;line-height:1.3">${headline}</h1>
           <div style="color:#ddd;line-height:1.6;font-size:14px">${bodyHtml}</div>
           ${cta(ctaUrl, ctaText)}
-          <p style="font-size:13px;color:#999;margin-top:24px">${isFr ? 'À très vite,' : 'Talk soon,'}<br/><strong style="color:#ccc">${tagline}</strong></p>
+          <p style="font-size:13px;color:#6b7383;margin-top:24px">${isFr ? 'À très vite,' : 'Talk soon,'}<br/><strong style="color:#3d4757">${tagline}</strong></p>
         `, lang),
       };
     }
@@ -1165,7 +1165,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
         const html = wrap(`
           <div style="text-align:center;margin-bottom:24px">
             <img src="https://siteviral.com/logo-s.png" alt="Siteviral" width="64" height="64" style="border-radius:14px;display:inline-block" />
-            <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;margin-top:10px">Siteviral</div>
+            <div style="font-size:20px;font-weight:800;color:#1b2333;letter-spacing:-0.3px;margin-top:10px">Siteviral</div>
             <h1 style="color:${blue};margin:14px 0 4px;font-size:22px">Votre livre a été dépublié</h1>
             <p style="color:#aaa;margin:0;font-size:13px">Une image de couverture est désormais obligatoire pour rester dans le catalogue Siteviral.</p>
           </div>
@@ -1183,8 +1183,8 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
           </ol>
           <p style="font-size:13px;color:#aaa">Astuce : vous pouvez générer une couverture gratuitement avec notre AI Studio si vous n'en avez pas encore.</p>
           ${cta(editUrl, 'Republier mon livre')}
-          <p style="font-size:12px;color:#888;margin-top:24px">Besoin d'aide ? Répondez à cet email ou consultez <a href="${guidelinesUrl}" style="color:${blue}">notre centre d'aide</a>. Dès que la couverture est ajoutée et le livre republié, il réapparaîtra en découverte en quelques minutes.</p>
-          <p style="font-size:12px;color:#888;margin-top:8px">— L'équipe Qualité Siteviral</p>
+          <p style="font-size:12px;color:#6b7383;margin-top:24px">Besoin d'aide ? Répondez à cet email ou consultez <a href="${guidelinesUrl}" style="color:${blue}">notre centre d'aide</a>. Dès que la couverture est ajoutée et le livre republié, il réapparaîtra en découverte en quelques minutes.</p>
+          <p style="font-size:12px;color:#6b7383;margin-top:8px">— L'équipe Qualité Siteviral</p>
         `, 'fr');
         return { subject, html };
       }
@@ -1193,7 +1193,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       const html = wrap(`
         <div style="text-align:center;margin-bottom:24px">
           <img src="https://siteviral.com/logo-s.png" alt="Siteviral" width="64" height="64" style="border-radius:14px;display:inline-block" />
-          <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;margin-top:10px">Siteviral</div>
+          <div style="font-size:20px;font-weight:800;color:#1b2333;letter-spacing:-0.3px;margin-top:10px">Siteviral</div>
           <h1 style="color:${blue};margin:14px 0 4px;font-size:22px">Your book has been unpublished</h1>
           <p style="color:#aaa;margin:0;font-size:13px">A cover image is required to keep books listed on Siteviral.</p>
         </div>
@@ -1211,8 +1211,8 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
         </ol>
         <p style="font-size:13px;color:#aaa">Tip: you can generate a cover for free with our AI Studio if you don't have one yet.</p>
         ${cta(editUrl, 'Republish my book')}
-        <p style="font-size:12px;color:#888;margin-top:24px">Need help? Reply to this email or visit <a href="${guidelinesUrl}" style="color:${blue}">our help center</a>. Once the cover is added and the book is republished, it will reappear in discovery within minutes.</p>
-        <p style="font-size:12px;color:#888;margin-top:8px">— The Siteviral Quality Team</p>
+        <p style="font-size:12px;color:#6b7383;margin-top:24px">Need help? Reply to this email or visit <a href="${guidelinesUrl}" style="color:${blue}">our help center</a>. Once the cover is added and the book is republished, it will reappear in discovery within minutes.</p>
+        <p style="font-size:12px;color:#6b7383;margin-top:8px">— The Siteviral Quality Team</p>
       `, 'en');
       return { subject, html };
     }
@@ -1234,7 +1234,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
           html: wrap(`
             <div style="text-align:center;margin-bottom:24px">
               <img src="https://siteviral.com/logo-s.png" alt="Siteviral" width="64" height="64" style="border-radius:14px;display:inline-block" />
-              <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;margin-top:10px">Siteviral</div>
+              <div style="font-size:20px;font-weight:800;color:#1b2333;letter-spacing:-0.3px;margin-top:10px">Siteviral</div>
               <h1 style="color:${blue};margin:14px 0 4px;font-size:22px">Votre cours a été dépublié</h1>
               <p style="color:#aaa;margin:0;font-size:13px">Il a été publié sans prix. Ajoutez un prix pour le remettre en ligne.</p>
             </div>
@@ -1252,8 +1252,8 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             </ol>
             <p style="font-size:13px;color:#aaa">Vos leçons, quiz et certificats sont intacts : rien n'a été supprimé, le cours est simplement redevenu un brouillon privé.</p>
             ${cta(editUrl, 'Ajouter un prix et republier')}
-            <p style="font-size:12px;color:#888;margin-top:24px">Besoin d'aide pour fixer votre prix ? Répondez à cet email ou consultez <a href="${helpUrl}" style="color:${blue}">notre centre d'aide</a>.</p>
-            <p style="font-size:12px;color:#888;margin-top:8px">— L'équipe Qualité Siteviral</p>
+            <p style="font-size:12px;color:#6b7383;margin-top:24px">Besoin d'aide pour fixer votre prix ? Répondez à cet email ou consultez <a href="${helpUrl}" style="color:${blue}">notre centre d'aide</a>.</p>
+            <p style="font-size:12px;color:#6b7383;margin-top:8px">— L'équipe Qualité Siteviral</p>
           `, 'fr'),
         };
       }
@@ -1263,7 +1263,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
         html: wrap(`
           <div style="text-align:center;margin-bottom:24px">
             <img src="https://siteviral.com/logo-s.png" alt="Siteviral" width="64" height="64" style="border-radius:14px;display:inline-block" />
-            <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;margin-top:10px">Siteviral</div>
+            <div style="font-size:20px;font-weight:800;color:#1b2333;letter-spacing:-0.3px;margin-top:10px">Siteviral</div>
             <h1 style="color:${blue};margin:14px 0 4px;font-size:22px">Your course has been unpublished</h1>
             <p style="color:#aaa;margin:0;font-size:13px">It went live without a price. Add one to put it back online.</p>
           </div>
@@ -1281,8 +1281,8 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
           </ol>
           <p style="font-size:13px;color:#aaa">Your lessons, quizzes and certificates are untouched — nothing was deleted, the course simply went back to being a private draft.</p>
           ${cta(editUrl, 'Add a price and republish')}
-          <p style="font-size:12px;color:#888;margin-top:24px">Need help pricing it? Reply to this email or visit <a href="${helpUrl}" style="color:${blue}">our help center</a>.</p>
-          <p style="font-size:12px;color:#888;margin-top:8px">— The Siteviral Quality Team</p>
+          <p style="font-size:12px;color:#6b7383;margin-top:24px">Need help pricing it? Reply to this email or visit <a href="${helpUrl}" style="color:${blue}">our help center</a>.</p>
+          <p style="font-size:12px;color:#6b7383;margin-top:8px">— The Siteviral Quality Team</p>
         `, 'en'),
       };
     }
@@ -1294,7 +1294,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       const title = String(d.draft_title || (isFr ? 'votre brouillon' : 'your draft'));
       const percent = Number(d.percent || 0);
       const resumeUrl = String(d.resume_url || 'https://siteviral.com/admin/drafts');
-      const bar = `<div style="background:#222;border-radius:999px;height:10px;overflow:hidden;margin:10px 0">
+      const bar = `<div style="background:#f4f6fa;border-radius:999px;height:10px;overflow:hidden;margin:10px 0">
         <div style="width:${Math.max(4, Math.min(100, percent))}%;height:10px;background:${blue}"></div></div>
         <p style="margin:0;font-size:12px;color:#aaa">${percent}% ${isFr ? 'généré' : 'generated'}</p>`;
       return isFr
@@ -1304,7 +1304,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             <p>Vous avez commencé <strong>"${title}"</strong> mais il n'est pas encore publié. Reprenez là où vous vous êtes arrêté — tout est sauvegardé.</p>
             ${bar}
             ${cta(resumeUrl, 'Reprendre en 1 clic')}
-            <p style="font-size:12px;color:#888">Il ne reste que le prix et la publication pour commencer à vendre.</p>
+            <p style="font-size:12px;color:#6b7383">Il ne reste que le prix et la publication pour commencer à vendre.</p>
           `, lang) }
         : { subject: `⏳ "${title}" is still a draft`, html: wrap(`
             <h1 style="color:${blue};font-size:22px">Your creation is waiting</h1>
@@ -1312,7 +1312,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             <p>You started <strong>"${title}"</strong> but it isn't published yet. Pick up right where you left off — everything is saved.</p>
             ${bar}
             ${cta(resumeUrl, 'Resume in one click')}
-            <p style="font-size:12px;color:#888">All that's left is a price and publishing to start selling.</p>
+            <p style="font-size:12px;color:#6b7383">All that's left is a price and publishing to start selling.</p>
           `, lang) };
     }
 
@@ -1328,7 +1328,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             <p><strong>"${title}"</strong> est prêt. Voici ce qui reste :</p>
             ${steps('Ouvrez votre création', 'Fixez un prix', 'Appuyez sur Publier')}
             ${cta(url, 'Fixer un prix et publier')}
-            <p style="font-size:12px;color:#888">Une fois publié, votre lien de vente est partageable partout : WhatsApp, TikTok, Facebook.</p>
+            <p style="font-size:12px;color:#6b7383">Une fois publié, votre lien de vente est partageable partout : WhatsApp, TikTok, Facebook.</p>
           `, lang) }
         : { subject: '💸 3 taps from your first sale', html: wrap(`
             <h1 style="color:${green};font-size:22px">3 taps. That's it.</h1>
@@ -1336,7 +1336,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             <p><strong>"${title}"</strong> is ready. Here's what's left:</p>
             ${steps('Open your creation', 'Set a price', 'Hit Publish')}
             ${cta(url, 'Set a price and publish')}
-            <p style="font-size:12px;color:#888">Once live, your sales link is shareable anywhere: WhatsApp, TikTok, Facebook.</p>
+            <p style="font-size:12px;color:#6b7383">Once live, your sales link is shareable anywhere: WhatsApp, TikTok, Facebook.</p>
           `, lang) };
     }
 
@@ -1352,7 +1352,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
               <li>🎨 Un livre pour enfants illustré</li>
             </ul>
             ${cta('https://siteviral.com/ecrire', 'Créer ma première œuvre')}
-            <p style="font-size:12px;color:#888">Aucune compétence technique requise. Vos crédits quotidiens sont déjà disponibles.</p>
+            <p style="font-size:12px;color:#6b7383">Aucune compétence technique requise. Vos crédits quotidiens sont déjà disponibles.</p>
           `, lang) }
         : { subject: '📖 Your first book, written in 5 minutes', html: wrap(`
             <h1 style="color:${blue};font-size:22px">Let's start with just one thing</h1>
@@ -1364,7 +1364,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
               <li>🎨 An illustrated children's book</li>
             </ul>
             ${cta('https://siteviral.com/ecrire', 'Create my first work')}
-            <p style="font-size:12px;color:#888">No technical skills needed. Your daily credits are already waiting.</p>
+            <p style="font-size:12px;color:#6b7383">No technical skills needed. Your daily credits are already waiting.</p>
           `, lang) };
 
     case 'activation_published_no_traffic': {
@@ -1403,7 +1403,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             <p>Vous êtes inscrit depuis deux semaines sans rien publier. Souvent, il manque juste une idée ou une réponse.</p>
             <p>Répondez à cet email avec <strong>votre sujet</strong> et notre équipe vous guide jusqu'à la publication. Vous pouvez aussi demander à Viral Studio de tout générer pour vous.</p>
             ${cta('https://siteviral.com/ecrire', 'Générer avec Viral Studio')}
-            <p style="font-size:12px;color:#888">Un vrai humain lit chaque réponse : support@siteviral.com</p>
+            <p style="font-size:12px;color:#6b7383">Un vrai humain lit chaque réponse : support@siteviral.com</p>
           `, lang) }
         : { subject: '🤝 Want us to do it with you?', html: wrap(`
             <h1 style="color:${blue};font-size:22px">Let us help you</h1>
@@ -1411,7 +1411,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             <p>You joined two weeks ago and haven't published anything yet. Usually all that's missing is one idea or one answer.</p>
             <p>Reply to this email with <strong>your topic</strong> and our team will walk you to publication. You can also ask Viral Studio to generate everything for you.</p>
             ${cta('https://siteviral.com/ecrire', 'Generate with Viral Studio')}
-            <p style="font-size:12px;color:#888">A real human reads every reply: support@siteviral.com</p>
+            <p style="font-size:12px;color:#6b7383">A real human reads every reply: support@siteviral.com</p>
           `, lang) };
 
     case 'payout_ready_verify': {
@@ -1428,7 +1428,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             ${box}
             <p>Il ne manque qu'une étape : la <strong>vérification d'identité</strong>. C'est obligatoire pour envoyer de l'argent vers votre Mobile Money ou votre banque, et cela prend moins de 5 minutes.</p>
             ${cta(url, 'Vérifier et retirer')}
-            <p style="font-size:12px;color:#888">Pièce d'identité + selfie. Vos données sont chiffrées et jamais partagées.</p>
+            <p style="font-size:12px;color:#6b7383">Pièce d'identité + selfie. Vos données sont chiffrées et jamais partagées.</p>
           `, lang) }
         : { subject: `💰 ${amount} ${currency} is waiting — verify your identity`, html: wrap(`
             <h1 style="color:${green};font-size:22px">Your money is ready to withdraw</h1>
@@ -1436,7 +1436,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             ${box}
             <p>Only one step left: <strong>identity verification</strong>. It's required before we can send money to your Mobile Money or bank account, and it takes under 5 minutes.</p>
             ${cta(url, 'Verify and withdraw')}
-            <p style="font-size:12px;color:#888">ID document + selfie. Your data is encrypted and never shared.</p>
+            <p style="font-size:12px;color:#6b7383">ID document + selfie. Your data is encrypted and never shared.</p>
           `, lang) };
     }
 
@@ -1451,7 +1451,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             <p>Voici ce que les créateurs ont publié ces 7 derniers jours :</p>
             ${list}
             ${cta(url, 'Tout voir')}
-            <p style="font-size:12px;color:#888">Partagez la page à un ami — elle est publique.</p>
+            <p style="font-size:12px;color:#6b7383">Partagez la page à un ami — elle est publique.</p>
           `, lang) }
         : { subject: `✨ New this week (${d.count || 0})`, html: wrap(`
             <h1 style="color:${blue};font-size:22px">New this week</h1>
@@ -1459,7 +1459,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             <p>Here's what creators published in the last 7 days:</p>
             ${list}
             ${cta(url, 'See everything')}
-            <p style="font-size:12px;color:#888">Share the page with a friend — it's public.</p>
+            <p style="font-size:12px;color:#6b7383">Share the page with a friend — it's public.</p>
           `, lang) };
     }
 
