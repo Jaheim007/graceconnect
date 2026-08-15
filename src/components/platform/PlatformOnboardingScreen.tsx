@@ -6,12 +6,12 @@ import { createWorkspace } from '@/lib/siteviral/createWorkspace';
 import { useOrg } from '@/contexts/OrgContext';
 import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/i18n/I18nContext';
-import type { SiteviralWorld } from '@/lib/siteviral/worlds';
+import type { PlatformIdentity } from '@/lib/siteviral/identities';
 
 interface Props {
   /** Where to go once the platform exists (e.g. /admin/programs). */
   redirectTo: string;
-  defaultWorld?: SiteviralWorld;
+  defaultIdentity?: PlatformIdentity;
   title?: string;
   subtitle?: string;
 }
@@ -22,7 +22,7 @@ interface Props {
  * user has no platform yet. Same three questions as the wizard's last step:
  * what you sell, platform name, selling currency.
  */
-export function PlatformOnboardingScreen({ redirectTo, defaultWorld = 'digital', title, subtitle }: Props) {
+export function PlatformOnboardingScreen({ redirectTo, defaultIdentity = 'creator', title, subtitle }: Props) {
   const navigate = useNavigate();
   const { refetchOrgs, setCurrentOrg } = useOrg();
   const { toast } = useToast();
@@ -31,12 +31,12 @@ export function PlatformOnboardingScreen({ redirectTo, defaultWorld = 'digital',
   const [submitting, setSubmitting] = useState(false);
   const busyRef = useRef(false);
 
-  const onConfirm = useCallback(async ({ name, currency, world }: PlatformSetupValues) => {
+  const onConfirm = useCallback(async ({ name, currency, world, category }: PlatformSetupValues) => {
     if (busyRef.current) return;
     busyRef.current = true;
     setSubmitting(true);
     try {
-      const { org } = await createWorkspace({ name, world, currency });
+      const { org } = await createWorkspace({ name, world, currency, category });
       if (org) setCurrentOrg(org as any);
       await refetchOrgs();
       navigate(redirectTo, { replace: true });
@@ -55,7 +55,7 @@ export function PlatformOnboardingScreen({ redirectTo, defaultWorld = 'digital',
     <AdaptiveLayout>
       <div className="container max-w-2xl px-4 pb-24">
         <PlatformSetupStep
-          defaultWorld={defaultWorld}
+          defaultIdentity={defaultIdentity}
           submitting={submitting}
           onConfirm={onConfirm}
           title={title}

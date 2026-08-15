@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ArrowUp, BookOpen, Sparkle, Wallet, Zap } from 'lucide-react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -309,28 +310,26 @@ export function AuthorHero() {
           )}
         </AnimatePresence>
 
-        <AnimatePresence>
-          {preview && (
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="mx-auto mt-10 max-w-3xl text-left"
-            >
-              <div className="rounded-2xl border border-border bg-card p-5 sm:p-7 shadow-sm backdrop-blur-sm">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-bold">{preview.title}</h2>
-                    {preview.subtitle && (
-                      <p className="mt-1 text-sm text-muted-foreground">{preview.subtitle}</p>
-                    )}
+        {/* Preview arrives as a centered modal so nobody has to guess and scroll. */}
+        <Dialog open={!!preview} onOpenChange={(open) => { if (!open) setPreview(null); }}>
+          <DialogContent
+            className="w-[calc(100vw-1.5rem)] sm:w-auto max-w-2xl p-0 gap-0 overflow-hidden rounded-2xl"
+          >
+            {preview && (
+              <>
+                <DialogHeader className="space-y-1.5 border-b border-border px-5 py-4 sm:px-6 text-left">
+                  <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
+                    {fr ? 'Aperçu gratuit' : 'Free preview'}
                   </div>
-                  <div className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
-                    {fr ? 'Aperçu' : 'Preview'}
-                  </div>
-                </div>
+                  <DialogTitle className="text-lg sm:text-xl font-bold leading-tight pr-6">
+                    {preview.title}
+                  </DialogTitle>
+                  {preview.subtitle && (
+                    <DialogDescription className="text-sm">{preview.subtitle}</DialogDescription>
+                  )}
+                </DialogHeader>
 
-                <div className="mt-6">
+                <div className="max-h-[55dvh] overflow-y-auto overscroll-contain px-5 py-5 sm:px-6 text-left">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
                     {fr ? 'Plan du livre' : 'Book outline'}
                   </h3>
@@ -349,29 +348,29 @@ export function AuthorHero() {
                       </li>
                     ))}
                   </ol>
+
+                  {preview.openingChapter && (
+                    <div className="mt-6">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+                        {fr ? 'Début du chapitre 1' : 'Chapter 1 opening'}
+                      </h3>
+                      <div className="rounded-xl bg-muted/50 p-4 text-sm leading-relaxed text-foreground/90">
+                        {preview.openingChapter.split('\n\n').map((p, i) => (
+                          <p key={i} className={cn(i > 0 && 'mt-3')}>{p}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {preview.openingChapter && (
-                  <div className="mt-6">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
-                      {fr ? 'Début du chapitre 1' : 'Chapter 1 opening'}
-                    </h3>
-                    <div className="rounded-xl bg-muted/50 p-4 text-sm leading-relaxed text-foreground/90">
-                      {preview.openingChapter.split('\n\n').map((p, i) => (
-                        <p key={i} className={cn(i > 0 && 'mt-3')}>{p}</p>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-7 rounded-xl border border-primary/20 bg-primary/5 p-4 sm:p-5">
+                <div className="border-t border-border bg-primary/5 px-5 py-4 sm:px-6 text-left">
                   <p className="text-sm font-medium text-foreground">
                     {fr
                       ? 'Ton livre est prêt. Crée ton compte pour le garder, le finir et le vendre.'
                       : 'Your book is ready. Create an account to keep it, finish it, and sell it.'}
                   </p>
-                  <div className="mt-4 flex flex-col sm:flex-row gap-2.5">
-                    <Button onClick={() => handleKeepGoing('signup')} className="h-11 rounded-xl px-5 font-bold gap-2">
+                  <div className="mt-3 flex flex-col sm:flex-row gap-2.5">
+                    <Button onClick={() => handleKeepGoing('signup')} className="h-11 rounded-xl px-5 font-bold gap-2 flex-1">
                       {fr ? 'Créer mon compte' : 'Create my account'}
                       <ArrowRight className="h-4 w-4" />
                     </Button>
@@ -380,15 +379,15 @@ export function AuthorHero() {
                       onClick={() => handleKeepGoing('signin')}
                       className="h-11 rounded-xl px-5 font-semibold"
                     >
-
                       {fr ? 'Se connecter' : 'Sign in'}
                     </Button>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+
       </div>
     </section>
   );

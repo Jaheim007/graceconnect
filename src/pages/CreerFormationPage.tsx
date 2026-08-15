@@ -22,7 +22,7 @@ export default function CreerFormationPage() {
     return (
       <PlatformOnboardingScreen
         redirectTo="/admin/programs"
-        defaultWorld="education"
+        defaultIdentity="creator"
         title={isFr ? 'Crée ton école en ligne' : 'Create your online school'}
         subtitle={isFr ? 'Trois questions, puis on passe à ta formation.' : 'Three quick questions, then we build your course.'}
       />

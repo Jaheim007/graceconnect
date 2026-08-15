@@ -1136,22 +1136,24 @@ export default function WriteWizard() {
     void handlePublish();
   }, [publishing, handlePublish, publicationOrgId]);
 
-  const handlePlatformSetupConfirm = useCallback(async ({ name, currency, world }: PlatformSetupValues) => {
+  const handlePlatformSetupConfirm = useCallback(async ({ name, currency, world, category }: PlatformSetupValues) => {
     if (creatingPlatform) return;
     setCreatingPlatform(true);
     try {
-      const { orgId, org } = await createWorkspace({ name, world, currency });
+      const { orgId, org } = await createWorkspace({ name, world, currency, category });
       if (org) setCurrentOrg(org as any);
       await refetchOrgs();
+      // Move to the publishing splash BEFORE touching the URL so the wizard
+      // never flashes back to the PDF preview step.
+      setWillCreateOrg(true);
+      setPublishingStage('preparing');
+      setStep(PUBLISHING_STEP);
       setSearchParams((prev) => {
         const params = new URLSearchParams(prev);
         params.set('org', orgId);
         return params;
       }, { replace: true });
-      setWillCreateOrg(true);
-      setPublishingStage('preparing');
-      setStep(PUBLISHING_STEP);
-      void handlePublish(orgId);
+      await handlePublish(orgId);
     } catch (err: any) {
       toast({
         title: isFr ? '❌ Création impossible' : '❌ Could not create platform',

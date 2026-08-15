@@ -22,7 +22,7 @@ export default function VendrePage() {
     return (
       <PlatformOnboardingScreen
         redirectTo="/admin/products"
-        defaultWorld="digital"
+        defaultIdentity="creator"
         title={isFr ? 'Crée ta boutique' : 'Create your store'}
         subtitle={isFr ? 'Trois questions, puis tu ajoutes ton premier produit.' : 'Three quick questions, then you add your first product.'}
       />
