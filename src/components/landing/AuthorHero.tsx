@@ -164,32 +164,45 @@ export function AuthorHero() {
             <label htmlFor="idea" className="sr-only">
               {fr ? 'Quel livre veux-tu écrire ?' : 'What book do you want to write?'}
             </label>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <input
+            <div className="flex flex-col">
+              <textarea
                 id="idea"
+                rows={3}
                 value={idea}
                 onChange={(e) => setIdea(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !loading && handleStart()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!loading) handleStart();
+                  }
+                }}
                 placeholder={
                   fr
                     ? `Ex. : ${examples[phIndex]}`
                     : `e.g. ${examples[phIndex]}`
                 }
-                className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm sm:text-base outline-none placeholder:text-muted-foreground"
+                className="min-h-[92px] w-full resize-none bg-transparent px-3 pt-3 text-left text-base sm:text-lg leading-relaxed outline-none placeholder:text-muted-foreground/70"
               />
-              <Button
-                onClick={handleStart}
-                disabled={loading || !idea.trim()}
-                className="h-11 shrink-0 rounded-xl px-5 font-bold gap-2"
-              >
-                {loading ? (
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                ) : (
-                  <PenLine className="h-4 w-4" />
-                )}
-                {fr ? 'Écrire mon livre' : 'Write my book'}
-              </Button>
+              <div className="mt-1 flex items-end justify-between gap-3 px-1.5 pb-0.5">
+                <span className="hidden select-none text-[11px] font-medium text-muted-foreground/70 sm:block">
+                  {fr ? 'Entrée pour écrire · Maj + Entrée pour une nouvelle ligne' : 'Enter to write · Shift + Enter for a new line'}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleStart}
+                  disabled={loading || !idea.trim()}
+                  aria-label={fr ? 'Écrire mon livre' : 'Write my book'}
+                  className="group/send relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/35 active:scale-95 disabled:pointer-events-none disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
+                >
+                  {loading ? (
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : (
+                    <ArrowUp className="h-5 w-5 transition-transform duration-300 group-hover/send:-translate-y-0.5" />
+                  )}
+                </button>
+              </div>
             </div>
+
           </div>
 
           <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2">
