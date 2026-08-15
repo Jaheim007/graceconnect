@@ -1227,16 +1227,16 @@ export default function WriteWizard() {
           <p className="text-sm text-muted-foreground">{t('write.loading_studio')}</p>
         </div>
       ) : (
-      <div className={`container px-4 ${step === 4 ? 'max-w-5xl' : 'max-w-2xl'}`}>
+      <div className={`container px-4 ${viewStep === 4 ? 'max-w-5xl' : 'max-w-2xl'}`}>
         <AnimatePresence mode="wait">
           <motion.div
-            key={`${draftId}-${step}`}
+            key={`${draftId}-${viewStep}`}
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.25 }}
           >
-            {step === 0 && (
+            {viewStep === 0 && (
               <StepSource
                 state={state}
                 update={update}
@@ -1249,15 +1249,15 @@ export default function WriteWizard() {
                 lastSavedAt={lastSavedAt}
               />
             )}
-            {step === 1 && <StepParams state={state} update={update} onNext={next} onBack={back} />}
-            {step === 2 && <StepEditorialStrategy state={state} update={update} onNext={next} onBack={back} />}
-            {step === 3 && (needsToneChoice
+            {viewStep === 1 && <StepParams state={state} update={update} onNext={next} onBack={back} />}
+            {viewStep === 2 && <StepEditorialStrategy state={state} update={update} onNext={next} onBack={back} />}
+            {viewStep === 3 && (needsToneChoice
               ? <StepBookStyle state={state} update={update} onNext={() => { /* stay on step 3: generation starts once the voice is set */ }} />
               : <StepGenerating state={state} update={update} onNext={next} onBack={back} />)}
-            {step === 4 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
-            {step === ILLUSTRATIONS_STEP && <StepIllustrations state={state} update={update} onNext={next} onBack={back} />}
-            {step === COVER_STEP && <StepCover state={state} update={update} onNext={next} onBack={back} />}
-            {step === PRICING_STEP && (
+            {viewStep === 4 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
+            {viewStep === ILLUSTRATIONS_STEP && <StepIllustrations state={state} update={update} onNext={next} onBack={back} />}
+            {viewStep === COVER_STEP && <StepCover state={state} update={update} onNext={next} onBack={back} />}
+            {viewStep === PRICING_STEP && (
               <StepPricing
                 state={state}
                 update={update}
@@ -1267,8 +1267,8 @@ export default function WriteWizard() {
                 allowCurrencyChoice={!publicationOrgId}
               />
             )}
-            {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={() => { saveDraftSnapshotNow(); startPublishing(); }} saving={publishing} />}
-            {step === PLATFORM_STEP && (
+            {viewStep === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={() => { saveDraftSnapshotNow(); startPublishing(); }} saving={publishing} />}
+            {viewStep === PLATFORM_STEP && (
               <PlatformSetupStep
                 defaultName={state.title || ''}
                 defaultCurrency={state.sellCurrency || orgCurrency || 'XOF'}
@@ -1278,8 +1278,8 @@ export default function WriteWizard() {
                 onConfirm={handlePlatformSetupConfirm}
               />
             )}
-            {step === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
-            {step === CELEBRATION_STEP && <StepCelebration state={state} onWriteAnother={handleCreateNewDraft} />}
+            {viewStep === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
+            {viewStep === CELEBRATION_STEP && <StepCelebration state={state} onWriteAnother={handleCreateNewDraft} />}
           </motion.div>
         </AnimatePresence>
       </div>
