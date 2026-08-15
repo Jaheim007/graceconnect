@@ -1187,18 +1187,21 @@ export default function WriteWizard() {
   return (
     <>
     <div className="pt-16 pb-20 min-h-screen">
-      {step <= PLATFORM_STEP && (
+      {step <= PUBLISHING_STEP && (
         <>
+          {/* During the publishing splash we stay visually on the last step
+              (Platform, 10/10) so the counter never appears to go backwards. */}
           <WriteProgress
-            currentStep={step}
+            currentStep={Math.min(step, PLATFORM_STEP)}
             labels={STEP_LABELS}
             onSaveAndNew={handleCreateNewDraft}
             onDeleteAndNew={handleDeleteAndNew}
             onExit={handleExitWizard}
           />
-          <WritingMotivation step={step} />
+          {step < PUBLISHING_STEP && <WritingMotivation step={step} />}
         </>
       )}
+
 
       {openingDeepLink ? (
         <div className="min-h-[60dvh] flex flex-col items-center justify-center gap-3">
