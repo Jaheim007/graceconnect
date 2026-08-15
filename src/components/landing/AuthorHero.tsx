@@ -126,10 +126,13 @@ export function AuthorHero() {
     generatePreview();
   };
 
-  const handleKeepGoing = () => {
+  const handleKeepGoing = (mode: 'signup' | 'signin' = 'signup') => {
+    // Keep the generated preview: bring the user back to the wizard after auth,
+    // whether they create an account or sign in to an existing one.
     setPendingAction('generic', '/ecrire');
-    navigate('/auth?mode=signup');
+    navigate(`/auth?mode=${mode}&returnTo=${encodeURIComponent('/ecrire')}`);
   };
+
 
   const proofs = fr
     ? [
@@ -368,15 +371,16 @@ export function AuthorHero() {
                       : 'Your book is ready. Create an account to keep it, finish it, and sell it.'}
                   </p>
                   <div className="mt-4 flex flex-col sm:flex-row gap-2.5">
-                    <Button onClick={handleKeepGoing} className="h-11 rounded-xl px-5 font-bold gap-2">
+                    <Button onClick={() => handleKeepGoing('signup')} className="h-11 rounded-xl px-5 font-bold gap-2">
                       {fr ? 'Créer mon compte' : 'Create my account'}
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => navigate('/auth?mode=signin')}
+                      onClick={() => handleKeepGoing('signin')}
                       className="h-11 rounded-xl px-5 font-semibold"
                     >
+
                       {fr ? 'Se connecter' : 'Sign in'}
                     </Button>
                   </div>
