@@ -58,7 +58,7 @@ import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { ChariowImportDialog } from '@/components/chariow/ChariowImportDialog';
 import { DomainSettings as DomainSettingsWidget } from '@/components/admin/DomainSettings';
 import { CountrySelector } from '@/components/ui/CountrySelector';
-import { truncateWords } from '@/lib/truncateText';
+import { truncateWords, truncateSentences } from '@/lib/truncateText';
 
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
@@ -581,7 +581,7 @@ export function AdminProducts() {
         onOpenChange={(o) => !o && setFlyerProduct(null)}
         title={flyerProduct.title}
         author={currentOrg?.name}
-        benefit={flyerProduct.description ? truncateWords(String(flyerProduct.description), 140) : null}
+        benefit={flyerProduct.description ? truncateSentences(String(flyerProduct.description), 220) : null}
         priceLabel={rawFormatPrice(flyerProduct.price || 0, flyerProduct.is_free, flyerProduct.currency)}
         coverUrl={flyerProduct.cover_image_url}
         orgName={currentOrg?.name}
