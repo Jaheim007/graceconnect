@@ -926,22 +926,34 @@ export function ProductForm() {
 
         {/* Sticky action bar — always reachable without scrolling to the bottom */}
         <div className="sticky bottom-0 z-30 -mx-4 mt-2 border-t border-border bg-background/90 px-4 py-3 backdrop-blur-md supports-[backdrop-filter]:bg-background/70 sm:-mx-6 sm:px-6">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>{isFr ? 'Annuler' : 'Cancel'}</Button>
-            <Button type="submit" className="flex-1 sm:flex-none bg-primary text-primary-foreground" disabled={loading}>
-              {loading
-                ? (isFr ? 'Enregistrement...' : 'Saving...')
-                : watch('is_published')
-                  ? (isEdit ? (isFr ? 'Publier les modifications' : 'Publish changes') : (isFr ? 'Publier' : 'Publish'))
-                  : (isFr ? 'Enregistrer le brouillon' : 'Save draft')}
-            </Button>
-            {isEdit && (
-              <span className="ml-auto hidden text-xs text-muted-foreground sm:block">
-                {watch('is_published')
-                  ? (isFr ? 'Ce produit sera visible publiquement.' : 'This product will be publicly visible.')
-                  : (isFr ? 'Active « Publié » plus haut pour le mettre en ligne.' : 'Toggle “Published” above to go live.')}
-              </span>
+            {watch('is_published') ? (
+              <Button type="submit" className="flex-1 sm:flex-none bg-primary text-primary-foreground" disabled={loading}>
+                {loading
+                  ? (isFr ? 'Publication...' : 'Publishing...')
+                  : (isEdit ? (isFr ? 'Publier les modifications' : 'Publish changes') : (isFr ? 'Publier maintenant' : 'Publish now'))}
+              </Button>
+            ) : (
+              <>
+                <Button
+                  type="submit"
+                  className="flex-1 sm:flex-none bg-primary text-primary-foreground"
+                  disabled={loading}
+                  onClick={() => setValue('is_published', true)}
+                >
+                  {loading ? (isFr ? 'Publication...' : 'Publishing...') : (isFr ? 'Publier maintenant' : 'Publish now')}
+                </Button>
+                <Button type="submit" variant="outline" disabled={loading}>
+                  {isFr ? 'Enregistrer le brouillon' : 'Save draft'}
+                </Button>
+              </>
             )}
+            <span className="ml-auto hidden text-xs text-muted-foreground sm:block">
+              {watch('is_published')
+                ? (isFr ? 'Ce produit sera visible publiquement.' : 'This product will be publicly visible.')
+                : (isFr ? '« Publier maintenant » met le produit en ligne immédiatement.' : '“Publish now” puts the product live immediately.')}
+            </span>
           </div>
         </div>
 
