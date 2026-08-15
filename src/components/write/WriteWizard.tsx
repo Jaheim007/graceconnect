@@ -23,7 +23,7 @@ import { StepPdfPreview } from './steps/StepPdfPreview';
 import { WriteProgress } from './WriteProgress';
 import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
-import { resolveBookLanguageFromLocale, type SupportedBookLanguage } from './utils/bookLanguage';
+import { detectLanguageFromText, resolveBookLanguageFromLocale, type SupportedBookLanguage } from './utils/bookLanguage';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
 import { PlatformSetupStep, type PlatformSetupValues } from './PlatformSetupStep';
 import { createWorkspace } from '@/lib/siteviral/createWorkspace';
