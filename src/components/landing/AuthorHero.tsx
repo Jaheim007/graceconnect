@@ -126,10 +126,13 @@ export function AuthorHero() {
     generatePreview();
   };
 
-  const handleKeepGoing = () => {
+  const handleKeepGoing = (mode: 'signup' | 'signin' = 'signup') => {
+    // Keep the generated preview: bring the user back to the wizard after auth,
+    // whether they create an account or sign in to an existing one.
     setPendingAction('generic', '/ecrire');
-    navigate('/auth?mode=signup');
+    navigate(`/auth?mode=${mode}&returnTo=${encodeURIComponent('/ecrire')}`);
   };
+
 
   const proofs = fr
     ? [
