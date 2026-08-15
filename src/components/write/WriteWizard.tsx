@@ -891,14 +891,15 @@ export default function WriteWizard() {
     next();
   }, [user, navigate, next]);
 
-  const handlePublish = useCallback(async () => {
+  const handlePublish = useCallback(async (orgIdOverride?: string | null) => {
     if (publishing) return;
     setPublishing(true);
+    const targetOrgId = orgIdOverride ?? publicationOrgId;
 
     try {
       let shouldCreateOrg = false;
 
-      if (user?.id) {
+      if (!targetOrgId && user?.id) {
         setPublishingStage('org');
         const { count, error: ownerCountError } = await supabase
           .from('organization_members')
@@ -912,6 +913,7 @@ export default function WriteWizard() {
       }
 
       setWillCreateOrg(shouldCreateOrg);
+
 
       const chapterIllustrations = state.chapterIllustrations || {};
       const normalizedChapters = state.chapters
