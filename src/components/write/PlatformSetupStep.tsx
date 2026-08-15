@@ -1,22 +1,26 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Church, GraduationCap, Loader2, Rocket, Store, Check } from 'lucide-react';
+import { ArrowLeft, Church, HeartHandshake, Loader2, Rocket, Users, Sparkles, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { useI18n } from '@/i18n/I18nContext';
 import type { SiteviralWorld } from '@/lib/siteviral/worlds';
+import type { OrgCategory } from '@/lib/siteviral/identities';
+import { PLATFORM_IDENTITIES, type PlatformIdentity } from '@/lib/siteviral/identities';
 
 export interface PlatformSetupValues {
   name: string;
   currency: string;
   world: SiteviralWorld;
+  identity: PlatformIdentity;
+  category: OrgCategory;
 }
 
 interface Props {
   defaultName?: string;
   defaultCurrency?: string;
-  defaultWorld?: SiteviralWorld;
+  defaultIdentity?: PlatformIdentity;
   submitting?: boolean;
   onConfirm: (values: PlatformSetupValues) => void;
   onBack?: () => void;
@@ -26,22 +30,18 @@ interface Props {
   subtitle?: string;
 }
 
-const WORLD_OPTIONS: { id: SiteviralWorld; icon: typeof Store; fr: string; en: string; frDesc: string; enDesc: string }[] = [
-  { id: 'digital', icon: BookOpen, fr: 'Livres & contenus numériques', en: 'Books & digital content', frDesc: 'Ebooks, guides, PDF, audio', enDesc: 'Ebooks, guides, PDFs, audio' },
-  { id: 'education', icon: GraduationCap, fr: 'Formations & cours', en: 'Courses & training', frDesc: 'Modules, leçons, quiz, certificats', enDesc: 'Modules, lessons, quizzes, certificates' },
-  { id: 'church', icon: Church, fr: 'Église / ONG', en: 'Church / NGO', frDesc: 'Enseignements, dons, offrandes', enDesc: 'Teachings, giving, donations' },
-  { id: 'events', icon: Store, fr: 'Événements & billets', en: 'Events & tickets', frDesc: 'Packages, billets, réservations', enDesc: 'Packages, tickets, bookings' },
-];
+const ICONS = { creator: Sparkles, church: Church, ngo: HeartHandshake, community: Users } as const;
 
 /**
  * Full-page platform setup — asked once, near the end of the creation flow:
- * what you sell, the platform name, and the selling currency.
- * Replaces the old modal so it reads as a real step, not a popup.
+ * WHO you are (creator / church / NGO / community), the platform name and the
+ * selling currency. The identity drives the workspace category so the platform
+ * is never mislabelled ("digital product" for a church, etc.).
  */
 export function PlatformSetupStep({
   defaultName = '',
   defaultCurrency = 'XOF',
-  defaultWorld = 'digital',
+  defaultIdentity = 'creator',
   submitting,
   onConfirm,
   onBack,
@@ -51,12 +51,12 @@ export function PlatformSetupStep({
 }: Props) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
-  const [world, setWorld] = useState<SiteviralWorld>(defaultWorld);
+  const [identity, setIdentity] = useState<PlatformIdentity>(defaultIdentity);
   const [name, setName] = useState(defaultName);
   const [currency, setCurrency] = useState(defaultCurrency);
 
   const trimmed = name.trim();
-  const valid = trimmed.length >= 2 && !!currency && !!world;
+  const valid = trimmed.length >= 2 && !!currency && !!identity;
 
   return (
     <div className="space-y-8 pt-8">
@@ -74,21 +74,21 @@ export function PlatformSetupStep({
         </p>
       </div>
 
-      {/* 1. What do you sell */}
+      {/* 1. Who are you */}
       <div className="space-y-3">
         <label className="text-sm font-semibold">
-          {isFr ? '1. Que vends-tu ?' : '1. What do you sell?'}
+          {isFr ? '1. Qui es-tu ?' : '1. Who are you?'}
         </label>
         <div className="grid sm:grid-cols-2 gap-3">
-          {WORLD_OPTIONS.map((opt) => {
-            const Icon = opt.icon;
-            const active = world === opt.id;
+          {PLATFORM_IDENTITIES.map((opt) => {
+            const Icon = ICONS[opt.id];
+            const active = identity === opt.id;
             return (
               <motion.button
                 key={opt.id}
                 type="button"
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setWorld(opt.id)}
+                onClick={() => setIdentity(opt.id)}
                 className={`relative text-left rounded-2xl border p-4 transition-all ${
                   active
                     ? 'border-primary bg-primary/5 shadow-sm'
@@ -101,8 +101,8 @@ export function PlatformSetupStep({
                   </span>
                 )}
                 <Icon className={`h-5 w-5 mb-2 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
-                <p className="text-sm font-semibold leading-tight">{isFr ? opt.fr : opt.en}</p>
-                <p className="text-xs text-muted-foreground mt-1">{isFr ? opt.frDesc : opt.enDesc}</p>
+                <p className="text-sm font-semibold leading-tight">{isFr ? opt.labelFr : opt.labelEn}</p>
+                <p className="text-xs text-muted-foreground mt-1">{isFr ? opt.descFr : opt.descEn}</p>
               </motion.button>
             );
           })}
@@ -145,7 +145,10 @@ export function PlatformSetupStep({
           size="lg"
           className="flex-1 gap-2"
           disabled={!valid || submitting}
-          onClick={() => onConfirm({ name: trimmed, currency, world })}
+          onClick={() => {
+            const meta = PLATFORM_IDENTITIES.find((i) => i.id === identity)!;
+            onConfirm({ name: trimmed, currency, identity, world: meta.world, category: meta.category });
+          }}
         >
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Rocket className="h-4 w-4" />}
           {ctaLabel || (isFr ? 'Créer ma plateforme' : 'Create my platform')}
