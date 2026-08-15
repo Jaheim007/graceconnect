@@ -443,6 +443,11 @@ export default function WriteWizard() {
   const [draftId, setDraftId] = useState(bootstrap.id);
   const [step, setStep] = useState(bootstrap.step);
   const [state, setState] = useState<WriteState>(bootstrap.state);
+  /**
+   * Books started from the landing preview only have an approved outline. Before we
+   * spend a full generation, ask the author once for the voice they want.
+   */
+  const needsToneChoice = !!state.plannedOutline?.length && !state.landingTonePreset;
   const [savedDrafts, setSavedDrafts] = useState<SavedWriteDraftSummary[]>(() => {
     const store = loadDraftStore();
     return listSavedDrafts(store, bootstrap.id);
