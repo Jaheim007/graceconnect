@@ -458,6 +458,8 @@ export default function WriteWizard() {
   const [publishing, setPublishing] = useState(false);
   const [publishingStage, setPublishingStage] = useState<PublishingStage>('preparing');
   const [willCreateOrg, setWillCreateOrg] = useState(false);
+  const [platformSetupOpen, setPlatformSetupOpen] = useState(false);
+  const [creatingPlatform, setCreatingPlatform] = useState(false);
   const { user } = useAuth();
   const { currentOrg, userOrgs, refetchOrgs, setCurrentOrg } = useOrg();
   const navigate = useNavigate();
