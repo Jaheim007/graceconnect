@@ -21,7 +21,7 @@ interface OrgContextType {
   setCurrentOrg: (org: Organization | null) => void;
   isLoadingOrgs: boolean;
   workspaceReady: boolean;
-  refetchOrgs: () => void;
+  refetchOrgs: () => Promise<void>;
   joinOrg: (orgId: string) => Promise<{ error: Error | null }>;
   leaveOrg: (orgId: string) => Promise<{ error: Error | null }>;
   isMemberOf: (orgId: string) => boolean;
@@ -250,9 +250,9 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     }
   }, [currentOrg, qc]);
 
-  const refetchOrgs = useCallback(() => {
-    refetchMembers();
-    qc.invalidateQueries({ queryKey: ['user-memberships', user?.id] });
+  const refetchOrgs = useCallback(async () => {
+    await qc.invalidateQueries({ queryKey: ['user-memberships', user?.id] });
+    await refetchMembers();
   }, [refetchMembers, qc, user?.id]);
 
   const currentOrgRole = currentOrg

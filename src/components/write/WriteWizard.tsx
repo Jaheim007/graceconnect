@@ -457,7 +457,7 @@ export default function WriteWizard() {
   const [publishingStage, setPublishingStage] = useState<PublishingStage>('preparing');
   const [willCreateOrg, setWillCreateOrg] = useState(false);
   const { user } = useAuth();
-  const { currentOrg, userOrgs } = useOrg();
+  const { currentOrg, userOrgs, refetchOrgs, setCurrentOrg } = useOrg();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t, locale } = useI18n();
@@ -883,7 +883,7 @@ export default function WriteWizard() {
   const handleSourceNext = useCallback(() => {
     if (!user) {
       const intent = 'writer';
-      navigate(`/auth?mode=signup&intent=${intent}&redirect=/ecrire`);
+      navigate(`/auth?mode=signup&intent=${intent}&returnTo=${encodeURIComponent('/ecrire')}`);
       return;
     }
     next();
@@ -1068,6 +1068,17 @@ export default function WriteWizard() {
         orgSlug: result.org_slug,
       });
 
+      const publishedOrgId = result.org_id ?? result.organization_id;
+      if (publishedOrgId) {
+        const { data: publishedOrg } = await supabase
+          .from('organizations')
+          .select('*')
+          .eq('id', publishedOrgId)
+          .maybeSingle();
+        if (publishedOrg) setCurrentOrg(publishedOrg as any);
+        await refetchOrgs();
+      }
+
       trackEvent(
         'book_published',
         {
@@ -1103,7 +1114,7 @@ export default function WriteWizard() {
     } finally {
       setPublishing(false);
     }
-  }, [publishing, state, user, publicationOrgId, update, toast, t, draftId, navigate, syncDraftList]);
+  }, [publishing, state, user, publicationOrgId, update, toast, t, draftId, navigate, syncDraftList, refetchOrgs, setCurrentOrg]);
 
   const startPublishing = useCallback(() => {
     if (publishing) return;
