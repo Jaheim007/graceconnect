@@ -20,9 +20,9 @@ export function ChurchNav({ onStart }: { onStart: () => void }) {
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/90 backdrop-blur">
       <div className="container flex h-16 items-center justify-between px-4 sm:px-6">
         <Link to="/churches" className="group flex items-center gap-2.5" aria-label="SiteViral for Churches">
-          <span className="relative grid h-9 w-9 place-items-center rounded-xl bg-primary/10 ring-1 ring-primary/20 transition-transform duration-300 group-hover:scale-105">
-            <span className="absolute inset-0 rounded-xl bg-primary/20 opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-100" />
-            <SiteLogo size="sm" linked={false} className="relative" />
+          <span className="relative grid h-9 w-9 place-items-center transition-transform duration-300 group-hover:scale-105">
+            <span className="pointer-events-none absolute inset-0 rounded-full bg-primary/25 opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-100" />
+            <SiteLogo size="md" linked={false} className="relative" />
           </span>
           <span className="leading-tight">
             <span className="block text-sm font-black tracking-tight">SiteViral</span>
