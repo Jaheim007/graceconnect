@@ -44,6 +44,8 @@ export interface CreateWorkspaceInput {
   providerProfile?: Record<string, unknown> | null;
   /** Partner referral code — falls back to sessionStorage. */
   partnerCode?: string | null;
+  /** Owner identity category override (creator / church / ngo / community). */
+  category?: 'church' | 'leader' | 'community' | 'ngo' | 'other' | null;
   /** Reuse an already-created org id (idempotent retries). */
   existingOrgId?: string | null;
 }
@@ -66,7 +68,7 @@ export async function createWorkspace(input: CreateWorkspaceInput): Promise<Crea
     const { data, error } = await db.rpc('create_organization_with_owner', {
       _name: input.name,
       _slug: slugifyWorkspaceName(input.name),
-      _category: meta.category,
+      _category: input.category ?? meta.category,
       _description: input.description ?? null,
       _currency: input.currency,
     });
