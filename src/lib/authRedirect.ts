@@ -4,16 +4,13 @@ import { getIntent, clearIntent } from '@/lib/intent';
 /**
  * Decide where to send a freshly-authenticated user.
  *
- * Priority (Step-3 sign-in decision flow):
+ * Priority:
  *   1. Pending customer/provider action (validated returnTo)
  *   2. Explicit ?returnTo query param (validated)
  *   3. Explicit stored intent (provider / client) from a CTA
- *   4. Last-used workspace via sv_current_org_id → root org hydration restores it
- *   5. Unified account home for true zero-workspace users
- *
- * `/welcome-intent` is only used for brand-new accounts (step 4); it is never
- * forced on a returning sign-in.
+ *   4. Otherwise → home ('/'), for new and returning users alike.
  */
+
 export function resolvePostAuthRedirect(opts: {
   isNewUser: boolean;
   explicitReturnTo?: string | null;
