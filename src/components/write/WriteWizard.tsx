@@ -1225,6 +1225,19 @@ export default function WriteWizard() {
       )}
     </div>
 
+      {platformSetupOpen && (
+        <PlatformSetupDialog
+          open={platformSetupOpen}
+          onOpenChange={setPlatformSetupOpen}
+          defaultName={state.title ? `${state.title}` : ''}
+          defaultCurrency={orgCurrency || 'XOF'}
+          submitting={creatingPlatform}
+          onConfirm={handlePlatformSetupConfirm}
+        />
+      )}
+
+
+
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
