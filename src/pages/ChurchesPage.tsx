@@ -145,51 +145,72 @@ export default function ChurchesPage() {
                 'radial-gradient(65% 50% at 50% 0%, hsl(var(--primary)/0.13), transparent 70%)',
             }}
           />
+          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[110px] animate-glow-pulse" />
+            <div className="absolute -top-10 right-1/5 h-64 w-64 rounded-full bg-accent/20 blur-[110px] animate-glow-pulse [animation-delay:2s]" />
+          </div>
           <div className="container relative max-w-3xl px-4 sm:px-6 pt-16 pb-14 sm:pt-24 sm:pb-20 text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider">
-              <Church className="h-3.5 w-3.5 text-primary" />
-              {fr ? 'SiteViral pour les églises' : 'SiteViral for churches'}
-            </div>
+            <Reveal delay={0}>
+              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
+                </span>
+                {fr ? 'SiteViral pour les églises' : 'SiteViral for churches'}
+              </div>
+            </Reveal>
 
-            <h1 className="mt-6 text-[2rem] leading-[1.08] sm:text-6xl font-black tracking-tight text-balance">
-              {fr ? 'Votre église reçoit les dons ' : 'Your church receives giving '}
-              <span className="text-primary">
-                {fr ? 'directement sur son téléphone.' : 'straight on its phone.'}
-              </span>
-            </h1>
+            <Reveal delay={0.06}>
+              <h1 className="mt-6 text-[2rem] leading-[1.08] sm:text-6xl font-black tracking-tight text-balance">
+                {fr ? 'Votre église reçoit les dons ' : 'Your church receives giving '}
+                <span className="bg-[linear-gradient(110deg,hsl(var(--primary)),hsl(var(--accent)),hsl(var(--primary)))] bg-[length:220%_auto] bg-clip-text text-transparent animate-text-sheen">
+                  {fr ? 'directement sur son téléphone.' : 'straight on its phone.'}
+                </span>
+              </h1>
+            </Reveal>
 
-            <p className="mx-auto mt-5 max-w-xl text-sm sm:text-lg leading-relaxed text-muted-foreground text-pretty">
-              {fr
-                ? "Une page publique pour votre église : dons en Wave, Orange Money et MTN, sermons, membres et événements. SiteViral ne prend aucune marge sur les dons."
-                : 'A public page for your church: giving via Wave, Orange Money and MTN, sermons, members and events. SiteViral takes no margin on giving.'}
-            </p>
+            <Reveal delay={0.12}>
+              <p className="mx-auto mt-5 max-w-xl text-sm sm:text-lg leading-relaxed text-muted-foreground text-pretty">
+                {fr
+                  ? "Une page publique pour votre église : dons en Wave, Orange Money et MTN, sermons, membres et événements. SiteViral ne prend aucune marge sur les dons."
+                  : 'A public page for your church: giving via Wave, Orange Money and MTN, sermons, members and events. SiteViral takes no margin on giving.'}
+              </p>
+            </Reveal>
 
-            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Button onClick={startChurch} className="h-12 w-full rounded-xl px-6 font-bold gap-2 sm:w-auto">
-                {fr ? 'Créer mon espace église' : 'Create my church space'}
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Link
-                to="/auth?mode=signin"
-                className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {fr ? 'Notre église est déjà inscrite' : 'Our church already has a space'}
-              </Link>
-            </div>
+            <Reveal delay={0.18}>
+              <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+                <Button
+                  onClick={startChurch}
+                  className="group h-12 w-full rounded-xl px-6 font-bold gap-2 shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/35 sm:w-auto"
+                >
+                  {fr ? 'Créer mon espace église' : 'Create my church space'}
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </Button>
+                <Link
+                  to="/auth?mode=signin"
+                  className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {fr ? 'Notre église est déjà inscrite' : 'Our church already has a space'}
+                </Link>
+              </div>
+            </Reveal>
 
-            <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-semibold text-muted-foreground">
-              {[
-                fr ? '0 % de marge sur les dons' : '0% margin on giving',
-                fr ? 'Gratuit pour commencer' : 'Free to start',
-                fr ? 'Prêt en quelques minutes' : 'Live in minutes',
-              ].map((x) => (
-                <li key={x} className="inline-flex items-center gap-1.5">
-                  <Check className="h-3.5 w-3.5 text-primary" /> {x}
-                </li>
-              ))}
-            </ul>
+            <Reveal delay={0.24}>
+              <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-semibold text-muted-foreground">
+                {[
+                  fr ? '0 % de marge sur les dons' : '0% margin on giving',
+                  fr ? 'Gratuit pour commencer' : 'Free to start',
+                  fr ? 'Prêt en quelques minutes' : 'Live in minutes',
+                ].map((x) => (
+                  <li key={x} className="inline-flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-primary" /> {x}
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
           </div>
         </section>
+
 
         {/* What the public page looks like */}
         <section className="container max-w-6xl px-4 sm:px-6 py-14 sm:py-20">
