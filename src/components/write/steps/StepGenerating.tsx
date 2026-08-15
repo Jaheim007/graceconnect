@@ -68,7 +68,11 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         editorialStrategy: state.editorialStrategy || null,
         religiousTradition: state.religiousTradition || null,
         prayerFormat: state.prayerFormat || null,
+        // Continuation of a free landing-page preview: the user never chose to spend
+        // credits here, so the server covers this first full write.
+        landingGrant: !!state.plannedOutline?.length,
       },
+
     });
 
     const timeoutPromise = new Promise<never>((_, reject) => {
