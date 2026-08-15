@@ -58,7 +58,7 @@ import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { ChariowImportDialog } from '@/components/chariow/ChariowImportDialog';
 import { DomainSettings as DomainSettingsWidget } from '@/components/admin/DomainSettings';
 import { CountrySelector } from '@/components/ui/CountrySelector';
-import { truncateWords, truncateSentences } from '@/lib/truncateText';
+import { truncateSentences } from '@/lib/truncateText';
 
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };

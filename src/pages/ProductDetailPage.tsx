@@ -59,7 +59,7 @@ import { PixelInjector } from '@/components/org/PixelInjector';
 import { ContactSellerWidget } from '@/components/products/ContactSellerWidget';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import { FlyerDialog } from '@/components/flyer/FlyerDialog';
-import { truncateWords, truncateSentences } from '@/lib/truncateText';
+import { truncateSentences } from '@/lib/truncateText';
 import { Image as ImageIcon } from 'lucide-react';
 
 const typeIcons: Record<string, React.ReactNode> = {
