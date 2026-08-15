@@ -1122,10 +1122,23 @@ export default function WriteWizard() {
     }
   }, [publishing, state, user, publicationOrgId, update, toast, t, draftId, navigate, syncDraftList, refetchOrgs, setCurrentOrg]);
 
+  const setupIntentRef = useRef<'pricing' | 'publish'>('publish');
+
+  /** Cover → Pricing: the platform (name + currency) must exist before pricing. */
+  const goToPricing = useCallback(() => {
+    if (!publicationOrgId) {
+      setupIntentRef.current = 'pricing';
+      setPlatformSetupOpen(true);
+      return;
+    }
+    next();
+  }, [publicationOrgId, next]);
+
   const startPublishing = useCallback(() => {
     if (publishing) return;
     // No platform yet → ask name + currency first (never auto-create a nameless one)
     if (!publicationOrgId) {
+      setupIntentRef.current = 'publish';
       setPlatformSetupOpen(true);
       return;
     }
@@ -1148,6 +1161,11 @@ export default function WriteWizard() {
       }, { replace: true });
       setPlatformSetupOpen(false);
       setWillCreateOrg(true);
+
+      if (setupIntentRef.current === 'pricing') {
+        next();
+        return;
+      }
       setPublishingStage('preparing');
       setStep(PUBLISHING_STEP);
       void handlePublish(orgId);
@@ -1160,7 +1178,8 @@ export default function WriteWizard() {
     } finally {
       setCreatingPlatform(false);
     }
-  }, [creatingPlatform, handlePublish, refetchOrgs, setCurrentOrg, setSearchParams, toast, isFr]);
+  }, [creatingPlatform, handlePublish, refetchOrgs, setCurrentOrg, setSearchParams, toast, isFr, next]);
+
 
 
   return (
