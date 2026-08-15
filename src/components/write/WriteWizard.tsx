@@ -1122,10 +1122,44 @@ export default function WriteWizard() {
 
   const startPublishing = useCallback(() => {
     if (publishing) return;
+    // No platform yet → ask name + currency first (never auto-create a nameless one)
+    if (!publicationOrgId) {
+      setPlatformSetupOpen(true);
+      return;
+    }
     setPublishingStage('preparing');
     setStep(PUBLISHING_STEP);
     void handlePublish();
-  }, [publishing, handlePublish]);
+  }, [publishing, handlePublish, publicationOrgId]);
+
+  const handlePlatformSetupConfirm = useCallback(async ({ name, currency }: { name: string; currency: string }) => {
+    if (creatingPlatform) return;
+    setCreatingPlatform(true);
+    try {
+      const { orgId, org } = await createWorkspace({ name, world: 'digital', currency });
+      if (org) setCurrentOrg(org as any);
+      await refetchOrgs();
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        params.set('org', orgId);
+        return params;
+      }, { replace: true });
+      setPlatformSetupOpen(false);
+      setWillCreateOrg(true);
+      setPublishingStage('preparing');
+      setStep(PUBLISHING_STEP);
+      void handlePublish(orgId);
+    } catch (err: any) {
+      toast({
+        title: isFr ? '❌ Création impossible' : '❌ Could not create platform',
+        description: err?.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setCreatingPlatform(false);
+    }
+  }, [creatingPlatform, handlePublish, refetchOrgs, setCurrentOrg, setSearchParams, toast, isFr]);
+
 
   return (
     <>
