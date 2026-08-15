@@ -12,6 +12,7 @@ import { StepSource } from './steps/StepSource';
 import { StepParams } from './steps/StepParams';
 import { StepEditorialStrategy } from './steps/StepEditorialStrategy';
 import { StepGenerating } from './steps/StepGenerating';
+import { StepBookStyle } from './steps/StepBookStyle';
 import { StepPreview } from './steps/StepPreview';
 import { StepCover } from './steps/StepCover';
 import { StepIllustrations } from './steps/StepIllustrations';
@@ -85,6 +86,8 @@ export interface WriteState {
   editorialStrategy?: EditorialStrategy;
   /** An outline already approved by the author (e.g. the plan shown on the landing page). */
   plannedOutline?: { title: string; summary?: string }[];
+  /** Voice preset chosen right after a landing-page preview (tone only, never platform type). */
+  landingTonePreset?: 'neutral' | 'spiritual' | 'study_guide' | 'business' | 'personal_growth' | 'story';
   chapters: WriteChapter[];
   chapterIllustrations: Record<string, string>; // chapter id -> image URL
   coverTemplate: number;
@@ -440,6 +443,11 @@ export default function WriteWizard() {
   const [draftId, setDraftId] = useState(bootstrap.id);
   const [step, setStep] = useState(bootstrap.step);
   const [state, setState] = useState<WriteState>(bootstrap.state);
+  /**
+   * Books started from the landing preview only have an approved outline. Before we
+   * spend a full generation, ask the author once for the voice they want.
+   */
+  const needsToneChoice = !!state.plannedOutline?.length && !state.landingTonePreset;
   const [savedDrafts, setSavedDrafts] = useState<SavedWriteDraftSummary[]>(() => {
     const store = loadDraftStore();
     return listSavedDrafts(store, bootstrap.id);
@@ -1149,7 +1157,9 @@ export default function WriteWizard() {
             )}
             {step === 1 && <StepParams state={state} update={update} onNext={next} onBack={back} />}
             {step === 2 && <StepEditorialStrategy state={state} update={update} onNext={next} onBack={back} />}
-            {step === 3 && <StepGenerating state={state} update={update} onNext={next} onBack={back} />}
+            {step === 3 && (needsToneChoice
+              ? <StepBookStyle state={state} update={update} onNext={() => { /* stay on step 3: generation starts once the voice is set */ }} />
+              : <StepGenerating state={state} update={update} onNext={next} onBack={back} />)}
             {step === 4 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
             {step === ILLUSTRATIONS_STEP && <StepIllustrations state={state} update={update} onNext={next} onBack={back} />}
             {step === COVER_STEP && <StepCover state={state} update={update} onNext={next} onBack={back} />}
