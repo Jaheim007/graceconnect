@@ -143,8 +143,10 @@ const PDF_PREVIEW_STEP = 8;
 const PLATFORM_STEP = 9;
 const PUBLISHING_STEP = 10;
 const CELEBRATION_STEP = 11;
-const STEP_LABELS_FR = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', '🎨 Illustrations', 'Couverture', 'Prix', 'Aperçu PDF', 'Plateforme', 'Sauvegarde', '🎉'];
-const STEP_LABELS_EN = ['Source', 'Details', '🎯 Strategy', 'Creation', 'Preview', '🎨 Illustrations', 'Cover', 'Pricing', 'PDF Preview', 'Platform', 'Save', '🎉'];
+// User-facing steps only (10). The publishing splash and the celebration are
+// outcomes, not steps, so they never appear in the "x/10" counter.
+const STEP_LABELS_FR = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', '🎨 Illustrations', 'Couverture', 'Prix', 'Aperçu PDF', 'Plateforme'];
+const STEP_LABELS_EN = ['Source', 'Details', '🎯 Strategy', 'Creation', 'Preview', '🎨 Illustrations', 'Cover', 'Pricing', 'PDF Preview', 'Platform'];
 
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
@@ -1151,11 +1153,9 @@ export default function WriteWizard() {
       setWillCreateOrg(true);
       setPublishingStage('preparing');
       setStep(PUBLISHING_STEP);
-      setSearchParams((prev) => {
-        const params = new URLSearchParams(prev);
-        params.set('org', orgId);
-        return params;
-      }, { replace: true });
+      // Deliberately do NOT touch the URL here: changing ?org= remounts/rehydrates
+      // the wizard and bounced the user back to the PDF preview. We publish
+      // straight through to the product editor with the new org id.
       await handlePublish(orgId);
     } catch (err: any) {
       toast({
@@ -1173,7 +1173,7 @@ export default function WriteWizard() {
   return (
     <>
     <div className="pt-16 pb-20 min-h-screen">
-      {step < CELEBRATION_STEP && (
+      {step <= PLATFORM_STEP && (
         <>
           <WriteProgress
             currentStep={step}
