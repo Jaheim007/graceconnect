@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, PenLine, BookOpen, Wallet, Zap } from 'lucide-react';
+import { ArrowRight, ArrowUp, BookOpen, Wallet, Zap } from 'lucide-react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
@@ -145,9 +145,10 @@ export function AuthorHero() {
           className="mt-6 text-[2.35rem] leading-[1.06] sm:text-[4.25rem] sm:leading-[1.02] font-black tracking-tight text-balance"
         >
           {fr ? 'Tout le monde a un livre en soi.' : 'Everyone has a book inside them.'}
-          <span className="mt-1 block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
+          <span className="mt-1 block bg-[linear-gradient(110deg,hsl(var(--primary)),hsl(var(--accent)),hsl(var(--primary)))] bg-[length:220%_auto] bg-clip-text text-transparent animate-text-sheen">
             {fr ? 'Le tien commence ici.' : 'Yours starts here.'}
           </span>
+
         </motion.h1>
 
         <motion.p
@@ -159,63 +160,93 @@ export function AuthorHero() {
             : 'You already have the idea. Write one sentence and we write the outline and first chapter in front of you — free.'}
         </motion.p>
 
-        <motion.div {...rise(0.18)} className="mx-auto mt-9 max-w-2xl">
-          <div className="group relative rounded-2xl border border-border bg-card/80 p-2.5 shadow-lg shadow-primary/5 backdrop-blur-sm transition-all focus-within:border-primary/60 focus-within:shadow-xl focus-within:shadow-primary/10">
+        <motion.div {...rise(0.18)} className="mx-auto mt-9 max-w-3xl">
+          <div className="group relative rounded-[26px] border border-border/80 bg-card/70 p-3.5 sm:p-4 shadow-[0_24px_70px_-40px_hsl(var(--primary)/0.55)] backdrop-blur-xl transition-all duration-500 hover:border-primary/40 focus-within:border-primary/60 focus-within:shadow-[0_30px_90px_-40px_hsl(var(--primary)/0.7)]">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -inset-px rounded-[26px] bg-gradient-to-r from-primary/25 via-transparent to-accent/25 opacity-0 blur-[2px] transition-opacity duration-500 group-focus-within:opacity-100"
+            />
+
             <label htmlFor="idea" className="sr-only">
               {fr ? 'Quel livre veux-tu écrire ?' : 'What book do you want to write?'}
             </label>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <input
+            <div className="flex flex-col">
+              <textarea
                 id="idea"
+                rows={3}
                 value={idea}
                 onChange={(e) => setIdea(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !loading && handleStart()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!loading) handleStart();
+                  }
+                }}
                 placeholder={
                   fr
                     ? `Ex. : ${examples[phIndex]}`
                     : `e.g. ${examples[phIndex]}`
                 }
-                className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm sm:text-base outline-none placeholder:text-muted-foreground"
+                className="min-h-[92px] w-full resize-none bg-transparent px-3 pt-3 text-left text-base sm:text-lg leading-relaxed outline-none placeholder:text-muted-foreground/70"
               />
-              <Button
-                onClick={handleStart}
-                disabled={loading || !idea.trim()}
-                className="h-11 shrink-0 rounded-xl px-5 font-bold gap-2"
-              >
-                {loading ? (
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                ) : (
-                  <PenLine className="h-4 w-4" />
-                )}
-                {fr ? 'Écrire mon livre' : 'Write my book'}
-              </Button>
+              <div className="mt-1 flex items-end justify-between gap-3 px-1.5 pb-0.5">
+                <span className="hidden select-none text-[11px] font-medium text-muted-foreground/70 sm:block">
+                  {fr ? 'Entrée pour écrire · Maj + Entrée pour une nouvelle ligne' : 'Enter to write · Shift + Enter for a new line'}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleStart}
+                  disabled={loading || !idea.trim()}
+                  aria-label={fr ? 'Écrire mon livre' : 'Write my book'}
+                  className="group/send relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/35 active:scale-95 disabled:pointer-events-none disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
+                >
+                  {loading ? (
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : (
+                    <ArrowUp className="h-5 w-5 transition-transform duration-300 group-hover/send:-translate-y-0.5" />
+                  )}
+                </button>
+              </div>
             </div>
+
           </div>
 
-          <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2">
-            {examples.map((ex) => (
-              <button
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            {examples.map((ex, i) => (
+              <motion.button
                 key={ex}
                 type="button"
+                initial={reduce ? undefined : { opacity: 0, y: 8, scale: 0.96 }}
+                animate={reduce ? undefined : { opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.3 + i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={reduce ? undefined : { y: -3, scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => {
                   setIdea(ex);
                   if (!user) generatePreview(ex);
                 }}
-                className="rounded-full border border-border bg-card/70 px-3 py-1.5 text-[11px] sm:text-xs font-semibold text-muted-foreground backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:text-foreground hover:shadow-sm"
+                className="rounded-full border border-border bg-card/70 px-3.5 py-2 text-[11px] sm:text-xs font-semibold text-muted-foreground backdrop-blur-sm transition-colors hover:border-primary/50 hover:text-foreground"
               >
                 {ex}
-              </button>
+              </motion.button>
             ))}
           </div>
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5">
-            {proofs.map((p) => (
-              <span key={p.label} className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-muted-foreground">
+            {proofs.map((p, i) => (
+              <motion.span
+                key={p.label}
+                initial={reduce ? undefined : { opacity: 0, y: 8 }}
+                animate={reduce ? undefined : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.55 + i * 0.09 }}
+                className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-muted-foreground"
+              >
                 <p.icon className="h-3.5 w-3.5 text-primary shrink-0" />
                 {p.label}
-              </span>
+              </motion.span>
             ))}
           </div>
+
 
           <button
             type="button"
