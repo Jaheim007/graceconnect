@@ -1249,7 +1249,7 @@ export default function WriteWizard() {
                 allowCurrencyChoice={!publicationOrgId}
               />
             )}
-            {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={handleSaveDraftAndExitToStart} saving={publishing} />}
+            {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={() => { saveDraftSnapshotNow(); startPublishing(); }} saving={publishing} />}
             {step === PLATFORM_STEP && (
               <PlatformSetupStep
                 defaultName={state.title || ''}
