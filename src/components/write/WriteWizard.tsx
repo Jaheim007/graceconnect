@@ -562,6 +562,21 @@ export default function WriteWizard() {
     toast({ title: `💾 ${t('write.save_as_draft')}` });
   }, [draftId, state, step, syncDraftList, toast, t]);
 
+  /**
+   * "Save as draft" from the PDF preview: keep the snapshot but never drop the
+   * author out of the flow — they continue to platform setup / publishing.
+   */
+  const handleSaveDraftAndContinue = useCallback(() => {
+    if (step >= CELEBRATION_STEP) return;
+    const { store, updatedAt } = saveDraftSnapshot(draftId, state, step);
+    setLastSavedAt(updatedAt);
+    syncDraftList(store, draftId);
+    toast({ title: `💾 ${t('write.save_as_draft')}` });
+    setStep(PLATFORM_STEP);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [draftId, state, step, syncDraftList, toast, t]);
+
+
 
   const handleCreateNewDraft = useCallback(() => {
     if (step < CELEBRATION_STEP) saveCurrentDraftNow();
