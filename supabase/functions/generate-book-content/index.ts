@@ -1015,7 +1015,7 @@ Deno.serve(async (req) => {
     if (auth instanceof Response) return auth;
     const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
 
-    const { title, subtitle, authorName, topic, style, pageCount, chapterCount: requestedChapterCount, keywords, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy, religiousTradition, prayerFormat, tier, outline } = await req.json();
+    const { title, subtitle, authorName, topic, style, pageCount, chapterCount: requestedChapterCount, keywords, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy, religiousTradition, prayerFormat, tier, outline, landingGrant } = await req.json();
 
     if (!title && !topic) {
       return new Response(JSON.stringify({ error: 'title or topic required' }), {
@@ -1346,8 +1346,35 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     // Credit debit (will be refunded on AI failure)
     const creditActionKey = singleChapter ? 'generate_chapter' : 'generate_book';
     let creditDebited = 0;
-    const debitResult = await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: creditActionKey, tier: normalizeTier(tier) });
-    if (!('skipped' in debitResult)) creditDebited = debitResult.debited;
+
+    // ─── Landing-page continuation grant ───
+    // The visitor started this book for free on /landing and only signed in to keep
+    // going, so this first full write is covered by the platform (once, for new
+    // accounts). Everything they choose afterwards (images, cover, PDF) is normal.
+    let platformCovered = false;
+    if (landingGrant && !singleChapter) {
+      const { data: profile } = await admin
+        .from('profiles')
+        .select('created_at')
+        .eq('id', auth.userId)
+        .maybeSingle();
+      const accountAgeHours = profile?.created_at
+        ? (Date.now() - new Date(profile.created_at as string).getTime()) / 3_600_000
+        : Number.POSITIVE_INFINITY;
+      if (accountAgeHours <= 48) {
+        const { data: grantCheck } = await admin.rpc('check_generation_cooldown', {
+          _user_id: auth.userId,
+          _action_key: 'landing_free_book',
+          _max_per_hour: 1,
+        });
+        platformCovered = !!(grantCheck as any)?.ok;
+      }
+    }
+
+    if (!platformCovered) {
+      const debitResult = await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: creditActionKey, tier: normalizeTier(tier) });
+      if (!('skipped' in debitResult)) creditDebited = debitResult.debited;
+    }
 
     let aiRes: Response | null = null;
     let usedProvider = 'gemini';
