@@ -256,7 +256,16 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
           {phase === 'done' && t('write.generation_done_sub')}
           {phase === 'error' && errorMsg}
         </p>
+
+        {!!state.plannedOutline?.length && phase !== 'error' && (
+          <p className="text-xs text-primary/90 font-medium">
+            {locale === 'fr'
+              ? '🎁 Offert par SiteViral — cette rédaction ne consomme aucun de tes crédits.'
+              : '🎁 On SiteViral — this write-up uses none of your credits.'}
+          </p>
+        )}
       </div>
+
 
       <div className="max-w-sm mx-auto space-y-2">
         <div className="h-3 bg-muted rounded-full overflow-hidden">
