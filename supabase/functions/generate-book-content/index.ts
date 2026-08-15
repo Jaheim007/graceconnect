@@ -1290,7 +1290,7 @@ Return ONLY JSON:
 
 TITRE : "${title}"${subtitleLine}${authorLine}
 ${topic ? `SUJET : ${topic}` : ''}${keywordsLine}
-${editorialContext}
+${editorialContext}${outlineContext}
 INSTRUCTIONS :
 - Exactement ${chapterCount} chapitres
 - ${titleGuidance}
@@ -1315,7 +1315,7 @@ RAPPEL : ${pages} pages. Chaque chapitre ≈ ${chapterWordTarget} mots. VRAI liv
 
 TITLE: "${title}"${subtitleLine}${authorLine}
 ${topic ? `TOPIC: ${topic}` : ''}${keywordsLine}
-${editorialContext}
+${editorialContext}${outlineContext}
 INSTRUCTIONS:
 - Exactly ${chapterCount} chapters
 - ${titleGuidance}
