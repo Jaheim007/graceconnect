@@ -529,14 +529,17 @@ export default function WriteWizard() {
   useEffect(() => {
     if (state.languageManuallySelected) return;
 
-    const localeLanguage = detectBookLanguage(locale);
-    if (state.language === localeLanguage) return;
+    // The book language follows what the author typed, not the interface locale.
+    const autoLanguage =
+      detectLanguageFromText(`${state.topic || ''} ${state.title || ''}`) ?? detectBookLanguage(locale);
+    if (state.language === autoLanguage) return;
 
     setState((prev) => {
-      if (prev.languageManuallySelected || prev.language === localeLanguage) return prev;
-      return { ...prev, language: localeLanguage };
+      if (prev.languageManuallySelected || prev.language === autoLanguage) return prev;
+      return { ...prev, language: autoLanguage };
     });
-  }, [locale, state.language, state.languageManuallySelected]);
+  }, [locale, state.language, state.languageManuallySelected, state.topic, state.title]);
+
 
   const saveCurrentDraftNow = useCallback(() => {
     if (step >= CELEBRATION_STEP) return;
