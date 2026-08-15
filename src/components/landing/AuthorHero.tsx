@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ArrowUp, BookOpen, Wallet, Zap } from 'lucide-react';
+import { ArrowRight, ArrowUp, BookOpen, Sparkle, Wallet, Zap } from 'lucide-react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
@@ -211,26 +211,37 @@ export function AuthorHero() {
 
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            {examples.map((ex, i) => (
-              <motion.button
-                key={ex}
-                type="button"
-                initial={reduce ? undefined : { opacity: 0, y: 8, scale: 0.96 }}
-                animate={reduce ? undefined : { opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.3 + i * 0.07, ease: [0.16, 1, 0.3, 1] }}
-                whileHover={reduce ? undefined : { y: -3, scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => {
-                  setIdea(ex);
-                  if (!user) generatePreview(ex);
-                }}
-                className="rounded-full border border-border bg-card/70 px-3.5 py-2 text-[11px] sm:text-xs font-semibold text-muted-foreground backdrop-blur-sm transition-colors hover:border-primary/50 hover:text-foreground"
-              >
-                {ex}
-              </motion.button>
-            ))}
+          <div className="mt-6">
+            <motion.p
+              {...rise(0.26)}
+              className="font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/80"
+            >
+              {fr ? 'Sujets populaires' : 'Popular topics'}
+            </motion.p>
+
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
+              {examples.map((ex, i) => (
+                <motion.button
+                  key={ex}
+                  type="button"
+                  initial={reduce ? undefined : { opacity: 0, y: 8, scale: 0.96 }}
+                  animate={reduce ? undefined : { opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.4, delay: 0.3 + i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                  whileHover={reduce ? undefined : { y: -3, scale: 1.04 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => {
+                    setIdea(ex);
+                    if (!user) generatePreview(ex);
+                  }}
+                  className="group/topic inline-flex items-center gap-2 rounded-2xl border border-border/80 bg-card/70 px-4 py-2.5 sm:px-5 sm:py-3 font-sans text-sm sm:text-base font-medium text-foreground/85 backdrop-blur-sm transition-colors hover:border-primary/50 hover:bg-card hover:text-foreground"
+                >
+                  <Sparkle className="h-4 w-4 shrink-0 text-primary/70 transition-colors group-hover/topic:text-primary" />
+                  {ex}
+                </motion.button>
+              ))}
+            </div>
           </div>
+
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5">
             {proofs.map((p, i) => (
