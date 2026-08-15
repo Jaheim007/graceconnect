@@ -165,9 +165,16 @@ export function CookieConsent() {
               )}
             </div>
 
+            <p className="text-[10px] text-muted-foreground/80">
+              <Link to="/privacy" className="underline hover:text-foreground">
+                {isFr ? 'Politique de confidentialité' : 'Privacy policy'}
+              </Link>
+            </p>
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
+
