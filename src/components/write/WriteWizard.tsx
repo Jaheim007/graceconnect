@@ -25,7 +25,7 @@ import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { resolveBookLanguageFromLocale, type SupportedBookLanguage } from './utils/bookLanguage';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
-import { PlatformSetupDialog } from './PlatformSetupDialog';
+import { PlatformSetupStep, type PlatformSetupValues } from './PlatformSetupStep';
 import { createWorkspace } from '@/lib/siteviral/createWorkspace';
 
 import {
@@ -102,6 +102,8 @@ export interface WriteState {
   projectId?: string;
   orgSlug?: string;
   previewPdfUrl?: string;
+  /** Selling currency chosen at the pricing step when no platform exists yet. */
+  sellCurrency?: string;
 }
 
 export interface SavedWriteDraftSummary {
@@ -459,7 +461,6 @@ export default function WriteWizard() {
   const [publishing, setPublishing] = useState(false);
   const [publishingStage, setPublishingStage] = useState<PublishingStage>('preparing');
   const [willCreateOrg, setWillCreateOrg] = useState(false);
-  const [platformSetupOpen, setPlatformSetupOpen] = useState(false);
   const [creatingPlatform, setCreatingPlatform] = useState(false);
   const { user } = useAuth();
   const { currentOrg, userOrgs, refetchOrgs, setCurrentOrg } = useOrg();
