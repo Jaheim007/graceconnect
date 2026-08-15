@@ -1214,7 +1214,7 @@ export default function WriteWizard() {
               : <StepGenerating state={state} update={update} onNext={next} onBack={back} />)}
             {step === 4 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
             {step === ILLUSTRATIONS_STEP && <StepIllustrations state={state} update={update} onNext={next} onBack={back} />}
-            {step === COVER_STEP && <StepCover state={state} update={update} onNext={next} onBack={back} />}
+            {step === COVER_STEP && <StepCover state={state} update={update} onNext={goToPricing} onBack={back} />}
             {step === PRICING_STEP && <StepPricing state={state} update={update} onNext={next} onBack={back} orgCurrency={orgCurrency} />}
             {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={handleSaveDraftAndExitToStart} saving={publishing} />}
             {step === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
