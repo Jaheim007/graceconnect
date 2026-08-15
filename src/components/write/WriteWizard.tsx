@@ -551,16 +551,8 @@ export default function WriteWizard() {
     syncDraftList(store, draftId);
   }, [draftId, state, step, syncDraftList]);
 
-  /** Explicit "Save as draft": persist, confirm, then return to the wizard home. */
-  const handleSaveDraftAndExitToStart = useCallback(() => {
-    if (step >= CELEBRATION_STEP) return;
-    const { store, updatedAt } = saveDraftSnapshot(draftId, state, step);
-    setLastSavedAt(updatedAt);
-    syncDraftList(store, draftId);
-    setStep(0);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    toast({ title: `💾 ${t('write.save_as_draft')}` });
-  }, [draftId, state, step, syncDraftList, toast, t]);
+
+
 
   /**
    * "Save as draft" from the PDF preview: keep the snapshot but never drop the
