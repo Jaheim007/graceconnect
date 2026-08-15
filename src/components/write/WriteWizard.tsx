@@ -551,16 +551,22 @@ export default function WriteWizard() {
     syncDraftList(store, draftId);
   }, [draftId, state, step, syncDraftList]);
 
-  /** Explicit "Save as draft": persist, confirm, then return to the wizard home. */
-  const handleSaveDraftAndExitToStart = useCallback(() => {
+
+
+
+  /**
+   * "Save as draft" from the PDF preview: keep the snapshot but never drop the
+   * author out of the flow — they continue to platform setup / publishing.
+   */
+  const saveDraftSnapshotNow = useCallback(() => {
     if (step >= CELEBRATION_STEP) return;
     const { store, updatedAt } = saveDraftSnapshot(draftId, state, step);
     setLastSavedAt(updatedAt);
     syncDraftList(store, draftId);
-    setStep(0);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     toast({ title: `💾 ${t('write.save_as_draft')}` });
   }, [draftId, state, step, syncDraftList, toast, t]);
+
+
 
 
   const handleCreateNewDraft = useCallback(() => {
@@ -982,6 +988,16 @@ export default function WriteWizard() {
         cover_url: state.coverUrl || null,
       };
 
+      // Carry the author's chosen ambassador commission onto the product itself
+      // (the RPC only stores it at org level, so the edit form showed it empty).
+      if (result.product_id) {
+        try {
+          await (supabase.from('digital_products') as any)
+            .update({ commission_rate: state.commissionRate })
+            .eq('id', result.product_id);
+        } catch { /* non-fatal */ }
+      }
+
       if (result.project_id) {
         await supabase
           .from('ai_content_projects')
@@ -991,6 +1007,7 @@ export default function WriteWizard() {
           })
           .eq('id', result.project_id);
       }
+
 
       if (result.project_id && (result.org_id ?? result.organization_id)) {
         const assetInserts: any[] = [];
@@ -1173,18 +1190,21 @@ export default function WriteWizard() {
   return (
     <>
     <div className="pt-16 pb-20 min-h-screen">
-      {step <= PLATFORM_STEP && (
+      {step <= PUBLISHING_STEP && (
         <>
+          {/* During the publishing splash we stay visually on the last step
+              (Platform, 10/10) so the counter never appears to go backwards. */}
           <WriteProgress
-            currentStep={step}
+            currentStep={Math.min(step, PLATFORM_STEP)}
             labels={STEP_LABELS}
             onSaveAndNew={handleCreateNewDraft}
             onDeleteAndNew={handleDeleteAndNew}
             onExit={handleExitWizard}
           />
-          <WritingMotivation step={step} />
+          {step < PUBLISHING_STEP && <WritingMotivation step={step} />}
         </>
       )}
+
 
       {openingDeepLink ? (
         <div className="min-h-[60dvh] flex flex-col items-center justify-center gap-3">
@@ -1232,7 +1252,7 @@ export default function WriteWizard() {
                 allowCurrencyChoice={!publicationOrgId}
               />
             )}
-            {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={handleSaveDraftAndExitToStart} saving={publishing} />}
+            {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={() => { saveDraftSnapshotNow(); startPublishing(); }} saving={publishing} />}
             {step === PLATFORM_STEP && (
               <PlatformSetupStep
                 defaultName={state.title || ''}
