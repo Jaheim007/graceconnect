@@ -12,6 +12,7 @@ import { StepSource } from './steps/StepSource';
 import { StepParams } from './steps/StepParams';
 import { StepEditorialStrategy } from './steps/StepEditorialStrategy';
 import { StepGenerating } from './steps/StepGenerating';
+import { StepBookStyle } from './steps/StepBookStyle';
 import { StepPreview } from './steps/StepPreview';
 import { StepCover } from './steps/StepCover';
 import { StepIllustrations } from './steps/StepIllustrations';
