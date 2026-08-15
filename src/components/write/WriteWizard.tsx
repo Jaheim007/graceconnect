@@ -430,7 +430,7 @@ export default function WriteWizard() {
     bootstrapRef.current = prefill
       ? { id: createDraftId(), state: toHydratedState(prefill), step: 1, updatedAt: null }
       : guestPreview
-        ? { id: createDraftId(), state: toHydratedState(guestPreview), step: 4, updatedAt: null }
+        ? { id: createDraftId(), state: toHydratedState(guestPreview), step: 3, updatedAt: null }
         : loaded;
   }
 
