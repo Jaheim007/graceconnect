@@ -449,6 +449,12 @@ export default function WriteWizard() {
 
   const [draftId, setDraftId] = useState(bootstrap.id);
   const [step, setStep] = useState(bootstrap.step);
+  /**
+   * Once the publish flow starts (platform creation + publication) we pin the view to
+   * the publishing splash, whatever `step` does underneath. This kills the visual
+   * flicker back to the platform step before we land on the product editor.
+   */
+  const [publishFlow, setPublishFlow] = useState(false);
   const [state, setState] = useState<WriteState>(bootstrap.state);
   /**
    * Books started from the landing preview only have an approved outline. Before we
