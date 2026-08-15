@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface ProductImageGalleryProps {
   coverImage?: string | null;
@@ -20,6 +20,28 @@ export function ProductImageGallery({ coverImage, previewImages, title, aspectCl
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
+  const goTo = useCallback(
+    (i: number) => setActiveIndex((i + images.length) % images.length),
+    [images.length],
+  );
+
+  // Lock scroll + keyboard controls while the lightbox is open
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxOpen(false);
+      if (e.key === 'ArrowRight') setActiveIndex(i => (i + 1) % images.length);
+      if (e.key === 'ArrowLeft') setActiveIndex(i => (i - 1 + images.length) % images.length);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [lightboxOpen, images.length]);
+
   if (images.length === 0) {
     return (
       <div className={cn('rounded-2xl overflow-hidden border border-border shadow-card bg-muted/30 flex items-center justify-center', aspectClass)}>
@@ -28,26 +50,81 @@ export function ProductImageGallery({ coverImage, previewImages, title, aspectCl
     );
   }
 
+  const lightbox = lightboxOpen
+    ? createPortal(
+        <AnimatePresence>
+          <motion.div
+            key="lightbox"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            // Fully opaque backdrop so page text never shows through
+            className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-[#0a0a0b] p-4"
+            onPointerDown={() => setLightboxOpen(false)}
+          >
+            <button
+              type="button"
+              aria-label="Fermer"
+              onPointerDown={(e) => { e.stopPropagation(); setLightboxOpen(false); }}
+              className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <motion.img
+              key={activeIndex}
+              src={images[activeIndex]}
+              alt={title}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.2 }}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="max-h-[82vh] w-auto max-w-full object-contain rounded-xl shadow-2xl"
+            />
+
+            {images.length > 1 && (
+              <div
+                className="mt-4 flex justify-center gap-2"
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                {images.map((img, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setActiveIndex(i)}
+                    className={cn(
+                      'h-12 w-12 rounded-md overflow-hidden border-2 transition-all',
+                      i === activeIndex ? 'border-white' : 'border-white/20 opacity-50 hover:opacity-80',
+                    )}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>,
+        document.body,
+      )
+    : null;
+
   if (images.length === 1) {
     return (
-      <div
-        className={cn('rounded-2xl overflow-hidden border border-border shadow-card bg-muted/30 cursor-zoom-in group relative', aspectClass)}
-        onClick={() => setLightboxOpen(true)}
-      >
-        <img src={images[0]} alt={title} loading="lazy" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-          <ZoomIn className="h-8 w-8 text-white drop-shadow-lg" />
+      <>
+        <div
+          className={cn('rounded-2xl overflow-hidden border border-border shadow-card bg-muted/30 cursor-zoom-in group relative', aspectClass)}
+          onClick={() => setLightboxOpen(true)}
+        >
+          <img src={images[0]} alt={title} loading="lazy" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+            <ZoomIn className="h-8 w-8 text-white drop-shadow-lg" />
+          </div>
         </div>
-        <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-          <DialogContent className="max-w-4xl p-2 bg-black/95 border-none">
-            <img src={images[0]} alt={title} className="w-full h-auto max-h-[85vh] object-contain rounded-lg" />
-          </DialogContent>
-        </Dialog>
-      </div>
+        {lightbox}
+      </>
     );
   }
-
-  const goTo = (i: number) => setActiveIndex((i + images.length) % images.length);
 
   return (
     <div className="space-y-2">
@@ -105,26 +182,7 @@ export function ProductImageGallery({ coverImage, previewImages, title, aspectCl
         ))}
       </div>
 
-      {/* Lightbox */}
-      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <DialogContent className="max-w-4xl p-2 bg-black/95 border-none">
-          <img src={images[activeIndex]} alt={title} className="w-full h-auto max-h-[85vh] object-contain rounded-lg" />
-          <div className="flex justify-center gap-2 pt-2">
-            {images.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveIndex(i)}
-                className={cn(
-                  'h-12 w-12 rounded-md overflow-hidden border-2 transition-all',
-                  i === activeIndex ? 'border-white' : 'border-white/20 opacity-50 hover:opacity-80'
-                )}
-              >
-                <img src={img} alt="" className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {lightbox}
     </div>
   );
 }

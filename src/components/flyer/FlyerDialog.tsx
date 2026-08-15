@@ -78,8 +78,9 @@ export function FlyerDialog({
   const effectiveLink = shortLink || link;
 
   const captions = useMemo(
-    () => buildFlyerCaptions({ title, priceLabel, link: effectiveLink, isFr, benefit }),
-    [title, priceLabel, effectiveLink, isFr, benefit],
+    // Captions always use the clean, human-readable product link.
+    () => buildFlyerCaptions({ title, priceLabel, link, isFr, benefit }),
+    [title, priceLabel, link, isFr, benefit],
   );
 
   useEffect(() => {

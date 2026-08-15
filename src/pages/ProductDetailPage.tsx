@@ -59,7 +59,7 @@ import { PixelInjector } from '@/components/org/PixelInjector';
 import { ContactSellerWidget } from '@/components/products/ContactSellerWidget';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import { FlyerDialog } from '@/components/flyer/FlyerDialog';
-import { truncateWords } from '@/lib/truncateText';
+import { truncateSentences } from '@/lib/truncateText';
 import { Image as ImageIcon } from 'lucide-react';
 
 const typeIcons: Record<string, React.ReactNode> = {
@@ -748,7 +748,7 @@ export default function ProductDetailPage() {
                   onOpenChange={setFlyerOpen}
                   title={product.title}
                   author={org?.name}
-                  benefit={truncateWords(stripHtml(product.description || ''), 140) || null}
+                  benefit={truncateSentences(stripHtml(product.description || ''), 220) || null}
                   priceLabel={formatPrice(getEffectivePrice(product as any) as number, (product as any).is_free, (product as any).currency, locale)}
                   coverUrl={(product as any).cover_image_url || (product as any).cover_url}
                   orgName={org?.name}
