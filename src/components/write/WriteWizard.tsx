@@ -958,7 +958,7 @@ export default function WriteWizard() {
         _cover_url: state.coverUrl || null,
         _description: richDescription,
         _file_url: null,
-        _org_id: publicationOrgId,
+        _org_id: targetOrgId,
       });
 
       if (error) throw error;
