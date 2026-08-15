@@ -151,7 +151,6 @@ export function Sidebar() {
     return location.pathname.startsWith(clean);
   };
 
-  const settingsAlreadyInNav = workspaceNav.some((it) => it.route.split('?')[0] === '/admin/settings');
 
   /**
    * The sidebar is always dark navy, so `text-primary` (deep navy in light
