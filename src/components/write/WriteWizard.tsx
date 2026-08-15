@@ -1199,21 +1199,24 @@ export default function WriteWizard() {
 
 
 
+  // Once the publish flow is engaged the view stays on the publishing splash.
+  const viewStep = publishFlow ? PUBLISHING_STEP : step;
+
   return (
     <>
     <div className="pt-16 pb-20 min-h-screen">
-      {step <= PUBLISHING_STEP && (
+      {viewStep <= PUBLISHING_STEP && (
         <>
           {/* During the publishing splash we stay visually on the last step
               (Platform, 10/10) so the counter never appears to go backwards. */}
           <WriteProgress
-            currentStep={Math.min(step, PLATFORM_STEP)}
+            currentStep={Math.min(viewStep, PLATFORM_STEP)}
             labels={STEP_LABELS}
             onSaveAndNew={handleCreateNewDraft}
             onDeleteAndNew={handleDeleteAndNew}
             onExit={handleExitWizard}
           />
-          {step < PUBLISHING_STEP && <WritingMotivation step={step} />}
+          {viewStep < PUBLISHING_STEP && <WritingMotivation step={viewStep} />}
         </>
       )}
 
