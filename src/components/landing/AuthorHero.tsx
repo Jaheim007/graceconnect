@@ -291,8 +291,8 @@ export function AuthorHero() {
                 }}
                 placeholder={
                   fr
-                    ? `Ex. : ${examples[phIndex]}`
-                    : `e.g. ${examples[phIndex]}`
+                    ? `Ex. : ${placeholders[phIndex]}`
+                    : `e.g. ${placeholders[phIndex]}`
                 }
                 className="min-h-[92px] w-full resize-none bg-transparent px-3 pt-3 text-left text-base sm:text-lg leading-relaxed outline-none placeholder:text-muted-foreground/70"
               />
@@ -323,13 +323,13 @@ export function AuthorHero() {
               {...rise(0.26)}
               className="font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/80"
             >
-              {fr ? 'Sujets populaires' : 'Popular topics'}
+              {fr ? 'Idées de livres' : 'Book title ideas'}
             </motion.p>
 
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
-              {examples.map((ex, i) => (
+              {suggestions.map((title, i) => (
                 <motion.button
-                  key={ex}
+                  key={title}
                   type="button"
                   initial={reduce ? undefined : { opacity: 0, y: 8, scale: 0.96 }}
                   animate={reduce ? undefined : { opacity: 1, y: 0, scale: 1 }}
@@ -337,13 +337,19 @@ export function AuthorHero() {
                   whileHover={reduce ? undefined : { y: -3, scale: 1.04 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => {
-                    setIdea(ex);
-                    if (!user) generatePreview(ex);
+                    setIdea(title);
+                    if (!user) generatePreview(title);
                   }}
-                  className="group/topic inline-flex items-center gap-2 rounded-2xl border border-border/80 bg-card/70 px-4 py-2.5 sm:px-5 sm:py-3 font-sans text-sm sm:text-base font-medium text-foreground/85 backdrop-blur-sm transition-colors hover:border-primary/50 hover:bg-card hover:text-foreground"
+                  className="group/topic inline-flex items-start gap-2.5 rounded-2xl border border-border/80 bg-card/70 px-4 py-2.5 sm:px-5 sm:py-3 text-left font-sans text-sm sm:text-base font-medium text-foreground/85 backdrop-blur-sm transition-colors hover:border-primary/50 hover:bg-card hover:text-foreground"
                 >
-                  <Sparkle className="h-4 w-4 shrink-0 text-primary/70 transition-colors group-hover/topic:text-primary" />
-                  {ex}
+                  <motion.span
+                    animate={reduce ? undefined : { rotate: [0, 12, -8, 0], scale: [1, 1.12, 1] }}
+                    transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: i * 0.25 }}
+                    className="mt-0.5 inline-block shrink-0"
+                  >
+                    <Sparkle className="h-4 w-4 text-primary/70 transition-colors group-hover/topic:text-primary" />
+                  </motion.span>
+                  <span className="text-balance leading-snug">{title}</span>
                 </motion.button>
               ))}
             </div>
