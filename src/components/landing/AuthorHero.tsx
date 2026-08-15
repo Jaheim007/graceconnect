@@ -159,8 +159,13 @@ export function AuthorHero() {
             : 'You already have the idea. Write one sentence and we write the outline and first chapter in front of you — free.'}
         </motion.p>
 
-        <motion.div {...rise(0.18)} className="mx-auto mt-9 max-w-2xl">
-          <div className="group relative rounded-2xl border border-border bg-card/80 p-2.5 shadow-lg shadow-primary/5 backdrop-blur-sm transition-all focus-within:border-primary/60 focus-within:shadow-xl focus-within:shadow-primary/10">
+        <motion.div {...rise(0.18)} className="mx-auto mt-9 max-w-3xl">
+          <div className="group relative rounded-[26px] border border-border/80 bg-card/70 p-3.5 sm:p-4 shadow-[0_24px_70px_-40px_hsl(var(--primary)/0.55)] backdrop-blur-xl transition-all duration-500 hover:border-primary/40 focus-within:border-primary/60 focus-within:shadow-[0_30px_90px_-40px_hsl(var(--primary)/0.7)]">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -inset-px rounded-[26px] bg-gradient-to-r from-primary/25 via-transparent to-accent/25 opacity-0 blur-[2px] transition-opacity duration-500 group-focus-within:opacity-100"
+            />
+
             <label htmlFor="idea" className="sr-only">
               {fr ? 'Quel livre veux-tu écrire ?' : 'What book do you want to write?'}
             </label>
