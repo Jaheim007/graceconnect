@@ -1,17 +1,23 @@
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
 import { GraduationCap } from 'lucide-react';
 import { GuestGate } from '@/components/auth/GuestGate';
 import { Navigate } from 'react-router-dom';
 
 export default function CreerFormationPage() {
   const { user } = useAuth();
+  const { userOrgs, canManage, isLoadingOrgs } = useOrg();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
   if (user) {
-    return <Navigate to="/create-org" replace />;
+    // Already managing a platform? Go straight to the tool — never ask them to
+    // create a second platform.
+    if (isLoadingOrgs) return null;
+    const manageable = userOrgs.find((o) => canManage(o.id));
+    return <Navigate to={manageable ? '/admin/programs' : '/create-org'} replace />;
   }
 
   return (
