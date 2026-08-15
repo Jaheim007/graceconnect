@@ -231,7 +231,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'relative h-screen sticky top-0 flex flex-col border-r border-sidebar-foreground/10 bg-sidebar shadow-2xl transition-all duration-300 overflow-hidden',
+        'relative h-full max-h-[100dvh] min-h-0 sticky top-0 flex flex-col border-r border-sidebar-foreground/10 bg-sidebar shadow-2xl transition-all duration-300 overflow-hidden',
         collapsed ? 'w-[68px]' : 'w-[248px]',
       )}
     >
@@ -277,14 +277,14 @@ export function Sidebar() {
         </div>
       )}
 
-      <nav className={cn('relative flex-1 overflow-y-auto py-2 scrollbar-hide', collapsed ? 'px-1.5' : 'px-3')}>
+      <nav className={cn('relative flex-1 min-h-0 overflow-y-auto overscroll-contain py-2', collapsed ? 'px-1.5' : 'px-3')}>
         {/* ONE unified dashboard nav — no groups, no separate workspace section */}
         <div className="space-y-1">{unifiedNav.map(renderNavItem)}</div>
       </nav>
 
 
       {/* Superadmin + Settings + Sign out */}
-      <div className={cn('relative border-t border-sidebar-foreground/10 bg-sidebar-foreground/[0.03] backdrop-blur-sm', collapsed ? 'px-1.5 py-2' : 'px-3 py-2')}>
+      <div className={cn('relative shrink-0 border-t border-sidebar-foreground/10 bg-sidebar-foreground/[0.03] backdrop-blur-sm', collapsed ? 'px-1.5 py-2' : 'px-3 py-2')}>
 
         {isSuperadmin && (
           collapsed ? (
