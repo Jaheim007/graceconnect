@@ -83,6 +83,8 @@ export interface WriteState {
   chapterCount: number;
   pageCount: number;
   editorialStrategy?: EditorialStrategy;
+  /** An outline already approved by the author (e.g. the plan shown on the landing page). */
+  plannedOutline?: { title: string; summary?: string }[];
   chapters: WriteChapter[];
   chapterIllustrations: Record<string, string>; // chapter id -> image URL
   coverTemplate: number;
