@@ -57,6 +57,7 @@ import { ReadingProgressBar } from '@/components/ui/ReadingProgressBar';
 import { ProductTableOfContents } from '@/components/products/ProductTableOfContents';
 import { PixelInjector } from '@/components/org/PixelInjector';
 import { ContactSellerWidget } from '@/components/products/ContactSellerWidget';
+import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import { FlyerDialog } from '@/components/flyer/FlyerDialog';
 import { truncateWords } from '@/lib/truncateText';
 import { Image as ImageIcon } from 'lucide-react';
