@@ -776,13 +776,17 @@ export default function ProductDetailPage() {
               />
             </div>
 
-            <ContactSellerWidget
-              organizationId={product.organization_id}
-              orgName={org?.name}
-              orgLogoUrl={org?.logo_url}
-              productId={product.id}
-              productTitle={product.title}
-            />
+{/* Seller messaging belongs to the service-marketplace era; hidden for
+                digital products (kept in code, see lib/siteviral/visibility.ts) */}
+            {showServiceSurfaces() && (
+              <ContactSellerWidget
+                organizationId={product.organization_id}
+                orgName={org?.name}
+                orgLogoUrl={org?.logo_url}
+                productId={product.id}
+                productTitle={product.title}
+              />
+            )}
 
 
             <ProductSidebarExtras
