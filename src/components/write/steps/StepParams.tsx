@@ -97,7 +97,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
 
   const suggestedTitle = state.topic || '';
   const hasSavedChapters = hasGeneratedContent(state.chapters);
-  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
+  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected, `${state.topic || ''} ${state.title || ''}`);
 
   // Load organization name for auto-fill
   // Use current org name for author auto-fill

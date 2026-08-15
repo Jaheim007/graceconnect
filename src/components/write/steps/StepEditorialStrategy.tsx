@@ -38,7 +38,7 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
   const [editingField, setEditingField] = useState<string | null>(null);
   const ran = useRef(false);
   const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
-  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
+  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected, `${state.topic || ''} ${state.title || ''}`);
 
   const generate = async () => {
     setPhase('loading');

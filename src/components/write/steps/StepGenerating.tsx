@@ -34,7 +34,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
   const aborted = useRef(false);
   const ran = useRef(false);
   const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
-  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
+  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected, `${state.topic || ''} ${state.title || ''}`);
 
   useEffect(() => {
     if (phase !== 'thinking') return;

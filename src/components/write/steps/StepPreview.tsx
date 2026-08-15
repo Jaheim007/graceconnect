@@ -53,7 +53,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
   const [lastAutoSavedAt, setLastAutoSavedAt] = useState<number | null>(null);
   const initializedRef = useRef(false);
   const autosaveTimeoutRef = useRef<number | null>(null);
-  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected);
+  const requestedLanguage = resolveRequestedBookLanguage(state.language, locale, state.languageManuallySelected, `${state.topic || ''} ${state.title || ''}`);
   const isEnglishBook = requestedLanguage === 'en';
 
   useEffect(() => {

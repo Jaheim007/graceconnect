@@ -23,7 +23,7 @@ import { StepPdfPreview } from './steps/StepPdfPreview';
 import { WriteProgress } from './WriteProgress';
 import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
-import { resolveBookLanguageFromLocale, type SupportedBookLanguage } from './utils/bookLanguage';
+import { detectLanguageFromText, resolveBookLanguageFromLocale, type SupportedBookLanguage } from './utils/bookLanguage';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
 import { PlatformSetupStep, type PlatformSetupValues } from './PlatformSetupStep';
 import { createWorkspace } from '@/lib/siteviral/createWorkspace';
@@ -143,8 +143,10 @@ const PDF_PREVIEW_STEP = 8;
 const PLATFORM_STEP = 9;
 const PUBLISHING_STEP = 10;
 const CELEBRATION_STEP = 11;
-const STEP_LABELS_FR = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', '🎨 Illustrations', 'Couverture', 'Prix', 'Aperçu PDF', 'Plateforme', 'Sauvegarde', '🎉'];
-const STEP_LABELS_EN = ['Source', 'Details', '🎯 Strategy', 'Creation', 'Preview', '🎨 Illustrations', 'Cover', 'Pricing', 'PDF Preview', 'Platform', 'Save', '🎉'];
+// User-facing steps only (10). The publishing splash and the celebration are
+// outcomes, not steps, so they never appear in the "x/10" counter.
+const STEP_LABELS_FR = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', '🎨 Illustrations', 'Couverture', 'Prix', 'Aperçu PDF', 'Plateforme'];
+const STEP_LABELS_EN = ['Source', 'Details', '🎯 Strategy', 'Creation', 'Preview', '🎨 Illustrations', 'Cover', 'Pricing', 'PDF Preview', 'Platform'];
 
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
@@ -529,14 +531,17 @@ export default function WriteWizard() {
   useEffect(() => {
     if (state.languageManuallySelected) return;
 
-    const localeLanguage = detectBookLanguage(locale);
-    if (state.language === localeLanguage) return;
+    // The book language follows what the author typed, not the interface locale.
+    const autoLanguage =
+      detectLanguageFromText(`${state.topic || ''} ${state.title || ''}`) ?? detectBookLanguage(locale);
+    if (state.language === autoLanguage) return;
 
     setState((prev) => {
-      if (prev.languageManuallySelected || prev.language === localeLanguage) return prev;
-      return { ...prev, language: localeLanguage };
+      if (prev.languageManuallySelected || prev.language === autoLanguage) return prev;
+      return { ...prev, language: autoLanguage };
     });
-  }, [locale, state.language, state.languageManuallySelected]);
+  }, [locale, state.language, state.languageManuallySelected, state.topic, state.title]);
+
 
   const saveCurrentDraftNow = useCallback(() => {
     if (step >= CELEBRATION_STEP) return;
@@ -1148,11 +1153,9 @@ export default function WriteWizard() {
       setWillCreateOrg(true);
       setPublishingStage('preparing');
       setStep(PUBLISHING_STEP);
-      setSearchParams((prev) => {
-        const params = new URLSearchParams(prev);
-        params.set('org', orgId);
-        return params;
-      }, { replace: true });
+      // Deliberately do NOT touch the URL here: changing ?org= remounts/rehydrates
+      // the wizard and bounced the user back to the PDF preview. We publish
+      // straight through to the product editor with the new org id.
       await handlePublish(orgId);
     } catch (err: any) {
       toast({
@@ -1163,14 +1166,14 @@ export default function WriteWizard() {
     } finally {
       setCreatingPlatform(false);
     }
-  }, [creatingPlatform, handlePublish, refetchOrgs, setCurrentOrg, setSearchParams, toast, isFr]);
+  }, [creatingPlatform, handlePublish, refetchOrgs, setCurrentOrg, toast, isFr]);
 
 
 
   return (
     <>
     <div className="pt-16 pb-20 min-h-screen">
-      {step < CELEBRATION_STEP && (
+      {step <= PLATFORM_STEP && (
         <>
           <WriteProgress
             currentStep={step}
