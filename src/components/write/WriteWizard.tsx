@@ -138,10 +138,11 @@ const ILLUSTRATIONS_STEP = 5;
 const COVER_STEP = 6;
 const PRICING_STEP = 7;
 const PDF_PREVIEW_STEP = 8;
-const PUBLISHING_STEP = 9;
-const CELEBRATION_STEP = 10;
-const STEP_LABELS_FR = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', '🎨 Illustrations', 'Couverture', 'Prix', 'Aperçu PDF', 'Sauvegarde', '🎉'];
-const STEP_LABELS_EN = ['Source', 'Details', '🎯 Strategy', 'Creation', 'Preview', '🎨 Illustrations', 'Cover', 'Pricing', 'PDF Preview', 'Save', '🎉'];
+const PLATFORM_STEP = 9;
+const PUBLISHING_STEP = 10;
+const CELEBRATION_STEP = 11;
+const STEP_LABELS_FR = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', '🎨 Illustrations', 'Couverture', 'Prix', 'Aperçu PDF', 'Plateforme', 'Sauvegarde', '🎉'];
+const STEP_LABELS_EN = ['Source', 'Details', '🎯 Strategy', 'Creation', 'Preview', '🎨 Illustrations', 'Cover', 'Pricing', 'PDF Preview', 'Platform', 'Save', '🎉'];
 
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
