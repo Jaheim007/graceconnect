@@ -1347,10 +1347,13 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     const creditActionKey = singleChapter ? 'generate_chapter' : 'generate_book';
     let creditDebited = 0;
 
-    // ─── Landing-page continuation grant ───
-    // The visitor started this book for free on /landing and only signed in to keep
-    // going, so this first full write is covered by the platform (once, for new
-    // accounts). Everything they choose afterwards (images, cover, PDF) is normal.
+    // ─── Landing-page continuation grant (ONCE PER ACCOUNT, EVER) ───
+    // A visitor who started a book for free on /landing and signed in to finish it
+    // gets that single first write covered by the platform. Every other entry point
+    // (menu → "Write a book in 5 min", "Create a course", retries, extra books)
+    // always costs credits — new accounts already receive a credit welcome pack.
+    // Anti-abuse: the grant is recorded as a ledger marker, so it can never be
+    // claimed twice, and it only applies to brand-new accounts (< 48h).
     let platformCovered = false;
     if (landingGrant && !singleChapter) {
       const { data: profile } = await admin
@@ -1362,12 +1365,31 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
         ? (Date.now() - new Date(profile.created_at as string).getTime()) / 3_600_000
         : Number.POSITIVE_INFINITY;
       if (accountAgeHours <= 48) {
-        const { data: grantCheck } = await admin.rpc('check_generation_cooldown', {
-          _user_id: auth.userId,
-          _action_key: 'landing_free_book',
-          _max_per_hour: 1,
-        });
-        platformCovered = !!(grantCheck as any)?.ok;
+        const { data: alreadyGranted } = await admin
+          .from('credit_transactions')
+          .select('id')
+          .eq('user_id', auth.userId)
+          .eq('action_key', 'landing_free_book')
+          .limit(1);
+        platformCovered = !(Array.isArray(alreadyGranted) && alreadyGranted.length > 0);
+      }
+    }
+
+    if (platformCovered) {
+      // Record the marker BEFORE the AI call so concurrent requests can't double-claim.
+      const { error: markerError } = await admin.from('credit_transactions').insert({
+        user_id: auth.userId,
+        amount: 0,
+        balance_after: 0,
+        tx_type: 'bonus_grant',
+        action_key: 'landing_free_book',
+        action_label: 'Premier livre offert (landing)',
+        metadata: { source: 'landing_continuation' },
+      });
+      if (markerError) {
+        // Could not secure the grant → fall back to normal billing.
+        console.warn('[landing-grant] marker failed, billing normally:', markerError.message);
+        platformCovered = false;
       }
     }
 

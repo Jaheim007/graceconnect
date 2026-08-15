@@ -5,6 +5,7 @@ import { Slider } from '@/components/ui/slider';
 
 import { useI18n } from '@/i18n/I18nContext';
 import { formatCurrency } from '@/lib/currency';
+import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import type { WriteState } from '../WriteWizard';
 
 interface Props {
@@ -13,6 +14,8 @@ interface Props {
   onNext: () => void;
   onBack: () => void;
   orgCurrency?: string | null;
+  /** No platform yet → let the author pick the currency their prices are in. */
+  allowCurrencyChoice?: boolean;
 }
 
 /** Price ranges per currency for the write wizard */
@@ -30,9 +33,9 @@ const CURRENCY_RANGES: Record<string, { min: number; max: number; step: number }
   TND: { min: 3, max: 80, step: 1 },
 };
 
-export function StepPricing({ state, update, onNext, onBack, orgCurrency }: Props) {
-  const { t } = useI18n();
-  const currency = orgCurrency || 'XOF';
+export function StepPricing({ state, update, onNext, onBack, orgCurrency, allowCurrencyChoice }: Props) {
+  const { t, locale } = useI18n();
+  const currency = (allowCurrencyChoice ? state.sellCurrency : orgCurrency) || orgCurrency || 'XOF';
   const fmt = (amount: number) => formatCurrency(amount, currency);
   const range = CURRENCY_RANGES[currency] || CURRENCY_RANGES.USD;
 
@@ -55,6 +58,19 @@ export function StepPricing({ state, update, onNext, onBack, orgCurrency }: Prop
           {t('write.ai_no_free') || 'Les contenus générés par IA ne peuvent pas être gratuits. Un prix minimum est requis.'}
         </p>
       </div>
+
+      {allowCurrencyChoice && (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">
+            {locale === 'fr' ? 'Dans quelle devise vends-tu ?' : 'Which currency do you sell in?'}
+          </label>
+          <CurrencySelector
+            value={currency}
+            onChange={(c) => update({ sellCurrency: c })}
+            className="h-10"
+          />
+        </div>
+      )}
 
       {/* Price input + slider */}
           <div className="space-y-3">

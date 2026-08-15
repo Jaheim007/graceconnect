@@ -46,8 +46,8 @@ export default function ActionHub() {
 
   const resolveRoute = (id: string) => {
     switch (id) {
-      case 'course': return hasManageableOrg ? '/admin/programs' : user ? '/create-org' : '/creer-formation';
-      case 'sell': return hasManageableOrg ? '/admin/products' : user ? '/create-org' : '/vendre';
+      case 'course': return hasManageableOrg ? '/admin/programs' : '/creer-formation';
+      case 'sell': return hasManageableOrg ? '/admin/products' : '/vendre';
       case 'orgs': return hasManageableOrg ? '/admin' : '/create-org';
       default: return '';
     }

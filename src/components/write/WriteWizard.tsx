@@ -25,7 +25,7 @@ import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { resolveBookLanguageFromLocale, type SupportedBookLanguage } from './utils/bookLanguage';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
-import { PlatformSetupDialog } from './PlatformSetupDialog';
+import { PlatformSetupStep, type PlatformSetupValues } from './PlatformSetupStep';
 import { createWorkspace } from '@/lib/siteviral/createWorkspace';
 
 import {
@@ -102,6 +102,8 @@ export interface WriteState {
   projectId?: string;
   orgSlug?: string;
   previewPdfUrl?: string;
+  /** Selling currency chosen at the pricing step when no platform exists yet. */
+  sellCurrency?: string;
 }
 
 export interface SavedWriteDraftSummary {
@@ -138,10 +140,11 @@ const ILLUSTRATIONS_STEP = 5;
 const COVER_STEP = 6;
 const PRICING_STEP = 7;
 const PDF_PREVIEW_STEP = 8;
-const PUBLISHING_STEP = 9;
-const CELEBRATION_STEP = 10;
-const STEP_LABELS_FR = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', '🎨 Illustrations', 'Couverture', 'Prix', 'Aperçu PDF', 'Sauvegarde', '🎉'];
-const STEP_LABELS_EN = ['Source', 'Details', '🎯 Strategy', 'Creation', 'Preview', '🎨 Illustrations', 'Cover', 'Pricing', 'PDF Preview', 'Save', '🎉'];
+const PLATFORM_STEP = 9;
+const PUBLISHING_STEP = 10;
+const CELEBRATION_STEP = 11;
+const STEP_LABELS_FR = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', '🎨 Illustrations', 'Couverture', 'Prix', 'Aperçu PDF', 'Plateforme', 'Sauvegarde', '🎉'];
+const STEP_LABELS_EN = ['Source', 'Details', '🎯 Strategy', 'Creation', 'Preview', '🎨 Illustrations', 'Cover', 'Pricing', 'PDF Preview', 'Platform', 'Save', '🎉'];
 
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
@@ -458,7 +461,6 @@ export default function WriteWizard() {
   const [publishing, setPublishing] = useState(false);
   const [publishingStage, setPublishingStage] = useState<PublishingStage>('preparing');
   const [willCreateOrg, setWillCreateOrg] = useState(false);
-  const [platformSetupOpen, setPlatformSetupOpen] = useState(false);
   const [creatingPlatform, setCreatingPlatform] = useState(false);
   const { user } = useAuth();
   const { currentOrg, userOrgs, refetchOrgs, setCurrentOrg } = useOrg();
@@ -1122,24 +1124,11 @@ export default function WriteWizard() {
     }
   }, [publishing, state, user, publicationOrgId, update, toast, t, draftId, navigate, syncDraftList, refetchOrgs, setCurrentOrg]);
 
-  const setupIntentRef = useRef<'pricing' | 'publish'>('publish');
-
-  /** Cover → Pricing: the platform (name + currency) must exist before pricing. */
-  const goToPricing = useCallback(() => {
-    if (!publicationOrgId) {
-      setupIntentRef.current = 'pricing';
-      setPlatformSetupOpen(true);
-      return;
-    }
-    next();
-  }, [publicationOrgId, next]);
-
   const startPublishing = useCallback(() => {
     if (publishing) return;
-    // No platform yet → ask name + currency first (never auto-create a nameless one)
+    // No platform yet → full-page platform step (what you sell + name + currency)
     if (!publicationOrgId) {
-      setupIntentRef.current = 'publish';
-      setPlatformSetupOpen(true);
+      setStep(PLATFORM_STEP);
       return;
     }
     setPublishingStage('preparing');
@@ -1147,11 +1136,11 @@ export default function WriteWizard() {
     void handlePublish();
   }, [publishing, handlePublish, publicationOrgId]);
 
-  const handlePlatformSetupConfirm = useCallback(async ({ name, currency }: { name: string; currency: string }) => {
+  const handlePlatformSetupConfirm = useCallback(async ({ name, currency, world }: PlatformSetupValues) => {
     if (creatingPlatform) return;
     setCreatingPlatform(true);
     try {
-      const { orgId, org } = await createWorkspace({ name, world: 'digital', currency });
+      const { orgId, org } = await createWorkspace({ name, world, currency });
       if (org) setCurrentOrg(org as any);
       await refetchOrgs();
       setSearchParams((prev) => {
@@ -1159,13 +1148,7 @@ export default function WriteWizard() {
         params.set('org', orgId);
         return params;
       }, { replace: true });
-      setPlatformSetupOpen(false);
       setWillCreateOrg(true);
-
-      if (setupIntentRef.current === 'pricing') {
-        next();
-        return;
-      }
       setPublishingStage('preparing');
       setStep(PUBLISHING_STEP);
       void handlePublish(orgId);
@@ -1178,7 +1161,7 @@ export default function WriteWizard() {
     } finally {
       setCreatingPlatform(false);
     }
-  }, [creatingPlatform, handlePublish, refetchOrgs, setCurrentOrg, setSearchParams, toast, isFr, next]);
+  }, [creatingPlatform, handlePublish, refetchOrgs, setCurrentOrg, setSearchParams, toast, isFr]);
 
 
 
@@ -1233,9 +1216,28 @@ export default function WriteWizard() {
               : <StepGenerating state={state} update={update} onNext={next} onBack={back} />)}
             {step === 4 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
             {step === ILLUSTRATIONS_STEP && <StepIllustrations state={state} update={update} onNext={next} onBack={back} />}
-            {step === COVER_STEP && <StepCover state={state} update={update} onNext={goToPricing} onBack={back} />}
-            {step === PRICING_STEP && <StepPricing state={state} update={update} onNext={next} onBack={back} orgCurrency={orgCurrency} />}
+            {step === COVER_STEP && <StepCover state={state} update={update} onNext={next} onBack={back} />}
+            {step === PRICING_STEP && (
+              <StepPricing
+                state={state}
+                update={update}
+                onNext={next}
+                onBack={back}
+                orgCurrency={orgCurrency}
+                allowCurrencyChoice={!publicationOrgId}
+              />
+            )}
             {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={handleSaveDraftAndExitToStart} saving={publishing} />}
+            {step === PLATFORM_STEP && (
+              <PlatformSetupStep
+                defaultName={state.title || ''}
+                defaultCurrency={state.sellCurrency || orgCurrency || 'XOF'}
+                submitting={creatingPlatform}
+                onBack={() => setStep(PDF_PREVIEW_STEP)}
+                ctaLabel={isFr ? 'Créer et continuer' : 'Create and continue'}
+                onConfirm={handlePlatformSetupConfirm}
+              />
+            )}
             {step === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
             {step === CELEBRATION_STEP && <StepCelebration state={state} onWriteAnother={handleCreateNewDraft} />}
           </motion.div>
@@ -1243,17 +1245,6 @@ export default function WriteWizard() {
       </div>
       )}
     </div>
-
-      {platformSetupOpen && (
-        <PlatformSetupDialog
-          open={platformSetupOpen}
-          onOpenChange={setPlatformSetupOpen}
-          defaultName={state.title ? `${state.title}` : ''}
-          defaultCurrency={orgCurrency || 'XOF'}
-          submitting={creatingPlatform}
-          onConfirm={handlePlatformSetupConfirm}
-        />
-      )}
 
 
 
