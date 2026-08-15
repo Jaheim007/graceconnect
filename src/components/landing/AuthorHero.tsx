@@ -145,9 +145,10 @@ export function AuthorHero() {
           className="mt-6 text-[2.35rem] leading-[1.06] sm:text-[4.25rem] sm:leading-[1.02] font-black tracking-tight text-balance"
         >
           {fr ? 'Tout le monde a un livre en soi.' : 'Everyone has a book inside them.'}
-          <span className="mt-1 block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
+          <span className="mt-1 block bg-[linear-gradient(110deg,hsl(var(--primary)),hsl(var(--accent)),hsl(var(--primary)))] bg-[length:220%_auto] bg-clip-text text-transparent animate-text-sheen">
             {fr ? 'Le tien commence ici.' : 'Yours starts here.'}
           </span>
+
         </motion.h1>
 
         <motion.p
