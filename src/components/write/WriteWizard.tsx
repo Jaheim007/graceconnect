@@ -988,6 +988,16 @@ export default function WriteWizard() {
         cover_url: state.coverUrl || null,
       };
 
+      // Carry the author's chosen ambassador commission onto the product itself
+      // (the RPC only stores it at org level, so the edit form showed it empty).
+      if (result.product_id) {
+        try {
+          await (supabase.from('digital_products') as any)
+            .update({ commission_rate: state.commissionRate })
+            .eq('id', result.product_id);
+        } catch { /* non-fatal */ }
+      }
+
       if (result.project_id) {
         await supabase
           .from('ai_content_projects')
@@ -997,6 +1007,7 @@ export default function WriteWizard() {
           })
           .eq('id', result.project_id);
       }
+
 
       if (result.project_id && (result.org_id ?? result.organization_id)) {
         const assetInserts: any[] = [];
