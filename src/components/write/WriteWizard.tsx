@@ -25,6 +25,8 @@ import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { resolveBookLanguageFromLocale, type SupportedBookLanguage } from './utils/bookLanguage';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
+import { PlatformSetupDialog } from './PlatformSetupDialog';
+import { createWorkspace } from '@/lib/siteviral/createWorkspace';
 
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -456,6 +458,8 @@ export default function WriteWizard() {
   const [publishing, setPublishing] = useState(false);
   const [publishingStage, setPublishingStage] = useState<PublishingStage>('preparing');
   const [willCreateOrg, setWillCreateOrg] = useState(false);
+  const [platformSetupOpen, setPlatformSetupOpen] = useState(false);
+  const [creatingPlatform, setCreatingPlatform] = useState(false);
   const { user } = useAuth();
   const { currentOrg, userOrgs, refetchOrgs, setCurrentOrg } = useOrg();
   const navigate = useNavigate();
@@ -889,14 +893,15 @@ export default function WriteWizard() {
     next();
   }, [user, navigate, next]);
 
-  const handlePublish = useCallback(async () => {
+  const handlePublish = useCallback(async (orgIdOverride?: string | null) => {
     if (publishing) return;
     setPublishing(true);
+    const targetOrgId = orgIdOverride ?? publicationOrgId;
 
     try {
       let shouldCreateOrg = false;
 
-      if (user?.id) {
+      if (!targetOrgId && user?.id) {
         setPublishingStage('org');
         const { count, error: ownerCountError } = await supabase
           .from('organization_members')
@@ -910,6 +915,7 @@ export default function WriteWizard() {
       }
 
       setWillCreateOrg(shouldCreateOrg);
+
 
       const chapterIllustrations = state.chapterIllustrations || {};
       const normalizedChapters = state.chapters
@@ -954,7 +960,7 @@ export default function WriteWizard() {
         _cover_url: state.coverUrl || null,
         _description: richDescription,
         _file_url: null,
-        _org_id: publicationOrgId,
+        _org_id: targetOrgId,
       });
 
       if (error) throw error;
@@ -1116,12 +1122,65 @@ export default function WriteWizard() {
     }
   }, [publishing, state, user, publicationOrgId, update, toast, t, draftId, navigate, syncDraftList, refetchOrgs, setCurrentOrg]);
 
+  const setupIntentRef = useRef<'pricing' | 'publish'>('publish');
+
+  /** Cover → Pricing: the platform (name + currency) must exist before pricing. */
+  const goToPricing = useCallback(() => {
+    if (!publicationOrgId) {
+      setupIntentRef.current = 'pricing';
+      setPlatformSetupOpen(true);
+      return;
+    }
+    next();
+  }, [publicationOrgId, next]);
+
   const startPublishing = useCallback(() => {
     if (publishing) return;
+    // No platform yet → ask name + currency first (never auto-create a nameless one)
+    if (!publicationOrgId) {
+      setupIntentRef.current = 'publish';
+      setPlatformSetupOpen(true);
+      return;
+    }
     setPublishingStage('preparing');
     setStep(PUBLISHING_STEP);
     void handlePublish();
-  }, [publishing, handlePublish]);
+  }, [publishing, handlePublish, publicationOrgId]);
+
+  const handlePlatformSetupConfirm = useCallback(async ({ name, currency }: { name: string; currency: string }) => {
+    if (creatingPlatform) return;
+    setCreatingPlatform(true);
+    try {
+      const { orgId, org } = await createWorkspace({ name, world: 'digital', currency });
+      if (org) setCurrentOrg(org as any);
+      await refetchOrgs();
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        params.set('org', orgId);
+        return params;
+      }, { replace: true });
+      setPlatformSetupOpen(false);
+      setWillCreateOrg(true);
+
+      if (setupIntentRef.current === 'pricing') {
+        next();
+        return;
+      }
+      setPublishingStage('preparing');
+      setStep(PUBLISHING_STEP);
+      void handlePublish(orgId);
+    } catch (err: any) {
+      toast({
+        title: isFr ? '❌ Création impossible' : '❌ Could not create platform',
+        description: err?.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setCreatingPlatform(false);
+    }
+  }, [creatingPlatform, handlePublish, refetchOrgs, setCurrentOrg, setSearchParams, toast, isFr, next]);
+
+
 
   return (
     <>
@@ -1174,7 +1233,7 @@ export default function WriteWizard() {
               : <StepGenerating state={state} update={update} onNext={next} onBack={back} />)}
             {step === 4 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
             {step === ILLUSTRATIONS_STEP && <StepIllustrations state={state} update={update} onNext={next} onBack={back} />}
-            {step === COVER_STEP && <StepCover state={state} update={update} onNext={next} onBack={back} />}
+            {step === COVER_STEP && <StepCover state={state} update={update} onNext={goToPricing} onBack={back} />}
             {step === PRICING_STEP && <StepPricing state={state} update={update} onNext={next} onBack={back} orgCurrency={orgCurrency} />}
             {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={handleSaveDraftAndExitToStart} saving={publishing} />}
             {step === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
@@ -1184,6 +1243,19 @@ export default function WriteWizard() {
       </div>
       )}
     </div>
+
+      {platformSetupOpen && (
+        <PlatformSetupDialog
+          open={platformSetupOpen}
+          onOpenChange={setPlatformSetupOpen}
+          defaultName={state.title ? `${state.title}` : ''}
+          defaultCurrency={orgCurrency || 'XOF'}
+          submitting={creatingPlatform}
+          onConfirm={handlePlatformSetupConfirm}
+        />
+      )}
+
+
 
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
