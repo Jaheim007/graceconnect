@@ -57,6 +57,7 @@ import { ReadingProgressBar } from '@/components/ui/ReadingProgressBar';
 import { ProductTableOfContents } from '@/components/products/ProductTableOfContents';
 import { PixelInjector } from '@/components/org/PixelInjector';
 import { ContactSellerWidget } from '@/components/products/ContactSellerWidget';
+import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import { FlyerDialog } from '@/components/flyer/FlyerDialog';
 import { truncateWords } from '@/lib/truncateText';
 import { Image as ImageIcon } from 'lucide-react';
@@ -776,13 +777,17 @@ export default function ProductDetailPage() {
               />
             </div>
 
-            <ContactSellerWidget
-              organizationId={product.organization_id}
-              orgName={org?.name}
-              orgLogoUrl={org?.logo_url}
-              productId={product.id}
-              productTitle={product.title}
-            />
+{/* Seller messaging belongs to the service-marketplace era; hidden for
+                digital products (kept in code, see lib/siteviral/visibility.ts) */}
+            {showServiceSurfaces() && (
+              <ContactSellerWidget
+                organizationId={product.organization_id}
+                orgName={org?.name}
+                orgLogoUrl={org?.logo_url}
+                productId={product.id}
+                productTitle={product.title}
+              />
+            )}
 
 
             <ProductSidebarExtras
