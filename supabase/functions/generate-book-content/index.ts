@@ -1015,7 +1015,7 @@ Deno.serve(async (req) => {
     if (auth instanceof Response) return auth;
     const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
 
-    const { title, subtitle, authorName, topic, style, pageCount, chapterCount: requestedChapterCount, keywords, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy, religiousTradition, prayerFormat, tier } = await req.json();
+    const { title, subtitle, authorName, topic, style, pageCount, chapterCount: requestedChapterCount, keywords, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy, religiousTradition, prayerFormat, tier, outline } = await req.json();
 
     if (!title && !topic) {
       return new Response(JSON.stringify({ error: 'title or topic required' }), {
@@ -1057,6 +1057,21 @@ Deno.serve(async (req) => {
     const keywordsLine = Array.isArray(keywords) && keywords.length > 0
       ? (lang === 'fr' ? `\nThèmes clés à couvrir : ${keywords.join(', ')}` : `\nKey themes to cover: ${keywords.join(', ')}`)
       : '';
+
+    // An outline approved by the author (e.g. the plan shown on the landing page).
+    // When present, the AI must write exactly these chapters, in this order.
+    const outlinePlan: { title: string; summary?: string }[] = Array.isArray(outline)
+      ? outline
+          .filter((c: any) => c && typeof c.title === 'string' && c.title.trim())
+          .slice(0, MAX_CHAPTERS)
+          .map((c: any) => ({ title: String(c.title).trim().slice(0, 200), summary: typeof c.summary === 'string' ? c.summary.trim().slice(0, 400) : '' }))
+      : [];
+    const outlineContext = outlinePlan.length > 0
+      ? (lang === 'fr'
+        ? `\n📖 PLAN VALIDÉ PAR L'AUTEUR — tu DOIS écrire EXACTEMENT ces ${outlinePlan.length} chapitres, dans cet ordre, en conservant ces titres :\n${outlinePlan.map((c, i) => `  ${i + 1}. ${c.title}${c.summary ? ` — ${c.summary}` : ''}`).join('\n')}\n⚠️ N'invente pas d'autres chapitres, ne fusionne pas, ne réordonne pas. Chaque chapitre doit être RÉDIGÉ EN ENTIER (${chapterWordTarget} mots), jamais résumé en une phrase.\n`
+        : `\n📖 AUTHOR-APPROVED OUTLINE — you MUST write EXACTLY these ${outlinePlan.length} chapters, in this order, keeping these titles:\n${outlinePlan.map((c, i) => `  ${i + 1}. ${c.title}${c.summary ? ` — ${c.summary}` : ''}`).join('\n')}\n⚠️ Do not invent extra chapters, do not merge or reorder them. Every chapter must be FULLY WRITTEN (${chapterWordTarget} words), never summarized in one sentence.\n`)
+      : '';
+
 
     const _tone = tone || 'professional';
     const _level = languageLevel || 'intermediate';
@@ -1275,7 +1290,7 @@ Return ONLY JSON:
 
 TITRE : "${title}"${subtitleLine}${authorLine}
 ${topic ? `SUJET : ${topic}` : ''}${keywordsLine}
-${editorialContext}
+${editorialContext}${outlineContext}
 INSTRUCTIONS :
 - Exactement ${chapterCount} chapitres
 - ${titleGuidance}
@@ -1300,7 +1315,7 @@ RAPPEL : ${pages} pages. Chaque chapitre ≈ ${chapterWordTarget} mots. VRAI liv
 
 TITLE: "${title}"${subtitleLine}${authorLine}
 ${topic ? `TOPIC: ${topic}` : ''}${keywordsLine}
-${editorialContext}
+${editorialContext}${outlineContext}
 INSTRUCTIONS:
 - Exactly ${chapterCount} chapters
 - ${titleGuidance}

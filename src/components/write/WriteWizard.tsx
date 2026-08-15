@@ -83,6 +83,8 @@ export interface WriteState {
   chapterCount: number;
   pageCount: number;
   editorialStrategy?: EditorialStrategy;
+  /** An outline already approved by the author (e.g. the plan shown on the landing page). */
+  plannedOutline?: { title: string; summary?: string }[];
   chapters: WriteChapter[];
   chapterIllustrations: Record<string, string>; // chapter id -> image URL
   coverTemplate: number;
@@ -390,10 +392,19 @@ function consumeGuestPreview(): Partial<WriteState> | null {
     const parsed = JSON.parse(raw) as GuestBookPreview;
     if (!parsed || !parsed.title || !Array.isArray(parsed.chapters)) return null;
 
-    const chapters: WriteChapter[] = parsed.chapters.map((ch, i) => ({
+    // The landing preview is an OUTLINE (title + one-line summary) plus the real
+    // first chapter. Only chapter 1 has a body — the rest must still be written,
+    // so we keep the summaries as the plan and leave the bodies empty.
+    const outline = parsed.chapters
+      .filter((ch) => ch && typeof ch.title === 'string' && ch.title.trim())
+      .map((ch) => ({ title: ch.title.trim(), summary: (ch.summary || '').trim() }));
+
+    if (outline.length === 0) return null;
+
+    const chapters: WriteChapter[] = outline.map((ch, i) => ({
       id: `ch-${i + 1}`,
       title: ch.title,
-      content: i === 0 && parsed.openingChapter ? parsed.openingChapter : (ch.summary || ''),
+      content: i === 0 && parsed.openingChapter ? parsed.openingChapter : '',
     }));
 
     return {
@@ -401,6 +412,8 @@ function consumeGuestPreview(): Partial<WriteState> | null {
       topic: parsed.topic || parsed.title,
       title: parsed.title,
       subtitle: parsed.subtitle || '',
+      chapterCount: outline.length,
+      plannedOutline: outline,
       chapters,
     };
   } catch {
@@ -417,7 +430,7 @@ export default function WriteWizard() {
     bootstrapRef.current = prefill
       ? { id: createDraftId(), state: toHydratedState(prefill), step: 1, updatedAt: null }
       : guestPreview
-        ? { id: createDraftId(), state: toHydratedState(guestPreview), step: 4, updatedAt: null }
+        ? { id: createDraftId(), state: toHydratedState(guestPreview), step: 3, updatedAt: null }
         : loaded;
   }
 

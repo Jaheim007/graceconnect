@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState, WriteChapter } from '../WriteWizard';
-import { hasGeneratedContent } from '../utils/hasGeneratedContent';
+import { isFullyWritten } from '../utils/hasGeneratedContent';
 import { resolveRequestedBookLanguage } from '../utils/bookLanguage';
 
 interface Props {
@@ -17,6 +17,12 @@ interface Props {
 }
 
 type Phase = 'thinking' | 'generating' | 'done' | 'error';
+
+/** A chapter body that is real prose, not a one-line outline summary. */
+function isWritten(content?: string) {
+  if (typeof content !== 'string') return false;
+  return content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().length >= 400;
+}
 
 export function StepGenerating({ state, update, onNext, onBack }: Props) {
   const { t, locale } = useI18n();
@@ -51,7 +57,8 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         topic: state.topic || state.title || '',
         style: state.style,
         pageCount: requestedPageCount,
-        chapterCount: state.chapterCount || 8,
+        chapterCount: state.plannedOutline?.length || state.chapterCount || 8,
+        outline: state.plannedOutline?.length ? state.plannedOutline : undefined,
         keywords: state.keywords || [],
         language: requestedLanguage,
         tone: state.tone || 'professional',
@@ -150,11 +157,16 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         if (aborted.current) return;
 
         const chapter = aiChapters[i];
-        const safeTitle = (chapter?.title || `${t('write.chapter_label')} ${i + 1}`).trim();
+        const existing = state.chapters[i];
+        const plannedTitle = state.plannedOutline?.[i]?.title;
+        const safeTitle = (plannedTitle || chapter?.title || existing?.title || `${t('write.chapter_label')} ${i + 1}`).trim();
+        // Keep a chapter the author already has (e.g. the opening chapter written
+        // on the landing page) instead of overwriting it.
+        const keptContent = isWritten(existing?.content) ? existing.content : '';
         finalChapters.push({
-          id: chapter?.id || `ch-${i + 1}`,
+          id: existing?.id || chapter?.id || `ch-${i + 1}`,
           title: safeTitle,
-          content: chapter?.content || '',
+          content: keptContent || chapter?.content || '',
         });
 
         setVisibleChapters((prev) => [...prev, safeTitle]);
@@ -187,7 +199,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
     ran.current = true;
     aborted.current = false;
 
-    if (hasGeneratedContent(state.chapters)) {
+    if (isFullyWritten(state.chapters)) {
       setPhase('done');
       setVisibleChapters(state.chapters.map((ch, i) => ch.title?.trim() || `${t('write.chapter_label')} ${i + 1}`));
       setTotalChapters(state.chapters.length);
