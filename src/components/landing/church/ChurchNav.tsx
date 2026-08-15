@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Church, ArrowRight, Sun, Moon } from 'lucide-react';
+import { ArrowRight, Sun, Moon } from 'lucide-react';
+import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Button } from '@/components/ui/button';
 import { GlobalPreferencesSelector } from '@/components/global/GlobalPreferencesSelector';
 import { useI18n } from '@/i18n/I18nContext';
