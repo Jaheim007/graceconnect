@@ -702,20 +702,28 @@ export function buildFlyerCaptions(opts: {
   benefit?: string | null;
 }) {
   const { priceLabel, link, isFr } = opts;
-  const title = plainText(opts.title) || opts.title;
-  const benefit = plainText(opts.benefit);
+  const title = (plainText(opts.title) || opts.title).trim();
+  const benefit = plainText(opts.benefit).trim();
+  const headline = title.toUpperCase();
+
   if (isFr) {
+    const offer = `${priceLabel} — Paiement Mobile Money ou carte bancaire, accès immédiat après paiement.`;
+    const body = [headline, benefit || null, `${offer}\n${link}`].filter(Boolean).join('\n\n');
     return {
-      whatsapp: `📖 *${title}*\n${benefit ? `${benefit}\n` : ''}Prix : ${priceLabel}\n\n👉 ${link}\n\nPaiement Mobile Money / Wave. Accès immédiat après paiement.`,
-      facebook: `${title}\n\n${benefit ? `${benefit}\n\n` : ''}Disponible dès maintenant — ${priceLabel}.\nPaiement mobile, accès immédiat.\n\n${link}`,
-      email: `Objet : ${title}\n\nBonjour,\n\nJe viens de publier « ${title} ».${benefit ? `\n${benefit}` : ''}\n\nPrix : ${priceLabel}\nLien direct : ${link}\n\nLe paiement se fait par Mobile Money, Wave ou carte, et l'accès est immédiat après le paiement.\n\nMerci et bonne lecture.`,
-      short: `${title} — ${priceLabel} 👉 ${link}`,
+      whatsapp: body,
+      facebook: body,
+      email: `Objet : ${title}\n\nBonjour,\n\n${benefit ? `${benefit}\n\n` : ''}${title} est disponible dès maintenant.\n\n${offer}\n${link}\n\nBonne lecture.`,
+      short: `${title} — ${priceLabel}\n${link}`,
     };
   }
+
+  const offer = `${priceLabel} — Mobile Money or card payment, instant access after checkout.`;
+  const body = [headline, benefit || null, `${offer}\n${link}`].filter(Boolean).join('\n\n');
   return {
-    whatsapp: `📖 *${title}*\n${benefit ? `${benefit}\n` : ''}Price: ${priceLabel}\n\n👉 ${link}\n\nMobile Money / card accepted. Instant access after payment.`,
-    facebook: `${title}\n\n${benefit ? `${benefit}\n\n` : ''}Available now — ${priceLabel}.\nMobile payment, instant access.\n\n${link}`,
-    email: `Subject: ${title}\n\nHi,\n\nI just published "${title}".${benefit ? `\n${benefit}` : ''}\n\nPrice: ${priceLabel}\nDirect link: ${link}\n\nPayment by Mobile Money, Wave or card, with instant access after payment.\n\nThanks and enjoy.`,
-    short: `${title} — ${priceLabel} 👉 ${link}`,
+    whatsapp: body,
+    facebook: body,
+    email: `Subject: ${title}\n\nHi,\n\n${benefit ? `${benefit}\n\n` : ''}${title} is available now.\n\n${offer}\n${link}\n\nEnjoy the read.`,
+    short: `${title} — ${priceLabel}\n${link}`,
   };
 }
+
