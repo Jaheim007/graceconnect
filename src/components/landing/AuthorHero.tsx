@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ArrowUp, BookOpen, Sparkle, Wallet, Zap } from 'lucide-react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -9,10 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { HeroAurora } from './HeroAurora';
 import { setPendingAction } from '@/lib/pendingAction';
 import { cn } from '@/lib/utils';
-import { useOrg } from '@/contexts/OrgContext';
-import { useDomainResolver } from '@/hooks/useDomainResolver';
-import { useQuery } from '@tanstack/react-query';
-import { db } from '@/lib/db';
 
 const GUEST_PREVIEW_KEY = 'sv_guest_book_preview';
 
@@ -30,110 +26,25 @@ interface GuestPreview {
   locale: string;
 }
 
-type PlatformType = 'creator' | 'church' | 'ngo' | 'community' | 'unknown';
-
-const SUGGESTION_SETS: Record<PlatformType, { fr: string[]; en: string[] }> = {
-  creator: {
-    fr: [
-      "L'Argent et la Paix : Sortir du Cycle de l'Inquiétude",
-      "Fil par Fil : Mon Chemin vers la Couture",
-      "Leader sans Diplôme : Ce que Personne ne M'a Appris",
-      "Ce que Personne ne M'a Dit",
-    ],
-    en: [
-      'Money and Peace: Breaking the Worry Cycle',
-      'Thread by Thread: My Journey into Tailoring',
-      'Leader Without a Degree: What No One Taught Me',
-      'What No One Told Me',
-    ],
-  },
-  church: {
-    fr: [
-      "Deux Cœurs, une Alliance : Se Préparer avant de Dire Oui",
-      "Le Feu qui ne s'Éteint Pas : Réveiller ce qui Dort en Nous",
-      "Ce que Personne ne M'a Dit",
-    ],
-    en: [
-      "Two Hearts, One Covenant: Preparing to Say Yes",
-      "The Fire That Doesn't Go Out: Awakening What Sleeps in Us",
-      'What No One Told Me',
-    ],
-  },
-  ngo: {
-    fr: [
-      "Ensemble on est Plus Forts : Ce que Notre Communauté m'a Appris",
-      "Ce que Personne ne M'a Dit",
-    ],
-    en: [
-      'Together We Are Stronger: What Our Community Taught Me',
-      'What No One Told Me',
-    ],
-  },
-  community: {
-    fr: [
-      "Ensemble on est Plus Forts : Ce que Notre Communauté m'a Appris",
-      "Ce que Personne ne M'a Dit",
-    ],
-    en: [
-      'Together We Are Stronger: What Our Community Taught Me',
-      'What No One Told Me',
-    ],
-  },
-  unknown: {
-    fr: [
-      "Ce que Personne ne M'a Dit",
-      "L'Argent et la Paix : Sortir du Cycle de l'Inquiétude",
-      "Deux Cœurs, une Alliance : Se Préparer avant de Dire Oui",
-      "Ensemble on est Plus Forts : Ce que Notre Communauté m'a Appris",
-    ],
-    en: [
-      'What No One Told Me',
-      'Money and Peace: Breaking the Worry Cycle',
-      'Two Hearts, One Covenant: Preparing to Say Yes',
-      'Together We Are Stronger: What Our Community Taught Me',
-    ],
-  },
+const BOOK_TITLE_IDEAS = {
+  fr: [
+    "Ce que Personne ne M'a Dit",
+    "L'Argent et la Paix : Sortir du Cycle de l'Inquiétude",
+    "Deux Cœurs, une Alliance : Se Préparer avant de Dire Oui",
+    "Ensemble on est Plus Forts : Ce que Notre Communauté m'a Appris",
+  ],
+  en: [
+    'What No One Told Me',
+    'Money and Peace: Breaking the Worry Cycle',
+    'Two Hearts, One Covenant: Preparing to Say Yes',
+    'Together We Are Stronger: What Our Community Taught Me',
+  ],
 };
 
 const PLACEHOLDER_TOPICS = {
   fr: ['Discipline financière', 'Préparer un mariage chrétien', 'Apprendre la couture', 'Devenir un bon leader'],
   en: ['Financial discipline', 'Preparing a Christian marriage', 'Learn tailoring', 'Becoming a good leader'],
 };
-
-function mapOrgCategory(category: string): PlatformType {
-  if (category === 'church' || category === 'ministry') return 'church';
-  if (category === 'ngo') return 'ngo';
-  if (category === 'community') return 'community';
-  return 'creator';
-}
-
-function useLandingPlatformType(): PlatformType {
-  const { currentOrg } = useOrg();
-  const resolver = useDomainResolver();
-  const [searchParams] = useSearchParams();
-  const typeParam = searchParams.get('type') as PlatformType | null;
-
-  const { data: resolvedOrg } = useQuery({
-    queryKey: ['landing-resolved-org-category', resolver.data?.orgId],
-    queryFn: async () => {
-      const { data, error } = await db
-        .from('organizations')
-        .select('category')
-        .eq('id', resolver.data!.orgId)
-        .single();
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!resolver.data?.orgId && !currentOrg,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const validTypes: PlatformType[] = ['creator', 'church', 'ngo', 'community'];
-  if (typeParam && validTypes.includes(typeParam)) return typeParam;
-  if (currentOrg?.category) return mapOrgCategory(currentOrg.category);
-  if (resolvedOrg?.category) return mapOrgCategory(resolvedOrg.category);
-  return 'unknown';
-}
 
 export function AuthorHero() {
   const navigate = useNavigate();
@@ -146,8 +57,7 @@ export function AuthorHero() {
   const [preview, setPreview] = useState<GuestPreview | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const platformType = useLandingPlatformType();
-  const suggestions = SUGGESTION_SETS[platformType][fr ? 'fr' : 'en'];
+  const suggestions = BOOK_TITLE_IDEAS[fr ? 'fr' : 'en'];
   const placeholders = PLACEHOLDER_TOPICS[fr ? 'fr' : 'en'];
 
   const rise = (delay: number) =>
@@ -375,7 +285,7 @@ export function AuthorHero() {
           <button
             type="button"
             onClick={() => navigate('/create-org')}
-            className="mt-6 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+            className="mt-7 inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-5 py-2.5 text-sm sm:text-base font-semibold text-foreground shadow-sm backdrop-blur-sm transition-all hover:border-primary/50 hover:bg-card hover:shadow-md"
           >
             {fr ? "J'ai déjà mon contenu" : 'I already have my content'}
             <ArrowRight className="h-3.5 w-3.5" />
