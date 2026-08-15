@@ -277,7 +277,7 @@ export function Sidebar() {
         </div>
       )}
 
-      <nav className={cn('relative flex-1 overflow-y-auto py-2 scrollbar-hide', collapsed ? 'px-1.5' : 'px-3')}>
+      <nav className={cn('relative flex-1 min-h-0 overflow-y-auto overscroll-contain py-2', collapsed ? 'px-1.5' : 'px-3')}>
         {/* ONE unified dashboard nav — no groups, no separate workspace section */}
         <div className="space-y-1">{unifiedNav.map(renderNavItem)}</div>
       </nav>
