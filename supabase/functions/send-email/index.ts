@@ -83,31 +83,62 @@ interface SendEmailBody {
   locale?: Lang;
 }
 
-const FOOTER_FR = `<div style="margin-top:32px;padding-top:16px;border-top:1px solid #333;font-size:11px;color:#777">
-  <p>Siteviral — Operated by Hacktualiz Inc.</p>
-  <p>131 Continental Dr, Suite 305, Newark, DE 19713, United States</p>
-  <p><a href="https://siteviral.com/terms" style="color:#1a66e6">Conditions</a> · <a href="https://siteviral.com/privacy" style="color:#1a66e6">Confidentialité</a> · <a href="https://siteviral.com/refund-policy" style="color:#1a66e6">Remboursement</a></p>
+const BRAND_BLUE = '#1a66e6';
+const LOGO_URL = 'https://siteviral.com/logo-s.png';
+
+const FOOTER_FR = `<div style="padding:24px 32px 32px;border-top:1px solid #e6eaf0">
+  <p style="margin:0 0 10px;font-size:13px;color:#5b6472">Un souci avec votre compte ? <a href="https://siteviral.com/contact" style="color:${BRAND_BLUE};text-decoration:underline">Contactez-nous</a></p>
+  <p style="margin:0 0 14px;font-size:13px;color:#5b6472">Bien à vous,<br />~ L'équipe Siteviral</p>
+  <p style="margin:0 0 6px;font-size:12px">
+    <a href="https://siteviral.com/terms" style="color:#8a93a2;text-decoration:underline">Conditions d'utilisation</a> ·
+    <a href="https://siteviral.com/privacy" style="color:#8a93a2;text-decoration:underline">Confidentialité</a> ·
+    <a href="https://siteviral.com/refund-policy" style="color:#8a93a2;text-decoration:underline">Remboursement</a> ·
+    <a href="https://siteviral.com/notifications" style="color:#8a93a2;text-decoration:underline">Préférences e-mail</a>
+  </p>
+  <p style="margin:0;font-size:11px;color:#9aa3b2;line-height:1.6">© ${new Date().getFullYear()} Siteviral — exploité par Hacktualiz Inc.<br />131 Continental Dr, Suite 305, Newark, DE 19713, United States<br />Vous recevez cet e-mail car vous avez un compte Siteviral.</p>
 </div>`;
 
-const FOOTER_EN = `<div style="margin-top:32px;padding-top:16px;border-top:1px solid #333;font-size:11px;color:#777">
-  <p>Siteviral — Operated by Hacktualiz Inc.</p>
-  <p>131 Continental Dr, Suite 305, Newark, DE 19713, United States</p>
-  <p><a href="https://siteviral.com/terms" style="color:#1a66e6">Terms</a> · <a href="https://siteviral.com/privacy" style="color:#1a66e6">Privacy</a> · <a href="https://siteviral.com/refund-policy" style="color:#1a66e6">Refund Policy</a></p>
+const FOOTER_EN = `<div style="padding:24px 32px 32px;border-top:1px solid #e6eaf0">
+  <p style="margin:0 0 10px;font-size:13px;color:#5b6472">Having trouble with your account? <a href="https://siteviral.com/contact" style="color:${BRAND_BLUE};text-decoration:underline">Contact us</a></p>
+  <p style="margin:0 0 14px;font-size:13px;color:#5b6472">Best,<br />~ The Siteviral team</p>
+  <p style="margin:0 0 6px;font-size:12px">
+    <a href="https://siteviral.com/terms" style="color:#8a93a2;text-decoration:underline">Terms &amp; conditions</a> ·
+    <a href="https://siteviral.com/privacy" style="color:#8a93a2;text-decoration:underline">Privacy policy</a> ·
+    <a href="https://siteviral.com/refund-policy" style="color:#8a93a2;text-decoration:underline">Refund policy</a> ·
+    <a href="https://siteviral.com/notifications" style="color:#8a93a2;text-decoration:underline">Email preferences</a>
+  </p>
+  <p style="margin:0;font-size:11px;color:#9aa3b2;line-height:1.6">© ${new Date().getFullYear()} Siteviral — operated by Hacktualiz Inc.<br />131 Continental Dr, Suite 305, Newark, DE 19713, United States<br />You received this email because you have a Siteviral account.</p>
 </div>`;
 
-const wrap = (content: string, lang: Lang) => `<!DOCTYPE html><html lang="${lang}"><body style="font-family:sans-serif;background:#0f0f0f;color:#eee;padding:32px">
-<div style="max-width:520px;margin:0 auto;background:#1a1a1a;border-radius:16px;padding:32px;border:1px solid #333">
-${content}${lang === 'en' ? FOOTER_EN : FOOTER_FR}
-</div></body></html>`;
+const wrap = (content: string, lang: Lang) => `<!DOCTYPE html>
+<html lang="${lang}"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="color-scheme" content="light only" /></head>
+<body style="margin:0;padding:0;background:#f4f6fa;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6fa;padding:32px 12px;">
+  <tr><td align="center">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(16,24,40,.08);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#1b2333;">
+      <tr><td style="height:5px;background:${BRAND_BLUE};line-height:5px;font-size:0;">&nbsp;</td></tr>
+      <tr><td style="padding:28px 32px 4px;">
+        <img src="${LOGO_URL}" width="34" height="34" alt="Siteviral" style="display:block;border:0;opacity:.92;" />
+      </td></tr>
+      <tr><td style="padding:8px 32px 28px;font-size:15px;line-height:1.65;color:#3d4757;">
+        ${content}
+      </td></tr>
+      <tr><td>${lang === 'en' ? FOOTER_EN : FOOTER_FR}</td></tr>
+    </table>
+    <p style="max-width:560px;margin:16px auto 0;font-size:11px;color:#9aa3b2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">Siteviral · siteviral.com</p>
+  </td></tr>
+</table>
+</body></html>`;
 
-const blue = '#1a66e6';
-const green = '#22c55e';
-const red = '#ef4444';
-const info = '#3b82f6';
-const orange = '#f59e0b';
+const blue = BRAND_BLUE;
+const green = '#16a34a';
+const red = '#dc2626';
+const info = '#2563eb';
+const orange = '#d97706';
 
 const cta = (href: string, text: string) =>
-  `<p style="margin:20px 0"><a href="${href}" style="display:inline-block;background:${blue};color:#fff;padding:12px 24px;border-radius:8px;font-weight:bold;text-decoration:none">${text}</a></p>`;
+  `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0"><tr><td style="border-radius:8px;background:${BRAND_BLUE};"><a href="${href}" style="display:inline-block;padding:13px 26px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:8px;">${text}</a></td></tr></table>`;
+
 
 // ═══════════════════════════════════════
 // Bilingual template builder
