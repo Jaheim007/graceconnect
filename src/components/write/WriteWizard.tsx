@@ -25,6 +25,8 @@ import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { resolveBookLanguageFromLocale, type SupportedBookLanguage } from './utils/bookLanguage';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
+import { PlatformSetupDialog } from './PlatformSetupDialog';
+import { createWorkspace } from '@/lib/siteviral/createWorkspace';
 
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
