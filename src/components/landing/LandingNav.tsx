@@ -35,11 +35,25 @@ export function LandingNav() {
       nativeApp ? 'native-landing-topbar bg-background/95' : 'bg-background/85'
     )}>
       <div className="container flex items-center justify-between h-16 sm:h-[72px] px-4 sm:px-6">
-        {/* Left cluster: logo only */}
-        <div className="flex items-center">
+        {/* Left cluster: logo + resource links */}
+        <div className="flex items-center gap-7">
           <Link to="/" className="flex items-center shrink-0" aria-label="SiteViral">
             <SiteLogo size="md" animate linked={false} />
           </Link>
+          <nav className="hidden lg:flex items-center gap-6">
+            <Link to="/developers" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
+              {isFr ? 'Développeurs' : 'Developers'}
+            </Link>
+            <Link to="/docs" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
+              {isFr ? 'Documentation' : 'Docs'}
+            </Link>
+            <Link to="/integrations" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
+              {isFr ? 'Intégrations' : 'Integrations'}
+            </Link>
+            <Link to="/help" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
+              {isFr ? 'Aide' : 'Support'}
+            </Link>
+          </nav>
         </div>
 
         {/* Right cluster */}
