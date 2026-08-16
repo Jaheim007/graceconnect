@@ -25,7 +25,7 @@ export function GlobalPreferencesSelector({ className }: { className?: string } 
       <DropdownMenuTrigger asChild>
         <button className={`flex items-center gap-1 h-8 px-2 rounded-lg hover:bg-muted/60 transition-colors text-xs text-muted-foreground hover:text-foreground leading-none ${className ?? ''}`}>
           <Globe className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">{locale === 'en' ? '🇬🇧' : '🇫🇷'} {locale.toUpperCase()}</span>
+          <span className="font-semibold">{locale.toUpperCase()}</span>
           <ChevronDown className="h-3 w-3 opacity-50" />
         </button>
       </DropdownMenuTrigger>
