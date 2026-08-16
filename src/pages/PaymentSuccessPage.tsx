@@ -85,6 +85,8 @@ export default function PaymentSuccessPage() {
 
   const [downloading, setDownloading] = useState(false);
   const [reading, setReading] = useState(false);
+  const [inlineFallbackUrl, setInlineFallbackUrl] = useState<string | null>(null);
+
 
   const lookupTransaction = useCallback(async (ref?: string): Promise<TransactionDetails | null> => {
     const searchRef = ref || referenceRef.current;
