@@ -382,12 +382,20 @@ export function FlyerDialog({
               </Button>
               <div className="grid grid-cols-2 gap-2">
                 <Button onClick={openWhatsApp} variant="outline" size="sm" className="gap-1.5 text-xs">
-                  <MessageCircle className="h-3.5 w-3.5 text-emerald-500" />
+                  <WhatsAppIcon className="h-3.5 w-3.5 text-[#25D366]" />
                   WhatsApp
                 </Button>
                 <Button onClick={openFacebook} variant="outline" size="sm" className="gap-1.5 text-xs">
-                  <Facebook className="h-3.5 w-3.5 text-sky-500" />
+                  <FacebookIcon className="h-3.5 w-3.5 text-[#1877F2]" />
                   Facebook
+                </Button>
+                <Button onClick={openX} variant="outline" size="sm" className="gap-1.5 text-xs">
+                  <XIcon className="h-3.5 w-3.5" />
+                  X
+                </Button>
+                <Button onClick={openTelegram} variant="outline" size="sm" className="gap-1.5 text-xs">
+                  <TelegramIcon className="h-3.5 w-3.5 text-[#26A5E4]" />
+                  Telegram
                 </Button>
                 <Button onClick={handleDownloadAll} disabled={bulkBusy} variant="ghost" size="sm" className="gap-1.5 text-xs">
                   {bulkBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Images className="h-3.5 w-3.5" />}
@@ -398,6 +406,7 @@ export function FlyerDialog({
                   {t('Carte QR', 'QR card')}
                 </Button>
               </div>
+
               <p className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
                 {shortening
                   ? <Loader2 className="h-3 w-3 animate-spin" />
