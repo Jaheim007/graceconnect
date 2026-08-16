@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, Download, Share2, Copy, Check, ImageIcon, MessageCircle, Facebook, QrCode, Scissors, Images } from 'lucide-react';
+import { Loader2, Download, Share2, Copy, Check, ImageIcon, QrCode, Images } from 'lucide-react';
+import { WhatsAppIcon, FacebookIcon, XIcon, TelegramIcon } from '@/components/icons/BrandIcons';
+
 import { renderQrPoster, type QrPosterTheme } from '@/lib/flyer/renderQrPoster';
 import { getOrCreateShortLink } from '@/lib/shareMeta';
 import { toast } from 'sonner';
@@ -78,10 +80,38 @@ export function FlyerDialog({
   const effectiveLink = shortLink || link;
 
   const captions = useMemo(
-    // Captions always use the clean, human-readable product link.
-    () => buildFlyerCaptions({ title, priceLabel, link, isFr, benefit }),
-    [title, priceLabel, link, isFr, benefit],
+    // Captions always use the attributed share link (short link when available),
+    // so ambassadors never copy a link without their referral code.
+    () => buildFlyerCaptions({ title, priceLabel, link: effectiveLink, isFr, benefit }),
+    [title, priceLabel, effectiveLink, isFr, benefit],
   );
+
+  // Short links are always on: as soon as the dialog opens we mint (or reuse)
+  // the branded short link that preserves the ?ref= attribution.
+  useEffect(() => {
+    if (!open || shortLink || shortening) return;
+    let cancelled = false;
+    setShortening(true);
+    (async () => {
+      try {
+        const parsed = new URL(link, window.location.origin);
+        const url = await getOrCreateShortLink({
+          targetPath: parsed.pathname + parsed.search,
+          title,
+          description: benefit || undefined,
+          image: coverUrl || undefined,
+        });
+        if (!cancelled) setShortLink(url);
+      } catch {
+        /* keep the full link as fallback */
+      } finally {
+        if (!cancelled) setShortening(false);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, link]);
+
 
   useEffect(() => {
     if (!open) return;
@@ -158,20 +188,8 @@ export function FlyerDialog({
     );
   };
 
-  const handleShorten = async () => {
-    if (shortLink || shortening) return;
-    setShortening(true);
-    try {
-      const path = new URL(link).pathname + new URL(link).search;
-      const url = await getOrCreateShortLink({ targetPath: path, title, description: benefit || undefined, image: coverUrl || undefined });
-      setShortLink(url);
-      toast.success(t('Lien court généré', 'Short link ready'));
-    } catch {
-      toast.error(t('Impossible de raccourcir le lien', 'Could not shorten the link'));
-    } finally {
-      setShortening(false);
-    }
-  };
+
+
 
   const downloadDataUrl = (url: string, name: string) => {
     const a = document.createElement('a');
@@ -244,6 +262,23 @@ export function FlyerDialog({
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(effectiveLink)}`, '_blank', 'noopener');
     toast.success(t('Texte copié pour Facebook', 'Caption copied for Facebook'));
   };
+
+  const openX = () => {
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(effectiveLink)}`,
+      '_blank',
+      'noopener',
+    );
+  };
+
+  const openTelegram = () => {
+    window.open(
+      `https://t.me/share/url?url=${encodeURIComponent(effectiveLink)}&text=${encodeURIComponent(title)}`,
+      '_blank',
+      'noopener',
+    );
+  };
+
 
   const copy = async (key: string, text: string) => {
     await navigator.clipboard.writeText(text);
@@ -354,12 +389,20 @@ export function FlyerDialog({
               </Button>
               <div className="grid grid-cols-2 gap-2">
                 <Button onClick={openWhatsApp} variant="outline" size="sm" className="gap-1.5 text-xs">
-                  <MessageCircle className="h-3.5 w-3.5 text-emerald-500" />
+                  <WhatsAppIcon className="h-3.5 w-3.5 text-[#25D366]" />
                   WhatsApp
                 </Button>
                 <Button onClick={openFacebook} variant="outline" size="sm" className="gap-1.5 text-xs">
-                  <Facebook className="h-3.5 w-3.5 text-sky-500" />
+                  <FacebookIcon className="h-3.5 w-3.5 text-[#1877F2]" />
                   Facebook
+                </Button>
+                <Button onClick={openX} variant="outline" size="sm" className="gap-1.5 text-xs">
+                  <XIcon className="h-3.5 w-3.5" />
+                  X
+                </Button>
+                <Button onClick={openTelegram} variant="outline" size="sm" className="gap-1.5 text-xs">
+                  <TelegramIcon className="h-3.5 w-3.5 text-[#26A5E4]" />
+                  Telegram
                 </Button>
                 <Button onClick={handleDownloadAll} disabled={bulkBusy} variant="ghost" size="sm" className="gap-1.5 text-xs">
                   {bulkBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Images className="h-3.5 w-3.5" />}
@@ -370,16 +413,16 @@ export function FlyerDialog({
                   {t('Carte QR', 'QR card')}
                 </Button>
               </div>
-              <Button
-                onClick={handleShorten}
-                disabled={!!shortLink || shortening}
-                variant="ghost"
-                size="sm"
-                className="w-full gap-1.5 text-xs"
-              >
-                {shortening ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Scissors className="h-3.5 w-3.5" />}
-                {shortLink ? t('Lien court actif', 'Short link active') : t('Utiliser un lien court', 'Use a short link')}
-              </Button>
+
+              <p className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+                {shortening
+                  ? <Loader2 className="h-3 w-3 animate-spin" />
+                  : <Check className="h-3 w-3 text-emerald-500" />}
+                {shortening
+                  ? t('Préparation du lien de partage…', 'Preparing your share link…')
+                  : t('Lien court avec votre attribution ambassadeur', 'Short link with your ambassador attribution')}
+              </p>
+
             </div>
 
             <div className="space-y-2 border-t border-border pt-3">

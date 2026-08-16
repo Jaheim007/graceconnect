@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Copy, MessageCircle, QrCode, Check, Share2 } from 'lucide-react';
+import { Copy, QrCode, Check, Share2 } from 'lucide-react';
+import { WhatsAppIcon } from '@/components/icons/BrandIcons';
 import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/i18n/I18nContext';
 import {
@@ -74,7 +75,7 @@ export function ShareWidget({ url, title, description, variant = 'compact', reso
     return (
       <div className="flex flex-wrap gap-2" onClick={e => e.stopPropagation()}>
         <Button size="sm" className="gap-1.5 text-xs" onClick={(e) => void handleWhatsApp(e)}>
-          <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+          <WhatsAppIcon className="h-3.5 w-3.5" /> WhatsApp
         </Button>
         <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={(e) => void handleCopy(e)}>
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
@@ -122,7 +123,7 @@ export function ShareWidget({ url, title, description, variant = 'compact', reso
             {copied ? (isFr ? 'Copié !' : 'Copied!') : (isFr ? 'Copier le lien' : 'Copy link')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => void handleWhatsApp()} className="gap-2 text-xs">
-            <MessageCircle className="h-3.5 w-3.5 text-green-500" /> WhatsApp
+            <WhatsAppIcon className="h-3.5 w-3.5 text-[#25D366]" /> WhatsApp
           </DropdownMenuItem>
           <DropdownMenuItem onClick={(e) => void handleOpenQr(e)} className="gap-2 text-xs">
             <QrCode className="h-3.5 w-3.5" /> QR Code

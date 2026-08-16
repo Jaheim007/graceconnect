@@ -1,5 +1,9 @@
 import { useState, useMemo } from 'react';
 import { Check, Copy, Mail, QrCode } from 'lucide-react';
+import type { ReactNode } from 'react';
+import {
+  WhatsAppIcon, FacebookIcon, XIcon, TelegramIcon, LinkedInIcon, InstagramIcon, TikTokIcon,
+} from '@/components/icons/BrandIcons';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { trackEvent } from '@/hooks/useClientAnalytics';
@@ -43,7 +47,7 @@ const MESSAGES_EN: Record<ShareContext, (t: string, p?: number, e?: number) => s
 
 interface Platform {
   name: string;
-  icon: string;
+  icon: ReactNode;
   color: string;
   getUrl: (url: string, text: string) => string;
   copyOnly?: boolean;
@@ -52,44 +56,44 @@ interface Platform {
 const PLATFORMS: Platform[] = [
   {
     name: 'WhatsApp',
-    icon: '💬',
+    icon: <WhatsAppIcon className="h-4 w-4" />,
     color: 'bg-emerald-500 hover:bg-emerald-600',
     getUrl: (url, text) => `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`,
   },
   {
     name: 'Facebook',
-    icon: '📘',
+    icon: <FacebookIcon className="h-4 w-4" />,
     color: 'bg-blue-600 hover:bg-blue-700',
     getUrl: (url, text) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`,
   },
   {
     name: 'Telegram',
-    icon: '✈️',
+    icon: <TelegramIcon className="h-4 w-4" />,
     color: 'bg-sky-500 hover:bg-sky-600',
     getUrl: (url, text) => `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
   },
   {
     name: 'X / Twitter',
-    icon: '𝕏',
+    icon: <XIcon className="h-3.5 w-3.5" />,
     color: 'bg-neutral-800 hover:bg-neutral-900 dark:bg-neutral-700 dark:hover:bg-neutral-600',
     getUrl: (url, text) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
   },
   {
     name: 'LinkedIn',
-    icon: '💼',
+    icon: <LinkedInIcon className="h-4 w-4" />,
     color: 'bg-blue-700 hover:bg-blue-800',
     getUrl: (url) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
   },
   {
     name: 'Instagram',
-    icon: '📸',
+    icon: <InstagramIcon className="h-4 w-4" />,
     color: 'bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600',
     getUrl: () => '',
     copyOnly: true,
   },
   {
     name: 'TikTok',
-    icon: '🎵',
+    icon: <TikTokIcon className="h-4 w-4" />,
     color: 'bg-black hover:bg-neutral-900 dark:bg-neutral-800 dark:hover:bg-neutral-700',
     getUrl: () => '',
     copyOnly: true,
@@ -176,7 +180,7 @@ export function SocialShareKit({ url, title, description, context, price, earnin
             title={p.name}
             aria-label={p.name}
           >
-            <span className="text-lg block">{p.icon}</span>
+            <span className="flex items-center justify-center h-5">{p.icon}</span>
             <span className="text-[9px] font-medium block mt-1 leading-tight">{p.name}</span>
           </button>
         ))}

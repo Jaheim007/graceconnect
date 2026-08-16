@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Share2, Copy, CheckCircle, MessageCircle } from 'lucide-react';
+import { Share2, Copy, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
+import { WhatsAppIcon, FacebookIcon, XIcon, TelegramIcon } from '@/components/icons/BrandIcons';
+
 
 interface ShareButtonsProps {
   url: string;
@@ -60,29 +62,30 @@ export function ShareButtons({ url, title, description = '', image, className, c
   const channels = [
     {
       name: 'WhatsApp',
-      icon: <MessageCircle className="h-4 w-4" />,
-      color: 'bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20',
+      icon: <WhatsAppIcon className="h-4 w-4" />,
+      color: 'bg-[#25D366]/10 text-[#128C7E] hover:bg-[#25D366]/20 border-[#25D366]/25',
       buildHref: (finalUrl: string) => `https://wa.me/?text=${encodeURIComponent(`${title}\n${description}\n${finalUrl}`)}`,
     },
     {
       name: 'Facebook',
-      icon: <span className="text-xs font-bold">f</span>,
-      color: 'bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border-blue-500/20',
+      icon: <FacebookIcon className="h-4 w-4" />,
+      color: 'bg-[#1877F2]/10 text-[#1877F2] hover:bg-[#1877F2]/20 border-[#1877F2]/25',
       buildHref: (finalUrl: string) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(finalUrl)}`,
     },
     {
-      name: 'Twitter',
-      icon: <span className="text-xs font-bold">𝕏</span>,
+      name: 'X',
+      icon: <XIcon className="h-3.5 w-3.5" />,
       color: 'bg-foreground/5 text-foreground hover:bg-foreground/10 border-foreground/10',
       buildHref: (finalUrl: string) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(finalUrl)}`,
     },
     {
       name: 'Telegram',
-      icon: <span className="text-xs font-bold">✈</span>,
-      color: 'bg-sky-500/10 text-sky-600 hover:bg-sky-500/20 border-sky-500/20',
+      icon: <TelegramIcon className="h-4 w-4" />,
+      color: 'bg-[#26A5E4]/10 text-[#26A5E4] hover:bg-[#26A5E4]/20 border-[#26A5E4]/25',
       buildHref: (finalUrl: string) => `https://t.me/share/url?url=${encodeURIComponent(finalUrl)}&text=${encodeURIComponent(title)}`,
     },
   ];
+
 
   const handleCopy = async () => {
     const finalUrl = await ensureShareUrl();
