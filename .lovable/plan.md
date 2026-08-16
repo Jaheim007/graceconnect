@@ -40,7 +40,14 @@ Make every product-sharing action use the correct link for the person sharing, a
 - Add focused tests for referral preservation through short links, channel URL construction, owner versus ambassador behavior, enrollment failure, and commission precedence (product override → organization default).
 - Run authenticated browser checks on desktop and mobile: generate each share action, inspect its destination URL, complete a referral capture flow, and verify the resulting transaction attribution without creating duplicate affiliate links.
 
+## What the current data shows
+- 164 ambassador links exist across 71 people, but only 13 clicks were ever recorded against 12 sales. One link shows more sales than clicks and another shows ten clicks and zero sales, so click tracking fires inconsistently and a share of links go out with no referral code at all.
+- Only 36 of 118 workspaces have the ambassador program enabled. For the rest, enrollment raises an error that the app swallows into a console warning and returns nothing, so the share still looks successful and earns nothing.
+- The `affiliate_attributions` table holds zero rows; attribution currently survives only in a cookie and local storage for seven days.
+- Only 18 products carry an explicit commission rate, so nearly everything inherits the workspace percentage or a hardcoded fallback. Workspace rates range from 10 to 40 percent with no convention.
+- All 12 recorded commissions sit at "payable" and none have been paid. This plan does not change payout; it is worth a separate follow-up.
+
 ## Technical notes
-- The database currently uses `organizations.affiliation_enabled` as the payout gate and `digital_products.commission_rate` as the optional per-product override; transaction processing already applies product override before organization default.
-- The flyer currently builds QR imagery from an effective link but builds captions from the original link, and the product page can open the flyer before the affiliate-code state refreshes. Both paths will be consolidated rather than patched independently.
+- Ambassador codes are workspace-scoped, not product-scoped, so a code credits any product in that workspace.
+- The database uses `organizations.affiliation_enabled` as the payout gate and `digital_products.commission_rate` as the optional per-product override; transaction processing already applies the product override before the workspace default, and correctly excludes donations, inactive codes, and self-referred purchases.
 - No historical commission or completed payment records will be rewritten.
