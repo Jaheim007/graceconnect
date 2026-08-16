@@ -279,14 +279,28 @@ export default function PaymentSuccessPage() {
   const handleRead = async () => {
     if (!tx?.product_id || !tx?.file_url) return;
     setReading(true);
+    // Open the tab synchronously inside the click handler so mobile browsers
+    // don't treat the post-fetch open as a blocked popup.
+    const preOpened = preOpenWindow();
     try {
       const file = await fetchWatermarkedFile({ fileUrl: tx.file_url, productId: tx.product_id, productTitle: tx.product_title || 'Document', inline: true });
-      openFileInline(file);
+      try {
+        openFileInline(file, preOpened);
+      } catch {
+        // Same-tab fallback when the browser refuses a new window entirely.
+        const url = URL.createObjectURL(file.blob);
+        setInlineFallbackUrl(url);
+        window.location.href = url;
+      }
     } catch (err) {
       console.error('[PaymentSuccess] read error:', err);
-      void askAlert(isFr ? 'Erreur lors de l\'ouverture. La lecture directe est disponible uniquement pour les PDF.' : 'Error opening file. Direct reading is only available for PDFs.');
+      try { preOpened?.close(); } catch { /* noop */ }
+      void askAlert(isFr
+        ? "Impossible d'ouvrir le document pour le moment. Utilise « Télécharger » ou réessaie depuis ta bibliothèque."
+        : "We couldn't open the document right now. Use “Download” or try again from your library.");
     } finally { setReading(false); }
   };
+
 
   const commissionPercent = tx?.commission_rate ?? 10;
   const potentialEarning = tx ? Math.round((tx.amount * commissionPercent) / 100) : 0;
