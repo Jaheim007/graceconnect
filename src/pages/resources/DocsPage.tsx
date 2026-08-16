@@ -31,7 +31,7 @@ export default function DocsPage() {
       items: [
         { label: isFr ? 'Référence des outils' : 'Tool reference', to: '/docs/api' },
         { label: isFr ? 'Intégrations' : 'Integrations', to: '/integrations' },
-        { label: isFr ? "Centre d'aide" : 'Help center', to: '/aide' },
+        { label: isFr ? "Centre d'aide" : 'Help center', to: '/help' },
         { label: isFr ? 'Statut du service' : 'Service status', to: '/status' },
       ],
     },
@@ -69,7 +69,7 @@ export default function DocsPage() {
                 : 'A question that isn’t here? Our team answers from the help center.'}
             </p>
             <Link
-              to="/aide"
+              to="/help"
               className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
             >
               {isFr ? "Ouvrir le centre d'aide" : 'Open the help center'} <ArrowRight className="h-3.5 w-3.5" />
