@@ -63,13 +63,14 @@ export function LandingTrustShield() {
             <ShieldCheck className="h-5 w-5 text-primary" />
           </div>
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-            {fr ? 'Conçu pour des transactions sûres et de confiance' : 'Built for secure, trusted transactions'}
+            {fr ? 'Créé pour vendre en toute sécurité' : 'Built to sell with total confidence'}
           </h2>
           <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
             {fr
-              ? "Des ventes de livres et formations aux dons et paiements d'église, SiteViral aide les gens à créer, vendre, encaisser et suivre leur activité en toute confiance."
-              : 'From book and formation sales to donations and church payments, SiteViral helps people create, sell, get paid and manage activity with confidence.'}
+              ? "Livres, formations, dons ou paiements d'église : tu publies ton contenu, SiteViral gère le paiement, la livraison et le suivi de ton argent."
+              : 'Books, formations, donations or church payments: you publish your content, SiteViral handles payment, delivery and tracking of your money.'}
           </p>
+
         </Reveal>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
