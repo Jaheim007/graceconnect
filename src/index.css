@@ -565,6 +565,14 @@ body > div[style*="position: fixed"][style*="opacity"] {
     padding-bottom: var(--sv-nav-clearance);
   }
 
+  /* Footers live outside <main> on public pages: give them the same clearance
+     so the last links / copyright never sit under the floating bottom nav. */
+  body:has(.native-bottom-nav-shell) footer:not(main footer) {
+    padding-bottom: var(--sv-nav-clearance);
+  }
+
+
+
 
   /* App-like floating rail on every mobile surface (web, PWA and native) */
   .native-bottom-nav-shell {
