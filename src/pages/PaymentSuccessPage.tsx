@@ -8,13 +8,15 @@ import {
   Package, Star,
 } from 'lucide-react';
 import { UpsellSection } from '@/components/payment/UpsellSection';
+import { ConfettiBurst } from '@/components/celebration/ConfettiBurst';
+
 import { ContextualFeedback } from '@/components/feedback/ContextualFeedback';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { Button } from '@/components/ui/button';
 import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload } from '@/lib/secureDownload';
+import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, preOpenWindow, triggerBrowserDownload } from '@/lib/secureDownload';
 import { verifyStripePayment } from '@/lib/api';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { useI18n } from '@/i18n/I18nContext';
@@ -83,6 +85,8 @@ export default function PaymentSuccessPage() {
 
   const [downloading, setDownloading] = useState(false);
   const [reading, setReading] = useState(false);
+  const [inlineFallbackUrl, setInlineFallbackUrl] = useState<string | null>(null);
+
 
   const lookupTransaction = useCallback(async (ref?: string): Promise<TransactionDetails | null> => {
     const searchRef = ref || referenceRef.current;
@@ -277,14 +281,28 @@ export default function PaymentSuccessPage() {
   const handleRead = async () => {
     if (!tx?.product_id || !tx?.file_url) return;
     setReading(true);
+    // Open the tab synchronously inside the click handler so mobile browsers
+    // don't treat the post-fetch open as a blocked popup.
+    const preOpened = preOpenWindow();
     try {
       const file = await fetchWatermarkedFile({ fileUrl: tx.file_url, productId: tx.product_id, productTitle: tx.product_title || 'Document', inline: true });
-      openFileInline(file);
+      try {
+        openFileInline(file, preOpened);
+      } catch {
+        // Same-tab fallback when the browser refuses a new window entirely.
+        const url = URL.createObjectURL(file.blob);
+        setInlineFallbackUrl(url);
+        window.location.href = url;
+      }
     } catch (err) {
       console.error('[PaymentSuccess] read error:', err);
-      void askAlert(isFr ? 'Erreur lors de l\'ouverture. La lecture directe est disponible uniquement pour les PDF.' : 'Error opening file. Direct reading is only available for PDFs.');
+      try { preOpened?.close(); } catch { /* noop */ }
+      void askAlert(isFr
+        ? "Impossible d'ouvrir le document pour le moment. Utilise « Télécharger » ou réessaie depuis ta bibliothèque."
+        : "We couldn't open the document right now. Use “Download” or try again from your library.");
     } finally { setReading(false); }
   };
+
 
   const commissionPercent = tx?.commission_rate ?? 10;
   const potentialEarning = tx ? Math.round((tx.amount * commissionPercent) / 100) : 0;
@@ -322,8 +340,8 @@ export default function PaymentSuccessPage() {
   // ── Loading state ──
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-4">
+      <div className="sv-nav-clearance min-h-[100dvh] bg-background px-4 py-10 flex items-start sm:items-center justify-center">
+        <div className="text-center space-y-4 w-full max-w-md">
           <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
           <p className="text-muted-foreground">
             {retryCount > 0
@@ -339,8 +357,8 @@ export default function PaymentSuccessPage() {
   // ── Error / pending state ──
   if (error || !tx) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-md w-full text-center space-y-6">
+      <div className="sv-nav-clearance min-h-[100dvh] bg-background px-4 py-10 flex items-start sm:items-center justify-center">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="max-w-md w-full text-center space-y-6">
           <div className="relative inline-flex mb-2">
             <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center">
               <Loader2 className="h-8 w-8 text-amber-500" />
@@ -348,12 +366,12 @@ export default function PaymentSuccessPage() {
           </div>
           <h1 className="text-xl font-bold text-foreground">{isFr ? 'Paiement en cours de traitement' : 'Payment being processed'}</h1>
           <p className="text-muted-foreground text-sm">{error}</p>
-          <p className="text-xs text-muted-foreground">{isFr ? 'Référence' : 'Reference'} : {reference}</p>
+          <p className="text-xs text-muted-foreground break-words">{isFr ? 'Référence' : 'Reference'} : {reference}</p>
           <div className="flex flex-col gap-2 items-center">
             <Button onClick={() => { setLoading(true); setError(''); abortRef.current = false; runVerificationLoop(); }} variant="outline" className="gap-2">
               <Loader2 className="h-4 w-4" /> {isFr ? 'Vérifier à nouveau' : 'Check again'}
             </Button>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3 justify-center">
               <Button variant="ghost" size="sm" onClick={() => navigate('/')}>{isFr ? 'Accueil' : 'Home'}</Button>
               {user && <Button size="sm" onClick={() => navigate('/my-purchases')}>{isFr ? 'Ma bibliothèque' : 'My library'}</Button>}
             </div>
@@ -370,31 +388,17 @@ export default function PaymentSuccessPage() {
   const showAmbassador = isProduct && isCompleted && tx.amount > 0;
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 overflow-y-auto">
+    <div className="sv-nav-clearance min-h-[100dvh] bg-background px-3 sm:px-4 pt-4 pb-10 sm:py-10 flex justify-center">
       <SEOHead title={isFr ? 'Paiement réussi — Siteviral' : 'Payment successful — Siteviral'} noindex />
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-        className="w-full max-w-md bg-card border-2 border-primary/20 rounded-3xl overflow-hidden relative"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md sm:max-w-lg lg:max-w-xl h-fit bg-card border border-primary/20 rounded-3xl overflow-hidden relative shadow-sm"
       >
-        {/* Confetti burst */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-20">
-          {Array.from({ length: 40 }).map((_, i) => {
-            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96E6A1', '#FFA07A', '#DDA0DD', '#FFD700', '#87CEEB'];
-            const color = colors[i % colors.length];
-            const size = 6 + Math.random() * 6;
-            return (
-              <motion.div key={i} className="absolute pointer-events-none"
-                style={{ left: `${Math.random() * 100}%`, top: -10, width: size, height: size, backgroundColor: color, borderRadius: Math.random() > 0.5 ? '50%' : '2px' }}
-                initial={{ y: -20, opacity: 1, rotate: 0 }}
-                animate={{ y: [0, 300 + Math.random() * 200], x: [0, (Math.random() - 0.5) * 120], opacity: [1, 1, 0], rotate: Math.random() * 720 }}
-                transition={{ duration: 2 + Math.random(), delay: i * 0.05, ease: 'easeOut' }}
-              />
-            );
-          })}
-        </div>
+        <ConfettiBurst />
+
 
         {/* Celebration header */}
         <div className="bg-gradient-to-br from-primary/10 via-emerald-500/10 to-amber-500/10 p-6 text-center relative z-10">
@@ -442,6 +446,17 @@ export default function PaymentSuccessPage() {
                       {reading ? (isFr ? 'Ouverture…' : 'Opening…') : (isFr ? '📖 Lire maintenant' : '📖 Read now')}
                     </Button>
                   )}
+                  {inlineFallbackUrl && (
+                    <a
+                      href={inlineFallbackUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block text-center text-xs text-primary underline underline-offset-2"
+                    >
+                      {isFr ? "Ouvrir le document" : 'Open the document'}
+                    </a>
+                  )}
+
                   {tx.file_url && (
                     <Button onClick={handleDownload} disabled={downloading} variant={isBook ? 'outline' : 'default'} className="w-full gap-2 h-11 font-semibold">
                       {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
