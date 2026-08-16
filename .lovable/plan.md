@@ -6,18 +6,21 @@ Make every product-sharing action use the correct link for the person sharing, a
 ## Implementation
 
 ### 1. One attributed-link resolver
-- Create one reusable resolver for product share URLs instead of rebuilding links independently in cards, product pages, flyers, post-purchase screens, and ambassador tools.
-- For a signed-in non-owner sharer, fetch or create their active ambassador code and append `?ref=<code>` before creating any short/social-preview link.
-- Preserve the referral query parameter through short links and fallback links.
-- Owners/managers share the canonical seller link rather than enrolling themselves as ambassadors; signed-out visitors share the canonical product link.
-- Return an explicit failure when attribution was expected but enrollment failed, rather than silently sharing an unattributed link.
+- Create one reusable resolver for share URLs instead of the two competing engines in use today (a short-link/preview layer plus roughly thirty components that hand-build links inline).
+- For a signed-in non-owner sharer, fetch or create their active ambassador code and append the referral parameter before creating any short/social-preview link.
+- Preserve the referral parameter through short links and fallback links.
+- Owners/managers share the canonical seller link rather than enrolling themselves as ambassadors; signed-out visitors share the canonical link.
+- Surface an explicit, honest state when attribution was expected but enrollment failed, instead of silently sharing an unattributed link.
+- Extend attribution to the content types that currently have none: campaigns, announcements, offerings, events, and courses. Today only the product detail page and the ambassador marketplace flyer attach a referral code, even though the shared share components already support it.
 
 ### 2. Correct every sharing channel
-- Route WhatsApp, Facebook, X, Telegram, native share, copy link, email, QR code, flyer QR, and flyer captions through the resolved URL.
-- Fix the flyer race where the dialog opens before the newly created ambassador code reaches component state.
-- Ensure flyer captions use the effective attributed/shortened link, not the original product URL.
-- Standardize social endpoints and parameters: current X intent endpoint, Telegram share URL, Facebook sharer, and encoded WhatsApp text.
-- Keep product slugs/routes canonical and remove inconsistent legacy product paths where found.
+- Create one social-URL builder that takes the link and the message as separate values, and route WhatsApp, Facebook, X, Telegram, native share, copy link, email, QR code, flyer QR, and flyer captions through it.
+- Pin X to a single canonical intent endpoint; it is currently split between two domains across the codebase. Telegram is already consistent and stays as is.
+- Replace the message-string parsing in the WhatsApp share engine, which rebuilds the link by pattern-matching a pre-formatted message and can silently produce a malformed share.
+- Fix the flyer race where the dialog opens before the newly created ambassador code reaches component state, and make flyer captions use the effective attributed link rather than the original one.
+- Add the missing X and Telegram actions to the flyer export flow for parity with the other share surfaces.
+- Disambiguate the referral parameter, which currently means both "product ambassador" and "platform signup referral" and lets the two systems collide.
+
 
 ### 3. Automatic commission policy
 - Set new workspaces to automatic ambassador commissions for paid digital products, using a clear default rate.
@@ -37,7 +40,14 @@ Make every product-sharing action use the correct link for the person sharing, a
 - Add focused tests for referral preservation through short links, channel URL construction, owner versus ambassador behavior, enrollment failure, and commission precedence (product override → organization default).
 - Run authenticated browser checks on desktop and mobile: generate each share action, inspect its destination URL, complete a referral capture flow, and verify the resulting transaction attribution without creating duplicate affiliate links.
 
+## What the current data shows
+- 164 ambassador links exist across 71 people, but only 13 clicks were ever recorded against 12 sales. One link shows more sales than clicks and another shows ten clicks and zero sales, so click tracking fires inconsistently and a share of links go out with no referral code at all.
+- Only 36 of 118 workspaces have the ambassador program enabled. For the rest, enrollment raises an error that the app swallows into a console warning and returns nothing, so the share still looks successful and earns nothing.
+- The `affiliate_attributions` table holds zero rows; attribution currently survives only in a cookie and local storage for seven days.
+- Only 18 products carry an explicit commission rate, so nearly everything inherits the workspace percentage or a hardcoded fallback. Workspace rates range from 10 to 40 percent with no convention.
+- All 12 recorded commissions sit at "payable" and none have been paid. This plan does not change payout; it is worth a separate follow-up.
+
 ## Technical notes
-- The database currently uses `organizations.affiliation_enabled` as the payout gate and `digital_products.commission_rate` as the optional per-product override; transaction processing already applies product override before organization default.
-- The flyer currently builds QR imagery from an effective link but builds captions from the original link, and the product page can open the flyer before the affiliate-code state refreshes. Both paths will be consolidated rather than patched independently.
+- Ambassador codes are workspace-scoped, not product-scoped, so a code credits any product in that workspace.
+- The database uses `organizations.affiliation_enabled` as the payout gate and `digital_products.commission_rate` as the optional per-product override; transaction processing already applies the product override before the workspace default, and correctly excludes donations, inactive codes, and self-referred purchases.
 - No historical commission or completed payment records will be rewritten.
