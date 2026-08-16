@@ -135,9 +135,10 @@ export function TopBar() {
               <p className="text-[11px] text-muted-foreground leading-tight truncate">{greeting}</p>
               <p className="text-sm font-bold truncate leading-tight">{greetingName}</p>
             </div>
+            <CreditBalance />
             <button
               onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-              className="grid place-items-center h-9 w-9 rounded-full bg-muted/60 hover:bg-muted text-foreground shrink-0"
+              className="hidden sm:grid place-items-center h-9 w-9 rounded-full bg-muted/60 hover:bg-muted text-foreground shrink-0"
               aria-label="Search"
             >
               <Search className="h-4 w-4" />
