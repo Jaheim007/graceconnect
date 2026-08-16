@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, Download, Share2, Copy, Check, ImageIcon, MessageCircle, Facebook, QrCode, Scissors, Images } from 'lucide-react';
+import { Loader2, Download, Share2, Copy, Check, ImageIcon, QrCode, Images } from 'lucide-react';
+import { WhatsAppIcon, FacebookIcon, XIcon, TelegramIcon } from '@/components/icons/BrandIcons';
+
 import { renderQrPoster, type QrPosterTheme } from '@/lib/flyer/renderQrPoster';
 import { getOrCreateShortLink } from '@/lib/shareMeta';
 import { toast } from 'sonner';
