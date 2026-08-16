@@ -37,36 +37,39 @@ export function LandingNav() {
       <div className="container flex items-center justify-between h-16 sm:h-[72px] px-4 sm:px-6">
         {/* Left cluster: logo + resource links */}
         <div className="flex items-center gap-7">
-          <Link to="/" className="flex items-center shrink-0" aria-label="SiteViral">
+          <Link to="/" className="flex h-10 items-center shrink-0" aria-label="SiteViral">
             <SiteLogo size="md" animate linked={false} />
           </Link>
-          <nav className="hidden lg:flex items-center gap-6">
-            <Link to="/developers" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
-              {isFr ? 'Développeurs' : 'Developers'}
-            </Link>
-            <Link to="/docs" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
-              {isFr ? 'Documentation' : 'Docs'}
-            </Link>
-            <Link to="/integrations" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
-              {isFr ? 'Intégrations' : 'Integrations'}
-            </Link>
-            <Link to="/help" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
-              {isFr ? 'Aide' : 'Support'}
-            </Link>
+          <nav className="hidden lg:flex items-center gap-1">
+            {[
+              { to: '/developers', label: isFr ? 'Développeurs' : 'Developers' },
+              { to: '/docs', label: isFr ? 'Documentation' : 'Docs' },
+              { to: '/integrations', label: isFr ? 'Intégrations' : 'Integrations' },
+              { to: '/help', label: isFr ? 'Aide' : 'Support' },
+            ].map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="flex h-10 items-center rounded-full px-3 text-sm font-semibold leading-none text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
         </div>
+
 
         {/* Right cluster */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {user && <PlanBadge compact />}
-          <div className="hidden sm:block">
-            <GlobalPreferencesSelector />
+          <div className="hidden sm:flex items-center">
+            <GlobalPreferencesSelector className="h-10 px-2.5 rounded-full" />
           </div>
 
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 hidden sm:inline-flex rounded-full hover:bg-muted/60"
+            className="h-10 w-10 hidden sm:inline-flex rounded-full hover:bg-muted/60"
             onClick={toggleTheme}
             aria-label={isFr ? 'Changer de thème' : 'Toggle theme'}
           >
@@ -76,7 +79,7 @@ export function LandingNav() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 h-9 px-2 rounded-lg hover:bg-muted/60 transition-colors">
+                <button className="flex items-center gap-2 h-10 px-2 rounded-full hover:bg-muted/60 transition-colors">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="" className="h-7 w-7 rounded-full object-cover border border-border" />
                   ) : (
@@ -84,9 +87,10 @@ export function LandingNav() {
                       {initials}
                     </div>
                   )}
-                  <span className="hidden sm:block text-sm font-medium text-foreground max-w-[120px] truncate">{displayName}</span>
+                  <span className="hidden sm:block text-sm font-medium leading-none text-foreground max-w-[120px] truncate">{displayName}</span>
                 </button>
               </DropdownMenuTrigger>
+
               <DropdownMenuContent align="end" className="w-60">
                 <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
                   {isFr ? 'Mon compte' : 'My account'}

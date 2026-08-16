@@ -29,25 +29,25 @@ export function PublicTopBar() {
         <div className="absolute -top-16 left-1/4 h-32 w-56 rounded-full bg-primary/10 blur-3xl" />
       </div>
 
-      <div className="relative flex items-center" aria-label="SiteViral">
+      <div className="relative flex h-9 items-center" aria-label="SiteViral">
         <SiteLogo size="sm" animate />
       </div>
       <div className="flex-1" />
 
       <div className="relative flex items-center gap-1.5">
-        <GlobalPreferencesSelector />
+        <GlobalPreferencesSelector className="h-9 rounded-full" />
 
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-full transition-transform hover:scale-110 hover:bg-primary/10"
+          className="h-9 w-9 rounded-full transition-transform hover:scale-110 hover:bg-primary/10"
           onClick={toggleTheme}
         >
           {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
 
         {user && (
-          <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5 rounded-full hover:bg-primary/10" onClick={() => navigate('/my-purchases')}>
+          <Button variant="ghost" size="sm" className="h-9 text-xs gap-1.5 rounded-full hover:bg-primary/10" onClick={() => navigate('/my-purchases')}>
             <BookOpen className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">{t('topbar.my_purchases')}</span>
           </Button>
@@ -56,7 +56,7 @@ export function PublicTopBar() {
         {!user && (
           <Button
             size="sm"
-            className="h-8 rounded-full px-4 text-xs font-bold shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40 hover:-translate-y-0.5 active:translate-y-0"
+            className="h-9 rounded-full px-4 text-xs font-bold shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40 hover:-translate-y-0.5 active:translate-y-0"
             onClick={() => navigate('/auth')}
           >
             {t('topbar.sign_in')}
