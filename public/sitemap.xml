@@ -44,4 +44,19 @@
   <url><loc>https://siteviral.com/security</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://siteviral.com/subprocessors</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://siteviral.com/blog/guide-affiliate-marketing-debutants</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://siteviral.com/about</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://siteviral.com/roadmap</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://siteviral.com/newsletter</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://siteviral.com/report</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://siteviral.com/plan-du-site</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://siteviral.com/glossary</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://siteviral.com/brand</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://siteviral.com/cookies</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://siteviral.com/legal-notices</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://siteviral.com/copyright</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://siteviral.com/data-deletion</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://siteviral.com/developers</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://siteviral.com/docs</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://siteviral.com/docs/api</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://siteviral.com/integrations</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
 </urlset>
