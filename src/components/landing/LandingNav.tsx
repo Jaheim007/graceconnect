@@ -159,6 +159,21 @@ export function LandingNav() {
                 <Church className="h-4 w-4" /> {isFr ? 'Pour les églises' : 'For churches'}
               </Link>
 
+              <div className="grid grid-cols-2 gap-x-3 border-t border-border/60 pt-2">
+                <Link to="/developers" onClick={() => setMenuOpen(false)} className="px-1 py-2 text-sm font-semibold text-foreground/80">
+                  {isFr ? 'Développeurs' : 'Developers'}
+                </Link>
+                <Link to="/docs" onClick={() => setMenuOpen(false)} className="px-1 py-2 text-sm font-semibold text-foreground/80">
+                  {isFr ? 'Documentation' : 'Docs'}
+                </Link>
+                <Link to="/integrations" onClick={() => setMenuOpen(false)} className="px-1 py-2 text-sm font-semibold text-foreground/80">
+                  {isFr ? 'Intégrations' : 'Integrations'}
+                </Link>
+                <Link to="/help" onClick={() => setMenuOpen(false)} className="px-1 py-2 text-sm font-semibold text-foreground/80">
+                  {isFr ? 'Aide' : 'Support'}
+                </Link>
+              </div>
+
               {!user && (
                 <div className="pt-3 border-t border-border/60 mt-2 space-y-2">
                   <Button className="w-full h-11 font-semibold gap-1.5" onClick={() => { navigate('/create-org'); setMenuOpen(false); }}>
