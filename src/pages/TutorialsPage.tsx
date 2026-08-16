@@ -3,7 +3,10 @@ import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { BookOpen, Upload, Download, ShoppingBag, Users, CreditCard, Eye, Settings, ArrowRight, ExternalLink, FileText, Shield } from 'lucide-react';
+import { BookOpen, Upload, Download, ShoppingBag, Users, CreditCard, Eye, Settings, ArrowRight, ExternalLink, FileText, Shield, PlayCircle } from 'lucide-react';
+import { DemoPlayer } from '@/components/tutorials/DemoPlayer';
+import { getTutorialDemo } from '@/content/tutorials/demos';
+
 import { useI18n } from '@/i18n/I18nContext';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
