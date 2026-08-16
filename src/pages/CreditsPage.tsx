@@ -167,7 +167,7 @@ export default function CreditsPage() {
 
   if (!user) return null;
 
-  const dailyPercent = summary ? Math.min((summary.daily_remaining / 38.5) * 100, 100) : 0;
+  const dailyPercent = summary ? Math.min((summary.daily_remaining / DAILY_GRANT) * 100, 100) : 0;
 
   const txTypeLabel = (type: string): string => {
     const labels: Record<string, string> = isFr ? {
@@ -280,7 +280,7 @@ export default function CreditsPage() {
               {isFr ? 'Comment ça marche ?' : 'How it works?'}
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> {isFr ? '38,5 crédits gratuits/jour' : '38.5 free credits/day'}</span>
+              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> {isFr ? `${DAILY_GRANT} crédits gratuits/jour` : `${DAILY_GRANT} free credits/day`}</span>
               <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> {isFr ? 'Quotidiens consommés en premier' : 'Daily credits consumed first'}</span>
               <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> {isFr ? 'Crédits achetés sans expiration' : 'Purchased credits never expire'}</span>
               <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> {isFr ? '1,5% cashback sur vos ventes' : '1.5% cashback on your sales'}</span>
@@ -294,7 +294,7 @@ export default function CreditsPage() {
         <CardContent className="p-4">
           <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
             <Zap className="h-4 w-4 text-blue-500" />
-            {isFr ? 'Que pouvez-vous faire avec 38,5 crédits gratuits/jour ?' : 'What can you do with 38.5 free credits/day?'}
+            {isFr ? `Que pouvez-vous faire avec ${DAILY_GRANT} crédits gratuits/jour ?` : `What can you do with ${DAILY_GRANT} free credits/day?`}
           </h3>
           <div className="grid sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
             <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Générer un livre complet (8 chapitres)' : 'Generate a full book (8 chapters)'}</div>
@@ -480,8 +480,8 @@ export default function CreditsPage() {
               <AccordionTrigger className="text-sm">{isFr ? 'Comment obtenir des crédits gratuits ?' : 'How to get free credits?'}</AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground">
                 {isFr
-                  ? <>Vous recevez automatiquement <strong>38,5 crédits gratuits chaque jour</strong> à votre première connexion. Ces crédits quotidiens expirent après 24h et sont consommés en priorité. Vous gagnez aussi des crédits bonus via le cashback de 1,5% sur vos ventes de produits.</>
-                  : <>You automatically receive <strong>38.5 free credits every day</strong> on your first login. These daily credits expire after 24h and are consumed first. You also earn bonus credits via 1.5% cashback on your product sales.</>}
+                  ? <>Vous recevez automatiquement <strong>{DAILY_GRANT} crédits gratuits chaque jour</strong> à votre première connexion. Ces crédits quotidiens expirent après 24h et sont consommés en priorité. Vous gagnez aussi des crédits bonus via le cashback de 1,5% sur vos ventes de produits.</>
+                  : <>You automatically receive <strong>{DAILY_GRANT} free credits every day</strong> on your first login. These daily credits expire after 24h and are consumed first. You also earn bonus credits via 1.5% cashback on your product sales.</>}
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q3">
