@@ -35,7 +35,7 @@ export default function BrandKitPage() {
   const palette = [
     { name: isFr ? 'Navy de marque' : 'Brand navy', hex: '#0B1B3A' },
     { name: isFr ? 'Bleu action' : 'Action blue', hex: '#1D5BFF' },
-    { name: isFr ? 'Or accent' : 'Accent gold', hex: '#D4A game'.replace(' game', 'F37') },
+    { name: isFr ? 'Or accent' : 'Accent gold', hex: '#D4AF37' },
     { name: isFr ? 'Ivoire' : 'Ivory', hex: '#F7F4EC' },
     { name: isFr ? 'Encre' : 'Ink', hex: '#0A0A0B' },
   ];
