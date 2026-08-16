@@ -3,7 +3,10 @@ import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { BookOpen, Upload, Download, ShoppingBag, Users, CreditCard, Eye, Settings, ArrowRight, ExternalLink, FileText, Shield } from 'lucide-react';
+import { BookOpen, Upload, Download, ShoppingBag, Users, CreditCard, Eye, Settings, ArrowRight, ExternalLink, FileText, Shield, PlayCircle } from 'lucide-react';
+import { DemoPlayer } from '@/components/tutorials/DemoPlayer';
+import { getTutorialDemo } from '@/content/tutorials/demos';
+
 import { useI18n } from '@/i18n/I18nContext';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -243,7 +246,23 @@ export default function TutorialsPage() {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="pb-5">
+                    {(() => {
+                      const scenes = getTutorialDemo(tut.id, isFr ? 'fr' : 'en');
+                      if (!scenes.length) return null;
+                      return (
+                        <div className="mb-5">
+                          <div className="mb-2 flex items-center gap-2">
+                            <PlayCircle className="h-4 w-4 text-primary" />
+                            <p className="text-xs font-semibold">
+                              {isFr ? 'Démo interactive' : 'Interactive demo'}
+                            </p>
+                          </div>
+                          <DemoPlayer scenes={scenes} title={tut.title} autoPlay />
+                        </div>
+                      );
+                    })()}
                     <ol className="space-y-4 mt-2">
+
                       {tut.steps.map((step, i) => (
                         <li key={i} className="flex items-start gap-3">
                           <span className="h-7 w-7 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
