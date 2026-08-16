@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
-import { Store, ArrowRight, Plus } from 'lucide-react';
+import { Store, ArrowRight, Plus, ShoppingCart, Heart, Wallet } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { markSurfaceVisit } from '@/lib/siteviral/lastSurface';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { useCreatorSalesEarnings } from '@/hooks/useCreatorSalesEarnings';
 
 /**
  * "Mon espace" — creator capability entry point. Never a forced redirect:
