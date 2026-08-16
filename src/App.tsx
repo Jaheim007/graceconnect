@@ -196,6 +196,12 @@ const BlogIndexPage = lazy(() => import("@/pages/blog/BlogIndexPage"));
 const BlogArticlePage = lazy(() => import("@/pages/blog/BlogArticlePage"));
 const EtudesDeCasPage = lazy(() => import("@/pages/EtudesDeCasPage"));
 const StatusPage = lazy(() => import("@/pages/StatusPage"));
+const CookiePolicyPage = lazy(() => import("@/pages/CookiePolicyPage"));
+const LegalNoticesPage = lazy(() => import("@/pages/LegalNoticesPage"));
+const DataDeletionPage = lazy(() => import("@/pages/DataDeletionPage"));
+const CopyrightPage = lazy(() => import("@/pages/CopyrightPage"));
+const GlossaryPage = lazy(() => import("@/pages/GlossaryPage"));
+const BrandKitPage = lazy(() => import("@/pages/BrandKitPage"));
 const DevelopersPage = lazy(() => import("@/pages/resources/DevelopersPage"));
 const DocsPage = lazy(() => import("@/pages/resources/DocsPage"));
 const ApiReferencePage = lazy(() => import("@/pages/resources/ApiReferencePage"));
@@ -491,6 +497,17 @@ const App = () => (
                 <Route path="/cgu" element={<Navigate to="/terms" replace />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/dpa" element={<DPAPage />} />
+                <Route path="/cookies" element={<CookiePolicyPage />} />
+                <Route path="/cookie-policy" element={<Navigate to="/cookies" replace />} />
+                <Route path="/legal-notices" element={<LegalNoticesPage />} />
+                <Route path="/mentions-legales" element={<Navigate to="/legal-notices" replace />} />
+                <Route path="/data-deletion" element={<DataDeletionPage />} />
+                <Route path="/copyright" element={<CopyrightPage />} />
+                <Route path="/dmca" element={<Navigate to="/copyright" replace />} />
+                <Route path="/glossary" element={<GlossaryPage />} />
+                <Route path="/glossaire" element={<Navigate to="/glossary" replace />} />
+                <Route path="/brand" element={<BrandKitPage />} />
+                <Route path="/media-kit" element={<Navigate to="/brand" replace />} />
                 <Route path="/security" element={<SecurityPage />} />
                 <Route path="/subprocessors" element={<SubprocessorsPage />} />
                 <Route path="/features" element={<Navigate to="/landing" replace />} />
