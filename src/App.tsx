@@ -202,6 +202,11 @@ const DataDeletionPage = lazy(() => import("@/pages/DataDeletionPage"));
 const CopyrightPage = lazy(() => import("@/pages/CopyrightPage"));
 const GlossaryPage = lazy(() => import("@/pages/GlossaryPage"));
 const BrandKitPage = lazy(() => import("@/pages/BrandKitPage"));
+const RoadmapPage = lazy(() => import("@/pages/RoadmapPage"));
+const NewsletterPage = lazy(() => import("@/pages/NewsletterPage"));
+const ReportAbusePage = lazy(() => import("@/pages/ReportAbusePage"));
+const SiteMapPage = lazy(() => import("@/pages/SiteMapPage"));
+const AboutPage = lazy(() => import("@/pages/AboutPage"));
 const DevelopersPage = lazy(() => import("@/pages/resources/DevelopersPage"));
 const DocsPage = lazy(() => import("@/pages/resources/DocsPage"));
 const ApiReferencePage = lazy(() => import("@/pages/resources/ApiReferencePage"));
@@ -466,8 +471,15 @@ const App = () => (
 
 
 
-                <Route path="/a-propos" element={<Navigate to="/landing" replace />} />
-                <Route path="/about" element={<Navigate to="/landing" replace />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/a-propos" element={<Navigate to="/about" replace />} />
+                <Route path="/roadmap" element={<RoadmapPage />} />
+                <Route path="/feuille-de-route" element={<Navigate to="/roadmap" replace />} />
+                <Route path="/newsletter" element={<NewsletterPage />} />
+                <Route path="/report" element={<ReportAbusePage />} />
+                <Route path="/signaler" element={<Navigate to="/report" replace />} />
+                <Route path="/plan-du-site" element={<SiteMapPage />} />
+                <Route path="/sitemap" element={<Navigate to="/plan-du-site" replace />} />
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/tarifs" element={<Navigate to="/pricing" replace />} />
                 <Route path="/founders" element={<FoundersPage />} />
