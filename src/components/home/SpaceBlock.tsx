@@ -12,6 +12,9 @@ import { useCreatorSalesEarnings } from '@/hooks/useCreatorSalesEarnings';
 export function SpaceBlock({ spaceName, spaceCount }: { spaceName: string | null; spaceCount: number }) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+  const { fmt } = useDisplayCurrency();
+  const sales = useCreatorSalesEarnings();
+  const hasSalesActivity = sales.salesCount > 0 || sales.donationsCount > 0;
 
   return (
     <section className="space-y-3">
