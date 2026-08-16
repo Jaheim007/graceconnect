@@ -90,7 +90,7 @@ export default function ApiReferencePage() {
 
                       {tool.params.length > 0 ? (
                         <div className="mt-5 overflow-hidden rounded-xl border border-border">
-                          <table className="w-full text-left text-sm">
+                          <table className="w-full table-fixed text-left text-sm">
                             <thead className="bg-muted/50">
                               <tr>
                                 <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
