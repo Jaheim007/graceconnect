@@ -275,6 +275,23 @@ export function FlyerDialog({
     toast.success(t('Texte copié pour Facebook', 'Caption copied for Facebook'));
   };
 
+  const openX = () => {
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(effectiveLink)}`,
+      '_blank',
+      'noopener',
+    );
+  };
+
+  const openTelegram = () => {
+    window.open(
+      `https://t.me/share/url?url=${encodeURIComponent(effectiveLink)}&text=${encodeURIComponent(title)}`,
+      '_blank',
+      'noopener',
+    );
+  };
+
+
   const copy = async (key: string, text: string) => {
     await navigator.clipboard.writeText(text);
     setCopied(key);
