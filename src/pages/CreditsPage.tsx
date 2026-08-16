@@ -192,19 +192,26 @@ export default function CreditsPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 py-4 px-2 sm:px-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/25">
-            <Coins className="h-6 w-6 text-white" />
+    <div className="max-w-5xl mx-auto space-y-6 py-4 px-3 sm:px-4">
+      {/* Header — soft aurora banner */}
+      <div className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-background to-primary/10 p-5 sm:p-7">
+        <div className="pointer-events-none absolute -top-16 -right-10 h-48 w-48 rounded-full bg-amber-400/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-primary/15 blur-3xl" />
+        <div className="relative flex items-center gap-3 sm:gap-4">
+          <div className="h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
+            <Coins className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold">{isFr ? 'Mes Crédits IA' : 'My AI Credits'}</h1>
-            <p className="text-sm text-muted-foreground">{isFr ? "Utilisez l'IA pour créer du contenu exceptionnel" : 'Use AI to create exceptional content'}</p>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-3xl font-bold tracking-tight truncate">{isFr ? 'Mes Crédits IA' : 'My AI Credits'}</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              {isFr
+                ? `${DAILY_GRANT} crédits offerts chaque jour pour créer avec l'IA`
+                : `${DAILY_GRANT} free credits every day to create with AI`}
+            </p>
           </div>
         </div>
       </div>
+
 
       {/* Balance Cards */}
       {loadingSummary || !summary ? (
