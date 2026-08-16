@@ -64,6 +64,8 @@ export function LandingFooterCompact() {
         { to: '/help',    label: isFr ? "Centre d'aide"  : 'Help center' },
         { to: '/status',  label: isFr ? 'Statut'         : 'Status' },
         { to: '/founders', label: isFr ? 'Fondateurs'    : 'Founders' },
+        { to: '/brand',    label: isFr ? 'Marque & presse' : 'Brand & press' },
+        { to: '/glossary', label: isFr ? 'Glossaire'      : 'Glossary' },
       ],
     },
     {
@@ -74,6 +76,10 @@ export function LandingFooterCompact() {
         { to: '/refund-policy', label: isFr ? 'Remboursements'  : 'Refunds' },
         { to: '/payout-policy', label: isFr ? 'Versements'      : 'Payouts' },
         { to: '/security',      label: isFr ? 'Sécurité'        : 'Security' },
+        { to: '/cookies',       label: isFr ? 'Cookies'         : 'Cookies' },
+        { to: '/copyright',     label: isFr ? 'Droits d’auteur' : 'Copyright' },
+        { to: '/data-deletion', label: isFr ? 'Suppression données' : 'Data deletion' },
+        { to: '/legal-notices', label: isFr ? 'Mentions légales' : 'Legal notices' },
       ],
     },
   ];
