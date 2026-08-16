@@ -85,11 +85,11 @@ export function BeautyHeader({ showBack = true, right }: BeautyHeaderProps) {
         </button>
         <div className="flex-1" />
         {right}
-        <GlobalPreferencesSelector />
+        <GlobalPreferencesSelector className="h-9 rounded-full" />
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8"
+          className="h-9 w-9 rounded-full"
           onClick={toggleTheme}
           aria-label={t("Changer de thème", "Toggle theme")}
         >
@@ -99,7 +99,7 @@ export function BeautyHeader({ showBack = true, right }: BeautyHeaderProps) {
         {!user ? (
           <Button
             size="sm"
-            className="h-8 text-xs font-semibold rounded-xl px-4"
+            className="h-9 text-xs font-semibold rounded-full px-4"
             onClick={() => goAuth(window.location.pathname + window.location.search)}
           >
             {t("Connexion", "Sign in")}
@@ -108,10 +108,10 @@ export function BeautyHeader({ showBack = true, right }: BeautyHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                className="ml-0.5 flex h-8 w-8 items-center justify-center rounded-full ring-1 ring-border/70 transition hover:ring-primary/60"
+                className="ml-0.5 flex h-9 w-9 items-center justify-center rounded-full ring-1 ring-border/70 transition hover:ring-primary/60"
                 aria-label={t("Mon compte", "My account")}
               >
-                <Avatar className="h-8 w-8">
+                <Avatar className="h-9 w-9">
                   {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
                   <AvatarFallback className="text-xs font-bold">{initial}</AvatarFallback>
                 </Avatar>

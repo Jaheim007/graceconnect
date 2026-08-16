@@ -19,7 +19,7 @@ export function ChurchNav({ onStart }: { onStart: () => void }) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/90 backdrop-blur">
       <div className="container flex h-16 items-center justify-between px-4 sm:px-6">
-        <Link to="/churches" className="group flex items-center gap-2.5" aria-label="SiteViral for Churches">
+        <Link to="/churches" className="group flex h-10 items-center gap-2.5" aria-label="SiteViral for Churches">
           <span className="relative grid h-9 w-9 place-items-center transition-transform duration-300 group-hover:scale-105">
             <span className="pointer-events-none absolute inset-0 rounded-full bg-primary/25 opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-100" />
             <SiteLogo size="md" linked={false} className="relative" />
@@ -34,13 +34,13 @@ export function ChurchNav({ onStart }: { onStart: () => void }) {
 
 
         <div className="flex items-center gap-2">
-          <div className="hidden sm:block">
-            <GlobalPreferencesSelector />
+          <div className="hidden sm:flex items-center">
+            <GlobalPreferencesSelector className="h-10 px-2.5 rounded-full" />
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 hidden sm:inline-flex rounded-full hover:bg-muted/60"
+            className="h-10 w-10 hidden sm:inline-flex rounded-full hover:bg-muted/60"
             onClick={toggleTheme}
             aria-label={fr ? 'Changer de thème' : 'Toggle theme'}
           >
