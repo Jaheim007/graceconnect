@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Share2, Copy, CheckCircle, MessageCircle } from 'lucide-react';
+import { Share2, Copy, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
+import { WhatsAppIcon, FacebookIcon, XIcon, TelegramIcon } from '@/components/icons/BrandIcons';
+
 
 interface ShareButtonsProps {
   url: string;
