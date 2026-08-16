@@ -1,53 +1,37 @@
-# Reliable attributed sharing and automatic commissions
+# Responsive + smoothness audit: standalone pages, payment success, "Read now"
 
-## Goal
-Make every product-sharing action use the correct link for the person sharing, and make ambassador commissions automatic for paid digital products while preserving an owner-controlled off switch.
+Goal: every page behaves like one clean mobile app — no content running under the bottom bar, no clipped cards, no jank when scrolling, and no error when opening a purchased book. Phone, tablet/iPad and desktop.
 
-## Implementation
+## 1. Fix the post-payment page (the screenshot)
 
-### 1. One attributed-link resolver
-- Create one reusable resolver for share URLs instead of the two competing engines in use today (a short-link/preview layer plus roughly thirty components that hand-build links inline).
-- For a signed-in non-owner sharer, fetch or create their active ambassador code and append the referral parameter before creating any short/social-preview link.
-- Preserve the referral parameter through short links and fallback links.
-- Owners/managers share the canonical seller link rather than enrolling themselves as ambassadors; signed-out visitors share the canonical link.
-- Surface an explicit, honest state when attribution was expected but enrollment failed, instead of silently sharing an unattributed link.
-- Extend attribution to the content types that currently have none: campaigns, announcements, offerings, events, and courses. Today only the product detail page and the ambassador marketplace flyer attach a referral code, even though the shared share components already support it.
+What is wrong today: the success page is a fixed-height, vertically centered card (`min-h-screen flex items-center justify-center`) with its own inner scroll, and it renders outside the app shell while the global bottom bar still floats on top. On a phone the card is taller than the screen, so the content runs under the bottom nav and the page fights the browser for scrolling.
 
-### 2. Correct every sharing channel
-- Create one social-URL builder that takes the link and the message as separate values, and route WhatsApp, Facebook, X, Telegram, native share, copy link, email, QR code, flyer QR, and flyer captions through it.
-- Pin X to a single canonical intent endpoint; it is currently split between two domains across the codebase. Telegram is already consistent and stays as is.
-- Replace the message-string parsing in the WhatsApp share engine, which rebuilds the link by pattern-matching a pre-formatted message and can silently produce a malformed share.
-- Fix the flyer race where the dialog opens before the newly created ambassador code reaches component state, and make flyer captions use the effective attributed link rather than the original one.
-- Add the missing X and Telegram actions to the flyer export flow for parity with the other share surfaces.
-- Disambiguate the referral parameter, which currently means both "product ambassador" and "platform signup referral" and lets the two systems collide.
+Changes:
+- Turn the page into a normal top-aligned scrolling page: full-height wrapper using `100dvh` minimum, page scroll on the document, card centered horizontally only.
+- Add bottom clearance using the existing nav-clearance/safe-area tokens so the last button is never under the bottom bar or the iOS home indicator.
+- Widen the card responsively (comfortable single column on phone, wider card on tablet/desktop) instead of a fixed narrow column.
+- Apply the same treatment to the loading and pending/error states so they don't jump between layouts.
 
+## 2. Make it smooth on low-end phones
 
-### 3. Automatic commission policy
-- Set new workspaces to automatic ambassador commissions for paid digital products, using a clear default rate.
-- Keep an explicit owner setting to disable or re-enable the program; an owner’s manual choice must persist and must not be silently reversed by later book/product creation.
-- Remove the book wizard’s implicit organization-wide rate overwrite. Save the selected rate as a product override only when appropriate.
-- Make manual product and course forms show the real effective state and rate at publication; disabled means no ambassador payout copy or misleading fee breakdown.
-- Keep free products, donations, offerings, and booking/service payments outside ambassador payout unless they already have an explicitly supported product-sale model.
+- The confetti burst renders 40 independently animated elements with random per-frame transforms — the main cause of the lag felt on that page. Reduce the count, run it once on GPU-friendly properties only, skip it entirely on small screens/reduced-motion, and unmount it when finished.
+- The global route transition in `AppLayout` and `AdaptiveLayout` animates `filter: blur()` plus `scale` on every navigation, which is against the project's anti-blur scrolling policy and repaints the whole content area. Replace with an opacity/small-translate transition, and no transition at all when the user prefers reduced motion.
+- Verify no page keeps a nested scroll container that double-scrolls inside the app shell's own scroll area.
 
-### 4. Backend consistency and migration
-- Add the minimum organization preference state needed to distinguish “automatic” from “owner disabled,” so future creation flows do not re-enable an intentional opt-out.
-- Update the shared workspace-creation engine and book/product/course publication paths to follow that preference.
-- Preserve existing transaction safeguards: commission only for a valid active code, the correct organization, a paid product sale, and never the buyer’s own referral.
-- Avoid retroactively changing completed sales. Existing organizations keep their current enabled/disabled state; automatic behavior applies consistently after the owner enables it or for newly created workspaces.
+## 3. Fix the "Read now" error
 
-### 5. Interface audit and verification
-- Audit product detail, marketplace cards, ambassador marketplace, seller product list/export, flyer generator, QR poster, post-purchase sharing, course sharing, and earnings sharing.
-- Add focused tests for referral preservation through short links, channel URL construction, owner versus ambassador behavior, enrollment failure, and commission precedence (product override → organization default).
-- Run authenticated browser checks on desktop and mobile: generate each share action, inspect its destination URL, complete a referral capture flow, and verify the resulting transaction attribution without creating duplicate affiliate links.
+Cause: the handler awaits the watermark request and only then calls `window.open`, so mobile browsers treat it as a blocked popup and the page shows the generic "error opening" alert. Fix by opening the file through a user-gesture-safe path (same-tab navigation to the blob/inline URL, with an explicit "Open the file" fallback link if the browser still refuses), and make the error message accurate instead of blaming the file type.
 
-## What the current data shows
-- 164 ambassador links exist across 71 people, but only 13 clicks were ever recorded against 12 sales. One link shows more sales than clicks and another shows ten clicks and zero sales, so click tracking fires inconsistently and a share of links go out with no referral code at all.
-- Only 36 of 118 workspaces have the ambassador program enabled. For the rest, enrollment raises an error that the app swallows into a console warning and returns nothing, so the share still looks successful and earns nothing.
-- The `affiliate_attributions` table holds zero rows; attribution currently survives only in a cookie and local storage for seven days.
-- Only 18 products carry an explicit commission rate, so nearly everything inherits the workspace percentage or a hardcoded fallback. Workspace rates range from 10 to 40 percent with no convention.
-- All 12 recorded commissions sit at "payable" and none have been paid. This plan does not change payout; it is worth a separate follow-up.
+## 4. Audit of the other standalone pages
 
-## Technical notes
-- Ambassador codes are workspace-scoped, not product-scoped, so a code credits any product in that workspace.
-- The database uses `organizations.affiliation_enabled` as the payout gate and `digital_products.commission_rate` as the optional per-product override; transaction processing already applies the product override before the workspace default, and correctly excludes donations, inactive codes, and self-referred purchases.
-- No historical commission or completed payment records will be rewritten.
+Same class of problem exists on pages rendered outside the app shell (payment/billing success, embed checkout, invite, certificate verification, OAuth consent, maintenance, detail pages that center content in `min-h-screen`). For each one:
+- top-aligned scrolling layout with `100dvh` and safe-area padding,
+- bottom clearance for the mobile bar,
+- responsive max-width so tablets/iPad don't show a tiny column in a large empty page,
+- no inner scroll container.
+
+Verification: drive the app in the sandbox browser at phone (390px), tablet (820px) and desktop (1280px) widths across the payment-success, purchases, product detail and reader flows, and capture screenshots to confirm nothing is clipped or hidden behind the nav.
+
+## Scope guard
+
+Presentation and layout only. No changes to payment logic, ambassador/commission logic, workspace or auth behaviour.
