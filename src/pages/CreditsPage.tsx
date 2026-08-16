@@ -192,23 +192,38 @@ export default function CreditsPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 py-4 px-3 sm:px-4">
-      {/* Header — soft aurora banner */}
-      <div className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-background to-primary/10 p-5 sm:p-7">
+    <div className="max-w-5xl mx-auto space-y-5 sm:space-y-6 py-4 px-3 sm:px-4">
+      {/* Header — aurora glass banner */}
+      <div className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-background to-primary/10 p-5 sm:p-8">
         <div className="pointer-events-none absolute -top-16 -right-10 h-48 w-48 rounded-full bg-amber-400/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-primary/15 blur-3xl" />
-        <div className="relative flex items-center gap-3 sm:gap-4">
-          <div className="h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
-            <Coins className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3 sm:gap-4 min-w-0">
+            <div className="h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
+              <Coins className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
+            </div>
+            <div className="min-w-0">
+              <Badge variant="secondary" className="mb-1.5 gap-1 rounded-full text-[10px] font-medium">
+                <Zap className="h-3 w-3 text-amber-500" />
+                {isFr ? 'Moteur de création IA' : 'AI creation engine'}
+              </Badge>
+              <h1 className="text-xl sm:text-3xl font-bold tracking-tight">{isFr ? 'Mes crédits IA' : 'My AI credits'}</h1>
+              <p className="mt-1 max-w-md text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                {isFr
+                  ? `Les crédits alimentent chaque action IA : rédaction, couvertures, transcriptions. Vous recevez ${DAILY_GRANT} crédits offerts chaque jour — rechargez uniquement quand vous accélérez.`
+                  : `Credits power every AI action: writing, covers, transcriptions. You receive ${DAILY_GRANT} free credits every day — top up only when you scale.`}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <h1 className="text-xl sm:text-3xl font-bold tracking-tight truncate">{isFr ? 'Mes Crédits IA' : 'My AI Credits'}</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              {isFr
-                ? `${DAILY_GRANT} crédits offerts chaque jour pour créer avec l'IA`
-                : `${DAILY_GRANT} free credits every day to create with AI`}
-            </p>
-          </div>
+          {summary && (
+            <div className="shrink-0 rounded-2xl border border-amber-500/25 bg-background/70 px-4 py-3 backdrop-blur-sm">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{isFr ? 'Solde actuel' : 'Current balance'}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 leading-tight">
+                {formatCredits(summary.balance)}
+                <span className="ml-1 text-xs font-medium text-muted-foreground">{isFr ? 'crédits' : 'credits'}</span>
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -246,9 +261,12 @@ export default function CreditsPage() {
               <p className="text-2xl font-bold">{formatCredits(summary.daily_remaining)}</p>
               <div className="mt-1.5 space-y-1">
                 <Progress value={dailyPercent} className="h-1.5" />
+                <p className="text-[10px] text-muted-foreground">
+                  {isFr ? `sur ${DAILY_GRANT} offerts aujourd'hui` : `of ${DAILY_GRANT} granted today`}
+                </p>
                 {summary.daily_expires_at && (
                   <p className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                    <Clock className="h-2.5 w-2.5" /> {isFr ? 'Expire dans' : 'Expires in'} {timeUntil(summary.daily_expires_at, isFr)}
+                    <Clock className="h-2.5 w-2.5" /> {isFr ? 'Renouvelés dans' : 'Renews in'} {timeUntil(summary.daily_expires_at, isFr)}
                   </p>
                 )}
               </div>
@@ -262,7 +280,7 @@ export default function CreditsPage() {
                 <span className="text-xs font-medium text-muted-foreground">Bonus</span>
               </div>
               <p className="text-2xl font-bold">{formatCredits(summary.bonus_remaining)}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'Cashback & récompenses' : 'Cashback & rewards'}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'Cashback sur vos ventes & récompenses' : 'Sales cashback & rewards'}</p>
             </CardContent>
           </Card>
 
@@ -281,39 +299,42 @@ export default function CreditsPage() {
         </div>
       )}
 
-      {/* How it works — mini banner */}
-      <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <Zap className="h-4 w-4 text-primary shrink-0" />
-              {isFr ? 'Comment ça marche ?' : 'How it works?'}
-            </div>
-            <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> {isFr ? `${DAILY_GRANT} crédits gratuits/jour` : `${DAILY_GRANT} free credits/day`}</span>
-              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> {isFr ? 'Quotidiens consommés en premier' : 'Daily credits consumed first'}</span>
-              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> {isFr ? 'Crédits achetés sans expiration' : 'Purchased credits never expire'}</span>
-              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> {isFr ? '1,5% cashback sur vos ventes' : '1.5% cashback on your sales'}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* How it works + capacity */}
+      <div className="grid gap-3 lg:grid-cols-2">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
+          <CardContent className="p-4 sm:p-5">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <Shield className="h-4 w-4 text-primary shrink-0" />
+              {isFr ? 'Comment fonctionnent les crédits' : 'How credits work'}
+            </h3>
+            <ul className="mt-3 space-y-2 text-xs sm:text-[13px] text-muted-foreground">
+              <li className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? `${DAILY_GRANT} crédits offerts automatiquement chaque jour` : `${DAILY_GRANT} credits granted automatically every day`}</li>
+              <li className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Les crédits quotidiens sont consommés en priorité' : 'Daily credits are consumed first'}</li>
+              <li className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Les crédits achetés restent valables sans limite de temps' : 'Purchased credits stay valid with no time limit'}</li>
+              <li className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? '1,5% de vos ventes vous sont reversés en crédits bonus' : '1.5% of your sales comes back as bonus credits'}</li>
+            </ul>
+          </CardContent>
+        </Card>
 
-      {/* What can you do with daily free credits */}
-      <Card className="bg-muted/30">
-        <CardContent className="p-4">
-          <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-            <Zap className="h-4 w-4 text-blue-500" />
-            {isFr ? `Que pouvez-vous faire avec ${DAILY_GRANT} crédits gratuits/jour ?` : `What can you do with ${DAILY_GRANT} free credits/day?`}
-          </h3>
-          <div className="grid sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
-            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Générer un livre complet (18 crédits)' : 'Generate a full book (18 credits)'}</div>
-            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Créer 2 couvertures de produit' : 'Create 2 product covers'}</div>
-            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Rédiger 15 descriptions de produit' : 'Write 15 product descriptions'}</div>
-            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Transcrire 4 fichiers audio/vidéo' : 'Transcribe 4 audio/video files'}</div>
-          </div>
-        </CardContent>
-      </Card>
+        <Card className="bg-muted/30">
+          <CardContent className="p-4 sm:p-5">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <Zap className="h-4 w-4 text-blue-500 shrink-0" />
+              {isFr ? `Ce que couvrent ${DAILY_GRANT} crédits gratuits` : `What ${DAILY_GRANT} free credits cover`}
+            </h3>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {isFr ? 'Estimations moyennes, chaque jour, sans frais.' : 'Average estimates, every day, at no cost.'}
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 text-xs sm:text-[13px] text-muted-foreground">
+              <div className="flex items-start gap-2"><BookOpen className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> {isFr ? 'Un livre complet (18 crédits)' : 'A full book (18 credits)'}</div>
+              <div className="flex items-start gap-2"><Image className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> {isFr ? '2 couvertures de produit' : '2 product covers'}</div>
+              <div className="flex items-start gap-2"><Zap className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> {isFr ? '15 descriptions de produit' : '15 product descriptions'}</div>
+              <div className="flex items-start gap-2"><History className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> {isFr ? '4 transcriptions audio/vidéo' : '4 audio/video transcriptions'}</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
 
       {/* Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
