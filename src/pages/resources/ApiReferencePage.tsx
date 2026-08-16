@@ -93,7 +93,7 @@ export default function ApiReferencePage() {
                           <table className="w-full table-fixed text-left text-sm">
                             <thead className="bg-muted/50">
                               <tr>
-                                <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                                <th className="w-[38%] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
                                   {isFr ? 'Paramètre' : 'Parameter'}
                                 </th>
                                 <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
