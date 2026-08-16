@@ -78,10 +78,38 @@ export function FlyerDialog({
   const effectiveLink = shortLink || link;
 
   const captions = useMemo(
-    // Captions always use the clean, human-readable product link.
-    () => buildFlyerCaptions({ title, priceLabel, link, isFr, benefit }),
-    [title, priceLabel, link, isFr, benefit],
+    // Captions always use the attributed share link (short link when available),
+    // so ambassadors never copy a link without their referral code.
+    () => buildFlyerCaptions({ title, priceLabel, link: effectiveLink, isFr, benefit }),
+    [title, priceLabel, effectiveLink, isFr, benefit],
   );
+
+  // Short links are always on: as soon as the dialog opens we mint (or reuse)
+  // the branded short link that preserves the ?ref= attribution.
+  useEffect(() => {
+    if (!open || shortLink || shortening) return;
+    let cancelled = false;
+    setShortening(true);
+    (async () => {
+      try {
+        const parsed = new URL(link, window.location.origin);
+        const url = await getOrCreateShortLink({
+          targetPath: parsed.pathname + parsed.search,
+          title,
+          description: benefit || undefined,
+          image: coverUrl || undefined,
+        });
+        if (!cancelled) setShortLink(url);
+      } catch {
+        /* keep the full link as fallback */
+      } finally {
+        if (!cancelled) setShortening(false);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, link]);
+
 
   useEffect(() => {
     if (!open) return;
