@@ -35,11 +35,25 @@ export function LandingNav() {
       nativeApp ? 'native-landing-topbar bg-background/95' : 'bg-background/85'
     )}>
       <div className="container flex items-center justify-between h-16 sm:h-[72px] px-4 sm:px-6">
-        {/* Left cluster: logo only */}
-        <div className="flex items-center">
+        {/* Left cluster: logo + resource links */}
+        <div className="flex items-center gap-7">
           <Link to="/" className="flex items-center shrink-0" aria-label="SiteViral">
             <SiteLogo size="md" animate linked={false} />
           </Link>
+          <nav className="hidden lg:flex items-center gap-6">
+            <Link to="/developers" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
+              {isFr ? 'Développeurs' : 'Developers'}
+            </Link>
+            <Link to="/docs" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
+              {isFr ? 'Documentation' : 'Docs'}
+            </Link>
+            <Link to="/integrations" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
+              {isFr ? 'Intégrations' : 'Integrations'}
+            </Link>
+            <Link to="/help" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
+              {isFr ? 'Aide' : 'Support'}
+            </Link>
+          </nav>
         </div>
 
         {/* Right cluster */}
@@ -144,6 +158,21 @@ export function LandingNav() {
                 className="text-sm font-semibold text-foreground/80 inline-flex items-center gap-1.5 px-1 py-2">
                 <Church className="h-4 w-4" /> {isFr ? 'Pour les églises' : 'For churches'}
               </Link>
+
+              <div className="grid grid-cols-2 gap-x-3 border-t border-border/60 pt-2">
+                <Link to="/developers" onClick={() => setMenuOpen(false)} className="px-1 py-2 text-sm font-semibold text-foreground/80">
+                  {isFr ? 'Développeurs' : 'Developers'}
+                </Link>
+                <Link to="/docs" onClick={() => setMenuOpen(false)} className="px-1 py-2 text-sm font-semibold text-foreground/80">
+                  {isFr ? 'Documentation' : 'Docs'}
+                </Link>
+                <Link to="/integrations" onClick={() => setMenuOpen(false)} className="px-1 py-2 text-sm font-semibold text-foreground/80">
+                  {isFr ? 'Intégrations' : 'Integrations'}
+                </Link>
+                <Link to="/help" onClick={() => setMenuOpen(false)} className="px-1 py-2 text-sm font-semibold text-foreground/80">
+                  {isFr ? 'Aide' : 'Support'}
+                </Link>
+              </div>
 
               {!user && (
                 <div className="pt-3 border-t border-border/60 mt-2 space-y-2">

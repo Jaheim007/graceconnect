@@ -49,9 +49,19 @@ export function LandingFooterCompact() {
       ],
     },
     {
+      title: isFr ? 'Développeurs' : 'Developers',
+      links: [
+        { to: '/developers',   label: isFr ? 'Vue d’ensemble'   : 'Overview' },
+        { to: '/docs',         label: isFr ? 'Documentation'    : 'Documentation' },
+        { to: '/docs/api',     label: isFr ? 'Référence outils' : 'Tool reference' },
+        { to: '/integrations', label: isFr ? 'Intégrations'     : 'Integrations' },
+      ],
+    },
+    {
       title: isFr ? 'Entreprise' : 'Company',
       links: [
         { to: '/contact', label: isFr ? 'Aide & contact' : 'Help & contact' },
+        { to: '/help',    label: isFr ? "Centre d'aide"  : 'Help center' },
         { to: '/status',  label: isFr ? 'Statut'         : 'Status' },
         { to: '/founders', label: isFr ? 'Fondateurs'    : 'Founders' },
       ],

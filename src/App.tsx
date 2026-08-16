@@ -196,6 +196,10 @@ const BlogIndexPage = lazy(() => import("@/pages/blog/BlogIndexPage"));
 const BlogArticlePage = lazy(() => import("@/pages/blog/BlogArticlePage"));
 const EtudesDeCasPage = lazy(() => import("@/pages/EtudesDeCasPage"));
 const StatusPage = lazy(() => import("@/pages/StatusPage"));
+const DevelopersPage = lazy(() => import("@/pages/resources/DevelopersPage"));
+const DocsPage = lazy(() => import("@/pages/resources/DocsPage"));
+const ApiReferencePage = lazy(() => import("@/pages/resources/ApiReferencePage"));
+const IntegrationsPage = lazy(() => import("@/pages/resources/IntegrationsPage"));
 const HelpPage = lazy(() => import("@/pages/HelpPage"));
 const PartenairesPage = lazy(() => import("@/pages/PartenairesPage"));
 const GuideVendreEbookPage = lazy(() => import("@/pages/guides/GuideVendreEbookPage"));
@@ -545,6 +549,11 @@ const App = () => (
                 <Route path="/blog/:slug" element={<BlogArticlePage />} />
                 <Route path="/etudes-de-cas" element={<EtudesDeCasPage />} />
                 <Route path="/status" element={<StatusPage />} />
+                <Route path="/developers" element={<DevelopersPage />} />
+                <Route path="/developpeurs" element={<Navigate to="/developers" replace />} />
+                <Route path="/docs" element={<DocsPage />} />
+                <Route path="/docs/api" element={<ApiReferencePage />} />
+                <Route path="/integrations" element={<IntegrationsPage />} />
                 <Route path="/help" element={<HelpPage />} />
                 <Route path="/tutoriels" element={<TutorialsPage />} />
                 <Route path="/partenaires" element={<PartenairesPage />} />
