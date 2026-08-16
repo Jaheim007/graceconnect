@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Copy, MessageCircle, QrCode, Check, Share2 } from 'lucide-react';
+import { Copy, QrCode, Check, Share2 } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/icons/BrandIcons';
 import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/i18n/I18nContext';

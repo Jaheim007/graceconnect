@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Copy, CheckCircle, MessageCircle, Share2, QrCode } from 'lucide-react';
+import { Copy, CheckCircle, Share2, QrCode } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/icons/BrandIcons';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
