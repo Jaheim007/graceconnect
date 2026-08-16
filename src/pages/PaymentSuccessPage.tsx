@@ -8,13 +8,15 @@ import {
   Package, Star,
 } from 'lucide-react';
 import { UpsellSection } from '@/components/payment/UpsellSection';
+import { ConfettiBurst } from '@/components/celebration/ConfettiBurst';
+
 import { ContextualFeedback } from '@/components/feedback/ContextualFeedback';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { Button } from '@/components/ui/button';
 import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload } from '@/lib/secureDownload';
+import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, preOpenWindow, triggerBrowserDownload } from '@/lib/secureDownload';
 import { verifyStripePayment } from '@/lib/api';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { useI18n } from '@/i18n/I18nContext';
