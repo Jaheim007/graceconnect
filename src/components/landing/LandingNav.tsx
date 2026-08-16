@@ -37,24 +37,27 @@ export function LandingNav() {
       <div className="container flex items-center justify-between h-16 sm:h-[72px] px-4 sm:px-6">
         {/* Left cluster: logo + resource links */}
         <div className="flex items-center gap-7">
-          <Link to="/" className="flex items-center shrink-0" aria-label="SiteViral">
+          <Link to="/" className="flex h-10 items-center shrink-0" aria-label="SiteViral">
             <SiteLogo size="md" animate linked={false} />
           </Link>
-          <nav className="hidden lg:flex items-center gap-6">
-            <Link to="/developers" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
-              {isFr ? 'Développeurs' : 'Developers'}
-            </Link>
-            <Link to="/docs" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
-              {isFr ? 'Documentation' : 'Docs'}
-            </Link>
-            <Link to="/integrations" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
-              {isFr ? 'Intégrations' : 'Integrations'}
-            </Link>
-            <Link to="/help" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
-              {isFr ? 'Aide' : 'Support'}
-            </Link>
+          <nav className="hidden lg:flex items-center gap-1">
+            {[
+              { to: '/developers', label: isFr ? 'Développeurs' : 'Developers' },
+              { to: '/docs', label: isFr ? 'Documentation' : 'Docs' },
+              { to: '/integrations', label: isFr ? 'Intégrations' : 'Integrations' },
+              { to: '/help', label: isFr ? 'Aide' : 'Support' },
+            ].map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="flex h-10 items-center rounded-full px-3 text-sm font-semibold leading-none text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
         </div>
+
 
         {/* Right cluster */}
         <div className="flex items-center gap-1.5 sm:gap-2">
