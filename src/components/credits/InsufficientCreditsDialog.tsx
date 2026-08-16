@@ -16,14 +16,14 @@ interface InsufficientCreditsDialogProps {
 }
 
 const EARN_ACTIONS_FR = [
-  { icon: Clock, label: 'Crédits quotidiens', desc: 'Connecte-toi chaque jour', reward: '+38,5/jour', color: 'text-blue-500', bg: 'bg-blue-500/10', route: null },
+  { icon: Clock, label: 'Crédits quotidiens', desc: 'Connecte-toi chaque jour', reward: '+20/jour', color: 'text-blue-500', bg: 'bg-blue-500/10', route: null },
   { icon: TrendingUp, label: 'Vends un produit', desc: '1,5% cashback automatique', reward: 'Cashback', color: 'text-emerald-500', bg: 'bg-emerald-500/10', route: '/admin/products' },
   { icon: Share2, label: 'Deviens ambassadeur', desc: 'Partage & gagne des commissions', reward: 'Commissions', color: 'text-purple-500', bg: 'bg-purple-500/10', route: '/gagner' },
   { icon: BookOpen, label: 'Publie du contenu', desc: 'Crée et vends des produits numériques', reward: 'Revenus', color: 'text-amber-500', bg: 'bg-amber-500/10', route: '/admin/products/new' },
 ];
 
 const EARN_ACTIONS_EN = [
-  { icon: Clock, label: 'Daily credits', desc: 'Log in every day', reward: '+38.5/day', color: 'text-blue-500', bg: 'bg-blue-500/10', route: null },
+  { icon: Clock, label: 'Daily credits', desc: 'Log in every day', reward: '+20/day', color: 'text-blue-500', bg: 'bg-blue-500/10', route: null },
   { icon: TrendingUp, label: 'Sell a product', desc: '1.5% automatic cashback', reward: 'Cashback', color: 'text-emerald-500', bg: 'bg-emerald-500/10', route: '/admin/products' },
   { icon: Share2, label: 'Become an affiliate', desc: 'Share & earn commissions', reward: 'Commissions', color: 'text-purple-500', bg: 'bg-purple-500/10', route: '/gagner' },
   { icon: BookOpen, label: 'Publish content', desc: 'Create & sell digital products', reward: 'Revenue', color: 'text-amber-500', bg: 'bg-amber-500/10', route: '/admin/products/new' },
