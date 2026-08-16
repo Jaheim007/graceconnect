@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Copy, CheckCircle, MessageCircle, Share2, QrCode } from 'lucide-react';
+import { WhatsAppIcon } from '@/components/icons/BrandIcons';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -128,7 +129,7 @@ export function AffiliateShareTools({ shareUrl, orgName, affiliateCode, productT
 
       <div className="space-y-2">
         <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-          <MessageCircle className="h-3.5 w-3.5 text-green-500" />
+          <WhatsAppIcon className="h-3.5 w-3.5 text-[#25D366]" />
           {isFr ? 'Messages pré-rédigés WhatsApp' : 'Pre-written WhatsApp messages'}
         </p>
         <div className="space-y-1.5">
