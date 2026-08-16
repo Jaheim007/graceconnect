@@ -188,20 +188,8 @@ export function FlyerDialog({
     );
   };
 
-  const handleShorten = async () => {
-    if (shortLink || shortening) return;
-    setShortening(true);
-    try {
-      const path = new URL(link).pathname + new URL(link).search;
-      const url = await getOrCreateShortLink({ targetPath: path, title, description: benefit || undefined, image: coverUrl || undefined });
-      setShortLink(url);
-      toast.success(t('Lien court généré', 'Short link ready'));
-    } catch {
-      toast.error(t('Impossible de raccourcir le lien', 'Could not shorten the link'));
-    } finally {
-      setShortening(false);
-    }
-  };
+
+
 
   const downloadDataUrl = (url: string, name: string) => {
     const a = document.createElement('a');
