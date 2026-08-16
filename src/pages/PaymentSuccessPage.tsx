@@ -446,6 +446,17 @@ export default function PaymentSuccessPage() {
                       {reading ? (isFr ? 'Ouverture…' : 'Opening…') : (isFr ? '📖 Lire maintenant' : '📖 Read now')}
                     </Button>
                   )}
+                  {inlineFallbackUrl && (
+                    <a
+                      href={inlineFallbackUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block text-center text-xs text-primary underline underline-offset-2"
+                    >
+                      {isFr ? "Ouvrir le document" : 'Open the document'}
+                    </a>
+                  )}
+
                   {tx.file_url && (
                     <Button onClick={handleDownload} disabled={downloading} variant={isBook ? 'outline' : 'default'} className="w-full gap-2 h-11 font-semibold">
                       {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}

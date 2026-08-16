@@ -24,20 +24,18 @@ import { UpgradeMigrationModal } from '@/components/siteviral/UpgradeMigrationMo
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
 const pageVariants = {
-  initial: { opacity: 0, scale: 0.96, filter: 'blur(6px)' },
+  initial: { opacity: 0, y: 8 },
   animate: {
     opacity: 1,
-    scale: 1,
-    filter: 'blur(0px)',
-    transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
+    y: 0,
+    transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
   },
   exit: {
     opacity: 0,
-    scale: 0.97,
-    filter: 'blur(4px)',
-    transition: { duration: 0.15, ease: 'easeIn' as const },
+    transition: { duration: 0.12, ease: 'easeIn' as const },
   },
 };
+
 
 /**
  * AppLayout — Unified shell for all authenticated users.
