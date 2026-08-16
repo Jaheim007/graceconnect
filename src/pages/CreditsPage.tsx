@@ -307,10 +307,10 @@ export default function CreditsPage() {
             {isFr ? `Que pouvez-vous faire avec ${DAILY_GRANT} crédits gratuits/jour ?` : `What can you do with ${DAILY_GRANT} free credits/day?`}
           </h3>
           <div className="grid sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
-            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Générer un livre complet (8 chapitres)' : 'Generate a full book (8 chapters)'}</div>
-            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Créer 5 couvertures de produit' : 'Create 5 product covers'}</div>
-            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Rédiger 21 descriptions de produit' : 'Write 21 product descriptions'}</div>
-            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Transcrire 8 fichiers audio/vidéo' : 'Transcribe 8 audio/video files'}</div>
+            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Générer un livre complet (18 crédits)' : 'Generate a full book (18 credits)'}</div>
+            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Créer 2 couvertures de produit' : 'Create 2 product covers'}</div>
+            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Rédiger 15 descriptions de produit' : 'Write 15 product descriptions'}</div>
+            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Transcrire 4 fichiers audio/vidéo' : 'Transcribe 4 audio/video files'}</div>
           </div>
         </CardContent>
       </Card>
