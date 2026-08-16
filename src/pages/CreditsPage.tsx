@@ -19,6 +19,9 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useI18n } from '@/i18n/I18nContext';
 
+/** Free credits granted every day (matches grant_daily_credits default). */
+const DAILY_GRANT = 20;
+
 function formatCredits(n: number): string {
   if (Number.isInteger(n)) return n.toString();
   return n.toFixed(1);
