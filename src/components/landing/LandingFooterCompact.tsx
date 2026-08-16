@@ -84,6 +84,7 @@ export function LandingFooterCompact() {
         { to: '/copyright',     label: isFr ? 'Droits d’auteur' : 'Copyright' },
         { to: '/data-deletion', label: isFr ? 'Suppression données' : 'Data deletion' },
         { to: '/legal-notices', label: isFr ? 'Mentions légales' : 'Legal notices' },
+        { to: '/report',        label: isFr ? 'Signaler un abus' : 'Report abuse' },
       ],
     },
   ];
