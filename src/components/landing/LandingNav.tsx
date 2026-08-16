@@ -62,8 +62,8 @@ export function LandingNav() {
         {/* Right cluster */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {user && <PlanBadge compact />}
-          <div className="hidden sm:flex items-center">
-            <GlobalPreferencesSelector className="h-10 px-2.5 rounded-full" />
+          <div className="flex items-center">
+            <GlobalPreferencesSelector className="h-10 px-2 sm:px-2.5 rounded-full border border-border/60" />
           </div>
 
           <Button
