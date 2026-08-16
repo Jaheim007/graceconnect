@@ -60,12 +60,16 @@ export function LandingFooterCompact() {
     {
       title: isFr ? 'Entreprise' : 'Company',
       links: [
+        { to: '/about',   label: isFr ? 'À propos'       : 'About' },
         { to: '/contact', label: isFr ? 'Aide & contact' : 'Help & contact' },
         { to: '/help',    label: isFr ? "Centre d'aide"  : 'Help center' },
+        { to: '/roadmap', label: isFr ? 'Feuille de route' : 'Roadmap' },
+        { to: '/newsletter', label: 'Newsletter' },
         { to: '/status',  label: isFr ? 'Statut'         : 'Status' },
         { to: '/founders', label: isFr ? 'Fondateurs'    : 'Founders' },
         { to: '/brand',    label: isFr ? 'Marque & presse' : 'Brand & press' },
         { to: '/glossary', label: isFr ? 'Glossaire'      : 'Glossary' },
+        { to: '/plan-du-site', label: isFr ? 'Plan du site' : 'Site map' },
       ],
     },
     {
