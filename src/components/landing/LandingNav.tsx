@@ -151,7 +151,7 @@ export function LandingNav() {
                 className="flex items-center gap-3 rounded-2xl border border-border/60 bg-muted/40 px-4 py-3.5 transition-colors hover:bg-muted/70"
               >
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                  <Church className="h-4.5 w-4.5" />
+                  <Church className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
                   <span className="block text-sm font-bold leading-tight">{isFr ? 'Pour les églises' : 'For churches'}</span>
