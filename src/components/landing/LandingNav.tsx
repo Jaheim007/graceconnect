@@ -59,14 +59,14 @@ export function LandingNav() {
         {/* Right cluster */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {user && <PlanBadge compact />}
-          <div className="hidden sm:block">
-            <GlobalPreferencesSelector />
+          <div className="hidden sm:flex items-center">
+            <GlobalPreferencesSelector className="h-10 px-2.5 rounded-full" />
           </div>
 
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 hidden sm:inline-flex rounded-full hover:bg-muted/60"
+            className="h-10 w-10 hidden sm:inline-flex rounded-full hover:bg-muted/60"
             onClick={toggleTheme}
             aria-label={isFr ? 'Changer de thème' : 'Toggle theme'}
           >
@@ -76,7 +76,7 @@ export function LandingNav() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 h-9 px-2 rounded-lg hover:bg-muted/60 transition-colors">
+                <button className="flex items-center gap-2 h-10 px-2 rounded-full hover:bg-muted/60 transition-colors">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="" className="h-7 w-7 rounded-full object-cover border border-border" />
                   ) : (
@@ -84,9 +84,10 @@ export function LandingNav() {
                       {initials}
                     </div>
                   )}
-                  <span className="hidden sm:block text-sm font-medium text-foreground max-w-[120px] truncate">{displayName}</span>
+                  <span className="hidden sm:block text-sm font-medium leading-none text-foreground max-w-[120px] truncate">{displayName}</span>
                 </button>
               </DropdownMenuTrigger>
+
               <DropdownMenuContent align="end" className="w-60">
                 <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
                   {isFr ? 'Mon compte' : 'My account'}
