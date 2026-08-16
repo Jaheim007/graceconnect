@@ -18,8 +18,8 @@ export function LandingTrustShield() {
     },
     {
       icon: MessageSquareLock,
-      title: 'Communication protégée',
-      text: 'Échanges intégrés entre clients et professionnels sur la plateforme.',
+      title: 'Livraison immédiate',
+      text: "Ton client reçoit son accès dès le paiement confirmé, sans intervention manuelle.",
     },
     {
       icon: FileKey,
@@ -28,8 +28,8 @@ export function LandingTrustShield() {
     },
     {
       icon: ShieldCheck,
-      title: 'Compte et pros',
-      text: "Vérifications de paiement, gestion des rôles et outils de signalement.",
+      title: 'Compte et paiements protégés',
+      text: "Vérification des versements, gestion des rôles et suivi complet de tes ventes.",
     },
   ] : [
     {
@@ -39,8 +39,8 @@ export function LandingTrustShield() {
     },
     {
       icon: MessageSquareLock,
-      title: 'Protected communication',
-      text: 'Buyers and providers exchange messages through the platform.',
+      title: 'Instant delivery',
+      text: 'Your buyer gets access the moment payment clears — no manual steps.',
     },
     {
       icon: FileKey,
@@ -49,10 +49,11 @@ export function LandingTrustShield() {
     },
     {
       icon: ShieldCheck,
-      title: 'Account and provider safeguards',
-      text: 'Payout verification, role management and reporting tools.',
+      title: 'Account and payout safeguards',
+      text: 'Payout verification, role management and full sales reporting.',
     },
   ];
+
 
   return (
     <section className="container max-w-6xl px-4 sm:px-6 py-14 sm:py-16">
