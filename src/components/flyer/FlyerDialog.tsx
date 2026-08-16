@@ -398,16 +398,15 @@ export function FlyerDialog({
                   {t('Carte QR', 'QR card')}
                 </Button>
               </div>
-              <Button
-                onClick={handleShorten}
-                disabled={!!shortLink || shortening}
-                variant="ghost"
-                size="sm"
-                className="w-full gap-1.5 text-xs"
-              >
-                {shortening ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Scissors className="h-3.5 w-3.5" />}
-                {shortLink ? t('Lien court actif', 'Short link active') : t('Utiliser un lien court', 'Use a short link')}
-              </Button>
+              <p className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+                {shortening
+                  ? <Loader2 className="h-3 w-3 animate-spin" />
+                  : <Check className="h-3 w-3 text-emerald-500" />}
+                {shortening
+                  ? t('Préparation du lien de partage…', 'Preparing your share link…')
+                  : t('Lien court avec votre attribution ambassadeur', 'Short link with your ambassador attribution')}
+              </p>
+
             </div>
 
             <div className="space-y-2 border-t border-border pt-3">
