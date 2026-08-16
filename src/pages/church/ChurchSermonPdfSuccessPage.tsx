@@ -55,7 +55,7 @@ export default function ChurchSermonPdfSuccessPage() {
   }, [reference]);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="sv-nav-clearance min-h-[100dvh] bg-background flex items-start sm:items-center justify-center px-4 pt-4 pb-10 sm:py-10">
       <div className="max-w-md w-full rounded-3xl border border-border bg-card p-8 text-center space-y-4">
         {status === 'checking' || status === 'pending' ? (
           <>

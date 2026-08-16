@@ -98,7 +98,7 @@ export default function WelcomeIntentPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="sv-nav-clearance min-h-[100dvh] bg-background flex items-start sm:items-center justify-center p-4 pb-10 sm:py-10">
       <SEOHead title={`${isFr ? 'Bienvenue' : 'Welcome'} — SiteViral`} description={isFr ? 'Choisissez votre espace' : 'Choose your space'} noindex />
       <div className="w-full max-w-md">
         <motion.div

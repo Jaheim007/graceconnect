@@ -19,7 +19,7 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="sv-nav-clearance flex min-h-[100dvh] items-center justify-center bg-background px-4 py-10">
       <SEOHead title="404 — Page introuvable | Siteviral" noindex />
       <div className="text-center max-w-md mx-auto space-y-6">
         <div className="h-20 w-20 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">

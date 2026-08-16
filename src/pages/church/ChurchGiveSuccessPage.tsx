@@ -34,7 +34,7 @@ export default function ChurchGiveSuccessPage() {
   const status = donation?.status;
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="sv-nav-clearance min-h-[100dvh] bg-background flex items-start sm:items-center justify-center p-4 pb-10 sm:py-10">
       <div className="max-w-md w-full text-center space-y-4">
         {status === 'completed' ? (
           <>
