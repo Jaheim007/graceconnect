@@ -37,6 +37,43 @@ export function SpaceBlock({ spaceName, spaceCount }: { spaceName: string | null
             </p>
           </div>
         </div>
+        {hasSalesActivity && (
+          <div className="space-y-2">
+            <Link
+              to="/admin/sales"
+              onClick={() => markSurfaceVisit('create')}
+              className="flex items-center gap-3 rounded-2xl border border-amber-500/25 bg-amber-500/5 px-3 py-2.5 transition hover:border-amber-500/50"
+            >
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-amber-500/15">
+                <Wallet className="h-4 w-4 text-amber-500" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                  {isFr ? 'Gagné sur mes ventes' : 'Earned from my sales'}
+                </p>
+                <p className="text-xl font-black leading-none tabular-nums text-amber-500">
+                  {fmt(sales.netAmount + sales.donationsAmount, sales.currency)}
+                </p>
+              </div>
+              <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+            </Link>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="rounded-2xl border border-border bg-card px-3 py-2">
+                <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <ShoppingCart className="h-3.5 w-3.5" /> {isFr ? 'Ventes' : 'Sales'}
+                </p>
+                <p className="text-base font-bold tabular-nums">{sales.salesCount}</p>
+              </div>
+              <div className="rounded-2xl border border-border bg-card px-3 py-2">
+                <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <Heart className="h-3.5 w-3.5" /> {isFr ? 'Dons' : 'Donations'}
+                </p>
+                <p className="text-base font-bold tabular-nums">{sales.donationsCount}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid gap-2 sm:grid-cols-2">
           <Link
             to="/admin/settings"
