@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { AnswerBlock } from '@/components/seo/AnswerBlock';
 import { jsonLdSchemas } from '@/lib/jsonLdSchemas';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { formatCurrency, formatPrice } from '@/lib/currency';
@@ -665,6 +666,16 @@ export default function ProductDetailPage() {
               locale={locale}
               t={t}
             />
+
+            <AnswerBlock
+              items={answerItems}
+              title={isFr ? 'Questions fréquentes' : 'Frequently asked questions'}
+              lead={isFr
+                ? `Tout ce qu'il faut savoir avant d'acheter « ${product.title} ».`
+                : `What to know before buying "${product.title}".`}
+              className="mt-6"
+            />
+
 
           </motion.div>
 

@@ -5,6 +5,8 @@ import { db } from '@/lib/db';
 import { useProgram, useProgramModules, useEnrollment, useLessonProgress, useEnrollInProgram, useToggleLessonComplete } from '@/hooks/usePrograms';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { AnswerBlock } from '@/components/seo/AnswerBlock';
+import { jsonLdSchemas } from '@/lib/jsonLdSchemas';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -364,6 +366,38 @@ export default function ProgramDetailPage() {
     },
   };
 
+  // ─── AEO / LLMO: canonical direct answers (rendered + FAQPage JSON-LD) ───
+  const courseAnswers: { q: string; a: string }[] = [
+    {
+      q: isFr ? `Que contient le cours « ${program.title} » ?` : `What is included in "${program.title}"?`,
+      a: isFr
+        ? `${modules.length} module(s) et ${totalLessons} leçon(s) en ligne, accessibles à vie depuis votre compte, avec suivi de progression et certificat à la fin.`
+        : `${modules.length} module(s) and ${totalLessons} online lesson(s), available for life from your account, with progress tracking and a certificate at the end.`,
+    },
+    {
+      q: isFr ? 'Combien coûte ce cours ?' : 'How much does this course cost?',
+      a: isFr
+        ? `${priceDisplay}. Paiement unique, sans frais caché ni abonnement obligatoire.`
+        : `${priceDisplay}. One-time payment, no hidden fees and no mandatory subscription.`,
+    },
+    {
+      q: isFr ? 'Comment payer sans compte bancaire ?' : 'Can I pay without a bank account?',
+      a: isFr
+        ? 'Oui. Le paiement par Mobile Money (Orange Money, MTN, Wave) est accepté, ainsi que la carte bancaire. Aucun compte bancaire requis.'
+        : 'Yes. Mobile Money (Orange Money, MTN, Wave) is accepted, as well as bank cards. No bank account is required.',
+    },
+    {
+      q: isFr ? 'Quand puis-je commencer ?' : 'When can I start?',
+      a: isFr
+        ? "Immédiatement : l'accès est débloqué automatiquement dès la confirmation du paiement, et vous avancez à votre rythme."
+        : 'Immediately: access unlocks automatically once the payment is confirmed, and you learn at your own pace.',
+    },
+  ];
+
+  const courseFaqJsonLd = jsonLdSchemas.faqPage(courseAnswers);
+
+
+
   if (playerOpen && programId) {
     return (
       <LessonPlayerOverlay
@@ -399,7 +433,7 @@ export default function ProgramDetailPage() {
         ogImage={program.cover_image_url || undefined}
         ogType="article"
         canonicalUrl={buildCourseShareUrl(programId!)}
-        jsonLd={courseJsonLd}
+        jsonLd={[courseJsonLd, courseFaqJsonLd]}
       />
 
       {/* Draft banner for admins */}
@@ -735,6 +769,13 @@ export default function ProgramDetailPage() {
                 </div>
               </div>
             )}
+            <AnswerBlock
+              items={courseAnswers}
+              title={isFr ? 'Questions fréquentes' : 'Frequently asked questions'}
+              lead={isFr
+                ? `Ce qu'il faut savoir avant de vous inscrire à « ${program.title} ».`
+                : `What to know before enrolling in "${program.title}".`}
+            />
           </motion.div>
 
           {/* Right sidebar */}
