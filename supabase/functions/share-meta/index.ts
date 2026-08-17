@@ -52,6 +52,8 @@ const BOT_UA_PATTERNS = [
   'bingbot', 'yandexbot', 'applebot', 'pinterestbot', 'redditbot',
   'embedly', 'quora link preview', 'outbrain', 'vkshare', 'w3c_validator',
   'semrushbot', 'ahrefsbot', 'petalbot', 'seznambot',
+  // AI assistants, answer engines and LLM crawlers
+  ...AI_BOT_UA_PATTERNS,
 ];
 
 function isBot(userAgent: string): boolean {
