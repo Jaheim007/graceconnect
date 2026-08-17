@@ -440,16 +440,30 @@ Deno.serve(async (req) => {
   let image = explicitImg || meta?.image || DEFAULT_IMAGE;
   try { image = new URL(image).toString(); } catch { image = DEFAULT_IMAGE; }
 
-  // ─── Bot → static OG HTML (200, no redirect) ───
+  // ─── Bot → crawlable HTML (200, no redirect) ───
   if (botRequest) {
-    return new Response(renderBotHtml(title, description, image, targetUrl), {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'public, max-age=300, s-maxage=600',
-        'Vary': 'User-Agent',
-      },
-    });
+    const htmlHeaders = {
+      ...corsHeaders,
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'public, max-age=300, s-maxage=1800',
+      'Vary': 'User-Agent',
+      'X-Robots-Tag': 'index, follow, max-image-preview:large, max-snippet:-1',
+    };
+
+    // Full content rendering: real heading, prose, key facts, FAQ, links, JSON-LD
+    if (resolvedPath && !explicitTitle) {
+      try {
+        const rich = await resolveRichPage(resolvedPath);
+        if (rich) {
+          return new Response(renderRichHtml(rich, targetUrl), { headers: htmlHeaders });
+        }
+      } catch (e) {
+        console.error('rich render failed', resolvedPath, e);
+      }
+    }
+
+    // Fallback: metadata-only document
+    return new Response(renderBotHtml(title, description, image, targetUrl), { headers: htmlHeaders });
   }
 
   // ─── Human → 302 redirect ───
