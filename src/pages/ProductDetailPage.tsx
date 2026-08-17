@@ -302,6 +302,42 @@ export default function ProductDetailPage() {
   const testimonials: { name: string; text: string }[] = (product as any).testimonials_json || [];
   const guaranteeText: string | null = (product as any).guarantee_text;
 
+  // ─── AEO / LLMO: canonical answers + Book typing for ebooks ───
+  const productCanonical = `https://siteviral.com/org/${slug}/p/${(product as any).slug || product.id}`;
+  const isBookProduct = /book/i.test(product.product_type || '');
+  const priceLabel = product.is_free
+    ? (isFr ? 'Gratuit' : 'Free')
+    : `${Number(product.price || 0).toLocaleString('fr-FR')} ${product.currency || 'XOF'}`;
+
+  const answerItems: { q: string; a: string }[] = faqItems.length > 0
+    ? faqItems
+    : [
+        {
+          q: isFr ? `Comment acheter « ${product.title} » ?` : `How do I buy "${product.title}"?`,
+          a: isFr
+            ? 'Cliquez sur le bouton d\'achat, choisissez Mobile Money (Orange Money, MTN, Wave) ou carte bancaire, puis payez. Le fichier est disponible immédiatement après confirmation du paiement.'
+            : 'Tap the buy button, choose Mobile Money (Orange Money, MTN, Wave) or a bank card, then pay. The file is available immediately after the payment is confirmed.',
+        },
+        {
+          q: isFr ? 'Combien ça coûte ?' : 'How much does it cost?',
+          a: isFr
+            ? `${priceLabel}. Aucun frais caché : le prix affiché est le prix payé.`
+            : `${priceLabel}. No hidden fees — the price shown is the price you pay.`,
+        },
+        {
+          q: isFr ? 'Faut-il un compte bancaire ?' : 'Do I need a bank account?',
+          a: isFr
+            ? "Non. Le paiement par Mobile Money suffit ; aucun compte bancaire n'est nécessaire."
+            : 'No. Mobile Money is enough — no bank account is required.',
+        },
+        {
+          q: isFr ? 'Comment je reçois mon achat ?' : 'How do I receive my purchase?',
+          a: isFr
+            ? 'La livraison est automatique : le contenu est accessible depuis votre compte et par e-mail dès le paiement validé.'
+            : 'Delivery is automatic: the content is available in your account and by email as soon as the payment goes through.',
+        },
+      ];
+
   const orgPrimary = pageSettings?.theme_primary_color;
   const bannerBg = orgPrimary
     ? { background: `linear-gradient(135deg, ${orgPrimary}18, ${orgPrimary}08, transparent)` }
