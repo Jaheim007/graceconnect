@@ -178,7 +178,6 @@ Deno.serve(async (req) => {
       sb.from("media_content").select("id, updated_at, organizations(slug)").eq("is_published", true),
     ]);
 
-    const today = new Date().toISOString().split("T")[0];
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -245,8 +244,7 @@ Deno.serve(async (req) => {
     if (offerings) {
       for (const o of offerings) {
         xml += `  <url>
-    <loc>${SITE_URL}/offering/${o.id}</loc>
-    <lastmod>${(o as any).updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${SITE_URL}/offering/${o.id}</loc>${lastmodTag((o as any).updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -268,8 +266,7 @@ Deno.serve(async (req) => {
     if (programs) {
       for (const p of programs) {
         xml += `  <url>
-    <loc>${SITE_URL}/program/${p.id}</loc>
-    <lastmod>${(p as any).updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${SITE_URL}/program/${p.id}</loc>${lastmodTag((p as any).updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -280,8 +277,7 @@ Deno.serve(async (req) => {
     if (mediaContent) {
       for (const m of mediaContent) {
         xml += `  <url>
-    <loc>${SITE_URL}/watch/${m.id}</loc>
-    <lastmod>${(m as any).updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${SITE_URL}/watch/${m.id}</loc>${lastmodTag((m as any).updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -306,7 +302,6 @@ Deno.serve(async (req) => {
 
 /** Generate an org-specific sitemap for custom domains */
 async function generateOrgSitemap(sb: any, orgId: string, siteBase: string): Promise<Response> {
-  const today = new Date().toISOString().split("T")[0];
 
   const [
     { data: org },
@@ -395,8 +390,7 @@ async function generateOrgSitemap(sb: any, orgId: string, siteBase: string): Pro
   if (offerings) {
     for (const o of offerings) {
       xml += `  <url>
-    <loc>${siteBase}/offering/${o.id}</loc>
-    <lastmod>${(o as any).updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${siteBase}/offering/${o.id}</loc>${lastmodTag((o as any).updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -420,8 +414,7 @@ async function generateOrgSitemap(sb: any, orgId: string, siteBase: string): Pro
   if (programs) {
     for (const p of programs) {
       xml += `  <url>
-    <loc>${siteBase}/program/${p.id}</loc>
-    <lastmod>${(p as any).updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${siteBase}/program/${p.id}</loc>${lastmodTag((p as any).updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
