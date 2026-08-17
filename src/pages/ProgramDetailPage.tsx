@@ -5,6 +5,8 @@ import { db } from '@/lib/db';
 import { useProgram, useProgramModules, useEnrollment, useLessonProgress, useEnrollInProgram, useToggleLessonComplete } from '@/hooks/usePrograms';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { AnswerBlock } from '@/components/seo/AnswerBlock';
+import { jsonLdSchemas } from '@/lib/jsonLdSchemas';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -431,7 +433,7 @@ export default function ProgramDetailPage() {
         ogImage={program.cover_image_url || undefined}
         ogType="article"
         canonicalUrl={buildCourseShareUrl(programId!)}
-        jsonLd={courseJsonLd}
+        jsonLd={[courseJsonLd, courseFaqJsonLd]}
       />
 
       {/* Draft banner for admins */}
@@ -767,6 +769,13 @@ export default function ProgramDetailPage() {
                 </div>
               </div>
             )}
+            <AnswerBlock
+              items={courseAnswers}
+              title={isFr ? 'Questions fréquentes' : 'Frequently asked questions'}
+              lead={isFr
+                ? `Ce qu'il faut savoir avant de vous inscrire à « ${program.title} ».`
+                : `What to know before enrolling in "${program.title}".`}
+            />
           </motion.div>
 
           {/* Right sidebar */}
