@@ -388,6 +388,12 @@ Deno.serve(async (req) => {
 
   let targetUrl = SITE_URL;
   let meta: MetaResult | null = null;
+  // Public path we are describing — used to render full crawlable HTML for bots
+  let resolvedPath: string | null =
+    reqUrl.searchParams.get('path') ||
+    req.headers.get('x-original-path') ||
+    req.headers.get('x-forwarded-path') ||
+    null;
 
   const codeParam = reqUrl.searchParams.get('code');
   const pathParam = reqUrl.searchParams.get('path');
@@ -396,6 +402,7 @@ Deno.serve(async (req) => {
     const resolved = await resolveShortCode(codeParam);
     if (resolved) {
       targetUrl = `${SITE_URL}${resolved.targetPath}`;
+      resolvedPath = resolved.targetPath;
 
       // Always try DB resolution first for complete metadata
       let dbMeta: MetaResult | null = null;
@@ -411,6 +418,7 @@ Deno.serve(async (req) => {
   } else if (pathParam) {
     const cleanPath = pathParam.startsWith('/') ? pathParam : `/${pathParam}`;
     targetUrl = `${SITE_URL}${cleanPath}`;
+    resolvedPath = cleanPath;
     try { meta = await resolveFromPath(cleanPath); } catch { /* fallback */ }
   } else {
     const targetParam = reqUrl.searchParams.get('target');
