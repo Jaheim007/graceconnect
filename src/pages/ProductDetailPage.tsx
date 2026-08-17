@@ -666,6 +666,16 @@ export default function ProductDetailPage() {
               t={t}
             />
 
+            <AnswerBlock
+              items={answerItems}
+              title={isFr ? 'Questions fréquentes' : 'Frequently asked questions'}
+              lead={isFr
+                ? `Tout ce qu'il faut savoir avant d'acheter « ${product.title} ».`
+                : `What to know before buying "${product.title}".`}
+              className="mt-6"
+            />
+
+
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:sticky md:top-[6.5rem] md:self-start space-y-4 md:max-h-[calc(100vh-7rem)] md:overflow-y-auto scrollbar-hide">
