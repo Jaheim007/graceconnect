@@ -32,6 +32,8 @@ import { OrgPublicHeader } from '@/components/org/OrgPublicHeader';
 import { OrgHomeSections } from '@/components/org/OrgHomeSections';
 import { PixelInjector } from '@/components/org/PixelInjector';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { AnswerBlock } from '@/components/seo/AnswerBlock';
+import { jsonLdSchemas } from '@/lib/jsonLdSchemas';
 import { DynamicFavicon } from '@/components/seo/DynamicFavicon';
 import { SmartPopup } from '@/components/org/SmartPopup';
 import { WaitlistWidget } from '@/components/org/WaitlistWidget';
@@ -197,6 +199,40 @@ export default function OrgPublicPage() {
   const toggleAffiliation = async () => {
     // Handled inside OrgAdminToolbar — kept for backwards compat
   };
+
+  const isFrOrg = locale === 'fr';
+  const orgKindLabel = org.category === 'church'
+    ? (isFrOrg ? 'église' : 'church')
+    : org.category === 'ngo'
+      ? (isFrOrg ? 'ONG' : 'NGO')
+      : (isFrOrg ? 'créateur' : 'creator');
+  const orgAnswers: { q: string; a: string }[] = [
+    {
+      q: isFrOrg ? `Qu'est-ce que ${org.name} ?` : `What is ${org.name}?`,
+      a: (stripHtml(org.description || '').slice(0, 280))
+        || (isFrOrg
+          ? `${org.name} est un espace ${orgKindLabel} hébergé sur Siteviral, avec ses contenus, produits numériques, formations et événements réunis sur une seule page.`
+          : `${org.name} is a ${orgKindLabel} space hosted on Siteviral, gathering its content, digital products, courses and events on a single page.`),
+    },
+    {
+      q: isFrOrg ? `Que peut-on trouver ou acheter ici ?` : 'What can I find or buy here?',
+      a: isFrOrg
+        ? `Cette page réunit ${products.length} produit(s) numérique(s), ${publishedPrograms.length} formation(s) et ${events.length} événement(s) publiés par ${org.name}. Chaque élément a sa propre page avec son prix et sa description.`
+        : `This page gathers ${products.length} digital product(s), ${publishedPrograms.length} course(s) and ${events.length} event(s) published by ${org.name}. Each item has its own page with price and description.`,
+    },
+    {
+      q: isFrOrg ? 'Comment se passe le paiement ?' : 'How does payment work?',
+      a: isFrOrg
+        ? 'Les paiements se font par Mobile Money (Orange Money, MTN, Wave) ou carte bancaire. Aucun compte bancaire n\'est nécessaire, et l\'accès au contenu acheté est automatique.'
+        : 'Payments are made by Mobile Money (Orange Money, MTN, Wave) or bank card. No bank account is needed, and access to purchased content is automatic.',
+    },
+    {
+      q: isFrOrg ? `Comment contacter ou suivre ${org.name} ?` : `How do I contact or follow ${org.name}?`,
+      a: isFrOrg
+        ? `Depuis cette page : consultez les annonces, inscrivez-vous aux événements${org.website ? `, ou visitez le site officiel ${org.website}` : ''}. Les nouveautés apparaissent automatiquement ici.`
+        : `From this page: read the announcements, sign up for events${org.website ? `, or visit the official site ${org.website}` : ''}. New releases appear here automatically.`,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background" style={themeStyle}>
@@ -398,6 +434,14 @@ export default function OrgPublicPage() {
                   {!hasAnyContent && (waitlists as any[]).filter(w => w.is_active).length === 0 && (
                     <EmptyState variant="content" description={t('org_public.no_content')} />
                   )}
+
+                  <AnswerBlock
+                    items={orgAnswers}
+                    title={isFrOrg ? 'Questions fréquentes' : 'Frequently asked questions'}
+                    lead={isFrOrg
+                      ? `L'essentiel à savoir sur ${org.name}.`
+                      : `The essentials about ${org.name}.`}
+                  />
                 </TabsContent>
 
                 {/* STORE */}
