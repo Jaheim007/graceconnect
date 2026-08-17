@@ -359,22 +359,33 @@ export default function ProductDetailPage() {
         description={stripHtml(product.description || '').slice(0, 155) || `Achetez ${product.title} sur Siteviral — ${product.is_free ? 'Gratuit' : `${product.price} ${product.currency || 'XOF'}`}. Paiement Mobile Money & Carte.`}
         ogImage={product.cover_image_url || undefined}
         ogType="product"
-        canonicalUrl={`https://siteviral.com/org/${slug}/p/${(product as any).slug || product.id}`}
+        canonicalUrl={productCanonical}
         keywords={`${product.title}, ${org?.name || ''}, acheter ${product.product_type || 'produit numérique'}, ${product.currency || 'XOF'}, Siteviral`}
         jsonLd={[
-          // Product schema
+          // Product schema — also typed as Book for ebooks
           {
             '@context': 'https://schema.org',
-            '@type': 'Product',
+            '@type': isBookProduct ? ['Product', 'Book'] : 'Product',
             name: product.title,
-            description: product.description,
+            description: stripHtml(product.description || '').slice(0, 500) || undefined,
             image: product.cover_image_url,
+            url: productCanonical,
+            inLanguage: (product as any).content_language || locale,
             brand: { '@type': 'Organization', name: org?.name },
+            ...(isBookProduct
+              ? {
+                  bookFormat: 'https://schema.org/EBook',
+                  numberOfPages: (product as any).page_count || undefined,
+                  author: { '@type': 'Organization', name: org?.name },
+                }
+              : {}),
             offers: {
               '@type': 'Offer',
-              price: product.is_free ? '0' : String(product.price || 0),
-              priceCurrency: product.currency || 'USD',
+              url: productCanonical,
+              price: product.is_free ? '0' : String((product as any).sale_price ?? product.price ?? 0),
+              priceCurrency: product.currency || 'XOF',
               availability: 'https://schema.org/InStock',
+              category: product.is_free ? 'Free' : 'Paid',
               seller: { '@type': 'Organization', name: org?.name },
             },
             ...(product.review_count && product.review_count > 0 ? {
@@ -387,6 +398,16 @@ export default function ProductDetailPage() {
               },
             } : {}),
           },
+          // Publisher / seller organization
+          jsonLdSchemas.orgProfile({
+            name: org?.name || 'Siteviral',
+            slug: slug,
+            category: org?.category,
+            description: stripHtml(org?.description || '').slice(0, 300) || undefined,
+            logo: org?.logo_url || undefined,
+            website: org?.website || undefined,
+            country: org?.country || undefined,
+          }),
           // BreadcrumbList schema
           {
             '@context': 'https://schema.org',
@@ -394,19 +415,11 @@ export default function ProductDetailPage() {
             itemListElement: [
               { '@type': 'ListItem', position: 1, name: 'Siteviral', item: 'https://siteviral.com' },
               { '@type': 'ListItem', position: 2, name: org?.name, item: `https://siteviral.com/org/${slug}` },
-              { '@type': 'ListItem', position: 3, name: product.title, item: `https://siteviral.com/org/${slug}/p/${(product as any).slug || product.id}` },
+              { '@type': 'ListItem', position: 3, name: product.title, item: productCanonical },
             ],
           },
-          // FAQ schema (if product has FAQ)
-          ...(faqItems.length > 0 ? [{
-            '@context': 'https://schema.org',
-            '@type': 'FAQPage',
-            mainEntity: faqItems.map(f => ({
-              '@type': 'Question',
-              name: f.q,
-              acceptedAnswer: { '@type': 'Answer', text: f.a },
-            })),
-          }] : []),
+          // FAQPage — real FAQ when the seller wrote one, canonical answers otherwise
+          jsonLdSchemas.faqPage(answerItems),
         ]}
       />
 
