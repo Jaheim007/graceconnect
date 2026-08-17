@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { AI_BOT_UA_PATTERNS, resolveRichPage, renderRichHtml } from './rich.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
