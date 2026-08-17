@@ -99,6 +99,9 @@ const staticPages = [
   { loc: "/partner-terms", priority: "0.3", changefreq: "yearly" },
 ];
 
+const lastmodTag = (value?: string | null) =>
+  value ? `\n    <lastmod>${String(value).split("T")[0]}</lastmod>` : "";
+
 const ORG_SUB_PAGES = [
   { suffix: "", priority: "0.8" },
   { suffix: "/store", priority: "0.7" },
@@ -184,7 +187,6 @@ Deno.serve(async (req) => {
     for (const p of staticPages) {
       xml += `  <url>
     <loc>${SITE_URL}${p.loc}</loc>
-    <lastmod>${today}</lastmod>
     <changefreq>${p.changefreq}</changefreq>
     <priority>${p.priority}</priority>
   </url>
@@ -193,11 +195,9 @@ Deno.serve(async (req) => {
 
     if (orgs) {
       for (const org of orgs) {
-        const lastmod = org.updated_at?.split("T")[0] || today;
         for (const sub of ORG_SUB_PAGES) {
           xml += `  <url>
-    <loc>${SITE_URL}/org/${org.slug}${sub.suffix}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <loc>${SITE_URL}/org/${org.slug}${sub.suffix}</loc>${lastmodTag(org.updated_at)}
     <changefreq>daily</changefreq>
     <priority>${sub.priority}</priority>
   </url>
@@ -212,8 +212,7 @@ Deno.serve(async (req) => {
         if (!orgSlug) continue;
         const pPath = p.slug ? `/org/${orgSlug}/p/${p.slug}` : `/org/${orgSlug}/product/${p.id}`;
         xml += `  <url>
-    <loc>${SITE_URL}${pPath}</loc>
-    <lastmod>${p.updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${SITE_URL}${pPath}</loc>${lastmodTag(p.updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -224,8 +223,7 @@ Deno.serve(async (req) => {
     if (campaigns) {
       for (const c of campaigns) {
         xml += `  <url>
-    <loc>${SITE_URL}/campaign/${c.id}</loc>
-    <lastmod>${c.updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${SITE_URL}/campaign/${c.id}</loc>${lastmodTag(c.updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -236,8 +234,7 @@ Deno.serve(async (req) => {
     if (events) {
       for (const e of events) {
         xml += `  <url>
-    <loc>${SITE_URL}/event/${e.id}</loc>
-    <lastmod>${e.updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${SITE_URL}/event/${e.id}</loc>${lastmodTag(e.updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -260,8 +257,7 @@ Deno.serve(async (req) => {
     if (announcements) {
       for (const a of announcements) {
         xml += `  <url>
-    <loc>${SITE_URL}/announcement/${a.id}</loc>
-    <lastmod>${a.updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${SITE_URL}/announcement/${a.id}</loc>${lastmodTag(a.updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -351,8 +347,7 @@ async function generateOrgSitemap(sb: any, orgId: string, siteBase: string): Pro
 
   for (const s of orgSections) {
     xml += `  <url>
-    <loc>${siteBase}${s.path}</loc>
-    <lastmod>${org.updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${siteBase}${s.path}</loc>${lastmodTag(org.updated_at)}
     <changefreq>daily</changefreq>
     <priority>${s.priority}</priority>
   </url>
@@ -364,8 +359,7 @@ async function generateOrgSitemap(sb: any, orgId: string, siteBase: string): Pro
     for (const p of products) {
       const pPath = p.slug ? `/p/${p.slug}` : `/product/${p.id}`;
       xml += `  <url>
-    <loc>${siteBase}${pPath}</loc>
-    <lastmod>${p.updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${siteBase}${pPath}</loc>${lastmodTag(p.updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -377,8 +371,7 @@ async function generateOrgSitemap(sb: any, orgId: string, siteBase: string): Pro
   if (campaigns) {
     for (const c of campaigns) {
       xml += `  <url>
-    <loc>${siteBase}/campaign/${c.id}</loc>
-    <lastmod>${c.updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${siteBase}/campaign/${c.id}</loc>${lastmodTag(c.updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -390,8 +383,7 @@ async function generateOrgSitemap(sb: any, orgId: string, siteBase: string): Pro
   if (events) {
     for (const e of events) {
       xml += `  <url>
-    <loc>${siteBase}/event/${e.id}</loc>
-    <lastmod>${e.updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${siteBase}/event/${e.id}</loc>${lastmodTag(e.updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -416,8 +408,7 @@ async function generateOrgSitemap(sb: any, orgId: string, siteBase: string): Pro
   if (announcements) {
     for (const a of announcements) {
       xml += `  <url>
-    <loc>${siteBase}/announcement/${a.id}</loc>
-    <lastmod>${a.updated_at?.split("T")[0] || today}</lastmod>
+    <loc>${siteBase}/announcement/${a.id}</loc>${lastmodTag(a.updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
