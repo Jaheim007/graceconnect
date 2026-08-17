@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { jsonLdSchemas } from '@/lib/jsonLdSchemas';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { formatCurrency, formatPrice } from '@/lib/currency';
 import { getEffectivePrice } from '@/lib/effectivePrice';
