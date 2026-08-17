@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { jsonLdSchemas } from '@/lib/jsonLdSchemas';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { formatCurrency, formatPrice } from '@/lib/currency';
 import { getEffectivePrice } from '@/lib/effectivePrice';
@@ -302,6 +303,42 @@ export default function ProductDetailPage() {
   const testimonials: { name: string; text: string }[] = (product as any).testimonials_json || [];
   const guaranteeText: string | null = (product as any).guarantee_text;
 
+  // ─── AEO / LLMO: canonical answers + Book typing for ebooks ───
+  const productCanonical = `https://siteviral.com/org/${slug}/p/${(product as any).slug || product.id}`;
+  const isBookProduct = /book/i.test(product.product_type || '');
+  const priceLabel = product.is_free
+    ? (isFr ? 'Gratuit' : 'Free')
+    : `${Number(product.price || 0).toLocaleString('fr-FR')} ${product.currency || 'XOF'}`;
+
+  const answerItems: { q: string; a: string }[] = faqItems.length > 0
+    ? faqItems
+    : [
+        {
+          q: isFr ? `Comment acheter « ${product.title} » ?` : `How do I buy "${product.title}"?`,
+          a: isFr
+            ? 'Cliquez sur le bouton d\'achat, choisissez Mobile Money (Orange Money, MTN, Wave) ou carte bancaire, puis payez. Le fichier est disponible immédiatement après confirmation du paiement.'
+            : 'Tap the buy button, choose Mobile Money (Orange Money, MTN, Wave) or a bank card, then pay. The file is available immediately after the payment is confirmed.',
+        },
+        {
+          q: isFr ? 'Combien ça coûte ?' : 'How much does it cost?',
+          a: isFr
+            ? `${priceLabel}. Aucun frais caché : le prix affiché est le prix payé.`
+            : `${priceLabel}. No hidden fees — the price shown is the price you pay.`,
+        },
+        {
+          q: isFr ? 'Faut-il un compte bancaire ?' : 'Do I need a bank account?',
+          a: isFr
+            ? "Non. Le paiement par Mobile Money suffit ; aucun compte bancaire n'est nécessaire."
+            : 'No. Mobile Money is enough — no bank account is required.',
+        },
+        {
+          q: isFr ? 'Comment je reçois mon achat ?' : 'How do I receive my purchase?',
+          a: isFr
+            ? 'La livraison est automatique : le contenu est accessible depuis votre compte et par e-mail dès le paiement validé.'
+            : 'Delivery is automatic: the content is available in your account and by email as soon as the payment goes through.',
+        },
+      ];
+
   const orgPrimary = pageSettings?.theme_primary_color;
   const bannerBg = orgPrimary
     ? { background: `linear-gradient(135deg, ${orgPrimary}18, ${orgPrimary}08, transparent)` }
@@ -323,22 +360,33 @@ export default function ProductDetailPage() {
         description={stripHtml(product.description || '').slice(0, 155) || `Achetez ${product.title} sur Siteviral — ${product.is_free ? 'Gratuit' : `${product.price} ${product.currency || 'XOF'}`}. Paiement Mobile Money & Carte.`}
         ogImage={product.cover_image_url || undefined}
         ogType="product"
-        canonicalUrl={`https://siteviral.com/org/${slug}/p/${(product as any).slug || product.id}`}
+        canonicalUrl={productCanonical}
         keywords={`${product.title}, ${org?.name || ''}, acheter ${product.product_type || 'produit numérique'}, ${product.currency || 'XOF'}, Siteviral`}
         jsonLd={[
-          // Product schema
+          // Product schema — also typed as Book for ebooks
           {
             '@context': 'https://schema.org',
-            '@type': 'Product',
+            '@type': isBookProduct ? ['Product', 'Book'] : 'Product',
             name: product.title,
-            description: product.description,
+            description: stripHtml(product.description || '').slice(0, 500) || undefined,
             image: product.cover_image_url,
+            url: productCanonical,
+            inLanguage: (product as any).content_language || locale,
             brand: { '@type': 'Organization', name: org?.name },
+            ...(isBookProduct
+              ? {
+                  bookFormat: 'https://schema.org/EBook',
+                  numberOfPages: (product as any).page_count || undefined,
+                  author: { '@type': 'Organization', name: org?.name },
+                }
+              : {}),
             offers: {
               '@type': 'Offer',
-              price: product.is_free ? '0' : String(product.price || 0),
-              priceCurrency: product.currency || 'USD',
+              url: productCanonical,
+              price: product.is_free ? '0' : String((product as any).sale_price ?? product.price ?? 0),
+              priceCurrency: product.currency || 'XOF',
               availability: 'https://schema.org/InStock',
+              category: product.is_free ? 'Free' : 'Paid',
               seller: { '@type': 'Organization', name: org?.name },
             },
             ...(product.review_count && product.review_count > 0 ? {
@@ -351,6 +399,16 @@ export default function ProductDetailPage() {
               },
             } : {}),
           },
+          // Publisher / seller organization
+          jsonLdSchemas.orgProfile({
+            name: org?.name || 'Siteviral',
+            slug: slug,
+            category: org?.category,
+            description: stripHtml(org?.description || '').slice(0, 300) || undefined,
+            logo: org?.logo_url || undefined,
+            website: org?.website || undefined,
+            country: org?.country || undefined,
+          }),
           // BreadcrumbList schema
           {
             '@context': 'https://schema.org',
@@ -358,19 +416,11 @@ export default function ProductDetailPage() {
             itemListElement: [
               { '@type': 'ListItem', position: 1, name: 'Siteviral', item: 'https://siteviral.com' },
               { '@type': 'ListItem', position: 2, name: org?.name, item: `https://siteviral.com/org/${slug}` },
-              { '@type': 'ListItem', position: 3, name: product.title, item: `https://siteviral.com/org/${slug}/p/${(product as any).slug || product.id}` },
+              { '@type': 'ListItem', position: 3, name: product.title, item: productCanonical },
             ],
           },
-          // FAQ schema (if product has FAQ)
-          ...(faqItems.length > 0 ? [{
-            '@context': 'https://schema.org',
-            '@type': 'FAQPage',
-            mainEntity: faqItems.map(f => ({
-              '@type': 'Question',
-              name: f.q,
-              acceptedAnswer: { '@type': 'Answer', text: f.a },
-            })),
-          }] : []),
+          // FAQPage — real FAQ when the seller wrote one, canonical answers otherwise
+          jsonLdSchemas.faqPage(answerItems),
         ]}
       />
 

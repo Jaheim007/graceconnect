@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { AI_BOT_UA_PATTERNS, resolveRichPage, renderRichHtml } from './rich.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -51,6 +52,8 @@ const BOT_UA_PATTERNS = [
   'bingbot', 'yandexbot', 'applebot', 'pinterestbot', 'redditbot',
   'embedly', 'quora link preview', 'outbrain', 'vkshare', 'w3c_validator',
   'semrushbot', 'ahrefsbot', 'petalbot', 'seznambot',
+  // AI assistants, answer engines and LLM crawlers
+  ...AI_BOT_UA_PATTERNS,
 ];
 
 function isBot(userAgent: string): boolean {
@@ -385,6 +388,12 @@ Deno.serve(async (req) => {
 
   let targetUrl = SITE_URL;
   let meta: MetaResult | null = null;
+  // Public path we are describing — used to render full crawlable HTML for bots
+  let resolvedPath: string | null =
+    reqUrl.searchParams.get('path') ||
+    req.headers.get('x-original-path') ||
+    req.headers.get('x-forwarded-path') ||
+    null;
 
   const codeParam = reqUrl.searchParams.get('code');
   const pathParam = reqUrl.searchParams.get('path');
@@ -393,6 +402,7 @@ Deno.serve(async (req) => {
     const resolved = await resolveShortCode(codeParam);
     if (resolved) {
       targetUrl = `${SITE_URL}${resolved.targetPath}`;
+      resolvedPath = resolved.targetPath;
 
       // Always try DB resolution first for complete metadata
       let dbMeta: MetaResult | null = null;
@@ -408,6 +418,7 @@ Deno.serve(async (req) => {
   } else if (pathParam) {
     const cleanPath = pathParam.startsWith('/') ? pathParam : `/${pathParam}`;
     targetUrl = `${SITE_URL}${cleanPath}`;
+    resolvedPath = cleanPath;
     try { meta = await resolveFromPath(cleanPath); } catch { /* fallback */ }
   } else {
     const targetParam = reqUrl.searchParams.get('target');
@@ -429,16 +440,30 @@ Deno.serve(async (req) => {
   let image = explicitImg || meta?.image || DEFAULT_IMAGE;
   try { image = new URL(image).toString(); } catch { image = DEFAULT_IMAGE; }
 
-  // ─── Bot → static OG HTML (200, no redirect) ───
+  // ─── Bot → crawlable HTML (200, no redirect) ───
   if (botRequest) {
-    return new Response(renderBotHtml(title, description, image, targetUrl), {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'public, max-age=300, s-maxage=600',
-        'Vary': 'User-Agent',
-      },
-    });
+    const htmlHeaders = {
+      ...corsHeaders,
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'public, max-age=300, s-maxage=1800',
+      'Vary': 'User-Agent',
+      'X-Robots-Tag': 'index, follow, max-image-preview:large, max-snippet:-1',
+    };
+
+    // Full content rendering: real heading, prose, key facts, FAQ, links, JSON-LD
+    if (resolvedPath && !explicitTitle) {
+      try {
+        const rich = await resolveRichPage(resolvedPath);
+        if (rich) {
+          return new Response(renderRichHtml(rich, targetUrl), { headers: htmlHeaders });
+        }
+      } catch (e) {
+        console.error('rich render failed', resolvedPath, e);
+      }
+    }
+
+    // Fallback: metadata-only document
+    return new Response(renderBotHtml(title, description, image, targetUrl), { headers: htmlHeaders });
   }
 
   // ─── Human → 302 redirect ───

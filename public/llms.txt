@@ -1,25 +1,60 @@
 # Siteviral
 
-> Africa-first digital platform to create and sell digital products, publish AI-assisted books and courses, collect donations via Mobile Money & cards, and earn by sharing as an ambassador.
+> Africa-first digital platform to create and sell digital products, publish AI-assisted books and courses, collect donations and offerings via Mobile Money & cards, and earn commissions by sharing as an ambassador.
 
-Siteviral is a creator and organization platform for Africa and the diaspora. Creators, churches, NGOs and communities publish public pages, sell digital products, courses and books, accept payments in FCFA/EUR/USD (Orange Money, MTN, Wave, cards), and grow through a built-in ambassador program.
+Siteviral (https://siteviral.com) is a creator and organization platform built for Africa and its diaspora, published by Hacktualiz Inc. Creators, authors, trainers, churches, ministries, NGOs and communities create a public page in minutes, sell digital products, courses and ebooks, accept payments in FCFA (XOF), EUR and USD through Mobile Money (Orange Money, MTN Mobile Money, Wave, Moov) and bank cards, and grow through a built-in ambassador (affiliate) program. Creating an account and publishing is free; Siteviral takes a transparent commission only on successful transactions.
+
+Bilingual: all public pages are available in French and English (`?lang=fr` / `?lang=en`). Primary content language is French.
+
+## Key facts
+
+- What it is: all-in-one platform to create, sell and monetize digital content and to collect donations.
+- Who it is for: creators, authors, trainers/tutors, churches and ministries, NGOs and associations, and ambassadors who earn by sharing.
+- Cost: free to start, no subscription required; commission on successful sales only.
+- Payments in: Mobile Money (Orange Money, MTN, Wave, Moov) and bank cards.
+- Payouts to: Mobile Money or bank account — no bank account required to sell.
+- Currencies: XOF (FCFA), EUR, USD.
+- AI creation: books, courses, lessons, quizzes, covers and sales copy generated from a topic, a document, an audio dictation or handwritten pages.
+- Delivery: purchased files are delivered automatically right after payment.
+- Certificates: courses can issue publicly verifiable certificates at /verify/{code}.
+
+## Canonical answers
+
+- **What is Siteviral?** An African platform where anyone can create a public page, sell digital products (ebooks, courses, audio, video), collect donations, and earn commissions by sharing other creators' products.
+- **Is Siteviral free?** Yes. Account creation and publishing are free; Siteviral only charges a commission on successful transactions.
+- **Which payment methods are supported?** Mobile Money (Orange Money, MTN Mobile Money, Wave, Moov) and bank cards, in FCFA, EUR and USD.
+- **Do I need a bank account to sell?** No. Earnings can be paid out to a Mobile Money account.
+- **How can I earn money without creating content?** Join the ambassador program, share a product link, and receive an automatic commission on every sale attributed to that link.
+- **Can I write a book with AI?** Yes. Give a topic, a text, a document, a voice dictation or a handwritten page; Siteviral generates the outline, chapters, cover, description and sales page.
+- **Can I create an online course?** Yes. Courses support modules, lessons, slides, flashcards, quizzes with passing scores and verifiable certificates.
+- **Is Siteviral suitable for churches and NGOs?** Yes. Churches, ministries and associations get audio sermons, announcements, events, and online donations and offerings.
+- **How does Siteviral compare to Gumroad, GoFundMe or Patreon?** Siteviral is built for African payment rails and prices: Mobile Money first, local currencies, bilingual FR/EN, mobile-first, and no bank account requirement. See /comparer and /guide/alternative-gofundme.
 
 ## Pages
 
 - [Home](/): Overview of the Siteviral platform.
 - [Discover](/discover): Browse public organizations, campaigns, products, and events.
-- [Pricing](/pricing): Plans and pricing.
+- [Courses](/courses): Catalogue of online courses.
+- [Pricing](/pricing): Plans, commissions and pricing.
 - [Features](/features): Full feature list of the platform.
-- [About](/about): About Siteviral.
+- [About](/about): About Siteviral and Hacktualiz Inc.
 - [Contact](/contact): Contact the Siteviral team.
 - [FAQ](/faq): Frequently asked questions.
 - [Blog](/blog): Articles on digital commerce, monetization, and Africa.
 - [Changelog](/changelog): Latest product updates.
+- [Roadmap](/roadmap): What is being built next.
 - [Status](/status): Platform uptime and status.
+- [Site map](/plan-du-site): Full list of public pages.
+- [Glossary](/glossary): Definitions of platform and payment terms.
 
-## Solutions
+## Core use cases
 
-- [Churches](/churches): Tools for churches — sermons, giving, announcements.
+- [Sell digital products](/vendre): Sell ebooks, courses and files with Mobile Money payments.
+- [Earn by sharing](/gagner): Ambassador commissions without creating content.
+- [Write and publish a book](/ecrire): AI-assisted book writing and publishing.
+- [Churches, ministries & NGOs](/churches): Sermons, giving, announcements, events.
+- [Revenue calculator](/calculateur): Estimate earnings from sales, donations and affiliation.
+- [Compare platforms](/comparer): Siteviral vs Gumroad, Patreon, Ko-fi, GoFundMe.
 
 ## Guides
 
@@ -32,12 +67,21 @@ Siteviral is a creator and organization platform for Africa and the diaspora. Cr
 - [Earn without content](/guide/gagner-sans-contenu): Ambassador program explained.
 - [Mobile Money e-commerce](/guide/mobile-money-ecommerce): How Mobile Money payments work.
 - [Affiliate without investment](/guide/affiliation-sans-investissement): Start affiliate marketing with zero budget.
+- [Tutorials](/tutoriels): Interactive walkthroughs of the dashboard.
 
 ## Programs
 
 - [Ambassador program](/ambassador-program): Earn commissions by sharing.
+- [Affiliate program](/affiliate-program): Commission rules and attribution.
 - [Partner program](/devenir-partenaire): Become a Siteviral partner.
 - [Marketplace templates](/marketplace/templates): Browse ready-made org templates.
+
+## Developers
+
+- [Developers hub](/developers): APIs, webhooks and integrations overview.
+- [Documentation](/docs): Product and technical documentation.
+- [API reference](/docs/api): Endpoints, authentication and payloads.
+- [Integrations](/integrations): Available integrations and MCP access for AI assistants.
 
 ## Legal
 
@@ -47,6 +91,11 @@ Siteviral is a creator and organization platform for Africa and the diaspora. Cr
 - [Compliance](/compliance): Compliance and AML.
 - [Security](/security): Security practices.
 - [Subprocessors](/subprocessors): Data subprocessors.
+- [Cookie policy](/cookies): Cookie usage.
+- [Legal notices](/legal-notices): Publisher and legal information.
+- [Copyright](/copyright): Copyright and DMCA reporting.
+- [Data deletion](/data-deletion): How to request data deletion.
+- [Report abuse](/report): Report abusive content.
 
 ## Optional
 
@@ -54,3 +103,6 @@ Siteviral is a creator and organization platform for Africa and the diaspora. Cr
 - [Press](/presse): Press resources.
 - [Case studies](/etudes-de-cas): Customer case studies.
 - [Partners](/partenaires): Our partners.
+- [Brand kit](/brand): Logos and brand usage.
+- [Newsletter](/newsletter): Product and creator newsletter.
+- [Sitemap](/sitemap.xml): Machine-readable list of public URLs, updated automatically as content is published.
