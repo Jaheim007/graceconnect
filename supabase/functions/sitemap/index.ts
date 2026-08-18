@@ -117,6 +117,26 @@ const staticPages = [
   { loc: "/data-deletion", priority: "0.3", changefreq: "yearly" },
   { loc: "/report", priority: "0.3", changefreq: "yearly" },
   { loc: "/refunds", priority: "0.3", changefreq: "yearly" },
+  // ─── Verticals, hubs and discovery surfaces ───
+  { loc: "/church", priority: "0.8", changefreq: "weekly" },
+  { loc: "/church/about", priority: "0.6", changefreq: "monthly" },
+  { loc: "/church/discover", priority: "0.7", changefreq: "daily" },
+  { loc: "/solutions/church", priority: "0.7", changefreq: "monthly" },
+  { loc: "/digital", priority: "0.8", changefreq: "weekly" },
+  { loc: "/digital/about", priority: "0.6", changefreq: "monthly" },
+  { loc: "/marketplace", priority: "0.8", changefreq: "daily" },
+  { loc: "/explore/digital-products", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/beauty", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/artisans", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/tutors", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/coaching", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/music", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/influencers", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/other-services", priority: "0.6", changefreq: "daily" },
+  { loc: "/top-creators", priority: "0.6", changefreq: "weekly" },
+  { loc: "/showcase", priority: "0.5", changefreq: "weekly" },
+  { loc: "/founders", priority: "0.5", changefreq: "monthly" },
+  { loc: "/looking-for", priority: "0.5", changefreq: "weekly" },
 ];
 
 const lastmodTag = (value?: string | null) =>
