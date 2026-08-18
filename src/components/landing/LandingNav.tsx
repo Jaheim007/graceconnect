@@ -79,7 +79,10 @@ export function LandingNav() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 h-10 px-2 rounded-full hover:bg-muted/60 transition-colors">
+                <button
+                  aria-label={isFr ? 'Ouvrir le menu du compte' : 'Open account menu'}
+                  className="flex items-center gap-2 h-10 px-2 rounded-full hover:bg-muted/60 transition-colors"
+                >
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="" className="h-7 w-7 rounded-full object-cover border border-border" />
                   ) : (
