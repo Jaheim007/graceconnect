@@ -63,7 +63,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
         {org.banner_url ? (
           <img
             src={org.banner_url}
-            alt=""
+            alt={locale === 'fr' ? `Bannière de ${org.name}` : `${org.name} banner`}
             loading="lazy"
             className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
           />
