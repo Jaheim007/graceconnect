@@ -519,7 +519,7 @@ export default function ProductDetailPage() {
               <Pencil className="h-3.5 w-3.5" /> Modifier
             </Button>
           )}
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={isFr ? 'Retour' : 'Back'} onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </div>
