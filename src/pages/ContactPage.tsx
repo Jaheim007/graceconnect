@@ -20,7 +20,12 @@ export default function ContactPage() {
         <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">{t('contact.title')}</h1>
         <p className="text-sm text-muted-foreground mb-10 font-medium">{t('contact.subtitle')}</p>
 
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">
+          {isFr ? 'Nos canaux de contact' : 'Ways to reach us'}
+        </h2>
+
         <div className="grid sm:grid-cols-2 gap-6">
+
           <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
             <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <Mail className="h-5 w-5 text-primary" />
@@ -69,8 +74,9 @@ export default function ContactPage() {
         </div>
 
         <div className="mt-10 bg-card border border-border rounded-2xl p-6 space-y-4">
-          <h3 className="font-bold text-foreground text-center">{t('contact.need_help')}</h3>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">{t('contact.need_help')}</h2>
           <p className="text-sm text-muted-foreground text-center">{t('contact.help_desc')}</p>
+
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -87,7 +93,15 @@ export default function ContactPage() {
             <input type="text" name="website" autoComplete="off" tabIndex={-1} className="absolute opacity-0 h-0 w-0 pointer-events-none" aria-hidden="true" />
             <input name="contact_email" type="email" required placeholder={isFr ? 'Votre email' : 'Your email'} className="w-full h-10 px-3 rounded-lg border border-border bg-background text-sm" />
             <textarea name="contact_message" required placeholder={isFr ? 'Votre message' : 'Your message'} rows={4} maxLength={2000} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm resize-none" />
-            <Button type="submit" className="w-full bg-primary text-primary-foreground">{isFr ? 'Envoyer' : 'Send'}</Button>
+            <Button type="submit" className="w-full bg-primary text-primary-foreground">
+              {isFr ? 'Ouvrir mon application e-mail' : 'Open my email app'}
+            </Button>
+            <p className="text-xs text-muted-foreground text-center">
+              {isFr
+                ? 'Ce bouton ouvre votre application e-mail avec un message pré-rempli adressé à support@siteviral.com. Rien n’est envoyé depuis ce formulaire.'
+                : 'This button opens your email app with a pre-filled message to support@siteviral.com. Nothing is sent from this form itself.'}
+            </p>
+
           </form>
           <div className="text-center">
             <Button asChild variant="ghost" size="sm" className="text-xs text-muted-foreground">
