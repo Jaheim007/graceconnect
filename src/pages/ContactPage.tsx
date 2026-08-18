@@ -20,7 +20,12 @@ export default function ContactPage() {
         <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">{t('contact.title')}</h1>
         <p className="text-sm text-muted-foreground mb-10 font-medium">{t('contact.subtitle')}</p>
 
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">
+          {isFr ? 'Nos canaux de contact' : 'Ways to reach us'}
+        </h2>
+
         <div className="grid sm:grid-cols-2 gap-6">
+
           <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
             <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <Mail className="h-5 w-5 text-primary" />
