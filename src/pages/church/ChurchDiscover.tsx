@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/i18n/I18nContext';
 import { CHURCH_DENOMINATIONS, getDenominationLabel } from '@/lib/churchDenominations';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function ChurchDiscover() {
   const { locale } = useI18n();
