@@ -321,6 +321,9 @@ export default function ActionHub() {
 
 
             <div className="relative z-20 rounded-[24px] bg-[hsl(var(--cert-paper))]/95 dark:bg-[#0e0d16]/95 backdrop-blur-xl p-3 sm:p-4">
+              <h2 className="sr-only">
+                {isFr ? 'Que voulez-vous faire ?' : 'What do you want to do?'}
+              </h2>
               <div className="grid gap-2.5 sm:grid-cols-2">
                 {actions.map((action, idx) => (
                   <button

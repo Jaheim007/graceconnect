@@ -542,9 +542,9 @@ function RoiCalculator({ isFr }: { isFr: boolean }) {
       <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">
         {isFr ? 'Calculateur ROI' : 'ROI calculator'}
       </p>
-      <h3 className="text-lg font-bold mb-4">
+      <h2 className="text-lg font-bold mb-4">
         {isFr ? 'Combien Pro vous fait économiser ?' : 'How much does Pro save you?'}
-      </h3>
+      </h2>
       <label className="block text-sm text-muted-foreground mb-2">
         {isFr ? 'Vos ventes mensuelles (XOF)' : 'Your monthly sales (XOF)'}
       </label>
