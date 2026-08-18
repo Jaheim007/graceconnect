@@ -34,7 +34,11 @@ Bilingual: all public pages are available in French and English (`?lang=fr` / `?
 
 - [Home](/): Overview of the Siteviral platform.
 - [Discover](/discover): Browse public organizations, campaigns, products, and events.
+- [Marketplace](/marketplace): Marketplace entry point across all Siteviral verticals.
 - [Courses](/courses): Catalogue of online courses.
+- [New this week](/new-this-week): Recently published products, courses and pages.
+- [Top creators](/top-creators): Most active creators and organizations.
+- [Showcase](/showcase): Examples of real creator and organization pages.
 - [Pricing](/pricing): Plans, commissions and pricing.
 - [Features](/features): Full feature list of the platform.
 - [About](/about): About Siteviral and Hacktualiz Inc.
@@ -46,6 +50,36 @@ Bilingual: all public pages are available in French and English (`?lang=fr` / `?
 - [Status](/status): Platform uptime and status.
 - [Site map](/plan-du-site): Full list of public pages.
 - [Glossary](/glossary): Definitions of platform and payment terms.
+
+## Verticals
+
+Siteviral is organized into verticals, each with its own public landing page and its own catalogue of public pages:
+
+- [Digital creators](/digital): Sell ebooks, courses, files and digital products. About: /digital/about.
+- [Churches, ministries & NGOs](/church): Audio sermons, announcements, events, online giving and offerings. About: /church/about. Directory: /church/discover.
+- [Digital products catalogue](/explore/digital-products): Public listing of ebooks, courses and files.
+- [Beauty & wellness](/explore/beauty): Beauty professionals and services.
+- [Home & artisans](/explore/artisans): Artisans and home-service providers.
+- [Tutors & education](/explore/tutors): Tutors, lessons and study support.
+- [Coaching](/explore/coaching): Coaches and mentoring offers.
+- [Music](/explore/music): Musicians and audio creators.
+- [Influencers](/explore/influencers): Influencers and content creators.
+- [Other services](/explore/other-services): Remaining service categories.
+
+## Public content URL patterns
+
+Every published item has its own crawlable page with structured data (JSON-LD) and a direct-answer Q&A block:
+
+- `/org/{org-slug}` — organization, church, NGO or creator profile (Organization / Church / NGO + FAQPage).
+- `/org/{org-slug}/store`, `/content`, `/events`, `/donate`, `/offerings`, `/photos` — profile sections.
+- `/org/{org-slug}/p/{product-slug}` — digital product or ebook page (Product, plus Book for ebooks, + FAQPage).
+- `/program/{id}` — online course page (Course, CourseInstance, Syllabus + FAQPage).
+- `/campaign/{id}` — donation campaign (DonateAction).
+- `/event/{id}` — event page (Event).
+- `/offering/{id}` — offering or giving page.
+- `/announcement/{id}` — organization announcement (Article).
+- `/watch/{id}` — published audio/video content, including church sermons.
+- `/verify/{code}` — public verification of a course certificate.
 
 ## Core use cases
 
