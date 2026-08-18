@@ -259,12 +259,12 @@ export default function ActionHub() {
           {/* Hero */}
           <motion.div variants={item} className="text-center space-y-3">
             <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.32em] text-[hsl(var(--brand-blue))] dark:text-primary">
-              {isFr ? 'Gratuit pour commencer' : 'Free to start'}
+              {user && displayName
+                ? (isFr ? `Salut ${displayName}` : `Hey ${displayName}`)
+                : (isFr ? 'Gratuit pour commencer' : 'Free to start')}
             </p>
             <h1 className="font-heading text-[28px] sm:text-[42px] font-bold tracking-tight text-foreground leading-[1.06]">
-              {user && displayName
-                ? (isFr ? `Salut ${displayName}.` : `Hey ${displayName}.`)
-                : (isFr ? 'Que veux-tu ' : 'What do you ')}
+              {isFr ? 'SiteViral — Écris. Vends. ' : 'SiteViral — Write. Sell. '}
               <span
                 className="italic"
                 style={{
@@ -274,12 +274,16 @@ export default function ActionHub() {
                   color: 'transparent',
                 }}
               >
-                {user && displayName
-                  ? (isFr ? ' On continue' : ' Let’s continue')
-                  : (isFr ? 'faire' : 'want to do')}
+                {isFr ? 'Gagne' : 'Earn'}
               </span>
-              <span className="not-italic text-foreground/70">{user && displayName ? (isFr ? ' ?' : '.') : (isFr ? ' ?' : '?')}</span>
+              <span className="not-italic text-foreground/70">.</span>
             </h1>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
+              {isFr
+                ? 'Crée des livres, formations et produits numériques avec l’IA, puis vends-les et gagne des commissions en partageant.'
+                : 'Create books, courses and digital products with AI, then sell them and earn commissions by sharing.'}
+            </p>
+
 
             <div
               aria-hidden
