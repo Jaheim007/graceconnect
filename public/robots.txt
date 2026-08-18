@@ -93,6 +93,10 @@ Disallow: /create-org
 Disallow: /share-target
 Disallow: /embed/
 Disallow: /dashboard-preview
+Disallow: /resources
+Disallow: /my-purchases
+Disallow: /looking-for
+Disallow: /billing
 
 User-agent: *
 Allow: /
@@ -134,11 +138,14 @@ Disallow: /support
 Disallow: /share-target
 Disallow: /embed/
 Disallow: /dashboard-preview
+Disallow: /resources
+Disallow: /my-purchases
+Disallow: /looking-for
+Disallow: /billing
 
 # Explicitly allow all public content
 Allow: /org/
 Allow: /discover
-Allow: /spotlight
 Allow: /campaign/
 Allow: /event/
 Allow: /offering/
@@ -152,22 +159,15 @@ Allow: /store/
 Allow: /verify/
 Allow: /affiliate-program
 Allow: /ambassador-program
-Allow: /ambassador
-Allow: /features
 Allow: /about
-Allow: /install
 Allow: /devenir-partenaire
 Allow: /faq
 Allow: /contact
-Allow: /resources
 Allow: /changelog
 Allow: /gagner
 Allow: /vendre
 Allow: /ecrire
-Allow: /migrer
-Allow: /protection
 Allow: /comparer
-Allow: /calculateur
 Allow: /temoignages
 Allow: /presse
 Allow: /etudes-de-cas
