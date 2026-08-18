@@ -40,7 +40,7 @@ export default function BookmarksPage() {
       <SEOHead
         title={t('bookmarks.title')}
         description={
-          t('locale') === 'fr' || undefined
+          locale === 'fr'
             ? 'Retrouvez les produits numériques, formations, événements et pages que vous avez enregistrés sur SiteViral.'
             : 'Find the digital products, courses, events and pages you saved on SiteViral.'
         }
