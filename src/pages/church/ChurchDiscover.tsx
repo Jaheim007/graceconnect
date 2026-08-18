@@ -57,7 +57,7 @@ export default function ChurchDiscover() {
       />
       <div className="mx-auto max-w-5xl px-4 py-6 space-y-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" asChild aria-label={fr ? 'Retour à SiteViral Church' : 'Back to SiteViral Church'}>
             <Link to="/church"><ArrowLeft className="h-5 w-5" /></Link>
           </Button>
           <div>
