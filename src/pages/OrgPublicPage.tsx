@@ -290,8 +290,8 @@ export default function OrgPublicPage() {
       <PixelInjector facebookPixelId={fbPixel} tiktokPixelId={ttPixel} googleTagId={gTagId} />
       {isOnOrgDomain && <DynamicFavicon logoUrl={org.logo_url} orgName={org.name} orgDescription={org.description || undefined} />}
       <SEOHead
-        title={isOnOrgDomain ? org.name : `${org.name} — Plateforme digitale sur Siteviral`}
-        description={org.description || `Découvrez ${org.name} sur Siteviral : produits numériques, formations, événements et plus. Achetez ou devenez ambassadeur.`}
+        title={orgSeoTitle}
+        description={orgSeoDescription}
         ogImage={org.banner_url || org.logo_url}
         canonicalUrl={orgCanonical}
         keywords={`${org.name}, plateforme digitale, produits numériques, ${org.category === 'church' ? 'église en ligne' : org.category === 'ngo' ? 'ONG' : 'créateur'}, Siteviral`}
