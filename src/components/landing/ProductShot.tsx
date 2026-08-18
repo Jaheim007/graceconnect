@@ -61,7 +61,7 @@ export function ProductShot() {
                   {fr ? 'Étape' : 'Step'} {p.step}
                 </span>
               </div>
-              <h3 className="mt-4 text-base font-bold tracking-tight">{p.title}</h3>
+              <h2 className="mt-4 text-base font-bold tracking-tight">{p.title}</h2>
               <ul className="mt-3 space-y-2">
                 {p.lines.map((l) => (
                   <li
