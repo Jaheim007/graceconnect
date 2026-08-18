@@ -217,6 +217,11 @@ export default function ActionHub() {
           <Button
             variant="ghost"
             size="icon"
+            aria-label={
+              theme === 'dark'
+                ? (isFr ? 'Passer en mode clair' : 'Switch to light mode')
+                : (isFr ? 'Passer en mode sombre' : 'Switch to dark mode')
+            }
             className="h-8 w-8 rounded-full transition-transform hover:scale-110 hover:bg-[hsl(var(--brand-blue))]/10"
             onClick={toggleTheme}
           >
