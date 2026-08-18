@@ -49,7 +49,16 @@ export default function BillingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={isFr ? 'Mon abonnement — SiteViral' : 'My subscription — SiteViral'} description="" canonicalUrl="https://siteviral.com/billing" />
+      <SEOHead
+        title={isFr ? 'Mon abonnement — SiteViral' : 'My subscription — SiteViral'}
+        description={
+          isFr
+            ? "Gérez votre abonnement SiteViral : plan en cours, crédits inclus, factures et moyens de paiement Mobile Money ou carte."
+            : 'Manage your SiteViral subscription: current plan, included credits, invoices and Mobile Money or card payment methods.'
+        }
+        canonicalUrl="https://siteviral.com/billing"
+        noindex
+      />
       <LandingNav />
 
       <main className="container max-w-3xl px-4 pt-24 pb-24">

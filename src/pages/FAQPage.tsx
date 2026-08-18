@@ -159,8 +159,12 @@ export default function FAQPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title={locale === 'fr' ? 'FAQ — Siteviral' : 'FAQ — Siteviral'}
-        description={locale === 'fr' ? 'Trouvez les réponses à vos questions fréquentes sur Siteviral.' : 'Find answers to frequently asked questions about Siteviral.'}
+        title={
+          locale === 'fr'
+            ? 'FAQ — Paiements, ventes et retraits sur Siteviral'
+            : 'FAQ — Payments, sales and payouts on Siteviral'
+        }
+        description={locale === 'fr' ? 'Réponses aux questions fréquentes sur Siteviral : vendre un produit numérique, encaisser par Mobile Money, commissions, retraits et formations en ligne.' : 'Answers to common questions about Siteviral: selling a digital product, getting paid by Mobile Money, commissions, payouts and online courses.'}
         jsonLd={{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.flatMap(s => s.items).map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }}
       />
       <LandingNav />

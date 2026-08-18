@@ -37,7 +37,15 @@ export default function BookmarksPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={t('bookmarks.title')} />
+      <SEOHead
+        title={t('bookmarks.title')}
+        description={
+          locale === 'fr'
+            ? 'Retrouvez les produits numériques, formations, événements et pages que vous avez enregistrés sur SiteViral.'
+            : 'Find the digital products, courses, events and pages you saved on SiteViral.'
+        }
+        noindex
+      />
       <div className="sticky top-0 z-10 glass border-b border-border/40 px-4 h-12 flex items-center gap-3">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />
