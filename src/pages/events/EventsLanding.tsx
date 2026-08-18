@@ -1,21 +1,26 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { PartyPopper, ArrowRight, ShieldCheck, MessageSquare, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EVENTS_CATEGORIES } from "@/lib/eventsCategories";
 import { useI18n } from "@/i18n/I18nContext";
+import { SEOHead } from "@/components/seo/SEOHead";
 
 export default function EventsLanding() {
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
 
-  useEffect(() => {
-    document.title = "SiteViral Events — Ton événement, sans stress";
-  }, []);
-
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SEOHead
+        title={t("SiteViral Events — prestataires pour mariages et fêtes", "SiteViral Events — vendors for weddings and celebrations")}
+        description={t(
+          "Traiteurs, photographes, DJ, décorateurs et salles pour ton mariage ou ta fête. Devis clairs, acompte sécurisé, échanges protégés jusqu'au jour J.",
+          "Caterers, photographers, DJs, decorators and venues for your wedding or party. Clear quotes, secure deposits and protected chat up to the big day.",
+        )}
+        canonicalUrl="https://siteviral.com/events/about"
+        locale={isFr ? "fr_FR" : "en_US"}
+      />
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <Link to="/events" className="flex items-center gap-2">

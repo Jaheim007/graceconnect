@@ -1,32 +1,22 @@
 import { Scissors } from 'lucide-react';
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Zap, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BeautyLandingBody } from "./BeautyLandingBody";
+import { SEOHead } from "@/components/seo/SEOHead";
 
 /**
  * BeautyLanding — the marketing landing at /beauty/about.
  * The action-first entry lives at /beauty (BeautyActionHub).
  */
 export default function BeautyLanding() {
-  useEffect(() => {
-    const prevTitle = document.title;
-    document.title = "SiteViral Beauty — La beauté d'Afrique, réservée en confiance";
-    const meta = document.querySelector('meta[name="description"]');
-    const prevDesc = meta?.getAttribute("content") ?? "";
-    meta?.setAttribute(
-      "content",
-      "Marketplace beauté panafricaine. Coiffure, ongles, maquillage, spa. Paiement sécurisé, chat intégré, avis vérifiés. Démarrage Abidjan.",
-    );
-    return () => {
-      document.title = prevTitle;
-      if (meta && prevDesc) meta.setAttribute("content", prevDesc);
-    };
-  }, []);
-
   return (
     <div className="beauty-scope min-h-screen bg-background text-foreground">
+      <SEOHead
+        title="SiteViral Beauty — coiffure, ongles et spa réservés en ligne"
+        description="Marketplace beauté panafricaine : coiffure, ongles, maquillage, spa. Réservation en ligne, paiement sécurisé, chat intégré et avis vérifiés. Démarrage à Abidjan."
+        canonicalUrl="https://siteviral.com/beauty/about"
+      />
       {/* Top bar */}
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">

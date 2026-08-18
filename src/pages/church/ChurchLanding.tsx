@@ -1,23 +1,25 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Church, HandHeart, Mic, Zap, Globe, ArrowRight, Users, PlayCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function ChurchLanding() {
   const { locale } = useI18n();
   const fr = locale === 'fr';
 
-  useEffect(() => {
-    document.title = fr
-      ? 'SiteViral Church — La plateforme des églises africaines'
-      : 'SiteViral Church — The platform for African churches';
-    const meta = document.querySelector('meta[name="description"]');
-    const desc = fr
-      ? 'Recevez dîmes et offrandes en Mobile Money, transformez vos prédications audio en livres et articles, connectez votre diaspora — sans compétence technique.'
-      : 'Receive tithes and offerings via Mobile Money, turn your sermon audios into books and articles, connect your diaspora — no tech skills needed.';
-    if (meta) meta.setAttribute('content', desc);
-  }, [fr]);
+  const seo = (
+    <SEOHead
+      title={fr ? 'SiteViral Church — dîmes Mobile Money et prédications en ligne' : 'SiteViral Church — Mobile Money tithes and online sermons'}
+      description={
+        fr
+          ? 'Recevez dîmes et offrandes en Mobile Money, transformez vos prédications audio en livres et articles, connectez votre diaspora — sans compétence technique.'
+          : 'Receive tithes and offerings via Mobile Money, turn your sermon audios into books and articles, connect your diaspora — no tech skills needed.'
+      }
+      canonicalUrl="https://siteviral.com/church/about"
+      locale={fr ? 'fr_FR' : 'en_US'}
+    />
+  );
 
   const pillars = [
     { icon: Mic, title: fr ? 'Bibliothèque de prédications' : 'Sermon library', desc: fr ? 'Uploadez vos audios chaque dimanche. Transcription automatique.' : 'Upload your audio every Sunday. Auto transcription.' },
@@ -28,6 +30,7 @@ export default function ChurchLanding() {
 
   return (
     <div className="min-h-screen bg-background">
+      {seo}
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background pointer-events-none" />

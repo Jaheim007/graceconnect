@@ -1,19 +1,26 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { GraduationCap, ArrowRight, ShieldCheck, MessageSquare, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EDUCATION_CATEGORIES } from "@/lib/educationCategories";
 import { useI18n } from "@/i18n/I18nContext";
+import { SEOHead } from "@/components/seo/SEOHead";
 
 export default function EducationLanding() {
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
 
-  useEffect(() => { document.title = "SiteViral Learn — Trouve ton prof"; }, []);
-
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SEOHead
+        title={t("SiteViral Learn — cours particuliers et profs vérifiés", "SiteViral Learn — private tutoring with verified teachers")}
+        description={t(
+          "Trouve un prof particulier vérifié : maths, langues, informatique, préparation aux examens. Cours en ligne ou à domicile, paiement sécurisé et chat protégé.",
+          "Find a verified private tutor: maths, languages, computing, exam prep. Online or in-home lessons, secure payment and protected chat.",
+        )}
+        canonicalUrl="https://siteviral.com/learn/about"
+        locale={isFr ? "fr_FR" : "en_US"}
+      />
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <Link to="/learn" className="flex items-center gap-2">

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/i18n/I18nContext';
 import { CHURCH_DENOMINATIONS, getDenominationLabel } from '@/lib/churchDenominations';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function ChurchDiscover() {
   const { locale } = useI18n();
@@ -14,9 +15,6 @@ export default function ChurchDiscover() {
   const [q, setQ] = useState('');
   const [denom, setDenom] = useState<string>('all');
 
-  useEffect(() => {
-    document.title = fr ? 'Découvrir les églises — SiteViral Church' : 'Discover churches — SiteViral Church';
-  }, [fr]);
 
   const { data: churches = [], isLoading } = useQuery({
     queryKey: ['church-discover'],
@@ -47,9 +45,19 @@ export default function ChurchDiscover() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={fr ? 'Découvrir les églises sur SiteViral Church' : 'Discover churches on SiteViral Church'}
+        description={
+          fr
+            ? "Parcourez les églises présentes sur SiteViral : dénomination, ville, prédications en ligne et dons Mobile Money. Trouvez une communauté près de vous ou dans la diaspora."
+            : 'Browse the churches on SiteViral: denomination, city, online sermons and Mobile Money giving. Find a community near you or in the diaspora.'
+        }
+        canonicalUrl="https://siteviral.com/church/discover"
+        locale={fr ? 'fr_FR' : 'en_US'}
+      />
       <div className="mx-auto max-w-5xl px-4 py-6 space-y-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" asChild aria-label={fr ? 'Retour à SiteViral Church' : 'Back to SiteViral Church'}>
             <Link to="/church"><ArrowLeft className="h-5 w-5" /></Link>
           </Button>
           <div>
@@ -106,7 +114,14 @@ export default function ChurchDiscover() {
                 className="group rounded-2xl border border-border bg-card overflow-hidden hover:shadow-lg transition-shadow"
               >
                 <div className="h-28 bg-gradient-to-br from-primary/20 to-primary/5 relative">
-                  {c.cover_url && <img src={c.cover_url} alt="" className="w-full h-full object-cover" />}
+                  {c.cover_url && (
+                    <img
+                      src={c.cover_url}
+                      alt={fr ? `Photo de couverture de l'église ${c.name}` : `Cover photo of ${c.name} church`}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                   <div className="absolute top-2 right-2 flex flex-wrap gap-1 justify-end">
                     {c.is_official && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-2 py-0.5 text-[10px] font-medium">
@@ -129,7 +144,12 @@ export default function ChurchDiscover() {
                   <div className="flex items-center gap-3 -mt-8 mb-2">
                     <div className="h-12 w-12 rounded-xl border-2 border-background bg-muted overflow-hidden shrink-0">
                       {c.logo_url ? (
-                        <img src={c.logo_url} alt="" className="w-full h-full object-cover" />
+                        <img
+                          src={c.logo_url}
+                          alt={fr ? `Logo de l'église ${c.name}` : `${c.name} church logo`}
+                          loading="lazy"
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-primary/10">
                           <Church className="h-5 w-5 text-primary" />

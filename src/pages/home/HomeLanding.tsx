@@ -1,21 +1,26 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Home as HomeIcon, ArrowRight, ShieldCheck, MessageSquare, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HOME_CATEGORIES } from "@/lib/homeCategories";
 import { useI18n } from "@/i18n/I18nContext";
+import { SEOHead } from "@/components/seo/SEOHead";
 
 export default function HomeLanding() {
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
 
-  useEffect(() => {
-    document.title = "SiteViral Home — Le pro qu'il te faut, à la maison";
-  }, []);
-
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SEOHead
+        title={t("SiteViral Home — plombiers, électriciens et artisans vérifiés", "SiteViral Home — verified plumbers, electricians and handymen")}
+        description={t(
+          "Réserve un artisan vérifié près de toi : plomberie, électricité, ménage, déménagement, peinture. Prix annoncés à l'avance, paiement sécurisé, avis réels.",
+          "Book a verified artisan near you: plumbing, electrical, cleaning, moving, painting. Prices upfront, secure payment and real reviews.",
+        )}
+        canonicalUrl="https://siteviral.com/home/about"
+        locale={isFr ? "fr_FR" : "en_US"}
+      />
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <Link to="/home" className="flex items-center gap-2">
