@@ -234,6 +234,35 @@ export default function OrgPublicPage() {
     },
   ];
 
+  // ─── Storefront SEO title / description ───
+  // Subdomain storefronts previously shipped only the bare org name as <title>
+  // and fell back to a generic sitewide description. Both are now descriptive.
+  const orgOfferLabel = (() => {
+    const parts: string[] = [];
+    if (products.length) parts.push(isFrOrg ? 'produits numériques' : 'digital products');
+    if (publishedPrograms.length) parts.push(isFrOrg ? 'formations' : 'courses');
+    if (events.length) parts.push(isFrOrg ? 'événements' : 'events');
+    if (campaigns.length) parts.push(isFrOrg ? 'collectes' : 'campaigns');
+    if (!parts.length) parts.push(isFrOrg ? 'contenus numériques' : 'digital content');
+    return parts.slice(0, 3).join(', ');
+  })();
+
+  const orgSeoTitle = isOnOrgDomain
+    ? (isFrOrg
+        ? `${org.name} — ${orgOfferLabel}`
+        : `${org.name} — ${orgOfferLabel}`)
+    : `${org.name} — Plateforme digitale sur Siteviral`;
+
+  const orgSeoDescription = (() => {
+    const own = stripHtml(org.description || '').trim();
+    if (own.length >= 60) return own.slice(0, 300);
+    const base = isFrOrg
+      ? `${org.name} (${orgKindLabel}) : ${orgOfferLabel} disponibles en ligne. Paiement par Mobile Money ou carte, accès immédiat après achat.`
+      : `${org.name} (${orgKindLabel}): ${orgOfferLabel} available online. Pay with Mobile Money or card, instant access after purchase.`;
+    return own ? `${own} — ${base}`.slice(0, 300) : base;
+  })();
+
+
   return (
     <div className="min-h-screen bg-background" style={themeStyle}>
       {previewAsVisitor && (
@@ -261,8 +290,8 @@ export default function OrgPublicPage() {
       <PixelInjector facebookPixelId={fbPixel} tiktokPixelId={ttPixel} googleTagId={gTagId} />
       {isOnOrgDomain && <DynamicFavicon logoUrl={org.logo_url} orgName={org.name} orgDescription={org.description || undefined} />}
       <SEOHead
-        title={isOnOrgDomain ? org.name : `${org.name} — Plateforme digitale sur Siteviral`}
-        description={org.description || `Découvrez ${org.name} sur Siteviral : produits numériques, formations, événements et plus. Achetez ou devenez ambassadeur.`}
+        title={orgSeoTitle}
+        description={orgSeoDescription}
         ogImage={org.banner_url || org.logo_url}
         canonicalUrl={orgCanonical}
         keywords={`${org.name}, plateforme digitale, produits numériques, ${org.category === 'church' ? 'église en ligne' : org.category === 'ngo' ? 'ONG' : 'créateur'}, Siteviral`}

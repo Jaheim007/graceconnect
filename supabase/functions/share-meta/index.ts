@@ -442,12 +442,20 @@ Deno.serve(async (req) => {
 
   // ─── Bot → crawlable HTML (200, no redirect) ───
   if (botRequest) {
+    // Direct endpoint hits (api.siteviral.com/functions/v1/share-meta?...) must never
+    // be indexed as pages of their own — only the canonical siteviral.com URL should be.
+    // Requests proxied by the Worker arrive on the public host and stay indexable.
+    const isDirectEndpoint = reqUrl.hostname !== 'siteviral.com'
+      && !reqUrl.hostname.endsWith('.siteviral.com')
+      || reqUrl.pathname.includes('/share-meta');
     const htmlHeaders = {
       ...corsHeaders,
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'public, max-age=300, s-maxage=1800',
       'Vary': 'User-Agent',
-      'X-Robots-Tag': 'index, follow, max-image-preview:large, max-snippet:-1',
+      'X-Robots-Tag': isDirectEndpoint
+        ? 'noindex, follow, max-image-preview:large'
+        : 'index, follow, max-image-preview:large, max-snippet:-1',
     };
 
     // Full content rendering: real heading, prose, key facts, FAQ, links, JSON-LD
