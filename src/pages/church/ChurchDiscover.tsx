@@ -144,7 +144,12 @@ export default function ChurchDiscover() {
                   <div className="flex items-center gap-3 -mt-8 mb-2">
                     <div className="h-12 w-12 rounded-xl border-2 border-background bg-muted overflow-hidden shrink-0">
                       {c.logo_url ? (
-                        <img src={c.logo_url} alt="" className="w-full h-full object-cover" />
+                        <img
+                          src={c.logo_url}
+                          alt={fr ? `Logo de l'église ${c.name}` : `${c.name} church logo`}
+                          loading="lazy"
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-primary/10">
                           <Church className="h-5 w-5 text-primary" />
