@@ -47,6 +47,16 @@ export default function ChurchDiscover() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={fr ? 'Découvrir les églises sur SiteViral Church' : 'Discover churches on SiteViral Church'}
+        description={
+          fr
+            ? "Parcourez les églises présentes sur SiteViral : dénomination, ville, prédications en ligne et dons Mobile Money. Trouvez une communauté près de vous ou dans la diaspora."
+            : 'Browse the churches on SiteViral: denomination, city, online sermons and Mobile Money giving. Find a community near you or in the diaspora.'
+        }
+        canonicalUrl="https://siteviral.com/church/discover"
+        locale={fr ? 'fr_FR' : 'en_US'}
+      />
       <div className="mx-auto max-w-5xl px-4 py-6 space-y-6">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild>
