@@ -269,7 +269,7 @@ export default function OrgPublicPage() {
         jsonLd={[
           {
             '@context': 'https://schema.org',
-            '@type': 'Organization',
+            '@type': org.category === 'church' ? 'Church' : org.category === 'ngo' ? 'NGO' : 'Organization',
             name: org.name,
             description: org.description,
             url: orgCanonical,
@@ -295,6 +295,8 @@ export default function OrgPublicPage() {
                   { '@type': 'ListItem', position: 3, name: org.name, item: `https://siteviral.com/org/${slug}` },
                 ],
           },
+          // FAQPage — same questions/answers rendered by <AnswerBlock /> below
+          jsonLdSchemas.faqPage(orgAnswers),
         ]}
       />
 

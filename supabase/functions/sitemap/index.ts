@@ -117,6 +117,26 @@ const staticPages = [
   { loc: "/data-deletion", priority: "0.3", changefreq: "yearly" },
   { loc: "/report", priority: "0.3", changefreq: "yearly" },
   { loc: "/refunds", priority: "0.3", changefreq: "yearly" },
+  // ─── Verticals, hubs and discovery surfaces ───
+  { loc: "/church", priority: "0.8", changefreq: "weekly" },
+  { loc: "/church/about", priority: "0.6", changefreq: "monthly" },
+  { loc: "/church/discover", priority: "0.7", changefreq: "daily" },
+  { loc: "/solutions/church", priority: "0.7", changefreq: "monthly" },
+  { loc: "/digital", priority: "0.8", changefreq: "weekly" },
+  { loc: "/digital/about", priority: "0.6", changefreq: "monthly" },
+  { loc: "/marketplace", priority: "0.8", changefreq: "daily" },
+  { loc: "/explore/digital-products", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/beauty", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/artisans", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/tutors", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/coaching", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/music", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/influencers", priority: "0.7", changefreq: "daily" },
+  { loc: "/explore/other-services", priority: "0.6", changefreq: "daily" },
+  { loc: "/top-creators", priority: "0.6", changefreq: "weekly" },
+  { loc: "/showcase", priority: "0.5", changefreq: "weekly" },
+  { loc: "/founders", priority: "0.5", changefreq: "monthly" },
+  { loc: "/looking-for", priority: "0.5", changefreq: "weekly" },
 ];
 
 const lastmodTag = (value?: string | null) =>
@@ -177,26 +197,37 @@ Deno.serve(async (req) => {
       return await generateOrgSitemap(sb, orgFilter, siteBase);
     }
 
-    // Global sitemap
-    const [
-      { data: orgs },
-      { data: products },
-      { data: campaigns },
-      { data: events },
-      { data: offerings },
-      { data: announcements },
-      { data: programs },
-      { data: mediaContent },
-    ] = await Promise.all([
-      sb.from("organizations").select("slug, updated_at").eq("is_active", true).eq("is_suspended", false),
-      sb.from("digital_products").select("id, slug, updated_at, organizations(slug)").eq("is_published", true),
-      sb.from("donation_campaigns").select("id, updated_at, organizations(slug)").eq("is_active", true).eq("is_published", true),
-      sb.from("events").select("id, updated_at, organizations(slug)").eq("is_published", true),
-      sb.from("offerings").select("id, updated_at, organizations(slug)").eq("is_active", true),
-      sb.from("announcements").select("id, updated_at, organization_id, organizations(slug)").eq("is_published", true),
-      sb.from("programs").select("id, updated_at, organizations(slug)").eq("is_published", true),
-      sb.from("media_content").select("id, updated_at, organizations(slug)").eq("is_published", true),
-    ]);
+    // Global sitemap.
+    // PostgREST caps a single response at 1000 rows, so every content query is
+    // paginated — otherwise newly published items silently fall out of the sitemap
+    // once a table passes 1000 published rows.
+    const PAGE = 1000;
+    const fetchAll = async (build: () => any): Promise<any[]> => {
+      const all: any[] = [];
+      for (let from = 0; ; from += PAGE) {
+        const { data, error } = await build().range(from, from + PAGE - 1);
+        if (error) {
+          console.error("sitemap query failed:", error.message);
+          break;
+        }
+        if (!data?.length) break;
+        all.push(...data);
+        if (data.length < PAGE) break;
+      }
+      return all;
+    };
+
+    const [orgs, products, campaigns, events, offerings, announcements, programs, mediaContent] =
+      await Promise.all([
+        fetchAll(() => sb.from("organizations").select("slug, updated_at").eq("is_active", true).eq("is_suspended", false)),
+        fetchAll(() => sb.from("digital_products").select("id, slug, updated_at, organizations(slug)").eq("is_published", true)),
+        fetchAll(() => sb.from("donation_campaigns").select("id, updated_at, organizations(slug)").eq("is_active", true).eq("is_published", true)),
+        fetchAll(() => sb.from("events").select("id, updated_at, organizations(slug)").eq("is_published", true)),
+        fetchAll(() => sb.from("offerings").select("id, updated_at, organizations(slug)").eq("is_active", true)),
+        fetchAll(() => sb.from("announcements").select("id, updated_at, organization_id, organizations(slug)").eq("is_published", true)),
+        fetchAll(() => sb.from("programs").select("id, updated_at, organizations(slug)").eq("is_published", true)),
+        fetchAll(() => sb.from("media_content").select("id, updated_at, organizations(slug)").eq("is_published", true)),
+      ]);
 
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
