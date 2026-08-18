@@ -15,9 +15,6 @@ export default function ChurchDiscover() {
   const [q, setQ] = useState('');
   const [denom, setDenom] = useState<string>('all');
 
-  useEffect(() => {
-    document.title = fr ? 'Découvrir les églises — SiteViral Church' : 'Discover churches — SiteViral Church';
-  }, [fr]);
 
   const { data: churches = [], isLoading } = useQuery({
     queryKey: ['church-discover'],
