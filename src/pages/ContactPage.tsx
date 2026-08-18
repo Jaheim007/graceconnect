@@ -74,8 +74,9 @@ export default function ContactPage() {
         </div>
 
         <div className="mt-10 bg-card border border-border rounded-2xl p-6 space-y-4">
-          <h3 className="font-bold text-foreground text-center">{t('contact.need_help')}</h3>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">{t('contact.need_help')}</h2>
           <p className="text-sm text-muted-foreground text-center">{t('contact.help_desc')}</p>
+
           <form
             onSubmit={(e) => {
               e.preventDefault();
