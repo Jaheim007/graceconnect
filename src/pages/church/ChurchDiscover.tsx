@@ -114,7 +114,14 @@ export default function ChurchDiscover() {
                 className="group rounded-2xl border border-border bg-card overflow-hidden hover:shadow-lg transition-shadow"
               >
                 <div className="h-28 bg-gradient-to-br from-primary/20 to-primary/5 relative">
-                  {c.cover_url && <img src={c.cover_url} alt="" className="w-full h-full object-cover" />}
+                  {c.cover_url && (
+                    <img
+                      src={c.cover_url}
+                      alt={fr ? `Photo de couverture de l'église ${c.name}` : `Cover photo of ${c.name} church`}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                   <div className="absolute top-2 right-2 flex flex-wrap gap-1 justify-end">
                     {c.is_official && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-2 py-0.5 text-[10px] font-medium">
