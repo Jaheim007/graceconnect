@@ -202,6 +202,10 @@ export default function GagnerPage() {
           </div>
         </motion.div>
 
+        <h2 className="text-lg sm:text-xl font-black tracking-tight">
+          {isFr ? 'Comment ça marche' : 'How it works'}
+        </h2>
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {STEPS.map((step, i) => (
             <motion.div
