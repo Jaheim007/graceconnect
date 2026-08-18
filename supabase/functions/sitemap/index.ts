@@ -197,26 +197,37 @@ Deno.serve(async (req) => {
       return await generateOrgSitemap(sb, orgFilter, siteBase);
     }
 
-    // Global sitemap
-    const [
-      { data: orgs },
-      { data: products },
-      { data: campaigns },
-      { data: events },
-      { data: offerings },
-      { data: announcements },
-      { data: programs },
-      { data: mediaContent },
-    ] = await Promise.all([
-      sb.from("organizations").select("slug, updated_at").eq("is_active", true).eq("is_suspended", false),
-      sb.from("digital_products").select("id, slug, updated_at, organizations(slug)").eq("is_published", true),
-      sb.from("donation_campaigns").select("id, updated_at, organizations(slug)").eq("is_active", true).eq("is_published", true),
-      sb.from("events").select("id, updated_at, organizations(slug)").eq("is_published", true),
-      sb.from("offerings").select("id, updated_at, organizations(slug)").eq("is_active", true),
-      sb.from("announcements").select("id, updated_at, organization_id, organizations(slug)").eq("is_published", true),
-      sb.from("programs").select("id, updated_at, organizations(slug)").eq("is_published", true),
-      sb.from("media_content").select("id, updated_at, organizations(slug)").eq("is_published", true),
-    ]);
+    // Global sitemap.
+    // PostgREST caps a single response at 1000 rows, so every content query is
+    // paginated — otherwise newly published items silently fall out of the sitemap
+    // once a table passes 1000 published rows.
+    const PAGE = 1000;
+    const fetchAll = async (build: () => any): Promise<any[]> => {
+      const all: any[] = [];
+      for (let from = 0; ; from += PAGE) {
+        const { data, error } = await build().range(from, from + PAGE - 1);
+        if (error) {
+          console.error("sitemap query failed:", error.message);
+          break;
+        }
+        if (!data?.length) break;
+        all.push(...data);
+        if (data.length < PAGE) break;
+      }
+      return all;
+    };
+
+    const [orgs, products, campaigns, events, offerings, announcements, programs, mediaContent] =
+      await Promise.all([
+        fetchAll(() => sb.from("organizations").select("slug, updated_at").eq("is_active", true).eq("is_suspended", false)),
+        fetchAll(() => sb.from("digital_products").select("id, slug, updated_at, organizations(slug)").eq("is_published", true)),
+        fetchAll(() => sb.from("donation_campaigns").select("id, updated_at, organizations(slug)").eq("is_active", true).eq("is_published", true)),
+        fetchAll(() => sb.from("events").select("id, updated_at, organizations(slug)").eq("is_published", true)),
+        fetchAll(() => sb.from("offerings").select("id, updated_at, organizations(slug)").eq("is_active", true)),
+        fetchAll(() => sb.from("announcements").select("id, updated_at, organization_id, organizations(slug)").eq("is_published", true)),
+        fetchAll(() => sb.from("programs").select("id, updated_at, organizations(slug)").eq("is_published", true)),
+        fetchAll(() => sb.from("media_content").select("id, updated_at, organizations(slug)").eq("is_published", true)),
+      ]);
 
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
