@@ -193,6 +193,7 @@ const staticPages = [
   { loc: "/promo/stars", priority: "0.7", changefreq: "weekly" },
   { loc: "/promo/ai-creations", priority: "0.7", changefreq: "weekly" },
   { loc: "/comparer", priority: "0.5", changefreq: "monthly" },
+  { loc: "/temoignages", priority: "0.5", changefreq: "monthly" },
   { loc: "/presse", priority: "0.4", changefreq: "monthly" },
   { loc: "/etudes-de-cas", priority: "0.5", changefreq: "monthly" },
   { loc: "/partenaires", priority: "0.4", changefreq: "monthly" },
