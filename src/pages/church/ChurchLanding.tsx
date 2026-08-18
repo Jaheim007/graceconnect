@@ -30,6 +30,7 @@ export default function ChurchLanding() {
 
   return (
     <div className="min-h-screen bg-background">
+      {seo}
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background pointer-events-none" />
