@@ -654,6 +654,8 @@ const App = () => (
 
                 {/* /welcome now redirects to home — unified ActionHub */}
                 <Route path="/welcome" element={<Navigate to="/" replace />} />
+                <Route path="/email-preferences" element={<Navigate to="/notification-preferences" replace />} />
+
 
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
