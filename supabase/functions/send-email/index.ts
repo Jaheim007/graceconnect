@@ -139,6 +139,39 @@ const orange = '#d97706';
 const cta = (href: string, text: string) =>
   `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0"><tr><td style="border-radius:8px;background:${BRAND_BLUE};"><a href="${href}" style="display:inline-block;padding:13px 26px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:8px;">${text}</a></td></tr></table>`;
 
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/**
+ * Renders a multi-line moderation reason: bullet lines are kept, https image URLs
+ * become inline screenshots, other URLs become links.
+ */
+const richReason = (raw: string): string => {
+  const lines = String(raw || '').split('\n');
+  const texts: string[] = [];
+  const images: string[] = [];
+  for (const line of lines) {
+    const t = line.trim();
+    if (!t) continue;
+    if (/^https?:\/\/\S+\.(png|jpe?g|webp|gif)(\?\S*)?$/i.test(t)) { images.push(t); continue; }
+    if (/^https?:\/\/\S+$/i.test(t)) {
+      texts.push(`<a href="${encodeURI(t)}" style="color:${BRAND_BLUE};">${escapeHtml(t)}</a>`);
+      continue;
+    }
+    if (t === '[EN]') { texts.push('<span style="font-size:12px;color:#8a94a6;">English</span>'); continue; }
+    texts.push(escapeHtml(t.replace(/^•\s*/, '')).replace(/^/, t.startsWith('•') ? '• ' : ''));
+  }
+  const body = texts.length
+    ? `<div style="margin:8px 0 0;padding:14px 16px;background:#f7f9fc;border-left:3px solid #e2574c;border-radius:6px;font-size:14px;line-height:1.7;color:#3d4757;">${texts.join('<br />')}</div>`
+    : '';
+  const shots = images.length
+    ? `<div style="margin:14px 0 0;">${images
+        .map(u => `<img src="${encodeURI(u)}" alt="" width="100%" style="display:block;max-width:100%;border:1px solid #e6eaf1;border-radius:8px;margin:0 0 10px;" />`)
+        .join('')}</div>`
+    : '';
+  return body + shots;
+};
+
 
 // ═══════════════════════════════════════
 // Bilingual template builder
