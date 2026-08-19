@@ -99,7 +99,7 @@ export default function PartnerKYCForm({ partnerId, kycStatus, rejectionReason }
             <XCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-destructive">{isFr ? 'Vérification refusée' : 'Verification rejected'}</p>
-              <p className="text-xs text-muted-foreground">{rejectionReason}</p>
+              <p className="text-xs text-muted-foreground whitespace-pre-wrap">{rejectionReason}</p>
               <p className="text-xs text-muted-foreground mt-1">{isFr ? 'Vous pouvez soumettre de nouveaux documents.' : 'You can submit new documents.'}</p>
             </div>
           </div>
