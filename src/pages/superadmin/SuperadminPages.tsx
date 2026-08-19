@@ -17,6 +17,7 @@ import { format, startOfDay, startOfWeek, startOfMonth, startOfYear, subDays, su
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { askConfirm } from '@/components/ui/confirm-dialog';
+import KycRejectDialog from '@/components/superadmin/KycRejectDialog';
 
 export function SuperadminDashboard() {
   const { data: stats } = useQuery({
