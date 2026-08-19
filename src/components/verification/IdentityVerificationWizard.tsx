@@ -500,7 +500,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             <XCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-destructive">Vérification refusée</p>
-              <p className="text-xs text-muted-foreground">{rejectionReason}</p>
+              <p className="text-xs text-muted-foreground whitespace-pre-wrap">{rejectionReason}</p>
               <p className="text-xs text-muted-foreground mt-1">Veuillez soumettre de nouveaux documents.</p>
             </div>
           </motion.div>

@@ -17,6 +17,7 @@ import { format, startOfDay, startOfWeek, startOfMonth, startOfYear, subDays, su
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { askConfirm } from '@/components/ui/confirm-dialog';
+import KycRejectDialog from '@/components/superadmin/KycRejectDialog';
 
 export function SuperadminDashboard() {
   const { data: stats } = useQuery({
@@ -132,6 +133,8 @@ export function SuperadminKYC() {
   const [filter, setFilter] = useState<'pending' | 'all' | 'approved' | 'rejected'>('pending');
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [loadingUrls, setLoadingUrls] = useState<Record<string, boolean>>({});
+  const [rejectTarget, setRejectTarget] = useState<{ id: string; orgId: string; name: string } | null>(null);
+  const [rejecting, setRejecting] = useState(false);
   
   const { data: submissions = [], isLoading, refetch } = useQuery({
     queryKey: ['sa-kyc', filter],
@@ -182,21 +185,32 @@ export function SuperadminKYC() {
     toast({ title: 'Vérification approuvée ✅' }); refetch();
   };
 
-  const reject = async (id: string, orgId: string) => {
-    const reason = prompt('Motif du refus :');
-    if (!reason) return;
+  const reject = (id: string, orgId: string) => {
     const sub = submissions.find((s: any) => s.id === id);
-    const isBeauty = !!sub?.beauty_provider_id;
-    if (isBeauty) {
-      const { error } = await db.rpc('review_beauty_kyc', { _submission_id: id, _action: 'reject', _reason: reason });
-      if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
-    } else {
-      const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'reject', _reason: reason });
-      if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
-      const orgName = sub?.organizations?.name || 'Organisation';
-      import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, orgName, 'rejected', reason));
+    setRejectTarget({ id, orgId, name: sub?.organizations?.name || sub?.beauty_providers?.business_name || 'Organisation' });
+  };
+
+  const confirmReject = async (reason: string) => {
+    if (!rejectTarget) return;
+    const { id, orgId, name } = rejectTarget;
+    setRejecting(true);
+    try {
+      const sub = submissions.find((s: any) => s.id === id);
+      const isBeauty = !!sub?.beauty_provider_id;
+      if (isBeauty) {
+        const { error } = await db.rpc('review_beauty_kyc', { _submission_id: id, _action: 'reject', _reason: reason });
+        if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+      } else {
+        const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'reject', _reason: reason });
+        if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+        import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, name, 'rejected', reason));
+      }
+      setRejectTarget(null);
+      toast({ title: 'Vérification refusée', description: 'Le motif détaillé a été envoyé par e-mail.' });
+      refetch();
+    } finally {
+      setRejecting(false);
     }
-    toast({ title: 'Vérification refusée' }); refetch();
   };
 
   const triggerLevel2 = async (orgId: string) => {
@@ -234,6 +248,14 @@ export function SuperadminKYC() {
 
   return (
     <div className="space-y-4">
+      <KycRejectDialog
+        open={!!rejectTarget}
+        onOpenChange={v => { if (!v) setRejectTarget(null); }}
+        orgName={rejectTarget?.name || ''}
+        orgId={rejectTarget?.orgId || ''}
+        submitting={rejecting}
+        onConfirm={confirmReject}
+      />
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-xl font-bold">
           Vérifications de compte
@@ -458,7 +480,9 @@ export function SuperadminKYC() {
                   {s.id_document_type && <p>📄 Type ID : {s.id_document_type}</p>}
                   {s.bank_name && <p>🏦 Banque : {s.bank_name} · {s.bank_account_name} · {s.bank_account_number}</p>}
                   {s.payout_method && <p>💳 Paiement : {s.payout_method} {s.payout_phone ? `· ${s.payout_phone}` : ''} {s.payout_provider ? `· ${s.payout_provider}` : ''}</p>}
-                  {s.rejection_reason && <p className="text-destructive">❌ Motif : {s.rejection_reason}</p>}
+                  {s.rejection_reason && (
+                    <p className="text-destructive whitespace-pre-wrap">❌ Motif : {s.rejection_reason}</p>
+                  )}
                 </div>
 
                 {/* Actions */}
