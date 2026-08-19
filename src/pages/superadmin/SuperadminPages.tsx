@@ -132,6 +132,8 @@ export function SuperadminKYC() {
   const [filter, setFilter] = useState<'pending' | 'all' | 'approved' | 'rejected'>('pending');
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [loadingUrls, setLoadingUrls] = useState<Record<string, boolean>>({});
+  const [rejectTarget, setRejectTarget] = useState<{ id: string; orgId: string; name: string } | null>(null);
+  const [rejecting, setRejecting] = useState(false);
   
   const { data: submissions = [], isLoading, refetch } = useQuery({
     queryKey: ['sa-kyc', filter],
