@@ -107,6 +107,8 @@ const PromoStarsPage = lazy(() => import("@/pages/promo/PromoStarsPage"));
 const PromoAICreationsPage = lazy(() => import("@/pages/promo/PromoAICreationsPage"));
 const OrgPublicPage = lazy(() => import("@/pages/OrgPublicPage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
+const ProductShortLinkPage = lazy(() => import("@/pages/ProductShortLinkPage"));
+
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const VoiceAgentPage = lazy(() => import("@/pages/labs/VoiceAgentPage"));
 const TermsPage = lazy(() => import("@/pages/TermsPage"));
@@ -637,6 +639,10 @@ const App = () => (
                   <Route path="/org/:slug/dons" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/product/:productId" element={<ProductDetailPage />} />
                   <Route path="/org/:slug/p/:productSlug" element={<ProductDetailPage />} />
+                  <Route path="/p/:key" element={<ProductShortLinkPage />} />
+                  <Route path="/produit/:key" element={<ProductShortLinkPage />} />
+                  <Route path="/product/:key" element={<ProductShortLinkPage />} />
+
                   <Route path="/campaign/:campaignId" element={<CampaignDetailPage />} />
                   <Route path="/offering/:offeringId" element={<OfferingDetailPage />} />
                   <Route path="/announcement/:announcementId" element={<AnnouncementDetailPage />} />
@@ -648,6 +654,8 @@ const App = () => (
 
                 {/* /welcome now redirects to home — unified ActionHub */}
                 <Route path="/welcome" element={<Navigate to="/" replace />} />
+                <Route path="/email-preferences" element={<Navigate to="/notification-preferences" replace />} />
+
 
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>

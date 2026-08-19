@@ -329,7 +329,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
                 <li>📢 <strong>Postez sur vos réseaux</strong> – Le lien est déjà prêt</li>
               </ol>
             </div>
-            ${cta('https://siteviral.com/admin/share', '📤 Partager mon produit')}
+            ${cta('https://siteviral.com/gagner', '📤 Partager mon produit')}
             <p style="color:#6b7383;font-size:12px">Chaque partage peut déclencher une vente. Les ambassadeurs les plus actifs gagnent en moyenne 15 000 FCFA/semaine.</p>
           `, lang) }
         : { subject: '🔥 Your product is waiting for its first buyers!', html: wrap(`
@@ -345,7 +345,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
                 <li>📢 <strong>Post on social media</strong> – The link is already ready</li>
               </ol>
             </div>
-            ${cta('https://siteviral.com/admin/share', '📤 Share my product')}
+            ${cta('https://siteviral.com/gagner', '📤 Share my product')}
             <p style="color:#6b7383;font-size:12px">Every share can trigger a sale. The most active ambassadors earn an average of 15,000 XOF/week.</p>
           `, lang) };
 
@@ -364,7 +364,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             <div style="background:#f4f6fa;border-radius:8px;padding:12px;margin:12px 0;font-style:italic;color:#3d4757;font-size:13px">
               "J'ai trouvé cette ressource incroyable, ça peut vraiment aider 👉 [votre lien]"
             </div>
-            ${cta('https://siteviral.com/admin/share', '🔗 Voir mes liens')}
+            ${cta('https://siteviral.com/gagner', '🔗 Voir mes liens')}
           `, lang) }
         : { subject: '💸 Your ambassador links are sleeping – Wake them up!', html: wrap(`
             <h1 style="color:${green}">💸 Your commissions are waiting!</h1>
@@ -379,7 +379,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
             <div style="background:#f4f6fa;border-radius:8px;padding:12px;margin:12px 0;font-style:italic;color:#3d4757;font-size:13px">
               "I found this incredible resource, it can really help 👉 [your link]"
             </div>
-            ${cta('https://siteviral.com/admin/share', '🔗 View my links')}
+            ${cta('https://siteviral.com/gagner', '🔗 View my links')}
           `, lang) };
 
     case 'anniversary_1y':
@@ -1293,7 +1293,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     case 'activation_draft_waiting': {
       const title = String(d.draft_title || (isFr ? 'votre brouillon' : 'your draft'));
       const percent = Number(d.percent || 0);
-      const resumeUrl = String(d.resume_url || 'https://siteviral.com/admin/drafts');
+      const resumeUrl = String(d.resume_url || 'https://siteviral.com/admin/products');
       const bar = `<div style="background:#f4f6fa;border-radius:999px;height:10px;overflow:hidden;margin:10px 0">
         <div style="width:${Math.max(4, Math.min(100, percent))}%;height:10px;background:${blue}"></div></div>
         <p style="margin:0;font-size:12px;color:#aaa">${percent}% ${isFr ? 'généré' : 'generated'}</p>`;
