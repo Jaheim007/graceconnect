@@ -182,21 +182,32 @@ export function SuperadminKYC() {
     toast({ title: 'Vérification approuvée ✅' }); refetch();
   };
 
-  const reject = async (id: string, orgId: string) => {
-    const reason = prompt('Motif du refus :');
-    if (!reason) return;
+  const reject = (id: string, orgId: string) => {
     const sub = submissions.find((s: any) => s.id === id);
-    const isBeauty = !!sub?.beauty_provider_id;
-    if (isBeauty) {
-      const { error } = await db.rpc('review_beauty_kyc', { _submission_id: id, _action: 'reject', _reason: reason });
-      if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
-    } else {
-      const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'reject', _reason: reason });
-      if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
-      const orgName = sub?.organizations?.name || 'Organisation';
-      import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, orgName, 'rejected', reason));
+    setRejectTarget({ id, orgId, name: sub?.organizations?.name || sub?.beauty_providers?.business_name || 'Organisation' });
+  };
+
+  const confirmReject = async (reason: string) => {
+    if (!rejectTarget) return;
+    const { id, orgId, name } = rejectTarget;
+    setRejecting(true);
+    try {
+      const sub = submissions.find((s: any) => s.id === id);
+      const isBeauty = !!sub?.beauty_provider_id;
+      if (isBeauty) {
+        const { error } = await db.rpc('review_beauty_kyc', { _submission_id: id, _action: 'reject', _reason: reason });
+        if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+      } else {
+        const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'reject', _reason: reason });
+        if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+        import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, name, 'rejected', reason));
+      }
+      setRejectTarget(null);
+      toast({ title: 'Vérification refusée', description: 'Le motif détaillé a été envoyé par e-mail.' });
+      refetch();
+    } finally {
+      setRejecting(false);
     }
-    toast({ title: 'Vérification refusée' }); refetch();
   };
 
   const triggerLevel2 = async (orgId: string) => {
