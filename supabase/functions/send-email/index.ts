@@ -1293,7 +1293,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     case 'activation_draft_waiting': {
       const title = String(d.draft_title || (isFr ? 'votre brouillon' : 'your draft'));
       const percent = Number(d.percent || 0);
-      const resumeUrl = String(d.resume_url || 'https://siteviral.com/admin/drafts');
+      const resumeUrl = String(d.resume_url || 'https://siteviral.com/admin/products');
       const bar = `<div style="background:#f4f6fa;border-radius:999px;height:10px;overflow:hidden;margin:10px 0">
         <div style="width:${Math.max(4, Math.min(100, percent))}%;height:10px;background:${blue}"></div></div>
         <p style="margin:0;font-size:12px;color:#aaa">${percent}% ${isFr ? 'généré' : 'generated'}</p>`;
