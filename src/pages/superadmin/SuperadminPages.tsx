@@ -480,7 +480,9 @@ export function SuperadminKYC() {
                   {s.id_document_type && <p>📄 Type ID : {s.id_document_type}</p>}
                   {s.bank_name && <p>🏦 Banque : {s.bank_name} · {s.bank_account_name} · {s.bank_account_number}</p>}
                   {s.payout_method && <p>💳 Paiement : {s.payout_method} {s.payout_phone ? `· ${s.payout_phone}` : ''} {s.payout_provider ? `· ${s.payout_provider}` : ''}</p>}
-                  {s.rejection_reason && <p className="text-destructive">❌ Motif : {s.rejection_reason}</p>}
+                  {s.rejection_reason && (
+                    <p className="text-destructive whitespace-pre-wrap">❌ Motif : {s.rejection_reason}</p>
+                  )}
                 </div>
 
                 {/* Actions */}
