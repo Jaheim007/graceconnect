@@ -247,6 +247,14 @@ export function SuperadminKYC() {
 
   return (
     <div className="space-y-4">
+      <KycRejectDialog
+        open={!!rejectTarget}
+        onOpenChange={v => { if (!v) setRejectTarget(null); }}
+        orgName={rejectTarget?.name || ''}
+        orgId={rejectTarget?.orgId || ''}
+        submitting={rejecting}
+        onConfirm={confirmReject}
+      />
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-xl font-bold">
           Vérifications de compte
