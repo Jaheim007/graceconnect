@@ -148,7 +148,7 @@ Deno.serve(async (req) => {
       const ok = await send('activation_draft_waiting', u.id, {
         draft_title: draft.title || '',
         percent,
-        resume_url: 'https://siteviral.com/admin/drafts',
+        resume_url: 'https://siteviral.com/admin/products',
       });
       if (ok) results.activation_draft_waiting++;
     }
