@@ -483,10 +483,15 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
         ? { subject: `Identité vérifiée – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ Identité Vérifiée</h1><p>Votre vérification d'identité pour <strong>${d.org_name}</strong> a été approuvée.</p><p>Vous pouvez maintenant activer les fonctions de monétisation.</p>`, lang) }
         : { subject: `Identity verified – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ Identity Verified</h1><p>Your identity verification for <strong>${d.org_name}</strong> has been approved.</p><p>You can now activate monetization features.</p>`, lang) };
 
-    case 'kyc_rejected':
+    case 'kyc_rejected': {
+      const reasonBlock = d.reason
+        ? richReason(String(d.reason))
+        : `<p>${isFr ? 'Veuillez contacter le support.' : 'Please contact support.'}</p>`;
+      const link = String(d.verification_link || 'https://siteviral.com/admin/settings?s=verification');
       return isFr
-        ? { subject: `Vérification – Action requise – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Vérification Non Approuvée</h1><p>Votre vérification d'identité pour <strong>${d.org_name}</strong> n'a pas été approuvée.</p><p>Raison : ${d.reason || 'Veuillez contacter le support.'}</p>${cta(String(d.verification_link || 'https://siteviral.com/admin/settings?s=verification'), 'Reprendre ma vérification →')}`, lang) }
-        : { subject: `Verification – Action required – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Verification Not Approved</h1><p>Your identity verification for <strong>${d.org_name}</strong> was not approved.</p><p>Reason: ${d.reason || 'Please contact support.'}</p>${cta(String(d.verification_link || 'https://siteviral.com/admin/settings?s=verification'), 'Retry my verification →')}`, lang) };
+        ? { subject: `Vérification – Action requise – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Vérification non approuvée</h1><p>Votre vérification d'identité pour <strong>${d.org_name}</strong> n'a pas été approuvée.</p><p style="font-weight:600;margin:18px 0 0;">Ce qu'il faut corriger :</p>${reasonBlock}<p style="margin-top:18px;">Corrigez les points ci-dessus, puis renvoyez vos documents — vous pouvez réessayer autant de fois que nécessaire.</p>${cta(link, 'Reprendre ma vérification →')}`, lang) }
+        : { subject: `Verification – Action required – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Verification not approved</h1><p>Your identity verification for <strong>${d.org_name}</strong> was not approved.</p><p style="font-weight:600;margin:18px 0 0;">What needs fixing:</p>${reasonBlock}<p style="margin-top:18px;">Fix the points above, then resubmit your documents — you can retry as many times as needed.</p>${cta(link, 'Retry my verification →')}`, lang) };
+    }
 
     case 'kyc_reminder':
       return isFr
