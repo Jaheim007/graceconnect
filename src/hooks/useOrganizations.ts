@@ -31,6 +31,8 @@ export function usePublicOrgs(options: UseOrgsOptions = {}) {
   });
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export function useOrgBySlug(slug: string | undefined) {
   return useQuery({
     queryKey: ['org-by-slug', slug],
@@ -41,12 +43,25 @@ export function useOrgBySlug(slug: string | undefined) {
         .select('*')
         .eq('slug', slug)
         .eq('is_active', true)
-        .single();
-      return data as Organization | null;
+        .maybeSingle();
+      if (data) return data as Organization;
+
+      // Legacy links (emails, notifications) sometimes carry the org id instead of the slug
+      if (UUID_RE.test(slug)) {
+        const { data: byId } = await db
+          .from('organizations')
+          .select('*')
+          .eq('id', slug)
+          .eq('is_active', true)
+          .maybeSingle();
+        return (byId as Organization) || null;
+      }
+      return null;
     },
     enabled: !!slug,
   });
 }
+
 
 export function useOrgById(id: string | undefined) {
   return useQuery({
