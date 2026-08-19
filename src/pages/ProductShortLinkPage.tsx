@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useLocation, Navigate } from 'react-router-dom';
 import { db } from '@/lib/db';
 import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
+import NotFound from '@/pages/NotFound';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -46,6 +47,6 @@ export default function ProductShortLinkPage() {
   }, [key, search, hash]);
 
   if (target) return <Navigate to={target} replace />;
-  if (notFound) return <Navigate to={`/discover${search}`} replace />;
+  if (notFound) return <NotFound />;
   return <RouteContentSkeleton />;
 }
