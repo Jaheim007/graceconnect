@@ -249,12 +249,12 @@ Deno.serve(async (req) => {
       no_sales: {
         title: '🔥 Partagez pour vendre !',
         body: 'Votre produit est publié mais attend ses premiers acheteurs. Partagez-le sur WhatsApp en 1 clic.',
-        actionUrl: '/admin/share',
+        actionUrl: '/gagner',
       },
       ambassador: {
         title: '💸 Vos liens dorment !',
         body: 'Vous avez des liens ambassadeur mais 0 clic. Partagez-les sur WhatsApp pour gagner des commissions.',
-        actionUrl: '/admin/share',
+        actionUrl: '/gagner',
       },
     };
 
