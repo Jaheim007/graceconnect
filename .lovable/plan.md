@@ -1,66 +1,76 @@
-# Le playbook LTD de Mike appliqué à SiteViral
+# SiteViral Affiliate Cloud — ouvrir l'affiliation + KYC + payouts à nos autres plateformes
 
-Verdict court : oui, ce playbook est jouable avec SiteViral, et ~60 % des briques existent déjà. Le playbook a été écrit pour un micro-SaaS anglophone vendu sur AppSumo ; SiteViral est un SaaS de création + une marketplace africaine à paiement Mobile Money. Deux points du playbook sont à adapter, pas à copier (voir "Ce qui ne colle pas").
+## Réponse courte
 
-## Ce qui existe déjà dans le produit
+Oui, c'est faisable — mais **pas tel quel aujourd'hui**. Le moteur d'affiliation existe et il est bon (attribution cookie 7j + last-click, commissions par produit ou par org, `affiliate_sales`, digest ambassadeur, demandes de payout, KYC avant payout, Stripe + Mobile Money). Le blocage n'est pas la qualité du moteur, c'est **où il est branché** : aujourd'hui la commission est calculée à l'intérieur du tunnel de paiement SiteViral (`_shared/process-transaction.ts`), donc elle n'existe que si l'argent passe par SiteViral et si la vente est liée à une `organization_id` + un produit SiteViral.
 
-| Étape playbook | État actuel |
-|---|---|
-| 1. Idée éprouvée | Fait — Gumroad/Teachable/Kajabi, adaptés Wave/MoMo |
-| 2. MVP | Fait et dépassé (écriture IA, formations, boutique, ambassadeurs, dons) |
-| 3. Offre à vie | Existe : plan `pro_lifetime` à 80 USD, page `/founders`, compteur de places `founders_remaining`, `FounderBanner` |
-| 4. Refuser le gratuit | Partiel : 20 crédits/jour gratuits + essai (voir plus bas) |
-| 5. LTD privée | Manquant : pas de page LTD à accès restreint ni de codes limités hors coupons waitlist |
-| 6. Contenu / SEO | Fait et solide : 133 articles, sitemap propre, llms.txt, JSON-LD, une page `/comparer` |
-| 7. Marketplace (AppSumo) | Manquant : pas de système de rédemption de codes tiers |
-| 8. Dernière vente privée | Manquant (dépend de 5) |
-| 9. Avis Trustpilot / G2 | Manquant en externe (les avis produits internes existent) |
-| 10. Passage au MRR | Partiel : abonnements Stripe/MoMo + cron en place, mais aucun tunnel "lifetime → récurrent" |
+Pour Noctely ou un SaaS externe, l'argent ne passe pas par nous. Il faut donc découpler le moteur en un service à part : **SiteViral Affiliate Cloud** — un service multi-tenant piloté par API, où la plateforme cliente déclare ses conversions et nous gérons les ambassadeurs, le calcul, le KYC et les paiements.
 
-## Ce qui ne colle pas au cas SiteViral
+## Ce qui existe déjà et se réutilise tel quel
 
-1. **"Refuser le gratuit" ne s'applique pas au coeur du produit.** SiteViral gagne 10 % sur les ventes des créateurs : le gratuit est l'acquisition, et le créateur "paie" en vendant. Ce qu'il faut refuser, c'est le *gratuit sans friction sur les fonctions pro* (domaine, export, IA illimitée), pas l'inscription.
-2. **AppSumo vend à des acheteurs US/EU en USD.** Utilisable pour la trésorerie, mais l'audience ne correspond pas au coeur (créateurs francophones d'Afrique de l'Ouest). L'équivalent local du "marketplace launch" = grosses communautés WhatsApp/Telegram/Facebook et des partenaires influenceurs — ce qui rejoint le système ambassadeurs déjà construit.
+- Attribution : `useAffiliateCapture` (cookie 7j + localStorage, last-click), `track_affiliate_click`, liens courts avec attribution.
+- Comptabilité : `affiliate_links`, `affiliate_sales`, compteurs atomiques (`increment_affiliate_link_stats`), délai de 15 jours avant disponibilité.
+- Payouts : `request-affiliate-payout`, `process-payout`, `create-transfer-recipient`, seuil minimum, payouts manuels superadmin.
+- KYC/KYB : `kyc_submissions`, analyse auto (`kyc-analyze-document`, `kyc-auto-validate`), dialogue de refus enrichi, verrou payout avant vérification.
+- Paiements : Stripe (cartes, abonnements) + GeniusPay (Wave, Orange, MTN, Moov, XOF…) — c'est notre vrai avantage face aux plateformes d'affiliation classiques.
+- Socle multi-tenant partiel : `api_keys` (avec scopes + hash), `public-api` (v1 products/orders/analytics), `org_webhooks` + `outgoing-webhook` signés HMAC.
 
-## Ce que je propose de construire
+## Les 5 vraies contraintes à lever
 
-### Bloc A — Machine LTD privée (étapes 3, 5, 8)
-- Une page `/lifetime/:campaign` non indexée, accessible par code, avec palier de prix, places restantes et minuteur. Alimentée par une table `ltd_campaigns` (prix, quota, dates, visibilité privée/publique).
-- Codes d'accès à usage unique ou limité, générables en superadmin, traçables (qui a redeem, via quelle communauté).
-- Réutilisation du checkout `pro_lifetime` existant : le montant vient de la campagne, pas d'une constante.
-- Palier 2 pour la "dernière vente privée" : même moteur, autre campagne, prix plus élevé, fermeture définitive.
+1. **Commission couplée au paiement.** Le calcul vit dans `process-transaction`. Il faut l'extraire dans un moteur neutre qui accepte une conversion venue de l'extérieur (montant, devise, référence, code ambassadeur) sans exiger de produit SiteViral.
+2. **Tenant = organisation SiteViral.** Tout est scopé `organization_id`. Il faut une notion de « programme » appartenant à une plateforme cliente (Noctely, SaaS X), distincte d'une boutique SiteViral.
+3. **Financement des payouts.** Si l'argent ne passe pas par nous, nous ne pouvons pas payer les ambassadeurs avec de l'argent que nous n'avons pas. Deux modes : *wallet prépayé* (la plateforme approvisionne un solde, nous payons) ou *reporting seul* (nous calculons et exposons, la plateforme paie elle-même).
+4. **Attribution cross-domaine.** Le cookie est first-party sur siteviral.com. Pour un domaine tiers il faut un petit SDK JS (`affiliate.js`) qui pose le cookie sur *leur* domaine et ping notre endpoint de clic.
+5. **Responsabilité légale / MoR.** Dès que nous versons des commissions pour le compte d'un tiers, nous devenons agent de paiement : anti-fraude, conservation KYC, seuils AML, contrat B2B, refacturation. C'est le point le plus lourd, plus lourd que le code.
 
-### Bloc B — Rédemption de codes marketplace (étape 7)
-- Table `redemption_codes` + page `/redeem` : l'acheteur AppSumo/partenaire saisit son code et obtient le plan à vie sans passer par Stripe.
-- Support du stacking (1 code = 1 palier), et attribution de la campagne source.
+## Architecture proposée (Affiliate Cloud)
 
-### Bloc C — SEO comparatif (étape 6, l'angle qui manque)
-- Un modèle de page `/comparer/siteviral-vs-:concurrent` généré depuis un fichier de données (Gumroad, Teachable, Systeme.io, Podia, Kajabi, Selar, Paystack Storefront…), avec tableau de comparaison, section réponse directe et JSON-LD. Ajout au sitemap.
-- Pages "alternative à X" ciblant les requêtes de sortie de concurrent.
+```text
+Plateforme cliente (Noctely, SaaS X, site externe)
+   |  1. affiliate.js  -> POST /v1/affiliate/click      (attribution, cookie 1st-party)
+   |  2. serveur        -> POST /v1/affiliate/conversion (montant, ref, code)  [Idempotency-Key]
+   v
+SiteViral Affiliate Cloud (Edge Functions + Postgres)
+   - programmes, ambassadeurs, liens, règles de commission
+   - moteur de calcul neutre (extrait de process-transaction)
+   - KYC/KYB réutilisé
+   - payouts : wallet prépayé  OU  reporting seul
+   |
+   +-> webhooks signés HMAC vers la plateforme (conversion.approved, payout.paid)
+   +-> portail ambassadeur en marque blanche (sous-domaine ou iframe)
+```
 
-### Bloc D — Preuve sociale externe (étape 9)
-- Après une première vente réussie côté créateur, e-mail automatique de demande d'avis vers Trustpilot (et G2 si compte ouvert), avec cadence anti-spam et un seul rappel.
-- Widget d'avis sur la landing alimenté par les avis internes déjà collectés en attendant le volume externe.
+## Découpage en phases
 
-### Bloc E — Conversion lifetime → MRR (étape 10)
-- Le lifetime couvre le socle ; les extensions consommables restent payantes (crédits IA, domaines additionnels, sièges, e-mails de masse). Bandeau contextuel et upsell dans `/billing`.
-- Tableau de bord superadmin : encaissé LTD, MRR, churn, part des lifetime ayant pris un module récurrent.
+**Phase 0 — décision produit (avant tout code)**
+Choisir : (a) usage interne seulement (Noctely + nos SaaS), ou (b) produit vendu à des tiers. Et choisir le mode payout par défaut : wallet prépayé ou reporting seul.
 
-## Ordre d'exécution conseillé
+**Phase 1 — extraire le moteur**
+Sortir le calcul de commission de `process-transaction` vers un module partagé neutre. SiteViral et les programmes externes appellent le même code. Aucun changement fonctionnel visible côté SiteViral.
 
-1. Bloc A (trésorerie immédiate, s'appuie sur ce qui existe)
-2. Bloc C (le SEO met 2-3 mois à sortir, donc à démarrer tôt)
-3. Bloc D
-4. Bloc B (seulement si une marketplace est réellement engagée)
-5. Bloc E
+**Phase 2 — modèle multi-programme**
+Nouvelles tables : `affiliate_programs` (propriétaire, plateforme, devise, règles, mode payout), `affiliate_conversions` (source externe, idempotence, statut), rattachement des `affiliate_links` à un programme. RLS + GRANT stricts, isolation par programme.
 
-## Notes techniques
+**Phase 3 — API publique v1 affiliation**
+Étendre `public-api` avec les scopes `affiliate:read` / `affiliate:write` : créer un ambassadeur, générer un lien, déclarer un clic, déclarer une conversion (idempotente), lister les commissions et les payouts. Webhooks sortants réutilisés.
 
-- Nouvelles tables `ltd_campaigns`, `ltd_access_codes`, `redemption_codes` : GRANTs + RLS superadmin-only dans la même migration, lecture publique limitée à la campagne active via RPC security-definer.
-- `create-platform-subscription` et `create-paystack-subscription` doivent lire le montant depuis la campagne au lieu de la constante `pro_lifetime` codée en dur ; les webhooks existants restent inchangés.
-- Les pages comparatives sont statiques côté données (fichier TS), donc zéro coût IA et pré-rendu bot déjà géré par `share-meta`.
-- Les e-mails d'avis passent par la fonction `send-email` existante et le moteur d'activation, pas de nouvelle infrastructure.
+**Phase 4 — SDK d'attribution cross-domaine**
+`affiliate.js` léger, hébergé chez nous, à coller sur le site client : pose le cookie, gère `?ref=`, ping le clic, expose `SVAffiliate.track()`.
 
-## Question ouverte
+**Phase 5 — payouts et KYC en marque blanche**
+Wallet de programme (approvisionnement, solde, débit à chaque payout), réutilisation du flux KYC + payouts existant, portail ambassadeur en marque blanche.
 
-Le prix lifetime actuel est de 80 USD, unique. Le playbook suppose des paliers montants (ex. 49 → 79 → 129). À caler avant de construire le Bloc A.
+**Phase 6 — anti-fraude et conformité**
+Détection auto-référencement, clics dupliqués, remboursements (clawback), plafonds par programme, contrat B2B + politique de payout.
+
+## Détails techniques
+
+- Le moteur extrait reste appelé par `process-transaction` pour ne rien casser côté SiteViral (aucune régression sur les ventes actuelles).
+- Idempotence obligatoire sur `/v1/affiliate/conversion` via `Idempotency-Key` + contrainte unique `(program_id, external_reference)`.
+- Réutilisation de `authenticateApiKey` avec de nouveaux scopes, et de `outgoing-webhook` (HMAC SHA-256) pour notifier la plateforme cliente.
+- Les colonnes `paystack_reference` restent inchangées (héritage GeniusPay) ; les conversions externes utilisent `external_reference`.
+- Chaque nouvelle table publique reçoit ses `GRANT` explicites + RLS scopée au programme.
+
+## Mon avis
+
+Techniquement, c'est un chantier de plateforme, pas un patch : le moteur est prêt à 70 %, l'API et le multi-tenant à 30 %, le juridique/payout à 0 %. Le chemin le plus rentable est de commencer **interne** (Noctely comme premier client, mode *reporting seul*, pas de wallet), valider l'API et le SDK sur un cas réel, puis n'ouvrir aux tiers qu'après avoir traité l'anti-fraude et le cadre légal.
