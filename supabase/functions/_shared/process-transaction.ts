@@ -1,6 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail, sendEmailToOrgAdmins, getUserEmail } from './send-email-helper.ts';
 import { dispatchWebhook } from './dispatch-webhook.ts';
+import { resolveCommission } from './commission-engine.ts';
+
 
 /**
  * Centralized transaction processing core.
