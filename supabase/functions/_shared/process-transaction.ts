@@ -161,6 +161,8 @@ export async function processTransaction(
   const savedFee = parseFloat((wouldHaveBeenFee - platformFee).toFixed(2));
 
   // ── 5. Affiliate resolution (products only, never donations) ──
+  // Commission math lives in the neutral engine (_shared/commission-engine.ts),
+  // shared with the Affiliate Cloud API for external platforms.
   let affiliateLinkId: string | null = null;
   let affiliateUserId: string | null = null;
   let affiliateCommission = 0;
@@ -168,14 +170,12 @@ export async function processTransaction(
 
   if (affiliate_code && org.affiliation_enabled && type === 'product') {
     const { data: affLink } = await db.from('affiliate_links')
-      .select('id, user_id, is_active, organization_id')
+      .select('id, user_id, is_active, is_frozen, organization_id')
       .eq('code', affiliate_code)
       .eq('organization_id', organization_id)
       .maybeSingle();
 
-    if (affLink?.is_active && affLink.user_id !== user_id) {
-      affiliateLinkId = affLink.id;
-      affiliateUserId = affLink.user_id;
+    if (affLink) {
       // Per-product commission rate overrides org default
       if (product_id) {
         const { data: prod } = await db.from('digital_products')
@@ -184,9 +184,22 @@ export async function processTransaction(
           .maybeSingle();
         if (prod?.commission_rate != null) affiliateCommissionPct = prod.commission_rate;
       }
-      affiliateCommission = parseFloat((amountPaid * affiliateCommissionPct / 100).toFixed(2));
+
+      const resolved = resolveCommission({
+        amount: amountPaid,
+        percent: affiliateCommissionPct,
+        link: affLink as unknown as { id: string; user_id: string; is_active?: boolean | null; is_frozen?: boolean | null },
+        buyerUserId: user_id ?? null,
+      });
+
+      if (resolved.attributed) {
+        affiliateLinkId = resolved.affiliate_link_id;
+        affiliateUserId = resolved.affiliate_user_id;
+        affiliateCommission = resolved.commission_amount;
+      }
     }
   }
+
 
   const organizationAmount = parseFloat((amountPaid - platformFee - affiliateCommission).toFixed(2));
 
