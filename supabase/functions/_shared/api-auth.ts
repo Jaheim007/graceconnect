@@ -43,7 +43,7 @@ export function generateApiKey(): { raw: string; prefix: string } {
  */
 export async function authenticateApiKey(
   req: Request,
-  requiredScope?: "read" | "write",
+  requiredScope?: string,
 ): Promise<ApiAuthResult> {
   const authHeader = req.headers.get("authorization") ?? req.headers.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
