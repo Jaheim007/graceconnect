@@ -179,6 +179,88 @@ export type Database = {
           },
         ]
       }
+      affiliate_conversions: {
+        Row: {
+          affiliate_link_id: string | null
+          affiliate_sale_id: string | null
+          affiliate_user_id: string | null
+          amount: number
+          commission_amount: number
+          commission_percent: number
+          created_at: string
+          currency: string
+          external_customer_ref: string | null
+          external_reference: string
+          id: string
+          metadata: Json
+          payable_at: string | null
+          program_id: string
+          reversed_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          affiliate_link_id?: string | null
+          affiliate_sale_id?: string | null
+          affiliate_user_id?: string | null
+          amount: number
+          commission_amount?: number
+          commission_percent?: number
+          created_at?: string
+          currency: string
+          external_customer_ref?: string | null
+          external_reference: string
+          id?: string
+          metadata?: Json
+          payable_at?: string | null
+          program_id: string
+          reversed_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          affiliate_link_id?: string | null
+          affiliate_sale_id?: string | null
+          affiliate_user_id?: string | null
+          amount?: number
+          commission_amount?: number
+          commission_percent?: number
+          created_at?: string
+          currency?: string
+          external_customer_ref?: string | null
+          external_reference?: string
+          id?: string
+          metadata?: Json
+          payable_at?: string | null
+          program_id?: string
+          reversed_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_conversions_affiliate_link_id_fkey"
+            columns: ["affiliate_link_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_conversions_affiliate_sale_id_fkey"
+            columns: ["affiliate_sale_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_sales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_conversions_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       affiliate_links: {
         Row: {
           campaign_id: string | null
@@ -193,6 +275,7 @@ export type Database = {
           link_type: string | null
           organization_id: string
           product_id: string | null
+          program_id: string | null
           total_earned: number | null
           user_id: string
         }
@@ -209,6 +292,7 @@ export type Database = {
           link_type?: string | null
           organization_id: string
           product_id?: string | null
+          program_id?: string | null
           total_earned?: number | null
           user_id: string
         }
@@ -225,6 +309,7 @@ export type Database = {
           link_type?: string | null
           organization_id?: string
           product_id?: string | null
+          program_id?: string | null
           total_earned?: number | null
           user_id?: string
         }
@@ -256,6 +341,123 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "digital_products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_links_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_program_wallet_ledger: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          currency: string
+          direction: string
+          id: string
+          note: string | null
+          program_id: string
+          reference: string | null
+        }
+        Insert: {
+          amount: number
+          balance_after?: number
+          created_at?: string
+          currency: string
+          direction: string
+          id?: string
+          note?: string | null
+          program_id: string
+          reference?: string | null
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          currency?: string
+          direction?: string
+          id?: string
+          note?: string | null
+          program_id?: string
+          reference?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_program_wallet_ledger_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_programs: {
+        Row: {
+          allowed_origins: string[]
+          created_at: string
+          currency: string
+          default_commission_percent: number
+          hold_days: number
+          id: string
+          is_active: boolean
+          name: string
+          owner_org_id: string
+          payout_mode: string
+          platform_url: string | null
+          slug: string
+          updated_at: string
+          wallet_balance: number
+        }
+        Insert: {
+          allowed_origins?: string[]
+          created_at?: string
+          currency?: string
+          default_commission_percent?: number
+          hold_days?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          owner_org_id: string
+          payout_mode?: string
+          platform_url?: string | null
+          slug: string
+          updated_at?: string
+          wallet_balance?: number
+        }
+        Update: {
+          allowed_origins?: string[]
+          created_at?: string
+          currency?: string
+          default_commission_percent?: number
+          hold_days?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          owner_org_id?: string
+          payout_mode?: string
+          platform_url?: string | null
+          slug?: string
+          updated_at?: string
+          wallet_balance?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_programs_owner_org_id_fkey"
+            columns: ["owner_org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_programs_owner_org_id_fkey"
+            columns: ["owner_org_id"]
+            isOneToOne: false
+            referencedRelation: "showcase_top_creators"
+            referencedColumns: ["organization_id"]
           },
         ]
       }
@@ -13090,6 +13292,10 @@ export type Database = {
             Returns: Json
           }
       track_affiliate_click: { Args: { _code: string }; Returns: Json }
+      track_program_click: {
+        Args: { _code: string; _program_id: string }
+        Returns: boolean
+      }
       transfer_partner_referral: {
         Args: { _new_partner_id: string; _reason: string; _referral_id: string }
         Returns: Json
