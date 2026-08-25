@@ -12818,6 +12818,7 @@ export type Database = {
         Args: { _payment_reference: string }
         Returns: Json
       }
+      find_user_id_by_email: { Args: { _email: string }; Returns: string }
       founders_remaining: { Args: never; Returns: number }
       generate_certificate_number: { Args: never; Returns: string }
       get_acquisition_overview: {
