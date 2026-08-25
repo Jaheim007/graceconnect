@@ -380,8 +380,9 @@ Deno.serve(async (req) => {
             _earned: resolved.commission_amount,
           }).then(() => {}, () => {});
 
-          await db.from("notifications").insert({
+          await db.from("user_notifications").insert({
             user_id: resolved.affiliate_user_id,
+            organization_id: program.owner_org_id,
             title: `Commission ${program.name}`,
             body: `Vous avez gagné ${resolved.commission_amount.toLocaleString("fr-FR")} ${currency} via ${program.name}.`,
             notification_type: "commission",
