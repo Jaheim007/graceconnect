@@ -9,7 +9,7 @@ import { TrustBadgesBar } from '@/components/trust/TrustBadgesBar';
 import { LiveEarningsTicker } from '@/components/growth/LiveEarningsTicker';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Share2, Zap, Search, Link2, Wallet, Calculator, TrendingUp } from 'lucide-react';
+import { ArrowRight, Share2, Zap, Search, Link2, Wallet, Calculator, TrendingUp, Settings2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
@@ -198,7 +198,7 @@ export default function GagnerPage() {
               </p>
             </div>
             {!user ? (
-              <Button size="lg" className="gap-2 shrink-0 rounded-full" onClick={() => navigate('/auth?intent=ambassador&redirect=/gagner')}>
+              <Button size="lg" className="gap-2 shrink-0 rounded-full" onClick={() => navigate('/auth?intent=ambassador&redirect=/affiliation')}>
                 <Zap className="h-4 w-4" /> {isFr ? "S'inscrire gratuitement" : 'Sign up free'} <ArrowRight className="h-4 w-4" />
               </Button>
             ) : canManageAffiliateProgram ? (
@@ -212,7 +212,6 @@ export default function GagnerPage() {
                 {isFr ? 'Gérer mon programme' : 'Manage my program'}
               </Button>
             ) : null}
-            )}
           </div>
         </motion.div>
 
