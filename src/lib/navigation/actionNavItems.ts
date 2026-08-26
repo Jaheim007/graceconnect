@@ -215,14 +215,14 @@ export function getActionNavItems(
 
   if (ctx.isAuthenticated) {
     items.push({
-      id: 'claim',
+      id: 'affiliation',
       icon: HandCoins,
       emoji: '💰',
-      titleFr: 'Gagner',
-      titleEn: 'Earn',
-      descFr: 'Affiliation et commissions',
-      descEn: 'Affiliate commissions',
-      route: '/gagner',
+      titleFr: 'Affiliation',
+      titleEn: 'Affiliation',
+      descFr: 'Liens, ventes et commissions',
+      descEn: 'Links, sales and commissions',
+      route: '/affiliation',
       borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconBg: 'bg-emerald-500/15',
       iconColor: 'text-emerald-500',
