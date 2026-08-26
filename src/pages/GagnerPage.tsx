@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { useI18n } from '@/i18n/I18nContext';
+import { useOrg } from '@/contexts/OrgContext';
 
 /** Default price anchors per currency */
 const CURRENCY_DEFAULTS: Record<string, { price: number; min: number; max: number; step: number }> = {
@@ -136,9 +137,11 @@ function EarningsCalculator() {
 
 export default function GagnerPage() {
   const { user } = useAuth();
+  const { currentOrg, canManage } = useOrg();
   const navigate = useNavigate();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+  const canManageAffiliateProgram = currentOrg ? canManage(currentOrg.id) : false;
 
   const STEPS = isFr ? [
     { icon: Search, emoji: '🔍', title: 'Choisis un produit', desc: 'Parcours les ebooks, formations et ressources. Filtre par taux de commission.', color: 'text-blue-500', bg: 'bg-blue-500/10' },
@@ -194,10 +197,21 @@ export default function GagnerPage() {
                   : 'Pick a product, share your link, earn your commission. Zero content to create.'}
               </p>
             </div>
-            {!user && (
+            {!user ? (
               <Button size="lg" className="gap-2 shrink-0 rounded-full" onClick={() => navigate('/auth?intent=ambassador&redirect=/gagner')}>
                 <Zap className="h-4 w-4" /> {isFr ? "S'inscrire gratuitement" : 'Sign up free'} <ArrowRight className="h-4 w-4" />
               </Button>
+            ) : canManageAffiliateProgram ? (
+              <Button
+                size="lg"
+                variant="outline"
+                className="gap-2 shrink-0 rounded-full bg-background/70"
+                onClick={() => navigate('/admin/affiliation')}
+              >
+                <Settings2 className="h-4 w-4" />
+                {isFr ? 'Gérer mon programme' : 'Manage my program'}
+              </Button>
+            ) : null}
             )}
           </div>
         </motion.div>

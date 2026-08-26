@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   ChevronLeft, ChevronRight, LogOut, Settings, ShieldCheck,
-  Compass, ShoppingBag, GraduationCap, MessageSquare, HandCoins, LayoutDashboard,
+  Compass, ShoppingBag, GraduationCap, MessageSquare, Share2, LayoutDashboard,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -101,10 +101,10 @@ export function Sidebar() {
           borderClass: '', iconBg: '', iconColor: 'text-cyan-400',
         }] : []),
         {
-          id: 'acc-earn', icon: HandCoins, emoji: '',
-          titleFr: 'Gagner', titleEn: 'Earn',
-          descFr: 'Affiliation et commissions', descEn: 'Affiliate commissions',
-          route: '/gagner',
+          id: 'acc-affiliation', icon: Share2, emoji: '',
+          titleFr: 'Affiliation', titleEn: 'Affiliation',
+          descFr: 'Liens, ventes et commissions', descEn: 'Links, sales and commissions',
+          route: '/affiliation',
           borderClass: '', iconBg: '', iconColor: 'text-emerald-400',
         },
       ]
@@ -146,7 +146,7 @@ export function Sidebar() {
     if (clean === '/dashboard') return location.pathname === '/dashboard';
     if (clean === '/dashboard/messages') return location.pathname.startsWith('/dashboard/messages');
     if (clean === '/my-purchases') return location.pathname === '/my-purchases';
-    if (clean === '/gagner') return location.pathname === '/gagner';
+    if (clean === '/affiliation') return location.pathname === '/affiliation' || location.pathname === '/gagner';
     if (clean === '/dashboard/explore') return location.pathname.startsWith('/dashboard/explore');
     return location.pathname.startsWith(clean);
   };

@@ -677,7 +677,7 @@ const App = () => (
                   <Route path="/dashboard" element={<DashboardRouter />} />
                   <Route path="/dashboard/home"       element={<DashboardRouter />} />
                   <Route path="/dashboard/activity"   element={<PersonalActivityPage />} />
-                  <Route path="/dashboard/earn"       element={<Navigate to="/gagner" replace />} />
+                  <Route path="/dashboard/earn"       element={<Navigate to="/affiliation" replace />} />
                   <Route path="/dashboard/profile"    element={<ProfilePage />} />
                   <Route path="/dashboard/settings/modules" element={<Navigate to="/admin/settings" replace />} />
                   <Route path="/dashboard/digital" element={<Navigate to="/admin/products" replace />} />
@@ -703,7 +703,7 @@ const App = () => (
                   <Route path="/onboarding/goals" element={<Navigate to="/admin" replace />} />
                   
                   <Route path="/support" element={<SupportPage />} />
-                  <Route path="/affiliation" element={<Navigate to="/gagner" replace />} />
+                  <Route path="/affiliation" element={<GagnerPage />} />
                   
                   <Route path="/leaderboard" element={<Navigate to="/gagner" replace />} />
                   
