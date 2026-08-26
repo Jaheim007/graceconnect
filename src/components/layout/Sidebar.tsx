@@ -153,7 +153,8 @@ export function Sidebar() {
     if (clean === '/dashboard') return location.pathname === '/dashboard';
     if (clean === '/dashboard/messages') return location.pathname.startsWith('/dashboard/messages');
     if (clean === '/my-purchases') return location.pathname === '/my-purchases';
-    if (clean === '/affiliation') return location.pathname === '/affiliation' || location.pathname === '/gagner';
+    if (clean === '/affiliation') return location.pathname === '/affiliation';
+    if (clean === '/gagner') return location.pathname === '/gagner';
     if (clean === '/dashboard/explore') return location.pathname.startsWith('/dashboard/explore');
     return location.pathname.startsWith(clean);
   };
