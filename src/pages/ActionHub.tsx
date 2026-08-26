@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet, HeartHandshake } from 'lucide-react';
+import { ArrowRight, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet, HeartHandshake, Network } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -79,6 +79,10 @@ export default function ActionHub() {
       descFr: 'Modules, leçons, quiz et certificats', descEn: 'Modules, lessons, quizzes and certificates',
       route: '/creer-formation', borderClass: 'border-indigo-500/30 hover:border-indigo-500/60',
       iconBg: 'bg-indigo-500/15', iconColor: 'text-indigo-500' },
+    { id: 'affiliation', icon: Network, titleFr: 'Parrainage', titleEn: 'Affiliate',
+      descFr: 'Ajoute un programme de parrainage à ton SaaS', descEn: 'Add an affiliate program to your SaaS',
+      route: '/affiliation', borderClass: 'border-cyan-500/30 hover:border-cyan-500/60',
+      iconBg: 'bg-cyan-500/15', iconColor: 'text-cyan-500' },
   ];
 
   const baseAuthed = getActionNavItems({
@@ -113,8 +117,8 @@ export default function ActionHub() {
         iconBg: 'bg-teal-500/15', iconColor: 'text-teal-500',
       });
     }
-    // Ordering: my dashboard → discover → purchases → sell → revenue → earn → create.
-    const order = ['overview', 'discover', 'purchases', 'sell', 'sales', 'claim', 'write', 'course', 'superadmin'];
+    // Ordering: my dashboard → discover → purchases → sell → revenue → earn → create → affiliate tools.
+    const order = ['overview', 'discover', 'purchases', 'sell', 'sales', 'claim', 'earn', 'write', 'course', 'affiliation', 'superadmin'];
     const rank = (id: string) => {
       const i = order.indexOf(id);
       return i === -1 ? order.length : i;
@@ -266,7 +270,7 @@ export default function ActionHub() {
             <h1 className="font-heading text-[28px] sm:text-[42px] font-bold tracking-tight text-foreground leading-[1.06]">
               {isFr ? 'SiteViral — Écris. Vends. ' : 'SiteViral — Write. Sell. '}
               <span
-                className="italic"
+                className="inline-block italic pr-1 -mr-1"
                 style={{
                   backgroundImage: 'linear-gradient(120deg, hsl(var(--brand-blue)), hsl(var(--brand-blue-soft)), hsl(var(--brand-blue)))',
                   WebkitBackgroundClip: 'text',
@@ -337,6 +341,7 @@ export default function ActionHub() {
                       'hover:-translate-y-0.5 hover:border-[hsl(var(--brand-blue))]/50',
                       'hover:shadow-[0_18px_40px_-24px_hsl(var(--brand-blue)/0.6)]',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--brand-blue))]/50',
+                      idx === actions.length - 1 && actions.length % 2 === 1 && 'sm:col-span-2',
                     )}
                   >
                     {/* Light looping around the button's edge */}

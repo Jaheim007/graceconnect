@@ -109,8 +109,8 @@ export function Sidebar() {
         },
         {
           id: 'acc-affiliation', icon: Share2, emoji: '',
-          titleFr: 'Affiliation', titleEn: 'Affiliation',
-          descFr: 'Programme pour votre SaaS', descEn: 'Program for your SaaS',
+          titleFr: 'Parrainage', titleEn: 'Affiliate',
+          descFr: 'Programme pour votre SaaS', descEn: 'Affiliate program for your SaaS',
           route: '/affiliation',
           borderClass: '', iconBg: '', iconColor: 'text-emerald-400',
         },
