@@ -1,5 +1,5 @@
 import {
-  BookOpen, Store, Compass, Package, LayoutDashboard,
+  BookOpen, Store, Compass, Package, LayoutDashboard, Network,
   Building2, Shield, Calendar, Megaphone, HandCoins, Wallet,
   Scissors, Search, ClipboardList, GraduationCap, Ticket,
 } from 'lucide-react';
@@ -215,18 +215,31 @@ export function getActionNavItems(
 
   if (ctx.isAuthenticated) {
     items.push({
-      id: 'affiliation',
+      id: 'earn',
       icon: HandCoins,
       emoji: '💰',
-      titleFr: 'Affiliation',
-      titleEn: 'Affiliation',
-      descFr: 'Liens, ventes et commissions',
-      descEn: 'Links, sales and commissions',
-      route: '/affiliation',
+      titleFr: 'Gagner',
+      titleEn: 'Earn',
+      descFr: 'Gagner en partageant les offres SiteViral',
+      descEn: 'Earn by sharing SiteViral offers',
+      route: '/gagner',
       borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
       iconBg: 'bg-emerald-500/15',
       iconColor: 'text-emerald-500',
       featureKey: 'affiliation',
+    });
+    items.push({
+      id: 'affiliation',
+      icon: Network,
+      emoji: '🔗',
+      titleFr: 'Affiliation',
+      titleEn: 'Affiliation',
+      descFr: 'Créer un programme pour votre propre SaaS',
+      descEn: 'Create a program for your own SaaS',
+      route: '/affiliation',
+      borderClass: 'border-cyan-500/30 hover:border-cyan-500/60',
+      iconBg: 'bg-cyan-500/15',
+      iconColor: 'text-cyan-500',
     });
   }
 
