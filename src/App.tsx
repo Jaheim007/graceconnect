@@ -241,7 +241,7 @@ const ResourcesPage = lazy(() => import("@/pages/ResourcesPage"));
 const CreateOrgPage = lazy(() => import("@/pages/CreateOrgPage"));
 
 const SupportPage = lazy(() => import("@/pages/SupportPage"));
-// AffiliationPage consolidated into GagnerPage
+const AffiliateCloudPage = lazy(() => import("@/pages/AffiliateCloudPage"));
 const PartnerPortalPage = lazy(() => import("@/pages/PartnerPortalPage"));
 
 
@@ -677,13 +677,13 @@ const App = () => (
                   <Route path="/dashboard" element={<DashboardRouter />} />
                   <Route path="/dashboard/home"       element={<DashboardRouter />} />
                   <Route path="/dashboard/activity"   element={<PersonalActivityPage />} />
-                  <Route path="/dashboard/earn"       element={<Navigate to="/affiliation" replace />} />
+                  <Route path="/dashboard/earn"       element={<Navigate to="/gagner" replace />} />
                   <Route path="/dashboard/profile"    element={<ProfilePage />} />
                   <Route path="/dashboard/settings/modules" element={<Navigate to="/admin/settings" replace />} />
                   <Route path="/dashboard/digital" element={<Navigate to="/admin/products" replace />} />
                   <Route path="/dashboard/orders" element={<Navigate to="/dashboard/activity" replace />} />
                   <Route path="/dashboard/kyc" element={<Navigate to="/admin/kyc" replace />} />
-                  <Route path="/dashboard/affiliation" element={<Navigate to="/admin/affiliation" replace />} />
+                  <Route path="/dashboard/affiliation" element={<Navigate to="/affiliation" replace />} />
                   <Route path="/dashboard/messages" element={<PersonalMessagesPage />} />
                   {hiddenVerticalDashboardRoutes()}
                   <Route path="/dashboard/notifications" element={<Navigate to="/notifications" replace />} />
@@ -703,7 +703,7 @@ const App = () => (
                   <Route path="/onboarding/goals" element={<Navigate to="/admin" replace />} />
                   
                   <Route path="/support" element={<SupportPage />} />
-                  <Route path="/affiliation" element={<GagnerPage />} />
+                  <Route path="/affiliation" element={<AffiliateCloudPage />} />
                   
                   <Route path="/leaderboard" element={<Navigate to="/gagner" replace />} />
                   

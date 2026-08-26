@@ -12,7 +12,7 @@ import { buildFeatureNavItems } from '@/lib/navigation/featureNavBuilder';
 import { getActionNavItems, type ActionNavItem } from '@/lib/navigation/actionNavItems';
 import { applyNavOverride } from '@/lib/navigation/actionNavItemOverrides';
 import {
-  Compass, ShoppingBag, GraduationCap, MessageSquare, Share2, Settings, ShieldCheck,
+  Compass, ShoppingBag, GraduationCap, MessageSquare, Share2, Settings, ShieldCheck, HandCoins,
 } from 'lucide-react';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
 import { brandUrl } from '@/lib/storageUrl';
@@ -90,6 +90,9 @@ export function MobileMenuDrawer({ onClose }: Props) {
       descFr: '', descEn: '', route: '/dashboard/messages',
       borderClass: '', iconBg: 'bg-cyan-500/12', iconColor: 'text-cyan-500' }] : []),
 
+    { id: 'acc-earn', icon: HandCoins, emoji: '', titleFr: 'Gagner', titleEn: 'Earn',
+      descFr: '', descEn: '', route: '/gagner',
+      borderClass: '', iconBg: 'bg-amber-500/12', iconColor: 'text-amber-500' },
     { id: 'acc-affiliation', icon: Share2, emoji: '', titleFr: 'Affiliation', titleEn: 'Affiliation',
       descFr: '', descEn: '', route: '/affiliation',
       borderClass: '', iconBg: 'bg-emerald-500/12', iconColor: 'text-emerald-500' },
@@ -113,7 +116,8 @@ export function MobileMenuDrawer({ onClose }: Props) {
     const clean = route.split('?')[0];
     if (clean === '/dashboard') return location.pathname === '/dashboard';
     if (clean === '/my-purchases') return location.pathname === '/my-purchases';
-    if (clean === '/affiliation') return location.pathname === '/affiliation' || location.pathname === '/gagner';
+    if (clean === '/affiliation') return location.pathname === '/affiliation';
+    if (clean === '/gagner') return location.pathname === '/gagner';
     return location.pathname === clean || location.pathname.startsWith(clean + '/');
   };
 

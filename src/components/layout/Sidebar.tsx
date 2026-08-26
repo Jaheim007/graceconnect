@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   ChevronLeft, ChevronRight, LogOut, Settings, ShieldCheck,
-  Compass, ShoppingBag, GraduationCap, MessageSquare, Share2, LayoutDashboard,
+  Compass, ShoppingBag, GraduationCap, MessageSquare, Share2, LayoutDashboard, HandCoins,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -101,9 +101,16 @@ export function Sidebar() {
           borderClass: '', iconBg: '', iconColor: 'text-cyan-400',
         }] : []),
         {
+          id: 'acc-earn', icon: HandCoins, emoji: '',
+          titleFr: 'Gagner', titleEn: 'Earn',
+          descFr: 'Programme ambassadeur SiteViral', descEn: 'SiteViral ambassador program',
+          route: '/gagner',
+          borderClass: '', iconBg: '', iconColor: 'text-amber-400',
+        },
+        {
           id: 'acc-affiliation', icon: Share2, emoji: '',
           titleFr: 'Affiliation', titleEn: 'Affiliation',
-          descFr: 'Liens, ventes et commissions', descEn: 'Links, sales and commissions',
+          descFr: 'Programme pour votre SaaS', descEn: 'Program for your SaaS',
           route: '/affiliation',
           borderClass: '', iconBg: '', iconColor: 'text-emerald-400',
         },
