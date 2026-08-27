@@ -3,6 +3,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { isNativePlatform, getPlatform } from '@/lib/capacitor';
 import { supabase } from '@/integrations/supabase/client';
+import { useServerFn } from '@tanstack/react-start';
+import { registerDevice } from '@/lib/push/devices.functions';
 
 /**
  * Native mobile push notifications via Capacitor + OneSignal.
@@ -14,20 +16,18 @@ export function useNativePush() {
   const { currentOrg } = useOrg();
   const [registered, setRegistered] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const runRegisterDevice = useServerFn(registerDevice);
 
   const callBackend = useCallback(async (payload: Record<string, any>) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) return null;
-    const { data, error } = await supabase.functions.invoke('register-mobile-device', {
-      body: payload,
-      headers: { Authorization: `Bearer ${session.access_token}` },
-    });
-    if (error) {
+    try {
+      return await runRegisterDevice({ data: payload as any });
+    } catch (error) {
       console.warn('[native-push] backend register failed:', error);
       return null;
     }
-    return data;
-  }, []);
+  }, [runRegisterDevice]);
 
   const register = useCallback(async () => {
     if (!isNativePlatform() || !user) return;

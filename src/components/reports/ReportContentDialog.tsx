@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
+import { useServerFn } from '@tanstack/react-start';
+import { notifyReport } from '@/lib/moderation/moderation.functions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -35,6 +37,7 @@ export function ReportContentDialog({
   const [selectedReason, setSelectedReason] = useState('');
   const [details, setDetails] = useState('');
   const [sending, setSending] = useState(false);
+  const runNotifyReport = useServerFn(notifyReport);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -70,14 +73,12 @@ export function ReportContentDialog({
       if (error) throw error;
 
       // Fire edge function for email notification (fire-and-forget)
-      db.functions.invoke('notify-report', {
-        body: {
+      runNotifyReport({
+        data: {
           content_id: contentId,
           content_type: contentType,
           content_title: contentTitle || '',
           reason: fullReason,
-          reporter_email: user.email || '',
-          reporter_id: user.id,
         },
       }).catch(() => {});
 
