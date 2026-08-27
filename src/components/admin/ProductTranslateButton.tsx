@@ -1,3 +1,5 @@
+import { useServerFn } from '@tanstack/react-start';
+import { aiTranslateProduct } from '@/lib/ai/textHelpers.functions';
 import { useState } from 'react';
 import { Languages, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,6 +22,7 @@ const LANGUAGES = [
 
 export function ProductTranslateButton({ productId, onTranslated }: Props) {
   const { currentOrg } = useOrg();
+  const translateFn = useServerFn(aiTranslateProduct);
   const [loading, setLoading] = useState(false);
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -28,8 +31,8 @@ export function ProductTranslateButton({ productId, onTranslated }: Props) {
     if (!currentOrg) return;
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-translate-product', {
-        body: {
+      const data: any = await translateFn({
+        data: {
           org_id: currentOrg.id,
           product_id: productId,
           target_language: targetLang,

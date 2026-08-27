@@ -1,3 +1,5 @@
+import { useServerFn } from '@tanstack/react-start';
+import { aiSuggestTitles, aiSuggestSubtitles } from '@/lib/ai/textHelpers.functions';
 import { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Zap, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen, Brush, Cross, Moon, Flame, BookHeart, Megaphone, ScrollText, Swords, HandHeart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,6 +26,8 @@ interface Props {
 
 export function StepParams({ state, update, onNext, onBack }: Props) {
   const { t, locale } = useI18n();
+  const suggestTitlesFn = useServerFn(aiSuggestTitles);
+  const suggestSubtitlesFn = useServerFn(aiSuggestSubtitles);
   const { toast } = useToast();
   const { user } = useAuth();
   const [suggestingTitles, setSuggestingTitles] = useState(false);
@@ -138,16 +142,14 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     setSuggestingTitles(true);
     setTitleSuggestions([]);
     try {
-      const { data, error } = await supabase.functions.invoke('suggest-titles', {
-        body: {
+      const data: any = await suggestTitlesFn({
+        data: {
           topic: state.topic || state.title || '',
           style: state.style,
           audience: state.targetAudience,
           language: requestedLanguage,
         },
       });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
       if (Array.isArray(data?.titles)) {
         setTitleSuggestions(data.titles);
       }
@@ -167,8 +169,8 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     setSuggestingSubtitles(true);
     setSubtitleSuggestions([]);
     try {
-      const { data, error } = await supabase.functions.invoke('suggest-subtitles', {
-        body: {
+      const data: any = await suggestSubtitlesFn({
+        data: {
           title: state.title,
           topic: state.topic || '',
           style: state.style,
@@ -176,8 +178,6 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
           language: requestedLanguage,
         },
       });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
       if (Array.isArray(data?.subtitles)) {
         setSubtitleSuggestions(data.subtitles);
       }

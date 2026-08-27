@@ -1,3 +1,5 @@
+import { useServerFn } from '@tanstack/react-start';
+import { aiWriteContent } from '@/lib/ai/textHelpers.functions';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -26,6 +28,7 @@ const TONE_OPTIONS = [
 
 export function AIWritingAssistant({ open, onClose, onInsert, context = 'description' }: AIWritingAssistantProps) {
   const { locale } = useI18n();
+  const writeContentFn = useServerFn(aiWriteContent);
   const isFr = locale === 'fr';
   const [prompt, setPrompt] = useState('');
   const [tone, setTone] = useState('professional');
@@ -40,12 +43,9 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
     setResult('');
 
     try {
-      const { data, error } = await supabase.functions.invoke('ai-write-content', {
-        body: { prompt: prompt.trim(), tone, context, lang: isFr ? 'fr' : 'en' },
+      const data: any = await writeContentFn({
+        data: { prompt: prompt.trim(), tone, context, lang: isFr ? 'fr' : 'en' },
       });
-
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
 
       let content = data?.content || '';
       content = content.replace(/^```html\s*/i, '').replace(/\s*```$/i, '');
