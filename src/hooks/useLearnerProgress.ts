@@ -92,7 +92,7 @@ export function useSaveSlideProgress(programId: string) {
 
       const { error } = await supabase
         .from('program_enrollments')
-        .update(updatePayload)
+        .update(updatePayload as never)
         .eq('id', current.id);
 
       if (error) console.error('[useSaveSlideProgress]', error);

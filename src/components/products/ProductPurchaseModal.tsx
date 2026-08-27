@@ -526,7 +526,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                       <Gift className="h-3.5 w-3.5" /> {isFr ? 'Offre spéciale !' : 'Special offer!'}
                     </div>
                     <p className="text-xs mt-0.5">{isFr ? 'Ajoutez' : 'Add'} <strong>{bumpProduct.title}</strong> {isFr ? 'pour seulement' : 'for only'} <strong>{fmt(bumpPrice)}</strong>
-                      {bumpDiscount > 0 && <span className="text-muted-foreground line-through ml-1">{fmt(bumpProduct.price)}</span>}
+                      {bumpDiscount > 0 && <span className="text-muted-foreground line-through ml-1">{fmt(bumpProduct.price ?? 0)}</span>}
                     </p>
                   </div>
                 </label>

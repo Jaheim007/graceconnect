@@ -27,7 +27,7 @@ export function useOrgPageSettings(orgId: string | undefined) {
         .select('*')
         .eq('organization_id', orgId)
         .single();
-      return (data as OrgPageSettings | null) ?? {
+      return (data as unknown as OrgPageSettings | null) ?? {
         organization_id: orgId,
         section_order: DEFAULT_SECTION_ORDER,
         hidden_sections: [],

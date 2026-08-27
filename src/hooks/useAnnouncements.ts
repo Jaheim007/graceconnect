@@ -70,7 +70,7 @@ export function useUpdateAnnouncement() {
         .select()
         .single();
       if (error) throw error;
-      return data;
+      return data as Announcement;
     },
     onSuccess: (data: Announcement) => {
       qc.invalidateQueries({ queryKey: ['org-announcements', data.organization_id] });

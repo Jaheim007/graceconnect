@@ -977,9 +977,9 @@ export default function WriteWizard() {
         _chapters: JSON.parse(JSON.stringify(normalizedChapters)),
         _topic: state.topic || undefined,
         _cover_url: state.coverUrl || undefined,
-        _description: richDescription,
+        _description: richDescription || undefined,
         _file_url: undefined,
-        _org_id: targetOrgId,
+        _org_id: targetOrgId ?? undefined,
       });
 
       if (error) throw error;
@@ -1085,7 +1085,7 @@ export default function WriteWizard() {
       if (Object.keys(productPatch).length > 0 && result.product_id) {
         const { error: updateErr } = await supabase
           .from('digital_products')
-          .update(productPatch)
+          .update(productPatch as never)
           .eq('id', result.product_id);
 
         if (updateErr) {

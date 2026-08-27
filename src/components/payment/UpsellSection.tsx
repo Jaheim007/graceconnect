@@ -63,7 +63,7 @@ export function UpsellSection({ productId, orgId, currentProductId }: UpsellSect
       const { data } = await db
         .from('digital_products')
         .select('id, title, price, currency, cover_image_url, slug, organizations(slug)')
-        .eq('organization_id', orgId)
+        .eq('organization_id', orgId ?? '')
         .eq('is_published', true)
         .neq('id', currentProductId || '')
         .order('sales_count', { ascending: false })
