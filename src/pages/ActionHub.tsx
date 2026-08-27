@@ -81,8 +81,6 @@ export default function ActionHub() {
       iconBg: 'bg-indigo-500/15', iconColor: 'text-indigo-500' },
   ];
 
-  ];
-
   const baseAuthed = getActionNavItems({
     isAuthenticated: !!user,
     hasPurchases,
