@@ -5,7 +5,7 @@ import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useI18n } from '@/i18n/I18nContext';
 import { formatCurrency } from '@/lib/currency';
 import { downloadInvoice } from '@/lib/invoice';

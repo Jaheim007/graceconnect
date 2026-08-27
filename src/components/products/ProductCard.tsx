@@ -17,7 +17,7 @@ import { WishlistButton } from './WishlistButton';
 import { QuickViewModal } from './QuickViewModal';
 import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';

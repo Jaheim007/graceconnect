@@ -1,6 +1,6 @@
 import { useOrg } from '@/contexts/OrgContext';
 import { useOrgScore } from './OrgProgressScore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { ImagePlus, FileText, Upload, Users, Shield, Share2, ShoppingBag, Megaphone, Rocket, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';

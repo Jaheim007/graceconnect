@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMyPartner, usePartnerReferrals, usePartnerCommissions, usePartnerPayouts, usePartnerStats, useRequestPartnerPayout } from '@/hooks/usePartner';
 import { formatCurrency } from '@/lib/currency';

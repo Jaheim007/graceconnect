@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Zap, BookOpen, Palette, Mic, Image, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 

@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { Bell, ShoppingBag, Heart, Megaphone, GraduationCap, Calendar, CreditCard, Star, ChevronRight, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { UserNotification } from '@/types/database';

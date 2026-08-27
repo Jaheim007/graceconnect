@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { BookOpen, Share2, DollarSign, Zap, ArrowRight, Lightbulb, PenTool, GraduationCap, Church, Users, Briefcase, HandCoins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useI18n } from '@/i18n/I18nContext';
 
 /**

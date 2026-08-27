@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useMemo, useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { Badge } from '@/components/ui/badge';
 import { diversifyFeed } from '@/lib/feed-diversity';
 import { OfferingCard } from '@/components/offerings/OfferingCard';

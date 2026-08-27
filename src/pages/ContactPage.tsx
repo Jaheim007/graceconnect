@@ -1,5 +1,5 @@
 import { LegalFooter } from '@/components/layout/LegalPageShell';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { Mail, MapPin, Globe, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LegalBackground, LegalHeader } from '@/components/layout/LegalPageShell';

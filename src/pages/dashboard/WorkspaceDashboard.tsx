@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import * as Icons from 'lucide-react';
 import { ArrowRight, Building2, ExternalLink, Plus, ShieldCheck, Zap } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';

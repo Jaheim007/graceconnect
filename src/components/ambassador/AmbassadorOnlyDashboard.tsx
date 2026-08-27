@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { getOrCreateShortLink, buildShareUrlForPath } from '@/lib/shareMeta';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';

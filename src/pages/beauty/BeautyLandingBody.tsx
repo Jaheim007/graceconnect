@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Zap, ShieldCheck, MessageCircle, Star, Scissors, Brush, Hand, Flower2, HeartHandshake, Clock, MapPin, ArrowRight, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

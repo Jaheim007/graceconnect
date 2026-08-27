@@ -3,7 +3,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { CheckCircle2, Hammer, Lightbulb, MessageSquarePlus } from 'lucide-react';
 
 type Status = 'shipped' | 'building' | 'exploring';

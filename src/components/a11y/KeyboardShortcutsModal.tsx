@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Keyboard } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 
 const shortcuts = [
   { keys: ['⌘', 'K'], desc_fr: 'Palette de commandes', desc_en: 'Command palette' },

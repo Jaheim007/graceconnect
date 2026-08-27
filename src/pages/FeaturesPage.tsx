@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Play, Heart, ShoppingBag, Users, BarChart3, Zap, Shield, Smartphone, Globe, Mail, Link2, Palette, Search, BookOpen, FileText, Share2, Award, Bell, Download, Bot, ArrowRight, CheckCircle, Layers, Settings, Church, GraduationCap, Briefcase, HandHeart, Eye, Star, Bookmark, Languages, FlaskConical, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';

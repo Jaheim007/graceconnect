@@ -6,7 +6,7 @@
  * surface, no dialog → page loader hand-off, no double animation.
  */
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from '@/lib/router-compat';
 import { AdminPageShell } from './AdminPageShell';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { BookOpen, GraduationCap, Store, HandCoins, Globe2, Compass } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { Reveal } from './Reveal';

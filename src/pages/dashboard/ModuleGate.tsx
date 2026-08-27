@@ -1,7 +1,7 @@
 import { useEnabledModules } from '@/hooks/useEnabledModules';
 import { MODULES, ModuleId } from '@/lib/dashboardModules';
 import { useI18n } from '@/i18n/I18nContext';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
 import { ComponentType, Suspense } from 'react';

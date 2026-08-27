@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate } from '@/lib/router-compat';
 import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
 import { useOrg } from '@/contexts/OrgContext';
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour';

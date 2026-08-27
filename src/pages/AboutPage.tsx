@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Heart, Users, Globe, Shield, Target, Zap, ArrowRight, Rocket, Eye, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';

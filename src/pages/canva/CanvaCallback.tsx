@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from '@/lib/router-compat';
 import { useCanvaAuth } from '@/hooks/useCanvaAuth';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 

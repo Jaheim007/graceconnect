@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, HelpCircle, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { LandingFooter } from './LandingFooter';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from '@/lib/router-compat';
 import { InternalLinksSection } from './InternalLinksSection';
 import { PlatformStatsBar } from './PlatformStatsBar';
 import { useI18n } from '@/i18n/I18nContext';

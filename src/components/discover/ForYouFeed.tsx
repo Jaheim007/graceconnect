@@ -5,7 +5,7 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { Loader2, Zap, BookOpen, Video, ShoppingBag, ThumbsUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCallback, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';

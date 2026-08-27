@@ -1,5 +1,5 @@
 /**
- * Router-compat shim — bridges react-router-dom v6 call sites to
+ * Router-compat shim — bridges @/lib/router-compat v6 call sites to
  * @tanstack/react-router without hand-rewriting every component.
  * This is the same load-bearing pattern used in Klar's dev-copy migration.
  */
@@ -13,7 +13,7 @@ import {
   Navigate as TSNavigate,
   Outlet as TSOutlet,
 } from "@tanstack/react-router";
-import { useMemo, useCallback, forwardRef, type ComponentProps, type ReactNode } from "react";
+import { useMemo, useCallback, forwardRef, type ComponentProps, type ReactNode, type CSSProperties } from "react";
 
 // ---------- shared URL parsing ----------
 
@@ -80,7 +80,7 @@ export function useParams<T extends Record<string, string | undefined> = Record<
 }
 
 
-// ---------- useSearchParams (react-router-dom compat) ----------
+// ---------- useSearchParams (@/lib/router-compat compat) ----------
 
 export function useSearchParams(): [URLSearchParams, (init: URLSearchParams | Record<string, string> | ((prev: URLSearchParams) => URLSearchParams), opts?: { replace?: boolean }) => void] {
   const loc = tsLocation();
@@ -153,6 +153,43 @@ export function Navigate({ to, replace, state }: { to: string; replace?: boolean
 
 export const Outlet = TSOutlet;
 
-// ---------- NavLink (minimal) ----------
+// ---------- NavLink (react-router v6 API: function-form className/style, `end`) ----------
 
-export const NavLink = Link;
+type NavLinkRenderArgs = { isActive: boolean; isPending: boolean };
+
+export type NavLinkProps = Omit<LinkProps, "className" | "style" | "children"> & {
+  end?: boolean;
+  caseSensitive?: boolean;
+  className?: string | ((args: NavLinkRenderArgs) => string | undefined);
+  style?: CSSProperties | ((args: NavLinkRenderArgs) => CSSProperties | undefined);
+  children?: ReactNode | ((args: NavLinkRenderArgs) => ReactNode);
+};
+
+export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(function NavLink(
+  { to, end, caseSensitive, className, style, children, ...rest },
+  ref,
+) {
+  const loc = tsLocation();
+  const { pathname } = parseTo(to);
+  const target = pathname === "." ? loc.pathname : pathname;
+  const norm = (p: string) => {
+    const s = p.length > 1 && p.endsWith("/") ? p.slice(0, -1) : p;
+    return caseSensitive ? s : s.toLowerCase();
+  };
+  const cur = norm(loc.pathname);
+  const tgt = norm(target);
+  const isActive = end ? cur === tgt : cur === tgt || cur.startsWith(tgt === "/" ? "/" : tgt + "/");
+  const args: NavLinkRenderArgs = { isActive, isPending: false };
+  return (
+    <Link
+      ref={ref}
+      to={to}
+      aria-current={isActive ? "page" : undefined}
+      className={typeof className === "function" ? className(args) : className}
+      style={typeof style === "function" ? style(args) : style}
+      {...(rest as Record<string, unknown>)}
+    >
+      {typeof children === "function" ? children(args) : children}
+    </Link>
+  );
+});

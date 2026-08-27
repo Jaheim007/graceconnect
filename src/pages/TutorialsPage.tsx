@@ -9,7 +9,7 @@ import { getTutorialDemo } from '@/content/tutorials/demos';
 
 import { useI18n } from '@/i18n/I18nContext';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 
 interface TutorialStep {
   title: string;

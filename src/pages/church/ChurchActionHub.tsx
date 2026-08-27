@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { motion } from "framer-motion";
 import { Church as ChurchIcon, LayoutDashboard, ArrowRight, Zap, Info } from "lucide-react";
 

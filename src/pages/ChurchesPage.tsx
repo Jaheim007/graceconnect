@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from '@/lib/router-compat';
 import {
   Church, Users, HandCoins, Radio, CalendarDays, MessageCircle, Bell, Wallet,
   Globe, ShieldCheck, ArrowRight, Check, FileText, Smartphone,

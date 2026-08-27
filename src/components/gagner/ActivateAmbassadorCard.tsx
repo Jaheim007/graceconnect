@@ -11,7 +11,7 @@ import { useUserCapabilities } from '@/hooks/useUserCapabilities';
 import { FirstLinkCard } from '@/components/gagner/FirstLinkCard';
 import { markSurfaceVisit } from '@/lib/siteviral/lastSurface';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 
 interface FirstLink {
   url: string;

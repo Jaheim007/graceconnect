@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet } from '@/lib/router-compat';
 import { PublicTopBar } from './PublicTopBar';
 import { LandingFooterCompact } from '@/components/landing/LandingFooterCompact';
 import { RouteContentSkeleton } from './RouteFallback';

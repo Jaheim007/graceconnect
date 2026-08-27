@@ -6,7 +6,7 @@ import { Loader2, Zap, BookOpen, GraduationCap } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { Button } from '@/components/ui/button';
 
 export default function PromoAICreationsPage() {

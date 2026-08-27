@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { PenLine, Store, Share2, Zap, ArrowRight, Rocket } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';

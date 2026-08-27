@@ -2,7 +2,7 @@
  * MyCommunities — Premium glassmorphism community cards with fire design.
  * Horizontal scrollable showcase of orgs the user is a member of (not owner/admin).
  */
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Users, ArrowRight, Shield, Zap, Crown } from 'lucide-react';
 import { useOrg } from '@/contexts/OrgContext';

@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { formatPrice, getProductPriceLabel } from '@/lib/currency';
 import { ShoppingBag, X, GitCompareArrows, Star, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useI18n } from '@/i18n/I18nContext';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 

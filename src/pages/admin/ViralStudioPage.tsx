@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { Mic, MicOff, Send, Loader2, Volume2, VolumeX, RotateCcw, Coins, BookOpen, ShieldCheck } from 'lucide-react';
 import { AdminPageShell } from '@/pages/admin/AdminPageShell';
 import { Button } from '@/components/ui/button';

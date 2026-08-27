@@ -1,7 +1,7 @@
 import { ArrowLeft, Bell, Mail, ShoppingBag, Heart, Megaphone, Calendar, MessageSquare, Users, BookOpen, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useNotificationPreferences, useUpdateNotificationPreferences, type NotifPrefs } from '@/hooks/useNotificationPreferences';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';

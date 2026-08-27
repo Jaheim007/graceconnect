@@ -4,7 +4,7 @@
  * Replaces the old AdminLayout which had its own sidebar + header.
  */
 import { Suspense } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from '@/lib/router-compat';
 import { useOrg } from '@/contexts/OrgContext';
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { EmptyState } from '@/components/ui/EmptyState';

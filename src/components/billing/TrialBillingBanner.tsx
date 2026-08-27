@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { useEffect, useState } from 'react';
 import { AlertTriangle, Clock, X } from 'lucide-react';
 import { usePlatformPlan } from '@/hooks/usePlatformPlan';

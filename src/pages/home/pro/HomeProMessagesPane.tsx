@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { NavLink, Outlet, useParams } from "react-router-dom";
+import { NavLink, Outlet, useParams } from "@/lib/router-compat";
 import { MessageSquare, ArrowLeft } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 
 /**
  * Messages pane for the artisan pro. Two columns on desktop (list | thread),

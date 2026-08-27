@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { Cpu, Clock, CheckCircle, XCircle, Loader2, AlertTriangle, ExternalLink } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 
@@ -44,7 +44,7 @@ export default function GlobalAiJobsMonitor() {
       ) : (
         <div className="space-y-2">
           {jobs.map((job: any) => {
-            const s = STATUS_META[job.status] || STATUS_META.queued;
+            const s = STATUS_META[job.status] ?? { label: isFr ? 'En attente' : 'Queued', icon: Clock, color: 'text-muted-foreground' };
             const Icon = s.icon;
             return (
               <Card key={job.id}><CardContent className="py-3 space-y-1">

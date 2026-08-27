@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingBag, Eye, Star, X, ExternalLink } from 'lucide-react';
 import { formatPrice } from '@/lib/currency';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { cn } from '@/lib/utils';
 import { FormattedText, stripHtml } from '@/lib/formatText';
 import { ContentSizeBadge } from '@/components/products/ContentSizeBadge';

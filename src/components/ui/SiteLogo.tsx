@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { cn } from '@/lib/utils';
 import logoS from '@/assets/logo-s.png';
 import { useAuth } from '@/contexts/AuthContext';

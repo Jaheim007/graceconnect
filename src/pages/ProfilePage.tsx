@@ -24,7 +24,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { db, supabase } from '@/lib/db';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';

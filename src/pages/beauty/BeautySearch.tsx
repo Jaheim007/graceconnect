@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
 import { Search, MapPin, Star, Filter, Scissors, Hand, Brush, Flower2, Zap, HeartHandshake, ShieldCheck, Home, Store } from "lucide-react";
 import { Input } from "@/components/ui/input";

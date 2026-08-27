@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from '@/lib/router-compat';
 import { DigitalProduct } from '@/types/database';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,

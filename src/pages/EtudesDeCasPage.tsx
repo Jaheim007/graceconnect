@@ -4,7 +4,7 @@ import { LandingFooter } from '@/components/landing/LandingFooter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
 

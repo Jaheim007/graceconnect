@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate, Navigate } from '@/lib/router-compat';
 import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,

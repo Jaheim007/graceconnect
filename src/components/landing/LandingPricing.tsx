@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { CheckCircle, ArrowRight, Zap, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';

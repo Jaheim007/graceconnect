@@ -1,6 +1,6 @@
 import { Lock, LogIn, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { setPendingAction } from '@/lib/pendingAction';

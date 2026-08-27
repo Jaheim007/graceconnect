@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from '@/lib/router-compat';
 import { toast } from 'sonner';
 import { ArrowRight, ArrowLeft, Check, Search, Plus, X } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';

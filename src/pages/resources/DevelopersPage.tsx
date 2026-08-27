@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { ArrowRight, BookOpen, Bot, Code2, Puzzle, ShieldCheck, Terminal, Sparkles, Webhook } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { LandingNav } from '@/components/landing/LandingNav';

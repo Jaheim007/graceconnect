@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams, Navigate } from 'react-router-dom';
+import { Link, useParams, Navigate } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { Church, HandHeart, MapPin, Mic, Calendar, Heart, ShieldCheck, Loader2, Globe, Phone, Mail, Megaphone, Pin, Ticket, CalendarClock } from 'lucide-react';
 import { Button } from '@/components/ui/button';

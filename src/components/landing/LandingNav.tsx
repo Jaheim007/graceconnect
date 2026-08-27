@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from '@/lib/router-compat';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Menu, X, ArrowRight, User, LogOut, CreditCard, BarChart3, Package, Settings, ShieldCheck, MessageSquare, Gift, Church, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';

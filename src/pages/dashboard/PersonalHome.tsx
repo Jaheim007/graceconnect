@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Package, Calendar, Ticket, ArrowRight, ShoppingBag, Compass, GraduationCap, HandCoins } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';

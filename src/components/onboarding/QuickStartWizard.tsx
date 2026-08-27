@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Image, Megaphone, ShoppingBag, Heart, Link2, HandHeart, ArrowRight, ArrowLeft, CheckCircle, Zap, X, Rocket } from 'lucide-react';

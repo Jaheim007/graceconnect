@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lightbulb, Image, FileText, Share2, Star, TrendingUp, ArrowRight, Zap, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
 

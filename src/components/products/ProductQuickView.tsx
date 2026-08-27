@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { formatPrice } from '@/lib/currency';
 import { stripHtml } from '@/lib/formatText';
 import { ShoppingBag, ExternalLink, Star, Download, Eye, BookOpen } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { WishlistButton } from './WishlistButton';
 import { useI18n } from '@/i18n/I18nContext';

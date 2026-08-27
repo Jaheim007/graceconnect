@@ -54,7 +54,7 @@ if (typeof window !== "undefined") {
   // Sentry error tracking (production only)
   if (import.meta.env.PROD) {
     Sentry.init({
-      dsn: import.meta.env.VITE_SENTRY_DSN || "",
+      dsn: import.meta.env["VITE_SENTRY_DSN"] || "",
       integrations: [
         Sentry.browserTracingIntegration(),
         Sentry.replayIntegration({ maskAllText: false, blockAllMedia: false }),

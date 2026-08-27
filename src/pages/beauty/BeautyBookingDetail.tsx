@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "@/lib/router-compat";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Calendar as CalIcon, Clock, MapPin, ShieldCheck, MessageCircle, CheckCircle2, XCircle, Loader2, Zap, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";

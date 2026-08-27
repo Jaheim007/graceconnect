@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from '@/lib/router-compat';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Loader2, Zap, Save, Send, AlertTriangle, RefreshCw, CheckCircle2, FileText, MessageCircle, BookOpen, Video, Newspaper, ListChecks, Copy, FileDown, DollarSign, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

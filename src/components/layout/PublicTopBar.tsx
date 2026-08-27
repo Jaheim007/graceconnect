@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Sun, Moon, BookOpen } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';

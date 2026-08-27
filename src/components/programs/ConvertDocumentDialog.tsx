@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useStartCourseDraft } from '@/hooks/useCourseDraft';
 import { draftErrorMessage } from '@/lib/courseDraftErrors';
 import { Zap, ArrowRight, Loader2, FileText, ImageIcon, Globe } from 'lucide-react';

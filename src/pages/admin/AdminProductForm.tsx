@@ -4,7 +4,7 @@ import { SUPPORTED_CURRENCIES, type CurrencyCode } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import { getOrCreateShortLink, buildSocialShareUrl, buildShareUrlForPath } from '@/lib/shareMeta';
 import { getPublicUrl } from '@/lib/publicUrl';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from '@/lib/router-compat';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Zap, ImageIcon, AlertTriangle, RefreshCw, Loader2, CalendarIcon } from 'lucide-react';

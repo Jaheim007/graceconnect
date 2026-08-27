@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { useState } from "react";
 import { ClipboardList, Calendar, BookOpen } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { Church, Mic, HandHeart, Calendar, Heart, Users, Settings, ShieldCheck, ShieldAlert, ExternalLink, Loader2, Zap, ArrowUpRight, CalendarClock, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';

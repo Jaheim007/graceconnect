@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { stripHtml } from '@/lib/formatText';
 import { Offering } from '@/hooks/useOfferings';
 import { Button } from '@/components/ui/button';

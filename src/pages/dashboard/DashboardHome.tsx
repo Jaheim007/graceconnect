@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnabledModules } from '@/hooks/useEnabledModules';
 import { MODULES, ALL_MODULE_IDS } from '@/lib/dashboardModules';

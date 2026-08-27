@@ -1,6 +1,6 @@
 import { Scissors } from 'lucide-react';
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Star, MapPin, ShieldCheck, Clock, Home, Store, Zap, MessageCircle, Calendar, ChevronRight, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { ArrowLeft } from 'lucide-react';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { GlobalPreferencesSelector } from '@/components/global/GlobalPreferencesSelector';

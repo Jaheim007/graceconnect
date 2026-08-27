@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useLocation, Navigate } from 'react-router-dom';
+import { useParams, useLocation, Navigate } from '@/lib/router-compat';
 import { db } from '@/lib/db';
 import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
 import NotFound from '@/pages/NotFound';

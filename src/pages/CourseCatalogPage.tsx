@@ -6,7 +6,7 @@
  * for courses the viewer is already enrolled in, a progress ring.
  */
 import { useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { BookOpen, Loader2, Search, Users } from 'lucide-react';
