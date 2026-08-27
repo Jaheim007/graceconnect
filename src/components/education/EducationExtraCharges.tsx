@@ -23,6 +23,7 @@ export default function EducationExtraCharges({ bookingId, isStudent, isTutor, b
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+  const runExtraCharge = useServerFn(educationExtraCharge);
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState("");

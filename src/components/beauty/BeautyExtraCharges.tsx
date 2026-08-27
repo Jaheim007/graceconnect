@@ -78,6 +78,7 @@ function RequestButton({ bookingId, currency, onCreated }: { bookingId: string; 
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+  const runExtraCharge = useServerFn(beautyExtraCharge);
 
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
@@ -157,6 +158,7 @@ function ExtraChargeRow({ charge, isClient, isProvider, onChanged }: { charge: a
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+  const runExtraCharge = useServerFn(beautyExtraCharge);
   const [busy, setBusy] = useState<string | null>(null);
 
   const isPending = charge.status === "pending";

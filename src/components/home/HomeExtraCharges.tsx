@@ -24,6 +24,7 @@ export default function HomeExtraCharges({ bookingId, currency, isClient, isProv
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+  const runExtraCharge = useServerFn(homeExtraCharge);
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState("");

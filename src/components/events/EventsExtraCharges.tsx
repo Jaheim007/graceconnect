@@ -24,6 +24,7 @@ export default function EventsExtraCharges({ bookingId, currency, isClient, isPr
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+  const runExtraCharge = useServerFn(eventsExtraCharge);
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState("");

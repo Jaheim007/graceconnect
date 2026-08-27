@@ -15,6 +15,7 @@ export default function EducationExtraChargeCard({ extraChargeId }: Props) {
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+  const runExtraCharge = useServerFn(educationExtraCharge);
   const [ec, setEc] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
