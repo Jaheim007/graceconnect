@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Loader2, Check, X, Clock, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { beautyExtraCharge } from "@/lib/verticals/extraCharges.functions";
 import { useI18n } from "@/i18n/I18nContext";
 import { toast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/currency";
@@ -76,6 +78,7 @@ function RequestButton({ bookingId, currency, onCreated }: { bookingId: string; 
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+  const runExtraCharge = useServerFn(beautyExtraCharge);
 
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
@@ -90,9 +93,8 @@ function RequestButton({ bookingId, currency, onCreated }: { bookingId: string; 
     }
     setBusy(true);
     try {
-      const { data, error } = await supabase.functions.invoke("beauty-extra-charge", {
-        body: { action: "create", booking_id: bookingId, amount: amt, description: description.trim() },
-      });
+      const res: any = await runExtraCharge({ data: { action: "create", booking_id: bookingId, amount: amt, description: description.trim(), return_origin: window.location.origin } }).catch((e: any) => ({ error: e?.message || "Request failed" }));
+      const data = res; const error = res?.error ? { message: res.error as string } : null;
       if (error || (data as any)?.error) throw new Error((data as any)?.error ?? error?.message);
       toast({ title: t("Supplément envoyé", "Extra charge sent") });
       setOpen(false); setAmount(""); setDescription("");
@@ -156,6 +158,7 @@ function ExtraChargeRow({ charge, isClient, isProvider, onChanged }: { charge: a
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+  const runExtraCharge = useServerFn(beautyExtraCharge);
   const [busy, setBusy] = useState<string | null>(null);
 
   const isPending = charge.status === "pending";
@@ -164,9 +167,8 @@ function ExtraChargeRow({ charge, isClient, isProvider, onChanged }: { charge: a
   async function accept() {
     setBusy("accept");
     try {
-      const { data, error } = await supabase.functions.invoke("beauty-extra-charge", {
-        body: { action: "accept", extra_charge_id: charge.id },
-      });
+      const res: any = await runExtraCharge({ data: { action: "accept", extra_charge_id: charge.id, return_origin: window.location.origin } }).catch((e: any) => ({ error: e?.message || "Request failed" }));
+      const data = res; const error = res?.error ? { message: res.error as string } : null;
       if (error || (data as any)?.error) throw new Error((data as any)?.error ?? error?.message);
       const url = (data as any).checkout_url;
       if (url) window.location.href = url;
@@ -179,9 +181,8 @@ function ExtraChargeRow({ charge, isClient, isProvider, onChanged }: { charge: a
     if (!(await askConfirm(t("Refuser ce supplément ?", "Decline this extra?")))) return;
     setBusy("decline");
     try {
-      const { data, error } = await supabase.functions.invoke("beauty-extra-charge", {
-        body: { action: "decline", extra_charge_id: charge.id },
-      });
+      const res: any = await runExtraCharge({ data: { action: "decline", extra_charge_id: charge.id, return_origin: window.location.origin } }).catch((e: any) => ({ error: e?.message || "Request failed" }));
+      const data = res; const error = res?.error ? { message: res.error as string } : null;
       if (error || (data as any)?.error) throw new Error((data as any)?.error ?? error?.message);
       onChanged();
     } catch (e: any) {

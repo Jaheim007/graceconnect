@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { educationExtraCharge } from "@/lib/verticals/extraCharges.functions";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { toast } from "@/hooks/use-toast";
@@ -13,6 +15,7 @@ export default function EducationExtraChargeCard({ extraChargeId }: Props) {
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
+  const runExtraCharge = useServerFn(educationExtraCharge);
   const [ec, setEc] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
@@ -26,9 +29,8 @@ export default function EducationExtraChargeCard({ extraChargeId }: Props) {
 
   const accept = async () => {
     setLoading(true);
-    const { data, error } = await supabase.functions.invoke("education-extra-charge", {
-      body: { action: "accept", extra_charge_id: extraChargeId, return_origin: window.location.origin },
-    });
+    const res: any = await runExtraCharge({ data: { action: "accept", extra_charge_id: extraChargeId, return_origin: window.location.origin } }).catch((e: any) => ({ error: e?.message || "Request failed" }));
+      const data = res; const error = res?.error ? { message: res.error as string } : null;
     if (error || !(data as any)?.checkout_url) {
       setLoading(false);
       toast({ title: "Error", description: error?.message, variant: "destructive" });
@@ -39,9 +41,8 @@ export default function EducationExtraChargeCard({ extraChargeId }: Props) {
 
   const decline = async () => {
     setLoading(true);
-    await supabase.functions.invoke("education-extra-charge", {
-      body: { action: "decline", extra_charge_id: extraChargeId },
-    });
+    const res: any = await runExtraCharge({ data: { action: "decline", extra_charge_id: extraChargeId, return_origin: window.location.origin } }).catch((e: any) => ({ error: e?.message || "Request failed" }));
+      const data = res; const error = res?.error ? { message: res.error as string } : null;
     setEc({ ...ec, status: "rejected" });
     setLoading(false);
   };
