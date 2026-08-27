@@ -3,17 +3,24 @@
  * Listens to sv:currency-change events from GlobalPreferencesSelector.
  * Use this everywhere you need to format prices for display.
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, startTransition } from 'react';
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
 import { formatCurrency, formatPrice } from '@/lib/currency';
 import { convertCurrency } from '@/lib/currencyConvert';
 
 function getDisplayCurrency(): string {
+  if (typeof localStorage === 'undefined') return 'XOF';
   return localStorage.getItem('sv_display_currency') || detectCurrencyFromTimezone();
 }
 
 export function useDisplayCurrency() {
-  const [currency, setCurrency] = useState(getDisplayCurrency);
+  // SSR renders the default; the real currency is resolved after hydration.
+  const [currency, setCurrency] = useState('XOF');
+
+  useEffect(() => {
+    const resolved = getDisplayCurrency();
+    if (resolved !== 'XOF') startTransition(() => setCurrency(resolved));
+  }, []);
 
   useEffect(() => {
     const handler = (e: CustomEvent<{ currency: string }>) => {

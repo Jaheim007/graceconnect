@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { docLang } from '@/lib/doc-lang';
 import { Outlet, NavLink, useNavigate } from '@/lib/router-compat';
 import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
 import { useOrg } from '@/contexts/OrgContext';
@@ -117,9 +118,9 @@ export default function AdminLayout() {
   if (!currentOrg) {
     return (
       <EmptyState
-        title={document.documentElement.lang === 'fr' ? "Aucune organisation sélectionnée" : "No organization selected"}
-        description={document.documentElement.lang === 'fr' ? "Créez ou sélectionnez une organisation pour accéder au panneau d'administration." : "Create or select an organization to access the admin panel."}
-        action={{ label: document.documentElement.lang === 'fr' ? 'Créer une organisation' : 'Create organization', onClick: () => navigate('/create-org') }}
+        title={docLang() === 'fr' ? "Aucune organisation sélectionnée" : "No organization selected"}
+        description={docLang() === 'fr' ? "Créez ou sélectionnez une organisation pour accéder au panneau d'administration." : "Create or select an organization to access the admin panel."}
+        action={{ label: docLang() === 'fr' ? 'Créer une organisation' : 'Create organization', onClick: () => navigate('/create-org') }}
         className="min-h-screen"
       />
     );

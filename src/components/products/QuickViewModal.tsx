@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { docLang } from '@/lib/doc-lang';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -48,7 +49,7 @@ export function QuickViewModal({ product, orgSlug, open, onClose, isPurchased }:
               const isPwyw = !!(product as any).is_pwyw;
               const minPrice = (product as any).min_price || 0;
               const effectivelyFree = product.is_free && !(isPwyw && minPrice > 0);
-              const isFr = document.documentElement.lang === 'fr';
+              const isFr = docLang() === 'fr';
               return (
                 <div className={cn(
                   'px-3 py-1.5 rounded-lg font-bold text-sm backdrop-blur-md',

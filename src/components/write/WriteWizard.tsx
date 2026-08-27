@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef, Fragment } from 'react';
+import { docLang } from '@/lib/doc-lang';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 
@@ -151,7 +152,7 @@ const STEP_LABELS_EN = ['Source', 'Details', '🎯 Strategy', 'Creation', 'Previ
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
 function detectBookLanguage(uiLocale?: string): BookLanguage {
-  const source = uiLocale || document.documentElement.lang;
+  const source = uiLocale || docLang();
   return resolveBookLanguageFromLocale(source) ?? 'en';
 }
 

@@ -129,7 +129,10 @@ if (typeof window !== "undefined") {
 
 // Runs before first paint via head() so there is no theme flash. The shell's
 // suppressHydrationWarning absorbs the expected <html> attribute mismatch.
-const themeBootstrapScript = `(function(){try{var t=localStorage.getItem('gc_theme')||'light';document.documentElement.classList.add(t);var c=t==='dark'?'#09090b':'#ffffff';var m=document.querySelector('meta[name="theme-color"]');if(m){m.content=c;}else{m=document.createElement('meta');m.name='theme-color';m.content=c;document.head.appendChild(m);}var l=localStorage.getItem('sv_locale')||navigator.language.slice(0,2)||'fr';document.documentElement.lang=['en','fr'].indexOf(l)>-1?l:'fr';}catch(e){}})();`;
+// Note: the locale (html lang) is deliberately NOT set here — mutating it
+// pre-hydration makes locale-dependent text mismatch the SSR output.
+// I18nProvider applies the resolved locale right after hydration instead.
+const themeBootstrapScript = `(function(){try{var t=localStorage.getItem('gc_theme')||'light';document.documentElement.classList.add(t);var c=t==='dark'?'#09090b':'#ffffff';var m=document.querySelector('meta[name="theme-color"]');if(m){m.content=c;}else{m=document.createElement('meta');m.name='theme-color';m.content=c;document.head.appendChild(m);}}catch(e){}})();`;
 
 const organizationJsonLd = JSON.stringify({
   "@context": "https://schema.org",

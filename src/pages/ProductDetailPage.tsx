@@ -136,7 +136,7 @@ export default function ProductDetailPage() {
         .eq('user_id', user.id)
         .eq('organization_id', product.organization_id ?? '')
         .maybeSingle();
-      return data && ['owner', 'admin', 'editor'].includes(data.role);
+      return data && ['owner', 'admin', 'editor'].includes(data.role ?? '');
     },
     enabled: !!user && !!product?.organization_id,
   });
@@ -885,7 +885,7 @@ export default function ProductDetailPage() {
         <CrossSellWidget
           productId={product.id}
           organizationId={product.organization_id ?? undefined}
-          productType={product.product_type}
+          productType={product.product_type ?? undefined}
         />
 
         {/* Subscription upsell for repeat buyers */}

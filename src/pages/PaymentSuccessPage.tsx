@@ -308,9 +308,10 @@ export default function PaymentSuccessPage() {
   const potentialEarning = tx ? Math.round((tx.amount * commissionPercent) / 100) : 0;
   const fmt = (n: number) => tx ? formatCurrency(n, tx.currency) : `${n}`;
 
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const shareUrl = tx?.org_slug
-    ? `${window.location.origin}/org/${tx.org_slug}${affiliateCode ? `?ref=${affiliateCode}` : ''}`
-    : window.location.origin;
+    ? `${origin}/org/${tx.org_slug}${affiliateCode ? `?ref=${affiliateCode}` : ''}`
+    : origin;
 
   const enrollAsAmbassador = async () => {
     if (!user || enrolling || !tx?.org_slug) return;

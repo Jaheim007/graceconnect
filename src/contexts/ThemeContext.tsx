@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, startTransition, ReactNode } from 'react';
 
 type Theme = 'dark' | 'light';
 
@@ -10,15 +10,23 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('gc_theme') as Theme | null;
-    if (saved) return saved;
-    // Default to light for public pages; OS preference still wins if no saved choice.
-    return 'light';
-  });
+  // SSR-safe: render the default on the server, apply the saved theme after
+  // hydration (the __root.tsx head script already sets the class pre-paint,
+  // so there is no visual flash).
+  const [theme, setTheme] = useState<Theme>('light');
 
   // Track whether user has explicitly chosen a theme
-  const [userOverride, setUserOverride] = useState(() => !!localStorage.getItem('gc_theme'));
+  const [userOverride, setUserOverride] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('gc_theme') as Theme | null;
+    if (saved) {
+      startTransition(() => {
+        setTheme(saved);
+        setUserOverride(true);
+      });
+    }
+  }, []);
 
   // Apply theme to DOM + PWA theme-color meta tag
   useEffect(() => {

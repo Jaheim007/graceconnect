@@ -105,7 +105,7 @@ export default function ProgramDetailPage() {
         .eq('user_id', user.id)
         .eq('organization_id', program.organization_id ?? '')
         .maybeSingle();
-      return data && ['owner', 'admin', 'editor'].includes(data.role);
+      return data && ['owner', 'admin', 'editor'].includes(data.role ?? '');
     },
     enabled: !!user && !!program?.organization_id,
   });

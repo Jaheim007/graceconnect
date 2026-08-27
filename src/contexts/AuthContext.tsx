@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, startTransition, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/types/database';
@@ -184,7 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Safety timeout — mobile OAuth can be slow; don't unblock too early
     const timeout = setTimeout(() => {
-      if (mounted) setLoading(false);
+      if (mounted) startTransition(() => setLoading(false));
     }, 20_000);
 
     // Listen FIRST so we never miss the auth event emitted during OAuth callback hydration
@@ -196,7 +196,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         initialSessionHandled = true;
       }
 
-      applySession(newSession);
+      // startTransition lets React finish hydrating lazy route chunks with the
+      // SSR "loading" state before auth resolution swaps guarded UI — avoids
+      // hydration mismatches on RequireAuth routes.
+      startTransition(() => applySession(newSession));
 
       // Claim any purchases made as a guest with this email (library recovery)
       if (newSession?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
@@ -236,21 +239,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (['INITIAL_SESSION', 'SIGNED_IN', 'SIGNED_OUT', 'TOKEN_REFRESHED', 'USER_UPDATED'].includes(event)) {
         clearTimeout(timeout);
-        setLoading(false);
+        startTransition(() => setLoading(false));
       }
     });
 
     // Then hydrate — but SKIP if onAuthStateChange already fired INITIAL_SESSION
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       if (!mounted) return;
-      if (!initialSessionHandled) {
-        applySession(s);
-      }
+      startTransition(() => {
+        if (!initialSessionHandled) {
+          applySession(s);
+        }
+        setLoading(false);
+      });
       clearTimeout(timeout);
-      setLoading(false);
     }).catch(() => {
       clearTimeout(timeout);
-      if (mounted) setLoading(false);
+      if (mounted) startTransition(() => setLoading(false));
     });
 
     return () => {

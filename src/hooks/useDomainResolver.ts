@@ -7,9 +7,12 @@ import { db } from '@/lib/db';
  * or null if we're on the main siteviral.com / lovable.app domain.
  */
 export function useDomainResolver() {
-  const hostname = window.location.hostname;
+  // SSR-safe: no hostname during server render; the query stays disabled
+  // until hydration provides the real one.
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
 
   return useQuery({
+    enabled: hostname !== '',
     queryKey: ['domain-resolve', hostname],
     queryFn: async () => {
       // Main platform domains — no org resolution needed
