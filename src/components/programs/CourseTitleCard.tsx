@@ -1,5 +1,5 @@
 import { useServerFn } from '@tanstack/react-start';
-import { aiSuggestTitles } from '@/lib/ai/textHelpers.functions';
+import { aiSuggestTitles, aiGenerateDescription } from '@/lib/ai/textHelpers.functions';
 /**
  * Title + description for a course, with optional AI help.
  *
@@ -54,6 +54,7 @@ export function CourseTitleCard({
 }: Props) {
   const { locale } = useI18n();
   const suggestTitlesFn = useServerFn(aiSuggestTitles);
+  const generateDescriptionFn = useServerFn(aiGenerateDescription);
   const isFr = locale === 'fr';
   const { toast } = useToast();
   const { handleAiError, refreshCredits } = useCreditGuard();
@@ -109,9 +110,8 @@ export function CourseTitleCard({
     }
     setLoadingDesc(true);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-generate-description', {
-        headers: await authHeaders(),
-        body: {
+      const data: any = await generateDescriptionFn({
+        data: {
           title, product_type: 'course', price, currency, language: locale, tier,
           audience: audience.trim() || undefined,
           tone: tone.trim() || undefined,
@@ -120,8 +120,6 @@ export function CourseTitleCard({
         },
       });
 
-      if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
       const raw = (data as any)?.description || (data as any)?.html || '';
       if (!raw) throw new Error(isFr ? 'Aucune description générée' : 'No description generated');
       onDescriptionChange(htmlToText(String(raw)));
