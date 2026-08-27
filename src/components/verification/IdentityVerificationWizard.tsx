@@ -265,15 +265,15 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
           _provider_id: entityId,
           _id_document_url: docFrontUrl,
           _id_document_type: docType,
-          _id_document_back_url: docBackUrl || null,
+          _id_document_back_url: docBackUrl || undefined,
           _selfie_url: selfieUrl,
           _selfie_with_doc_url: selfieWithDocUrl,
-          _bank_account_name: accountName || null,
-          _bank_account_number: accountNumber || null,
-          _bank_name: payoutMethod === 'bank' ? bankName : payoutProvider,
+          _bank_account_name: accountName || undefined,
+          _bank_account_number: accountNumber || undefined,
+          _bank_name: (payoutMethod === 'bank' ? bankName : payoutProvider) || undefined,
           _payout_method: payoutMethod,
-          _payout_phone: payoutMethod === 'mobile_money' ? accountNumber : null,
-          _payout_provider: payoutProvider || null,
+          _payout_phone: payoutMethod === 'mobile_money' ? accountNumber : undefined,
+          _payout_provider: payoutProvider || undefined,
         });
         if (error) throw error;
         submissionId = (data as any)?.submission_id || null;

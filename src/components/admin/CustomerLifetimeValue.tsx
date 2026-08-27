@@ -44,12 +44,12 @@ export function CustomerLifetimeValue() {
       for (const tx of [...(purchases || []), ...(donations || [])]) {
         if (!tx.user_id) continue;
         if (!userMap[tx.user_id]) {
-          userMap[tx.user_id] = { total: 0, count: 0, firstDate: tx.created_at, lastDate: tx.created_at };
+          userMap[tx.user_id] = { total: 0, count: 0, firstDate: tx.created_at ?? '', lastDate: tx.created_at ?? '' };
         }
         userMap[tx.user_id].total += tx.amount || 0;
         userMap[tx.user_id].count += 1;
-        if (tx.created_at < userMap[tx.user_id].firstDate) userMap[tx.user_id].firstDate = tx.created_at;
-        if (tx.created_at > userMap[tx.user_id].lastDate) userMap[tx.user_id].lastDate = tx.created_at;
+        if (tx.created_at && tx.created_at < userMap[tx.user_id].firstDate) userMap[tx.user_id].firstDate = tx.created_at;
+        if (tx.created_at && tx.created_at > userMap[tx.user_id].lastDate) userMap[tx.user_id].lastDate = tx.created_at;
       }
 
       const users = Object.values(userMap);

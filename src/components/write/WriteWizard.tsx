@@ -975,10 +975,10 @@ export default function WriteWizard() {
         _is_free: false,
         _commission_rate: state.commissionRate,
         _chapters: JSON.parse(JSON.stringify(normalizedChapters)),
-        _topic: state.topic || null,
-        _cover_url: state.coverUrl || null,
+        _topic: state.topic || undefined,
+        _cover_url: state.coverUrl || undefined,
         _description: richDescription,
-        _file_url: null,
+        _file_url: undefined,
         _org_id: targetOrgId,
       });
 

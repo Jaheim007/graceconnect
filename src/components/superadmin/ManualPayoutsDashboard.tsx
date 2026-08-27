@@ -86,7 +86,7 @@ export default function ManualPayoutsDashboard() {
       const profileById = new Map((profiles || []).map((profile: any) => [profile.id, profile]));
       const kycByOrg = new Map<string, any>();
       for (const kyc of kycSubmissions || []) {
-        if (!kycByOrg.has(kyc.organization_id)) kycByOrg.set(kyc.organization_id, kyc);
+        if (kyc.organization_id && !kycByOrg.has(kyc.organization_id)) kycByOrg.set(kyc.organization_id, kyc);
       }
 
       return requests.map((req: any) => ({

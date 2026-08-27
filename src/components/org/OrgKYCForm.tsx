@@ -158,10 +158,10 @@ export default function OrgKYCForm({ orgId, orgCategory, kycStatus }: Props) {
         _kyc_level: 1,
         _id_document_url: idDocUrl,
         _id_document_type: idDocType,
-        _selfie_url: selfieUrl || null,
-        _bank_account_name: bankAccountName || null,
-        _bank_account_number: bankAccountNumber || null,
-        _bank_name: bankName || null,
+        _selfie_url: selfieUrl || undefined,
+        _bank_account_name: bankAccountName || undefined,
+        _bank_account_number: bankAccountNumber || undefined,
+        _bank_name: bankName || undefined,
       });
       if (error) throw error;
       toast.success('Documents KYC Niveau 1 soumis avec succès');

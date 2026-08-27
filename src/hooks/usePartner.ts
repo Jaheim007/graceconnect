@@ -310,7 +310,7 @@ export function useManagePartner() {
       const { data, error } = await db.rpc('manage_partner', {
         _partner_id: partnerId,
         _action: action,
-        _reason: reason || null,
+        _reason: reason || undefined,
       });
       if (error) throw error;
       return data;
@@ -379,7 +379,7 @@ export function useReviewPartnerKYC() {
       const { data, error } = await db.rpc('review_partner_kyc', {
         _partner_id: partnerId,
         _action: action,
-        _reason: reason || null,
+        _reason: reason || undefined,
       });
       if (error) throw error;
       return data;
