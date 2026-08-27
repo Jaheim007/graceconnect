@@ -37,6 +37,7 @@ export function ReportContentDialog({
   const [selectedReason, setSelectedReason] = useState('');
   const [details, setDetails] = useState('');
   const [sending, setSending] = useState(false);
+  const runNotifyReport = useServerFn(notifyReport);
   const { user } = useAuth();
   const { toast } = useToast();
 
