@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useNavigate, useParams, useSearchParams } from "@/lib/router-compat";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Calendar as CalIcon, Clock, MapPin, ShieldCheck, MessageCircle, CheckCircle2, XCircle, Loader2, Zap, AlertTriangle } from "lucide-react";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { beautyVerifyBooking } from "@/lib/verticals/bookings.functions";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatCurrency } from "@/lib/currency";
 import { useI18n } from "@/i18n/I18nContext";
@@ -35,6 +37,7 @@ export default function BeautyBookingDetail() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const runVerifyBooking = useServerFn(beautyVerifyBooking);
   const { user } = useAuth();
   const { locale } = useI18n();
   const isFr = locale === "fr";
@@ -79,16 +82,14 @@ export default function BeautyBookingDetail() {
     if (!returnedFromCheckout || !id) return;
     (async () => {
       try {
-        await supabase.functions.invoke("beauty-verify-booking", {
-          body: { booking_id: id, session_id: sessionId },
-        });
+        await runVerifyBooking({ data: { booking_id: id, session_id: sessionId } });
         qc.invalidateQueries({ queryKey: ["beauty-booking", id] });
       } catch (e) {
         // Non-fatal — webhook is source of truth
         console.warn("verify-booking failed", e);
       }
     })();
-  }, [returnedFromCheckout, id, sessionId, qc]);
+  }, [returnedFromCheckout, id, sessionId, qc, runVerifyBooking]);
 
   if (isLoading) {
     return (
