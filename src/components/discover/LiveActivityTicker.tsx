@@ -178,7 +178,7 @@ export function LiveActivityTicker() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.2 }}
-      className="mb-5 overflow-hidden rounded-xl border border-border/60 bg-card/80 backdrop-blur-sm px-5 py-3.5 shadow-sm"
+      className="mb-5 overflow-hidden rounded-xl border border-border/60 bg-card/80 backdrop-blur-xs px-5 py-3.5 shadow-xs"
     >
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 shrink-0">

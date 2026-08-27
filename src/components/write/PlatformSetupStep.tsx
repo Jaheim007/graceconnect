@@ -91,7 +91,7 @@ export function PlatformSetupStep({
                 onClick={() => setIdentity(opt.id)}
                 className={`relative text-left rounded-2xl border p-4 transition-all ${
                   active
-                    ? 'border-primary bg-primary/5 shadow-sm'
+                    ? 'border-primary bg-primary/5 shadow-xs'
                     : 'border-border hover:border-primary/40 bg-card'
                 }`}
               >

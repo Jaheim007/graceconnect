@@ -97,7 +97,7 @@ export default function EventsProConversationPane() {
           }
           return (
             <div key={m.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
-              <div className={cn("max-w-[75%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
+              <div className={cn("max-w-[75%] rounded-2xl px-3.5 py-2 text-sm shadow-xs",
                 mine ? "bg-primary text-primary-foreground rounded-br-md" : "bg-card border border-border rounded-bl-md")}>
                 {m.body}
               </div>

@@ -277,7 +277,7 @@ export default function ChurchProSermonDetail() {
                       key={v.type}
                       onClick={() => generateVariant(v.type)}
                       disabled={!!generatingType}
-                      className="rounded-2xl border border-border bg-card p-4 text-left hover:border-primary/40 hover:shadow-sm transition-all disabled:opacity-50"
+                      className="rounded-2xl border border-border bg-card p-4 text-left hover:border-primary/40 hover:shadow-xs transition-all disabled:opacity-50"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <v.icon className="h-4 w-4 text-primary" />

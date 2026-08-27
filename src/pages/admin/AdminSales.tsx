@@ -380,7 +380,7 @@ export default function AdminSales() {
                 className={cn(
                   'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200',
                   filter === f.key
-                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    ? 'bg-primary text-primary-foreground shadow-xs'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
@@ -398,7 +398,7 @@ export default function AdminSales() {
                 className={cn(
                   'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200',
                   statusFilter === s.key
-                    ? 'bg-foreground text-background shadow-sm'
+                    ? 'bg-foreground text-background shadow-xs'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >

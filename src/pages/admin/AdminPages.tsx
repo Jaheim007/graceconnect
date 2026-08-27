@@ -1658,7 +1658,7 @@ export function AdminSettings() {
                   value={description}
                   onChange={e => setDescription(e.target.value)}
                   placeholder={isFr ? 'Décrivez votre organisation aux visiteurs…' : 'Describe your organization to visitors…'}
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-hidden focus:ring-2 focus:ring-ring"
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1865,7 +1865,7 @@ export function AdminSettings() {
                   value={leaderBio}
                   onChange={e => setLeaderBio(e.target.value)}
                   placeholder={isFr ? 'Présentez le parcours, la vision et la mission…' : 'Present background, vision and mission…'}
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-hidden focus:ring-2 focus:ring-ring"
                 />
               </div>
             </div>

@@ -41,7 +41,7 @@ export function ProShell({ title, subtitle, brandIcon, brandGradient, items, foo
           <div className="flex items-center gap-3 px-5 pb-4 pt-6">
             <span
               className={cn(
-                "grid h-10 w-10 place-items-center rounded-xl text-white shadow-sm bg-gradient-to-br",
+                "grid h-10 w-10 place-items-center rounded-xl text-white shadow-xs bg-gradient-to-br",
                 brandGradient ?? "from-primary to-primary/70",
               )}
             >

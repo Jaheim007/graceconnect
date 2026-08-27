@@ -66,7 +66,7 @@ export function InlineEditableText({
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={handleKeyDown}
             className={cn(
-              'w-full bg-transparent border border-primary/40 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y min-h-[60px]',
+              'w-full bg-transparent border border-primary/40 rounded-lg p-2 focus:outline-hidden focus:ring-2 focus:ring-primary/30 resize-y min-h-[60px]',
               className
             )}
             rows={3}
@@ -78,7 +78,7 @@ export function InlineEditableText({
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={handleKeyDown}
             className={cn(
-              'w-full bg-transparent border border-primary/40 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary/30',
+              'w-full bg-transparent border border-primary/40 rounded-lg px-2 py-1 focus:outline-hidden focus:ring-2 focus:ring-primary/30',
               className
             )}
           />

@@ -620,7 +620,7 @@ export function ProgramForm() {
                 className={cn(
                   'flex-1 px-2 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap text-center',
                   activeTab === tab.key
-                    ? 'bg-background shadow-sm text-foreground'
+                    ? 'bg-background shadow-xs text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >

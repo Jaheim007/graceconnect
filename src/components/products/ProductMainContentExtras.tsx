@@ -40,7 +40,7 @@ export const ProductMainContentExtras = memo(function ProductMainContentExtras({
             <FileText className="h-4.5 w-4.5 text-primary" />
             {t('product.description')}
           </h2>
-          <div className="p-5 rounded-2xl border border-border bg-card shadow-sm">
+          <div className="p-5 rounded-2xl border border-border bg-card shadow-xs">
             <ExperimentDescription
               defaultDescription={product.description}
               className="text-sm text-muted-foreground leading-relaxed break-words prose prose-sm max-w-none"

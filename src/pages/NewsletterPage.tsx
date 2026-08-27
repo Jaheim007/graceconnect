@@ -53,7 +53,7 @@ export default function NewsletterPage() {
       </p>
 
       <form
-        className="rounded-2xl border border-border/60 bg-card/60 p-5 backdrop-blur-sm mb-10"
+        className="rounded-2xl border border-border/60 bg-card/60 p-5 backdrop-blur-xs mb-10"
         onSubmit={(e) => { e.preventDefault(); window.location.href = mailto; }}
       >
         <label htmlFor="newsletter-email" className="block text-sm font-bold mb-2 text-foreground">
@@ -82,7 +82,7 @@ export default function NewsletterPage() {
         {benefits.map(b => {
           const Icon = b.icon;
           return (
-            <div key={b.en} className="rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-sm">
+            <div key={b.en} className="rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-xs">
               <Icon className="h-4 w-4 text-primary mb-2" />
               <p className="font-bold text-sm text-foreground mb-1">{isFr ? b.fr : b.en}</p>
               <p className="text-xs text-muted-foreground leading-relaxed font-medium">{isFr ? b.frD : b.enD}</p>

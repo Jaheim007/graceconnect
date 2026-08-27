@@ -184,7 +184,7 @@ export function VideoImportButton() {
                   </div>
                   <div className="max-h-60 overflow-y-auto space-y-1.5 border border-border rounded-xl p-2">
                     {channelVideos.map((v, i) => (
-                      <div key={v.videoId} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all ${v.selected ? 'bg-amber-500/15 border-2 border-amber-500/50 shadow-sm' : 'bg-muted/30 border-2 border-transparent hover:bg-muted/50'}`} onClick={() => toggleVideo(i)}>
+                      <div key={v.videoId} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all ${v.selected ? 'bg-amber-500/15 border-2 border-amber-500/50 shadow-xs' : 'bg-muted/30 border-2 border-transparent hover:bg-muted/50'}`} onClick={() => toggleVideo(i)}>
                         <div className={`shrink-0 w-5 h-5 rounded flex items-center justify-center border-2 transition-colors ${v.selected ? 'bg-amber-500 border-amber-500' : 'border-muted-foreground/40 bg-transparent'}`}>
                           {v.selected && <CheckCircle className="h-3.5 w-3.5 text-black" />}
                         </div>

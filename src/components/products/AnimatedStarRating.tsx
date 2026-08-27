@@ -33,7 +33,7 @@ export function AnimatedStarRating({ rating, onRate, interactive = false, size =
             type="button"
             disabled={!interactive}
             className={cn(
-              'relative outline-none transition-colors',
+              'relative outline-hidden transition-colors',
               interactive && 'cursor-pointer'
             )}
             onMouseEnter={() => interactive && setHover(i)}

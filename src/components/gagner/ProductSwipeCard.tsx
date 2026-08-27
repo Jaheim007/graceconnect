@@ -195,7 +195,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
           {/* Earnings badge */}
           {!product.is_free && !isPwyw && potentialEarning > 0 && (
             <div className="absolute top-2.5 left-2.5">
-              <Badge variant="secondary" className="text-[10px] font-bold shadow-md px-2 py-1 rounded-full bg-background/90 backdrop-blur-sm">
+              <Badge variant="secondary" className="text-[10px] font-bold shadow-md px-2 py-1 rounded-full bg-background/90 backdrop-blur-xs">
                 {isFr ? 'Tu gagnes' : 'You earn'} {fmt(potentialEarning, product.currency)}
               </Badge>
             </div>
@@ -205,13 +205,13 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
           <div className="absolute bottom-0 left-0 right-0 px-2.5 py-2 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-between">
             <div className="flex items-center gap-1">
               {(product.sales_count || 0) > 0 && (
-                <span className="flex items-center gap-0.5 bg-background/80 backdrop-blur-sm rounded-full px-2 py-0.5">
+                <span className="flex items-center gap-0.5 bg-background/80 backdrop-blur-xs rounded-full px-2 py-0.5">
                   <Flame className="h-2.5 w-2.5 text-orange-500" />
                   <span className="text-[9px] font-bold">{product.sales_count}</span>
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 bg-background/80 backdrop-blur-sm rounded-full px-2 py-0.5">
+            <div className="flex items-center gap-1.5 bg-background/80 backdrop-blur-xs rounded-full px-2 py-0.5">
               {org?.logo_url && <img src={org.logo_url} alt="" className="h-3.5 w-3.5 rounded-full" />}
               <span className="text-[9px] font-semibold truncate max-w-[70px]">{org?.name}</span>
               {org?.is_verified && <BadgeCheck className="h-2.5 w-2.5 text-primary shrink-0" />}

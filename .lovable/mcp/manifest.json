@@ -58,25 +58,25 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "organization_id": {
               "type": "string",
               "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
               "description": "Organization UUID"
             },
             "limit": {
-              "default": 25,
               "type": "integer",
               "minimum": 1,
-              "maximum": 100
+              "maximum": 100,
+              "default": 25
             }
           },
           "required": [
             "organization_id"
-          ]
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -90,16 +90,17 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "limit": {
-              "default": 25,
               "type": "integer",
               "minimum": 1,
-              "maximum": 100
+              "maximum": 100,
+              "default": 25
             }
-          }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -113,24 +114,24 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "organization_id": {
               "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              "format": "uuid"
             },
             "days": {
-              "default": 30,
               "type": "integer",
               "minimum": 1,
-              "maximum": 365
+              "maximum": 365,
+              "default": 30
             }
           },
           "required": [
             "organization_id"
-          ]
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -160,20 +161,19 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "org_id": {
-              "description": "Workspace id. Required only when the user has several.",
-              "type": "string"
+              "type": "string",
+              "description": "Workspace id. Required only when the user has several."
             },
             "limit": {
-              "description": "How many drafts to return (1-25). Defaults to 10.",
               "type": "integer",
-              "minimum": -9007199254740991,
-              "maximum": 9007199254740991
+              "description": "How many drafts to return (1-25). Defaults to 10."
             }
-          }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -187,14 +187,15 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "project_id": {
-              "description": "Draft id. Omit to get the link of the most recent draft.",
-              "type": "string"
+              "type": "string",
+              "description": "Draft id. Omit to get the link of the most recent draft."
             }
-          }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -208,7 +209,6 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "title": {
@@ -232,20 +232,20 @@
                 "required": [
                   "title",
                   "content"
-                ]
+                ],
+                "additionalProperties": false
               },
               "description": "Chapters in reading order, with their full text."
             },
             "description": {
-              "description": "What the book is about (used as the draft description).",
-              "type": "string"
+              "type": "string",
+              "description": "What the book is about (used as the draft description)."
             },
             "target_audience": {
-              "description": "Who the book is for.",
-              "type": "string"
+              "type": "string",
+              "description": "Who the book is for."
             },
             "language": {
-              "description": "Language of the text. Defaults to French.",
               "type": "string",
               "enum": [
                 "fr",
@@ -256,31 +256,32 @@
                 "it",
                 "ar",
                 "sw"
-              ]
+              ],
+              "description": "Language of the text. Defaults to French."
             },
             "cover": {
-              "description": "Generate a cover image. Ask the user first.",
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Generate a cover image. Ask the user first."
             },
             "illustrations": {
-              "description": "Generate one illustration per chapter. Ask the user first.",
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Generate one illustration per chapter. Ask the user first."
             },
             "total_chapters": {
-              "description": "TOTAL number of chapters the finished book must have (e.g. 16 even if you only send 12 now). Always pass it: SiteViral then tells you how many are still missing.",
               "type": "integer",
-              "minimum": -9007199254740991,
-              "maximum": 9007199254740991
+              "description": "TOTAL number of chapters the finished book must have (e.g. 16 even if you only send 12 now). Always pass it: SiteViral then tells you how many are still missing."
             },
             "org_id": {
-              "description": "Workspace id. Required only when the user has several.",
-              "type": "string"
+              "type": "string",
+              "description": "Workspace id. Required only when the user has several."
             }
           },
           "required": [
             "title",
             "chapters"
-          ]
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -294,16 +295,15 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "project_id": {
-              "description": "Draft id returned by import_book_from_content. Omit it if you do not have the exact value — SiteViral then appends to your most recent book draft. Never invent an id.",
-              "type": "string"
+              "type": "string",
+              "description": "Draft id returned by import_book_from_content. Omit it if you do not have the exact value — SiteViral then appends to your most recent book draft. Never invent an id."
             },
             "org_id": {
-              "description": "Workspace id returned by import_book_from_content. Optional; resolved from the draft when omitted.",
-              "type": "string"
+              "type": "string",
+              "description": "Workspace id returned by import_book_from_content. Optional; resolved from the draft when omitted."
             },
             "chapters": {
               "type": "array",
@@ -322,27 +322,26 @@
                 "required": [
                   "title",
                   "content"
-                ]
+                ],
+                "additionalProperties": false
               },
               "description": "Next chapters, in order, with their full text."
             },
             "start_order": {
               "type": "integer",
-              "minimum": -9007199254740991,
-              "maximum": 9007199254740991,
               "description": "0-based index of the first chapter in this batch (e.g. 12 for chapters 13-16)."
             },
             "total_chapters": {
-              "description": "TOTAL number of chapters the finished book must have. Pass it so SiteViral can confirm nothing is missing.",
               "type": "integer",
-              "minimum": -9007199254740991,
-              "maximum": 9007199254740991
+              "description": "TOTAL number of chapters the finished book must have. Pass it so SiteViral can confirm nothing is missing."
             }
           },
           "required": [
             "chapters",
             "start_order"
-          ]
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -356,7 +355,6 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "title": {
@@ -380,20 +378,20 @@
                 "required": [
                   "title",
                   "content"
-                ]
+                ],
+                "additionalProperties": false
               },
               "description": "Lessons in teaching order, with their full text."
             },
             "description": {
-              "description": "What the course teaches.",
-              "type": "string"
+              "type": "string",
+              "description": "What the course teaches."
             },
             "target_audience": {
-              "description": "Who the course is for.",
-              "type": "string"
+              "type": "string",
+              "description": "Who the course is for."
             },
             "language": {
-              "description": "Language of the text. Defaults to French.",
               "type": "string",
               "enum": [
                 "fr",
@@ -404,31 +402,32 @@
                 "it",
                 "ar",
                 "sw"
-              ]
+              ],
+              "description": "Language of the text. Defaults to French."
             },
             "cover": {
-              "description": "Generate a cover image. Ask the user first.",
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Generate a cover image. Ask the user first."
             },
             "illustrations": {
-              "description": "Generate one illustration per lesson. Ask the user first.",
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Generate one illustration per lesson. Ask the user first."
             },
             "total_lessons": {
-              "description": "TOTAL number of lessons the finished course must have (e.g. 16 even if you only send 12 now). Always pass it: SiteViral then tells you how many are still missing.",
               "type": "integer",
-              "minimum": -9007199254740991,
-              "maximum": 9007199254740991
+              "description": "TOTAL number of lessons the finished course must have (e.g. 16 even if you only send 12 now). Always pass it: SiteViral then tells you how many are still missing."
             },
             "org_id": {
-              "description": "Workspace id. Required only when the user has several.",
-              "type": "string"
+              "type": "string",
+              "description": "Workspace id. Required only when the user has several."
             }
           },
           "required": [
             "title",
             "lessons"
-          ]
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -442,16 +441,15 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "project_id": {
-              "description": "Draft id returned by import_course_from_content. Omit it if you do not have the exact value — SiteViral then appends to your most recent course draft. Never invent an id.",
-              "type": "string"
+              "type": "string",
+              "description": "Draft id returned by import_course_from_content. Omit it if you do not have the exact value — SiteViral then appends to your most recent course draft. Never invent an id."
             },
             "org_id": {
-              "description": "Workspace id returned by import_course_from_content. Optional; resolved from the draft when omitted.",
-              "type": "string"
+              "type": "string",
+              "description": "Workspace id returned by import_course_from_content. Optional; resolved from the draft when omitted."
             },
             "lessons": {
               "type": "array",
@@ -470,27 +468,26 @@
                 "required": [
                   "title",
                   "content"
-                ]
+                ],
+                "additionalProperties": false
               },
               "description": "Next lessons, in order, with their full text."
             },
             "start_order": {
               "type": "integer",
-              "minimum": -9007199254740991,
-              "maximum": 9007199254740991,
               "description": "0-based index of the first lesson in this batch (e.g. 12 for lessons 13-16)."
             },
             "total_lessons": {
-              "description": "TOTAL number of lessons the finished course must have. Pass it so SiteViral can confirm nothing is missing.",
               "type": "integer",
-              "minimum": -9007199254740991,
-              "maximum": 9007199254740991
+              "description": "TOTAL number of lessons the finished course must have. Pass it so SiteViral can confirm nothing is missing."
             }
           },
           "required": [
             "lessons",
             "start_order"
-          ]
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -504,7 +501,6 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "kind": {
@@ -516,25 +512,27 @@
               "description": "Which kind of draft to complete."
             },
             "project_id": {
-              "description": "Draft id. Omit to use the most recent draft of that kind.",
-              "type": "string"
+              "type": "string",
+              "description": "Draft id. Omit to use the most recent draft of that kind."
             },
             "org_id": {
-              "description": "Workspace id. Optional; resolved from the draft when omitted.",
-              "type": "string"
+              "type": "string",
+              "description": "Workspace id. Optional; resolved from the draft when omitted."
             },
             "cover": {
-              "description": "Generate the cover if the draft has none. Defaults to false.",
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Generate the cover if the draft has none. Defaults to false."
             },
             "illustrations": {
-              "description": "Generate one image per chapter/lesson still without an image. Defaults to true.",
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Generate one image per chapter/lesson still without an image. Defaults to true."
             }
           },
           "required": [
             "kind"
-          ]
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -548,7 +546,6 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "topic": {
@@ -556,46 +553,48 @@
               "description": "What the course should teach. One or two sentences describing subject and goal."
             },
             "title": {
-              "description": "Optional course title. Generated from the topic when omitted.",
-              "type": "string"
+              "type": "string",
+              "description": "Optional course title. Generated from the topic when omitted."
             },
             "language": {
-              "description": "Course language. Defaults to French.",
               "type": "string",
               "enum": [
                 "fr",
                 "en"
-              ]
+              ],
+              "description": "Course language. Defaults to French."
             },
             "tier": {
-              "description": "standard = 8-12 lessons, premium = 14-18 deeper lessons. Defaults to standard.",
               "type": "string",
               "enum": [
                 "standard",
                 "premium"
-              ]
+              ],
+              "description": "standard = 8-12 lessons, premium = 14-18 deeper lessons. Defaults to standard."
             },
             "level": {
-              "description": "Audience level.",
               "type": "string",
               "enum": [
                 "beginner",
                 "intermediate",
                 "advanced"
-              ]
+              ],
+              "description": "Audience level."
             },
             "generate_images": {
-              "description": "Generate one illustration per lesson. Costs extra credits. Defaults to false.",
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Generate one illustration per lesson. Costs extra credits. Defaults to false."
             },
             "org_id": {
-              "description": "Workspace id. Required only when the user has several.",
-              "type": "string"
+              "type": "string",
+              "description": "Workspace id. Required only when the user has several."
             }
           },
           "required": [
             "topic"
-          ]
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -609,7 +608,6 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "source_text": {
@@ -617,46 +615,48 @@
               "description": "The raw source material to turn into a course."
             },
             "title": {
-              "description": "Optional course title.",
-              "type": "string"
+              "type": "string",
+              "description": "Optional course title."
             },
             "language": {
-              "description": "Course language. Defaults to French.",
               "type": "string",
               "enum": [
                 "fr",
                 "en"
-              ]
+              ],
+              "description": "Course language. Defaults to French."
             },
             "tier": {
-              "description": "Defaults to standard.",
               "type": "string",
               "enum": [
                 "standard",
                 "premium"
-              ]
+              ],
+              "description": "Defaults to standard."
             },
             "level": {
-              "description": "Audience level.",
               "type": "string",
               "enum": [
                 "beginner",
                 "intermediate",
                 "advanced"
-              ]
+              ],
+              "description": "Audience level."
             },
             "generate_images": {
-              "description": "One illustration per lesson (extra credits).",
-              "type": "boolean"
+              "type": "boolean",
+              "description": "One illustration per lesson (extra credits)."
             },
             "org_id": {
-              "description": "Workspace id. Required only when the user has several.",
-              "type": "string"
+              "type": "string",
+              "description": "Workspace id. Required only when the user has several."
             }
           },
           "required": [
             "source_text"
-          ]
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -670,7 +670,6 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "title": {
@@ -682,36 +681,36 @@
               "description": "What the book is about — subject, angle, promise."
             },
             "target_audience": {
-              "description": "Who the book is for.",
-              "type": "string"
+              "type": "string",
+              "description": "Who the book is for."
             },
             "tone": {
-              "description": "Tone of voice, e.g. professional, warm, direct.",
-              "type": "string"
+              "type": "string",
+              "description": "Tone of voice, e.g. professional, warm, direct."
             },
             "chapter_count": {
-              "description": "Desired number of chapters (4-20). Defaults to 8.",
               "type": "integer",
-              "minimum": -9007199254740991,
-              "maximum": 9007199254740991
+              "description": "Desired number of chapters (4-20). Defaults to 8."
             },
             "language": {
-              "description": "Book language. Defaults to French.",
               "type": "string",
               "enum": [
                 "fr",
                 "en"
-              ]
+              ],
+              "description": "Book language. Defaults to French."
             },
             "org_id": {
-              "description": "Workspace id. Required only when the user has several.",
-              "type": "string"
+              "type": "string",
+              "description": "Workspace id. Required only when the user has several."
             }
           },
           "required": [
             "title",
             "topic"
-          ]
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
@@ -725,7 +724,6 @@
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "job_id": {
@@ -735,7 +733,9 @@
           },
           "required": [
             "job_id"
-          ]
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       }

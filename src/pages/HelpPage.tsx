@@ -140,7 +140,7 @@ export default function HelpPage() {
               placeholder={isFr ? 'Rechercher une question...' : 'Search a question...'}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-card text-sm focus:outline-hidden focus:ring-2 focus:ring-primary/20"
             />
           </div>
         </div>

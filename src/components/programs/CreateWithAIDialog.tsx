@@ -232,7 +232,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                       onClick={() => handleGoalChange(g.value)}
                       className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg border text-xs transition-all ${
                         courseGoal === g.value
-                          ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                          ? 'bg-primary text-primary-foreground border-primary shadow-xs'
                           : 'bg-muted/30 text-muted-foreground border-border hover:bg-muted/60 hover:text-foreground'
                       }`}
                     >

@@ -804,7 +804,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
                       className={cn(
                         'p-1.5 rounded-md transition-colors',
                         deviceMode === key
-                          ? 'bg-background shadow-sm text-foreground'
+                          ? 'bg-background shadow-xs text-foreground'
                           : 'text-muted-foreground hover:text-foreground'
                       )}
                     >

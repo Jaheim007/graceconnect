@@ -64,7 +64,7 @@ export function ProductQuickView({ product, open, onClose }: ProductQuickViewPro
               const effectivelyFree = product.is_free && !(isPwyw && minPrice > 0);
               return (
                 <span className={cn(
-                  'inline-flex flex-col items-end px-3 py-1.5 rounded-lg text-base font-bold backdrop-blur-sm',
+                  'inline-flex flex-col items-end px-3 py-1.5 rounded-lg text-base font-bold backdrop-blur-xs',
                   effectivelyFree
                     ? 'bg-emerald-600 text-white'
                     : 'bg-background/90 border border-border/50'

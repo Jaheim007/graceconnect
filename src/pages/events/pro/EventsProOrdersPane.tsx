@@ -84,7 +84,7 @@ export default function EventsProOrdersPane() {
         ) : (
           <div className="space-y-2">
             {(orders ?? []).map((o: any) => (
-              <Link key={o.id} to={`/events/booking/${o.id}`} className="block rounded-2xl border border-border bg-card p-4 hover:shadow-sm transition">
+              <Link key={o.id} to={`/events/booking/${o.id}`} className="block rounded-2xl border border-border bg-card p-4 hover:shadow-xs transition">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider">

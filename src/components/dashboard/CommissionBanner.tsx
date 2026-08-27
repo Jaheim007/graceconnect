@@ -147,7 +147,7 @@ export function CommissionBanner() {
               <Button
                 size="sm"
                 onClick={openWaitlist}
-                className="gap-1.5 shadow-sm"
+                className="gap-1.5 shadow-xs"
               >
                 <Crown className="h-3.5 w-3.5" />
                 {isFr ? 'Rejoindre la liste Pro' : 'Join Pro waitlist'}

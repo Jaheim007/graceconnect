@@ -174,7 +174,7 @@ export function AmbassadorMarketplace() {
                       {commission}% commission
                     </Badge>
                   </div>
-                  <div className="absolute bottom-2 left-2 flex items-center gap-1.5 bg-background/90 backdrop-blur-sm rounded-lg px-2 py-1">
+                  <div className="absolute bottom-2 left-2 flex items-center gap-1.5 bg-background/90 backdrop-blur-xs rounded-lg px-2 py-1">
                     {org?.logo_url && <img src={org.logo_url} alt="" className="h-4 w-4 rounded-full" />}
                     <span className="text-[10px] font-medium truncate max-w-[100px]">{org?.name}</span>
                   </div>

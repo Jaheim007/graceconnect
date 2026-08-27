@@ -194,7 +194,7 @@ function ProductCardImpl(
         {user && (
           <button
             onClick={(e) => { e.stopPropagation(); setReportOpen(true); }}
-            className="absolute top-2.5 left-2.5 h-7 w-7 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 shadow-sm z-10"
+            className="absolute top-2.5 left-2.5 h-7 w-7 rounded-full bg-background/80 backdrop-blur-xs border border-border/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 shadow-xs z-10"
             title={isFr ? 'Signaler' : 'Report'}
           >
             <Flag className="h-3 w-3 text-muted-foreground hover:text-destructive" />
@@ -202,7 +202,7 @@ function ProductCardImpl(
         )}
         <button
           onClick={(e) => { e.stopPropagation(); setQuickView(true); }}
-          className="absolute bottom-2.5 right-2.5 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background shadow-sm"
+          className="absolute bottom-2.5 right-2.5 h-8 w-8 rounded-full bg-background/80 backdrop-blur-xs border border-border/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background shadow-xs"
           title={isFr ? 'Aperçu rapide' : 'Quick view'}
         >
           <Eye className="h-3.5 w-3.5 text-foreground" />
@@ -231,7 +231,7 @@ function ProductCardImpl(
             }
           }}
           className={cn(
-            'absolute bottom-2.5 right-12 h-8 w-8 rounded-full backdrop-blur-sm border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm',
+            'absolute bottom-2.5 right-12 h-8 w-8 rounded-full backdrop-blur-xs border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-xs',
             compare.isInCompare(product.id)
               ? 'bg-primary text-primary-foreground border-primary'
               : 'bg-background/80 border-border/50 hover:bg-background'
@@ -270,7 +270,7 @@ function ProductCardImpl(
               <FlashSaleBadge saleEndsAt={saleEndsAt} salePrice={salePrice} originalPrice={product.price} />
             )}
             {langFlag && (
-              <Badge className="bg-background/80 backdrop-blur-sm text-foreground border-0 text-[10px] font-medium w-fit">
+              <Badge className="bg-background/80 backdrop-blur-xs text-foreground border-0 text-[10px] font-medium w-fit">
                 {langFlag}
               </Badge>
             )}
@@ -284,10 +284,10 @@ function ProductCardImpl(
             const effectivelyFree = product.is_free && !(isPwyw && minPrice > 0);
             return (
               <span className={cn(
-                'inline-flex flex-col items-end px-2.5 py-1 rounded-lg text-sm font-bold shadow-sm',
+                'inline-flex flex-col items-end px-2.5 py-1 rounded-lg text-sm font-bold shadow-xs',
                 effectivelyFree
                   ? 'bg-emerald-600 text-white'
-                  : 'bg-background/90 backdrop-blur-sm text-foreground border border-border/50'
+                  : 'bg-background/90 backdrop-blur-xs text-foreground border border-border/50'
               )}>
                 <span>
                   {isPwyw ? (

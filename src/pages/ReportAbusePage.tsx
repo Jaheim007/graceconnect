@@ -51,7 +51,7 @@ export default function ReportAbusePage() {
         {channels.map(c => {
           const Icon = c.icon;
           return (
-            <div key={c.mail} className="rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-sm flex flex-col">
+            <div key={c.mail} className="rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-xs flex flex-col">
               <Icon className="h-4 w-4 text-primary mb-2" />
               <p className="font-bold text-sm text-foreground mb-1">{isFr ? c.fr : c.en}</p>
               <p className="text-xs text-muted-foreground leading-relaxed font-medium mb-3 flex-1">

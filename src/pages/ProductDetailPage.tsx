@@ -485,7 +485,7 @@ export default function ProductDetailPage() {
 
       {/* Unified sticky header — org logo + back button (replaces separate breadcrumb + banner on mobile) */}
       <div
-        className="sticky top-0 md:top-14 z-20 border-b bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between"
+        className="sticky top-0 md:top-14 z-20 border-b bg-background/80 backdrop-blur-xs px-4 h-12 flex items-center justify-between"
         style={topBarStyle}
       >
         {org ? (
@@ -562,7 +562,7 @@ export default function ProductDetailPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-1.5 text-xs shrink-0 bg-background/80 backdrop-blur-sm"
+                className="gap-1.5 text-xs shrink-0 bg-background/80 backdrop-blur-xs"
                 onClick={() => navigate(`/org/${slug}`)}
               >
                 <ExternalLink className="h-3.5 w-3.5" /> {t('product.view')}

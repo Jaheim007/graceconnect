@@ -259,7 +259,7 @@ export default function AdminCRM() {
         {/* ─── CONTACTS ─── */}
         <TabsContent value="contacts" className="space-y-4">
           <div className="flex items-center gap-2 flex-wrap">
-            <Button size="sm" className="gap-1.5 text-xs rounded-xl shadow-sm"
+            <Button size="sm" className="gap-1.5 text-xs rounded-xl shadow-xs"
               onClick={() => setShowAddContact(true)}>
               <Plus className="h-3.5 w-3.5" /> {t('crm.add')}
             </Button>
@@ -299,7 +299,7 @@ export default function AdminCRM() {
 
           {showAddContact && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-sm">
+              className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-xs">
               <h3 className="font-bold text-sm">{t('crm.new_contact')}</h3>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="space-y-1.5">
@@ -757,7 +757,7 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
       </div>
 
       <div className="flex items-center gap-2">
-        <Button size="sm" className="gap-1.5 text-xs rounded-xl shadow-sm"
+        <Button size="sm" className="gap-1.5 text-xs rounded-xl shadow-xs"
           onClick={() => setShowNew(true)}>
           <Plus className="h-3.5 w-3.5" /> {t('crm.new_campaign')}
         </Button>
@@ -765,7 +765,7 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
 
       {showNew && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-sm">
+          className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-xs">
           <h3 className="font-bold text-sm">{t('crm.new_email_campaign')}</h3>
 
           {/* Campaign type selector */}

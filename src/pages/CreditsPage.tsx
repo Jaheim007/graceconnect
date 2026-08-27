@@ -216,7 +216,7 @@ export default function CreditsPage() {
             </div>
           </div>
           {summary && (
-            <div className="shrink-0 rounded-2xl border border-amber-500/25 bg-background/70 px-4 py-3 backdrop-blur-sm">
+            <div className="shrink-0 rounded-2xl border border-amber-500/25 bg-background/70 px-4 py-3 backdrop-blur-xs">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{isFr ? 'Solde actuel' : 'Current balance'}</p>
               <p className="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 leading-tight">
                 {formatCredits(summary.balance)}

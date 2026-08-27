@@ -229,7 +229,7 @@ export default function SuperadminActivityFeed() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-sm ring-1 ring-primary/20">
+          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-xs ring-1 ring-primary/20">
             <Activity className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>

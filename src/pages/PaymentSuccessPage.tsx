@@ -395,7 +395,7 @@ export default function PaymentSuccessPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md sm:max-w-lg lg:max-w-xl h-fit bg-card border border-primary/20 rounded-3xl overflow-hidden relative shadow-sm"
+        className="w-full max-w-md sm:max-w-lg lg:max-w-xl h-fit bg-card border border-primary/20 rounded-3xl overflow-hidden relative shadow-xs"
       >
         <ConfettiBurst />
 

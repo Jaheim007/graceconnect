@@ -3,14 +3,14 @@ export function SkipLink() {
     <>
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[200] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold focus:outline-none focus:ring-2 focus:ring-ring"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[200] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold focus:outline-hidden focus:ring-2 focus:ring-ring"
         tabIndex={0}
       >
         Aller au contenu principal
       </a>
       <a
         href="#bottom-nav"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-48 focus:z-[200] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold focus:outline-none focus:ring-2 focus:ring-ring lg:hidden"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-48 focus:z-[200] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold focus:outline-hidden focus:ring-2 focus:ring-ring lg:hidden"
         tabIndex={0}
       >
         Aller à la navigation

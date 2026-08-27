@@ -125,7 +125,7 @@ export function DocsLayout({
       {/* Mobile drawer */}
       {open && (
         <div className="fixed inset-0 z-[70] lg:hidden">
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setOpen(false)} />
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-xs" onClick={() => setOpen(false)} />
           <div className="absolute inset-y-0 left-0 w-[80%] max-w-xs overflow-y-auto border-r border-border bg-card p-5 shadow-elevated">
             <div className="mb-5 flex items-center justify-between">
               <span className="text-sm font-black">Sections</span>

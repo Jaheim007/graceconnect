@@ -77,7 +77,7 @@ export function ChurchCallout() {
 
           <div className="hidden lg:block">
             <div className="relative aspect-square max-w-sm mx-auto">
-              <div className="absolute inset-0 rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-sm" />
+              <div className="absolute inset-0 rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-xs" />
               <div className="absolute inset-6 grid grid-cols-2 gap-3">
                 {chips.map((c, i) => (
                   <div key={i} className="rounded-2xl bg-white/[0.06] border border-white/10 p-4 flex flex-col justify-between">

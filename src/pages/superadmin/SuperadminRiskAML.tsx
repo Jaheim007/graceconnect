@@ -131,10 +131,10 @@ export default function SuperadminRiskAML() {
 
       <Tabs defaultValue="flags">
         <TabsList className="grid grid-cols-2 lg:grid-cols-4 h-auto p-1 bg-muted/50 rounded-xl w-full">
-          <TabsTrigger value="flags" className="gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:shadow-sm py-2"><Flag className="h-3.5 w-3.5" /> Fraud Flags ({unresolvedFlags.length})</TabsTrigger>
-          <TabsTrigger value="frozen" className="gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:shadow-sm py-2"><Snowflake className="h-3.5 w-3.5" /> Frozen ({frozenOrgs.length})</TabsTrigger>
-          <TabsTrigger value="orgs" className="gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:shadow-sm py-2"><AlertTriangle className="h-3.5 w-3.5" /> Orgs</TabsTrigger>
-          <TabsTrigger value="tickets" className="gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:shadow-sm py-2"><LifeBuoy className="h-3.5 w-3.5" /> Support ({tickets.filter((t: any) => t.status !== 'resolved' && t.status !== 'closed').length})</TabsTrigger>
+          <TabsTrigger value="flags" className="gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:shadow-xs py-2"><Flag className="h-3.5 w-3.5" /> Fraud Flags ({unresolvedFlags.length})</TabsTrigger>
+          <TabsTrigger value="frozen" className="gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:shadow-xs py-2"><Snowflake className="h-3.5 w-3.5" /> Frozen ({frozenOrgs.length})</TabsTrigger>
+          <TabsTrigger value="orgs" className="gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:shadow-xs py-2"><AlertTriangle className="h-3.5 w-3.5" /> Orgs</TabsTrigger>
+          <TabsTrigger value="tickets" className="gap-1.5 text-xs data-[state=active]:bg-card data-[state=active]:shadow-xs py-2"><LifeBuoy className="h-3.5 w-3.5" /> Support ({tickets.filter((t: any) => t.status !== 'resolved' && t.status !== 'closed').length})</TabsTrigger>
         </TabsList>
 
         {/* Fraud Flags */}

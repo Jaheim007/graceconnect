@@ -112,7 +112,7 @@ export function QuizSlide({
             transition={{ type: 'spring', damping: 12, delay: 0.3 }}
             className="absolute top-14 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center"
           >
-            <div className="flex items-center gap-2 bg-yellow-500/20 backdrop-blur-sm border border-yellow-400/30 rounded-full px-4 py-2">
+            <div className="flex items-center gap-2 bg-yellow-500/20 backdrop-blur-xs border border-yellow-400/30 rounded-full px-4 py-2">
               <Star className="h-6 w-6 text-yellow-400 fill-yellow-400 drop-shadow-lg" />
               <span className="text-sm text-yellow-300 font-bold">+1</span>
             </div>
@@ -126,7 +126,7 @@ export function QuizSlide({
             transition={{ type: 'spring', damping: 10 }}
             className="absolute top-12 left-1/2 -translate-x-1/2 z-30"
           >
-            <div className="flex items-center gap-1.5 bg-amber-500/20 backdrop-blur-sm border border-amber-400/30 rounded-full px-4 py-2">
+            <div className="flex items-center gap-1.5 bg-amber-500/20 backdrop-blur-xs border border-amber-400/30 rounded-full px-4 py-2">
               <Flame className="h-5 w-5 text-amber-400" />
               <span className="text-xs font-bold text-amber-300">
                 {isFr ? 'Presque ! Continue 💪' : 'Almost! Keep going 💪'}

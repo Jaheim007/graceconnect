@@ -226,7 +226,7 @@ export default function CreateOrgPage() {
       </header>
 
       {resuming && (
-        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-xs flex items-center justify-center">
           <div className="text-center space-y-4 max-w-sm px-6">
             <div className="mx-auto h-14 w-14 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30">
               <Rocket className="h-6 w-6 animate-pulse" />

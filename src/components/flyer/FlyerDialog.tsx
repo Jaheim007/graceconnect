@@ -320,7 +320,7 @@ export function FlyerDialog({
                   <div className="h-full w-full animate-pulse rounded-xl bg-muted" />
                 )}
                 {rendering && (
-                  <div className="absolute inset-0 grid place-items-center rounded-xl bg-background/50 backdrop-blur-sm">
+                  <div className="absolute inset-0 grid place-items-center rounded-xl bg-background/50 backdrop-blur-xs">
                     <Loader2 className="h-5 w-5 animate-spin text-primary" />
                   </div>
                 )}

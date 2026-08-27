@@ -119,7 +119,7 @@ export default function FoundersPage() {
                 return (
                   <div
                     key={n}
-                    className="group relative aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/40 flex items-center justify-center hover:scale-105 transition-transform shadow-sm"
+                    className="group relative aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/40 flex items-center justify-center hover:scale-105 transition-transform shadow-xs"
                     title={`#${n} — ${f.display_name}`}
                   >
                     <Avatar className="h-12 w-12">

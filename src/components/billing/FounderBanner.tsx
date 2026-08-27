@@ -47,7 +47,7 @@ export function FounderBanner({ className }: { className?: string }) {
       className={cn(
         'relative overflow-hidden rounded-2xl border border-amber-500/30',
         'bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10',
-        'p-3 sm:p-4 backdrop-blur-sm',
+        'p-3 sm:p-4 backdrop-blur-xs',
         className,
       )}
     >

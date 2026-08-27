@@ -73,7 +73,7 @@ export default function ChurchProSermons() {
         ) : (
           <div className="space-y-3">
             {sermons.map((s) => (
-              <Link key={s.id} to={`/church/pro/sermons/${s.id}`} className="block rounded-2xl border border-border bg-card p-4 hover:border-primary/40 hover:shadow-sm transition-all">
+              <Link key={s.id} to={`/church/pro/sermons/${s.id}`} className="block rounded-2xl border border-border bg-card p-4 hover:border-primary/40 hover:shadow-xs transition-all">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">

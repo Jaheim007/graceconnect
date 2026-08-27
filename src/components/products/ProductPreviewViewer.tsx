@@ -190,7 +190,7 @@ export function ProductPreviewViewer({
               <button
                 key={i}
                 onClick={() => { setCurrentPage(i); setOpen(true); }}
-                className="relative shrink-0 w-14 rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all shadow-sm hover:shadow-md"
+                className="relative shrink-0 w-14 rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all shadow-xs hover:shadow-md"
               >
                 <img src={src} alt={`Page ${i + 1}`} className="w-full h-auto" />
                 <span className="absolute bottom-0 inset-x-0 text-[7px] text-center bg-background/80 py-px font-medium">
@@ -215,7 +215,7 @@ export function ProductPreviewViewer({
 
       <Dialog open={open} onOpenChange={handleDialogOpenChange}>
         <DialogContent hideCloseButton className="max-w-4xl w-[96vw] h-[90dvh] max-h-[90dvh] p-0 gap-0 overflow-hidden grid-rows-[auto_minmax(0,1fr)]">
-          <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 border-b bg-background/95 backdrop-blur-sm">
+          <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 border-b bg-background/95 backdrop-blur-xs">
             <div className="flex items-center gap-3 min-w-0">
               <FileText className="h-4 w-4 text-primary shrink-0" />
               <div className="min-w-0">

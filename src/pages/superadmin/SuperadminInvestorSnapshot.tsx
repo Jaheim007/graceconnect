@@ -130,7 +130,7 @@ export default function SuperadminInvestorSnapshot() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {heroMetrics.map(c => (
           <motion.div key={c.label} variants={fadeUp}
-            className={cn('rounded-2xl border p-4 bg-gradient-to-br backdrop-blur-sm', c.color)}>
+            className={cn('rounded-2xl border p-4 bg-gradient-to-br backdrop-blur-xs', c.color)}>
             <c.icon className="h-4 w-4 text-muted-foreground mb-1" />
             <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{c.label}</p>
             <p className="text-xl font-bold mt-0.5">{c.value}</p>

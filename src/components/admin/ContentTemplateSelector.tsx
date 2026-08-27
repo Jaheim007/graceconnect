@@ -41,7 +41,7 @@ export function ContentTemplateSelector({ type, open, onClose, onSelect }: Props
                 onClick={() => { onSelect(tpl); onClose(); }}
                 className={`w-full flex items-start gap-3 p-4 rounded-xl border text-left transition-all duration-150 ${
                   hoveredId === tpl.id
-                    ? 'border-primary bg-primary/5 shadow-sm'
+                    ? 'border-primary bg-primary/5 shadow-xs'
                     : 'border-border bg-card hover:border-muted-foreground/30'
                 }`}
               >

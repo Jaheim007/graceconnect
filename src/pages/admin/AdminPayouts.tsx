@@ -416,7 +416,7 @@ export default function AdminPayouts() {
               const StatusIcon = config.icon;
               return (
                 <motion.div key={p.id} variants={fadeUp}
-                  className="flex items-center gap-4 p-4 rounded-2xl border border-border bg-card hover:bg-muted/30 transition-all hover:shadow-sm group">
+                  className="flex items-center gap-4 p-4 rounded-2xl border border-border bg-card hover:bg-muted/30 transition-all hover:shadow-xs group">
                   {/* Status dot */}
                   <div className="relative shrink-0">
                     <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center', config.colorClass)}>

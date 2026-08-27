@@ -194,7 +194,7 @@ export function AutoScrollRail<T>({
         role="region"
         aria-label={ariaLabel}
         tabIndex={0}
-        className="overflow-hidden cursor-grab active:cursor-grabbing select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="overflow-hidden cursor-grab active:cursor-grabbing select-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
       >
         <div ref={trackRef} className="flex w-max will-change-transform">
           <div ref={groupRef} className={`flex shrink-0 ${scrollerClassName}`}>

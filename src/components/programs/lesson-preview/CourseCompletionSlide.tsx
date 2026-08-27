@@ -205,7 +205,7 @@ export function CourseCompletionSlide({
               className={cn('grid gap-2 w-full max-w-sm', hasAssessment ? 'grid-cols-2' : 'grid-cols-1')}
             >
               {gamificationEnabled && totalQuizzes > 0 && (
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10">
+                <div className="bg-white/10 backdrop-blur-xs rounded-xl p-3 text-center border border-white/10">
                   <div className="flex items-center justify-center gap-1.5 mb-0.5">
                     <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
                     <span className="text-base font-bold">{starsEarned}</span>
@@ -215,7 +215,7 @@ export function CourseCompletionSlide({
               )}
               
               {hasAssessment && (
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10">
+                <div className="bg-white/10 backdrop-blur-xs rounded-xl p-3 text-center border border-white/10">
                   <div className="flex items-center justify-center gap-1.5 mb-0.5">
                     <Target className="h-3.5 w-3.5 text-emerald-400" />
                     <span className="text-base font-bold">{assessmentPct}%</span>
@@ -262,7 +262,7 @@ export function CourseCompletionSlide({
                 </button>
               )}
               {mode === 'learner' && !certReady && issueCertificate.isPending && (
-                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-5 py-2.5 border border-white/15">
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-xs rounded-full px-5 py-2.5 border border-white/15">
                   <Loader2 className="h-4 w-4 animate-spin text-yellow-300" />
                   <span className="text-sm font-medium text-white/80">
                     {isFr ? 'Émission du certificat…' : 'Issuing certificate…'}
@@ -284,7 +284,7 @@ export function CourseCompletionSlide({
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col items-center gap-1 rounded-2xl bg-emerald-500/15 border border-emerald-400/25 px-5 py-3 backdrop-blur-sm"
+                className="flex flex-col items-center gap-1 rounded-2xl bg-emerald-500/15 border border-emerald-400/25 px-5 py-3 backdrop-blur-xs"
               >
                 <div className="flex items-center gap-2">
                   <Award className="h-4 w-4 text-emerald-300" />

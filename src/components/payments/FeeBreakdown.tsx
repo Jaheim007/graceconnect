@@ -42,7 +42,7 @@ export function FeeBreakdown({ className, variant = 'card', title, ...input }: F
   return (
     <div
       className={cn(
-        'rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-sm',
+        'rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-xs',
         className,
       )}
     >
