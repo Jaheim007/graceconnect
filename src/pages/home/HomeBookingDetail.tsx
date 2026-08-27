@@ -32,6 +32,7 @@ export default function HomeBookingDetail() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const runVerifyBooking = useServerFn(homeVerifyBooking);
   const { user } = useAuth();
   const { locale } = useI18n();
   const isFr = locale === "fr";
@@ -79,7 +80,7 @@ export default function HomeBookingDetail() {
         qc.invalidateQueries({ queryKey: ["home-booking", id] });
       } catch (e) { console.warn(e); }
     })();
-  }, [returnedSuccess, id, sessionId, qc]);
+  }, [returnedSuccess, id, sessionId, qc, runVerifyBooking]);
 
   if (isLoading) return <div className="p-10 text-center text-sm text-muted-foreground">…</div>;
   if (!booking) return (

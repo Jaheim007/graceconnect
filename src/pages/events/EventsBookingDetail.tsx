@@ -32,6 +32,7 @@ export default function EventsBookingDetail() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const runVerifyBooking = useServerFn(eventsVerifyBooking);
   const { user } = useAuth();
   const { locale } = useI18n();
   const isFr = locale === "fr";
@@ -78,7 +79,7 @@ export default function EventsBookingDetail() {
         qc.invalidateQueries({ queryKey: ["events-booking", id] });
       } catch (e) { console.warn(e); }
     })();
-  }, [returnedSuccess, id, sessionId, qc]);
+  }, [returnedSuccess, id, sessionId, qc, runVerifyBooking]);
 
   if (isLoading) return <div className="p-10 text-center text-sm text-muted-foreground">…</div>;
   if (!booking) return (
