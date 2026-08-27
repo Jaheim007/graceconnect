@@ -1,9 +1,11 @@
 import { useEffect } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Link, useNavigate, useParams, useSearchParams } from "@/lib/router-compat";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Calendar, MapPin, ShieldCheck, MessageCircle, CheckCircle2, XCircle, Loader2, AlertTriangle, Zap, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { eventsVerifyBooking } from "@/lib/verticals/bookings.functions";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { toast } from "@/hooks/use-toast";
@@ -72,7 +74,7 @@ export default function EventsBookingDetail() {
     if (!returnedSuccess || !id) return;
     (async () => {
       try {
-        await supabase.functions.invoke("events-verify-booking", { body: { booking_id: id, session_id: sessionId } });
+        await runVerifyBooking({ data: { booking_id: id, session_id: sessionId } });
         qc.invalidateQueries({ queryKey: ["events-booking", id] });
       } catch (e) { console.warn(e); }
     })();
