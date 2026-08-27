@@ -155,10 +155,10 @@ export function SuperadminKYC() {
     }
     setLoadingUrls(prev => ({ ...prev, [cacheKey]: true }));
     try {
-      const { data, error } = await db.functions.invoke('kyc-signed-url', {
-        body: { url, org_id: orgId, document_type: docType },
+      const data: any = await runKycSignedUrl({
+        data: { url, org_id: orgId, document_type: docType },
       });
-      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
       if (data?.signedUrl) {
         setSignedUrls(prev => ({ ...prev, [cacheKey]: data.signedUrl }));
         window.open(data.signedUrl, '_blank');
