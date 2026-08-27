@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from '@/lib/router-compat';
 import { CheckCircle2, Loader2, Download, ArrowLeft, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { churchSermonPdfDownload } from '@/lib/church/giving.functions';
 import { useI18n } from '@/i18n/I18nContext';
 
 export default function ChurchSermonPdfSuccessPage() {
@@ -23,10 +23,7 @@ export default function ChurchSermonPdfSuccessPage() {
     const tick = async () => {
       attempts += 1;
       try {
-        const { data, error } = await supabase.functions.invoke('church-sermon-pdf-download', {
-          body: { reference },
-        });
-        if (error) throw new Error(error.message);
+        const data = await churchSermonPdfDownload({ data: { reference: reference! } });
         const d = data as any;
         if (d?.download_url) {
           setDownloadUrl(d.download_url);

@@ -3,7 +3,7 @@ import { Link, useParams, useSearchParams } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, HandHeart, Church, Loader2, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { churchGivingStatus } from '@/lib/church/giving.functions';
 import { useI18n } from '@/i18n/I18nContext';
 
 export default function ChurchGiveSuccessPage() {
@@ -17,7 +17,7 @@ export default function ChurchGiveSuccessPage() {
     enabled: !!reference,
     queryKey: ['church-donation', reference],
     queryFn: async () => {
-      const { data } = await supabase.functions.invoke('church-giving-status', { body: { reference } });
+      const data = await churchGivingStatus({ data: { reference: reference! } });
       return (data as any) || null;
     },
     refetchInterval: (q) => (q.state.data?.status === 'pending' ? 3000 : false),

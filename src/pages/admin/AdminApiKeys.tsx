@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { useServerFn } from '@tanstack/react-start';
+import { listOrgApiKeys, createOrgApiKey, revokeOrgApiKey } from '@/lib/api-keys/apiKeys.functions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,30 +41,16 @@ export default function AdminApiKeys() {
   const [copied, setCopied] = useState(false);
 
   const orgId = currentOrg?.id;
+  const fetchKeys = useServerFn(listOrgApiKeys);
+  const createKeyFn = useServerFn(createOrgApiKey);
+  const revokeKeyFn = useServerFn(revokeOrgApiKey);
 
   const { data: keys = [], isLoading } = useQuery({
     queryKey: ['api-keys', orgId],
     queryFn: async () => {
       if (!orgId) return [];
-      const { data, error } = await supabase.functions.invoke('api-keys-manage', {
-        method: 'GET',
-        body: undefined,
-        headers: {},
-      });
-      // For GET we need query params — fall back to fetch with URL
-      if (error || !data) {
-        const { data: { session } } = await supabase.auth.getSession();
-        const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/api-keys-manage?action=list&org_id=${orgId}`;
-        const res = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${session?.access_token ?? ''}`,
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-        });
-        const json = await res.json();
-        return (json.keys ?? []) as ApiKey[];
-      }
-      return ((data as any).keys ?? []) as ApiKey[];
+      const res = await fetchKeys({ data: { org_id: orgId } });
+      return (res.keys ?? []) as ApiKey[];
     },
     enabled: !!orgId,
   });
@@ -71,20 +58,7 @@ export default function AdminApiKeys() {
   const createKey = useMutation({
     mutationFn: async () => {
       if (!orgId) throw new Error('no_org');
-      const { data: { session } } = await supabase.auth.getSession();
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/api-keys-manage?action=create&org_id=${orgId}`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.access_token ?? ''}`,
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        },
-        body: JSON.stringify({ name, scopes }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? 'create_failed');
-      return json as { key: ApiKey; raw_key: string };
+      return await createKeyFn({ data: { org_id: orgId, name, scopes } }) as { key: ApiKey; raw_key: string };
     },
     onSuccess: (res) => {
       setCreateOpen(false);
@@ -105,20 +79,7 @@ export default function AdminApiKeys() {
   const revokeKey = useMutation({
     mutationFn: async (keyId: string) => {
       if (!orgId) throw new Error('no_org');
-      const { data: { session } } = await supabase.auth.getSession();
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/api-keys-manage?action=revoke&org_id=${orgId}`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.access_token ?? ''}`,
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        },
-        body: JSON.stringify({ key_id: keyId }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? 'revoke_failed');
-      return json;
+      return await revokeKeyFn({ data: { org_id: orgId, key_id: keyId } });
     },
     onSuccess: () => {
       toast({ title: isFr ? 'Clé révoquée' : 'Key revoked' });

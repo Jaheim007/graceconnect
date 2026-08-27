@@ -1,3 +1,5 @@
+import { useServerFn } from '@tanstack/react-start';
+import { claimFreeProduct } from '@/lib/products/claimFree.functions';
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from '@/lib/router-compat';
@@ -68,6 +70,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
+  const claimFree = useServerFn(claimFreeProduct);
   const { openPayment, hasPaystackKey } = usePaymentGateway();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -260,10 +263,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
     if (product.is_free && finalPrice === 0) {
       try {
-        const { data: claimData, error: claimErr } = await db.functions.invoke('claim-free-product', {
-          body: { product_id: product.id, organization_id: organizationId },
-        });
-        if (claimErr) throw claimErr;
+        const claimData = await claimFree({ data: { product_id: product.id, organization_id: organizationId } });
+        if ((claimData as any)?.error) throw new Error((claimData as any).error);
         await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
       } catch (e) {
         console.warn('[ProductPurchaseModal] Free claim error:', e);
