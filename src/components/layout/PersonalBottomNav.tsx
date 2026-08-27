@@ -44,7 +44,7 @@ export function PersonalBottomNav() {
                 aria-label={isFr ? item.fr : item.en}
                 className={cn(
                   'relative flex-1 flex flex-col items-center gap-1 rounded-xl px-1 pt-2 pb-1.5 transition-all duration-200',
-                  'active:scale-[0.94] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
+                  'active:scale-[0.94] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/40',
                   active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
                 )}
               >

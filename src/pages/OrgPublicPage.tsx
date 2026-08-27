@@ -266,7 +266,7 @@ export default function OrgPublicPage() {
   return (
     <div className="min-h-screen bg-background" style={themeStyle}>
       {previewAsVisitor && (
-        <div className="sticky top-0 z-50 bg-primary/95 text-primary-foreground text-xs font-medium py-2 px-4 flex items-center justify-center gap-3 backdrop-blur-sm">
+        <div className="sticky top-0 z-50 bg-primary/95 text-primary-foreground text-xs font-medium py-2 px-4 flex items-center justify-center gap-3 backdrop-blur-xs">
           <EyeOff className="h-3.5 w-3.5" />
           <span>{locale === 'fr' ? 'Aperçu visiteur — vous voyez la page publique' : 'Visitor preview — you are seeing the public page'}</span>
           <button
@@ -400,7 +400,7 @@ export default function OrgPublicPage() {
             {/* Tabs */}
             <div ref={tabsRef} className="scroll-mt-14">
               <Tabs value={activeTab} onValueChange={navigateTab} className="w-full">
-                <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-6 pb-1 sticky top-12 z-10 bg-background/95 backdrop-blur-sm py-3 -mx-4 px-4">
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-6 pb-1 sticky top-12 z-10 bg-background/95 backdrop-blur-xs py-3 -mx-4 px-4">
                   {[
                     { value: 'home', label: t('org_public.home'), icon: Home, count: null },
                     ...((showStoreTab || isAdmin) && (products.length > 0 || isAdmin) ? [{ value: 'store', label: t('org_public.store'), icon: ShoppingBag, count: products.length }] : []),

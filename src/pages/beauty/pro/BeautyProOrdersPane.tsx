@@ -86,7 +86,7 @@ export default function BeautyProOrdersPane() {
             {(orders ?? []).map((o: any) => {
               const price = o.price_amount ?? o.price_xof;
               return (
-                <Link key={o.id} to={`/beauty/bookings/${o.id}`} className="block rounded-2xl border border-border bg-card p-4 hover:shadow-sm transition">
+                <Link key={o.id} to={`/beauty/bookings/${o.id}`} className="block rounded-2xl border border-border bg-card p-4 hover:shadow-xs transition">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider">

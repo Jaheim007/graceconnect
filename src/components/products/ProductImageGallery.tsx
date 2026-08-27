@@ -149,19 +149,19 @@ export function ProductImageGallery({ coverImage, previewImages, title, aspectCl
         {/* Navigation arrows */}
         <button
           onClick={(e) => { e.stopPropagation(); goTo(activeIndex - 1); }}
-          className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
+          className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 backdrop-blur-xs border border-border/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); goTo(activeIndex + 1); }}
-          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-background/80 backdrop-blur-xs border border-border/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
 
         {/* Counter */}
-        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-background/70 backdrop-blur-sm text-[10px] font-medium">
+        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-background/70 backdrop-blur-xs text-[10px] font-medium">
           {activeIndex + 1}/{images.length}
         </div>
       </div>

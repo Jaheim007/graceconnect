@@ -186,7 +186,7 @@ export default function AdminContentHub() {
                   <Link
                     to={item.to}
                     className={cn(
-                      'flex items-center gap-3 p-3.5 rounded-xl border transition-all group hover:shadow-sm hover:-translate-y-0.5',
+                      'flex items-center gap-3 p-3.5 rounded-xl border transition-all group hover:shadow-xs hover:-translate-y-0.5',
                       borderColor
                     )}
                   >

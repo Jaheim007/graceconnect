@@ -139,7 +139,7 @@ export function BottomNav() {
                 aria-label={isFr ? item.titleFr : item.titleEn}
                 className={cn(
                   'relative flex min-w-[62px] shrink-0 snap-center flex-col items-center gap-1 rounded-xl px-2.5 pt-2 pb-1.5 transition-all duration-200',
-                  'active:scale-[0.94] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
+                  'active:scale-[0.94] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/40',
                   active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
                 )}
               >

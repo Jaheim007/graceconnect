@@ -75,7 +75,7 @@ export default function EmbedCheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs">
       <ProductPurchaseModal
         product={product}
         organizationId={orgId}

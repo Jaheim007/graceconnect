@@ -528,16 +528,16 @@ export function SuperadminTransactions() {
         {/* Type tabs */}
         <Tabs value={filter} onValueChange={(v) => setFilter(v as TxFilter)} className="shrink-0">
           <TabsList className="h-10 rounded-xl bg-muted/50 p-1">
-            <TabsTrigger value="all" className="rounded-lg text-xs px-4 data-[state=active]:shadow-sm">
+            <TabsTrigger value="all" className="rounded-lg text-xs px-4 data-[state=active]:shadow-xs">
               Tout
             </TabsTrigger>
-            <TabsTrigger value="purchase" className="rounded-lg text-xs px-4 data-[state=active]:shadow-sm gap-1.5">
+            <TabsTrigger value="purchase" className="rounded-lg text-xs px-4 data-[state=active]:shadow-xs gap-1.5">
               <ShoppingCart className="h-3.5 w-3.5" /> Achats
             </TabsTrigger>
-            <TabsTrigger value="donation" className="rounded-lg text-xs px-4 data-[state=active]:shadow-sm gap-1.5">
+            <TabsTrigger value="donation" className="rounded-lg text-xs px-4 data-[state=active]:shadow-xs gap-1.5">
               <Gift className="h-3.5 w-3.5" /> Dons
             </TabsTrigger>
-            <TabsTrigger value="credit" className="rounded-lg text-xs px-4 data-[state=active]:shadow-sm gap-1.5">
+            <TabsTrigger value="credit" className="rounded-lg text-xs px-4 data-[state=active]:shadow-xs gap-1.5">
               <Zap className="h-3.5 w-3.5" /> Crédits
             </TabsTrigger>
           </TabsList>
@@ -570,7 +570,7 @@ export function SuperadminTransactions() {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="p-4 rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm space-y-4">
+            <div className="p-4 rounded-2xl border border-border/60 bg-card/50 backdrop-blur-xs space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Filtres avancés</h3>
                 {hasActiveFilters && (

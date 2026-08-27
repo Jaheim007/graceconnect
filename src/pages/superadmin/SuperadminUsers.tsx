@@ -195,7 +195,7 @@ export default function SuperadminUsers() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-sm ring-1 ring-primary/20">
+          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-xs ring-1 ring-primary/20">
             <Users className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
@@ -333,7 +333,7 @@ export default function SuperadminUsers() {
                 transition={{ delay: Math.min(idx * 0.015, 0.25) }}
                 className={cn(
                   'group grid grid-cols-[auto_1fr_auto] gap-4 p-4 rounded-2xl border transition-all',
-                  'bg-card hover:bg-muted/30 hover:shadow-sm hover:border-border',
+                  'bg-card hover:bg-muted/30 hover:shadow-xs hover:border-border',
                   isHighValue ? 'border-amber-500/25 bg-amber-500/[0.015]' : 'border-border/60'
                 )}
               >

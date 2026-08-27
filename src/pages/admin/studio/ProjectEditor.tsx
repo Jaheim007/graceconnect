@@ -730,7 +730,7 @@ export default function ProjectEditor() {
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Couverture</h3>
               {coverAsset?.file_url ? (
                 <div className="space-y-2">
-                  <img src={coverAsset.file_url} alt="Couverture" className="w-full aspect-[2/3] rounded-lg object-cover border border-border shadow-sm" />
+                  <img src={coverAsset.file_url} alt="Couverture" className="w-full aspect-[2/3] rounded-lg object-cover border border-border shadow-xs" />
                   <div className="flex gap-1">
                     <Button variant="ghost" size="sm" className="flex-1 text-[10px] h-7" onClick={handleCoverUpload} disabled={uploadingCover}>
                       {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3 mr-1" />} Changer

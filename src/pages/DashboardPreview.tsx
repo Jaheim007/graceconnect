@@ -147,7 +147,7 @@ export default function DashboardPreview() {
                 className={cn(
                   'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap',
                   activeTab === tab.key
-                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    ? 'bg-primary text-primary-foreground shadow-xs'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
                 )}
               >

@@ -108,7 +108,7 @@ export default function ReferralsPage() {
         ) : (
           <>
             {/* Invite link card */}
-            <Card className="mb-6 border-primary/30 shadow-sm">
+            <Card className="mb-6 border-primary/30 shadow-xs">
               <CardHeader>
                 <CardTitle className="text-lg">{isFr ? "Ton lien d'invitation" : "Your invite link"}</CardTitle>
                 <CardDescription>

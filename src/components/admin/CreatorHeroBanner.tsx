@@ -55,7 +55,7 @@ export function CreatorHeroBanner() {
             transition={{ delay: 0.1 + i * 0.08 }}
             onClick={() => navigate(p.route)}
             className={cn(
-              'group flex flex-col gap-2.5 p-4 rounded-xl border bg-card/80 backdrop-blur-sm text-left transition-all hover:-translate-y-0.5 hover:shadow-md',
+              'group flex flex-col gap-2.5 p-4 rounded-xl border bg-card/80 backdrop-blur-xs text-left transition-all hover:-translate-y-0.5 hover:shadow-md',
               p.highlight
                 ? 'border-primary/30 hover:border-primary/60 ring-1 ring-primary/10'
                 : 'border-border hover:border-primary/30'

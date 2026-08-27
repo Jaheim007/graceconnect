@@ -359,7 +359,7 @@ export function CourseBuilder({ programId, modules, courseTitle, orgLogoUrl }: C
 
       {/* ── Mobile: preview as a full-screen sheet so the editor keeps the viewport ── */}
       {showPreview && isMobile && centerMode !== 'raw-html' && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-background/95 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex flex-col bg-background/95 backdrop-blur-xs">
           <div className="flex items-center justify-between border-b border-border bg-card px-3 py-2">
             <span className="min-w-0 truncate text-xs font-semibold">
               {isFr ? 'Aperçu apprenant' : 'Learner preview'}

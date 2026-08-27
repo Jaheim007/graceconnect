@@ -59,7 +59,7 @@ export default function DonorsList({ donors, isLoading, currency, isFr }: Props)
           className="group flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/40 hover:border-rose-500/20 hover:shadow-lg hover:shadow-rose-500/5 transition-all duration-300"
         >
           {/* Avatar */}
-          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-rose-500/20 to-rose-500/5 flex items-center justify-center text-sm font-bold text-rose-600 dark:text-rose-400 shrink-0 overflow-hidden ring-2 ring-background shadow-sm">
+          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-rose-500/20 to-rose-500/5 flex items-center justify-center text-sm font-bold text-rose-600 dark:text-rose-400 shrink-0 overflow-hidden ring-2 ring-background shadow-xs">
             {donor.avatar_url ? (
               <img src={donor.avatar_url} alt="" className="h-full w-full object-cover" />
             ) : (

@@ -137,7 +137,7 @@ export default function CampaignDetailPage() {
 
       {/* Top bar */}
       <div
-        className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between"
+        className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-xs px-4 h-12 flex items-center justify-between"
         style={topBarStyle}
       >
         {org ? (
@@ -197,7 +197,7 @@ export default function CampaignDetailPage() {
                 <p className="font-bold text-sm">{org.name}</p>
                 {org.description && <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{org.description}</p>}
               </div>
-              <Button variant="outline" size="sm" className="gap-1.5 text-xs shrink-0 bg-background/80 backdrop-blur-sm" onClick={() => navigate(`/org/${org.slug}`)}>
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs shrink-0 bg-background/80 backdrop-blur-xs" onClick={() => navigate(`/org/${org.slug}`)}>
                 <ExternalLink className="h-3.5 w-3.5" /> Voir
               </Button>
             </div>
@@ -235,7 +235,7 @@ export default function CampaignDetailPage() {
                   <Heart className="h-4.5 w-4.5 text-primary" />
                   {isFr ? 'À propos de cette campagne' : 'About this campaign'}
                 </h2>
-                <div className="p-5 rounded-2xl border border-border bg-card shadow-sm">
+                <div className="p-5 rounded-2xl border border-border bg-card shadow-xs">
                   <FormattedText
                     text={campaign.description}
                     className="text-sm text-muted-foreground leading-relaxed break-words"

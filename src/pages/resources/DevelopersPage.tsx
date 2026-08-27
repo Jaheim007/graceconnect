@@ -157,7 +157,7 @@ export default function DevelopersPage() {
           <div className="mt-8 grid gap-6 sm:grid-cols-3">
             {principles.map((pr) => (
               <div key={pr.title}>
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-background text-primary shadow-sm">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-background text-primary shadow-xs">
                   <pr.icon className="h-4.5 w-4.5" />
                 </div>
                 <h3 className="mt-3.5 text-sm font-bold">{pr.title}</h3>

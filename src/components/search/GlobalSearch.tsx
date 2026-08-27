@@ -144,7 +144,7 @@ export function GlobalSearch() {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
+      <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs" onClick={() => setOpen(false)} />
 
       <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-[12vh]">
         <div className="w-full max-w-lg mx-4 bg-card border border-border rounded-2xl shadow-elevated overflow-hidden">

@@ -226,7 +226,7 @@ function ReelSlide({
             />
             {!isCurrent && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                <div className="h-14 w-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <div className="h-14 w-14 rounded-full bg-white/20 backdrop-blur-xs flex items-center justify-center">
                   <Play className="h-7 w-7 text-white ml-1" />
                 </div>
               </div>
@@ -256,7 +256,7 @@ function ReelSlide({
               </div>
             )}
             <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-              <div className="h-14 w-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <div className="h-14 w-14 rounded-full bg-white/20 backdrop-blur-xs flex items-center justify-center">
                 <ExternalLink className="h-7 w-7 text-white" />
               </div>
             </div>

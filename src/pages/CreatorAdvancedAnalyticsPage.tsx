@@ -175,7 +175,7 @@ export default function CreatorAdvancedAnalyticsPage() {
                 onClick={() => setPeriod(opt.v)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
                   period === opt.v
-                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    ? 'bg-primary text-primary-foreground shadow-xs'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -449,7 +449,7 @@ function GradientKpiCard({
       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} pointer-events-none`} aria-hidden />
       <CardContent className="relative p-4">
         <div className="flex items-start justify-between">
-          <div className={`w-9 h-9 rounded-xl bg-background/80 backdrop-blur flex items-center justify-center ${accent} shadow-sm`}>
+          <div className={`w-9 h-9 rounded-xl bg-background/80 backdrop-blur flex items-center justify-center ${accent} shadow-xs`}>
             {icon}
           </div>
         </div>

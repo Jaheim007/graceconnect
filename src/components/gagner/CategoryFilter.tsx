@@ -108,7 +108,7 @@ export function CategoryFilter({ selected, onChange }: CategoryFilterProps) {
           className={cn(
             'shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all border',
             selected === cat.key
-              ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+              ? 'bg-primary text-primary-foreground border-primary shadow-xs'
               : 'bg-card text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
           )}
         >

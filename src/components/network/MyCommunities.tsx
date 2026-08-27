@@ -147,7 +147,7 @@ function CommunityCard({
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
         {/* Floating member count badge */}
-        <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md border border-border/30 shadow-sm">
+        <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md border border-border/30 shadow-xs">
           <Users className="h-3 w-3 text-primary" />
           <span className="text-[11px] font-bold text-foreground">{memberCount}</span>
         </div>

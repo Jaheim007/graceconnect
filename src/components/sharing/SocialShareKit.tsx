@@ -161,7 +161,7 @@ export function SocialShareKit({ url, title, description, context, price, earnin
 
   const onDark = tone === 'onDark';
   const secondaryClass = onDark
-    ? 'gap-2 text-xs bg-white/15 border-white/30 text-white hover:bg-white/25 hover:text-white backdrop-blur-sm'
+    ? 'gap-2 text-xs bg-white/15 border-white/30 text-white hover:bg-white/25 hover:text-white backdrop-blur-xs'
     : 'gap-2 text-xs';
 
   return (

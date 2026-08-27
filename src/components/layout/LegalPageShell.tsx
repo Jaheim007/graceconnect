@@ -88,7 +88,7 @@ export function LegalBackground() {
   return (
     <div className="fixed inset-0 z-0">
       <img src={termsBg} alt="" className="w-full h-full object-cover" />
-      <div className="absolute inset-0 bg-background/95 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-background/95 backdrop-blur-xs" />
     </div>
   );
 }

@@ -151,7 +151,7 @@ export function AuthorHero() {
     <section className="relative overflow-hidden border-b border-border bg-background">
       <HeroAurora />
       <div className="container relative max-w-4xl px-4 sm:px-6 pt-16 pb-14 sm:pt-24 sm:pb-20 text-center">
-        <motion.div {...rise(0)} className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.07] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider backdrop-blur-sm">
+        <motion.div {...rise(0)} className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.07] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider backdrop-blur-xs">
           <span className="relative flex h-1.5 w-1.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
@@ -208,7 +208,7 @@ export function AuthorHero() {
                     ? `Ex. : ${placeholders[phIndex]}`
                     : `e.g. ${placeholders[phIndex]}`
                 }
-                className="min-h-[92px] w-full resize-none bg-transparent px-3 pt-3 text-left text-base sm:text-lg leading-relaxed outline-none placeholder:text-muted-foreground/70"
+                className="min-h-[92px] w-full resize-none bg-transparent px-3 pt-3 text-left text-base sm:text-lg leading-relaxed outline-hidden placeholder:text-muted-foreground/70"
               />
               <div className="mt-1 flex items-end justify-between gap-3 px-1.5 pb-0.5">
                 <span className="hidden select-none text-[11px] font-medium text-muted-foreground/70 sm:block">
@@ -254,7 +254,7 @@ export function AuthorHero() {
                     setIdea(title);
                     if (!user) generatePreview(title);
                   }}
-                  className="group/topic inline-flex items-start gap-2.5 rounded-2xl border border-border/80 bg-card/70 px-4 py-2.5 sm:px-5 sm:py-3 text-left font-sans text-sm sm:text-base font-medium text-foreground/85 backdrop-blur-sm transition-colors hover:border-primary/50 hover:bg-card hover:text-foreground"
+                  className="group/topic inline-flex items-start gap-2.5 rounded-2xl border border-border/80 bg-card/70 px-4 py-2.5 sm:px-5 sm:py-3 text-left font-sans text-sm sm:text-base font-medium text-foreground/85 backdrop-blur-xs transition-colors hover:border-primary/50 hover:bg-card hover:text-foreground"
                 >
                   <motion.span
                     animate={reduce ? undefined : { rotate: [0, 12, -8, 0], scale: [1, 1.12, 1] }}
@@ -289,7 +289,7 @@ export function AuthorHero() {
           <button
             type="button"
             onClick={() => navigate('/create-org')}
-            className="mt-7 inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-5 py-2.5 text-sm sm:text-base font-semibold text-foreground shadow-sm backdrop-blur-sm transition-all hover:border-primary/50 hover:bg-card hover:shadow-md"
+            className="mt-7 inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-5 py-2.5 text-sm sm:text-base font-semibold text-foreground shadow-xs backdrop-blur-xs transition-all hover:border-primary/50 hover:bg-card hover:shadow-md"
           >
             {fr ? "J'ai déjà mon contenu" : 'I already have my content'}
             <ArrowRight className="h-3.5 w-3.5" />

@@ -214,7 +214,7 @@ export default function ChurchesPage() {
 
         {/* What the public page looks like */}
         <section className="container max-w-6xl px-4 sm:px-6 py-14 sm:py-20">
-          <Reveal className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+          <Reveal className="overflow-hidden rounded-3xl border border-border bg-card shadow-xs">
             <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-3">
               <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
               <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />

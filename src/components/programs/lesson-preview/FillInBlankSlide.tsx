@@ -124,7 +124,7 @@ export function FillInBlankSlide({
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', damping: 12, delay: 0.3 }}
-            className="absolute top-14 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-yellow-500/20 backdrop-blur-sm border border-yellow-400/30 rounded-full px-4 py-2"
+            className="absolute top-14 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-yellow-500/20 backdrop-blur-xs border border-yellow-400/30 rounded-full px-4 py-2"
           >
             <Star className="h-6 w-6 text-yellow-400 fill-yellow-400" />
             <span className="text-sm text-yellow-300 font-bold">+1</span>
@@ -192,7 +192,7 @@ export function FillInBlankSlide({
               onChange={e => setUserInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSubmit()}
               placeholder="Type your answer..."
-              className="flex-1 bg-white/95 text-slate-800 rounded-xl px-4 py-3 text-sm font-medium border-2 border-white/80 focus:outline-none focus:border-yellow-400 placeholder:text-slate-400"
+              className="flex-1 bg-white/95 text-slate-800 rounded-xl px-4 py-3 text-sm font-medium border-2 border-white/80 focus:outline-hidden focus:border-yellow-400 placeholder:text-slate-400"
               autoFocus
             />
             <button

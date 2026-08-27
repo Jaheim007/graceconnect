@@ -625,7 +625,7 @@ export function SuperadminReports() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-destructive to-destructive/60 flex items-center justify-center shadow-sm ring-1 ring-destructive/25">
+          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-destructive to-destructive/60 flex items-center justify-center shadow-xs ring-1 ring-destructive/25">
             <Shield className="h-5 w-5 text-destructive-foreground" />
           </div>
           <div>
@@ -708,7 +708,7 @@ export function SuperadminReports() {
                 className={cn(
                   'rounded-2xl border bg-card transition-all',
                   r.status === 'pending' ? 'border-amber-500/30 shadow-[0_0_0_1px_rgba(245,158,11,0.06)]' : 'border-border/60',
-                  isExpanded && 'ring-1 ring-primary/20 shadow-sm'
+                  isExpanded && 'ring-1 ring-primary/20 shadow-xs'
                 )}
               >
                 {/* Main row — clickable to expand */}

@@ -162,7 +162,7 @@ export default function AffiliateCloudPage() {
   if (!isSuperadmin) {
     return (
       <main className="container max-w-3xl px-4 py-16">
-        <div className="relative overflow-hidden rounded-3xl border bg-card p-10 text-center shadow-sm">
+        <div className="relative overflow-hidden rounded-3xl border bg-card p-10 text-center shadow-xs">
           <div className="pointer-events-none absolute -top-24 left-1/2 h-56 w-[28rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
           <div className="relative">
             <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary"><Network className="h-6 w-6" /></span>
@@ -182,7 +182,7 @@ export default function AffiliateCloudPage() {
   if (!orgId || !canManageCurrentOrg) {
     return (
       <main className="container max-w-3xl px-4 py-16">
-        <div className="rounded-3xl border bg-card p-10 text-center shadow-sm">
+        <div className="rounded-3xl border bg-card p-10 text-center shadow-xs">
           <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary"><Network className="h-6 w-6" /></span>
           <h1 className="mt-6 text-2xl font-bold">SiteViral Affiliate Cloud</h1>
           <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
@@ -198,7 +198,7 @@ export default function AffiliateCloudPage() {
 
   return (
     <main className="container max-w-7xl px-4 py-6 sm:py-10 space-y-8">
-      <header className="relative overflow-hidden rounded-3xl border bg-card px-6 py-8 shadow-sm sm:px-10 sm:py-10">
+      <header className="relative overflow-hidden rounded-3xl border bg-card px-6 py-8 shadow-xs sm:px-10 sm:py-10">
         <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl" />
         <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">

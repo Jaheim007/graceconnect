@@ -65,7 +65,7 @@ export default function AmbassadorsList({ ambassadors, isLoading, currency, isFr
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
             {/* Avatar */}
-            <div className="relative h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center text-sm font-bold text-emerald-600 dark:text-emerald-400 shrink-0 overflow-hidden ring-2 ring-background shadow-sm">
+            <div className="relative h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center text-sm font-bold text-emerald-600 dark:text-emerald-400 shrink-0 overflow-hidden ring-2 ring-background shadow-xs">
               {ambassador.profile?.avatar_url ? (
                 <img src={ambassador.profile.avatar_url} alt="" className="h-full w-full object-cover" />
               ) : (

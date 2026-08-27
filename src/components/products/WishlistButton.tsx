@@ -53,7 +53,7 @@ export function WishlistButton({ productId, variant = 'icon', className }: Wishl
       onClick={handleClick}
       disabled={toggle.isPending}
       className={cn(
-        'absolute top-2 right-2 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center border border-border/50 shadow-sm transition-all hover:scale-110',
+        'absolute top-2 right-2 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur-xs flex items-center justify-center border border-border/50 shadow-xs transition-all hover:scale-110',
         isWishlisted && 'bg-red-50 border-red-200 dark:bg-red-950/50 dark:border-red-800',
         className,
       )}

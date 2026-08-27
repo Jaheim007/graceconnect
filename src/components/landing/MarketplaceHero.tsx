@@ -120,7 +120,7 @@ export function MarketplaceHero() {
               value={q}
               onChange={e => setQ(e.target.value)}
               placeholder={fr ? 'Rechercher produits, services ou professionnels' : 'Search products, services or professionals'}
-              className="flex-1 min-w-0 bg-transparent border-0 outline-none px-3 py-3.5 sm:py-4 text-sm sm:text-base text-foreground placeholder:text-muted-foreground"
+              className="flex-1 min-w-0 bg-transparent border-0 outline-hidden px-3 py-3.5 sm:py-4 text-sm sm:text-base text-foreground placeholder:text-muted-foreground"
               aria-label={fr ? 'Recherche' : 'Search'}
             />
           </div>

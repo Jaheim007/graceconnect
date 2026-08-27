@@ -154,7 +154,7 @@ function SellerReplySection({ review, productId, isOrgOwner }: { review: any; pr
             value={replyText}
             onChange={e => setReplyText(e.target.value)}
             placeholder={isFr ? 'Répondre à cet avis...' : 'Reply to this review...'}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs resize-none focus:outline-hidden focus:ring-2 focus:ring-ring"
             rows={3}
             maxLength={1000}
           />
@@ -472,7 +472,7 @@ export function ProductReviews({ productId, organizationId, isPurchased, isOrgOw
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 placeholder={isFr ? 'Titre de votre avis (ex: Excellent produit !)' : 'Review title (e.g. Excellent product!)'}
-                className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
+                className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium focus:outline-hidden focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
                 maxLength={120}
                 required
               />
@@ -482,7 +482,7 @@ export function ProductReviews({ productId, organizationId, isPurchased, isOrgOw
                 value={comment}
                 onChange={e => setComment(e.target.value)}
                 placeholder={isFr ? "Décrivez votre expérience en détail… Qu'avez-vous aimé ? Qu'est-ce qui pourrait être amélioré ?" : 'Describe your experience in detail… What did you like? What could be improved?'}
-                className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
+                className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm resize-none focus:outline-hidden focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
                 maxLength={2000}
                 required
               />

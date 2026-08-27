@@ -62,7 +62,7 @@ export function BadgeShowcase({ allBadges, earnedBadgeIds }: BadgeShowcaseProps)
                   whileHover={isEarned ? { scale: 1.1, y: -2 } : undefined}
                   className={`relative text-center p-2.5 rounded-xl border transition-colors cursor-default ${
                     isEarned
-                      ? 'border-primary/30 bg-primary/5 shadow-sm'
+                      ? 'border-primary/30 bg-primary/5 shadow-xs'
                       : 'border-border opacity-30 grayscale'
                   }`}
                 >

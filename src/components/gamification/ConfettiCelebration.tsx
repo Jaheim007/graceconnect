@@ -90,7 +90,7 @@ export function ConfettiCelebration({ active, onDone, message, emoji = '🎉' }:
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             className="absolute inset-0 flex items-center justify-center"
           >
-            <div className="bg-card/95 backdrop-blur-sm border border-primary/30 rounded-3xl px-8 py-6 shadow-elevated text-center max-w-sm pointer-events-auto">
+            <div className="bg-card/95 backdrop-blur-xs border border-primary/30 rounded-3xl px-8 py-6 shadow-elevated text-center max-w-sm pointer-events-auto">
               <span className="text-5xl block mb-3">{emoji}</span>
               <p className="text-lg font-bold text-foreground">{message}</p>
             </div>

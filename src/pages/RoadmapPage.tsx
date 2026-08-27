@@ -83,7 +83,7 @@ export default function RoadmapPage() {
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {items.map(item => (
-                  <div key={item.en} className="rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-sm">
+                  <div key={item.en} className="rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-xs">
                     <p className="font-bold text-sm text-foreground mb-1">{isFr ? item.fr : item.en}</p>
                     <p className="text-xs text-muted-foreground leading-relaxed font-medium">
                       {isFr ? item.frD : item.enD}

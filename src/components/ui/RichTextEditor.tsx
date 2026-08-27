@@ -97,7 +97,7 @@ export function RichTextEditor({
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[120px] px-3 py-2',
+        class: 'prose prose-sm dark:prose-invert max-w-none focus:outline-hidden min-h-[120px] px-3 py-2',
       },
       handlePaste: (view, event) => {
         const items = event.clipboardData?.items;

@@ -73,14 +73,14 @@ export function PerformanceWidget() {
       {/* Toggle button */}
       <button
         onClick={() => setVisible(v => !v)}
-        className="fixed top-2 right-2 z-[200] h-7 w-7 rounded-full bg-muted/80 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-muted transition-colors"
+        className="fixed top-2 right-2 z-[200] h-7 w-7 rounded-full bg-muted/80 backdrop-blur-xs border border-border flex items-center justify-center hover:bg-muted transition-colors"
         title="Performance Vitals"
       >
         <Activity className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
 
       {visible && (
-        <div className="fixed top-10 right-2 z-[200] rounded-xl border border-border bg-card/95 backdrop-blur-sm shadow-lg p-3 min-w-[140px]">
+        <div className="fixed top-10 right-2 z-[200] rounded-xl border border-border bg-card/95 backdrop-blur-xs shadow-lg p-3 min-w-[140px]">
           <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Web Vitals</p>
           <div className="space-y-1">
             {metrics.map(m => (

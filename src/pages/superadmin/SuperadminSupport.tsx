@@ -280,7 +280,7 @@ export default function SuperadminSupport() {
               return (
                 <motion.div key={t.id} variants={fadeUp}
                   onClick={() => setSelectedTicket(t)}
-                  className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:border-primary/30 hover:shadow-sm cursor-pointer transition-all">
+                  className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:border-primary/30 hover:shadow-xs cursor-pointer transition-all">
                   <div className={cn('w-2.5 h-2.5 rounded-full shrink-0',
                     t.status === 'open' ? 'bg-amber-500' : 'bg-muted-foreground/40'
                   )} />

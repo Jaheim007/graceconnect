@@ -78,7 +78,7 @@ export function PhotoLightbox({ photos, initialIndex = 0, open, onClose }: Photo
             <Button
               variant="ghost"
               size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-sm"
+              className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-xs"
               onClick={() => setCurrent((c) => (c - 1 + photos.length) % photos.length)}
             >
               <ChevronLeft className="h-5 w-5" />
@@ -86,7 +86,7 @@ export function PhotoLightbox({ photos, initialIndex = 0, open, onClose }: Photo
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-sm"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-xs"
               onClick={() => setCurrent((c) => (c + 1) % photos.length)}
             >
               <ChevronRight className="h-5 w-5" />

@@ -27,7 +27,7 @@ export function AnswerBlock({ items, title, lead, className }: AnswerBlockProps)
   return (
     <section
       aria-label={title || 'Questions & answers'}
-      className={`rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-5 sm:p-6 ${className || ''}`}
+      className={`rounded-2xl border border-border/60 bg-card/60 backdrop-blur-xs p-5 sm:p-6 ${className || ''}`}
     >
       <div className="flex items-center gap-2 mb-4">
         <HelpCircle className="h-4 w-4 text-primary shrink-0" />

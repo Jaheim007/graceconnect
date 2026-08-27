@@ -82,7 +82,7 @@ export function MediaCard({ media, index = 0, compact = false }: MediaCardProps)
 
         {/* Type badge */}
         <div className="absolute top-2 left-2">
-          <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 h-5 bg-black/60 text-white border-0 gap-1 backdrop-blur-sm">
+          <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 h-5 bg-black/60 text-white border-0 gap-1 backdrop-blur-xs">
             {typeIcons[media.media_type]}
             {typeLabels[media.media_type] || media.media_type}
           </Badge>

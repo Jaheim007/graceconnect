@@ -80,7 +80,7 @@ export function TrendingProducts({ limit = 6 }: { limit?: number }) {
                   </Badge>
                 )}
                 {langFlag && (
-                  <Badge className="absolute top-2 right-2 text-[9px] bg-background/80 backdrop-blur-sm text-foreground border-0">
+                  <Badge className="absolute top-2 right-2 text-[9px] bg-background/80 backdrop-blur-xs text-foreground border-0">
                     {langFlag}
                   </Badge>
                 )}

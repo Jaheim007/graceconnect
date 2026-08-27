@@ -55,7 +55,7 @@ export default function MembersList({ members, isLoading, isFr }: Props) {
             className="group flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/40 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
           >
             {/* Avatar */}
-            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-sm font-bold text-primary shrink-0 overflow-hidden ring-2 ring-background shadow-sm">
+            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-sm font-bold text-primary shrink-0 overflow-hidden ring-2 ring-background shadow-xs">
               {member.profiles?.avatar_url ? (
                 <img src={member.profiles.avatar_url} alt="" className="h-full w-full object-cover" />
               ) : (

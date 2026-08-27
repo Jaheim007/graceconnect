@@ -78,7 +78,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
         <div className="absolute bottom-2 right-2">
           <Badge
             variant="secondary"
-            className={cn('text-[10px] px-1.5 py-0 border-0 backdrop-blur-sm', categoryColors[org.category])}
+            className={cn('text-[10px] px-1.5 py-0 border-0 backdrop-blur-xs', categoryColors[org.category])}
           >
             {getOrgCategoryLabel(org.category, locale)}
           </Badge>
@@ -87,7 +87,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
 
       <div className="px-4 pt-3 pb-4">
         <div className="flex items-start gap-3 mb-2">
-          <div className="h-14 w-14 rounded-xl border-2 border-border shadow-sm overflow-hidden bg-card shrink-0">
+          <div className="h-14 w-14 rounded-xl border-2 border-border shadow-xs overflow-hidden bg-card shrink-0">
             {org.logo_url ? (
               <img src={org.logo_url} alt={org.name} loading="lazy" className="w-full h-full object-cover" />
             ) : (

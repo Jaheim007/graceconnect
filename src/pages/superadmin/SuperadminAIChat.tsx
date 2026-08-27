@@ -192,7 +192,7 @@ export default function SuperadminAIChat() {
                     transition={{ delay: 0.15 + i * 0.08, duration: 0.35 }}
                     onClick={() => send(s.prompt)}
                     className={cn(
-                      "group relative text-left p-4 rounded-2xl border bg-gradient-to-br backdrop-blur-sm",
+                      "group relative text-left p-4 rounded-2xl border bg-gradient-to-br backdrop-blur-xs",
                       "hover:scale-[1.02] hover:shadow-lg transition-all duration-200",
                       s.color
                     )}
@@ -217,7 +217,7 @@ export default function SuperadminAIChat() {
                   className={cn('flex gap-3', m.role === 'user' ? 'justify-end' : 'justify-start')}
                 >
                   {m.role === 'assistant' && (
-                    <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                    <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shrink-0 mt-1 shadow-xs">
                       <Bot className="h-4 w-4 text-white" />
                     </div>
                   )}
@@ -226,7 +226,7 @@ export default function SuperadminAIChat() {
                       'max-w-[85%] rounded-2xl text-sm',
                       m.role === 'user'
                         ? 'bg-primary text-primary-foreground px-4 py-3 rounded-br-md shadow-md shadow-primary/10'
-                        : 'bg-card/80 border border-border/50 px-5 py-4 backdrop-blur-sm'
+                        : 'bg-card/80 border border-border/50 px-5 py-4 backdrop-blur-xs'
                     )}
                   >
                     {m.role === 'assistant' ? (
@@ -246,10 +246,10 @@ export default function SuperadminAIChat() {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex gap-3"
                 >
-                  <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shrink-0 shadow-sm">
+                  <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shrink-0 shadow-xs">
                     <Loader2 className="h-4 w-4 text-primary-foreground animate-spin" />
                   </div>
-                  <div className="bg-card/80 border border-border/50 rounded-2xl px-5 py-4 backdrop-blur-sm">
+                  <div className="bg-card/80 border border-border/50 rounded-2xl px-5 py-4 backdrop-blur-xs">
                     <div className="flex items-center gap-2">
                       <div className="flex gap-1">
                         <span className="h-2 w-2 rounded-full bg-primary/40 animate-bounce [animation-delay:0ms]" />
@@ -269,7 +269,7 @@ export default function SuperadminAIChat() {
 
       {/* Input bar */}
       <div className="relative mt-2">
-        <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl px-4 py-2 shadow-sm focus-within:border-primary/30 focus-within:shadow-md focus-within:shadow-primary/5 transition-all">
+        <div className="flex items-center gap-2 bg-card/80 backdrop-blur-xs border border-border/50 rounded-2xl px-4 py-2 shadow-xs focus-within:border-primary/30 focus-within:shadow-md focus-within:shadow-primary/5 transition-all">
           <Zap className="h-4 w-4 text-primary shrink-0" />
           <input
             ref={inputRef}
@@ -277,7 +277,7 @@ export default function SuperadminAIChat() {
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()}
             placeholder="Ask anything about your platform…"
-            className="flex-1 bg-transparent border-0 text-sm outline-none placeholder:text-muted-foreground/60"
+            className="flex-1 bg-transparent border-0 text-sm outline-hidden placeholder:text-muted-foreground/60"
             disabled={isLoading}
           />
           <Button

@@ -126,7 +126,7 @@ export function CommandPalette() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder={t('cmd.search_placeholder')}
-            className="flex-1 bg-transparent py-3 px-3 text-sm outline-none placeholder:text-muted-foreground"
+            className="flex-1 bg-transparent py-3 px-3 text-sm outline-hidden placeholder:text-muted-foreground"
             autoFocus
           />
           <kbd className="hidden sm:inline-flex h-5 items-center gap-1 rounded border border-border bg-muted px-1.5 text-[10px] font-medium text-muted-foreground">
@@ -153,7 +153,7 @@ export function CommandPalette() {
                       item.disabled
                         ? 'text-muted-foreground/50 cursor-not-allowed'
                         : 'hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-                      'transition-colors focus:outline-none'
+                      'transition-colors focus:outline-hidden'
                     )}
                   >
                     <Icon className="h-4 w-4 text-muted-foreground" />

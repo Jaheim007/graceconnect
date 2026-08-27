@@ -336,7 +336,7 @@ export default function ActionHub() {
                       'transition-all duration-200 active:scale-[0.98]',
                       'hover:-translate-y-0.5 hover:border-[hsl(var(--brand-blue))]/50',
                       'hover:shadow-[0_18px_40px_-24px_hsl(var(--brand-blue)/0.6)]',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--brand-blue))]/50',
+                      'focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[hsl(var(--brand-blue))]/50',
                       idx === actions.length - 1 && actions.length % 2 === 1 && 'sm:col-span-2',
                     )}
                   >

@@ -484,7 +484,7 @@ export default function SuperadminExports() {
           <Button
             variant={isAdvanced ? 'default' : 'outline'}
             size="sm"
-            className={cn('gap-1.5 text-xs shrink-0', isAdvanced && 'shadow-sm')}
+            className={cn('gap-1.5 text-xs shrink-0', isAdvanced && 'shadow-xs')}
             disabled={!!loading}
             onClick={() => run(item.label, item.action)}
           >

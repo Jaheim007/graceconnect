@@ -61,7 +61,7 @@ export function LandingHeroManifesto() {
         >
           {/* Badge */}
           <motion.div variants={fadeUp}
-            className="inline-flex items-center gap-1.5 bg-white/5 text-white/80 border border-white/10 rounded-full px-4 py-2 text-xs font-semibold backdrop-blur-sm"
+            className="inline-flex items-center gap-1.5 bg-white/5 text-white/80 border border-white/10 rounded-full px-4 py-2 text-xs font-semibold backdrop-blur-xs"
           >
             
             {badgeText}

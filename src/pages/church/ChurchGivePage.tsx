@@ -190,7 +190,7 @@ export default function ChurchGivePage() {
               </Label>
               <RadioGroup value={type} onValueChange={(v) => setType(v as Type)} className="grid grid-cols-3 gap-2">
                 {(['tithe', 'offering', 'donation'] as const).map((t) => (
-                  <label key={t} className={`rounded-xl border-2 p-3.5 text-center cursor-pointer text-sm transition-all ${type === t ? 'border-primary bg-primary/5 font-semibold shadow-sm' : 'border-border hover:border-primary/40'}`}>
+                  <label key={t} className={`rounded-xl border-2 p-3.5 text-center cursor-pointer text-sm transition-all ${type === t ? 'border-primary bg-primary/5 font-semibold shadow-xs' : 'border-border hover:border-primary/40'}`}>
                     <RadioGroupItem value={t} className="sr-only" />
                     {typeLabel(t)}
                   </label>
@@ -209,7 +209,7 @@ export default function ChurchGivePage() {
             <div className="grid grid-cols-5 gap-2 mb-3">
               {PRESETS[currency].map((p) => (
                 <button key={p} type="button" onClick={() => { setAmount(p); setCustomAmount(''); }}
-                        className={`rounded-xl border-2 py-2.5 text-sm transition-all ${amount === p && !customAmount ? 'border-primary bg-primary/5 font-bold shadow-sm' : 'border-border hover:border-primary/40'}`}>
+                        className={`rounded-xl border-2 py-2.5 text-sm transition-all ${amount === p && !customAmount ? 'border-primary bg-primary/5 font-bold shadow-xs' : 'border-border hover:border-primary/40'}`}>
                   {p.toLocaleString()}
                 </button>
               ))}

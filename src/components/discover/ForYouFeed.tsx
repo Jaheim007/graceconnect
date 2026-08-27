@@ -182,7 +182,7 @@ function MediaFeedCard({ item, isFr }: { item: FeedItem; isFr: boolean }) {
             <Video className="h-8 w-8 text-muted-foreground/30" />
           </div>
         )}
-        <Badge className="absolute top-2 left-2 text-[10px] bg-background/80 backdrop-blur-sm text-foreground">
+        <Badge className="absolute top-2 left-2 text-[10px] bg-background/80 backdrop-blur-xs text-foreground">
           <Video className="h-2.5 w-2.5 mr-1" />
           {item.media_type || (isFr ? 'vidéo' : 'video')}
         </Badge>

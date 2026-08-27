@@ -164,7 +164,7 @@ export function OrgPublicHeader({
   return (
     <>
       {/* Top bar */}
-      <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
+      <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-xs px-4 h-12 flex items-center justify-between">
         <Link to={user ? '/feed' : '/'}>
           <SiteLogo size="sm" linked={false} animate />
         </Link>

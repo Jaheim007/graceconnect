@@ -192,7 +192,7 @@ function VariantCard({
     >
       {isWinner && (
         <div className="absolute -top-2.5 right-3">
-          <Badge className="text-[10px] bg-emerald-500 text-white gap-0.5 shadow-sm">
+          <Badge className="text-[10px] bg-emerald-500 text-white gap-0.5 shadow-xs">
             <Trophy className="h-2.5 w-2.5" /> Winner
           </Badge>
         </div>

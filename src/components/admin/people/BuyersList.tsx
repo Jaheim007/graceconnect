@@ -60,7 +60,7 @@ export default function BuyersList({ buyers, isLoading, currency, isFr }: Props)
           className="group flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/40 hover:border-blue-500/20 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300"
         >
           {/* Avatar */}
-          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center text-sm font-bold text-blue-600 dark:text-blue-400 shrink-0 overflow-hidden ring-2 ring-background shadow-sm">
+          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center text-sm font-bold text-blue-600 dark:text-blue-400 shrink-0 overflow-hidden ring-2 ring-background shadow-xs">
             {buyer.avatar_url ? (
               <img src={buyer.avatar_url} alt="" className="h-full w-full object-cover" />
             ) : (

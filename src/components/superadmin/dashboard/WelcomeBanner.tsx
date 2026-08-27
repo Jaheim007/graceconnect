@@ -50,7 +50,7 @@ export function WelcomeBanner({ firstName, totalUsers, activeOrgs, pendingAlerts
             <div
               key={item.label}
               className={cn(
-                'flex items-center gap-2 px-3 py-2 rounded-xl bg-background/70 border border-border/50 backdrop-blur-sm',
+                'flex items-center gap-2 px-3 py-2 rounded-xl bg-background/70 border border-border/50 backdrop-blur-xs',
                 item.highlight && 'border-amber-500/30 bg-amber-500/5'
               )}
             >
