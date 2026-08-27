@@ -1,3 +1,5 @@
+import { useServerFn } from '@tanstack/react-start';
+import { chariowProxy } from '@/lib/integrations/chariow.functions';
 import { useState } from 'react';
 import { useNavigate } from '@/lib/router-compat';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -9,7 +11,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { db } from '@/lib/db';
-import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -41,6 +42,7 @@ type Step = 'intro' | 'loading' | 'select' | 'importing' | 'done';
 export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>('intro');
+  const chariow = useServerFn(chariowProxy);
   const [apiKey, setApiKey] = useState('');
   const [products, setProducts] = useState<ChariowProduct[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -79,10 +81,7 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
       let hasMore = true;
 
       while (hasMore) {
-        const { data, error: fnErr } = await supabase.functions.invoke('chariow-import', {
-          body: { action: 'list', per_page: 100, cursor, api_key: apiKey.trim() },
-        });
-        if (fnErr) throw new Error(fnErr.message);
+        const data: any = await chariow({ data: { action: 'list', per_page: 100, cursor, api_key: apiKey.trim() } });
         if (data?.error) throw new Error(data.error);
         const items = data?.data?.data || data?.data || [];
         allItems = [...allItems, ...items];

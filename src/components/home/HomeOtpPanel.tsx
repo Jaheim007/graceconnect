@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Loader2, KeyRound, PlayCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { homeOtp } from "@/lib/verticals/otp.functions";
 import { toast } from "@/hooks/use-toast";
 import { useI18n } from "@/i18n/I18nContext";
 
@@ -20,14 +21,20 @@ export default function HomeOtpPanel({ booking, isClient, isProvider, onChanged 
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState("");
 
+  const runOtp = useServerFn(homeOtp);
+
   const call = async (action: string, extra: Record<string, any> = {}) => {
     setLoading(true);
-    const { data, error } = await supabase.functions.invoke("home-otp", {
-      body: { action, booking_id: booking.id, ...extra },
-    });
+    let data: any = null;
+    let error: Error | null = null;
+    try {
+      data = await runOtp({ data: { action, booking_id: booking.id, ...extra } });
+    } catch (e) {
+      error = e as Error;
+    }
     setLoading(false);
-    if (error || (data as any)?.error) {
-      toast({ title: "Error", description: error?.message || (data as any)?.error, variant: "destructive" });
+    if (error || data?.error) {
+      toast({ title: "Error", description: error?.message || data?.error, variant: "destructive" });
       return null;
     }
     onChanged();
