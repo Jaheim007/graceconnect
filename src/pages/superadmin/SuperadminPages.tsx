@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { useServerFn } from '@tanstack/react-start';
+import { kycSignedUrl } from '@/lib/moderation/moderation.functions';
 import { getOrgCategoryLabel } from '@/lib/categoryLabels';
 import { db } from '@/lib/db';
 import { Badge } from '@/components/ui/badge';
@@ -135,6 +137,7 @@ export function SuperadminKYC() {
   const [loadingUrls, setLoadingUrls] = useState<Record<string, boolean>>({});
   const [rejectTarget, setRejectTarget] = useState<{ id: string; orgId: string; name: string } | null>(null);
   const [rejecting, setRejecting] = useState(false);
+  const runKycSignedUrl = useServerFn(kycSignedUrl);
   
   const { data: submissions = [], isLoading, refetch } = useQuery({
     queryKey: ['sa-kyc', filter],
