@@ -122,7 +122,7 @@ export default function PersonalHome() {
   // Cumulative capabilities — learn / earn / create can all be true at once.
   const caps = useUserCapabilities();
 
-  const capabilityBlocks: Record<Capability, JSX.Element | null> = {
+  const capabilityBlocks: Record<Capability, ReactElement | null> = {
     learn: caps.continueItem ? <ContinueBlock key="learn" item={caps.continueItem} /> : null,
     create: caps.canCreate ? (
       <SpaceBlock key="create" spaceName={caps.spaces.currentName} spaceCount={caps.spaces.count} />
