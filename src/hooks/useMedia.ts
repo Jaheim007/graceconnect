@@ -80,7 +80,7 @@ export function useUpdateMedia() {
         .select()
         .single();
       if (error) throw error;
-      return data;
+      return data as MediaContent;
     },
     onSuccess: (data: MediaContent) => {
       qc.invalidateQueries({ queryKey: ['org-media', data.organization_id] });

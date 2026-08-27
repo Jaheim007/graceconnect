@@ -74,7 +74,7 @@ export function useUpdateEvent() {
         .select()
         .single();
       if (error) throw error;
-      return data;
+      return data as Event;
     },
     onSuccess: (data: Event) => {
       qc.invalidateQueries({ queryKey: ['org-events', data.organization_id] });
