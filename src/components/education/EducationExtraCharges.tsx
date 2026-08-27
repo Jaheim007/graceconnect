@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Plus, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { educationExtraCharge } from "@/lib/verticals/extraCharges.functions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { useI18n } from "@/i18n/I18nContext";
@@ -39,9 +41,8 @@ export default function EducationExtraCharges({ bookingId, isStudent, isTutor, b
 
   const create = async () => {
     setSaving(true);
-    const { error } = await supabase.functions.invoke("education-extra-charge", {
-      body: { action: "create", booking_id: bookingId, amount: Number(amount), label: label.trim(), reason: reason.trim() },
-    });
+    const res: any = await runExtraCharge({ data: { action: "create", booking_id: bookingId, amount: Number(amount), label: label.trim(), reason: reason.trim(), return_origin: window.location.origin } }).catch((e: any) => ({ error: e?.message || "Request failed" }));
+      const data = res; const error = res?.error ? { message: res.error as string } : null;
     setSaving(false);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     setOpen(false); setAmount(""); setLabel(""); setReason("");
@@ -50,9 +51,8 @@ export default function EducationExtraCharges({ bookingId, isStudent, isTutor, b
   };
 
   const respond = async (id: string, action: "accept" | "decline") => {
-    const { data, error } = await supabase.functions.invoke("education-extra-charge", {
-      body: { action, extra_charge_id: id, return_origin: window.location.origin },
-    });
+    const res: any = await runExtraCharge({ data: { action, extra_charge_id: id, return_origin: window.location.origin } }).catch((e: any) => ({ error: e?.message || "Request failed" }));
+      const data = res; const error = res?.error ? { message: res.error as string } : null;
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     if (action === "accept" && (data as any)?.checkout_url) {
       window.location.href = (data as any).checkout_url; return;
