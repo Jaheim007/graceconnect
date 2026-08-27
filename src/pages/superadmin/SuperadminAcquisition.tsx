@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import {
   Activity, Users, TrendingUp, Wallet, Handshake, AlertTriangle, ClipboardList, Globe, Clock,
 } from 'lucide-react';

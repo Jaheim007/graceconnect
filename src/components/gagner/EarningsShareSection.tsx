@@ -5,7 +5,7 @@ import { EarningsCard } from '@/components/ambassador/EarningsCard';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { AmbassadorBadges } from '@/components/gamification/AmbassadorBadges';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { TrendingUp, ArrowRight } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 

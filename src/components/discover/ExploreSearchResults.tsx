@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { Loader2, SearchX, Play, GraduationCap } from 'lucide-react';
 import { db } from '@/lib/db';
 import { ProductCard } from '@/components/products/ProductCard';

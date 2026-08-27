@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate } from '@/lib/router-compat';
 
 /** Index redirects to landing — this file exists only as a fallback */
 const Index = () => <Navigate to="/" replace />;

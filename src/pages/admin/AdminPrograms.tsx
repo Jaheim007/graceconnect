@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, BookOpen, Edit, Trash2, Eye, EyeOff, Layers, ChevronRight, Zap, FileUp, PenLine, ChevronDown, Copy, Save, MessageSquare } from 'lucide-react';

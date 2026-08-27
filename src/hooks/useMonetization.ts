@@ -71,7 +71,7 @@ export function useUpdateCampaign() {
         .select()
         .single();
       if (error) throw error;
-      return data;
+      return data as DonationCampaign;
     },
     onSuccess: (data: DonationCampaign) => {
       qc.invalidateQueries({ queryKey: ['org-campaigns', data.organization_id] });
@@ -151,7 +151,7 @@ export function useUpdateProduct() {
         .select()
         .single();
       if (error) throw error;
-      return data;
+      return data as DigitalProduct;
     },
     onSuccess: (data: DigitalProduct) => {
       qc.invalidateQueries({ queryKey: ['org-products', data.organization_id] });

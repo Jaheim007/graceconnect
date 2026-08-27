@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Church, ShieldCheck, Ban, CheckCircle2, ExternalLink, Loader2, Flag, Award } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';

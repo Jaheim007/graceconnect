@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { MigrateUpload } from './steps/MigrateUpload';
 import { MigrateConfig } from './steps/MigrateConfig';
 import { MigrateCelebration } from './steps/MigrateCelebration';

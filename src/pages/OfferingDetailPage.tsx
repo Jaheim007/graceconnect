@@ -1,4 +1,4 @@
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from '@/lib/router-compat';
 import { useShortLink } from '@/hooks/useShortLink';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';

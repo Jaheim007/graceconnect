@@ -1,6 +1,6 @@
 import { ArrowLeft, Zap, Shield, Bug, Palette, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { SEOHead } from '@/components/seo/SEOHead';

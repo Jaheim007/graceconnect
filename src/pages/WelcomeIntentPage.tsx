@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Package, Upload, Share2, Zap, ArrowRight, SkipForward } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';

@@ -1,5 +1,5 @@
 import { ReactNode, Suspense } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';

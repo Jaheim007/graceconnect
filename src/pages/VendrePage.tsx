@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Store } from 'lucide-react';
 import { GuestGate } from '@/components/auth/GuestGate';
-import { Navigate } from 'react-router-dom';
+import { Navigate } from '@/lib/router-compat';
 import { PlatformOnboardingScreen } from '@/components/platform/PlatformOnboardingScreen';
 
 export default function VendrePage() {

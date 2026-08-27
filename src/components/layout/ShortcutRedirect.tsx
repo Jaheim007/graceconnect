@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate } from '@/lib/router-compat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { getShortcutRoute, type ShortcutRouteKey } from '@/lib/navigation/shortcutRoutes';

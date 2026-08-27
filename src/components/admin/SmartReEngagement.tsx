@@ -64,9 +64,9 @@ export function SmartReEngagement() {
       for (const tx of [...(purchases || []), ...(donations || [])]) {
         if (!tx.user_id) continue;
         if (!activityMap[tx.user_id]) {
-          activityMap[tx.user_id] = { lastDate: tx.created_at, totalSpent: 0 };
+          activityMap[tx.user_id] = { lastDate: tx.created_at ?? '', totalSpent: 0 };
         }
-        if (tx.created_at > activityMap[tx.user_id].lastDate) {
+        if (tx.created_at && tx.created_at > activityMap[tx.user_id].lastDate) {
           activityMap[tx.user_id].lastDate = tx.created_at;
         }
         activityMap[tx.user_id].totalSpent += tx.amount || 0;
@@ -77,7 +77,7 @@ export function SmartReEngagement() {
 
       for (const member of members) {
         const activity = activityMap[member.user_id];
-        const lastDate = activity?.lastDate || member.joined_at;
+        const lastDate = activity?.lastDate || member.joined_at || '';
         const daysSince = differenceInDays(now, new Date(lastDate));
         const profile = profileMap[member.user_id];
 

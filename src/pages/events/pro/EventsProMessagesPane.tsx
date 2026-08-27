@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { NavLink, Outlet, useParams, Link } from "react-router-dom";
+import { NavLink, Outlet, useParams, Link } from "@/lib/router-compat";
 import { MessageSquare, ArrowLeft } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";

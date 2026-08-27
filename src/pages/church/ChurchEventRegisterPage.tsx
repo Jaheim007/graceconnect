@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams, Navigate } from 'react-router-dom';
+import { Link, useParams, Navigate } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Loader2, Calendar, MapPin, Ticket, Users, CheckCircle2, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';

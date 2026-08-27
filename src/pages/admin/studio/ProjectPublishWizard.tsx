@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate } from '@/lib/router-compat';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -222,7 +222,7 @@ export default function ProjectPublishWizard() {
       const { data: mod, error: modErr } = await db.from('program_modules').insert({
         program_id: program.id,
         title: project.title,
-        display_order: 0,
+        order_index: 0,
       }).select('id').single();
       if (modErr) throw modErr;
 

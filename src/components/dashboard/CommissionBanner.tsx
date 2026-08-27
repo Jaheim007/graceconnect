@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { TrendingUp, ArrowRight, Crown, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { db } from '@/lib/db';

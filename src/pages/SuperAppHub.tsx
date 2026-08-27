@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from '@/lib/router-compat';
 import { ArrowRight, Zap, Sun, Moon, BookOpen, Wallet, ShieldCheck, Church, Home as HomeIcon, PartyPopper, GraduationCap, Search, Rocket, Store } from 'lucide-react';
 import { setIntent } from '@/lib/intent';
 import { SEOHead } from '@/components/seo/SEOHead';

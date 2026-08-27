@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, HandHeart, Church, Loader2, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SiteLogo } from '@/components/ui/SiteLogo';

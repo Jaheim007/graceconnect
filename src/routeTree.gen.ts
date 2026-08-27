@@ -9,27 +9,9587 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as PublicRouteImport } from './routes/_public'
+import { Route as AProposRouteImport } from './routes/a-propos'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AcceptableUseRouteImport } from './routes/acceptable-use'
+import { Route as AffiliateProgramRouteImport } from './routes/affiliate-program'
+import { Route as AmbassadorRouteImport } from './routes/ambassador'
+import { Route as AmbassadorProgramRouteImport } from './routes/ambassador-program'
+import { Route as AmbassadorTermsRouteImport } from './routes/ambassador-terms'
+import { Route as AmlRouteImport } from './routes/aml'
+import { Route as BrandRouteImport } from './routes/brand'
+import { Route as CalculateurRouteImport } from './routes/calculateur'
+import { Route as CguRouteImport } from './routes/cgu'
+import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as ChurchesRouteImport } from './routes/churches'
+import { Route as CompareRouteImport } from './routes/compare'
+import { Route as ComparerRouteImport } from './routes/comparer'
+import { Route as ComplianceRouteImport } from './routes/compliance'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CookiePolicyRouteImport } from './routes/cookie-policy'
+import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as CopyrightRouteImport } from './routes/copyright'
+import { Route as CreateCourseRouteImport } from './routes/create-course'
+import { Route as CreateOrgRouteImport } from './routes/create-org'
+import { Route as CreerFormationRouteImport } from './routes/creer-formation'
+import { Route as DashboardPreviewRouteImport } from './routes/dashboard-preview'
+import { Route as DataDeletionRouteImport } from './routes/data-deletion'
+import { Route as DevelopersRouteImport } from './routes/developers'
+import { Route as DeveloppeursRouteImport } from './routes/developpeurs'
+import { Route as DevenirPartenaireRouteImport } from './routes/devenir-partenaire'
+import { Route as DiscoverRouteImport } from './routes/discover'
+import { Route as DmcaRouteImport } from './routes/dmca'
+import { Route as DpaRouteImport } from './routes/dpa'
+import { Route as EarnRouteImport } from './routes/earn'
+import { Route as EcrireRouteImport } from './routes/ecrire'
+import { Route as EmailPreferencesRouteImport } from './routes/email-preferences'
+import { Route as EtudesDeCasRouteImport } from './routes/etudes-de-cas'
+import { Route as ExplorerRouteImport } from './routes/explorer'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as FeuilleDeRouteRouteImport } from './routes/feuille-de-route'
+import { Route as FondateursRouteImport } from './routes/fondateurs'
+import { Route as FoundersRouteImport } from './routes/founders'
+import { Route as GagnerRouteImport } from './routes/gagner'
+import { Route as GagnerInfoRouteImport } from './routes/gagner-info'
+import { Route as GlossaireRouteImport } from './routes/glossaire'
+import { Route as GlossaryRouteImport } from './routes/glossary'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as HubRouteImport } from './routes/hub'
+import { Route as InstallRouteImport } from './routes/install'
+import { Route as IntegrationsRouteImport } from './routes/integrations'
+import { Route as LandingRouteImport } from './routes/landing'
+import { Route as LegalNoticesRouteImport } from './routes/legal-notices'
+import { Route as LookingForRouteImport } from './routes/looking-for'
+import { Route as MaintenanceRouteImport } from './routes/maintenance'
+import { Route as MediaKitRouteImport } from './routes/media-kit'
+import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
+import { Route as MesAchatsRouteImport } from './routes/mes-achats'
+import { Route as MigrateRouteImport } from './routes/migrate'
+import { Route as MigrerRouteImport } from './routes/migrer'
+import { Route as NewThisWeekRouteImport } from './routes/new-this-week'
+import { Route as NewsletterRouteImport } from './routes/newsletter'
+import { Route as ParrainageRouteImport } from './routes/parrainage'
+import { Route as PartenairesRouteImport } from './routes/partenaires'
+import { Route as PartnerTermsRouteImport } from './routes/partner-terms'
+import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
+import { Route as PayoutPolicyRouteImport } from './routes/payout-policy'
+import { Route as PlanDuSiteRouteImport } from './routes/plan-du-site'
+import { Route as PresseRouteImport } from './routes/presse'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ProtectionRouteImport } from './routes/protection'
+import { Route as ReferralsRouteImport } from './routes/referrals'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
+import { Route as ReportRouteImport } from './routes/report'
+import { Route as RoadmapRouteImport } from './routes/roadmap'
+import { Route as SecurityRouteImport } from './routes/security'
+import { Route as SellRouteImport } from './routes/sell'
+import { Route as ServicesRouteImport } from './routes/services'
+import { Route as ShareTargetRouteImport } from './routes/share-target'
+import { Route as ShowcaseRouteImport } from './routes/showcase'
+import { Route as SignalerRouteImport } from './routes/signaler'
+import { Route as SitemapRouteImport } from './routes/sitemap'
+import { Route as StartSellingRouteImport } from './routes/start-selling'
+import { Route as StatusRouteImport } from './routes/status'
+import { Route as SubprocessorsRouteImport } from './routes/subprocessors'
+import { Route as SuperadminRouteImport } from './routes/superadmin'
+import { Route as SuperappRouteImport } from './routes/superapp'
+import { Route as TarifsRouteImport } from './routes/tarifs'
+import { Route as TemoignagesRouteImport } from './routes/temoignages'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TopCreatorsRouteImport } from './routes/top-creators'
+import { Route as TutorielsRouteImport } from './routes/tutoriels'
+import { Route as VendreRouteImport } from './routes/vendre'
+import { Route as WelcomeRouteImport } from './routes/welcome'
+import { Route as WelcomeIntentRouteImport } from './routes/welcome-intent'
+import { Route as WriteRouteImport } from './routes/write'
+import { Route as AppAdminRouteImport } from './routes/_app.admin'
+import { Route as AppAffiliationRouteImport } from './routes/_app.affiliation'
+import { Route as AppBookmarksRouteImport } from './routes/_app.bookmarks'
+import { Route as AppCreditsRouteImport } from './routes/_app.credits'
+import { Route as AppFeedRouteImport } from './routes/_app.feed'
+import { Route as AppInvoicesRouteImport } from './routes/_app.invoices'
+import { Route as AppKycRouteImport } from './routes/_app.kyc'
+import { Route as AppLeaderboardRouteImport } from './routes/_app.leaderboard'
+import { Route as AppMesAvisRouteImport } from './routes/_app.mes-avis'
+import { Route as AppMesFormationsRouteImport } from './routes/_app.mes-formations'
+import { Route as AppMyAnalyticsRouteImport } from './routes/_app.my-analytics'
+import { Route as AppMyDonationsRouteImport } from './routes/_app.my-donations'
+import { Route as AppMyInvoicesRouteImport } from './routes/_app.my-invoices'
+import { Route as AppMyProgramsRouteImport } from './routes/_app.my-programs'
+import { Route as AppMyPurchasesRouteImport } from './routes/_app.my-purchases'
+import { Route as AppMyReviewsRouteImport } from './routes/_app.my-reviews'
+import { Route as AppNotificationPreferencesRouteImport } from './routes/_app.notification-preferences'
+import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
+import { Route as AppPartnerRouteImport } from './routes/_app.partner'
+import { Route as AppProfileRouteImport } from './routes/_app.profile'
+import { Route as AppQuickPublishRouteImport } from './routes/_app.quick-publish'
+import { Route as AppQuickStartRouteImport } from './routes/_app.quick-start'
+import { Route as AppResourcesRouteImport } from './routes/_app.resources'
+import { Route as AppSettingsRouteImport } from './routes/_app.settings'
+import { Route as AppSupportRouteImport } from './routes/_app.support'
+import { Route as AppWalletRouteImport } from './routes/_app.wallet'
+import { Route as AppWishlistRouteImport } from './routes/_app.wishlist'
+import { Route as PublicCoursesRouteImport } from './routes/_public.courses'
+import { Route as PublicSpotlightRouteImport } from './routes/_public.spotlight'
+import { Route as AccountIndexRouteImport } from './routes/account.index'
+import { Route as AccountTrustRouteImport } from './routes/account.trust'
+import { Route as AuthIndexRouteImport } from './routes/auth.index'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as BeautyIndexRouteImport } from './routes/beauty.index'
+import { Route as BeautySplatRouteImport } from './routes/beauty.$'
+import { Route as BeautyAboutRouteImport } from './routes/beauty.about'
+import { Route as BeautySearchRouteImport } from './routes/beauty.search'
+import { Route as BillingIndexRouteImport } from './routes/billing.index'
+import { Route as BillingSuccessRouteImport } from './routes/billing.success'
+import { Route as BillingUsageRouteImport } from './routes/billing.usage'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as CanvaCallbackRouteImport } from './routes/canva.callback'
+import { Route as ChurchIndexRouteImport } from './routes/church.index'
+import { Route as ChurchAboutRouteImport } from './routes/church.about'
+import { Route as ChurchDiscoverRouteImport } from './routes/church.discover'
+import { Route as CreatorAdvancedAnalyticsRouteImport } from './routes/creator.advanced-analytics'
+import { Route as DigitalIndexRouteImport } from './routes/digital.index'
+import { Route as DigitalAboutRouteImport } from './routes/digital.about'
+import { Route as DocsIndexRouteImport } from './routes/docs.index'
+import { Route as DocsApiRouteImport } from './routes/docs.api'
+import { Route as EducationIndexRouteImport } from './routes/education.index'
+import { Route as EducationSplatRouteImport } from './routes/education.$'
+import { Route as EducationAboutRouteImport } from './routes/education.about'
+import { Route as EducationDiscoverRouteImport } from './routes/education.discover'
+import { Route as EventsIndexRouteImport } from './routes/events.index'
+import { Route as EventsSplatRouteImport } from './routes/events.$'
+import { Route as EventsAboutRouteImport } from './routes/events.about'
+import { Route as EventsDiscoverRouteImport } from './routes/events.discover'
+import { Route as ExploreArtisansRouteImport } from './routes/explore.artisans'
+import { Route as ExploreBeautyRouteImport } from './routes/explore.beauty'
+import { Route as ExploreCoachingRouteImport } from './routes/explore.coaching'
+import { Route as ExploreDigitalProductsRouteImport } from './routes/explore.digital-products'
+import { Route as ExploreInfluencersRouteImport } from './routes/explore.influencers'
+import { Route as ExploreMusicRouteImport } from './routes/explore.music'
+import { Route as ExploreOtherServicesRouteImport } from './routes/explore.other-services'
+import { Route as ExploreTutorsRouteImport } from './routes/explore.tutors'
+import { Route as GoCodeRouteImport } from './routes/go.$code'
+import { Route as GuideAffiliationSansInvestissementRouteImport } from './routes/guide.affiliation-sans-investissement'
+import { Route as GuideAlternativeGofundmeRouteImport } from './routes/guide.alternative-gofundme'
+import { Route as GuideBoutiqueDigitaleGratuiteRouteImport } from './routes/guide.boutique-digitale-gratuite'
+import { Route as GuideGagnerSansContenuRouteImport } from './routes/guide.gagner-sans-contenu'
+import { Route as GuideMobileMoneyEcommerceRouteImport } from './routes/guide.mobile-money-ecommerce'
+import { Route as GuideMonetiserContenuReligieuxRouteImport } from './routes/guide.monetiser-contenu-religieux'
+import { Route as GuidePlateformeDonsAfriqueRouteImport } from './routes/guide.plateforme-dons-afrique'
+import { Route as GuideVendreCoursEnLigneRouteImport } from './routes/guide.vendre-cours-en-ligne'
+import { Route as GuideVendreEbookAfriqueRouteImport } from './routes/guide.vendre-ebook-afrique'
+import { Route as HomeIndexRouteImport } from './routes/home.index'
+import { Route as HomeSplatRouteImport } from './routes/home.$'
+import { Route as HomeAboutRouteImport } from './routes/home.about'
+import { Route as HomeDiscoverRouteImport } from './routes/home.discover'
+import { Route as InviteCodeRouteImport } from './routes/invite.$code'
+import { Route as LearnIndexRouteImport } from './routes/learn.index'
+import { Route as LearnSplatRouteImport } from './routes/learn.$'
+import { Route as LearnAboutRouteImport } from './routes/learn.about'
+import { Route as LearnDiscoverRouteImport } from './routes/learn.discover'
+import { Route as PaymentSplatRouteImport } from './routes/payment.$'
+import { Route as PourAgencesRouteImport } from './routes/pour.agences'
+import { Route as PourAssociationsRouteImport } from './routes/pour.associations'
+import { Route as PourAuteursRouteImport } from './routes/pour.auteurs'
+import { Route as PourBlogueursRouteImport } from './routes/pour.blogueurs'
+import { Route as PourCentresFormationRouteImport } from './routes/pour.centres-formation'
+import { Route as PourCoachesRouteImport } from './routes/pour.coaches'
+import { Route as PourConsultantsRouteImport } from './routes/pour.consultants'
+import { Route as PourCooperativesRouteImport } from './routes/pour.cooperatives'
+import { Route as PourCreateursVideoRouteImport } from './routes/pour.createurs-video'
+import { Route as PourDesignersRouteImport } from './routes/pour.designers'
+import { Route as PourDiasporaRouteImport } from './routes/pour.diaspora'
+import { Route as PourEglisesRouteImport } from './routes/pour.eglises'
+import { Route as PourEnseignantsRouteImport } from './routes/pour.enseignants'
+import { Route as PourEntrepreneursRouteImport } from './routes/pour.entrepreneurs'
+import { Route as PourEtudiantsRouteImport } from './routes/pour.etudiants'
+import { Route as PourFemmesEntrepreneuresRouteImport } from './routes/pour.femmes-entrepreneures'
+import { Route as PourFinanceRouteImport } from './routes/pour.finance'
+import { Route as PourFormateursRouteImport } from './routes/pour.formateurs'
+import { Route as PourInfluenceursRouteImport } from './routes/pour.influenceurs'
+import { Route as PourJuristesRouteImport } from './routes/pour.juristes'
+import { Route as PourLeadersMusulmansRouteImport } from './routes/pour.leaders-musulmans'
+import { Route as PourMediasRouteImport } from './routes/pour.medias'
+import { Route as PourMinisteresRouteImport } from './routes/pour.ministeres'
+import { Route as PourMissionnairesRouteImport } from './routes/pour.missionnaires'
+import { Route as PourMusiciensRouteImport } from './routes/pour.musiciens'
+import { Route as PourOngRouteImport } from './routes/pour.ong'
+import { Route as PourPhotographesRouteImport } from './routes/pour.photographes'
+import { Route as PourPodcastersRouteImport } from './routes/pour.podcasters'
+import { Route as PourRetraitesRouteImport } from './routes/pour.retraites'
+import { Route as PourSanteRouteImport } from './routes/pour.sante'
+import { Route as SolutionsChurchRouteImport } from './routes/solutions.church'
+import { Route as StartIndexRouteImport } from './routes/start.index'
+import { Route as StartSplatRouteImport } from './routes/start.$'
+import { Route as StartDetailsRouteImport } from './routes/start.details'
+import { Route as StartFinishRouteImport } from './routes/start.finish'
+import { Route as StoreSlugRouteImport } from './routes/store.$slug'
+import { Route as SuperadminIndexRouteImport } from './routes/superadmin.index'
+import { Route as SuperadminAcquisitionRouteImport } from './routes/superadmin.acquisition'
+import { Route as SuperadminActivityRouteImport } from './routes/superadmin.activity'
+import { Route as SuperadminAdsRouteImport } from './routes/superadmin.ads'
+import { Route as SuperadminAiRouteImport } from './routes/superadmin.ai'
+import { Route as SuperadminAiHistoryRouteImport } from './routes/superadmin.ai-history'
+import { Route as SuperadminBeautyRouteImport } from './routes/superadmin.beauty'
+import { Route as SuperadminChurchRouteImport } from './routes/superadmin.church'
+import { Route as SuperadminCommandCenterRouteImport } from './routes/superadmin.command-center'
+import { Route as SuperadminDirectoryRouteImport } from './routes/superadmin.directory'
+import { Route as SuperadminEducationRouteImport } from './routes/superadmin.education'
+import { Route as SuperadminEmailsRouteImport } from './routes/superadmin.emails'
+import { Route as SuperadminEventsRouteImport } from './routes/superadmin.events'
+import { Route as SuperadminExportsRouteImport } from './routes/superadmin.exports'
+import { Route as SuperadminHealthRouteImport } from './routes/superadmin.health'
+import { Route as SuperadminHomeRouteImport } from './routes/superadmin.home'
+import { Route as SuperadminInvestorRouteImport } from './routes/superadmin.investor'
+import { Route as SuperadminKycRouteImport } from './routes/superadmin.kyc'
+import { Route as SuperadminMarketplaceModerationRouteImport } from './routes/superadmin.marketplace-moderation'
+import { Route as SuperadminMetricsRouteImport } from './routes/superadmin.metrics'
+import { Route as SuperadminModerationRouteImport } from './routes/superadmin.moderation'
+import { Route as SuperadminOrgsRouteImport } from './routes/superadmin.orgs'
+import { Route as SuperadminPartnersRouteImport } from './routes/superadmin.partners'
+import { Route as SuperadminPushRouteImport } from './routes/superadmin.push'
+import { Route as SuperadminReportsRouteImport } from './routes/superadmin.reports'
+import { Route as SuperadminRiskRouteImport } from './routes/superadmin.risk'
+import { Route as SuperadminSettingsRouteImport } from './routes/superadmin.settings'
+import { Route as SuperadminSettlementsRouteImport } from './routes/superadmin.settlements'
+import { Route as SuperadminSupportRouteImport } from './routes/superadmin.support'
+import { Route as SuperadminTransactionsRouteImport } from './routes/superadmin.transactions'
+import { Route as SuperadminTrustRouteImport } from './routes/superadmin.trust'
+import { Route as SuperadminUsersRouteImport } from './routes/superadmin.users'
+import { Route as VerifyCertNumberRouteImport } from './routes/verify.$certNumber'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
+import { Route as AppAdminAffiliationRouteImport } from './routes/_app.admin.affiliation'
+import { Route as AppAdminAnalyticsRouteImport } from './routes/_app.admin.analytics'
+import { Route as AppAdminApiKeysRouteImport } from './routes/_app.admin.api-keys'
+import { Route as AppAdminContentRouteImport } from './routes/_app.admin.content'
+import { Route as AppAdminCreateRouteImport } from './routes/_app.admin.create'
+import { Route as AppAdminCrmRouteImport } from './routes/_app.admin.crm'
+import { Route as AppAdminExperimentsRouteImport } from './routes/_app.admin.experiments'
+import { Route as AppAdminKycRouteImport } from './routes/_app.admin.kyc'
+import { Route as AppAdminLearnerProgressRouteImport } from './routes/_app.admin.learner-progress'
+import { Route as AppAdminMarketplaceTemplatesRouteImport } from './routes/_app.admin.marketplace-templates'
+import { Route as AppAdminMembersRouteImport } from './routes/_app.admin.members'
+import { Route as AppAdminNotificationsRouteImport } from './routes/_app.admin.notifications'
+import { Route as AppAdminOfferingsRouteImport } from './routes/_app.admin.offerings'
+import { Route as AppAdminPayoutsRouteImport } from './routes/_app.admin.payouts'
+import { Route as AppAdminPeopleRouteImport } from './routes/_app.admin.people'
+import { Route as AppAdminPhotosRouteImport } from './routes/_app.admin.photos'
+import { Route as AppAdminPopupsRouteImport } from './routes/_app.admin.popups'
+import { Route as AppAdminPromoCodesRouteImport } from './routes/_app.admin.promo-codes'
+import { Route as AppAdminSalesRouteImport } from './routes/_app.admin.sales'
+import { Route as AppAdminSettingsRouteImport } from './routes/_app.admin.settings'
+import { Route as AppAdminSubscriptionsRouteImport } from './routes/_app.admin.subscriptions'
+import { Route as AppAdminViralStudioRouteImport } from './routes/_app.admin.viral-studio'
+import { Route as AppAdminViralToolsRouteImport } from './routes/_app.admin.viral-tools'
+import { Route as AppAdminVoiceAgentRouteImport } from './routes/_app.admin.voice-agent'
+import { Route as AppAdminWaitlistsRouteImport } from './routes/_app.admin.waitlists'
+import { Route as AppAdminWebhooksRouteImport } from './routes/_app.admin.webhooks'
+import { Route as AppCreatorAnalyticsRouteImport } from './routes/_app.creator.analytics'
+import { Route as AppDashboardIndexRouteImport } from './routes/_app.dashboard.index'
+import { Route as AppDashboardActivityRouteImport } from './routes/_app.dashboard.activity'
+import { Route as AppDashboardAffiliationRouteImport } from './routes/_app.dashboard.affiliation'
+import { Route as AppDashboardClaimRouteImport } from './routes/_app.dashboard.claim'
+import { Route as AppDashboardDigitalRouteImport } from './routes/_app.dashboard.digital'
+import { Route as AppDashboardEarnRouteImport } from './routes/_app.dashboard.earn'
+import { Route as AppDashboardExploreRouteImport } from './routes/_app.dashboard.explore'
+import { Route as AppDashboardHomeRouteImport } from './routes/_app.dashboard.home'
+import { Route as AppDashboardKycRouteImport } from './routes/_app.dashboard.kyc'
+import { Route as AppDashboardNotificationsRouteImport } from './routes/_app.dashboard.notifications'
+import { Route as AppDashboardOrdersRouteImport } from './routes/_app.dashboard.orders'
+import { Route as AppDashboardProductsRouteImport } from './routes/_app.dashboard.products'
+import { Route as AppDashboardProfileRouteImport } from './routes/_app.dashboard.profile'
+import { Route as AppDashboardPromotionsRouteImport } from './routes/_app.dashboard.promotions'
+import { Route as AppDashboardPurchasesRouteImport } from './routes/_app.dashboard.purchases'
+import { Route as AppDashboardRevenueRouteImport } from './routes/_app.dashboard.revenue'
+import { Route as AppMarketplaceIndexRouteImport } from './routes/_app.marketplace.index'
+import { Route as AppOnboardingGoalsRouteImport } from './routes/_app.onboarding.goals'
+import { Route as AppOnboardingTypeRouteImport } from './routes/_app.onboarding.type'
+import { Route as AppReelsIndexRouteImport } from './routes/_app.reels.index'
+import { Route as AppReelsIdRouteImport } from './routes/_app.reels.$id'
+import { Route as AppWatchIdRouteImport } from './routes/_app.watch.$id'
+import { Route as PublicAnnouncementAnnouncementIdRouteImport } from './routes/_public.announcement.$announcementId'
+import { Route as PublicCampaignCampaignIdRouteImport } from './routes/_public.campaign.$campaignId'
+import { Route as PublicEventEventIdRouteImport } from './routes/_public.event.$eventId'
+import { Route as PublicOfferingOfferingIdRouteImport } from './routes/_public.offering.$offeringId'
+import { Route as PublicPKeyRouteImport } from './routes/_public.p.$key'
+import { Route as PublicProductKeyRouteImport } from './routes/_public.product.$key'
+import { Route as PublicProduitKeyRouteImport } from './routes/_public.produit.$key'
+import { Route as PublicProgramProgramIdRouteImport } from './routes/_public.program.$programId'
+import { Route as PublicPromoAiCreationsRouteImport } from './routes/_public.promo.ai-creations'
+import { Route as PublicPromoCatalogueRouteImport } from './routes/_public.promo.catalogue'
+import { Route as PublicPromoGratuitsRouteImport } from './routes/_public.promo.gratuits'
+import { Route as PublicPromoStarsRouteImport } from './routes/_public.promo.stars'
+import { Route as BeautyPSlugRouteImport } from './routes/beauty.p.$slug'
+import { Route as BeautyProOnboardingRouteImport } from './routes/beauty.pro.onboarding'
+import { Route as ChurchSlugIndexRouteImport } from './routes/church.$slug.index'
+import { Route as ChurchProIndexRouteImport } from './routes/church.pro.index'
+import { Route as ChurchProAnnouncementsRouteImport } from './routes/church.pro.announcements'
+import { Route as ChurchProAppointmentsRouteImport } from './routes/church.pro.appointments'
+import { Route as ChurchProCampaignsRouteImport } from './routes/church.pro.campaigns'
+import { Route as ChurchProEventsRouteImport } from './routes/church.pro.events'
+import { Route as ChurchProGivingRouteImport } from './routes/church.pro.giving'
+import { Route as ChurchProKycRouteImport } from './routes/church.pro.kyc'
+import { Route as ChurchProMembersRouteImport } from './routes/church.pro.members'
+import { Route as ChurchProOnboardingRouteImport } from './routes/church.pro.onboarding'
+import { Route as ChurchProPrayerRouteImport } from './routes/church.pro.prayer'
+import { Route as ChurchProSettingsRouteImport } from './routes/church.pro.settings'
+import { Route as ChurchProTeamRouteImport } from './routes/church.pro.team'
+import { Route as EducationProOnboardingRouteImport } from './routes/education.pro.onboarding'
+import { Route as EventsProSlugRouteImport } from './routes/events.pro.$slug'
+import { Route as EventsProOnboardingRouteImport } from './routes/events.pro.onboarding'
+import { Route as HomeProSlugRouteImport } from './routes/home.pro.$slug'
+import { Route as HomeProOnboardingRouteImport } from './routes/home.pro.onboarding'
+import { Route as LearnProSlugRouteImport } from './routes/learn.pro.$slug'
+import { Route as LearnProOnboardingRouteImport } from './routes/learn.pro.onboarding'
+import { Route as MarketplaceTemplatesIndexRouteImport } from './routes/marketplace.templates.index'
+import { Route as MarketplaceTemplatesIdRouteImport } from './routes/marketplace.templates.$id'
+import { Route as SuperadminStudioAbuseMonitorRouteImport } from './routes/superadmin.studio.abuse-monitor'
+import { Route as SuperadminStudioJobsRouteImport } from './routes/superadmin.studio.jobs'
+import { Route as SuperadminStudioPoliciesRouteImport } from './routes/superadmin.studio.policies'
+import { Route as SuperadminStudioTemplatesRouteImport } from './routes/superadmin.studio.templates'
+import { Route as AppAdminAnnouncementsIndexRouteImport } from './routes/_app.admin.announcements.index'
+import { Route as AppAdminAnnouncementsNewRouteImport } from './routes/_app.admin.announcements.new'
+import { Route as AppAdminBeautyIndexRouteImport } from './routes/_app.admin.beauty.index'
+import { Route as AppAdminBeautySplatRouteImport } from './routes/_app.admin.beauty.$'
+import { Route as AppAdminBeautyKycRouteImport } from './routes/_app.admin.beauty.kyc'
+import { Route as AppAdminBeautyMessagesRouteImport } from './routes/_app.admin.beauty.messages'
+import { Route as AppAdminBeautyOrdersRouteImport } from './routes/_app.admin.beauty.orders'
+import { Route as AppAdminBeautyRevenueRouteImport } from './routes/_app.admin.beauty.revenue'
+import { Route as AppAdminBeautySettingsRouteImport } from './routes/_app.admin.beauty.settings'
+import { Route as AppAdminCampaignsIndexRouteImport } from './routes/_app.admin.campaigns.index'
+import { Route as AppAdminCampaignsNewRouteImport } from './routes/_app.admin.campaigns.new'
+import { Route as AppAdminChurchIndexRouteImport } from './routes/_app.admin.church.index'
+import { Route as AppAdminChurchAnnouncementsRouteImport } from './routes/_app.admin.church.announcements'
+import { Route as AppAdminChurchAppointmentsRouteImport } from './routes/_app.admin.church.appointments'
+import { Route as AppAdminChurchCampaignsRouteImport } from './routes/_app.admin.church.campaigns'
+import { Route as AppAdminChurchEventsRouteImport } from './routes/_app.admin.church.events'
+import { Route as AppAdminChurchGivingRouteImport } from './routes/_app.admin.church.giving'
+import { Route as AppAdminChurchKycRouteImport } from './routes/_app.admin.church.kyc'
+import { Route as AppAdminChurchMembersRouteImport } from './routes/_app.admin.church.members'
+import { Route as AppAdminChurchPrayerRouteImport } from './routes/_app.admin.church.prayer'
+import { Route as AppAdminChurchSettingsRouteImport } from './routes/_app.admin.church.settings'
+import { Route as AppAdminChurchTeamRouteImport } from './routes/_app.admin.church.team'
+import { Route as AppAdminEventsServiceIndexRouteImport } from './routes/_app.admin.events-service.index'
+import { Route as AppAdminEventsServiceSplatRouteImport } from './routes/_app.admin.events-service.$'
+import { Route as AppAdminEventsServiceKycRouteImport } from './routes/_app.admin.events-service.kyc'
+import { Route as AppAdminEventsServiceMessagesRouteImport } from './routes/_app.admin.events-service.messages'
+import { Route as AppAdminEventsServiceOrdersRouteImport } from './routes/_app.admin.events-service.orders'
+import { Route as AppAdminEventsServicePackagesRouteImport } from './routes/_app.admin.events-service.packages'
+import { Route as AppAdminEventsServiceRevenueRouteImport } from './routes/_app.admin.events-service.revenue'
+import { Route as AppAdminEventsServiceSettingsRouteImport } from './routes/_app.admin.events-service.settings'
+import { Route as AppAdminEventsIndexRouteImport } from './routes/_app.admin.events.index'
+import { Route as AppAdminEventsNewRouteImport } from './routes/_app.admin.events.new'
+import { Route as AppAdminHomeIndexRouteImport } from './routes/_app.admin.home.index'
+import { Route as AppAdminHomeSplatRouteImport } from './routes/_app.admin.home.$'
+import { Route as AppAdminHomeKycRouteImport } from './routes/_app.admin.home.kyc'
+import { Route as AppAdminHomeMessagesRouteImport } from './routes/_app.admin.home.messages'
+import { Route as AppAdminHomeOrdersRouteImport } from './routes/_app.admin.home.orders'
+import { Route as AppAdminHomeRevenueRouteImport } from './routes/_app.admin.home.revenue'
+import { Route as AppAdminHomeServicesRouteImport } from './routes/_app.admin.home.services'
+import { Route as AppAdminHomeSettingsRouteImport } from './routes/_app.admin.home.settings'
+import { Route as AppAdminLearnIndexRouteImport } from './routes/_app.admin.learn.index'
+import { Route as AppAdminLearnSplatRouteImport } from './routes/_app.admin.learn.$'
+import { Route as AppAdminLearnKycRouteImport } from './routes/_app.admin.learn.kyc'
+import { Route as AppAdminLearnMessagesRouteImport } from './routes/_app.admin.learn.messages'
+import { Route as AppAdminLearnOrdersRouteImport } from './routes/_app.admin.learn.orders'
+import { Route as AppAdminLearnRevenueRouteImport } from './routes/_app.admin.learn.revenue'
+import { Route as AppAdminLearnSettingsRouteImport } from './routes/_app.admin.learn.settings'
+import { Route as AppAdminLearnSubjectsRouteImport } from './routes/_app.admin.learn.subjects'
+import { Route as AppAdminMediaIndexRouteImport } from './routes/_app.admin.media.index'
+import { Route as AppAdminMediaNewRouteImport } from './routes/_app.admin.media.new'
+import { Route as AppAdminProductsIndexRouteImport } from './routes/_app.admin.products.index'
+import { Route as AppAdminProductsNewRouteImport } from './routes/_app.admin.products.new'
+import { Route as AppAdminProgramsIndexRouteImport } from './routes/_app.admin.programs.index'
+import { Route as AppAdminProgramsGeneratingRouteImport } from './routes/_app.admin.programs.generating'
+import { Route as AppAdminProgramsNewRouteImport } from './routes/_app.admin.programs.new'
+import { Route as AppAdminStudioIndexRouteImport } from './routes/_app.admin.studio.index'
+import { Route as AppAdminStudioJobsRouteImport } from './routes/_app.admin.studio.jobs'
+import { Route as AppAdminStudioLibraryRouteImport } from './routes/_app.admin.studio.library'
+import { Route as AppAdminStudioTemplatesRouteImport } from './routes/_app.admin.studio.templates'
+import { Route as AppDashboardMessagesIndexRouteImport } from './routes/_app.dashboard.messages.index'
+import { Route as AppDashboardSettingsIndexRouteImport } from './routes/_app.dashboard.settings.index'
+import { Route as AppDashboardSettingsModulesRouteImport } from './routes/_app.dashboard.settings.modules'
+import { Route as PublicOrgSlugIndexRouteImport } from './routes/_public.org.$slug.index'
+import { Route as PublicOrgSlugContentRouteImport } from './routes/_public.org.$slug.content'
+import { Route as PublicOrgSlugDonateRouteImport } from './routes/_public.org.$slug.donate'
+import { Route as PublicOrgSlugDonsRouteImport } from './routes/_public.org.$slug.dons'
+import { Route as PublicOrgSlugEventsRouteImport } from './routes/_public.org.$slug.events'
+import { Route as PublicOrgSlugOfferingsRouteImport } from './routes/_public.org.$slug.offerings'
+import { Route as PublicOrgSlugPhotosRouteImport } from './routes/_public.org.$slug.photos'
+import { Route as PublicOrgSlugStoreRouteImport } from './routes/_public.org.$slug.store'
+import { Route as ChurchSlugEventsEventIdRouteImport } from './routes/church.$slug.events.$eventId'
+import { Route as ChurchSlugGiveIndexRouteImport } from './routes/church.$slug.give.index'
+import { Route as ChurchSlugGiveSuccessRouteImport } from './routes/church.$slug.give.success'
+import { Route as ChurchProSermonsIndexRouteImport } from './routes/church.pro.sermons.index'
+import { Route as ChurchProSermonsIdRouteImport } from './routes/church.pro.sermons.$id'
+import { Route as AppAdminAnnouncementsIdEditRouteImport } from './routes/_app.admin.announcements.$id.edit'
+import { Route as AppAdminBeautyMessagesIdRouteImport } from './routes/_app.admin.beauty.messages.$id'
+import { Route as AppAdminCampaignsIdEditRouteImport } from './routes/_app.admin.campaigns.$id.edit'
+import { Route as AppAdminChurchSermonsIndexRouteImport } from './routes/_app.admin.church.sermons.index'
+import { Route as AppAdminChurchSermonsIdRouteImport } from './routes/_app.admin.church.sermons.$id'
+import { Route as AppAdminEventsServiceMessagesIdRouteImport } from './routes/_app.admin.events-service.messages.$id'
+import { Route as AppAdminEventsIdEditRouteImport } from './routes/_app.admin.events.$id.edit'
+import { Route as AppAdminHomeMessagesIdRouteImport } from './routes/_app.admin.home.messages.$id'
+import { Route as AppAdminLearnMessagesIdRouteImport } from './routes/_app.admin.learn.messages.$id'
+import { Route as AppAdminMediaIdEditRouteImport } from './routes/_app.admin.media.$id.edit'
+import { Route as AppAdminProductsIdEditRouteImport } from './routes/_app.admin.products.$id.edit'
+import { Route as AppAdminProgramsIdEditRouteImport } from './routes/_app.admin.programs.$id.edit'
+import { Route as AppAdminProgramsDraftProjectIdRouteImport } from './routes/_app.admin.programs.draft.$projectId'
+import { Route as AppAdminStudioProjectsIndexRouteImport } from './routes/_app.admin.studio.projects.index'
+import { Route as AppAdminStudioProjectsNewRouteImport } from './routes/_app.admin.studio.projects.new'
+import { Route as AppDashboardMessagesVerticalIdRouteImport } from './routes/_app.dashboard.messages.$vertical.$id'
+import { Route as AppDashboardMessagesBeautyIdRouteImport } from './routes/_app.dashboard.messages.beauty.$id'
+import { Route as AppDashboardMessagesEventsIdRouteImport } from './routes/_app.dashboard.messages.events.$id'
+import { Route as AppDashboardMessagesHomeIdRouteImport } from './routes/_app.dashboard.messages.home.$id'
+import { Route as AppDashboardMessagesLearnIdRouteImport } from './routes/_app.dashboard.messages.learn.$id'
+import { Route as PublicOrgSlugPProductSlugRouteImport } from './routes/_public.org.$slug.p.$productSlug'
+import { Route as PublicOrgSlugProductProductIdRouteImport } from './routes/_public.org.$slug.product.$productId'
+import { Route as ChurchSlugPdfPdfIdIndexRouteImport } from './routes/church.$slug.pdf.$pdfId.index'
+import { Route as ChurchSlugPdfPdfIdSuccessRouteImport } from './routes/church.$slug.pdf.$pdfId.success'
+import { Route as AppAdminStudioProjectsIdIndexRouteImport } from './routes/_app.admin.studio.projects.$id.index'
+import { Route as AppAdminStudioProjectsIdAssetsRouteImport } from './routes/_app.admin.studio.projects.$id.assets'
+import { Route as AppAdminStudioProjectsIdEditorRouteImport } from './routes/_app.admin.studio.projects.$id.editor'
+import { Route as AppAdminStudioProjectsIdPublishRouteImport } from './routes/_app.admin.studio.projects.$id.publish'
+import { Route as AppAdminStudioProjectsIdReviewRouteImport } from './routes/_app.admin.studio.projects.$id.review'
 
-export interface FileRoutesByFullPath {}
-export interface FileRoutesByTo {}
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AProposRoute = AProposRouteImport.update({
+  id: '/a-propos',
+  path: '/a-propos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AcceptableUseRoute = AcceptableUseRouteImport.update({
+  id: '/acceptable-use',
+  path: '/acceptable-use',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AffiliateProgramRoute = AffiliateProgramRouteImport.update({
+  id: '/affiliate-program',
+  path: '/affiliate-program',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AmbassadorRoute = AmbassadorRouteImport.update({
+  id: '/ambassador',
+  path: '/ambassador',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AmbassadorProgramRoute = AmbassadorProgramRouteImport.update({
+  id: '/ambassador-program',
+  path: '/ambassador-program',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AmbassadorTermsRoute = AmbassadorTermsRouteImport.update({
+  id: '/ambassador-terms',
+  path: '/ambassador-terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AmlRoute = AmlRouteImport.update({
+  id: '/aml',
+  path: '/aml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrandRoute = BrandRouteImport.update({
+  id: '/brand',
+  path: '/brand',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalculateurRoute = CalculateurRouteImport.update({
+  id: '/calculateur',
+  path: '/calculateur',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CguRoute = CguRouteImport.update({
+  id: '/cgu',
+  path: '/cgu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangelogRoute = ChangelogRouteImport.update({
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchesRoute = ChurchesRouteImport.update({
+  id: '/churches',
+  path: '/churches',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComparerRoute = ComparerRouteImport.update({
+  id: '/comparer',
+  path: '/comparer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComplianceRoute = ComplianceRouteImport.update({
+  id: '/compliance',
+  path: '/compliance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiePolicyRoute = CookiePolicyRouteImport.update({
+  id: '/cookie-policy',
+  path: '/cookie-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CopyrightRoute = CopyrightRouteImport.update({
+  id: '/copyright',
+  path: '/copyright',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreateCourseRoute = CreateCourseRouteImport.update({
+  id: '/create-course',
+  path: '/create-course',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreateOrgRoute = CreateOrgRouteImport.update({
+  id: '/create-org',
+  path: '/create-org',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreerFormationRoute = CreerFormationRouteImport.update({
+  id: '/creer-formation',
+  path: '/creer-formation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardPreviewRoute = DashboardPreviewRouteImport.update({
+  id: '/dashboard-preview',
+  path: '/dashboard-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataDeletionRoute = DataDeletionRouteImport.update({
+  id: '/data-deletion',
+  path: '/data-deletion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevelopersRoute = DevelopersRouteImport.update({
+  id: '/developers',
+  path: '/developers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeveloppeursRoute = DeveloppeursRouteImport.update({
+  id: '/developpeurs',
+  path: '/developpeurs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevenirPartenaireRoute = DevenirPartenaireRouteImport.update({
+  id: '/devenir-partenaire',
+  path: '/devenir-partenaire',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiscoverRoute = DiscoverRouteImport.update({
+  id: '/discover',
+  path: '/discover',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DmcaRoute = DmcaRouteImport.update({
+  id: '/dmca',
+  path: '/dmca',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DpaRoute = DpaRouteImport.update({
+  id: '/dpa',
+  path: '/dpa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EarnRoute = EarnRouteImport.update({
+  id: '/earn',
+  path: '/earn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EcrireRoute = EcrireRouteImport.update({
+  id: '/ecrire',
+  path: '/ecrire',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailPreferencesRoute = EmailPreferencesRouteImport.update({
+  id: '/email-preferences',
+  path: '/email-preferences',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EtudesDeCasRoute = EtudesDeCasRouteImport.update({
+  id: '/etudes-de-cas',
+  path: '/etudes-de-cas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExplorerRoute = ExplorerRouteImport.update({
+  id: '/explorer',
+  path: '/explorer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeuilleDeRouteRoute = FeuilleDeRouteRouteImport.update({
+  id: '/feuille-de-route',
+  path: '/feuille-de-route',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FondateursRoute = FondateursRouteImport.update({
+  id: '/fondateurs',
+  path: '/fondateurs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoundersRoute = FoundersRouteImport.update({
+  id: '/founders',
+  path: '/founders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GagnerRoute = GagnerRouteImport.update({
+  id: '/gagner',
+  path: '/gagner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GagnerInfoRoute = GagnerInfoRouteImport.update({
+  id: '/gagner-info',
+  path: '/gagner-info',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GlossaireRoute = GlossaireRouteImport.update({
+  id: '/glossaire',
+  path: '/glossaire',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GlossaryRoute = GlossaryRouteImport.update({
+  id: '/glossary',
+  path: '/glossary',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubRoute = HubRouteImport.update({
+  id: '/hub',
+  path: '/hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstallRoute = InstallRouteImport.update({
+  id: '/install',
+  path: '/install',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsRoute = IntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandingRoute = LandingRouteImport.update({
+  id: '/landing',
+  path: '/landing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalNoticesRoute = LegalNoticesRouteImport.update({
+  id: '/legal-notices',
+  path: '/legal-notices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LookingForRoute = LookingForRouteImport.update({
+  id: '/looking-for',
+  path: '/looking-for',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MaintenanceRoute = MaintenanceRouteImport.update({
+  id: '/maintenance',
+  path: '/maintenance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediaKitRoute = MediaKitRouteImport.update({
+  id: '/media-kit',
+  path: '/media-kit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
+  id: '/mentions-legales',
+  path: '/mentions-legales',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MesAchatsRoute = MesAchatsRouteImport.update({
+  id: '/mes-achats',
+  path: '/mes-achats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MigrateRoute = MigrateRouteImport.update({
+  id: '/migrate',
+  path: '/migrate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MigrerRoute = MigrerRouteImport.update({
+  id: '/migrer',
+  path: '/migrer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewThisWeekRoute = NewThisWeekRouteImport.update({
+  id: '/new-this-week',
+  path: '/new-this-week',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsletterRoute = NewsletterRouteImport.update({
+  id: '/newsletter',
+  path: '/newsletter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParrainageRoute = ParrainageRouteImport.update({
+  id: '/parrainage',
+  path: '/parrainage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartenairesRoute = PartenairesRouteImport.update({
+  id: '/partenaires',
+  path: '/partenaires',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnerTermsRoute = PartnerTermsRouteImport.update({
+  id: '/partner-terms',
+  path: '/partner-terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
+  id: '/payment-success',
+  path: '/payment-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PayoutPolicyRoute = PayoutPolicyRouteImport.update({
+  id: '/payout-policy',
+  path: '/payout-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanDuSiteRoute = PlanDuSiteRouteImport.update({
+  id: '/plan-du-site',
+  path: '/plan-du-site',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PresseRoute = PresseRouteImport.update({
+  id: '/presse',
+  path: '/presse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProtectionRoute = ProtectionRouteImport.update({
+  id: '/protection',
+  path: '/protection',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferralsRoute = ReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportRoute = ReportRouteImport.update({
+  id: '/report',
+  path: '/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoadmapRoute = RoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellRoute = SellRouteImport.update({
+  id: '/sell',
+  path: '/sell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShareTargetRoute = ShareTargetRouteImport.update({
+  id: '/share-target',
+  path: '/share-target',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShowcaseRoute = ShowcaseRouteImport.update({
+  id: '/showcase',
+  path: '/showcase',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignalerRoute = SignalerRouteImport.update({
+  id: '/signaler',
+  path: '/signaler',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapRoute = SitemapRouteImport.update({
+  id: '/sitemap',
+  path: '/sitemap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StartSellingRoute = StartSellingRouteImport.update({
+  id: '/start-selling',
+  path: '/start-selling',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubprocessorsRoute = SubprocessorsRouteImport.update({
+  id: '/subprocessors',
+  path: '/subprocessors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminRoute = SuperadminRouteImport.update({
+  id: '/superadmin',
+  path: '/superadmin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperappRoute = SuperappRouteImport.update({
+  id: '/superapp',
+  path: '/superapp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TarifsRoute = TarifsRouteImport.update({
+  id: '/tarifs',
+  path: '/tarifs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TemoignagesRoute = TemoignagesRouteImport.update({
+  id: '/temoignages',
+  path: '/temoignages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TopCreatorsRoute = TopCreatorsRouteImport.update({
+  id: '/top-creators',
+  path: '/top-creators',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TutorielsRoute = TutorielsRouteImport.update({
+  id: '/tutoriels',
+  path: '/tutoriels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VendreRoute = VendreRouteImport.update({
+  id: '/vendre',
+  path: '/vendre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WelcomeIntentRoute = WelcomeIntentRouteImport.update({
+  id: '/welcome-intent',
+  path: '/welcome-intent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WriteRoute = WriteRouteImport.update({
+  id: '/write',
+  path: '/write',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAffiliationRoute = AppAffiliationRouteImport.update({
+  id: '/affiliation',
+  path: '/affiliation',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBookmarksRoute = AppBookmarksRouteImport.update({
+  id: '/bookmarks',
+  path: '/bookmarks',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCreditsRoute = AppCreditsRouteImport.update({
+  id: '/credits',
+  path: '/credits',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFeedRoute = AppFeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInvoicesRoute = AppInvoicesRouteImport.update({
+  id: '/invoices',
+  path: '/invoices',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppKycRoute = AppKycRouteImport.update({
+  id: '/kyc',
+  path: '/kyc',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLeaderboardRoute = AppLeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMesAvisRoute = AppMesAvisRouteImport.update({
+  id: '/mes-avis',
+  path: '/mes-avis',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMesFormationsRoute = AppMesFormationsRouteImport.update({
+  id: '/mes-formations',
+  path: '/mes-formations',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyAnalyticsRoute = AppMyAnalyticsRouteImport.update({
+  id: '/my-analytics',
+  path: '/my-analytics',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyDonationsRoute = AppMyDonationsRouteImport.update({
+  id: '/my-donations',
+  path: '/my-donations',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyInvoicesRoute = AppMyInvoicesRouteImport.update({
+  id: '/my-invoices',
+  path: '/my-invoices',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyProgramsRoute = AppMyProgramsRouteImport.update({
+  id: '/my-programs',
+  path: '/my-programs',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyPurchasesRoute = AppMyPurchasesRouteImport.update({
+  id: '/my-purchases',
+  path: '/my-purchases',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyReviewsRoute = AppMyReviewsRouteImport.update({
+  id: '/my-reviews',
+  path: '/my-reviews',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNotificationPreferencesRoute =
+  AppNotificationPreferencesRouteImport.update({
+    id: '/notification-preferences',
+    path: '/notification-preferences',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppNotificationsRoute = AppNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPartnerRoute = AppPartnerRouteImport.update({
+  id: '/partner',
+  path: '/partner',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppQuickPublishRoute = AppQuickPublishRouteImport.update({
+  id: '/quick-publish',
+  path: '/quick-publish',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppQuickStartRoute = AppQuickStartRouteImport.update({
+  id: '/quick-start',
+  path: '/quick-start',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppResourcesRoute = AppResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSupportRoute = AppSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWalletRoute = AppWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWishlistRoute = AppWishlistRouteImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
+  getParentRoute: () => AppRoute,
+} as any)
+const PublicCoursesRoute = PublicCoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicSpotlightRoute = PublicSpotlightRouteImport.update({
+  id: '/spotlight',
+  path: '/spotlight',
+  getParentRoute: () => PublicRoute,
+} as any)
+const AccountIndexRoute = AccountIndexRouteImport.update({
+  id: '/account/',
+  path: '/account/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountTrustRoute = AccountTrustRouteImport.update({
+  id: '/account/trust',
+  path: '/account/trust',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/auth/',
+  path: '/auth/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BeautyIndexRoute = BeautyIndexRouteImport.update({
+  id: '/beauty/',
+  path: '/beauty/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BeautySplatRoute = BeautySplatRouteImport.update({
+  id: '/beauty/$',
+  path: '/beauty/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BeautyAboutRoute = BeautyAboutRouteImport.update({
+  id: '/beauty/about',
+  path: '/beauty/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BeautySearchRoute = BeautySearchRouteImport.update({
+  id: '/beauty/search',
+  path: '/beauty/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BillingIndexRoute = BillingIndexRouteImport.update({
+  id: '/billing/',
+  path: '/billing/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BillingSuccessRoute = BillingSuccessRouteImport.update({
+  id: '/billing/success',
+  path: '/billing/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BillingUsageRoute = BillingUsageRouteImport.update({
+  id: '/billing/usage',
+  path: '/billing/usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CanvaCallbackRoute = CanvaCallbackRouteImport.update({
+  id: '/canva/callback',
+  path: '/canva/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchIndexRoute = ChurchIndexRouteImport.update({
+  id: '/church/',
+  path: '/church/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchAboutRoute = ChurchAboutRouteImport.update({
+  id: '/church/about',
+  path: '/church/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchDiscoverRoute = ChurchDiscoverRouteImport.update({
+  id: '/church/discover',
+  path: '/church/discover',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreatorAdvancedAnalyticsRoute =
+  CreatorAdvancedAnalyticsRouteImport.update({
+    id: '/creator/advanced-analytics',
+    path: '/creator/advanced-analytics',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DigitalIndexRoute = DigitalIndexRouteImport.update({
+  id: '/digital/',
+  path: '/digital/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DigitalAboutRoute = DigitalAboutRouteImport.update({
+  id: '/digital/about',
+  path: '/digital/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsIndexRoute = DocsIndexRouteImport.update({
+  id: '/docs/',
+  path: '/docs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsApiRoute = DocsApiRouteImport.update({
+  id: '/docs/api',
+  path: '/docs/api',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducationIndexRoute = EducationIndexRouteImport.update({
+  id: '/education/',
+  path: '/education/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducationSplatRoute = EducationSplatRouteImport.update({
+  id: '/education/$',
+  path: '/education/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducationAboutRoute = EducationAboutRouteImport.update({
+  id: '/education/about',
+  path: '/education/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducationDiscoverRoute = EducationDiscoverRouteImport.update({
+  id: '/education/discover',
+  path: '/education/discover',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsIndexRoute = EventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsSplatRoute = EventsSplatRouteImport.update({
+  id: '/events/$',
+  path: '/events/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsAboutRoute = EventsAboutRouteImport.update({
+  id: '/events/about',
+  path: '/events/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsDiscoverRoute = EventsDiscoverRouteImport.update({
+  id: '/events/discover',
+  path: '/events/discover',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreArtisansRoute = ExploreArtisansRouteImport.update({
+  id: '/explore/artisans',
+  path: '/explore/artisans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreBeautyRoute = ExploreBeautyRouteImport.update({
+  id: '/explore/beauty',
+  path: '/explore/beauty',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreCoachingRoute = ExploreCoachingRouteImport.update({
+  id: '/explore/coaching',
+  path: '/explore/coaching',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreDigitalProductsRoute = ExploreDigitalProductsRouteImport.update({
+  id: '/explore/digital-products',
+  path: '/explore/digital-products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreInfluencersRoute = ExploreInfluencersRouteImport.update({
+  id: '/explore/influencers',
+  path: '/explore/influencers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreMusicRoute = ExploreMusicRouteImport.update({
+  id: '/explore/music',
+  path: '/explore/music',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreOtherServicesRoute = ExploreOtherServicesRouteImport.update({
+  id: '/explore/other-services',
+  path: '/explore/other-services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreTutorsRoute = ExploreTutorsRouteImport.update({
+  id: '/explore/tutors',
+  path: '/explore/tutors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GoCodeRoute = GoCodeRouteImport.update({
+  id: '/go/$code',
+  path: '/go/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideAffiliationSansInvestissementRoute =
+  GuideAffiliationSansInvestissementRouteImport.update({
+    id: '/guide/affiliation-sans-investissement',
+    path: '/guide/affiliation-sans-investissement',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const GuideAlternativeGofundmeRoute =
+  GuideAlternativeGofundmeRouteImport.update({
+    id: '/guide/alternative-gofundme',
+    path: '/guide/alternative-gofundme',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const GuideBoutiqueDigitaleGratuiteRoute =
+  GuideBoutiqueDigitaleGratuiteRouteImport.update({
+    id: '/guide/boutique-digitale-gratuite',
+    path: '/guide/boutique-digitale-gratuite',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const GuideGagnerSansContenuRoute = GuideGagnerSansContenuRouteImport.update({
+  id: '/guide/gagner-sans-contenu',
+  path: '/guide/gagner-sans-contenu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideMobileMoneyEcommerceRoute =
+  GuideMobileMoneyEcommerceRouteImport.update({
+    id: '/guide/mobile-money-ecommerce',
+    path: '/guide/mobile-money-ecommerce',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const GuideMonetiserContenuReligieuxRoute =
+  GuideMonetiserContenuReligieuxRouteImport.update({
+    id: '/guide/monetiser-contenu-religieux',
+    path: '/guide/monetiser-contenu-religieux',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const GuidePlateformeDonsAfriqueRoute =
+  GuidePlateformeDonsAfriqueRouteImport.update({
+    id: '/guide/plateforme-dons-afrique',
+    path: '/guide/plateforme-dons-afrique',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const GuideVendreCoursEnLigneRoute = GuideVendreCoursEnLigneRouteImport.update({
+  id: '/guide/vendre-cours-en-ligne',
+  path: '/guide/vendre-cours-en-ligne',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideVendreEbookAfriqueRoute = GuideVendreEbookAfriqueRouteImport.update({
+  id: '/guide/vendre-ebook-afrique',
+  path: '/guide/vendre-ebook-afrique',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeIndexRoute = HomeIndexRouteImport.update({
+  id: '/home/',
+  path: '/home/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeSplatRoute = HomeSplatRouteImport.update({
+  id: '/home/$',
+  path: '/home/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeAboutRoute = HomeAboutRouteImport.update({
+  id: '/home/about',
+  path: '/home/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeDiscoverRoute = HomeDiscoverRouteImport.update({
+  id: '/home/discover',
+  path: '/home/discover',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteCodeRoute = InviteCodeRouteImport.update({
+  id: '/invite/$code',
+  path: '/invite/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnIndexRoute = LearnIndexRouteImport.update({
+  id: '/learn/',
+  path: '/learn/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnSplatRoute = LearnSplatRouteImport.update({
+  id: '/learn/$',
+  path: '/learn/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnAboutRoute = LearnAboutRouteImport.update({
+  id: '/learn/about',
+  path: '/learn/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnDiscoverRoute = LearnDiscoverRouteImport.update({
+  id: '/learn/discover',
+  path: '/learn/discover',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentSplatRoute = PaymentSplatRouteImport.update({
+  id: '/payment/$',
+  path: '/payment/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourAgencesRoute = PourAgencesRouteImport.update({
+  id: '/pour/agences',
+  path: '/pour/agences',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourAssociationsRoute = PourAssociationsRouteImport.update({
+  id: '/pour/associations',
+  path: '/pour/associations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourAuteursRoute = PourAuteursRouteImport.update({
+  id: '/pour/auteurs',
+  path: '/pour/auteurs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourBlogueursRoute = PourBlogueursRouteImport.update({
+  id: '/pour/blogueurs',
+  path: '/pour/blogueurs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourCentresFormationRoute = PourCentresFormationRouteImport.update({
+  id: '/pour/centres-formation',
+  path: '/pour/centres-formation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourCoachesRoute = PourCoachesRouteImport.update({
+  id: '/pour/coaches',
+  path: '/pour/coaches',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourConsultantsRoute = PourConsultantsRouteImport.update({
+  id: '/pour/consultants',
+  path: '/pour/consultants',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourCooperativesRoute = PourCooperativesRouteImport.update({
+  id: '/pour/cooperatives',
+  path: '/pour/cooperatives',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourCreateursVideoRoute = PourCreateursVideoRouteImport.update({
+  id: '/pour/createurs-video',
+  path: '/pour/createurs-video',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourDesignersRoute = PourDesignersRouteImport.update({
+  id: '/pour/designers',
+  path: '/pour/designers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourDiasporaRoute = PourDiasporaRouteImport.update({
+  id: '/pour/diaspora',
+  path: '/pour/diaspora',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourEglisesRoute = PourEglisesRouteImport.update({
+  id: '/pour/eglises',
+  path: '/pour/eglises',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourEnseignantsRoute = PourEnseignantsRouteImport.update({
+  id: '/pour/enseignants',
+  path: '/pour/enseignants',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourEntrepreneursRoute = PourEntrepreneursRouteImport.update({
+  id: '/pour/entrepreneurs',
+  path: '/pour/entrepreneurs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourEtudiantsRoute = PourEtudiantsRouteImport.update({
+  id: '/pour/etudiants',
+  path: '/pour/etudiants',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourFemmesEntrepreneuresRoute =
+  PourFemmesEntrepreneuresRouteImport.update({
+    id: '/pour/femmes-entrepreneures',
+    path: '/pour/femmes-entrepreneures',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PourFinanceRoute = PourFinanceRouteImport.update({
+  id: '/pour/finance',
+  path: '/pour/finance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourFormateursRoute = PourFormateursRouteImport.update({
+  id: '/pour/formateurs',
+  path: '/pour/formateurs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourInfluenceursRoute = PourInfluenceursRouteImport.update({
+  id: '/pour/influenceurs',
+  path: '/pour/influenceurs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourJuristesRoute = PourJuristesRouteImport.update({
+  id: '/pour/juristes',
+  path: '/pour/juristes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourLeadersMusulmansRoute = PourLeadersMusulmansRouteImport.update({
+  id: '/pour/leaders-musulmans',
+  path: '/pour/leaders-musulmans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourMediasRoute = PourMediasRouteImport.update({
+  id: '/pour/medias',
+  path: '/pour/medias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourMinisteresRoute = PourMinisteresRouteImport.update({
+  id: '/pour/ministeres',
+  path: '/pour/ministeres',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourMissionnairesRoute = PourMissionnairesRouteImport.update({
+  id: '/pour/missionnaires',
+  path: '/pour/missionnaires',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourMusiciensRoute = PourMusiciensRouteImport.update({
+  id: '/pour/musiciens',
+  path: '/pour/musiciens',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourOngRoute = PourOngRouteImport.update({
+  id: '/pour/ong',
+  path: '/pour/ong',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourPhotographesRoute = PourPhotographesRouteImport.update({
+  id: '/pour/photographes',
+  path: '/pour/photographes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourPodcastersRoute = PourPodcastersRouteImport.update({
+  id: '/pour/podcasters',
+  path: '/pour/podcasters',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourRetraitesRoute = PourRetraitesRouteImport.update({
+  id: '/pour/retraites',
+  path: '/pour/retraites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PourSanteRoute = PourSanteRouteImport.update({
+  id: '/pour/sante',
+  path: '/pour/sante',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SolutionsChurchRoute = SolutionsChurchRouteImport.update({
+  id: '/solutions/church',
+  path: '/solutions/church',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StartIndexRoute = StartIndexRouteImport.update({
+  id: '/start/',
+  path: '/start/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StartSplatRoute = StartSplatRouteImport.update({
+  id: '/start/$',
+  path: '/start/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StartDetailsRoute = StartDetailsRouteImport.update({
+  id: '/start/details',
+  path: '/start/details',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StartFinishRoute = StartFinishRouteImport.update({
+  id: '/start/finish',
+  path: '/start/finish',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoreSlugRoute = StoreSlugRouteImport.update({
+  id: '/store/$slug',
+  path: '/store/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminIndexRoute = SuperadminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminAcquisitionRoute = SuperadminAcquisitionRouteImport.update({
+  id: '/acquisition',
+  path: '/acquisition',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminActivityRoute = SuperadminActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminAdsRoute = SuperadminAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminAiRoute = SuperadminAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminAiHistoryRoute = SuperadminAiHistoryRouteImport.update({
+  id: '/ai-history',
+  path: '/ai-history',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminBeautyRoute = SuperadminBeautyRouteImport.update({
+  id: '/beauty',
+  path: '/beauty',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminChurchRoute = SuperadminChurchRouteImport.update({
+  id: '/church',
+  path: '/church',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminCommandCenterRoute = SuperadminCommandCenterRouteImport.update({
+  id: '/command-center',
+  path: '/command-center',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminDirectoryRoute = SuperadminDirectoryRouteImport.update({
+  id: '/directory',
+  path: '/directory',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminEducationRoute = SuperadminEducationRouteImport.update({
+  id: '/education',
+  path: '/education',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminEmailsRoute = SuperadminEmailsRouteImport.update({
+  id: '/emails',
+  path: '/emails',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminEventsRoute = SuperadminEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminExportsRoute = SuperadminExportsRouteImport.update({
+  id: '/exports',
+  path: '/exports',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminHealthRoute = SuperadminHealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminHomeRoute = SuperadminHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminInvestorRoute = SuperadminInvestorRouteImport.update({
+  id: '/investor',
+  path: '/investor',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminKycRoute = SuperadminKycRouteImport.update({
+  id: '/kyc',
+  path: '/kyc',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminMarketplaceModerationRoute =
+  SuperadminMarketplaceModerationRouteImport.update({
+    id: '/marketplace-moderation',
+    path: '/marketplace-moderation',
+    getParentRoute: () => SuperadminRoute,
+  } as any)
+const SuperadminMetricsRoute = SuperadminMetricsRouteImport.update({
+  id: '/metrics',
+  path: '/metrics',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminModerationRoute = SuperadminModerationRouteImport.update({
+  id: '/moderation',
+  path: '/moderation',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminOrgsRoute = SuperadminOrgsRouteImport.update({
+  id: '/orgs',
+  path: '/orgs',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminPartnersRoute = SuperadminPartnersRouteImport.update({
+  id: '/partners',
+  path: '/partners',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminPushRoute = SuperadminPushRouteImport.update({
+  id: '/push',
+  path: '/push',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminReportsRoute = SuperadminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminRiskRoute = SuperadminRiskRouteImport.update({
+  id: '/risk',
+  path: '/risk',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminSettingsRoute = SuperadminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminSettlementsRoute = SuperadminSettlementsRouteImport.update({
+  id: '/settlements',
+  path: '/settlements',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminSupportRoute = SuperadminSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminTransactionsRoute = SuperadminTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminTrustRoute = SuperadminTrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminUsersRoute = SuperadminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const VerifyCertNumberRoute = VerifyCertNumberRouteImport.update({
+  id: '/verify/$certNumber',
+  path: '/verify/$certNumber',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminAffiliationRoute = AppAdminAffiliationRouteImport.update({
+  id: '/affiliation',
+  path: '/affiliation',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminAnalyticsRoute = AppAdminAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminApiKeysRoute = AppAdminApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminContentRoute = AppAdminContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminCreateRoute = AppAdminCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminCrmRoute = AppAdminCrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminExperimentsRoute = AppAdminExperimentsRouteImport.update({
+  id: '/experiments',
+  path: '/experiments',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminKycRoute = AppAdminKycRouteImport.update({
+  id: '/kyc',
+  path: '/kyc',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminLearnerProgressRoute = AppAdminLearnerProgressRouteImport.update({
+  id: '/learner-progress',
+  path: '/learner-progress',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminMarketplaceTemplatesRoute =
+  AppAdminMarketplaceTemplatesRouteImport.update({
+    id: '/marketplace-templates',
+    path: '/marketplace-templates',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminMembersRoute = AppAdminMembersRouteImport.update({
+  id: '/members',
+  path: '/members',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminNotificationsRoute = AppAdminNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminOfferingsRoute = AppAdminOfferingsRouteImport.update({
+  id: '/offerings',
+  path: '/offerings',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminPayoutsRoute = AppAdminPayoutsRouteImport.update({
+  id: '/payouts',
+  path: '/payouts',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminPeopleRoute = AppAdminPeopleRouteImport.update({
+  id: '/people',
+  path: '/people',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminPhotosRoute = AppAdminPhotosRouteImport.update({
+  id: '/photos',
+  path: '/photos',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminPopupsRoute = AppAdminPopupsRouteImport.update({
+  id: '/popups',
+  path: '/popups',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminPromoCodesRoute = AppAdminPromoCodesRouteImport.update({
+  id: '/promo-codes',
+  path: '/promo-codes',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminSalesRoute = AppAdminSalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminSettingsRoute = AppAdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminSubscriptionsRoute = AppAdminSubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminViralStudioRoute = AppAdminViralStudioRouteImport.update({
+  id: '/viral-studio',
+  path: '/viral-studio',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminViralToolsRoute = AppAdminViralToolsRouteImport.update({
+  id: '/viral-tools',
+  path: '/viral-tools',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminVoiceAgentRoute = AppAdminVoiceAgentRouteImport.update({
+  id: '/voice-agent',
+  path: '/voice-agent',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminWaitlistsRoute = AppAdminWaitlistsRouteImport.update({
+  id: '/waitlists',
+  path: '/waitlists',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminWebhooksRoute = AppAdminWebhooksRouteImport.update({
+  id: '/webhooks',
+  path: '/webhooks',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppCreatorAnalyticsRoute = AppCreatorAnalyticsRouteImport.update({
+  id: '/creator/analytics',
+  path: '/creator/analytics',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardIndexRoute = AppDashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardActivityRoute = AppDashboardActivityRouteImport.update({
+  id: '/dashboard/activity',
+  path: '/dashboard/activity',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardAffiliationRoute = AppDashboardAffiliationRouteImport.update({
+  id: '/dashboard/affiliation',
+  path: '/dashboard/affiliation',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardClaimRoute = AppDashboardClaimRouteImport.update({
+  id: '/dashboard/claim',
+  path: '/dashboard/claim',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardDigitalRoute = AppDashboardDigitalRouteImport.update({
+  id: '/dashboard/digital',
+  path: '/dashboard/digital',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardEarnRoute = AppDashboardEarnRouteImport.update({
+  id: '/dashboard/earn',
+  path: '/dashboard/earn',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardExploreRoute = AppDashboardExploreRouteImport.update({
+  id: '/dashboard/explore',
+  path: '/dashboard/explore',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardHomeRoute = AppDashboardHomeRouteImport.update({
+  id: '/dashboard/home',
+  path: '/dashboard/home',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardKycRoute = AppDashboardKycRouteImport.update({
+  id: '/dashboard/kyc',
+  path: '/dashboard/kyc',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardNotificationsRoute =
+  AppDashboardNotificationsRouteImport.update({
+    id: '/dashboard/notifications',
+    path: '/dashboard/notifications',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppDashboardOrdersRoute = AppDashboardOrdersRouteImport.update({
+  id: '/dashboard/orders',
+  path: '/dashboard/orders',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardProductsRoute = AppDashboardProductsRouteImport.update({
+  id: '/dashboard/products',
+  path: '/dashboard/products',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardProfileRoute = AppDashboardProfileRouteImport.update({
+  id: '/dashboard/profile',
+  path: '/dashboard/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardPromotionsRoute = AppDashboardPromotionsRouteImport.update({
+  id: '/dashboard/promotions',
+  path: '/dashboard/promotions',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardPurchasesRoute = AppDashboardPurchasesRouteImport.update({
+  id: '/dashboard/purchases',
+  path: '/dashboard/purchases',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardRevenueRoute = AppDashboardRevenueRouteImport.update({
+  id: '/dashboard/revenue',
+  path: '/dashboard/revenue',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMarketplaceIndexRoute = AppMarketplaceIndexRouteImport.update({
+  id: '/marketplace/',
+  path: '/marketplace/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOnboardingGoalsRoute = AppOnboardingGoalsRouteImport.update({
+  id: '/onboarding/goals',
+  path: '/onboarding/goals',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOnboardingTypeRoute = AppOnboardingTypeRouteImport.update({
+  id: '/onboarding/type',
+  path: '/onboarding/type',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReelsIndexRoute = AppReelsIndexRouteImport.update({
+  id: '/reels/',
+  path: '/reels/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReelsIdRoute = AppReelsIdRouteImport.update({
+  id: '/reels/$id',
+  path: '/reels/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWatchIdRoute = AppWatchIdRouteImport.update({
+  id: '/watch/$id',
+  path: '/watch/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const PublicAnnouncementAnnouncementIdRoute =
+  PublicAnnouncementAnnouncementIdRouteImport.update({
+    id: '/announcement/$announcementId',
+    path: '/announcement/$announcementId',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicCampaignCampaignIdRoute =
+  PublicCampaignCampaignIdRouteImport.update({
+    id: '/campaign/$campaignId',
+    path: '/campaign/$campaignId',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicEventEventIdRoute = PublicEventEventIdRouteImport.update({
+  id: '/event/$eventId',
+  path: '/event/$eventId',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicOfferingOfferingIdRoute =
+  PublicOfferingOfferingIdRouteImport.update({
+    id: '/offering/$offeringId',
+    path: '/offering/$offeringId',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicPKeyRoute = PublicPKeyRouteImport.update({
+  id: '/p/$key',
+  path: '/p/$key',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicProductKeyRoute = PublicProductKeyRouteImport.update({
+  id: '/product/$key',
+  path: '/product/$key',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicProduitKeyRoute = PublicProduitKeyRouteImport.update({
+  id: '/produit/$key',
+  path: '/produit/$key',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicProgramProgramIdRoute = PublicProgramProgramIdRouteImport.update({
+  id: '/program/$programId',
+  path: '/program/$programId',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicPromoAiCreationsRoute = PublicPromoAiCreationsRouteImport.update({
+  id: '/promo/ai-creations',
+  path: '/promo/ai-creations',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicPromoCatalogueRoute = PublicPromoCatalogueRouteImport.update({
+  id: '/promo/catalogue',
+  path: '/promo/catalogue',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicPromoGratuitsRoute = PublicPromoGratuitsRouteImport.update({
+  id: '/promo/gratuits',
+  path: '/promo/gratuits',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicPromoStarsRoute = PublicPromoStarsRouteImport.update({
+  id: '/promo/stars',
+  path: '/promo/stars',
+  getParentRoute: () => PublicRoute,
+} as any)
+const BeautyPSlugRoute = BeautyPSlugRouteImport.update({
+  id: '/beauty/p/$slug',
+  path: '/beauty/p/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BeautyProOnboardingRoute = BeautyProOnboardingRouteImport.update({
+  id: '/beauty/pro/onboarding',
+  path: '/beauty/pro/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchSlugIndexRoute = ChurchSlugIndexRouteImport.update({
+  id: '/church/$slug/',
+  path: '/church/$slug/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProIndexRoute = ChurchProIndexRouteImport.update({
+  id: '/church/pro/',
+  path: '/church/pro/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProAnnouncementsRoute = ChurchProAnnouncementsRouteImport.update({
+  id: '/church/pro/announcements',
+  path: '/church/pro/announcements',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProAppointmentsRoute = ChurchProAppointmentsRouteImport.update({
+  id: '/church/pro/appointments',
+  path: '/church/pro/appointments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProCampaignsRoute = ChurchProCampaignsRouteImport.update({
+  id: '/church/pro/campaigns',
+  path: '/church/pro/campaigns',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProEventsRoute = ChurchProEventsRouteImport.update({
+  id: '/church/pro/events',
+  path: '/church/pro/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProGivingRoute = ChurchProGivingRouteImport.update({
+  id: '/church/pro/giving',
+  path: '/church/pro/giving',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProKycRoute = ChurchProKycRouteImport.update({
+  id: '/church/pro/kyc',
+  path: '/church/pro/kyc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProMembersRoute = ChurchProMembersRouteImport.update({
+  id: '/church/pro/members',
+  path: '/church/pro/members',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProOnboardingRoute = ChurchProOnboardingRouteImport.update({
+  id: '/church/pro/onboarding',
+  path: '/church/pro/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProPrayerRoute = ChurchProPrayerRouteImport.update({
+  id: '/church/pro/prayer',
+  path: '/church/pro/prayer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProSettingsRoute = ChurchProSettingsRouteImport.update({
+  id: '/church/pro/settings',
+  path: '/church/pro/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProTeamRoute = ChurchProTeamRouteImport.update({
+  id: '/church/pro/team',
+  path: '/church/pro/team',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducationProOnboardingRoute = EducationProOnboardingRouteImport.update({
+  id: '/education/pro/onboarding',
+  path: '/education/pro/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsProSlugRoute = EventsProSlugRouteImport.update({
+  id: '/events/pro/$slug',
+  path: '/events/pro/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsProOnboardingRoute = EventsProOnboardingRouteImport.update({
+  id: '/events/pro/onboarding',
+  path: '/events/pro/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeProSlugRoute = HomeProSlugRouteImport.update({
+  id: '/home/pro/$slug',
+  path: '/home/pro/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeProOnboardingRoute = HomeProOnboardingRouteImport.update({
+  id: '/home/pro/onboarding',
+  path: '/home/pro/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnProSlugRoute = LearnProSlugRouteImport.update({
+  id: '/learn/pro/$slug',
+  path: '/learn/pro/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnProOnboardingRoute = LearnProOnboardingRouteImport.update({
+  id: '/learn/pro/onboarding',
+  path: '/learn/pro/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceTemplatesIndexRoute =
+  MarketplaceTemplatesIndexRouteImport.update({
+    id: '/marketplace/templates/',
+    path: '/marketplace/templates/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const MarketplaceTemplatesIdRoute = MarketplaceTemplatesIdRouteImport.update({
+  id: '/marketplace/templates/$id',
+  path: '/marketplace/templates/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminStudioAbuseMonitorRoute =
+  SuperadminStudioAbuseMonitorRouteImport.update({
+    id: '/studio/abuse-monitor',
+    path: '/studio/abuse-monitor',
+    getParentRoute: () => SuperadminRoute,
+  } as any)
+const SuperadminStudioJobsRoute = SuperadminStudioJobsRouteImport.update({
+  id: '/studio/jobs',
+  path: '/studio/jobs',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminStudioPoliciesRoute =
+  SuperadminStudioPoliciesRouteImport.update({
+    id: '/studio/policies',
+    path: '/studio/policies',
+    getParentRoute: () => SuperadminRoute,
+  } as any)
+const SuperadminStudioTemplatesRoute =
+  SuperadminStudioTemplatesRouteImport.update({
+    id: '/studio/templates',
+    path: '/studio/templates',
+    getParentRoute: () => SuperadminRoute,
+  } as any)
+const AppAdminAnnouncementsIndexRoute =
+  AppAdminAnnouncementsIndexRouteImport.update({
+    id: '/announcements/',
+    path: '/announcements/',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminAnnouncementsNewRoute =
+  AppAdminAnnouncementsNewRouteImport.update({
+    id: '/announcements/new',
+    path: '/announcements/new',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminBeautyIndexRoute = AppAdminBeautyIndexRouteImport.update({
+  id: '/beauty/',
+  path: '/beauty/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminBeautySplatRoute = AppAdminBeautySplatRouteImport.update({
+  id: '/beauty/$',
+  path: '/beauty/$',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminBeautyKycRoute = AppAdminBeautyKycRouteImport.update({
+  id: '/beauty/kyc',
+  path: '/beauty/kyc',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminBeautyMessagesRoute = AppAdminBeautyMessagesRouteImport.update({
+  id: '/beauty/messages',
+  path: '/beauty/messages',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminBeautyOrdersRoute = AppAdminBeautyOrdersRouteImport.update({
+  id: '/beauty/orders',
+  path: '/beauty/orders',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminBeautyRevenueRoute = AppAdminBeautyRevenueRouteImport.update({
+  id: '/beauty/revenue',
+  path: '/beauty/revenue',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminBeautySettingsRoute = AppAdminBeautySettingsRouteImport.update({
+  id: '/beauty/settings',
+  path: '/beauty/settings',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminCampaignsIndexRoute = AppAdminCampaignsIndexRouteImport.update({
+  id: '/campaigns/',
+  path: '/campaigns/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminCampaignsNewRoute = AppAdminCampaignsNewRouteImport.update({
+  id: '/campaigns/new',
+  path: '/campaigns/new',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminChurchIndexRoute = AppAdminChurchIndexRouteImport.update({
+  id: '/church/',
+  path: '/church/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminChurchAnnouncementsRoute =
+  AppAdminChurchAnnouncementsRouteImport.update({
+    id: '/church/announcements',
+    path: '/church/announcements',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminChurchAppointmentsRoute =
+  AppAdminChurchAppointmentsRouteImport.update({
+    id: '/church/appointments',
+    path: '/church/appointments',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminChurchCampaignsRoute = AppAdminChurchCampaignsRouteImport.update({
+  id: '/church/campaigns',
+  path: '/church/campaigns',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminChurchEventsRoute = AppAdminChurchEventsRouteImport.update({
+  id: '/church/events',
+  path: '/church/events',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminChurchGivingRoute = AppAdminChurchGivingRouteImport.update({
+  id: '/church/giving',
+  path: '/church/giving',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminChurchKycRoute = AppAdminChurchKycRouteImport.update({
+  id: '/church/kyc',
+  path: '/church/kyc',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminChurchMembersRoute = AppAdminChurchMembersRouteImport.update({
+  id: '/church/members',
+  path: '/church/members',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminChurchPrayerRoute = AppAdminChurchPrayerRouteImport.update({
+  id: '/church/prayer',
+  path: '/church/prayer',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminChurchSettingsRoute = AppAdminChurchSettingsRouteImport.update({
+  id: '/church/settings',
+  path: '/church/settings',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminChurchTeamRoute = AppAdminChurchTeamRouteImport.update({
+  id: '/church/team',
+  path: '/church/team',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminEventsServiceIndexRoute =
+  AppAdminEventsServiceIndexRouteImport.update({
+    id: '/events-service/',
+    path: '/events-service/',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminEventsServiceSplatRoute =
+  AppAdminEventsServiceSplatRouteImport.update({
+    id: '/events-service/$',
+    path: '/events-service/$',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminEventsServiceKycRoute =
+  AppAdminEventsServiceKycRouteImport.update({
+    id: '/events-service/kyc',
+    path: '/events-service/kyc',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminEventsServiceMessagesRoute =
+  AppAdminEventsServiceMessagesRouteImport.update({
+    id: '/events-service/messages',
+    path: '/events-service/messages',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminEventsServiceOrdersRoute =
+  AppAdminEventsServiceOrdersRouteImport.update({
+    id: '/events-service/orders',
+    path: '/events-service/orders',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminEventsServicePackagesRoute =
+  AppAdminEventsServicePackagesRouteImport.update({
+    id: '/events-service/packages',
+    path: '/events-service/packages',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminEventsServiceRevenueRoute =
+  AppAdminEventsServiceRevenueRouteImport.update({
+    id: '/events-service/revenue',
+    path: '/events-service/revenue',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminEventsServiceSettingsRoute =
+  AppAdminEventsServiceSettingsRouteImport.update({
+    id: '/events-service/settings',
+    path: '/events-service/settings',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminEventsIndexRoute = AppAdminEventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminEventsNewRoute = AppAdminEventsNewRouteImport.update({
+  id: '/events/new',
+  path: '/events/new',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminHomeIndexRoute = AppAdminHomeIndexRouteImport.update({
+  id: '/home/',
+  path: '/home/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminHomeSplatRoute = AppAdminHomeSplatRouteImport.update({
+  id: '/home/$',
+  path: '/home/$',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminHomeKycRoute = AppAdminHomeKycRouteImport.update({
+  id: '/home/kyc',
+  path: '/home/kyc',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminHomeMessagesRoute = AppAdminHomeMessagesRouteImport.update({
+  id: '/home/messages',
+  path: '/home/messages',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminHomeOrdersRoute = AppAdminHomeOrdersRouteImport.update({
+  id: '/home/orders',
+  path: '/home/orders',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminHomeRevenueRoute = AppAdminHomeRevenueRouteImport.update({
+  id: '/home/revenue',
+  path: '/home/revenue',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminHomeServicesRoute = AppAdminHomeServicesRouteImport.update({
+  id: '/home/services',
+  path: '/home/services',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminHomeSettingsRoute = AppAdminHomeSettingsRouteImport.update({
+  id: '/home/settings',
+  path: '/home/settings',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminLearnIndexRoute = AppAdminLearnIndexRouteImport.update({
+  id: '/learn/',
+  path: '/learn/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminLearnSplatRoute = AppAdminLearnSplatRouteImport.update({
+  id: '/learn/$',
+  path: '/learn/$',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminLearnKycRoute = AppAdminLearnKycRouteImport.update({
+  id: '/learn/kyc',
+  path: '/learn/kyc',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminLearnMessagesRoute = AppAdminLearnMessagesRouteImport.update({
+  id: '/learn/messages',
+  path: '/learn/messages',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminLearnOrdersRoute = AppAdminLearnOrdersRouteImport.update({
+  id: '/learn/orders',
+  path: '/learn/orders',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminLearnRevenueRoute = AppAdminLearnRevenueRouteImport.update({
+  id: '/learn/revenue',
+  path: '/learn/revenue',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminLearnSettingsRoute = AppAdminLearnSettingsRouteImport.update({
+  id: '/learn/settings',
+  path: '/learn/settings',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminLearnSubjectsRoute = AppAdminLearnSubjectsRouteImport.update({
+  id: '/learn/subjects',
+  path: '/learn/subjects',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminMediaIndexRoute = AppAdminMediaIndexRouteImport.update({
+  id: '/media/',
+  path: '/media/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminMediaNewRoute = AppAdminMediaNewRouteImport.update({
+  id: '/media/new',
+  path: '/media/new',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminProductsIndexRoute = AppAdminProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminProductsNewRoute = AppAdminProductsNewRouteImport.update({
+  id: '/products/new',
+  path: '/products/new',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminProgramsIndexRoute = AppAdminProgramsIndexRouteImport.update({
+  id: '/programs/',
+  path: '/programs/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminProgramsGeneratingRoute =
+  AppAdminProgramsGeneratingRouteImport.update({
+    id: '/programs/generating',
+    path: '/programs/generating',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminProgramsNewRoute = AppAdminProgramsNewRouteImport.update({
+  id: '/programs/new',
+  path: '/programs/new',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminStudioIndexRoute = AppAdminStudioIndexRouteImport.update({
+  id: '/studio/',
+  path: '/studio/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminStudioJobsRoute = AppAdminStudioJobsRouteImport.update({
+  id: '/studio/jobs',
+  path: '/studio/jobs',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminStudioLibraryRoute = AppAdminStudioLibraryRouteImport.update({
+  id: '/studio/library',
+  path: '/studio/library',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminStudioTemplatesRoute = AppAdminStudioTemplatesRouteImport.update({
+  id: '/studio/templates',
+  path: '/studio/templates',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppDashboardMessagesIndexRoute =
+  AppDashboardMessagesIndexRouteImport.update({
+    id: '/dashboard/messages/',
+    path: '/dashboard/messages/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppDashboardSettingsIndexRoute =
+  AppDashboardSettingsIndexRouteImport.update({
+    id: '/dashboard/settings/',
+    path: '/dashboard/settings/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppDashboardSettingsModulesRoute =
+  AppDashboardSettingsModulesRouteImport.update({
+    id: '/dashboard/settings/modules',
+    path: '/dashboard/settings/modules',
+    getParentRoute: () => AppRoute,
+  } as any)
+const PublicOrgSlugIndexRoute = PublicOrgSlugIndexRouteImport.update({
+  id: '/org/$slug/',
+  path: '/org/$slug/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicOrgSlugContentRoute = PublicOrgSlugContentRouteImport.update({
+  id: '/org/$slug/content',
+  path: '/org/$slug/content',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicOrgSlugDonateRoute = PublicOrgSlugDonateRouteImport.update({
+  id: '/org/$slug/donate',
+  path: '/org/$slug/donate',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicOrgSlugDonsRoute = PublicOrgSlugDonsRouteImport.update({
+  id: '/org/$slug/dons',
+  path: '/org/$slug/dons',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicOrgSlugEventsRoute = PublicOrgSlugEventsRouteImport.update({
+  id: '/org/$slug/events',
+  path: '/org/$slug/events',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicOrgSlugOfferingsRoute = PublicOrgSlugOfferingsRouteImport.update({
+  id: '/org/$slug/offerings',
+  path: '/org/$slug/offerings',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicOrgSlugPhotosRoute = PublicOrgSlugPhotosRouteImport.update({
+  id: '/org/$slug/photos',
+  path: '/org/$slug/photos',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicOrgSlugStoreRoute = PublicOrgSlugStoreRouteImport.update({
+  id: '/org/$slug/store',
+  path: '/org/$slug/store',
+  getParentRoute: () => PublicRoute,
+} as any)
+const ChurchSlugEventsEventIdRoute = ChurchSlugEventsEventIdRouteImport.update({
+  id: '/church/$slug/events/$eventId',
+  path: '/church/$slug/events/$eventId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchSlugGiveIndexRoute = ChurchSlugGiveIndexRouteImport.update({
+  id: '/church/$slug/give/',
+  path: '/church/$slug/give/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchSlugGiveSuccessRoute = ChurchSlugGiveSuccessRouteImport.update({
+  id: '/church/$slug/give/success',
+  path: '/church/$slug/give/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProSermonsIndexRoute = ChurchProSermonsIndexRouteImport.update({
+  id: '/church/pro/sermons/',
+  path: '/church/pro/sermons/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchProSermonsIdRoute = ChurchProSermonsIdRouteImport.update({
+  id: '/church/pro/sermons/$id',
+  path: '/church/pro/sermons/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppAdminAnnouncementsIdEditRoute =
+  AppAdminAnnouncementsIdEditRouteImport.update({
+    id: '/announcements/$id/edit',
+    path: '/announcements/$id/edit',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminBeautyMessagesIdRoute =
+  AppAdminBeautyMessagesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AppAdminBeautyMessagesRoute,
+  } as any)
+const AppAdminCampaignsIdEditRoute = AppAdminCampaignsIdEditRouteImport.update({
+  id: '/campaigns/$id/edit',
+  path: '/campaigns/$id/edit',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminChurchSermonsIndexRoute =
+  AppAdminChurchSermonsIndexRouteImport.update({
+    id: '/church/sermons/',
+    path: '/church/sermons/',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminChurchSermonsIdRoute = AppAdminChurchSermonsIdRouteImport.update({
+  id: '/church/sermons/$id',
+  path: '/church/sermons/$id',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminEventsServiceMessagesIdRoute =
+  AppAdminEventsServiceMessagesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AppAdminEventsServiceMessagesRoute,
+  } as any)
+const AppAdminEventsIdEditRoute = AppAdminEventsIdEditRouteImport.update({
+  id: '/events/$id/edit',
+  path: '/events/$id/edit',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminHomeMessagesIdRoute = AppAdminHomeMessagesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppAdminHomeMessagesRoute,
+} as any)
+const AppAdminLearnMessagesIdRoute = AppAdminLearnMessagesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppAdminLearnMessagesRoute,
+} as any)
+const AppAdminMediaIdEditRoute = AppAdminMediaIdEditRouteImport.update({
+  id: '/media/$id/edit',
+  path: '/media/$id/edit',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminProductsIdEditRoute = AppAdminProductsIdEditRouteImport.update({
+  id: '/products/$id/edit',
+  path: '/products/$id/edit',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminProgramsIdEditRoute = AppAdminProgramsIdEditRouteImport.update({
+  id: '/programs/$id/edit',
+  path: '/programs/$id/edit',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminProgramsDraftProjectIdRoute =
+  AppAdminProgramsDraftProjectIdRouteImport.update({
+    id: '/programs/draft/$projectId',
+    path: '/programs/draft/$projectId',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminStudioProjectsIndexRoute =
+  AppAdminStudioProjectsIndexRouteImport.update({
+    id: '/studio/projects/',
+    path: '/studio/projects/',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminStudioProjectsNewRoute =
+  AppAdminStudioProjectsNewRouteImport.update({
+    id: '/studio/projects/new',
+    path: '/studio/projects/new',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppDashboardMessagesVerticalIdRoute =
+  AppDashboardMessagesVerticalIdRouteImport.update({
+    id: '/dashboard/messages/$vertical/$id',
+    path: '/dashboard/messages/$vertical/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppDashboardMessagesBeautyIdRoute =
+  AppDashboardMessagesBeautyIdRouteImport.update({
+    id: '/dashboard/messages/beauty/$id',
+    path: '/dashboard/messages/beauty/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppDashboardMessagesEventsIdRoute =
+  AppDashboardMessagesEventsIdRouteImport.update({
+    id: '/dashboard/messages/events/$id',
+    path: '/dashboard/messages/events/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppDashboardMessagesHomeIdRoute =
+  AppDashboardMessagesHomeIdRouteImport.update({
+    id: '/dashboard/messages/home/$id',
+    path: '/dashboard/messages/home/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppDashboardMessagesLearnIdRoute =
+  AppDashboardMessagesLearnIdRouteImport.update({
+    id: '/dashboard/messages/learn/$id',
+    path: '/dashboard/messages/learn/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+const PublicOrgSlugPProductSlugRoute =
+  PublicOrgSlugPProductSlugRouteImport.update({
+    id: '/org/$slug/p/$productSlug',
+    path: '/org/$slug/p/$productSlug',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicOrgSlugProductProductIdRoute =
+  PublicOrgSlugProductProductIdRouteImport.update({
+    id: '/org/$slug/product/$productId',
+    path: '/org/$slug/product/$productId',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const ChurchSlugPdfPdfIdIndexRoute = ChurchSlugPdfPdfIdIndexRouteImport.update({
+  id: '/church/$slug/pdf/$pdfId/',
+  path: '/church/$slug/pdf/$pdfId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChurchSlugPdfPdfIdSuccessRoute =
+  ChurchSlugPdfPdfIdSuccessRouteImport.update({
+    id: '/church/$slug/pdf/$pdfId/success',
+    path: '/church/$slug/pdf/$pdfId/success',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AppAdminStudioProjectsIdIndexRoute =
+  AppAdminStudioProjectsIdIndexRouteImport.update({
+    id: '/studio/projects/$id/',
+    path: '/studio/projects/$id/',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminStudioProjectsIdAssetsRoute =
+  AppAdminStudioProjectsIdAssetsRouteImport.update({
+    id: '/studio/projects/$id/assets',
+    path: '/studio/projects/$id/assets',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminStudioProjectsIdEditorRoute =
+  AppAdminStudioProjectsIdEditorRouteImport.update({
+    id: '/studio/projects/$id/editor',
+    path: '/studio/projects/$id/editor',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminStudioProjectsIdPublishRoute =
+  AppAdminStudioProjectsIdPublishRouteImport.update({
+    id: '/studio/projects/$id/publish',
+    path: '/studio/projects/$id/publish',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+const AppAdminStudioProjectsIdReviewRoute =
+  AppAdminStudioProjectsIdReviewRouteImport.update({
+    id: '/studio/projects/$id/review',
+    path: '/studio/projects/$id/review',
+    getParentRoute: () => AppAdminRoute,
+  } as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
+  '/about': typeof AboutRoute
+  '/acceptable-use': typeof AcceptableUseRoute
+  '/affiliate-program': typeof AffiliateProgramRoute
+  '/ambassador': typeof AmbassadorRoute
+  '/ambassador-program': typeof AmbassadorProgramRoute
+  '/ambassador-terms': typeof AmbassadorTermsRoute
+  '/aml': typeof AmlRoute
+  '/brand': typeof BrandRoute
+  '/calculateur': typeof CalculateurRoute
+  '/cgu': typeof CguRoute
+  '/changelog': typeof ChangelogRoute
+  '/churches': typeof ChurchesRoute
+  '/compare': typeof CompareRoute
+  '/comparer': typeof ComparerRoute
+  '/compliance': typeof ComplianceRoute
+  '/contact': typeof ContactRoute
+  '/cookie-policy': typeof CookiePolicyRoute
+  '/cookies': typeof CookiesRoute
+  '/copyright': typeof CopyrightRoute
+  '/create-course': typeof CreateCourseRoute
+  '/create-org': typeof CreateOrgRoute
+  '/creer-formation': typeof CreerFormationRoute
+  '/dashboard-preview': typeof DashboardPreviewRoute
+  '/data-deletion': typeof DataDeletionRoute
+  '/developers': typeof DevelopersRoute
+  '/developpeurs': typeof DeveloppeursRoute
+  '/devenir-partenaire': typeof DevenirPartenaireRoute
+  '/discover': typeof DiscoverRoute
+  '/dmca': typeof DmcaRoute
+  '/dpa': typeof DpaRoute
+  '/earn': typeof EarnRoute
+  '/ecrire': typeof EcrireRoute
+  '/email-preferences': typeof EmailPreferencesRoute
+  '/etudes-de-cas': typeof EtudesDeCasRoute
+  '/explorer': typeof ExplorerRoute
+  '/faq': typeof FaqRoute
+  '/features': typeof FeaturesRoute
+  '/feuille-de-route': typeof FeuilleDeRouteRoute
+  '/fondateurs': typeof FondateursRoute
+  '/founders': typeof FoundersRoute
+  '/gagner': typeof GagnerRoute
+  '/gagner-info': typeof GagnerInfoRoute
+  '/glossaire': typeof GlossaireRoute
+  '/glossary': typeof GlossaryRoute
+  '/help': typeof HelpRoute
+  '/hub': typeof HubRoute
+  '/install': typeof InstallRoute
+  '/integrations': typeof IntegrationsRoute
+  '/landing': typeof LandingRoute
+  '/legal-notices': typeof LegalNoticesRoute
+  '/looking-for': typeof LookingForRoute
+  '/maintenance': typeof MaintenanceRoute
+  '/media-kit': typeof MediaKitRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
+  '/mes-achats': typeof MesAchatsRoute
+  '/migrate': typeof MigrateRoute
+  '/migrer': typeof MigrerRoute
+  '/new-this-week': typeof NewThisWeekRoute
+  '/newsletter': typeof NewsletterRoute
+  '/parrainage': typeof ParrainageRoute
+  '/partenaires': typeof PartenairesRoute
+  '/partner-terms': typeof PartnerTermsRoute
+  '/payment-success': typeof PaymentSuccessRoute
+  '/payout-policy': typeof PayoutPolicyRoute
+  '/plan-du-site': typeof PlanDuSiteRoute
+  '/presse': typeof PresseRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/protection': typeof ProtectionRoute
+  '/referrals': typeof ReferralsRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/report': typeof ReportRoute
+  '/roadmap': typeof RoadmapRoute
+  '/security': typeof SecurityRoute
+  '/sell': typeof SellRoute
+  '/services': typeof ServicesRoute
+  '/share-target': typeof ShareTargetRoute
+  '/showcase': typeof ShowcaseRoute
+  '/signaler': typeof SignalerRoute
+  '/sitemap': typeof SitemapRoute
+  '/start-selling': typeof StartSellingRoute
+  '/status': typeof StatusRoute
+  '/subprocessors': typeof SubprocessorsRoute
+  '/superadmin': typeof SuperadminRouteWithChildren
+  '/superapp': typeof SuperappRoute
+  '/tarifs': typeof TarifsRoute
+  '/temoignages': typeof TemoignagesRoute
+  '/terms': typeof TermsRoute
+  '/top-creators': typeof TopCreatorsRoute
+  '/tutoriels': typeof TutorielsRoute
+  '/vendre': typeof VendreRoute
+  '/welcome': typeof WelcomeRoute
+  '/welcome-intent': typeof WelcomeIntentRoute
+  '/write': typeof WriteRoute
+  '/admin': typeof AppAdminRouteWithChildren
+  '/affiliation': typeof AppAffiliationRoute
+  '/bookmarks': typeof AppBookmarksRoute
+  '/credits': typeof AppCreditsRoute
+  '/feed': typeof AppFeedRoute
+  '/invoices': typeof AppInvoicesRoute
+  '/kyc': typeof AppKycRoute
+  '/leaderboard': typeof AppLeaderboardRoute
+  '/mes-avis': typeof AppMesAvisRoute
+  '/mes-formations': typeof AppMesFormationsRoute
+  '/my-analytics': typeof AppMyAnalyticsRoute
+  '/my-donations': typeof AppMyDonationsRoute
+  '/my-invoices': typeof AppMyInvoicesRoute
+  '/my-programs': typeof AppMyProgramsRoute
+  '/my-purchases': typeof AppMyPurchasesRoute
+  '/my-reviews': typeof AppMyReviewsRoute
+  '/notification-preferences': typeof AppNotificationPreferencesRoute
+  '/notifications': typeof AppNotificationsRoute
+  '/partner': typeof AppPartnerRoute
+  '/profile': typeof AppProfileRoute
+  '/quick-publish': typeof AppQuickPublishRoute
+  '/quick-start': typeof AppQuickStartRoute
+  '/resources': typeof AppResourcesRoute
+  '/settings': typeof AppSettingsRoute
+  '/support': typeof AppSupportRoute
+  '/wallet': typeof AppWalletRoute
+  '/wishlist': typeof AppWishlistRoute
+  '/courses': typeof PublicCoursesRoute
+  '/spotlight': typeof PublicSpotlightRoute
+  '/account/trust': typeof AccountTrustRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/beauty/$': typeof BeautySplatRoute
+  '/beauty/about': typeof BeautyAboutRoute
+  '/beauty/search': typeof BeautySearchRoute
+  '/billing/success': typeof BillingSuccessRoute
+  '/billing/usage': typeof BillingUsageRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/canva/callback': typeof CanvaCallbackRoute
+  '/church/about': typeof ChurchAboutRoute
+  '/church/discover': typeof ChurchDiscoverRoute
+  '/creator/advanced-analytics': typeof CreatorAdvancedAnalyticsRoute
+  '/digital/about': typeof DigitalAboutRoute
+  '/docs/api': typeof DocsApiRoute
+  '/education/$': typeof EducationSplatRoute
+  '/education/about': typeof EducationAboutRoute
+  '/education/discover': typeof EducationDiscoverRoute
+  '/events/$': typeof EventsSplatRoute
+  '/events/about': typeof EventsAboutRoute
+  '/events/discover': typeof EventsDiscoverRoute
+  '/explore/artisans': typeof ExploreArtisansRoute
+  '/explore/beauty': typeof ExploreBeautyRoute
+  '/explore/coaching': typeof ExploreCoachingRoute
+  '/explore/digital-products': typeof ExploreDigitalProductsRoute
+  '/explore/influencers': typeof ExploreInfluencersRoute
+  '/explore/music': typeof ExploreMusicRoute
+  '/explore/other-services': typeof ExploreOtherServicesRoute
+  '/explore/tutors': typeof ExploreTutorsRoute
+  '/go/$code': typeof GoCodeRoute
+  '/guide/affiliation-sans-investissement': typeof GuideAffiliationSansInvestissementRoute
+  '/guide/alternative-gofundme': typeof GuideAlternativeGofundmeRoute
+  '/guide/boutique-digitale-gratuite': typeof GuideBoutiqueDigitaleGratuiteRoute
+  '/guide/gagner-sans-contenu': typeof GuideGagnerSansContenuRoute
+  '/guide/mobile-money-ecommerce': typeof GuideMobileMoneyEcommerceRoute
+  '/guide/monetiser-contenu-religieux': typeof GuideMonetiserContenuReligieuxRoute
+  '/guide/plateforme-dons-afrique': typeof GuidePlateformeDonsAfriqueRoute
+  '/guide/vendre-cours-en-ligne': typeof GuideVendreCoursEnLigneRoute
+  '/guide/vendre-ebook-afrique': typeof GuideVendreEbookAfriqueRoute
+  '/home/$': typeof HomeSplatRoute
+  '/home/about': typeof HomeAboutRoute
+  '/home/discover': typeof HomeDiscoverRoute
+  '/invite/$code': typeof InviteCodeRoute
+  '/learn/$': typeof LearnSplatRoute
+  '/learn/about': typeof LearnAboutRoute
+  '/learn/discover': typeof LearnDiscoverRoute
+  '/payment/$': typeof PaymentSplatRoute
+  '/pour/agences': typeof PourAgencesRoute
+  '/pour/associations': typeof PourAssociationsRoute
+  '/pour/auteurs': typeof PourAuteursRoute
+  '/pour/blogueurs': typeof PourBlogueursRoute
+  '/pour/centres-formation': typeof PourCentresFormationRoute
+  '/pour/coaches': typeof PourCoachesRoute
+  '/pour/consultants': typeof PourConsultantsRoute
+  '/pour/cooperatives': typeof PourCooperativesRoute
+  '/pour/createurs-video': typeof PourCreateursVideoRoute
+  '/pour/designers': typeof PourDesignersRoute
+  '/pour/diaspora': typeof PourDiasporaRoute
+  '/pour/eglises': typeof PourEglisesRoute
+  '/pour/enseignants': typeof PourEnseignantsRoute
+  '/pour/entrepreneurs': typeof PourEntrepreneursRoute
+  '/pour/etudiants': typeof PourEtudiantsRoute
+  '/pour/femmes-entrepreneures': typeof PourFemmesEntrepreneuresRoute
+  '/pour/finance': typeof PourFinanceRoute
+  '/pour/formateurs': typeof PourFormateursRoute
+  '/pour/influenceurs': typeof PourInfluenceursRoute
+  '/pour/juristes': typeof PourJuristesRoute
+  '/pour/leaders-musulmans': typeof PourLeadersMusulmansRoute
+  '/pour/medias': typeof PourMediasRoute
+  '/pour/ministeres': typeof PourMinisteresRoute
+  '/pour/missionnaires': typeof PourMissionnairesRoute
+  '/pour/musiciens': typeof PourMusiciensRoute
+  '/pour/ong': typeof PourOngRoute
+  '/pour/photographes': typeof PourPhotographesRoute
+  '/pour/podcasters': typeof PourPodcastersRoute
+  '/pour/retraites': typeof PourRetraitesRoute
+  '/pour/sante': typeof PourSanteRoute
+  '/solutions/church': typeof SolutionsChurchRoute
+  '/start/$': typeof StartSplatRoute
+  '/start/details': typeof StartDetailsRoute
+  '/start/finish': typeof StartFinishRoute
+  '/store/$slug': typeof StoreSlugRoute
+  '/superadmin/acquisition': typeof SuperadminAcquisitionRoute
+  '/superadmin/activity': typeof SuperadminActivityRoute
+  '/superadmin/ads': typeof SuperadminAdsRoute
+  '/superadmin/ai': typeof SuperadminAiRoute
+  '/superadmin/ai-history': typeof SuperadminAiHistoryRoute
+  '/superadmin/beauty': typeof SuperadminBeautyRoute
+  '/superadmin/church': typeof SuperadminChurchRoute
+  '/superadmin/command-center': typeof SuperadminCommandCenterRoute
+  '/superadmin/directory': typeof SuperadminDirectoryRoute
+  '/superadmin/education': typeof SuperadminEducationRoute
+  '/superadmin/emails': typeof SuperadminEmailsRoute
+  '/superadmin/events': typeof SuperadminEventsRoute
+  '/superadmin/exports': typeof SuperadminExportsRoute
+  '/superadmin/health': typeof SuperadminHealthRoute
+  '/superadmin/home': typeof SuperadminHomeRoute
+  '/superadmin/investor': typeof SuperadminInvestorRoute
+  '/superadmin/kyc': typeof SuperadminKycRoute
+  '/superadmin/marketplace-moderation': typeof SuperadminMarketplaceModerationRoute
+  '/superadmin/metrics': typeof SuperadminMetricsRoute
+  '/superadmin/moderation': typeof SuperadminModerationRoute
+  '/superadmin/orgs': typeof SuperadminOrgsRoute
+  '/superadmin/partners': typeof SuperadminPartnersRoute
+  '/superadmin/push': typeof SuperadminPushRoute
+  '/superadmin/reports': typeof SuperadminReportsRoute
+  '/superadmin/risk': typeof SuperadminRiskRoute
+  '/superadmin/settings': typeof SuperadminSettingsRoute
+  '/superadmin/settlements': typeof SuperadminSettlementsRoute
+  '/superadmin/support': typeof SuperadminSupportRoute
+  '/superadmin/transactions': typeof SuperadminTransactionsRoute
+  '/superadmin/trust': typeof SuperadminTrustRoute
+  '/superadmin/users': typeof SuperadminUsersRoute
+  '/verify/$certNumber': typeof VerifyCertNumberRoute
+  '/account/': typeof AccountIndexRoute
+  '/auth/': typeof AuthIndexRoute
+  '/beauty/': typeof BeautyIndexRoute
+  '/billing/': typeof BillingIndexRoute
+  '/blog/': typeof BlogIndexRoute
+  '/church/': typeof ChurchIndexRoute
+  '/digital/': typeof DigitalIndexRoute
+  '/docs/': typeof DocsIndexRoute
+  '/education/': typeof EducationIndexRoute
+  '/events/': typeof EventsIndexRoute
+  '/home/': typeof HomeIndexRoute
+  '/learn/': typeof LearnIndexRoute
+  '/start/': typeof StartIndexRoute
+  '/superadmin/': typeof SuperadminIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/admin/affiliation': typeof AppAdminAffiliationRoute
+  '/admin/analytics': typeof AppAdminAnalyticsRoute
+  '/admin/api-keys': typeof AppAdminApiKeysRoute
+  '/admin/content': typeof AppAdminContentRoute
+  '/admin/create': typeof AppAdminCreateRoute
+  '/admin/crm': typeof AppAdminCrmRoute
+  '/admin/experiments': typeof AppAdminExperimentsRoute
+  '/admin/kyc': typeof AppAdminKycRoute
+  '/admin/learner-progress': typeof AppAdminLearnerProgressRoute
+  '/admin/marketplace-templates': typeof AppAdminMarketplaceTemplatesRoute
+  '/admin/members': typeof AppAdminMembersRoute
+  '/admin/notifications': typeof AppAdminNotificationsRoute
+  '/admin/offerings': typeof AppAdminOfferingsRoute
+  '/admin/payouts': typeof AppAdminPayoutsRoute
+  '/admin/people': typeof AppAdminPeopleRoute
+  '/admin/photos': typeof AppAdminPhotosRoute
+  '/admin/popups': typeof AppAdminPopupsRoute
+  '/admin/promo-codes': typeof AppAdminPromoCodesRoute
+  '/admin/sales': typeof AppAdminSalesRoute
+  '/admin/settings': typeof AppAdminSettingsRoute
+  '/admin/subscriptions': typeof AppAdminSubscriptionsRoute
+  '/admin/viral-studio': typeof AppAdminViralStudioRoute
+  '/admin/viral-tools': typeof AppAdminViralToolsRoute
+  '/admin/voice-agent': typeof AppAdminVoiceAgentRoute
+  '/admin/waitlists': typeof AppAdminWaitlistsRoute
+  '/admin/webhooks': typeof AppAdminWebhooksRoute
+  '/creator/analytics': typeof AppCreatorAnalyticsRoute
+  '/dashboard/activity': typeof AppDashboardActivityRoute
+  '/dashboard/affiliation': typeof AppDashboardAffiliationRoute
+  '/dashboard/claim': typeof AppDashboardClaimRoute
+  '/dashboard/digital': typeof AppDashboardDigitalRoute
+  '/dashboard/earn': typeof AppDashboardEarnRoute
+  '/dashboard/explore': typeof AppDashboardExploreRoute
+  '/dashboard/home': typeof AppDashboardHomeRoute
+  '/dashboard/kyc': typeof AppDashboardKycRoute
+  '/dashboard/notifications': typeof AppDashboardNotificationsRoute
+  '/dashboard/orders': typeof AppDashboardOrdersRoute
+  '/dashboard/products': typeof AppDashboardProductsRoute
+  '/dashboard/profile': typeof AppDashboardProfileRoute
+  '/dashboard/promotions': typeof AppDashboardPromotionsRoute
+  '/dashboard/purchases': typeof AppDashboardPurchasesRoute
+  '/dashboard/revenue': typeof AppDashboardRevenueRoute
+  '/onboarding/goals': typeof AppOnboardingGoalsRoute
+  '/onboarding/type': typeof AppOnboardingTypeRoute
+  '/reels/$id': typeof AppReelsIdRoute
+  '/watch/$id': typeof AppWatchIdRoute
+  '/announcement/$announcementId': typeof PublicAnnouncementAnnouncementIdRoute
+  '/campaign/$campaignId': typeof PublicCampaignCampaignIdRoute
+  '/event/$eventId': typeof PublicEventEventIdRoute
+  '/offering/$offeringId': typeof PublicOfferingOfferingIdRoute
+  '/p/$key': typeof PublicPKeyRoute
+  '/product/$key': typeof PublicProductKeyRoute
+  '/produit/$key': typeof PublicProduitKeyRoute
+  '/program/$programId': typeof PublicProgramProgramIdRoute
+  '/promo/ai-creations': typeof PublicPromoAiCreationsRoute
+  '/promo/catalogue': typeof PublicPromoCatalogueRoute
+  '/promo/gratuits': typeof PublicPromoGratuitsRoute
+  '/promo/stars': typeof PublicPromoStarsRoute
+  '/beauty/p/$slug': typeof BeautyPSlugRoute
+  '/beauty/pro/onboarding': typeof BeautyProOnboardingRoute
+  '/church/pro/announcements': typeof ChurchProAnnouncementsRoute
+  '/church/pro/appointments': typeof ChurchProAppointmentsRoute
+  '/church/pro/campaigns': typeof ChurchProCampaignsRoute
+  '/church/pro/events': typeof ChurchProEventsRoute
+  '/church/pro/giving': typeof ChurchProGivingRoute
+  '/church/pro/kyc': typeof ChurchProKycRoute
+  '/church/pro/members': typeof ChurchProMembersRoute
+  '/church/pro/onboarding': typeof ChurchProOnboardingRoute
+  '/church/pro/prayer': typeof ChurchProPrayerRoute
+  '/church/pro/settings': typeof ChurchProSettingsRoute
+  '/church/pro/team': typeof ChurchProTeamRoute
+  '/education/pro/onboarding': typeof EducationProOnboardingRoute
+  '/events/pro/$slug': typeof EventsProSlugRoute
+  '/events/pro/onboarding': typeof EventsProOnboardingRoute
+  '/home/pro/$slug': typeof HomeProSlugRoute
+  '/home/pro/onboarding': typeof HomeProOnboardingRoute
+  '/learn/pro/$slug': typeof LearnProSlugRoute
+  '/learn/pro/onboarding': typeof LearnProOnboardingRoute
+  '/marketplace/templates/$id': typeof MarketplaceTemplatesIdRoute
+  '/superadmin/studio/abuse-monitor': typeof SuperadminStudioAbuseMonitorRoute
+  '/superadmin/studio/jobs': typeof SuperadminStudioJobsRoute
+  '/superadmin/studio/policies': typeof SuperadminStudioPoliciesRoute
+  '/superadmin/studio/templates': typeof SuperadminStudioTemplatesRoute
+  '/admin/': typeof AppAdminIndexRoute
+  '/dashboard/': typeof AppDashboardIndexRoute
+  '/marketplace/': typeof AppMarketplaceIndexRoute
+  '/reels/': typeof AppReelsIndexRoute
+  '/church/$slug/': typeof ChurchSlugIndexRoute
+  '/church/pro/': typeof ChurchProIndexRoute
+  '/marketplace/templates/': typeof MarketplaceTemplatesIndexRoute
+  '/admin/announcements/new': typeof AppAdminAnnouncementsNewRoute
+  '/admin/beauty/$': typeof AppAdminBeautySplatRoute
+  '/admin/beauty/kyc': typeof AppAdminBeautyKycRoute
+  '/admin/beauty/messages': typeof AppAdminBeautyMessagesRouteWithChildren
+  '/admin/beauty/orders': typeof AppAdminBeautyOrdersRoute
+  '/admin/beauty/revenue': typeof AppAdminBeautyRevenueRoute
+  '/admin/beauty/settings': typeof AppAdminBeautySettingsRoute
+  '/admin/campaigns/new': typeof AppAdminCampaignsNewRoute
+  '/admin/church/announcements': typeof AppAdminChurchAnnouncementsRoute
+  '/admin/church/appointments': typeof AppAdminChurchAppointmentsRoute
+  '/admin/church/campaigns': typeof AppAdminChurchCampaignsRoute
+  '/admin/church/events': typeof AppAdminChurchEventsRoute
+  '/admin/church/giving': typeof AppAdminChurchGivingRoute
+  '/admin/church/kyc': typeof AppAdminChurchKycRoute
+  '/admin/church/members': typeof AppAdminChurchMembersRoute
+  '/admin/church/prayer': typeof AppAdminChurchPrayerRoute
+  '/admin/church/settings': typeof AppAdminChurchSettingsRoute
+  '/admin/church/team': typeof AppAdminChurchTeamRoute
+  '/admin/events-service/$': typeof AppAdminEventsServiceSplatRoute
+  '/admin/events-service/kyc': typeof AppAdminEventsServiceKycRoute
+  '/admin/events-service/messages': typeof AppAdminEventsServiceMessagesRouteWithChildren
+  '/admin/events-service/orders': typeof AppAdminEventsServiceOrdersRoute
+  '/admin/events-service/packages': typeof AppAdminEventsServicePackagesRoute
+  '/admin/events-service/revenue': typeof AppAdminEventsServiceRevenueRoute
+  '/admin/events-service/settings': typeof AppAdminEventsServiceSettingsRoute
+  '/admin/events/new': typeof AppAdminEventsNewRoute
+  '/admin/home/$': typeof AppAdminHomeSplatRoute
+  '/admin/home/kyc': typeof AppAdminHomeKycRoute
+  '/admin/home/messages': typeof AppAdminHomeMessagesRouteWithChildren
+  '/admin/home/orders': typeof AppAdminHomeOrdersRoute
+  '/admin/home/revenue': typeof AppAdminHomeRevenueRoute
+  '/admin/home/services': typeof AppAdminHomeServicesRoute
+  '/admin/home/settings': typeof AppAdminHomeSettingsRoute
+  '/admin/learn/$': typeof AppAdminLearnSplatRoute
+  '/admin/learn/kyc': typeof AppAdminLearnKycRoute
+  '/admin/learn/messages': typeof AppAdminLearnMessagesRouteWithChildren
+  '/admin/learn/orders': typeof AppAdminLearnOrdersRoute
+  '/admin/learn/revenue': typeof AppAdminLearnRevenueRoute
+  '/admin/learn/settings': typeof AppAdminLearnSettingsRoute
+  '/admin/learn/subjects': typeof AppAdminLearnSubjectsRoute
+  '/admin/media/new': typeof AppAdminMediaNewRoute
+  '/admin/products/new': typeof AppAdminProductsNewRoute
+  '/admin/programs/generating': typeof AppAdminProgramsGeneratingRoute
+  '/admin/programs/new': typeof AppAdminProgramsNewRoute
+  '/admin/studio/jobs': typeof AppAdminStudioJobsRoute
+  '/admin/studio/library': typeof AppAdminStudioLibraryRoute
+  '/admin/studio/templates': typeof AppAdminStudioTemplatesRoute
+  '/dashboard/settings/modules': typeof AppDashboardSettingsModulesRoute
+  '/org/$slug/content': typeof PublicOrgSlugContentRoute
+  '/org/$slug/donate': typeof PublicOrgSlugDonateRoute
+  '/org/$slug/dons': typeof PublicOrgSlugDonsRoute
+  '/org/$slug/events': typeof PublicOrgSlugEventsRoute
+  '/org/$slug/offerings': typeof PublicOrgSlugOfferingsRoute
+  '/org/$slug/photos': typeof PublicOrgSlugPhotosRoute
+  '/org/$slug/store': typeof PublicOrgSlugStoreRoute
+  '/church/$slug/events/$eventId': typeof ChurchSlugEventsEventIdRoute
+  '/church/$slug/give/success': typeof ChurchSlugGiveSuccessRoute
+  '/church/pro/sermons/$id': typeof ChurchProSermonsIdRoute
+  '/admin/announcements/': typeof AppAdminAnnouncementsIndexRoute
+  '/admin/beauty/': typeof AppAdminBeautyIndexRoute
+  '/admin/campaigns/': typeof AppAdminCampaignsIndexRoute
+  '/admin/church/': typeof AppAdminChurchIndexRoute
+  '/admin/events-service/': typeof AppAdminEventsServiceIndexRoute
+  '/admin/events/': typeof AppAdminEventsIndexRoute
+  '/admin/home/': typeof AppAdminHomeIndexRoute
+  '/admin/learn/': typeof AppAdminLearnIndexRoute
+  '/admin/media/': typeof AppAdminMediaIndexRoute
+  '/admin/products/': typeof AppAdminProductsIndexRoute
+  '/admin/programs/': typeof AppAdminProgramsIndexRoute
+  '/admin/studio/': typeof AppAdminStudioIndexRoute
+  '/dashboard/messages/': typeof AppDashboardMessagesIndexRoute
+  '/dashboard/settings/': typeof AppDashboardSettingsIndexRoute
+  '/org/$slug/': typeof PublicOrgSlugIndexRoute
+  '/church/$slug/give/': typeof ChurchSlugGiveIndexRoute
+  '/church/pro/sermons/': typeof ChurchProSermonsIndexRoute
+  '/admin/announcements/$id/edit': typeof AppAdminAnnouncementsIdEditRoute
+  '/admin/beauty/messages/$id': typeof AppAdminBeautyMessagesIdRoute
+  '/admin/campaigns/$id/edit': typeof AppAdminCampaignsIdEditRoute
+  '/admin/church/sermons/$id': typeof AppAdminChurchSermonsIdRoute
+  '/admin/events-service/messages/$id': typeof AppAdminEventsServiceMessagesIdRoute
+  '/admin/events/$id/edit': typeof AppAdminEventsIdEditRoute
+  '/admin/home/messages/$id': typeof AppAdminHomeMessagesIdRoute
+  '/admin/learn/messages/$id': typeof AppAdminLearnMessagesIdRoute
+  '/admin/media/$id/edit': typeof AppAdminMediaIdEditRoute
+  '/admin/products/$id/edit': typeof AppAdminProductsIdEditRoute
+  '/admin/programs/$id/edit': typeof AppAdminProgramsIdEditRoute
+  '/admin/programs/draft/$projectId': typeof AppAdminProgramsDraftProjectIdRoute
+  '/admin/studio/projects/new': typeof AppAdminStudioProjectsNewRoute
+  '/dashboard/messages/$vertical/$id': typeof AppDashboardMessagesVerticalIdRoute
+  '/dashboard/messages/beauty/$id': typeof AppDashboardMessagesBeautyIdRoute
+  '/dashboard/messages/events/$id': typeof AppDashboardMessagesEventsIdRoute
+  '/dashboard/messages/home/$id': typeof AppDashboardMessagesHomeIdRoute
+  '/dashboard/messages/learn/$id': typeof AppDashboardMessagesLearnIdRoute
+  '/org/$slug/p/$productSlug': typeof PublicOrgSlugPProductSlugRoute
+  '/org/$slug/product/$productId': typeof PublicOrgSlugProductProductIdRoute
+  '/church/$slug/pdf/$pdfId/success': typeof ChurchSlugPdfPdfIdSuccessRoute
+  '/admin/church/sermons/': typeof AppAdminChurchSermonsIndexRoute
+  '/admin/studio/projects/': typeof AppAdminStudioProjectsIndexRoute
+  '/church/$slug/pdf/$pdfId/': typeof ChurchSlugPdfPdfIdIndexRoute
+  '/admin/studio/projects/$id/assets': typeof AppAdminStudioProjectsIdAssetsRoute
+  '/admin/studio/projects/$id/editor': typeof AppAdminStudioProjectsIdEditorRoute
+  '/admin/studio/projects/$id/publish': typeof AppAdminStudioProjectsIdPublishRoute
+  '/admin/studio/projects/$id/review': typeof AppAdminStudioProjectsIdReviewRoute
+  '/admin/studio/projects/$id/': typeof AppAdminStudioProjectsIdIndexRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
+  '/about': typeof AboutRoute
+  '/acceptable-use': typeof AcceptableUseRoute
+  '/affiliate-program': typeof AffiliateProgramRoute
+  '/ambassador': typeof AmbassadorRoute
+  '/ambassador-program': typeof AmbassadorProgramRoute
+  '/ambassador-terms': typeof AmbassadorTermsRoute
+  '/aml': typeof AmlRoute
+  '/brand': typeof BrandRoute
+  '/calculateur': typeof CalculateurRoute
+  '/cgu': typeof CguRoute
+  '/changelog': typeof ChangelogRoute
+  '/churches': typeof ChurchesRoute
+  '/compare': typeof CompareRoute
+  '/comparer': typeof ComparerRoute
+  '/compliance': typeof ComplianceRoute
+  '/contact': typeof ContactRoute
+  '/cookie-policy': typeof CookiePolicyRoute
+  '/cookies': typeof CookiesRoute
+  '/copyright': typeof CopyrightRoute
+  '/create-course': typeof CreateCourseRoute
+  '/create-org': typeof CreateOrgRoute
+  '/creer-formation': typeof CreerFormationRoute
+  '/dashboard-preview': typeof DashboardPreviewRoute
+  '/data-deletion': typeof DataDeletionRoute
+  '/developers': typeof DevelopersRoute
+  '/developpeurs': typeof DeveloppeursRoute
+  '/devenir-partenaire': typeof DevenirPartenaireRoute
+  '/discover': typeof DiscoverRoute
+  '/dmca': typeof DmcaRoute
+  '/dpa': typeof DpaRoute
+  '/earn': typeof EarnRoute
+  '/ecrire': typeof EcrireRoute
+  '/email-preferences': typeof EmailPreferencesRoute
+  '/etudes-de-cas': typeof EtudesDeCasRoute
+  '/explorer': typeof ExplorerRoute
+  '/faq': typeof FaqRoute
+  '/features': typeof FeaturesRoute
+  '/feuille-de-route': typeof FeuilleDeRouteRoute
+  '/fondateurs': typeof FondateursRoute
+  '/founders': typeof FoundersRoute
+  '/gagner': typeof GagnerRoute
+  '/gagner-info': typeof GagnerInfoRoute
+  '/glossaire': typeof GlossaireRoute
+  '/glossary': typeof GlossaryRoute
+  '/help': typeof HelpRoute
+  '/hub': typeof HubRoute
+  '/install': typeof InstallRoute
+  '/integrations': typeof IntegrationsRoute
+  '/landing': typeof LandingRoute
+  '/legal-notices': typeof LegalNoticesRoute
+  '/looking-for': typeof LookingForRoute
+  '/maintenance': typeof MaintenanceRoute
+  '/media-kit': typeof MediaKitRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
+  '/mes-achats': typeof MesAchatsRoute
+  '/migrate': typeof MigrateRoute
+  '/migrer': typeof MigrerRoute
+  '/new-this-week': typeof NewThisWeekRoute
+  '/newsletter': typeof NewsletterRoute
+  '/parrainage': typeof ParrainageRoute
+  '/partenaires': typeof PartenairesRoute
+  '/partner-terms': typeof PartnerTermsRoute
+  '/payment-success': typeof PaymentSuccessRoute
+  '/payout-policy': typeof PayoutPolicyRoute
+  '/plan-du-site': typeof PlanDuSiteRoute
+  '/presse': typeof PresseRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/protection': typeof ProtectionRoute
+  '/referrals': typeof ReferralsRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/report': typeof ReportRoute
+  '/roadmap': typeof RoadmapRoute
+  '/security': typeof SecurityRoute
+  '/sell': typeof SellRoute
+  '/services': typeof ServicesRoute
+  '/share-target': typeof ShareTargetRoute
+  '/showcase': typeof ShowcaseRoute
+  '/signaler': typeof SignalerRoute
+  '/sitemap': typeof SitemapRoute
+  '/start-selling': typeof StartSellingRoute
+  '/status': typeof StatusRoute
+  '/subprocessors': typeof SubprocessorsRoute
+  '/superapp': typeof SuperappRoute
+  '/tarifs': typeof TarifsRoute
+  '/temoignages': typeof TemoignagesRoute
+  '/terms': typeof TermsRoute
+  '/top-creators': typeof TopCreatorsRoute
+  '/tutoriels': typeof TutorielsRoute
+  '/vendre': typeof VendreRoute
+  '/welcome': typeof WelcomeRoute
+  '/welcome-intent': typeof WelcomeIntentRoute
+  '/write': typeof WriteRoute
+  '/affiliation': typeof AppAffiliationRoute
+  '/bookmarks': typeof AppBookmarksRoute
+  '/credits': typeof AppCreditsRoute
+  '/feed': typeof AppFeedRoute
+  '/invoices': typeof AppInvoicesRoute
+  '/kyc': typeof AppKycRoute
+  '/leaderboard': typeof AppLeaderboardRoute
+  '/mes-avis': typeof AppMesAvisRoute
+  '/mes-formations': typeof AppMesFormationsRoute
+  '/my-analytics': typeof AppMyAnalyticsRoute
+  '/my-donations': typeof AppMyDonationsRoute
+  '/my-invoices': typeof AppMyInvoicesRoute
+  '/my-programs': typeof AppMyProgramsRoute
+  '/my-purchases': typeof AppMyPurchasesRoute
+  '/my-reviews': typeof AppMyReviewsRoute
+  '/notification-preferences': typeof AppNotificationPreferencesRoute
+  '/notifications': typeof AppNotificationsRoute
+  '/partner': typeof AppPartnerRoute
+  '/profile': typeof AppProfileRoute
+  '/quick-publish': typeof AppQuickPublishRoute
+  '/quick-start': typeof AppQuickStartRoute
+  '/resources': typeof AppResourcesRoute
+  '/settings': typeof AppSettingsRoute
+  '/support': typeof AppSupportRoute
+  '/wallet': typeof AppWalletRoute
+  '/wishlist': typeof AppWishlistRoute
+  '/courses': typeof PublicCoursesRoute
+  '/spotlight': typeof PublicSpotlightRoute
+  '/account/trust': typeof AccountTrustRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/beauty/$': typeof BeautySplatRoute
+  '/beauty/about': typeof BeautyAboutRoute
+  '/beauty/search': typeof BeautySearchRoute
+  '/billing/success': typeof BillingSuccessRoute
+  '/billing/usage': typeof BillingUsageRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/canva/callback': typeof CanvaCallbackRoute
+  '/church/about': typeof ChurchAboutRoute
+  '/church/discover': typeof ChurchDiscoverRoute
+  '/creator/advanced-analytics': typeof CreatorAdvancedAnalyticsRoute
+  '/digital/about': typeof DigitalAboutRoute
+  '/docs/api': typeof DocsApiRoute
+  '/education/$': typeof EducationSplatRoute
+  '/education/about': typeof EducationAboutRoute
+  '/education/discover': typeof EducationDiscoverRoute
+  '/events/$': typeof EventsSplatRoute
+  '/events/about': typeof EventsAboutRoute
+  '/events/discover': typeof EventsDiscoverRoute
+  '/explore/artisans': typeof ExploreArtisansRoute
+  '/explore/beauty': typeof ExploreBeautyRoute
+  '/explore/coaching': typeof ExploreCoachingRoute
+  '/explore/digital-products': typeof ExploreDigitalProductsRoute
+  '/explore/influencers': typeof ExploreInfluencersRoute
+  '/explore/music': typeof ExploreMusicRoute
+  '/explore/other-services': typeof ExploreOtherServicesRoute
+  '/explore/tutors': typeof ExploreTutorsRoute
+  '/go/$code': typeof GoCodeRoute
+  '/guide/affiliation-sans-investissement': typeof GuideAffiliationSansInvestissementRoute
+  '/guide/alternative-gofundme': typeof GuideAlternativeGofundmeRoute
+  '/guide/boutique-digitale-gratuite': typeof GuideBoutiqueDigitaleGratuiteRoute
+  '/guide/gagner-sans-contenu': typeof GuideGagnerSansContenuRoute
+  '/guide/mobile-money-ecommerce': typeof GuideMobileMoneyEcommerceRoute
+  '/guide/monetiser-contenu-religieux': typeof GuideMonetiserContenuReligieuxRoute
+  '/guide/plateforme-dons-afrique': typeof GuidePlateformeDonsAfriqueRoute
+  '/guide/vendre-cours-en-ligne': typeof GuideVendreCoursEnLigneRoute
+  '/guide/vendre-ebook-afrique': typeof GuideVendreEbookAfriqueRoute
+  '/home/$': typeof HomeSplatRoute
+  '/home/about': typeof HomeAboutRoute
+  '/home/discover': typeof HomeDiscoverRoute
+  '/invite/$code': typeof InviteCodeRoute
+  '/learn/$': typeof LearnSplatRoute
+  '/learn/about': typeof LearnAboutRoute
+  '/learn/discover': typeof LearnDiscoverRoute
+  '/payment/$': typeof PaymentSplatRoute
+  '/pour/agences': typeof PourAgencesRoute
+  '/pour/associations': typeof PourAssociationsRoute
+  '/pour/auteurs': typeof PourAuteursRoute
+  '/pour/blogueurs': typeof PourBlogueursRoute
+  '/pour/centres-formation': typeof PourCentresFormationRoute
+  '/pour/coaches': typeof PourCoachesRoute
+  '/pour/consultants': typeof PourConsultantsRoute
+  '/pour/cooperatives': typeof PourCooperativesRoute
+  '/pour/createurs-video': typeof PourCreateursVideoRoute
+  '/pour/designers': typeof PourDesignersRoute
+  '/pour/diaspora': typeof PourDiasporaRoute
+  '/pour/eglises': typeof PourEglisesRoute
+  '/pour/enseignants': typeof PourEnseignantsRoute
+  '/pour/entrepreneurs': typeof PourEntrepreneursRoute
+  '/pour/etudiants': typeof PourEtudiantsRoute
+  '/pour/femmes-entrepreneures': typeof PourFemmesEntrepreneuresRoute
+  '/pour/finance': typeof PourFinanceRoute
+  '/pour/formateurs': typeof PourFormateursRoute
+  '/pour/influenceurs': typeof PourInfluenceursRoute
+  '/pour/juristes': typeof PourJuristesRoute
+  '/pour/leaders-musulmans': typeof PourLeadersMusulmansRoute
+  '/pour/medias': typeof PourMediasRoute
+  '/pour/ministeres': typeof PourMinisteresRoute
+  '/pour/missionnaires': typeof PourMissionnairesRoute
+  '/pour/musiciens': typeof PourMusiciensRoute
+  '/pour/ong': typeof PourOngRoute
+  '/pour/photographes': typeof PourPhotographesRoute
+  '/pour/podcasters': typeof PourPodcastersRoute
+  '/pour/retraites': typeof PourRetraitesRoute
+  '/pour/sante': typeof PourSanteRoute
+  '/solutions/church': typeof SolutionsChurchRoute
+  '/start/$': typeof StartSplatRoute
+  '/start/details': typeof StartDetailsRoute
+  '/start/finish': typeof StartFinishRoute
+  '/store/$slug': typeof StoreSlugRoute
+  '/superadmin/acquisition': typeof SuperadminAcquisitionRoute
+  '/superadmin/activity': typeof SuperadminActivityRoute
+  '/superadmin/ads': typeof SuperadminAdsRoute
+  '/superadmin/ai': typeof SuperadminAiRoute
+  '/superadmin/ai-history': typeof SuperadminAiHistoryRoute
+  '/superadmin/beauty': typeof SuperadminBeautyRoute
+  '/superadmin/church': typeof SuperadminChurchRoute
+  '/superadmin/command-center': typeof SuperadminCommandCenterRoute
+  '/superadmin/directory': typeof SuperadminDirectoryRoute
+  '/superadmin/education': typeof SuperadminEducationRoute
+  '/superadmin/emails': typeof SuperadminEmailsRoute
+  '/superadmin/events': typeof SuperadminEventsRoute
+  '/superadmin/exports': typeof SuperadminExportsRoute
+  '/superadmin/health': typeof SuperadminHealthRoute
+  '/superadmin/home': typeof SuperadminHomeRoute
+  '/superadmin/investor': typeof SuperadminInvestorRoute
+  '/superadmin/kyc': typeof SuperadminKycRoute
+  '/superadmin/marketplace-moderation': typeof SuperadminMarketplaceModerationRoute
+  '/superadmin/metrics': typeof SuperadminMetricsRoute
+  '/superadmin/moderation': typeof SuperadminModerationRoute
+  '/superadmin/orgs': typeof SuperadminOrgsRoute
+  '/superadmin/partners': typeof SuperadminPartnersRoute
+  '/superadmin/push': typeof SuperadminPushRoute
+  '/superadmin/reports': typeof SuperadminReportsRoute
+  '/superadmin/risk': typeof SuperadminRiskRoute
+  '/superadmin/settings': typeof SuperadminSettingsRoute
+  '/superadmin/settlements': typeof SuperadminSettlementsRoute
+  '/superadmin/support': typeof SuperadminSupportRoute
+  '/superadmin/transactions': typeof SuperadminTransactionsRoute
+  '/superadmin/trust': typeof SuperadminTrustRoute
+  '/superadmin/users': typeof SuperadminUsersRoute
+  '/verify/$certNumber': typeof VerifyCertNumberRoute
+  '/account': typeof AccountIndexRoute
+  '/auth': typeof AuthIndexRoute
+  '/beauty': typeof BeautyIndexRoute
+  '/billing': typeof BillingIndexRoute
+  '/blog': typeof BlogIndexRoute
+  '/church': typeof ChurchIndexRoute
+  '/digital': typeof DigitalIndexRoute
+  '/docs': typeof DocsIndexRoute
+  '/education': typeof EducationIndexRoute
+  '/events': typeof EventsIndexRoute
+  '/home': typeof HomeIndexRoute
+  '/learn': typeof LearnIndexRoute
+  '/start': typeof StartIndexRoute
+  '/superadmin': typeof SuperadminIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/admin/affiliation': typeof AppAdminAffiliationRoute
+  '/admin/analytics': typeof AppAdminAnalyticsRoute
+  '/admin/api-keys': typeof AppAdminApiKeysRoute
+  '/admin/content': typeof AppAdminContentRoute
+  '/admin/create': typeof AppAdminCreateRoute
+  '/admin/crm': typeof AppAdminCrmRoute
+  '/admin/experiments': typeof AppAdminExperimentsRoute
+  '/admin/kyc': typeof AppAdminKycRoute
+  '/admin/learner-progress': typeof AppAdminLearnerProgressRoute
+  '/admin/marketplace-templates': typeof AppAdminMarketplaceTemplatesRoute
+  '/admin/members': typeof AppAdminMembersRoute
+  '/admin/notifications': typeof AppAdminNotificationsRoute
+  '/admin/offerings': typeof AppAdminOfferingsRoute
+  '/admin/payouts': typeof AppAdminPayoutsRoute
+  '/admin/people': typeof AppAdminPeopleRoute
+  '/admin/photos': typeof AppAdminPhotosRoute
+  '/admin/popups': typeof AppAdminPopupsRoute
+  '/admin/promo-codes': typeof AppAdminPromoCodesRoute
+  '/admin/sales': typeof AppAdminSalesRoute
+  '/admin/settings': typeof AppAdminSettingsRoute
+  '/admin/subscriptions': typeof AppAdminSubscriptionsRoute
+  '/admin/viral-studio': typeof AppAdminViralStudioRoute
+  '/admin/viral-tools': typeof AppAdminViralToolsRoute
+  '/admin/voice-agent': typeof AppAdminVoiceAgentRoute
+  '/admin/waitlists': typeof AppAdminWaitlistsRoute
+  '/admin/webhooks': typeof AppAdminWebhooksRoute
+  '/creator/analytics': typeof AppCreatorAnalyticsRoute
+  '/dashboard/activity': typeof AppDashboardActivityRoute
+  '/dashboard/affiliation': typeof AppDashboardAffiliationRoute
+  '/dashboard/claim': typeof AppDashboardClaimRoute
+  '/dashboard/digital': typeof AppDashboardDigitalRoute
+  '/dashboard/earn': typeof AppDashboardEarnRoute
+  '/dashboard/explore': typeof AppDashboardExploreRoute
+  '/dashboard/home': typeof AppDashboardHomeRoute
+  '/dashboard/kyc': typeof AppDashboardKycRoute
+  '/dashboard/notifications': typeof AppDashboardNotificationsRoute
+  '/dashboard/orders': typeof AppDashboardOrdersRoute
+  '/dashboard/products': typeof AppDashboardProductsRoute
+  '/dashboard/profile': typeof AppDashboardProfileRoute
+  '/dashboard/promotions': typeof AppDashboardPromotionsRoute
+  '/dashboard/purchases': typeof AppDashboardPurchasesRoute
+  '/dashboard/revenue': typeof AppDashboardRevenueRoute
+  '/onboarding/goals': typeof AppOnboardingGoalsRoute
+  '/onboarding/type': typeof AppOnboardingTypeRoute
+  '/reels/$id': typeof AppReelsIdRoute
+  '/watch/$id': typeof AppWatchIdRoute
+  '/announcement/$announcementId': typeof PublicAnnouncementAnnouncementIdRoute
+  '/campaign/$campaignId': typeof PublicCampaignCampaignIdRoute
+  '/event/$eventId': typeof PublicEventEventIdRoute
+  '/offering/$offeringId': typeof PublicOfferingOfferingIdRoute
+  '/p/$key': typeof PublicPKeyRoute
+  '/product/$key': typeof PublicProductKeyRoute
+  '/produit/$key': typeof PublicProduitKeyRoute
+  '/program/$programId': typeof PublicProgramProgramIdRoute
+  '/promo/ai-creations': typeof PublicPromoAiCreationsRoute
+  '/promo/catalogue': typeof PublicPromoCatalogueRoute
+  '/promo/gratuits': typeof PublicPromoGratuitsRoute
+  '/promo/stars': typeof PublicPromoStarsRoute
+  '/beauty/p/$slug': typeof BeautyPSlugRoute
+  '/beauty/pro/onboarding': typeof BeautyProOnboardingRoute
+  '/church/pro/announcements': typeof ChurchProAnnouncementsRoute
+  '/church/pro/appointments': typeof ChurchProAppointmentsRoute
+  '/church/pro/campaigns': typeof ChurchProCampaignsRoute
+  '/church/pro/events': typeof ChurchProEventsRoute
+  '/church/pro/giving': typeof ChurchProGivingRoute
+  '/church/pro/kyc': typeof ChurchProKycRoute
+  '/church/pro/members': typeof ChurchProMembersRoute
+  '/church/pro/onboarding': typeof ChurchProOnboardingRoute
+  '/church/pro/prayer': typeof ChurchProPrayerRoute
+  '/church/pro/settings': typeof ChurchProSettingsRoute
+  '/church/pro/team': typeof ChurchProTeamRoute
+  '/education/pro/onboarding': typeof EducationProOnboardingRoute
+  '/events/pro/$slug': typeof EventsProSlugRoute
+  '/events/pro/onboarding': typeof EventsProOnboardingRoute
+  '/home/pro/$slug': typeof HomeProSlugRoute
+  '/home/pro/onboarding': typeof HomeProOnboardingRoute
+  '/learn/pro/$slug': typeof LearnProSlugRoute
+  '/learn/pro/onboarding': typeof LearnProOnboardingRoute
+  '/marketplace/templates/$id': typeof MarketplaceTemplatesIdRoute
+  '/superadmin/studio/abuse-monitor': typeof SuperadminStudioAbuseMonitorRoute
+  '/superadmin/studio/jobs': typeof SuperadminStudioJobsRoute
+  '/superadmin/studio/policies': typeof SuperadminStudioPoliciesRoute
+  '/superadmin/studio/templates': typeof SuperadminStudioTemplatesRoute
+  '/admin': typeof AppAdminIndexRoute
+  '/dashboard': typeof AppDashboardIndexRoute
+  '/marketplace': typeof AppMarketplaceIndexRoute
+  '/reels': typeof AppReelsIndexRoute
+  '/church/$slug': typeof ChurchSlugIndexRoute
+  '/church/pro': typeof ChurchProIndexRoute
+  '/marketplace/templates': typeof MarketplaceTemplatesIndexRoute
+  '/admin/announcements/new': typeof AppAdminAnnouncementsNewRoute
+  '/admin/beauty/$': typeof AppAdminBeautySplatRoute
+  '/admin/beauty/kyc': typeof AppAdminBeautyKycRoute
+  '/admin/beauty/messages': typeof AppAdminBeautyMessagesRouteWithChildren
+  '/admin/beauty/orders': typeof AppAdminBeautyOrdersRoute
+  '/admin/beauty/revenue': typeof AppAdminBeautyRevenueRoute
+  '/admin/beauty/settings': typeof AppAdminBeautySettingsRoute
+  '/admin/campaigns/new': typeof AppAdminCampaignsNewRoute
+  '/admin/church/announcements': typeof AppAdminChurchAnnouncementsRoute
+  '/admin/church/appointments': typeof AppAdminChurchAppointmentsRoute
+  '/admin/church/campaigns': typeof AppAdminChurchCampaignsRoute
+  '/admin/church/events': typeof AppAdminChurchEventsRoute
+  '/admin/church/giving': typeof AppAdminChurchGivingRoute
+  '/admin/church/kyc': typeof AppAdminChurchKycRoute
+  '/admin/church/members': typeof AppAdminChurchMembersRoute
+  '/admin/church/prayer': typeof AppAdminChurchPrayerRoute
+  '/admin/church/settings': typeof AppAdminChurchSettingsRoute
+  '/admin/church/team': typeof AppAdminChurchTeamRoute
+  '/admin/events-service/$': typeof AppAdminEventsServiceSplatRoute
+  '/admin/events-service/kyc': typeof AppAdminEventsServiceKycRoute
+  '/admin/events-service/messages': typeof AppAdminEventsServiceMessagesRouteWithChildren
+  '/admin/events-service/orders': typeof AppAdminEventsServiceOrdersRoute
+  '/admin/events-service/packages': typeof AppAdminEventsServicePackagesRoute
+  '/admin/events-service/revenue': typeof AppAdminEventsServiceRevenueRoute
+  '/admin/events-service/settings': typeof AppAdminEventsServiceSettingsRoute
+  '/admin/events/new': typeof AppAdminEventsNewRoute
+  '/admin/home/$': typeof AppAdminHomeSplatRoute
+  '/admin/home/kyc': typeof AppAdminHomeKycRoute
+  '/admin/home/messages': typeof AppAdminHomeMessagesRouteWithChildren
+  '/admin/home/orders': typeof AppAdminHomeOrdersRoute
+  '/admin/home/revenue': typeof AppAdminHomeRevenueRoute
+  '/admin/home/services': typeof AppAdminHomeServicesRoute
+  '/admin/home/settings': typeof AppAdminHomeSettingsRoute
+  '/admin/learn/$': typeof AppAdminLearnSplatRoute
+  '/admin/learn/kyc': typeof AppAdminLearnKycRoute
+  '/admin/learn/messages': typeof AppAdminLearnMessagesRouteWithChildren
+  '/admin/learn/orders': typeof AppAdminLearnOrdersRoute
+  '/admin/learn/revenue': typeof AppAdminLearnRevenueRoute
+  '/admin/learn/settings': typeof AppAdminLearnSettingsRoute
+  '/admin/learn/subjects': typeof AppAdminLearnSubjectsRoute
+  '/admin/media/new': typeof AppAdminMediaNewRoute
+  '/admin/products/new': typeof AppAdminProductsNewRoute
+  '/admin/programs/generating': typeof AppAdminProgramsGeneratingRoute
+  '/admin/programs/new': typeof AppAdminProgramsNewRoute
+  '/admin/studio/jobs': typeof AppAdminStudioJobsRoute
+  '/admin/studio/library': typeof AppAdminStudioLibraryRoute
+  '/admin/studio/templates': typeof AppAdminStudioTemplatesRoute
+  '/dashboard/settings/modules': typeof AppDashboardSettingsModulesRoute
+  '/org/$slug/content': typeof PublicOrgSlugContentRoute
+  '/org/$slug/donate': typeof PublicOrgSlugDonateRoute
+  '/org/$slug/dons': typeof PublicOrgSlugDonsRoute
+  '/org/$slug/events': typeof PublicOrgSlugEventsRoute
+  '/org/$slug/offerings': typeof PublicOrgSlugOfferingsRoute
+  '/org/$slug/photos': typeof PublicOrgSlugPhotosRoute
+  '/org/$slug/store': typeof PublicOrgSlugStoreRoute
+  '/church/$slug/events/$eventId': typeof ChurchSlugEventsEventIdRoute
+  '/church/$slug/give/success': typeof ChurchSlugGiveSuccessRoute
+  '/church/pro/sermons/$id': typeof ChurchProSermonsIdRoute
+  '/admin/announcements': typeof AppAdminAnnouncementsIndexRoute
+  '/admin/beauty': typeof AppAdminBeautyIndexRoute
+  '/admin/campaigns': typeof AppAdminCampaignsIndexRoute
+  '/admin/church': typeof AppAdminChurchIndexRoute
+  '/admin/events-service': typeof AppAdminEventsServiceIndexRoute
+  '/admin/events': typeof AppAdminEventsIndexRoute
+  '/admin/home': typeof AppAdminHomeIndexRoute
+  '/admin/learn': typeof AppAdminLearnIndexRoute
+  '/admin/media': typeof AppAdminMediaIndexRoute
+  '/admin/products': typeof AppAdminProductsIndexRoute
+  '/admin/programs': typeof AppAdminProgramsIndexRoute
+  '/admin/studio': typeof AppAdminStudioIndexRoute
+  '/dashboard/messages': typeof AppDashboardMessagesIndexRoute
+  '/dashboard/settings': typeof AppDashboardSettingsIndexRoute
+  '/org/$slug': typeof PublicOrgSlugIndexRoute
+  '/church/$slug/give': typeof ChurchSlugGiveIndexRoute
+  '/church/pro/sermons': typeof ChurchProSermonsIndexRoute
+  '/admin/announcements/$id/edit': typeof AppAdminAnnouncementsIdEditRoute
+  '/admin/beauty/messages/$id': typeof AppAdminBeautyMessagesIdRoute
+  '/admin/campaigns/$id/edit': typeof AppAdminCampaignsIdEditRoute
+  '/admin/church/sermons/$id': typeof AppAdminChurchSermonsIdRoute
+  '/admin/events-service/messages/$id': typeof AppAdminEventsServiceMessagesIdRoute
+  '/admin/events/$id/edit': typeof AppAdminEventsIdEditRoute
+  '/admin/home/messages/$id': typeof AppAdminHomeMessagesIdRoute
+  '/admin/learn/messages/$id': typeof AppAdminLearnMessagesIdRoute
+  '/admin/media/$id/edit': typeof AppAdminMediaIdEditRoute
+  '/admin/products/$id/edit': typeof AppAdminProductsIdEditRoute
+  '/admin/programs/$id/edit': typeof AppAdminProgramsIdEditRoute
+  '/admin/programs/draft/$projectId': typeof AppAdminProgramsDraftProjectIdRoute
+  '/admin/studio/projects/new': typeof AppAdminStudioProjectsNewRoute
+  '/dashboard/messages/$vertical/$id': typeof AppDashboardMessagesVerticalIdRoute
+  '/dashboard/messages/beauty/$id': typeof AppDashboardMessagesBeautyIdRoute
+  '/dashboard/messages/events/$id': typeof AppDashboardMessagesEventsIdRoute
+  '/dashboard/messages/home/$id': typeof AppDashboardMessagesHomeIdRoute
+  '/dashboard/messages/learn/$id': typeof AppDashboardMessagesLearnIdRoute
+  '/org/$slug/p/$productSlug': typeof PublicOrgSlugPProductSlugRoute
+  '/org/$slug/product/$productId': typeof PublicOrgSlugProductProductIdRoute
+  '/church/$slug/pdf/$pdfId/success': typeof ChurchSlugPdfPdfIdSuccessRoute
+  '/admin/church/sermons': typeof AppAdminChurchSermonsIndexRoute
+  '/admin/studio/projects': typeof AppAdminStudioProjectsIndexRoute
+  '/church/$slug/pdf/$pdfId': typeof ChurchSlugPdfPdfIdIndexRoute
+  '/admin/studio/projects/$id/assets': typeof AppAdminStudioProjectsIdAssetsRoute
+  '/admin/studio/projects/$id/editor': typeof AppAdminStudioProjectsIdEditorRoute
+  '/admin/studio/projects/$id/publish': typeof AppAdminStudioProjectsIdPublishRoute
+  '/admin/studio/projects/$id/review': typeof AppAdminStudioProjectsIdReviewRoute
+  '/admin/studio/projects/$id': typeof AppAdminStudioProjectsIdIndexRoute
+}
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/_app': typeof AppRouteWithChildren
+  '/_public': typeof PublicRouteWithChildren
+  '/a-propos': typeof AProposRoute
+  '/about': typeof AboutRoute
+  '/acceptable-use': typeof AcceptableUseRoute
+  '/affiliate-program': typeof AffiliateProgramRoute
+  '/ambassador': typeof AmbassadorRoute
+  '/ambassador-program': typeof AmbassadorProgramRoute
+  '/ambassador-terms': typeof AmbassadorTermsRoute
+  '/aml': typeof AmlRoute
+  '/brand': typeof BrandRoute
+  '/calculateur': typeof CalculateurRoute
+  '/cgu': typeof CguRoute
+  '/changelog': typeof ChangelogRoute
+  '/churches': typeof ChurchesRoute
+  '/compare': typeof CompareRoute
+  '/comparer': typeof ComparerRoute
+  '/compliance': typeof ComplianceRoute
+  '/contact': typeof ContactRoute
+  '/cookie-policy': typeof CookiePolicyRoute
+  '/cookies': typeof CookiesRoute
+  '/copyright': typeof CopyrightRoute
+  '/create-course': typeof CreateCourseRoute
+  '/create-org': typeof CreateOrgRoute
+  '/creer-formation': typeof CreerFormationRoute
+  '/dashboard-preview': typeof DashboardPreviewRoute
+  '/data-deletion': typeof DataDeletionRoute
+  '/developers': typeof DevelopersRoute
+  '/developpeurs': typeof DeveloppeursRoute
+  '/devenir-partenaire': typeof DevenirPartenaireRoute
+  '/discover': typeof DiscoverRoute
+  '/dmca': typeof DmcaRoute
+  '/dpa': typeof DpaRoute
+  '/earn': typeof EarnRoute
+  '/ecrire': typeof EcrireRoute
+  '/email-preferences': typeof EmailPreferencesRoute
+  '/etudes-de-cas': typeof EtudesDeCasRoute
+  '/explorer': typeof ExplorerRoute
+  '/faq': typeof FaqRoute
+  '/features': typeof FeaturesRoute
+  '/feuille-de-route': typeof FeuilleDeRouteRoute
+  '/fondateurs': typeof FondateursRoute
+  '/founders': typeof FoundersRoute
+  '/gagner': typeof GagnerRoute
+  '/gagner-info': typeof GagnerInfoRoute
+  '/glossaire': typeof GlossaireRoute
+  '/glossary': typeof GlossaryRoute
+  '/help': typeof HelpRoute
+  '/hub': typeof HubRoute
+  '/install': typeof InstallRoute
+  '/integrations': typeof IntegrationsRoute
+  '/landing': typeof LandingRoute
+  '/legal-notices': typeof LegalNoticesRoute
+  '/looking-for': typeof LookingForRoute
+  '/maintenance': typeof MaintenanceRoute
+  '/media-kit': typeof MediaKitRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
+  '/mes-achats': typeof MesAchatsRoute
+  '/migrate': typeof MigrateRoute
+  '/migrer': typeof MigrerRoute
+  '/new-this-week': typeof NewThisWeekRoute
+  '/newsletter': typeof NewsletterRoute
+  '/parrainage': typeof ParrainageRoute
+  '/partenaires': typeof PartenairesRoute
+  '/partner-terms': typeof PartnerTermsRoute
+  '/payment-success': typeof PaymentSuccessRoute
+  '/payout-policy': typeof PayoutPolicyRoute
+  '/plan-du-site': typeof PlanDuSiteRoute
+  '/presse': typeof PresseRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/protection': typeof ProtectionRoute
+  '/referrals': typeof ReferralsRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/report': typeof ReportRoute
+  '/roadmap': typeof RoadmapRoute
+  '/security': typeof SecurityRoute
+  '/sell': typeof SellRoute
+  '/services': typeof ServicesRoute
+  '/share-target': typeof ShareTargetRoute
+  '/showcase': typeof ShowcaseRoute
+  '/signaler': typeof SignalerRoute
+  '/sitemap': typeof SitemapRoute
+  '/start-selling': typeof StartSellingRoute
+  '/status': typeof StatusRoute
+  '/subprocessors': typeof SubprocessorsRoute
+  '/superadmin': typeof SuperadminRouteWithChildren
+  '/superapp': typeof SuperappRoute
+  '/tarifs': typeof TarifsRoute
+  '/temoignages': typeof TemoignagesRoute
+  '/terms': typeof TermsRoute
+  '/top-creators': typeof TopCreatorsRoute
+  '/tutoriels': typeof TutorielsRoute
+  '/vendre': typeof VendreRoute
+  '/welcome': typeof WelcomeRoute
+  '/welcome-intent': typeof WelcomeIntentRoute
+  '/write': typeof WriteRoute
+  '/_app/admin': typeof AppAdminRouteWithChildren
+  '/_app/affiliation': typeof AppAffiliationRoute
+  '/_app/bookmarks': typeof AppBookmarksRoute
+  '/_app/credits': typeof AppCreditsRoute
+  '/_app/feed': typeof AppFeedRoute
+  '/_app/invoices': typeof AppInvoicesRoute
+  '/_app/kyc': typeof AppKycRoute
+  '/_app/leaderboard': typeof AppLeaderboardRoute
+  '/_app/mes-avis': typeof AppMesAvisRoute
+  '/_app/mes-formations': typeof AppMesFormationsRoute
+  '/_app/my-analytics': typeof AppMyAnalyticsRoute
+  '/_app/my-donations': typeof AppMyDonationsRoute
+  '/_app/my-invoices': typeof AppMyInvoicesRoute
+  '/_app/my-programs': typeof AppMyProgramsRoute
+  '/_app/my-purchases': typeof AppMyPurchasesRoute
+  '/_app/my-reviews': typeof AppMyReviewsRoute
+  '/_app/notification-preferences': typeof AppNotificationPreferencesRoute
+  '/_app/notifications': typeof AppNotificationsRoute
+  '/_app/partner': typeof AppPartnerRoute
+  '/_app/profile': typeof AppProfileRoute
+  '/_app/quick-publish': typeof AppQuickPublishRoute
+  '/_app/quick-start': typeof AppQuickStartRoute
+  '/_app/resources': typeof AppResourcesRoute
+  '/_app/settings': typeof AppSettingsRoute
+  '/_app/support': typeof AppSupportRoute
+  '/_app/wallet': typeof AppWalletRoute
+  '/_app/wishlist': typeof AppWishlistRoute
+  '/_public/courses': typeof PublicCoursesRoute
+  '/_public/spotlight': typeof PublicSpotlightRoute
+  '/account/trust': typeof AccountTrustRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/beauty/$': typeof BeautySplatRoute
+  '/beauty/about': typeof BeautyAboutRoute
+  '/beauty/search': typeof BeautySearchRoute
+  '/billing/success': typeof BillingSuccessRoute
+  '/billing/usage': typeof BillingUsageRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/canva/callback': typeof CanvaCallbackRoute
+  '/church/about': typeof ChurchAboutRoute
+  '/church/discover': typeof ChurchDiscoverRoute
+  '/creator/advanced-analytics': typeof CreatorAdvancedAnalyticsRoute
+  '/digital/about': typeof DigitalAboutRoute
+  '/docs/api': typeof DocsApiRoute
+  '/education/$': typeof EducationSplatRoute
+  '/education/about': typeof EducationAboutRoute
+  '/education/discover': typeof EducationDiscoverRoute
+  '/events/$': typeof EventsSplatRoute
+  '/events/about': typeof EventsAboutRoute
+  '/events/discover': typeof EventsDiscoverRoute
+  '/explore/artisans': typeof ExploreArtisansRoute
+  '/explore/beauty': typeof ExploreBeautyRoute
+  '/explore/coaching': typeof ExploreCoachingRoute
+  '/explore/digital-products': typeof ExploreDigitalProductsRoute
+  '/explore/influencers': typeof ExploreInfluencersRoute
+  '/explore/music': typeof ExploreMusicRoute
+  '/explore/other-services': typeof ExploreOtherServicesRoute
+  '/explore/tutors': typeof ExploreTutorsRoute
+  '/go/$code': typeof GoCodeRoute
+  '/guide/affiliation-sans-investissement': typeof GuideAffiliationSansInvestissementRoute
+  '/guide/alternative-gofundme': typeof GuideAlternativeGofundmeRoute
+  '/guide/boutique-digitale-gratuite': typeof GuideBoutiqueDigitaleGratuiteRoute
+  '/guide/gagner-sans-contenu': typeof GuideGagnerSansContenuRoute
+  '/guide/mobile-money-ecommerce': typeof GuideMobileMoneyEcommerceRoute
+  '/guide/monetiser-contenu-religieux': typeof GuideMonetiserContenuReligieuxRoute
+  '/guide/plateforme-dons-afrique': typeof GuidePlateformeDonsAfriqueRoute
+  '/guide/vendre-cours-en-ligne': typeof GuideVendreCoursEnLigneRoute
+  '/guide/vendre-ebook-afrique': typeof GuideVendreEbookAfriqueRoute
+  '/home/$': typeof HomeSplatRoute
+  '/home/about': typeof HomeAboutRoute
+  '/home/discover': typeof HomeDiscoverRoute
+  '/invite/$code': typeof InviteCodeRoute
+  '/learn/$': typeof LearnSplatRoute
+  '/learn/about': typeof LearnAboutRoute
+  '/learn/discover': typeof LearnDiscoverRoute
+  '/payment/$': typeof PaymentSplatRoute
+  '/pour/agences': typeof PourAgencesRoute
+  '/pour/associations': typeof PourAssociationsRoute
+  '/pour/auteurs': typeof PourAuteursRoute
+  '/pour/blogueurs': typeof PourBlogueursRoute
+  '/pour/centres-formation': typeof PourCentresFormationRoute
+  '/pour/coaches': typeof PourCoachesRoute
+  '/pour/consultants': typeof PourConsultantsRoute
+  '/pour/cooperatives': typeof PourCooperativesRoute
+  '/pour/createurs-video': typeof PourCreateursVideoRoute
+  '/pour/designers': typeof PourDesignersRoute
+  '/pour/diaspora': typeof PourDiasporaRoute
+  '/pour/eglises': typeof PourEglisesRoute
+  '/pour/enseignants': typeof PourEnseignantsRoute
+  '/pour/entrepreneurs': typeof PourEntrepreneursRoute
+  '/pour/etudiants': typeof PourEtudiantsRoute
+  '/pour/femmes-entrepreneures': typeof PourFemmesEntrepreneuresRoute
+  '/pour/finance': typeof PourFinanceRoute
+  '/pour/formateurs': typeof PourFormateursRoute
+  '/pour/influenceurs': typeof PourInfluenceursRoute
+  '/pour/juristes': typeof PourJuristesRoute
+  '/pour/leaders-musulmans': typeof PourLeadersMusulmansRoute
+  '/pour/medias': typeof PourMediasRoute
+  '/pour/ministeres': typeof PourMinisteresRoute
+  '/pour/missionnaires': typeof PourMissionnairesRoute
+  '/pour/musiciens': typeof PourMusiciensRoute
+  '/pour/ong': typeof PourOngRoute
+  '/pour/photographes': typeof PourPhotographesRoute
+  '/pour/podcasters': typeof PourPodcastersRoute
+  '/pour/retraites': typeof PourRetraitesRoute
+  '/pour/sante': typeof PourSanteRoute
+  '/solutions/church': typeof SolutionsChurchRoute
+  '/start/$': typeof StartSplatRoute
+  '/start/details': typeof StartDetailsRoute
+  '/start/finish': typeof StartFinishRoute
+  '/store/$slug': typeof StoreSlugRoute
+  '/superadmin/acquisition': typeof SuperadminAcquisitionRoute
+  '/superadmin/activity': typeof SuperadminActivityRoute
+  '/superadmin/ads': typeof SuperadminAdsRoute
+  '/superadmin/ai': typeof SuperadminAiRoute
+  '/superadmin/ai-history': typeof SuperadminAiHistoryRoute
+  '/superadmin/beauty': typeof SuperadminBeautyRoute
+  '/superadmin/church': typeof SuperadminChurchRoute
+  '/superadmin/command-center': typeof SuperadminCommandCenterRoute
+  '/superadmin/directory': typeof SuperadminDirectoryRoute
+  '/superadmin/education': typeof SuperadminEducationRoute
+  '/superadmin/emails': typeof SuperadminEmailsRoute
+  '/superadmin/events': typeof SuperadminEventsRoute
+  '/superadmin/exports': typeof SuperadminExportsRoute
+  '/superadmin/health': typeof SuperadminHealthRoute
+  '/superadmin/home': typeof SuperadminHomeRoute
+  '/superadmin/investor': typeof SuperadminInvestorRoute
+  '/superadmin/kyc': typeof SuperadminKycRoute
+  '/superadmin/marketplace-moderation': typeof SuperadminMarketplaceModerationRoute
+  '/superadmin/metrics': typeof SuperadminMetricsRoute
+  '/superadmin/moderation': typeof SuperadminModerationRoute
+  '/superadmin/orgs': typeof SuperadminOrgsRoute
+  '/superadmin/partners': typeof SuperadminPartnersRoute
+  '/superadmin/push': typeof SuperadminPushRoute
+  '/superadmin/reports': typeof SuperadminReportsRoute
+  '/superadmin/risk': typeof SuperadminRiskRoute
+  '/superadmin/settings': typeof SuperadminSettingsRoute
+  '/superadmin/settlements': typeof SuperadminSettlementsRoute
+  '/superadmin/support': typeof SuperadminSupportRoute
+  '/superadmin/transactions': typeof SuperadminTransactionsRoute
+  '/superadmin/trust': typeof SuperadminTrustRoute
+  '/superadmin/users': typeof SuperadminUsersRoute
+  '/verify/$certNumber': typeof VerifyCertNumberRoute
+  '/account/': typeof AccountIndexRoute
+  '/auth/': typeof AuthIndexRoute
+  '/beauty/': typeof BeautyIndexRoute
+  '/billing/': typeof BillingIndexRoute
+  '/blog/': typeof BlogIndexRoute
+  '/church/': typeof ChurchIndexRoute
+  '/digital/': typeof DigitalIndexRoute
+  '/docs/': typeof DocsIndexRoute
+  '/education/': typeof EducationIndexRoute
+  '/events/': typeof EventsIndexRoute
+  '/home/': typeof HomeIndexRoute
+  '/learn/': typeof LearnIndexRoute
+  '/start/': typeof StartIndexRoute
+  '/superadmin/': typeof SuperadminIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/_app/admin/affiliation': typeof AppAdminAffiliationRoute
+  '/_app/admin/analytics': typeof AppAdminAnalyticsRoute
+  '/_app/admin/api-keys': typeof AppAdminApiKeysRoute
+  '/_app/admin/content': typeof AppAdminContentRoute
+  '/_app/admin/create': typeof AppAdminCreateRoute
+  '/_app/admin/crm': typeof AppAdminCrmRoute
+  '/_app/admin/experiments': typeof AppAdminExperimentsRoute
+  '/_app/admin/kyc': typeof AppAdminKycRoute
+  '/_app/admin/learner-progress': typeof AppAdminLearnerProgressRoute
+  '/_app/admin/marketplace-templates': typeof AppAdminMarketplaceTemplatesRoute
+  '/_app/admin/members': typeof AppAdminMembersRoute
+  '/_app/admin/notifications': typeof AppAdminNotificationsRoute
+  '/_app/admin/offerings': typeof AppAdminOfferingsRoute
+  '/_app/admin/payouts': typeof AppAdminPayoutsRoute
+  '/_app/admin/people': typeof AppAdminPeopleRoute
+  '/_app/admin/photos': typeof AppAdminPhotosRoute
+  '/_app/admin/popups': typeof AppAdminPopupsRoute
+  '/_app/admin/promo-codes': typeof AppAdminPromoCodesRoute
+  '/_app/admin/sales': typeof AppAdminSalesRoute
+  '/_app/admin/settings': typeof AppAdminSettingsRoute
+  '/_app/admin/subscriptions': typeof AppAdminSubscriptionsRoute
+  '/_app/admin/viral-studio': typeof AppAdminViralStudioRoute
+  '/_app/admin/viral-tools': typeof AppAdminViralToolsRoute
+  '/_app/admin/voice-agent': typeof AppAdminVoiceAgentRoute
+  '/_app/admin/waitlists': typeof AppAdminWaitlistsRoute
+  '/_app/admin/webhooks': typeof AppAdminWebhooksRoute
+  '/_app/creator/analytics': typeof AppCreatorAnalyticsRoute
+  '/_app/dashboard/activity': typeof AppDashboardActivityRoute
+  '/_app/dashboard/affiliation': typeof AppDashboardAffiliationRoute
+  '/_app/dashboard/claim': typeof AppDashboardClaimRoute
+  '/_app/dashboard/digital': typeof AppDashboardDigitalRoute
+  '/_app/dashboard/earn': typeof AppDashboardEarnRoute
+  '/_app/dashboard/explore': typeof AppDashboardExploreRoute
+  '/_app/dashboard/home': typeof AppDashboardHomeRoute
+  '/_app/dashboard/kyc': typeof AppDashboardKycRoute
+  '/_app/dashboard/notifications': typeof AppDashboardNotificationsRoute
+  '/_app/dashboard/orders': typeof AppDashboardOrdersRoute
+  '/_app/dashboard/products': typeof AppDashboardProductsRoute
+  '/_app/dashboard/profile': typeof AppDashboardProfileRoute
+  '/_app/dashboard/promotions': typeof AppDashboardPromotionsRoute
+  '/_app/dashboard/purchases': typeof AppDashboardPurchasesRoute
+  '/_app/dashboard/revenue': typeof AppDashboardRevenueRoute
+  '/_app/onboarding/goals': typeof AppOnboardingGoalsRoute
+  '/_app/onboarding/type': typeof AppOnboardingTypeRoute
+  '/_app/reels/$id': typeof AppReelsIdRoute
+  '/_app/watch/$id': typeof AppWatchIdRoute
+  '/_public/announcement/$announcementId': typeof PublicAnnouncementAnnouncementIdRoute
+  '/_public/campaign/$campaignId': typeof PublicCampaignCampaignIdRoute
+  '/_public/event/$eventId': typeof PublicEventEventIdRoute
+  '/_public/offering/$offeringId': typeof PublicOfferingOfferingIdRoute
+  '/_public/p/$key': typeof PublicPKeyRoute
+  '/_public/product/$key': typeof PublicProductKeyRoute
+  '/_public/produit/$key': typeof PublicProduitKeyRoute
+  '/_public/program/$programId': typeof PublicProgramProgramIdRoute
+  '/_public/promo/ai-creations': typeof PublicPromoAiCreationsRoute
+  '/_public/promo/catalogue': typeof PublicPromoCatalogueRoute
+  '/_public/promo/gratuits': typeof PublicPromoGratuitsRoute
+  '/_public/promo/stars': typeof PublicPromoStarsRoute
+  '/beauty/p/$slug': typeof BeautyPSlugRoute
+  '/beauty/pro/onboarding': typeof BeautyProOnboardingRoute
+  '/church/pro/announcements': typeof ChurchProAnnouncementsRoute
+  '/church/pro/appointments': typeof ChurchProAppointmentsRoute
+  '/church/pro/campaigns': typeof ChurchProCampaignsRoute
+  '/church/pro/events': typeof ChurchProEventsRoute
+  '/church/pro/giving': typeof ChurchProGivingRoute
+  '/church/pro/kyc': typeof ChurchProKycRoute
+  '/church/pro/members': typeof ChurchProMembersRoute
+  '/church/pro/onboarding': typeof ChurchProOnboardingRoute
+  '/church/pro/prayer': typeof ChurchProPrayerRoute
+  '/church/pro/settings': typeof ChurchProSettingsRoute
+  '/church/pro/team': typeof ChurchProTeamRoute
+  '/education/pro/onboarding': typeof EducationProOnboardingRoute
+  '/events/pro/$slug': typeof EventsProSlugRoute
+  '/events/pro/onboarding': typeof EventsProOnboardingRoute
+  '/home/pro/$slug': typeof HomeProSlugRoute
+  '/home/pro/onboarding': typeof HomeProOnboardingRoute
+  '/learn/pro/$slug': typeof LearnProSlugRoute
+  '/learn/pro/onboarding': typeof LearnProOnboardingRoute
+  '/marketplace/templates/$id': typeof MarketplaceTemplatesIdRoute
+  '/superadmin/studio/abuse-monitor': typeof SuperadminStudioAbuseMonitorRoute
+  '/superadmin/studio/jobs': typeof SuperadminStudioJobsRoute
+  '/superadmin/studio/policies': typeof SuperadminStudioPoliciesRoute
+  '/superadmin/studio/templates': typeof SuperadminStudioTemplatesRoute
+  '/_app/admin/': typeof AppAdminIndexRoute
+  '/_app/dashboard/': typeof AppDashboardIndexRoute
+  '/_app/marketplace/': typeof AppMarketplaceIndexRoute
+  '/_app/reels/': typeof AppReelsIndexRoute
+  '/church/$slug/': typeof ChurchSlugIndexRoute
+  '/church/pro/': typeof ChurchProIndexRoute
+  '/marketplace/templates/': typeof MarketplaceTemplatesIndexRoute
+  '/_app/admin/announcements/new': typeof AppAdminAnnouncementsNewRoute
+  '/_app/admin/beauty/$': typeof AppAdminBeautySplatRoute
+  '/_app/admin/beauty/kyc': typeof AppAdminBeautyKycRoute
+  '/_app/admin/beauty/messages': typeof AppAdminBeautyMessagesRouteWithChildren
+  '/_app/admin/beauty/orders': typeof AppAdminBeautyOrdersRoute
+  '/_app/admin/beauty/revenue': typeof AppAdminBeautyRevenueRoute
+  '/_app/admin/beauty/settings': typeof AppAdminBeautySettingsRoute
+  '/_app/admin/campaigns/new': typeof AppAdminCampaignsNewRoute
+  '/_app/admin/church/announcements': typeof AppAdminChurchAnnouncementsRoute
+  '/_app/admin/church/appointments': typeof AppAdminChurchAppointmentsRoute
+  '/_app/admin/church/campaigns': typeof AppAdminChurchCampaignsRoute
+  '/_app/admin/church/events': typeof AppAdminChurchEventsRoute
+  '/_app/admin/church/giving': typeof AppAdminChurchGivingRoute
+  '/_app/admin/church/kyc': typeof AppAdminChurchKycRoute
+  '/_app/admin/church/members': typeof AppAdminChurchMembersRoute
+  '/_app/admin/church/prayer': typeof AppAdminChurchPrayerRoute
+  '/_app/admin/church/settings': typeof AppAdminChurchSettingsRoute
+  '/_app/admin/church/team': typeof AppAdminChurchTeamRoute
+  '/_app/admin/events-service/$': typeof AppAdminEventsServiceSplatRoute
+  '/_app/admin/events-service/kyc': typeof AppAdminEventsServiceKycRoute
+  '/_app/admin/events-service/messages': typeof AppAdminEventsServiceMessagesRouteWithChildren
+  '/_app/admin/events-service/orders': typeof AppAdminEventsServiceOrdersRoute
+  '/_app/admin/events-service/packages': typeof AppAdminEventsServicePackagesRoute
+  '/_app/admin/events-service/revenue': typeof AppAdminEventsServiceRevenueRoute
+  '/_app/admin/events-service/settings': typeof AppAdminEventsServiceSettingsRoute
+  '/_app/admin/events/new': typeof AppAdminEventsNewRoute
+  '/_app/admin/home/$': typeof AppAdminHomeSplatRoute
+  '/_app/admin/home/kyc': typeof AppAdminHomeKycRoute
+  '/_app/admin/home/messages': typeof AppAdminHomeMessagesRouteWithChildren
+  '/_app/admin/home/orders': typeof AppAdminHomeOrdersRoute
+  '/_app/admin/home/revenue': typeof AppAdminHomeRevenueRoute
+  '/_app/admin/home/services': typeof AppAdminHomeServicesRoute
+  '/_app/admin/home/settings': typeof AppAdminHomeSettingsRoute
+  '/_app/admin/learn/$': typeof AppAdminLearnSplatRoute
+  '/_app/admin/learn/kyc': typeof AppAdminLearnKycRoute
+  '/_app/admin/learn/messages': typeof AppAdminLearnMessagesRouteWithChildren
+  '/_app/admin/learn/orders': typeof AppAdminLearnOrdersRoute
+  '/_app/admin/learn/revenue': typeof AppAdminLearnRevenueRoute
+  '/_app/admin/learn/settings': typeof AppAdminLearnSettingsRoute
+  '/_app/admin/learn/subjects': typeof AppAdminLearnSubjectsRoute
+  '/_app/admin/media/new': typeof AppAdminMediaNewRoute
+  '/_app/admin/products/new': typeof AppAdminProductsNewRoute
+  '/_app/admin/programs/generating': typeof AppAdminProgramsGeneratingRoute
+  '/_app/admin/programs/new': typeof AppAdminProgramsNewRoute
+  '/_app/admin/studio/jobs': typeof AppAdminStudioJobsRoute
+  '/_app/admin/studio/library': typeof AppAdminStudioLibraryRoute
+  '/_app/admin/studio/templates': typeof AppAdminStudioTemplatesRoute
+  '/_app/dashboard/settings/modules': typeof AppDashboardSettingsModulesRoute
+  '/_public/org/$slug/content': typeof PublicOrgSlugContentRoute
+  '/_public/org/$slug/donate': typeof PublicOrgSlugDonateRoute
+  '/_public/org/$slug/dons': typeof PublicOrgSlugDonsRoute
+  '/_public/org/$slug/events': typeof PublicOrgSlugEventsRoute
+  '/_public/org/$slug/offerings': typeof PublicOrgSlugOfferingsRoute
+  '/_public/org/$slug/photos': typeof PublicOrgSlugPhotosRoute
+  '/_public/org/$slug/store': typeof PublicOrgSlugStoreRoute
+  '/church/$slug/events/$eventId': typeof ChurchSlugEventsEventIdRoute
+  '/church/$slug/give/success': typeof ChurchSlugGiveSuccessRoute
+  '/church/pro/sermons/$id': typeof ChurchProSermonsIdRoute
+  '/_app/admin/announcements/': typeof AppAdminAnnouncementsIndexRoute
+  '/_app/admin/beauty/': typeof AppAdminBeautyIndexRoute
+  '/_app/admin/campaigns/': typeof AppAdminCampaignsIndexRoute
+  '/_app/admin/church/': typeof AppAdminChurchIndexRoute
+  '/_app/admin/events-service/': typeof AppAdminEventsServiceIndexRoute
+  '/_app/admin/events/': typeof AppAdminEventsIndexRoute
+  '/_app/admin/home/': typeof AppAdminHomeIndexRoute
+  '/_app/admin/learn/': typeof AppAdminLearnIndexRoute
+  '/_app/admin/media/': typeof AppAdminMediaIndexRoute
+  '/_app/admin/products/': typeof AppAdminProductsIndexRoute
+  '/_app/admin/programs/': typeof AppAdminProgramsIndexRoute
+  '/_app/admin/studio/': typeof AppAdminStudioIndexRoute
+  '/_app/dashboard/messages/': typeof AppDashboardMessagesIndexRoute
+  '/_app/dashboard/settings/': typeof AppDashboardSettingsIndexRoute
+  '/_public/org/$slug/': typeof PublicOrgSlugIndexRoute
+  '/church/$slug/give/': typeof ChurchSlugGiveIndexRoute
+  '/church/pro/sermons/': typeof ChurchProSermonsIndexRoute
+  '/_app/admin/announcements/$id/edit': typeof AppAdminAnnouncementsIdEditRoute
+  '/_app/admin/beauty/messages/$id': typeof AppAdminBeautyMessagesIdRoute
+  '/_app/admin/campaigns/$id/edit': typeof AppAdminCampaignsIdEditRoute
+  '/_app/admin/church/sermons/$id': typeof AppAdminChurchSermonsIdRoute
+  '/_app/admin/events-service/messages/$id': typeof AppAdminEventsServiceMessagesIdRoute
+  '/_app/admin/events/$id/edit': typeof AppAdminEventsIdEditRoute
+  '/_app/admin/home/messages/$id': typeof AppAdminHomeMessagesIdRoute
+  '/_app/admin/learn/messages/$id': typeof AppAdminLearnMessagesIdRoute
+  '/_app/admin/media/$id/edit': typeof AppAdminMediaIdEditRoute
+  '/_app/admin/products/$id/edit': typeof AppAdminProductsIdEditRoute
+  '/_app/admin/programs/$id/edit': typeof AppAdminProgramsIdEditRoute
+  '/_app/admin/programs/draft/$projectId': typeof AppAdminProgramsDraftProjectIdRoute
+  '/_app/admin/studio/projects/new': typeof AppAdminStudioProjectsNewRoute
+  '/_app/dashboard/messages/$vertical/$id': typeof AppDashboardMessagesVerticalIdRoute
+  '/_app/dashboard/messages/beauty/$id': typeof AppDashboardMessagesBeautyIdRoute
+  '/_app/dashboard/messages/events/$id': typeof AppDashboardMessagesEventsIdRoute
+  '/_app/dashboard/messages/home/$id': typeof AppDashboardMessagesHomeIdRoute
+  '/_app/dashboard/messages/learn/$id': typeof AppDashboardMessagesLearnIdRoute
+  '/_public/org/$slug/p/$productSlug': typeof PublicOrgSlugPProductSlugRoute
+  '/_public/org/$slug/product/$productId': typeof PublicOrgSlugProductProductIdRoute
+  '/church/$slug/pdf/$pdfId/success': typeof ChurchSlugPdfPdfIdSuccessRoute
+  '/_app/admin/church/sermons/': typeof AppAdminChurchSermonsIndexRoute
+  '/_app/admin/studio/projects/': typeof AppAdminStudioProjectsIndexRoute
+  '/church/$slug/pdf/$pdfId/': typeof ChurchSlugPdfPdfIdIndexRoute
+  '/_app/admin/studio/projects/$id/assets': typeof AppAdminStudioProjectsIdAssetsRoute
+  '/_app/admin/studio/projects/$id/editor': typeof AppAdminStudioProjectsIdEditorRoute
+  '/_app/admin/studio/projects/$id/publish': typeof AppAdminStudioProjectsIdPublishRoute
+  '/_app/admin/studio/projects/$id/review': typeof AppAdminStudioProjectsIdReviewRoute
+  '/_app/admin/studio/projects/$id/': typeof AppAdminStudioProjectsIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: never
+  fullPaths:
+    | '/'
+    | '/a-propos'
+    | '/about'
+    | '/acceptable-use'
+    | '/affiliate-program'
+    | '/ambassador'
+    | '/ambassador-program'
+    | '/ambassador-terms'
+    | '/aml'
+    | '/brand'
+    | '/calculateur'
+    | '/cgu'
+    | '/changelog'
+    | '/churches'
+    | '/compare'
+    | '/comparer'
+    | '/compliance'
+    | '/contact'
+    | '/cookie-policy'
+    | '/cookies'
+    | '/copyright'
+    | '/create-course'
+    | '/create-org'
+    | '/creer-formation'
+    | '/dashboard-preview'
+    | '/data-deletion'
+    | '/developers'
+    | '/developpeurs'
+    | '/devenir-partenaire'
+    | '/discover'
+    | '/dmca'
+    | '/dpa'
+    | '/earn'
+    | '/ecrire'
+    | '/email-preferences'
+    | '/etudes-de-cas'
+    | '/explorer'
+    | '/faq'
+    | '/features'
+    | '/feuille-de-route'
+    | '/fondateurs'
+    | '/founders'
+    | '/gagner'
+    | '/gagner-info'
+    | '/glossaire'
+    | '/glossary'
+    | '/help'
+    | '/hub'
+    | '/install'
+    | '/integrations'
+    | '/landing'
+    | '/legal-notices'
+    | '/looking-for'
+    | '/maintenance'
+    | '/media-kit'
+    | '/mentions-legales'
+    | '/mes-achats'
+    | '/migrate'
+    | '/migrer'
+    | '/new-this-week'
+    | '/newsletter'
+    | '/parrainage'
+    | '/partenaires'
+    | '/partner-terms'
+    | '/payment-success'
+    | '/payout-policy'
+    | '/plan-du-site'
+    | '/presse'
+    | '/pricing'
+    | '/privacy'
+    | '/protection'
+    | '/referrals'
+    | '/refund-policy'
+    | '/report'
+    | '/roadmap'
+    | '/security'
+    | '/sell'
+    | '/services'
+    | '/share-target'
+    | '/showcase'
+    | '/signaler'
+    | '/sitemap'
+    | '/start-selling'
+    | '/status'
+    | '/subprocessors'
+    | '/superadmin'
+    | '/superapp'
+    | '/tarifs'
+    | '/temoignages'
+    | '/terms'
+    | '/top-creators'
+    | '/tutoriels'
+    | '/vendre'
+    | '/welcome'
+    | '/welcome-intent'
+    | '/write'
+    | '/admin'
+    | '/affiliation'
+    | '/bookmarks'
+    | '/credits'
+    | '/feed'
+    | '/invoices'
+    | '/kyc'
+    | '/leaderboard'
+    | '/mes-avis'
+    | '/mes-formations'
+    | '/my-analytics'
+    | '/my-donations'
+    | '/my-invoices'
+    | '/my-programs'
+    | '/my-purchases'
+    | '/my-reviews'
+    | '/notification-preferences'
+    | '/notifications'
+    | '/partner'
+    | '/profile'
+    | '/quick-publish'
+    | '/quick-start'
+    | '/resources'
+    | '/settings'
+    | '/support'
+    | '/wallet'
+    | '/wishlist'
+    | '/courses'
+    | '/spotlight'
+    | '/account/trust'
+    | '/auth/callback'
+    | '/beauty/$'
+    | '/beauty/about'
+    | '/beauty/search'
+    | '/billing/success'
+    | '/billing/usage'
+    | '/blog/$slug'
+    | '/canva/callback'
+    | '/church/about'
+    | '/church/discover'
+    | '/creator/advanced-analytics'
+    | '/digital/about'
+    | '/docs/api'
+    | '/education/$'
+    | '/education/about'
+    | '/education/discover'
+    | '/events/$'
+    | '/events/about'
+    | '/events/discover'
+    | '/explore/artisans'
+    | '/explore/beauty'
+    | '/explore/coaching'
+    | '/explore/digital-products'
+    | '/explore/influencers'
+    | '/explore/music'
+    | '/explore/other-services'
+    | '/explore/tutors'
+    | '/go/$code'
+    | '/guide/affiliation-sans-investissement'
+    | '/guide/alternative-gofundme'
+    | '/guide/boutique-digitale-gratuite'
+    | '/guide/gagner-sans-contenu'
+    | '/guide/mobile-money-ecommerce'
+    | '/guide/monetiser-contenu-religieux'
+    | '/guide/plateforme-dons-afrique'
+    | '/guide/vendre-cours-en-ligne'
+    | '/guide/vendre-ebook-afrique'
+    | '/home/$'
+    | '/home/about'
+    | '/home/discover'
+    | '/invite/$code'
+    | '/learn/$'
+    | '/learn/about'
+    | '/learn/discover'
+    | '/payment/$'
+    | '/pour/agences'
+    | '/pour/associations'
+    | '/pour/auteurs'
+    | '/pour/blogueurs'
+    | '/pour/centres-formation'
+    | '/pour/coaches'
+    | '/pour/consultants'
+    | '/pour/cooperatives'
+    | '/pour/createurs-video'
+    | '/pour/designers'
+    | '/pour/diaspora'
+    | '/pour/eglises'
+    | '/pour/enseignants'
+    | '/pour/entrepreneurs'
+    | '/pour/etudiants'
+    | '/pour/femmes-entrepreneures'
+    | '/pour/finance'
+    | '/pour/formateurs'
+    | '/pour/influenceurs'
+    | '/pour/juristes'
+    | '/pour/leaders-musulmans'
+    | '/pour/medias'
+    | '/pour/ministeres'
+    | '/pour/missionnaires'
+    | '/pour/musiciens'
+    | '/pour/ong'
+    | '/pour/photographes'
+    | '/pour/podcasters'
+    | '/pour/retraites'
+    | '/pour/sante'
+    | '/solutions/church'
+    | '/start/$'
+    | '/start/details'
+    | '/start/finish'
+    | '/store/$slug'
+    | '/superadmin/acquisition'
+    | '/superadmin/activity'
+    | '/superadmin/ads'
+    | '/superadmin/ai'
+    | '/superadmin/ai-history'
+    | '/superadmin/beauty'
+    | '/superadmin/church'
+    | '/superadmin/command-center'
+    | '/superadmin/directory'
+    | '/superadmin/education'
+    | '/superadmin/emails'
+    | '/superadmin/events'
+    | '/superadmin/exports'
+    | '/superadmin/health'
+    | '/superadmin/home'
+    | '/superadmin/investor'
+    | '/superadmin/kyc'
+    | '/superadmin/marketplace-moderation'
+    | '/superadmin/metrics'
+    | '/superadmin/moderation'
+    | '/superadmin/orgs'
+    | '/superadmin/partners'
+    | '/superadmin/push'
+    | '/superadmin/reports'
+    | '/superadmin/risk'
+    | '/superadmin/settings'
+    | '/superadmin/settlements'
+    | '/superadmin/support'
+    | '/superadmin/transactions'
+    | '/superadmin/trust'
+    | '/superadmin/users'
+    | '/verify/$certNumber'
+    | '/account/'
+    | '/auth/'
+    | '/beauty/'
+    | '/billing/'
+    | '/blog/'
+    | '/church/'
+    | '/digital/'
+    | '/docs/'
+    | '/education/'
+    | '/events/'
+    | '/home/'
+    | '/learn/'
+    | '/start/'
+    | '/superadmin/'
+    | '/.lovable/oauth/consent'
+    | '/admin/affiliation'
+    | '/admin/analytics'
+    | '/admin/api-keys'
+    | '/admin/content'
+    | '/admin/create'
+    | '/admin/crm'
+    | '/admin/experiments'
+    | '/admin/kyc'
+    | '/admin/learner-progress'
+    | '/admin/marketplace-templates'
+    | '/admin/members'
+    | '/admin/notifications'
+    | '/admin/offerings'
+    | '/admin/payouts'
+    | '/admin/people'
+    | '/admin/photos'
+    | '/admin/popups'
+    | '/admin/promo-codes'
+    | '/admin/sales'
+    | '/admin/settings'
+    | '/admin/subscriptions'
+    | '/admin/viral-studio'
+    | '/admin/viral-tools'
+    | '/admin/voice-agent'
+    | '/admin/waitlists'
+    | '/admin/webhooks'
+    | '/creator/analytics'
+    | '/dashboard/activity'
+    | '/dashboard/affiliation'
+    | '/dashboard/claim'
+    | '/dashboard/digital'
+    | '/dashboard/earn'
+    | '/dashboard/explore'
+    | '/dashboard/home'
+    | '/dashboard/kyc'
+    | '/dashboard/notifications'
+    | '/dashboard/orders'
+    | '/dashboard/products'
+    | '/dashboard/profile'
+    | '/dashboard/promotions'
+    | '/dashboard/purchases'
+    | '/dashboard/revenue'
+    | '/onboarding/goals'
+    | '/onboarding/type'
+    | '/reels/$id'
+    | '/watch/$id'
+    | '/announcement/$announcementId'
+    | '/campaign/$campaignId'
+    | '/event/$eventId'
+    | '/offering/$offeringId'
+    | '/p/$key'
+    | '/product/$key'
+    | '/produit/$key'
+    | '/program/$programId'
+    | '/promo/ai-creations'
+    | '/promo/catalogue'
+    | '/promo/gratuits'
+    | '/promo/stars'
+    | '/beauty/p/$slug'
+    | '/beauty/pro/onboarding'
+    | '/church/pro/announcements'
+    | '/church/pro/appointments'
+    | '/church/pro/campaigns'
+    | '/church/pro/events'
+    | '/church/pro/giving'
+    | '/church/pro/kyc'
+    | '/church/pro/members'
+    | '/church/pro/onboarding'
+    | '/church/pro/prayer'
+    | '/church/pro/settings'
+    | '/church/pro/team'
+    | '/education/pro/onboarding'
+    | '/events/pro/$slug'
+    | '/events/pro/onboarding'
+    | '/home/pro/$slug'
+    | '/home/pro/onboarding'
+    | '/learn/pro/$slug'
+    | '/learn/pro/onboarding'
+    | '/marketplace/templates/$id'
+    | '/superadmin/studio/abuse-monitor'
+    | '/superadmin/studio/jobs'
+    | '/superadmin/studio/policies'
+    | '/superadmin/studio/templates'
+    | '/admin/'
+    | '/dashboard/'
+    | '/marketplace/'
+    | '/reels/'
+    | '/church/$slug/'
+    | '/church/pro/'
+    | '/marketplace/templates/'
+    | '/admin/announcements/new'
+    | '/admin/beauty/$'
+    | '/admin/beauty/kyc'
+    | '/admin/beauty/messages'
+    | '/admin/beauty/orders'
+    | '/admin/beauty/revenue'
+    | '/admin/beauty/settings'
+    | '/admin/campaigns/new'
+    | '/admin/church/announcements'
+    | '/admin/church/appointments'
+    | '/admin/church/campaigns'
+    | '/admin/church/events'
+    | '/admin/church/giving'
+    | '/admin/church/kyc'
+    | '/admin/church/members'
+    | '/admin/church/prayer'
+    | '/admin/church/settings'
+    | '/admin/church/team'
+    | '/admin/events-service/$'
+    | '/admin/events-service/kyc'
+    | '/admin/events-service/messages'
+    | '/admin/events-service/orders'
+    | '/admin/events-service/packages'
+    | '/admin/events-service/revenue'
+    | '/admin/events-service/settings'
+    | '/admin/events/new'
+    | '/admin/home/$'
+    | '/admin/home/kyc'
+    | '/admin/home/messages'
+    | '/admin/home/orders'
+    | '/admin/home/revenue'
+    | '/admin/home/services'
+    | '/admin/home/settings'
+    | '/admin/learn/$'
+    | '/admin/learn/kyc'
+    | '/admin/learn/messages'
+    | '/admin/learn/orders'
+    | '/admin/learn/revenue'
+    | '/admin/learn/settings'
+    | '/admin/learn/subjects'
+    | '/admin/media/new'
+    | '/admin/products/new'
+    | '/admin/programs/generating'
+    | '/admin/programs/new'
+    | '/admin/studio/jobs'
+    | '/admin/studio/library'
+    | '/admin/studio/templates'
+    | '/dashboard/settings/modules'
+    | '/org/$slug/content'
+    | '/org/$slug/donate'
+    | '/org/$slug/dons'
+    | '/org/$slug/events'
+    | '/org/$slug/offerings'
+    | '/org/$slug/photos'
+    | '/org/$slug/store'
+    | '/church/$slug/events/$eventId'
+    | '/church/$slug/give/success'
+    | '/church/pro/sermons/$id'
+    | '/admin/announcements/'
+    | '/admin/beauty/'
+    | '/admin/campaigns/'
+    | '/admin/church/'
+    | '/admin/events-service/'
+    | '/admin/events/'
+    | '/admin/home/'
+    | '/admin/learn/'
+    | '/admin/media/'
+    | '/admin/products/'
+    | '/admin/programs/'
+    | '/admin/studio/'
+    | '/dashboard/messages/'
+    | '/dashboard/settings/'
+    | '/org/$slug/'
+    | '/church/$slug/give/'
+    | '/church/pro/sermons/'
+    | '/admin/announcements/$id/edit'
+    | '/admin/beauty/messages/$id'
+    | '/admin/campaigns/$id/edit'
+    | '/admin/church/sermons/$id'
+    | '/admin/events-service/messages/$id'
+    | '/admin/events/$id/edit'
+    | '/admin/home/messages/$id'
+    | '/admin/learn/messages/$id'
+    | '/admin/media/$id/edit'
+    | '/admin/products/$id/edit'
+    | '/admin/programs/$id/edit'
+    | '/admin/programs/draft/$projectId'
+    | '/admin/studio/projects/new'
+    | '/dashboard/messages/$vertical/$id'
+    | '/dashboard/messages/beauty/$id'
+    | '/dashboard/messages/events/$id'
+    | '/dashboard/messages/home/$id'
+    | '/dashboard/messages/learn/$id'
+    | '/org/$slug/p/$productSlug'
+    | '/org/$slug/product/$productId'
+    | '/church/$slug/pdf/$pdfId/success'
+    | '/admin/church/sermons/'
+    | '/admin/studio/projects/'
+    | '/church/$slug/pdf/$pdfId/'
+    | '/admin/studio/projects/$id/assets'
+    | '/admin/studio/projects/$id/editor'
+    | '/admin/studio/projects/$id/publish'
+    | '/admin/studio/projects/$id/review'
+    | '/admin/studio/projects/$id/'
   fileRoutesByTo: FileRoutesByTo
-  to: never
-  id: '__root__'
+  to:
+    | '/'
+    | '/a-propos'
+    | '/about'
+    | '/acceptable-use'
+    | '/affiliate-program'
+    | '/ambassador'
+    | '/ambassador-program'
+    | '/ambassador-terms'
+    | '/aml'
+    | '/brand'
+    | '/calculateur'
+    | '/cgu'
+    | '/changelog'
+    | '/churches'
+    | '/compare'
+    | '/comparer'
+    | '/compliance'
+    | '/contact'
+    | '/cookie-policy'
+    | '/cookies'
+    | '/copyright'
+    | '/create-course'
+    | '/create-org'
+    | '/creer-formation'
+    | '/dashboard-preview'
+    | '/data-deletion'
+    | '/developers'
+    | '/developpeurs'
+    | '/devenir-partenaire'
+    | '/discover'
+    | '/dmca'
+    | '/dpa'
+    | '/earn'
+    | '/ecrire'
+    | '/email-preferences'
+    | '/etudes-de-cas'
+    | '/explorer'
+    | '/faq'
+    | '/features'
+    | '/feuille-de-route'
+    | '/fondateurs'
+    | '/founders'
+    | '/gagner'
+    | '/gagner-info'
+    | '/glossaire'
+    | '/glossary'
+    | '/help'
+    | '/hub'
+    | '/install'
+    | '/integrations'
+    | '/landing'
+    | '/legal-notices'
+    | '/looking-for'
+    | '/maintenance'
+    | '/media-kit'
+    | '/mentions-legales'
+    | '/mes-achats'
+    | '/migrate'
+    | '/migrer'
+    | '/new-this-week'
+    | '/newsletter'
+    | '/parrainage'
+    | '/partenaires'
+    | '/partner-terms'
+    | '/payment-success'
+    | '/payout-policy'
+    | '/plan-du-site'
+    | '/presse'
+    | '/pricing'
+    | '/privacy'
+    | '/protection'
+    | '/referrals'
+    | '/refund-policy'
+    | '/report'
+    | '/roadmap'
+    | '/security'
+    | '/sell'
+    | '/services'
+    | '/share-target'
+    | '/showcase'
+    | '/signaler'
+    | '/sitemap'
+    | '/start-selling'
+    | '/status'
+    | '/subprocessors'
+    | '/superapp'
+    | '/tarifs'
+    | '/temoignages'
+    | '/terms'
+    | '/top-creators'
+    | '/tutoriels'
+    | '/vendre'
+    | '/welcome'
+    | '/welcome-intent'
+    | '/write'
+    | '/affiliation'
+    | '/bookmarks'
+    | '/credits'
+    | '/feed'
+    | '/invoices'
+    | '/kyc'
+    | '/leaderboard'
+    | '/mes-avis'
+    | '/mes-formations'
+    | '/my-analytics'
+    | '/my-donations'
+    | '/my-invoices'
+    | '/my-programs'
+    | '/my-purchases'
+    | '/my-reviews'
+    | '/notification-preferences'
+    | '/notifications'
+    | '/partner'
+    | '/profile'
+    | '/quick-publish'
+    | '/quick-start'
+    | '/resources'
+    | '/settings'
+    | '/support'
+    | '/wallet'
+    | '/wishlist'
+    | '/courses'
+    | '/spotlight'
+    | '/account/trust'
+    | '/auth/callback'
+    | '/beauty/$'
+    | '/beauty/about'
+    | '/beauty/search'
+    | '/billing/success'
+    | '/billing/usage'
+    | '/blog/$slug'
+    | '/canva/callback'
+    | '/church/about'
+    | '/church/discover'
+    | '/creator/advanced-analytics'
+    | '/digital/about'
+    | '/docs/api'
+    | '/education/$'
+    | '/education/about'
+    | '/education/discover'
+    | '/events/$'
+    | '/events/about'
+    | '/events/discover'
+    | '/explore/artisans'
+    | '/explore/beauty'
+    | '/explore/coaching'
+    | '/explore/digital-products'
+    | '/explore/influencers'
+    | '/explore/music'
+    | '/explore/other-services'
+    | '/explore/tutors'
+    | '/go/$code'
+    | '/guide/affiliation-sans-investissement'
+    | '/guide/alternative-gofundme'
+    | '/guide/boutique-digitale-gratuite'
+    | '/guide/gagner-sans-contenu'
+    | '/guide/mobile-money-ecommerce'
+    | '/guide/monetiser-contenu-religieux'
+    | '/guide/plateforme-dons-afrique'
+    | '/guide/vendre-cours-en-ligne'
+    | '/guide/vendre-ebook-afrique'
+    | '/home/$'
+    | '/home/about'
+    | '/home/discover'
+    | '/invite/$code'
+    | '/learn/$'
+    | '/learn/about'
+    | '/learn/discover'
+    | '/payment/$'
+    | '/pour/agences'
+    | '/pour/associations'
+    | '/pour/auteurs'
+    | '/pour/blogueurs'
+    | '/pour/centres-formation'
+    | '/pour/coaches'
+    | '/pour/consultants'
+    | '/pour/cooperatives'
+    | '/pour/createurs-video'
+    | '/pour/designers'
+    | '/pour/diaspora'
+    | '/pour/eglises'
+    | '/pour/enseignants'
+    | '/pour/entrepreneurs'
+    | '/pour/etudiants'
+    | '/pour/femmes-entrepreneures'
+    | '/pour/finance'
+    | '/pour/formateurs'
+    | '/pour/influenceurs'
+    | '/pour/juristes'
+    | '/pour/leaders-musulmans'
+    | '/pour/medias'
+    | '/pour/ministeres'
+    | '/pour/missionnaires'
+    | '/pour/musiciens'
+    | '/pour/ong'
+    | '/pour/photographes'
+    | '/pour/podcasters'
+    | '/pour/retraites'
+    | '/pour/sante'
+    | '/solutions/church'
+    | '/start/$'
+    | '/start/details'
+    | '/start/finish'
+    | '/store/$slug'
+    | '/superadmin/acquisition'
+    | '/superadmin/activity'
+    | '/superadmin/ads'
+    | '/superadmin/ai'
+    | '/superadmin/ai-history'
+    | '/superadmin/beauty'
+    | '/superadmin/church'
+    | '/superadmin/command-center'
+    | '/superadmin/directory'
+    | '/superadmin/education'
+    | '/superadmin/emails'
+    | '/superadmin/events'
+    | '/superadmin/exports'
+    | '/superadmin/health'
+    | '/superadmin/home'
+    | '/superadmin/investor'
+    | '/superadmin/kyc'
+    | '/superadmin/marketplace-moderation'
+    | '/superadmin/metrics'
+    | '/superadmin/moderation'
+    | '/superadmin/orgs'
+    | '/superadmin/partners'
+    | '/superadmin/push'
+    | '/superadmin/reports'
+    | '/superadmin/risk'
+    | '/superadmin/settings'
+    | '/superadmin/settlements'
+    | '/superadmin/support'
+    | '/superadmin/transactions'
+    | '/superadmin/trust'
+    | '/superadmin/users'
+    | '/verify/$certNumber'
+    | '/account'
+    | '/auth'
+    | '/beauty'
+    | '/billing'
+    | '/blog'
+    | '/church'
+    | '/digital'
+    | '/docs'
+    | '/education'
+    | '/events'
+    | '/home'
+    | '/learn'
+    | '/start'
+    | '/superadmin'
+    | '/.lovable/oauth/consent'
+    | '/admin/affiliation'
+    | '/admin/analytics'
+    | '/admin/api-keys'
+    | '/admin/content'
+    | '/admin/create'
+    | '/admin/crm'
+    | '/admin/experiments'
+    | '/admin/kyc'
+    | '/admin/learner-progress'
+    | '/admin/marketplace-templates'
+    | '/admin/members'
+    | '/admin/notifications'
+    | '/admin/offerings'
+    | '/admin/payouts'
+    | '/admin/people'
+    | '/admin/photos'
+    | '/admin/popups'
+    | '/admin/promo-codes'
+    | '/admin/sales'
+    | '/admin/settings'
+    | '/admin/subscriptions'
+    | '/admin/viral-studio'
+    | '/admin/viral-tools'
+    | '/admin/voice-agent'
+    | '/admin/waitlists'
+    | '/admin/webhooks'
+    | '/creator/analytics'
+    | '/dashboard/activity'
+    | '/dashboard/affiliation'
+    | '/dashboard/claim'
+    | '/dashboard/digital'
+    | '/dashboard/earn'
+    | '/dashboard/explore'
+    | '/dashboard/home'
+    | '/dashboard/kyc'
+    | '/dashboard/notifications'
+    | '/dashboard/orders'
+    | '/dashboard/products'
+    | '/dashboard/profile'
+    | '/dashboard/promotions'
+    | '/dashboard/purchases'
+    | '/dashboard/revenue'
+    | '/onboarding/goals'
+    | '/onboarding/type'
+    | '/reels/$id'
+    | '/watch/$id'
+    | '/announcement/$announcementId'
+    | '/campaign/$campaignId'
+    | '/event/$eventId'
+    | '/offering/$offeringId'
+    | '/p/$key'
+    | '/product/$key'
+    | '/produit/$key'
+    | '/program/$programId'
+    | '/promo/ai-creations'
+    | '/promo/catalogue'
+    | '/promo/gratuits'
+    | '/promo/stars'
+    | '/beauty/p/$slug'
+    | '/beauty/pro/onboarding'
+    | '/church/pro/announcements'
+    | '/church/pro/appointments'
+    | '/church/pro/campaigns'
+    | '/church/pro/events'
+    | '/church/pro/giving'
+    | '/church/pro/kyc'
+    | '/church/pro/members'
+    | '/church/pro/onboarding'
+    | '/church/pro/prayer'
+    | '/church/pro/settings'
+    | '/church/pro/team'
+    | '/education/pro/onboarding'
+    | '/events/pro/$slug'
+    | '/events/pro/onboarding'
+    | '/home/pro/$slug'
+    | '/home/pro/onboarding'
+    | '/learn/pro/$slug'
+    | '/learn/pro/onboarding'
+    | '/marketplace/templates/$id'
+    | '/superadmin/studio/abuse-monitor'
+    | '/superadmin/studio/jobs'
+    | '/superadmin/studio/policies'
+    | '/superadmin/studio/templates'
+    | '/admin'
+    | '/dashboard'
+    | '/marketplace'
+    | '/reels'
+    | '/church/$slug'
+    | '/church/pro'
+    | '/marketplace/templates'
+    | '/admin/announcements/new'
+    | '/admin/beauty/$'
+    | '/admin/beauty/kyc'
+    | '/admin/beauty/messages'
+    | '/admin/beauty/orders'
+    | '/admin/beauty/revenue'
+    | '/admin/beauty/settings'
+    | '/admin/campaigns/new'
+    | '/admin/church/announcements'
+    | '/admin/church/appointments'
+    | '/admin/church/campaigns'
+    | '/admin/church/events'
+    | '/admin/church/giving'
+    | '/admin/church/kyc'
+    | '/admin/church/members'
+    | '/admin/church/prayer'
+    | '/admin/church/settings'
+    | '/admin/church/team'
+    | '/admin/events-service/$'
+    | '/admin/events-service/kyc'
+    | '/admin/events-service/messages'
+    | '/admin/events-service/orders'
+    | '/admin/events-service/packages'
+    | '/admin/events-service/revenue'
+    | '/admin/events-service/settings'
+    | '/admin/events/new'
+    | '/admin/home/$'
+    | '/admin/home/kyc'
+    | '/admin/home/messages'
+    | '/admin/home/orders'
+    | '/admin/home/revenue'
+    | '/admin/home/services'
+    | '/admin/home/settings'
+    | '/admin/learn/$'
+    | '/admin/learn/kyc'
+    | '/admin/learn/messages'
+    | '/admin/learn/orders'
+    | '/admin/learn/revenue'
+    | '/admin/learn/settings'
+    | '/admin/learn/subjects'
+    | '/admin/media/new'
+    | '/admin/products/new'
+    | '/admin/programs/generating'
+    | '/admin/programs/new'
+    | '/admin/studio/jobs'
+    | '/admin/studio/library'
+    | '/admin/studio/templates'
+    | '/dashboard/settings/modules'
+    | '/org/$slug/content'
+    | '/org/$slug/donate'
+    | '/org/$slug/dons'
+    | '/org/$slug/events'
+    | '/org/$slug/offerings'
+    | '/org/$slug/photos'
+    | '/org/$slug/store'
+    | '/church/$slug/events/$eventId'
+    | '/church/$slug/give/success'
+    | '/church/pro/sermons/$id'
+    | '/admin/announcements'
+    | '/admin/beauty'
+    | '/admin/campaigns'
+    | '/admin/church'
+    | '/admin/events-service'
+    | '/admin/events'
+    | '/admin/home'
+    | '/admin/learn'
+    | '/admin/media'
+    | '/admin/products'
+    | '/admin/programs'
+    | '/admin/studio'
+    | '/dashboard/messages'
+    | '/dashboard/settings'
+    | '/org/$slug'
+    | '/church/$slug/give'
+    | '/church/pro/sermons'
+    | '/admin/announcements/$id/edit'
+    | '/admin/beauty/messages/$id'
+    | '/admin/campaigns/$id/edit'
+    | '/admin/church/sermons/$id'
+    | '/admin/events-service/messages/$id'
+    | '/admin/events/$id/edit'
+    | '/admin/home/messages/$id'
+    | '/admin/learn/messages/$id'
+    | '/admin/media/$id/edit'
+    | '/admin/products/$id/edit'
+    | '/admin/programs/$id/edit'
+    | '/admin/programs/draft/$projectId'
+    | '/admin/studio/projects/new'
+    | '/dashboard/messages/$vertical/$id'
+    | '/dashboard/messages/beauty/$id'
+    | '/dashboard/messages/events/$id'
+    | '/dashboard/messages/home/$id'
+    | '/dashboard/messages/learn/$id'
+    | '/org/$slug/p/$productSlug'
+    | '/org/$slug/product/$productId'
+    | '/church/$slug/pdf/$pdfId/success'
+    | '/admin/church/sermons'
+    | '/admin/studio/projects'
+    | '/church/$slug/pdf/$pdfId'
+    | '/admin/studio/projects/$id/assets'
+    | '/admin/studio/projects/$id/editor'
+    | '/admin/studio/projects/$id/publish'
+    | '/admin/studio/projects/$id/review'
+    | '/admin/studio/projects/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/_public'
+    | '/a-propos'
+    | '/about'
+    | '/acceptable-use'
+    | '/affiliate-program'
+    | '/ambassador'
+    | '/ambassador-program'
+    | '/ambassador-terms'
+    | '/aml'
+    | '/brand'
+    | '/calculateur'
+    | '/cgu'
+    | '/changelog'
+    | '/churches'
+    | '/compare'
+    | '/comparer'
+    | '/compliance'
+    | '/contact'
+    | '/cookie-policy'
+    | '/cookies'
+    | '/copyright'
+    | '/create-course'
+    | '/create-org'
+    | '/creer-formation'
+    | '/dashboard-preview'
+    | '/data-deletion'
+    | '/developers'
+    | '/developpeurs'
+    | '/devenir-partenaire'
+    | '/discover'
+    | '/dmca'
+    | '/dpa'
+    | '/earn'
+    | '/ecrire'
+    | '/email-preferences'
+    | '/etudes-de-cas'
+    | '/explorer'
+    | '/faq'
+    | '/features'
+    | '/feuille-de-route'
+    | '/fondateurs'
+    | '/founders'
+    | '/gagner'
+    | '/gagner-info'
+    | '/glossaire'
+    | '/glossary'
+    | '/help'
+    | '/hub'
+    | '/install'
+    | '/integrations'
+    | '/landing'
+    | '/legal-notices'
+    | '/looking-for'
+    | '/maintenance'
+    | '/media-kit'
+    | '/mentions-legales'
+    | '/mes-achats'
+    | '/migrate'
+    | '/migrer'
+    | '/new-this-week'
+    | '/newsletter'
+    | '/parrainage'
+    | '/partenaires'
+    | '/partner-terms'
+    | '/payment-success'
+    | '/payout-policy'
+    | '/plan-du-site'
+    | '/presse'
+    | '/pricing'
+    | '/privacy'
+    | '/protection'
+    | '/referrals'
+    | '/refund-policy'
+    | '/report'
+    | '/roadmap'
+    | '/security'
+    | '/sell'
+    | '/services'
+    | '/share-target'
+    | '/showcase'
+    | '/signaler'
+    | '/sitemap'
+    | '/start-selling'
+    | '/status'
+    | '/subprocessors'
+    | '/superadmin'
+    | '/superapp'
+    | '/tarifs'
+    | '/temoignages'
+    | '/terms'
+    | '/top-creators'
+    | '/tutoriels'
+    | '/vendre'
+    | '/welcome'
+    | '/welcome-intent'
+    | '/write'
+    | '/_app/admin'
+    | '/_app/affiliation'
+    | '/_app/bookmarks'
+    | '/_app/credits'
+    | '/_app/feed'
+    | '/_app/invoices'
+    | '/_app/kyc'
+    | '/_app/leaderboard'
+    | '/_app/mes-avis'
+    | '/_app/mes-formations'
+    | '/_app/my-analytics'
+    | '/_app/my-donations'
+    | '/_app/my-invoices'
+    | '/_app/my-programs'
+    | '/_app/my-purchases'
+    | '/_app/my-reviews'
+    | '/_app/notification-preferences'
+    | '/_app/notifications'
+    | '/_app/partner'
+    | '/_app/profile'
+    | '/_app/quick-publish'
+    | '/_app/quick-start'
+    | '/_app/resources'
+    | '/_app/settings'
+    | '/_app/support'
+    | '/_app/wallet'
+    | '/_app/wishlist'
+    | '/_public/courses'
+    | '/_public/spotlight'
+    | '/account/trust'
+    | '/auth/callback'
+    | '/beauty/$'
+    | '/beauty/about'
+    | '/beauty/search'
+    | '/billing/success'
+    | '/billing/usage'
+    | '/blog/$slug'
+    | '/canva/callback'
+    | '/church/about'
+    | '/church/discover'
+    | '/creator/advanced-analytics'
+    | '/digital/about'
+    | '/docs/api'
+    | '/education/$'
+    | '/education/about'
+    | '/education/discover'
+    | '/events/$'
+    | '/events/about'
+    | '/events/discover'
+    | '/explore/artisans'
+    | '/explore/beauty'
+    | '/explore/coaching'
+    | '/explore/digital-products'
+    | '/explore/influencers'
+    | '/explore/music'
+    | '/explore/other-services'
+    | '/explore/tutors'
+    | '/go/$code'
+    | '/guide/affiliation-sans-investissement'
+    | '/guide/alternative-gofundme'
+    | '/guide/boutique-digitale-gratuite'
+    | '/guide/gagner-sans-contenu'
+    | '/guide/mobile-money-ecommerce'
+    | '/guide/monetiser-contenu-religieux'
+    | '/guide/plateforme-dons-afrique'
+    | '/guide/vendre-cours-en-ligne'
+    | '/guide/vendre-ebook-afrique'
+    | '/home/$'
+    | '/home/about'
+    | '/home/discover'
+    | '/invite/$code'
+    | '/learn/$'
+    | '/learn/about'
+    | '/learn/discover'
+    | '/payment/$'
+    | '/pour/agences'
+    | '/pour/associations'
+    | '/pour/auteurs'
+    | '/pour/blogueurs'
+    | '/pour/centres-formation'
+    | '/pour/coaches'
+    | '/pour/consultants'
+    | '/pour/cooperatives'
+    | '/pour/createurs-video'
+    | '/pour/designers'
+    | '/pour/diaspora'
+    | '/pour/eglises'
+    | '/pour/enseignants'
+    | '/pour/entrepreneurs'
+    | '/pour/etudiants'
+    | '/pour/femmes-entrepreneures'
+    | '/pour/finance'
+    | '/pour/formateurs'
+    | '/pour/influenceurs'
+    | '/pour/juristes'
+    | '/pour/leaders-musulmans'
+    | '/pour/medias'
+    | '/pour/ministeres'
+    | '/pour/missionnaires'
+    | '/pour/musiciens'
+    | '/pour/ong'
+    | '/pour/photographes'
+    | '/pour/podcasters'
+    | '/pour/retraites'
+    | '/pour/sante'
+    | '/solutions/church'
+    | '/start/$'
+    | '/start/details'
+    | '/start/finish'
+    | '/store/$slug'
+    | '/superadmin/acquisition'
+    | '/superadmin/activity'
+    | '/superadmin/ads'
+    | '/superadmin/ai'
+    | '/superadmin/ai-history'
+    | '/superadmin/beauty'
+    | '/superadmin/church'
+    | '/superadmin/command-center'
+    | '/superadmin/directory'
+    | '/superadmin/education'
+    | '/superadmin/emails'
+    | '/superadmin/events'
+    | '/superadmin/exports'
+    | '/superadmin/health'
+    | '/superadmin/home'
+    | '/superadmin/investor'
+    | '/superadmin/kyc'
+    | '/superadmin/marketplace-moderation'
+    | '/superadmin/metrics'
+    | '/superadmin/moderation'
+    | '/superadmin/orgs'
+    | '/superadmin/partners'
+    | '/superadmin/push'
+    | '/superadmin/reports'
+    | '/superadmin/risk'
+    | '/superadmin/settings'
+    | '/superadmin/settlements'
+    | '/superadmin/support'
+    | '/superadmin/transactions'
+    | '/superadmin/trust'
+    | '/superadmin/users'
+    | '/verify/$certNumber'
+    | '/account/'
+    | '/auth/'
+    | '/beauty/'
+    | '/billing/'
+    | '/blog/'
+    | '/church/'
+    | '/digital/'
+    | '/docs/'
+    | '/education/'
+    | '/events/'
+    | '/home/'
+    | '/learn/'
+    | '/start/'
+    | '/superadmin/'
+    | '/.lovable/oauth/consent'
+    | '/_app/admin/affiliation'
+    | '/_app/admin/analytics'
+    | '/_app/admin/api-keys'
+    | '/_app/admin/content'
+    | '/_app/admin/create'
+    | '/_app/admin/crm'
+    | '/_app/admin/experiments'
+    | '/_app/admin/kyc'
+    | '/_app/admin/learner-progress'
+    | '/_app/admin/marketplace-templates'
+    | '/_app/admin/members'
+    | '/_app/admin/notifications'
+    | '/_app/admin/offerings'
+    | '/_app/admin/payouts'
+    | '/_app/admin/people'
+    | '/_app/admin/photos'
+    | '/_app/admin/popups'
+    | '/_app/admin/promo-codes'
+    | '/_app/admin/sales'
+    | '/_app/admin/settings'
+    | '/_app/admin/subscriptions'
+    | '/_app/admin/viral-studio'
+    | '/_app/admin/viral-tools'
+    | '/_app/admin/voice-agent'
+    | '/_app/admin/waitlists'
+    | '/_app/admin/webhooks'
+    | '/_app/creator/analytics'
+    | '/_app/dashboard/activity'
+    | '/_app/dashboard/affiliation'
+    | '/_app/dashboard/claim'
+    | '/_app/dashboard/digital'
+    | '/_app/dashboard/earn'
+    | '/_app/dashboard/explore'
+    | '/_app/dashboard/home'
+    | '/_app/dashboard/kyc'
+    | '/_app/dashboard/notifications'
+    | '/_app/dashboard/orders'
+    | '/_app/dashboard/products'
+    | '/_app/dashboard/profile'
+    | '/_app/dashboard/promotions'
+    | '/_app/dashboard/purchases'
+    | '/_app/dashboard/revenue'
+    | '/_app/onboarding/goals'
+    | '/_app/onboarding/type'
+    | '/_app/reels/$id'
+    | '/_app/watch/$id'
+    | '/_public/announcement/$announcementId'
+    | '/_public/campaign/$campaignId'
+    | '/_public/event/$eventId'
+    | '/_public/offering/$offeringId'
+    | '/_public/p/$key'
+    | '/_public/product/$key'
+    | '/_public/produit/$key'
+    | '/_public/program/$programId'
+    | '/_public/promo/ai-creations'
+    | '/_public/promo/catalogue'
+    | '/_public/promo/gratuits'
+    | '/_public/promo/stars'
+    | '/beauty/p/$slug'
+    | '/beauty/pro/onboarding'
+    | '/church/pro/announcements'
+    | '/church/pro/appointments'
+    | '/church/pro/campaigns'
+    | '/church/pro/events'
+    | '/church/pro/giving'
+    | '/church/pro/kyc'
+    | '/church/pro/members'
+    | '/church/pro/onboarding'
+    | '/church/pro/prayer'
+    | '/church/pro/settings'
+    | '/church/pro/team'
+    | '/education/pro/onboarding'
+    | '/events/pro/$slug'
+    | '/events/pro/onboarding'
+    | '/home/pro/$slug'
+    | '/home/pro/onboarding'
+    | '/learn/pro/$slug'
+    | '/learn/pro/onboarding'
+    | '/marketplace/templates/$id'
+    | '/superadmin/studio/abuse-monitor'
+    | '/superadmin/studio/jobs'
+    | '/superadmin/studio/policies'
+    | '/superadmin/studio/templates'
+    | '/_app/admin/'
+    | '/_app/dashboard/'
+    | '/_app/marketplace/'
+    | '/_app/reels/'
+    | '/church/$slug/'
+    | '/church/pro/'
+    | '/marketplace/templates/'
+    | '/_app/admin/announcements/new'
+    | '/_app/admin/beauty/$'
+    | '/_app/admin/beauty/kyc'
+    | '/_app/admin/beauty/messages'
+    | '/_app/admin/beauty/orders'
+    | '/_app/admin/beauty/revenue'
+    | '/_app/admin/beauty/settings'
+    | '/_app/admin/campaigns/new'
+    | '/_app/admin/church/announcements'
+    | '/_app/admin/church/appointments'
+    | '/_app/admin/church/campaigns'
+    | '/_app/admin/church/events'
+    | '/_app/admin/church/giving'
+    | '/_app/admin/church/kyc'
+    | '/_app/admin/church/members'
+    | '/_app/admin/church/prayer'
+    | '/_app/admin/church/settings'
+    | '/_app/admin/church/team'
+    | '/_app/admin/events-service/$'
+    | '/_app/admin/events-service/kyc'
+    | '/_app/admin/events-service/messages'
+    | '/_app/admin/events-service/orders'
+    | '/_app/admin/events-service/packages'
+    | '/_app/admin/events-service/revenue'
+    | '/_app/admin/events-service/settings'
+    | '/_app/admin/events/new'
+    | '/_app/admin/home/$'
+    | '/_app/admin/home/kyc'
+    | '/_app/admin/home/messages'
+    | '/_app/admin/home/orders'
+    | '/_app/admin/home/revenue'
+    | '/_app/admin/home/services'
+    | '/_app/admin/home/settings'
+    | '/_app/admin/learn/$'
+    | '/_app/admin/learn/kyc'
+    | '/_app/admin/learn/messages'
+    | '/_app/admin/learn/orders'
+    | '/_app/admin/learn/revenue'
+    | '/_app/admin/learn/settings'
+    | '/_app/admin/learn/subjects'
+    | '/_app/admin/media/new'
+    | '/_app/admin/products/new'
+    | '/_app/admin/programs/generating'
+    | '/_app/admin/programs/new'
+    | '/_app/admin/studio/jobs'
+    | '/_app/admin/studio/library'
+    | '/_app/admin/studio/templates'
+    | '/_app/dashboard/settings/modules'
+    | '/_public/org/$slug/content'
+    | '/_public/org/$slug/donate'
+    | '/_public/org/$slug/dons'
+    | '/_public/org/$slug/events'
+    | '/_public/org/$slug/offerings'
+    | '/_public/org/$slug/photos'
+    | '/_public/org/$slug/store'
+    | '/church/$slug/events/$eventId'
+    | '/church/$slug/give/success'
+    | '/church/pro/sermons/$id'
+    | '/_app/admin/announcements/'
+    | '/_app/admin/beauty/'
+    | '/_app/admin/campaigns/'
+    | '/_app/admin/church/'
+    | '/_app/admin/events-service/'
+    | '/_app/admin/events/'
+    | '/_app/admin/home/'
+    | '/_app/admin/learn/'
+    | '/_app/admin/media/'
+    | '/_app/admin/products/'
+    | '/_app/admin/programs/'
+    | '/_app/admin/studio/'
+    | '/_app/dashboard/messages/'
+    | '/_app/dashboard/settings/'
+    | '/_public/org/$slug/'
+    | '/church/$slug/give/'
+    | '/church/pro/sermons/'
+    | '/_app/admin/announcements/$id/edit'
+    | '/_app/admin/beauty/messages/$id'
+    | '/_app/admin/campaigns/$id/edit'
+    | '/_app/admin/church/sermons/$id'
+    | '/_app/admin/events-service/messages/$id'
+    | '/_app/admin/events/$id/edit'
+    | '/_app/admin/home/messages/$id'
+    | '/_app/admin/learn/messages/$id'
+    | '/_app/admin/media/$id/edit'
+    | '/_app/admin/products/$id/edit'
+    | '/_app/admin/programs/$id/edit'
+    | '/_app/admin/programs/draft/$projectId'
+    | '/_app/admin/studio/projects/new'
+    | '/_app/dashboard/messages/$vertical/$id'
+    | '/_app/dashboard/messages/beauty/$id'
+    | '/_app/dashboard/messages/events/$id'
+    | '/_app/dashboard/messages/home/$id'
+    | '/_app/dashboard/messages/learn/$id'
+    | '/_public/org/$slug/p/$productSlug'
+    | '/_public/org/$slug/product/$productId'
+    | '/church/$slug/pdf/$pdfId/success'
+    | '/_app/admin/church/sermons/'
+    | '/_app/admin/studio/projects/'
+    | '/church/$slug/pdf/$pdfId/'
+    | '/_app/admin/studio/projects/$id/assets'
+    | '/_app/admin/studio/projects/$id/editor'
+    | '/_app/admin/studio/projects/$id/publish'
+    | '/_app/admin/studio/projects/$id/review'
+    | '/_app/admin/studio/projects/$id/'
   fileRoutesById: FileRoutesById
 }
-export interface RootRouteChildren {}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
+  PublicRoute: typeof PublicRouteWithChildren
+  AProposRoute: typeof AProposRoute
+  AboutRoute: typeof AboutRoute
+  AcceptableUseRoute: typeof AcceptableUseRoute
+  AffiliateProgramRoute: typeof AffiliateProgramRoute
+  AmbassadorRoute: typeof AmbassadorRoute
+  AmbassadorProgramRoute: typeof AmbassadorProgramRoute
+  AmbassadorTermsRoute: typeof AmbassadorTermsRoute
+  AmlRoute: typeof AmlRoute
+  BrandRoute: typeof BrandRoute
+  CalculateurRoute: typeof CalculateurRoute
+  CguRoute: typeof CguRoute
+  ChangelogRoute: typeof ChangelogRoute
+  ChurchesRoute: typeof ChurchesRoute
+  CompareRoute: typeof CompareRoute
+  ComparerRoute: typeof ComparerRoute
+  ComplianceRoute: typeof ComplianceRoute
+  ContactRoute: typeof ContactRoute
+  CookiePolicyRoute: typeof CookiePolicyRoute
+  CookiesRoute: typeof CookiesRoute
+  CopyrightRoute: typeof CopyrightRoute
+  CreateCourseRoute: typeof CreateCourseRoute
+  CreateOrgRoute: typeof CreateOrgRoute
+  CreerFormationRoute: typeof CreerFormationRoute
+  DashboardPreviewRoute: typeof DashboardPreviewRoute
+  DataDeletionRoute: typeof DataDeletionRoute
+  DevelopersRoute: typeof DevelopersRoute
+  DeveloppeursRoute: typeof DeveloppeursRoute
+  DevenirPartenaireRoute: typeof DevenirPartenaireRoute
+  DiscoverRoute: typeof DiscoverRoute
+  DmcaRoute: typeof DmcaRoute
+  DpaRoute: typeof DpaRoute
+  EarnRoute: typeof EarnRoute
+  EcrireRoute: typeof EcrireRoute
+  EmailPreferencesRoute: typeof EmailPreferencesRoute
+  EtudesDeCasRoute: typeof EtudesDeCasRoute
+  ExplorerRoute: typeof ExplorerRoute
+  FaqRoute: typeof FaqRoute
+  FeaturesRoute: typeof FeaturesRoute
+  FeuilleDeRouteRoute: typeof FeuilleDeRouteRoute
+  FondateursRoute: typeof FondateursRoute
+  FoundersRoute: typeof FoundersRoute
+  GagnerRoute: typeof GagnerRoute
+  GagnerInfoRoute: typeof GagnerInfoRoute
+  GlossaireRoute: typeof GlossaireRoute
+  GlossaryRoute: typeof GlossaryRoute
+  HelpRoute: typeof HelpRoute
+  HubRoute: typeof HubRoute
+  InstallRoute: typeof InstallRoute
+  IntegrationsRoute: typeof IntegrationsRoute
+  LandingRoute: typeof LandingRoute
+  LegalNoticesRoute: typeof LegalNoticesRoute
+  LookingForRoute: typeof LookingForRoute
+  MaintenanceRoute: typeof MaintenanceRoute
+  MediaKitRoute: typeof MediaKitRoute
+  MentionsLegalesRoute: typeof MentionsLegalesRoute
+  MesAchatsRoute: typeof MesAchatsRoute
+  MigrateRoute: typeof MigrateRoute
+  MigrerRoute: typeof MigrerRoute
+  NewThisWeekRoute: typeof NewThisWeekRoute
+  NewsletterRoute: typeof NewsletterRoute
+  ParrainageRoute: typeof ParrainageRoute
+  PartenairesRoute: typeof PartenairesRoute
+  PartnerTermsRoute: typeof PartnerTermsRoute
+  PaymentSuccessRoute: typeof PaymentSuccessRoute
+  PayoutPolicyRoute: typeof PayoutPolicyRoute
+  PlanDuSiteRoute: typeof PlanDuSiteRoute
+  PresseRoute: typeof PresseRoute
+  PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  ProtectionRoute: typeof ProtectionRoute
+  ReferralsRoute: typeof ReferralsRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
+  ReportRoute: typeof ReportRoute
+  RoadmapRoute: typeof RoadmapRoute
+  SecurityRoute: typeof SecurityRoute
+  SellRoute: typeof SellRoute
+  ServicesRoute: typeof ServicesRoute
+  ShareTargetRoute: typeof ShareTargetRoute
+  ShowcaseRoute: typeof ShowcaseRoute
+  SignalerRoute: typeof SignalerRoute
+  SitemapRoute: typeof SitemapRoute
+  StartSellingRoute: typeof StartSellingRoute
+  StatusRoute: typeof StatusRoute
+  SubprocessorsRoute: typeof SubprocessorsRoute
+  SuperadminRoute: typeof SuperadminRouteWithChildren
+  SuperappRoute: typeof SuperappRoute
+  TarifsRoute: typeof TarifsRoute
+  TemoignagesRoute: typeof TemoignagesRoute
+  TermsRoute: typeof TermsRoute
+  TopCreatorsRoute: typeof TopCreatorsRoute
+  TutorielsRoute: typeof TutorielsRoute
+  VendreRoute: typeof VendreRoute
+  WelcomeRoute: typeof WelcomeRoute
+  WelcomeIntentRoute: typeof WelcomeIntentRoute
+  WriteRoute: typeof WriteRoute
+  AccountTrustRoute: typeof AccountTrustRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
+  BeautySplatRoute: typeof BeautySplatRoute
+  BeautyAboutRoute: typeof BeautyAboutRoute
+  BeautySearchRoute: typeof BeautySearchRoute
+  BillingSuccessRoute: typeof BillingSuccessRoute
+  BillingUsageRoute: typeof BillingUsageRoute
+  BlogSlugRoute: typeof BlogSlugRoute
+  CanvaCallbackRoute: typeof CanvaCallbackRoute
+  ChurchAboutRoute: typeof ChurchAboutRoute
+  ChurchDiscoverRoute: typeof ChurchDiscoverRoute
+  CreatorAdvancedAnalyticsRoute: typeof CreatorAdvancedAnalyticsRoute
+  DigitalAboutRoute: typeof DigitalAboutRoute
+  DocsApiRoute: typeof DocsApiRoute
+  EducationSplatRoute: typeof EducationSplatRoute
+  EducationAboutRoute: typeof EducationAboutRoute
+  EducationDiscoverRoute: typeof EducationDiscoverRoute
+  EventsSplatRoute: typeof EventsSplatRoute
+  EventsAboutRoute: typeof EventsAboutRoute
+  EventsDiscoverRoute: typeof EventsDiscoverRoute
+  ExploreArtisansRoute: typeof ExploreArtisansRoute
+  ExploreBeautyRoute: typeof ExploreBeautyRoute
+  ExploreCoachingRoute: typeof ExploreCoachingRoute
+  ExploreDigitalProductsRoute: typeof ExploreDigitalProductsRoute
+  ExploreInfluencersRoute: typeof ExploreInfluencersRoute
+  ExploreMusicRoute: typeof ExploreMusicRoute
+  ExploreOtherServicesRoute: typeof ExploreOtherServicesRoute
+  ExploreTutorsRoute: typeof ExploreTutorsRoute
+  GoCodeRoute: typeof GoCodeRoute
+  GuideAffiliationSansInvestissementRoute: typeof GuideAffiliationSansInvestissementRoute
+  GuideAlternativeGofundmeRoute: typeof GuideAlternativeGofundmeRoute
+  GuideBoutiqueDigitaleGratuiteRoute: typeof GuideBoutiqueDigitaleGratuiteRoute
+  GuideGagnerSansContenuRoute: typeof GuideGagnerSansContenuRoute
+  GuideMobileMoneyEcommerceRoute: typeof GuideMobileMoneyEcommerceRoute
+  GuideMonetiserContenuReligieuxRoute: typeof GuideMonetiserContenuReligieuxRoute
+  GuidePlateformeDonsAfriqueRoute: typeof GuidePlateformeDonsAfriqueRoute
+  GuideVendreCoursEnLigneRoute: typeof GuideVendreCoursEnLigneRoute
+  GuideVendreEbookAfriqueRoute: typeof GuideVendreEbookAfriqueRoute
+  HomeSplatRoute: typeof HomeSplatRoute
+  HomeAboutRoute: typeof HomeAboutRoute
+  HomeDiscoverRoute: typeof HomeDiscoverRoute
+  InviteCodeRoute: typeof InviteCodeRoute
+  LearnSplatRoute: typeof LearnSplatRoute
+  LearnAboutRoute: typeof LearnAboutRoute
+  LearnDiscoverRoute: typeof LearnDiscoverRoute
+  PaymentSplatRoute: typeof PaymentSplatRoute
+  PourAgencesRoute: typeof PourAgencesRoute
+  PourAssociationsRoute: typeof PourAssociationsRoute
+  PourAuteursRoute: typeof PourAuteursRoute
+  PourBlogueursRoute: typeof PourBlogueursRoute
+  PourCentresFormationRoute: typeof PourCentresFormationRoute
+  PourCoachesRoute: typeof PourCoachesRoute
+  PourConsultantsRoute: typeof PourConsultantsRoute
+  PourCooperativesRoute: typeof PourCooperativesRoute
+  PourCreateursVideoRoute: typeof PourCreateursVideoRoute
+  PourDesignersRoute: typeof PourDesignersRoute
+  PourDiasporaRoute: typeof PourDiasporaRoute
+  PourEglisesRoute: typeof PourEglisesRoute
+  PourEnseignantsRoute: typeof PourEnseignantsRoute
+  PourEntrepreneursRoute: typeof PourEntrepreneursRoute
+  PourEtudiantsRoute: typeof PourEtudiantsRoute
+  PourFemmesEntrepreneuresRoute: typeof PourFemmesEntrepreneuresRoute
+  PourFinanceRoute: typeof PourFinanceRoute
+  PourFormateursRoute: typeof PourFormateursRoute
+  PourInfluenceursRoute: typeof PourInfluenceursRoute
+  PourJuristesRoute: typeof PourJuristesRoute
+  PourLeadersMusulmansRoute: typeof PourLeadersMusulmansRoute
+  PourMediasRoute: typeof PourMediasRoute
+  PourMinisteresRoute: typeof PourMinisteresRoute
+  PourMissionnairesRoute: typeof PourMissionnairesRoute
+  PourMusiciensRoute: typeof PourMusiciensRoute
+  PourOngRoute: typeof PourOngRoute
+  PourPhotographesRoute: typeof PourPhotographesRoute
+  PourPodcastersRoute: typeof PourPodcastersRoute
+  PourRetraitesRoute: typeof PourRetraitesRoute
+  PourSanteRoute: typeof PourSanteRoute
+  SolutionsChurchRoute: typeof SolutionsChurchRoute
+  StartSplatRoute: typeof StartSplatRoute
+  StartDetailsRoute: typeof StartDetailsRoute
+  StartFinishRoute: typeof StartFinishRoute
+  StoreSlugRoute: typeof StoreSlugRoute
+  VerifyCertNumberRoute: typeof VerifyCertNumberRoute
+  AccountIndexRoute: typeof AccountIndexRoute
+  AuthIndexRoute: typeof AuthIndexRoute
+  BeautyIndexRoute: typeof BeautyIndexRoute
+  BillingIndexRoute: typeof BillingIndexRoute
+  BlogIndexRoute: typeof BlogIndexRoute
+  ChurchIndexRoute: typeof ChurchIndexRoute
+  DigitalIndexRoute: typeof DigitalIndexRoute
+  DocsIndexRoute: typeof DocsIndexRoute
+  EducationIndexRoute: typeof EducationIndexRoute
+  EventsIndexRoute: typeof EventsIndexRoute
+  HomeIndexRoute: typeof HomeIndexRoute
+  LearnIndexRoute: typeof LearnIndexRoute
+  StartIndexRoute: typeof StartIndexRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  BeautyPSlugRoute: typeof BeautyPSlugRoute
+  BeautyProOnboardingRoute: typeof BeautyProOnboardingRoute
+  ChurchProAnnouncementsRoute: typeof ChurchProAnnouncementsRoute
+  ChurchProAppointmentsRoute: typeof ChurchProAppointmentsRoute
+  ChurchProCampaignsRoute: typeof ChurchProCampaignsRoute
+  ChurchProEventsRoute: typeof ChurchProEventsRoute
+  ChurchProGivingRoute: typeof ChurchProGivingRoute
+  ChurchProKycRoute: typeof ChurchProKycRoute
+  ChurchProMembersRoute: typeof ChurchProMembersRoute
+  ChurchProOnboardingRoute: typeof ChurchProOnboardingRoute
+  ChurchProPrayerRoute: typeof ChurchProPrayerRoute
+  ChurchProSettingsRoute: typeof ChurchProSettingsRoute
+  ChurchProTeamRoute: typeof ChurchProTeamRoute
+  EducationProOnboardingRoute: typeof EducationProOnboardingRoute
+  EventsProSlugRoute: typeof EventsProSlugRoute
+  EventsProOnboardingRoute: typeof EventsProOnboardingRoute
+  HomeProSlugRoute: typeof HomeProSlugRoute
+  HomeProOnboardingRoute: typeof HomeProOnboardingRoute
+  LearnProSlugRoute: typeof LearnProSlugRoute
+  LearnProOnboardingRoute: typeof LearnProOnboardingRoute
+  MarketplaceTemplatesIdRoute: typeof MarketplaceTemplatesIdRoute
+  ChurchSlugIndexRoute: typeof ChurchSlugIndexRoute
+  ChurchProIndexRoute: typeof ChurchProIndexRoute
+  MarketplaceTemplatesIndexRoute: typeof MarketplaceTemplatesIndexRoute
+  ChurchSlugEventsEventIdRoute: typeof ChurchSlugEventsEventIdRoute
+  ChurchSlugGiveSuccessRoute: typeof ChurchSlugGiveSuccessRoute
+  ChurchProSermonsIdRoute: typeof ChurchProSermonsIdRoute
+  ChurchSlugGiveIndexRoute: typeof ChurchSlugGiveIndexRoute
+  ChurchProSermonsIndexRoute: typeof ChurchProSermonsIndexRoute
+  ChurchSlugPdfPdfIdSuccessRoute: typeof ChurchSlugPdfPdfIdSuccessRoute
+  ChurchSlugPdfPdfIdIndexRoute: typeof ChurchSlugPdfPdfIdIndexRoute
 }
 
-const rootRouteChildren: RootRouteChildren = {}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_public': {
+      id: '/_public'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PublicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/a-propos': {
+      id: '/a-propos'
+      path: '/a-propos'
+      fullPath: '/a-propos'
+      preLoaderRoute: typeof AProposRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/acceptable-use': {
+      id: '/acceptable-use'
+      path: '/acceptable-use'
+      fullPath: '/acceptable-use'
+      preLoaderRoute: typeof AcceptableUseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/affiliate-program': {
+      id: '/affiliate-program'
+      path: '/affiliate-program'
+      fullPath: '/affiliate-program'
+      preLoaderRoute: typeof AffiliateProgramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ambassador': {
+      id: '/ambassador'
+      path: '/ambassador'
+      fullPath: '/ambassador'
+      preLoaderRoute: typeof AmbassadorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ambassador-program': {
+      id: '/ambassador-program'
+      path: '/ambassador-program'
+      fullPath: '/ambassador-program'
+      preLoaderRoute: typeof AmbassadorProgramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ambassador-terms': {
+      id: '/ambassador-terms'
+      path: '/ambassador-terms'
+      fullPath: '/ambassador-terms'
+      preLoaderRoute: typeof AmbassadorTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aml': {
+      id: '/aml'
+      path: '/aml'
+      fullPath: '/aml'
+      preLoaderRoute: typeof AmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brand': {
+      id: '/brand'
+      path: '/brand'
+      fullPath: '/brand'
+      preLoaderRoute: typeof BrandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calculateur': {
+      id: '/calculateur'
+      path: '/calculateur'
+      fullPath: '/calculateur'
+      preLoaderRoute: typeof CalculateurRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cgu': {
+      id: '/cgu'
+      path: '/cgu'
+      fullPath: '/cgu'
+      preLoaderRoute: typeof CguRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/changelog': {
+      id: '/changelog'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/churches': {
+      id: '/churches'
+      path: '/churches'
+      fullPath: '/churches'
+      preLoaderRoute: typeof ChurchesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comparer': {
+      id: '/comparer'
+      path: '/comparer'
+      fullPath: '/comparer'
+      preLoaderRoute: typeof ComparerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compliance': {
+      id: '/compliance'
+      path: '/compliance'
+      fullPath: '/compliance'
+      preLoaderRoute: typeof ComplianceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookie-policy': {
+      id: '/cookie-policy'
+      path: '/cookie-policy'
+      fullPath: '/cookie-policy'
+      preLoaderRoute: typeof CookiePolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/copyright': {
+      id: '/copyright'
+      path: '/copyright'
+      fullPath: '/copyright'
+      preLoaderRoute: typeof CopyrightRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/create-course': {
+      id: '/create-course'
+      path: '/create-course'
+      fullPath: '/create-course'
+      preLoaderRoute: typeof CreateCourseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/create-org': {
+      id: '/create-org'
+      path: '/create-org'
+      fullPath: '/create-org'
+      preLoaderRoute: typeof CreateOrgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creer-formation': {
+      id: '/creer-formation'
+      path: '/creer-formation'
+      fullPath: '/creer-formation'
+      preLoaderRoute: typeof CreerFormationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard-preview': {
+      id: '/dashboard-preview'
+      path: '/dashboard-preview'
+      fullPath: '/dashboard-preview'
+      preLoaderRoute: typeof DashboardPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data-deletion': {
+      id: '/data-deletion'
+      path: '/data-deletion'
+      fullPath: '/data-deletion'
+      preLoaderRoute: typeof DataDeletionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developers': {
+      id: '/developers'
+      path: '/developers'
+      fullPath: '/developers'
+      preLoaderRoute: typeof DevelopersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developpeurs': {
+      id: '/developpeurs'
+      path: '/developpeurs'
+      fullPath: '/developpeurs'
+      preLoaderRoute: typeof DeveloppeursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/devenir-partenaire': {
+      id: '/devenir-partenaire'
+      path: '/devenir-partenaire'
+      fullPath: '/devenir-partenaire'
+      preLoaderRoute: typeof DevenirPartenaireRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/discover': {
+      id: '/discover'
+      path: '/discover'
+      fullPath: '/discover'
+      preLoaderRoute: typeof DiscoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dmca': {
+      id: '/dmca'
+      path: '/dmca'
+      fullPath: '/dmca'
+      preLoaderRoute: typeof DmcaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dpa': {
+      id: '/dpa'
+      path: '/dpa'
+      fullPath: '/dpa'
+      preLoaderRoute: typeof DpaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/earn': {
+      id: '/earn'
+      path: '/earn'
+      fullPath: '/earn'
+      preLoaderRoute: typeof EarnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ecrire': {
+      id: '/ecrire'
+      path: '/ecrire'
+      fullPath: '/ecrire'
+      preLoaderRoute: typeof EcrireRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-preferences': {
+      id: '/email-preferences'
+      path: '/email-preferences'
+      fullPath: '/email-preferences'
+      preLoaderRoute: typeof EmailPreferencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/etudes-de-cas': {
+      id: '/etudes-de-cas'
+      path: '/etudes-de-cas'
+      fullPath: '/etudes-de-cas'
+      preLoaderRoute: typeof EtudesDeCasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explorer': {
+      id: '/explorer'
+      path: '/explorer'
+      fullPath: '/explorer'
+      preLoaderRoute: typeof ExplorerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feuille-de-route': {
+      id: '/feuille-de-route'
+      path: '/feuille-de-route'
+      fullPath: '/feuille-de-route'
+      preLoaderRoute: typeof FeuilleDeRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fondateurs': {
+      id: '/fondateurs'
+      path: '/fondateurs'
+      fullPath: '/fondateurs'
+      preLoaderRoute: typeof FondateursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/founders': {
+      id: '/founders'
+      path: '/founders'
+      fullPath: '/founders'
+      preLoaderRoute: typeof FoundersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gagner': {
+      id: '/gagner'
+      path: '/gagner'
+      fullPath: '/gagner'
+      preLoaderRoute: typeof GagnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gagner-info': {
+      id: '/gagner-info'
+      path: '/gagner-info'
+      fullPath: '/gagner-info'
+      preLoaderRoute: typeof GagnerInfoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/glossaire': {
+      id: '/glossaire'
+      path: '/glossaire'
+      fullPath: '/glossaire'
+      preLoaderRoute: typeof GlossaireRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/glossary': {
+      id: '/glossary'
+      path: '/glossary'
+      fullPath: '/glossary'
+      preLoaderRoute: typeof GlossaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hub': {
+      id: '/hub'
+      path: '/hub'
+      fullPath: '/hub'
+      preLoaderRoute: typeof HubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/install': {
+      id: '/install'
+      path: '/install'
+      fullPath: '/install'
+      preLoaderRoute: typeof InstallRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations': {
+      id: '/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof IntegrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/landing': {
+      id: '/landing'
+      path: '/landing'
+      fullPath: '/landing'
+      preLoaderRoute: typeof LandingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal-notices': {
+      id: '/legal-notices'
+      path: '/legal-notices'
+      fullPath: '/legal-notices'
+      preLoaderRoute: typeof LegalNoticesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/looking-for': {
+      id: '/looking-for'
+      path: '/looking-for'
+      fullPath: '/looking-for'
+      preLoaderRoute: typeof LookingForRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/maintenance': {
+      id: '/maintenance'
+      path: '/maintenance'
+      fullPath: '/maintenance'
+      preLoaderRoute: typeof MaintenanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/media-kit': {
+      id: '/media-kit'
+      path: '/media-kit'
+      fullPath: '/media-kit'
+      preLoaderRoute: typeof MediaKitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentions-legales': {
+      id: '/mentions-legales'
+      path: '/mentions-legales'
+      fullPath: '/mentions-legales'
+      preLoaderRoute: typeof MentionsLegalesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mes-achats': {
+      id: '/mes-achats'
+      path: '/mes-achats'
+      fullPath: '/mes-achats'
+      preLoaderRoute: typeof MesAchatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/migrate': {
+      id: '/migrate'
+      path: '/migrate'
+      fullPath: '/migrate'
+      preLoaderRoute: typeof MigrateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/migrer': {
+      id: '/migrer'
+      path: '/migrer'
+      fullPath: '/migrer'
+      preLoaderRoute: typeof MigrerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/new-this-week': {
+      id: '/new-this-week'
+      path: '/new-this-week'
+      fullPath: '/new-this-week'
+      preLoaderRoute: typeof NewThisWeekRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/newsletter': {
+      id: '/newsletter'
+      path: '/newsletter'
+      fullPath: '/newsletter'
+      preLoaderRoute: typeof NewsletterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parrainage': {
+      id: '/parrainage'
+      path: '/parrainage'
+      fullPath: '/parrainage'
+      preLoaderRoute: typeof ParrainageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partenaires': {
+      id: '/partenaires'
+      path: '/partenaires'
+      fullPath: '/partenaires'
+      preLoaderRoute: typeof PartenairesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partner-terms': {
+      id: '/partner-terms'
+      path: '/partner-terms'
+      fullPath: '/partner-terms'
+      preLoaderRoute: typeof PartnerTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment-success': {
+      id: '/payment-success'
+      path: '/payment-success'
+      fullPath: '/payment-success'
+      preLoaderRoute: typeof PaymentSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payout-policy': {
+      id: '/payout-policy'
+      path: '/payout-policy'
+      fullPath: '/payout-policy'
+      preLoaderRoute: typeof PayoutPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plan-du-site': {
+      id: '/plan-du-site'
+      path: '/plan-du-site'
+      fullPath: '/plan-du-site'
+      preLoaderRoute: typeof PlanDuSiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/presse': {
+      id: '/presse'
+      path: '/presse'
+      fullPath: '/presse'
+      preLoaderRoute: typeof PresseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/protection': {
+      id: '/protection'
+      path: '/protection'
+      fullPath: '/protection'
+      preLoaderRoute: typeof ProtectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/referrals': {
+      id: '/referrals'
+      path: '/referrals'
+      fullPath: '/referrals'
+      preLoaderRoute: typeof ReferralsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/report': {
+      id: '/report'
+      path: '/report'
+      fullPath: '/report'
+      preLoaderRoute: typeof ReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap': {
+      id: '/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof RoadmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sell': {
+      id: '/sell'
+      path: '/sell'
+      fullPath: '/sell'
+      preLoaderRoute: typeof SellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/share-target': {
+      id: '/share-target'
+      path: '/share-target'
+      fullPath: '/share-target'
+      preLoaderRoute: typeof ShareTargetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/showcase': {
+      id: '/showcase'
+      path: '/showcase'
+      fullPath: '/showcase'
+      preLoaderRoute: typeof ShowcaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signaler': {
+      id: '/signaler'
+      path: '/signaler'
+      fullPath: '/signaler'
+      preLoaderRoute: typeof SignalerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap': {
+      id: '/sitemap'
+      path: '/sitemap'
+      fullPath: '/sitemap'
+      preLoaderRoute: typeof SitemapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/start-selling': {
+      id: '/start-selling'
+      path: '/start-selling'
+      fullPath: '/start-selling'
+      preLoaderRoute: typeof StartSellingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subprocessors': {
+      id: '/subprocessors'
+      path: '/subprocessors'
+      fullPath: '/subprocessors'
+      preLoaderRoute: typeof SubprocessorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin': {
+      id: '/superadmin'
+      path: '/superadmin'
+      fullPath: '/superadmin'
+      preLoaderRoute: typeof SuperadminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superapp': {
+      id: '/superapp'
+      path: '/superapp'
+      fullPath: '/superapp'
+      preLoaderRoute: typeof SuperappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tarifs': {
+      id: '/tarifs'
+      path: '/tarifs'
+      fullPath: '/tarifs'
+      preLoaderRoute: typeof TarifsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/temoignages': {
+      id: '/temoignages'
+      path: '/temoignages'
+      fullPath: '/temoignages'
+      preLoaderRoute: typeof TemoignagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/top-creators': {
+      id: '/top-creators'
+      path: '/top-creators'
+      fullPath: '/top-creators'
+      preLoaderRoute: typeof TopCreatorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tutoriels': {
+      id: '/tutoriels'
+      path: '/tutoriels'
+      fullPath: '/tutoriels'
+      preLoaderRoute: typeof TutorielsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vendre': {
+      id: '/vendre'
+      path: '/vendre'
+      fullPath: '/vendre'
+      preLoaderRoute: typeof VendreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/welcome-intent': {
+      id: '/welcome-intent'
+      path: '/welcome-intent'
+      fullPath: '/welcome-intent'
+      preLoaderRoute: typeof WelcomeIntentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/write': {
+      id: '/write'
+      path: '/write'
+      fullPath: '/write'
+      preLoaderRoute: typeof WriteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/affiliation': {
+      id: '/_app/affiliation'
+      path: '/affiliation'
+      fullPath: '/affiliation'
+      preLoaderRoute: typeof AppAffiliationRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/bookmarks': {
+      id: '/_app/bookmarks'
+      path: '/bookmarks'
+      fullPath: '/bookmarks'
+      preLoaderRoute: typeof AppBookmarksRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/credits': {
+      id: '/_app/credits'
+      path: '/credits'
+      fullPath: '/credits'
+      preLoaderRoute: typeof AppCreditsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/feed': {
+      id: '/_app/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof AppFeedRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/invoices': {
+      id: '/_app/invoices'
+      path: '/invoices'
+      fullPath: '/invoices'
+      preLoaderRoute: typeof AppInvoicesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/kyc': {
+      id: '/_app/kyc'
+      path: '/kyc'
+      fullPath: '/kyc'
+      preLoaderRoute: typeof AppKycRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/leaderboard': {
+      id: '/_app/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof AppLeaderboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/mes-avis': {
+      id: '/_app/mes-avis'
+      path: '/mes-avis'
+      fullPath: '/mes-avis'
+      preLoaderRoute: typeof AppMesAvisRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/mes-formations': {
+      id: '/_app/mes-formations'
+      path: '/mes-formations'
+      fullPath: '/mes-formations'
+      preLoaderRoute: typeof AppMesFormationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/my-analytics': {
+      id: '/_app/my-analytics'
+      path: '/my-analytics'
+      fullPath: '/my-analytics'
+      preLoaderRoute: typeof AppMyAnalyticsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/my-donations': {
+      id: '/_app/my-donations'
+      path: '/my-donations'
+      fullPath: '/my-donations'
+      preLoaderRoute: typeof AppMyDonationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/my-invoices': {
+      id: '/_app/my-invoices'
+      path: '/my-invoices'
+      fullPath: '/my-invoices'
+      preLoaderRoute: typeof AppMyInvoicesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/my-programs': {
+      id: '/_app/my-programs'
+      path: '/my-programs'
+      fullPath: '/my-programs'
+      preLoaderRoute: typeof AppMyProgramsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/my-purchases': {
+      id: '/_app/my-purchases'
+      path: '/my-purchases'
+      fullPath: '/my-purchases'
+      preLoaderRoute: typeof AppMyPurchasesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/my-reviews': {
+      id: '/_app/my-reviews'
+      path: '/my-reviews'
+      fullPath: '/my-reviews'
+      preLoaderRoute: typeof AppMyReviewsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/notification-preferences': {
+      id: '/_app/notification-preferences'
+      path: '/notification-preferences'
+      fullPath: '/notification-preferences'
+      preLoaderRoute: typeof AppNotificationPreferencesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/notifications': {
+      id: '/_app/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AppNotificationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/partner': {
+      id: '/_app/partner'
+      path: '/partner'
+      fullPath: '/partner'
+      preLoaderRoute: typeof AppPartnerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/profile': {
+      id: '/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/quick-publish': {
+      id: '/_app/quick-publish'
+      path: '/quick-publish'
+      fullPath: '/quick-publish'
+      preLoaderRoute: typeof AppQuickPublishRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/quick-start': {
+      id: '/_app/quick-start'
+      path: '/quick-start'
+      fullPath: '/quick-start'
+      preLoaderRoute: typeof AppQuickStartRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/resources': {
+      id: '/_app/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof AppResourcesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/support': {
+      id: '/_app/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof AppSupportRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/wallet': {
+      id: '/_app/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof AppWalletRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/wishlist': {
+      id: '/_app/wishlist'
+      path: '/wishlist'
+      fullPath: '/wishlist'
+      preLoaderRoute: typeof AppWishlistRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_public/courses': {
+      id: '/_public/courses'
+      path: '/courses'
+      fullPath: '/courses'
+      preLoaderRoute: typeof PublicCoursesRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/spotlight': {
+      id: '/_public/spotlight'
+      path: '/spotlight'
+      fullPath: '/spotlight'
+      preLoaderRoute: typeof PublicSpotlightRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/account/': {
+      id: '/account/'
+      path: '/account'
+      fullPath: '/account/'
+      preLoaderRoute: typeof AccountIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/trust': {
+      id: '/account/trust'
+      path: '/account/trust'
+      fullPath: '/account/trust'
+      preLoaderRoute: typeof AccountTrustRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/': {
+      id: '/auth/'
+      path: '/auth'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/beauty/': {
+      id: '/beauty/'
+      path: '/beauty'
+      fullPath: '/beauty/'
+      preLoaderRoute: typeof BeautyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/beauty/$': {
+      id: '/beauty/$'
+      path: '/beauty/$'
+      fullPath: '/beauty/$'
+      preLoaderRoute: typeof BeautySplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/beauty/about': {
+      id: '/beauty/about'
+      path: '/beauty/about'
+      fullPath: '/beauty/about'
+      preLoaderRoute: typeof BeautyAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/beauty/search': {
+      id: '/beauty/search'
+      path: '/beauty/search'
+      fullPath: '/beauty/search'
+      preLoaderRoute: typeof BeautySearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/billing/': {
+      id: '/billing/'
+      path: '/billing'
+      fullPath: '/billing/'
+      preLoaderRoute: typeof BillingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/billing/success': {
+      id: '/billing/success'
+      path: '/billing/success'
+      fullPath: '/billing/success'
+      preLoaderRoute: typeof BillingSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/billing/usage': {
+      id: '/billing/usage'
+      path: '/billing/usage'
+      fullPath: '/billing/usage'
+      preLoaderRoute: typeof BillingUsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/canva/callback': {
+      id: '/canva/callback'
+      path: '/canva/callback'
+      fullPath: '/canva/callback'
+      preLoaderRoute: typeof CanvaCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/': {
+      id: '/church/'
+      path: '/church'
+      fullPath: '/church/'
+      preLoaderRoute: typeof ChurchIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/about': {
+      id: '/church/about'
+      path: '/church/about'
+      fullPath: '/church/about'
+      preLoaderRoute: typeof ChurchAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/discover': {
+      id: '/church/discover'
+      path: '/church/discover'
+      fullPath: '/church/discover'
+      preLoaderRoute: typeof ChurchDiscoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creator/advanced-analytics': {
+      id: '/creator/advanced-analytics'
+      path: '/creator/advanced-analytics'
+      fullPath: '/creator/advanced-analytics'
+      preLoaderRoute: typeof CreatorAdvancedAnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/digital/': {
+      id: '/digital/'
+      path: '/digital'
+      fullPath: '/digital/'
+      preLoaderRoute: typeof DigitalIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/digital/about': {
+      id: '/digital/about'
+      path: '/digital/about'
+      fullPath: '/digital/about'
+      preLoaderRoute: typeof DigitalAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs/': {
+      id: '/docs/'
+      path: '/docs'
+      fullPath: '/docs/'
+      preLoaderRoute: typeof DocsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs/api': {
+      id: '/docs/api'
+      path: '/docs/api'
+      fullPath: '/docs/api'
+      preLoaderRoute: typeof DocsApiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/education/': {
+      id: '/education/'
+      path: '/education'
+      fullPath: '/education/'
+      preLoaderRoute: typeof EducationIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/education/$': {
+      id: '/education/$'
+      path: '/education/$'
+      fullPath: '/education/$'
+      preLoaderRoute: typeof EducationSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/education/about': {
+      id: '/education/about'
+      path: '/education/about'
+      fullPath: '/education/about'
+      preLoaderRoute: typeof EducationAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/education/discover': {
+      id: '/education/discover'
+      path: '/education/discover'
+      fullPath: '/education/discover'
+      preLoaderRoute: typeof EducationDiscoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/': {
+      id: '/events/'
+      path: '/events'
+      fullPath: '/events/'
+      preLoaderRoute: typeof EventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/$': {
+      id: '/events/$'
+      path: '/events/$'
+      fullPath: '/events/$'
+      preLoaderRoute: typeof EventsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/about': {
+      id: '/events/about'
+      path: '/events/about'
+      fullPath: '/events/about'
+      preLoaderRoute: typeof EventsAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/discover': {
+      id: '/events/discover'
+      path: '/events/discover'
+      fullPath: '/events/discover'
+      preLoaderRoute: typeof EventsDiscoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/artisans': {
+      id: '/explore/artisans'
+      path: '/explore/artisans'
+      fullPath: '/explore/artisans'
+      preLoaderRoute: typeof ExploreArtisansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/beauty': {
+      id: '/explore/beauty'
+      path: '/explore/beauty'
+      fullPath: '/explore/beauty'
+      preLoaderRoute: typeof ExploreBeautyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/coaching': {
+      id: '/explore/coaching'
+      path: '/explore/coaching'
+      fullPath: '/explore/coaching'
+      preLoaderRoute: typeof ExploreCoachingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/digital-products': {
+      id: '/explore/digital-products'
+      path: '/explore/digital-products'
+      fullPath: '/explore/digital-products'
+      preLoaderRoute: typeof ExploreDigitalProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/influencers': {
+      id: '/explore/influencers'
+      path: '/explore/influencers'
+      fullPath: '/explore/influencers'
+      preLoaderRoute: typeof ExploreInfluencersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/music': {
+      id: '/explore/music'
+      path: '/explore/music'
+      fullPath: '/explore/music'
+      preLoaderRoute: typeof ExploreMusicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/other-services': {
+      id: '/explore/other-services'
+      path: '/explore/other-services'
+      fullPath: '/explore/other-services'
+      preLoaderRoute: typeof ExploreOtherServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/tutors': {
+      id: '/explore/tutors'
+      path: '/explore/tutors'
+      fullPath: '/explore/tutors'
+      preLoaderRoute: typeof ExploreTutorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/go/$code': {
+      id: '/go/$code'
+      path: '/go/$code'
+      fullPath: '/go/$code'
+      preLoaderRoute: typeof GoCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/affiliation-sans-investissement': {
+      id: '/guide/affiliation-sans-investissement'
+      path: '/guide/affiliation-sans-investissement'
+      fullPath: '/guide/affiliation-sans-investissement'
+      preLoaderRoute: typeof GuideAffiliationSansInvestissementRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/alternative-gofundme': {
+      id: '/guide/alternative-gofundme'
+      path: '/guide/alternative-gofundme'
+      fullPath: '/guide/alternative-gofundme'
+      preLoaderRoute: typeof GuideAlternativeGofundmeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/boutique-digitale-gratuite': {
+      id: '/guide/boutique-digitale-gratuite'
+      path: '/guide/boutique-digitale-gratuite'
+      fullPath: '/guide/boutique-digitale-gratuite'
+      preLoaderRoute: typeof GuideBoutiqueDigitaleGratuiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/gagner-sans-contenu': {
+      id: '/guide/gagner-sans-contenu'
+      path: '/guide/gagner-sans-contenu'
+      fullPath: '/guide/gagner-sans-contenu'
+      preLoaderRoute: typeof GuideGagnerSansContenuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/mobile-money-ecommerce': {
+      id: '/guide/mobile-money-ecommerce'
+      path: '/guide/mobile-money-ecommerce'
+      fullPath: '/guide/mobile-money-ecommerce'
+      preLoaderRoute: typeof GuideMobileMoneyEcommerceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/monetiser-contenu-religieux': {
+      id: '/guide/monetiser-contenu-religieux'
+      path: '/guide/monetiser-contenu-religieux'
+      fullPath: '/guide/monetiser-contenu-religieux'
+      preLoaderRoute: typeof GuideMonetiserContenuReligieuxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/plateforme-dons-afrique': {
+      id: '/guide/plateforme-dons-afrique'
+      path: '/guide/plateforme-dons-afrique'
+      fullPath: '/guide/plateforme-dons-afrique'
+      preLoaderRoute: typeof GuidePlateformeDonsAfriqueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/vendre-cours-en-ligne': {
+      id: '/guide/vendre-cours-en-ligne'
+      path: '/guide/vendre-cours-en-ligne'
+      fullPath: '/guide/vendre-cours-en-ligne'
+      preLoaderRoute: typeof GuideVendreCoursEnLigneRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/vendre-ebook-afrique': {
+      id: '/guide/vendre-ebook-afrique'
+      path: '/guide/vendre-ebook-afrique'
+      fullPath: '/guide/vendre-ebook-afrique'
+      preLoaderRoute: typeof GuideVendreEbookAfriqueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home/': {
+      id: '/home/'
+      path: '/home'
+      fullPath: '/home/'
+      preLoaderRoute: typeof HomeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home/$': {
+      id: '/home/$'
+      path: '/home/$'
+      fullPath: '/home/$'
+      preLoaderRoute: typeof HomeSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home/about': {
+      id: '/home/about'
+      path: '/home/about'
+      fullPath: '/home/about'
+      preLoaderRoute: typeof HomeAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home/discover': {
+      id: '/home/discover'
+      path: '/home/discover'
+      fullPath: '/home/discover'
+      preLoaderRoute: typeof HomeDiscoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite/$code': {
+      id: '/invite/$code'
+      path: '/invite/$code'
+      fullPath: '/invite/$code'
+      preLoaderRoute: typeof InviteCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/': {
+      id: '/learn/'
+      path: '/learn'
+      fullPath: '/learn/'
+      preLoaderRoute: typeof LearnIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/$': {
+      id: '/learn/$'
+      path: '/learn/$'
+      fullPath: '/learn/$'
+      preLoaderRoute: typeof LearnSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/about': {
+      id: '/learn/about'
+      path: '/learn/about'
+      fullPath: '/learn/about'
+      preLoaderRoute: typeof LearnAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/discover': {
+      id: '/learn/discover'
+      path: '/learn/discover'
+      fullPath: '/learn/discover'
+      preLoaderRoute: typeof LearnDiscoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment/$': {
+      id: '/payment/$'
+      path: '/payment/$'
+      fullPath: '/payment/$'
+      preLoaderRoute: typeof PaymentSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/agences': {
+      id: '/pour/agences'
+      path: '/pour/agences'
+      fullPath: '/pour/agences'
+      preLoaderRoute: typeof PourAgencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/associations': {
+      id: '/pour/associations'
+      path: '/pour/associations'
+      fullPath: '/pour/associations'
+      preLoaderRoute: typeof PourAssociationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/auteurs': {
+      id: '/pour/auteurs'
+      path: '/pour/auteurs'
+      fullPath: '/pour/auteurs'
+      preLoaderRoute: typeof PourAuteursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/blogueurs': {
+      id: '/pour/blogueurs'
+      path: '/pour/blogueurs'
+      fullPath: '/pour/blogueurs'
+      preLoaderRoute: typeof PourBlogueursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/centres-formation': {
+      id: '/pour/centres-formation'
+      path: '/pour/centres-formation'
+      fullPath: '/pour/centres-formation'
+      preLoaderRoute: typeof PourCentresFormationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/coaches': {
+      id: '/pour/coaches'
+      path: '/pour/coaches'
+      fullPath: '/pour/coaches'
+      preLoaderRoute: typeof PourCoachesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/consultants': {
+      id: '/pour/consultants'
+      path: '/pour/consultants'
+      fullPath: '/pour/consultants'
+      preLoaderRoute: typeof PourConsultantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/cooperatives': {
+      id: '/pour/cooperatives'
+      path: '/pour/cooperatives'
+      fullPath: '/pour/cooperatives'
+      preLoaderRoute: typeof PourCooperativesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/createurs-video': {
+      id: '/pour/createurs-video'
+      path: '/pour/createurs-video'
+      fullPath: '/pour/createurs-video'
+      preLoaderRoute: typeof PourCreateursVideoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/designers': {
+      id: '/pour/designers'
+      path: '/pour/designers'
+      fullPath: '/pour/designers'
+      preLoaderRoute: typeof PourDesignersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/diaspora': {
+      id: '/pour/diaspora'
+      path: '/pour/diaspora'
+      fullPath: '/pour/diaspora'
+      preLoaderRoute: typeof PourDiasporaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/eglises': {
+      id: '/pour/eglises'
+      path: '/pour/eglises'
+      fullPath: '/pour/eglises'
+      preLoaderRoute: typeof PourEglisesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/enseignants': {
+      id: '/pour/enseignants'
+      path: '/pour/enseignants'
+      fullPath: '/pour/enseignants'
+      preLoaderRoute: typeof PourEnseignantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/entrepreneurs': {
+      id: '/pour/entrepreneurs'
+      path: '/pour/entrepreneurs'
+      fullPath: '/pour/entrepreneurs'
+      preLoaderRoute: typeof PourEntrepreneursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/etudiants': {
+      id: '/pour/etudiants'
+      path: '/pour/etudiants'
+      fullPath: '/pour/etudiants'
+      preLoaderRoute: typeof PourEtudiantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/femmes-entrepreneures': {
+      id: '/pour/femmes-entrepreneures'
+      path: '/pour/femmes-entrepreneures'
+      fullPath: '/pour/femmes-entrepreneures'
+      preLoaderRoute: typeof PourFemmesEntrepreneuresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/finance': {
+      id: '/pour/finance'
+      path: '/pour/finance'
+      fullPath: '/pour/finance'
+      preLoaderRoute: typeof PourFinanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/formateurs': {
+      id: '/pour/formateurs'
+      path: '/pour/formateurs'
+      fullPath: '/pour/formateurs'
+      preLoaderRoute: typeof PourFormateursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/influenceurs': {
+      id: '/pour/influenceurs'
+      path: '/pour/influenceurs'
+      fullPath: '/pour/influenceurs'
+      preLoaderRoute: typeof PourInfluenceursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/juristes': {
+      id: '/pour/juristes'
+      path: '/pour/juristes'
+      fullPath: '/pour/juristes'
+      preLoaderRoute: typeof PourJuristesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/leaders-musulmans': {
+      id: '/pour/leaders-musulmans'
+      path: '/pour/leaders-musulmans'
+      fullPath: '/pour/leaders-musulmans'
+      preLoaderRoute: typeof PourLeadersMusulmansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/medias': {
+      id: '/pour/medias'
+      path: '/pour/medias'
+      fullPath: '/pour/medias'
+      preLoaderRoute: typeof PourMediasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/ministeres': {
+      id: '/pour/ministeres'
+      path: '/pour/ministeres'
+      fullPath: '/pour/ministeres'
+      preLoaderRoute: typeof PourMinisteresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/missionnaires': {
+      id: '/pour/missionnaires'
+      path: '/pour/missionnaires'
+      fullPath: '/pour/missionnaires'
+      preLoaderRoute: typeof PourMissionnairesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/musiciens': {
+      id: '/pour/musiciens'
+      path: '/pour/musiciens'
+      fullPath: '/pour/musiciens'
+      preLoaderRoute: typeof PourMusiciensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/ong': {
+      id: '/pour/ong'
+      path: '/pour/ong'
+      fullPath: '/pour/ong'
+      preLoaderRoute: typeof PourOngRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/photographes': {
+      id: '/pour/photographes'
+      path: '/pour/photographes'
+      fullPath: '/pour/photographes'
+      preLoaderRoute: typeof PourPhotographesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/podcasters': {
+      id: '/pour/podcasters'
+      path: '/pour/podcasters'
+      fullPath: '/pour/podcasters'
+      preLoaderRoute: typeof PourPodcastersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/retraites': {
+      id: '/pour/retraites'
+      path: '/pour/retraites'
+      fullPath: '/pour/retraites'
+      preLoaderRoute: typeof PourRetraitesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pour/sante': {
+      id: '/pour/sante'
+      path: '/pour/sante'
+      fullPath: '/pour/sante'
+      preLoaderRoute: typeof PourSanteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solutions/church': {
+      id: '/solutions/church'
+      path: '/solutions/church'
+      fullPath: '/solutions/church'
+      preLoaderRoute: typeof SolutionsChurchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/start/': {
+      id: '/start/'
+      path: '/start'
+      fullPath: '/start/'
+      preLoaderRoute: typeof StartIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/start/$': {
+      id: '/start/$'
+      path: '/start/$'
+      fullPath: '/start/$'
+      preLoaderRoute: typeof StartSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/start/details': {
+      id: '/start/details'
+      path: '/start/details'
+      fullPath: '/start/details'
+      preLoaderRoute: typeof StartDetailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/start/finish': {
+      id: '/start/finish'
+      path: '/start/finish'
+      fullPath: '/start/finish'
+      preLoaderRoute: typeof StartFinishRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/store/$slug': {
+      id: '/store/$slug'
+      path: '/store/$slug'
+      fullPath: '/store/$slug'
+      preLoaderRoute: typeof StoreSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/': {
+      id: '/superadmin/'
+      path: '/'
+      fullPath: '/superadmin/'
+      preLoaderRoute: typeof SuperadminIndexRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/acquisition': {
+      id: '/superadmin/acquisition'
+      path: '/acquisition'
+      fullPath: '/superadmin/acquisition'
+      preLoaderRoute: typeof SuperadminAcquisitionRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/activity': {
+      id: '/superadmin/activity'
+      path: '/activity'
+      fullPath: '/superadmin/activity'
+      preLoaderRoute: typeof SuperadminActivityRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/ads': {
+      id: '/superadmin/ads'
+      path: '/ads'
+      fullPath: '/superadmin/ads'
+      preLoaderRoute: typeof SuperadminAdsRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/ai': {
+      id: '/superadmin/ai'
+      path: '/ai'
+      fullPath: '/superadmin/ai'
+      preLoaderRoute: typeof SuperadminAiRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/ai-history': {
+      id: '/superadmin/ai-history'
+      path: '/ai-history'
+      fullPath: '/superadmin/ai-history'
+      preLoaderRoute: typeof SuperadminAiHistoryRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/beauty': {
+      id: '/superadmin/beauty'
+      path: '/beauty'
+      fullPath: '/superadmin/beauty'
+      preLoaderRoute: typeof SuperadminBeautyRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/church': {
+      id: '/superadmin/church'
+      path: '/church'
+      fullPath: '/superadmin/church'
+      preLoaderRoute: typeof SuperadminChurchRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/command-center': {
+      id: '/superadmin/command-center'
+      path: '/command-center'
+      fullPath: '/superadmin/command-center'
+      preLoaderRoute: typeof SuperadminCommandCenterRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/directory': {
+      id: '/superadmin/directory'
+      path: '/directory'
+      fullPath: '/superadmin/directory'
+      preLoaderRoute: typeof SuperadminDirectoryRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/education': {
+      id: '/superadmin/education'
+      path: '/education'
+      fullPath: '/superadmin/education'
+      preLoaderRoute: typeof SuperadminEducationRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/emails': {
+      id: '/superadmin/emails'
+      path: '/emails'
+      fullPath: '/superadmin/emails'
+      preLoaderRoute: typeof SuperadminEmailsRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/events': {
+      id: '/superadmin/events'
+      path: '/events'
+      fullPath: '/superadmin/events'
+      preLoaderRoute: typeof SuperadminEventsRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/exports': {
+      id: '/superadmin/exports'
+      path: '/exports'
+      fullPath: '/superadmin/exports'
+      preLoaderRoute: typeof SuperadminExportsRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/health': {
+      id: '/superadmin/health'
+      path: '/health'
+      fullPath: '/superadmin/health'
+      preLoaderRoute: typeof SuperadminHealthRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/home': {
+      id: '/superadmin/home'
+      path: '/home'
+      fullPath: '/superadmin/home'
+      preLoaderRoute: typeof SuperadminHomeRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/investor': {
+      id: '/superadmin/investor'
+      path: '/investor'
+      fullPath: '/superadmin/investor'
+      preLoaderRoute: typeof SuperadminInvestorRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/kyc': {
+      id: '/superadmin/kyc'
+      path: '/kyc'
+      fullPath: '/superadmin/kyc'
+      preLoaderRoute: typeof SuperadminKycRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/marketplace-moderation': {
+      id: '/superadmin/marketplace-moderation'
+      path: '/marketplace-moderation'
+      fullPath: '/superadmin/marketplace-moderation'
+      preLoaderRoute: typeof SuperadminMarketplaceModerationRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/metrics': {
+      id: '/superadmin/metrics'
+      path: '/metrics'
+      fullPath: '/superadmin/metrics'
+      preLoaderRoute: typeof SuperadminMetricsRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/moderation': {
+      id: '/superadmin/moderation'
+      path: '/moderation'
+      fullPath: '/superadmin/moderation'
+      preLoaderRoute: typeof SuperadminModerationRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/orgs': {
+      id: '/superadmin/orgs'
+      path: '/orgs'
+      fullPath: '/superadmin/orgs'
+      preLoaderRoute: typeof SuperadminOrgsRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/partners': {
+      id: '/superadmin/partners'
+      path: '/partners'
+      fullPath: '/superadmin/partners'
+      preLoaderRoute: typeof SuperadminPartnersRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/push': {
+      id: '/superadmin/push'
+      path: '/push'
+      fullPath: '/superadmin/push'
+      preLoaderRoute: typeof SuperadminPushRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/reports': {
+      id: '/superadmin/reports'
+      path: '/reports'
+      fullPath: '/superadmin/reports'
+      preLoaderRoute: typeof SuperadminReportsRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/risk': {
+      id: '/superadmin/risk'
+      path: '/risk'
+      fullPath: '/superadmin/risk'
+      preLoaderRoute: typeof SuperadminRiskRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/settings': {
+      id: '/superadmin/settings'
+      path: '/settings'
+      fullPath: '/superadmin/settings'
+      preLoaderRoute: typeof SuperadminSettingsRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/settlements': {
+      id: '/superadmin/settlements'
+      path: '/settlements'
+      fullPath: '/superadmin/settlements'
+      preLoaderRoute: typeof SuperadminSettlementsRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/support': {
+      id: '/superadmin/support'
+      path: '/support'
+      fullPath: '/superadmin/support'
+      preLoaderRoute: typeof SuperadminSupportRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/transactions': {
+      id: '/superadmin/transactions'
+      path: '/transactions'
+      fullPath: '/superadmin/transactions'
+      preLoaderRoute: typeof SuperadminTransactionsRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/trust': {
+      id: '/superadmin/trust'
+      path: '/trust'
+      fullPath: '/superadmin/trust'
+      preLoaderRoute: typeof SuperadminTrustRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/users': {
+      id: '/superadmin/users'
+      path: '/users'
+      fullPath: '/superadmin/users'
+      preLoaderRoute: typeof SuperadminUsersRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/verify/$certNumber': {
+      id: '/verify/$certNumber'
+      path: '/verify/$certNumber'
+      fullPath: '/verify/$certNumber'
+      preLoaderRoute: typeof VerifyCertNumberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/admin/': {
+      id: '/_app/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AppAdminIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/affiliation': {
+      id: '/_app/admin/affiliation'
+      path: '/affiliation'
+      fullPath: '/admin/affiliation'
+      preLoaderRoute: typeof AppAdminAffiliationRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/analytics': {
+      id: '/_app/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AppAdminAnalyticsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/api-keys': {
+      id: '/_app/admin/api-keys'
+      path: '/api-keys'
+      fullPath: '/admin/api-keys'
+      preLoaderRoute: typeof AppAdminApiKeysRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/content': {
+      id: '/_app/admin/content'
+      path: '/content'
+      fullPath: '/admin/content'
+      preLoaderRoute: typeof AppAdminContentRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/create': {
+      id: '/_app/admin/create'
+      path: '/create'
+      fullPath: '/admin/create'
+      preLoaderRoute: typeof AppAdminCreateRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/crm': {
+      id: '/_app/admin/crm'
+      path: '/crm'
+      fullPath: '/admin/crm'
+      preLoaderRoute: typeof AppAdminCrmRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/experiments': {
+      id: '/_app/admin/experiments'
+      path: '/experiments'
+      fullPath: '/admin/experiments'
+      preLoaderRoute: typeof AppAdminExperimentsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/kyc': {
+      id: '/_app/admin/kyc'
+      path: '/kyc'
+      fullPath: '/admin/kyc'
+      preLoaderRoute: typeof AppAdminKycRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/learner-progress': {
+      id: '/_app/admin/learner-progress'
+      path: '/learner-progress'
+      fullPath: '/admin/learner-progress'
+      preLoaderRoute: typeof AppAdminLearnerProgressRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/marketplace-templates': {
+      id: '/_app/admin/marketplace-templates'
+      path: '/marketplace-templates'
+      fullPath: '/admin/marketplace-templates'
+      preLoaderRoute: typeof AppAdminMarketplaceTemplatesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/members': {
+      id: '/_app/admin/members'
+      path: '/members'
+      fullPath: '/admin/members'
+      preLoaderRoute: typeof AppAdminMembersRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/notifications': {
+      id: '/_app/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AppAdminNotificationsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/offerings': {
+      id: '/_app/admin/offerings'
+      path: '/offerings'
+      fullPath: '/admin/offerings'
+      preLoaderRoute: typeof AppAdminOfferingsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/payouts': {
+      id: '/_app/admin/payouts'
+      path: '/payouts'
+      fullPath: '/admin/payouts'
+      preLoaderRoute: typeof AppAdminPayoutsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/people': {
+      id: '/_app/admin/people'
+      path: '/people'
+      fullPath: '/admin/people'
+      preLoaderRoute: typeof AppAdminPeopleRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/photos': {
+      id: '/_app/admin/photos'
+      path: '/photos'
+      fullPath: '/admin/photos'
+      preLoaderRoute: typeof AppAdminPhotosRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/popups': {
+      id: '/_app/admin/popups'
+      path: '/popups'
+      fullPath: '/admin/popups'
+      preLoaderRoute: typeof AppAdminPopupsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/promo-codes': {
+      id: '/_app/admin/promo-codes'
+      path: '/promo-codes'
+      fullPath: '/admin/promo-codes'
+      preLoaderRoute: typeof AppAdminPromoCodesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/sales': {
+      id: '/_app/admin/sales'
+      path: '/sales'
+      fullPath: '/admin/sales'
+      preLoaderRoute: typeof AppAdminSalesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/settings': {
+      id: '/_app/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AppAdminSettingsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/subscriptions': {
+      id: '/_app/admin/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/admin/subscriptions'
+      preLoaderRoute: typeof AppAdminSubscriptionsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/viral-studio': {
+      id: '/_app/admin/viral-studio'
+      path: '/viral-studio'
+      fullPath: '/admin/viral-studio'
+      preLoaderRoute: typeof AppAdminViralStudioRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/viral-tools': {
+      id: '/_app/admin/viral-tools'
+      path: '/viral-tools'
+      fullPath: '/admin/viral-tools'
+      preLoaderRoute: typeof AppAdminViralToolsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/voice-agent': {
+      id: '/_app/admin/voice-agent'
+      path: '/voice-agent'
+      fullPath: '/admin/voice-agent'
+      preLoaderRoute: typeof AppAdminVoiceAgentRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/waitlists': {
+      id: '/_app/admin/waitlists'
+      path: '/waitlists'
+      fullPath: '/admin/waitlists'
+      preLoaderRoute: typeof AppAdminWaitlistsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/webhooks': {
+      id: '/_app/admin/webhooks'
+      path: '/webhooks'
+      fullPath: '/admin/webhooks'
+      preLoaderRoute: typeof AppAdminWebhooksRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/creator/analytics': {
+      id: '/_app/creator/analytics'
+      path: '/creator/analytics'
+      fullPath: '/creator/analytics'
+      preLoaderRoute: typeof AppCreatorAnalyticsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/': {
+      id: '/_app/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AppDashboardIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/activity': {
+      id: '/_app/dashboard/activity'
+      path: '/dashboard/activity'
+      fullPath: '/dashboard/activity'
+      preLoaderRoute: typeof AppDashboardActivityRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/affiliation': {
+      id: '/_app/dashboard/affiliation'
+      path: '/dashboard/affiliation'
+      fullPath: '/dashboard/affiliation'
+      preLoaderRoute: typeof AppDashboardAffiliationRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/claim': {
+      id: '/_app/dashboard/claim'
+      path: '/dashboard/claim'
+      fullPath: '/dashboard/claim'
+      preLoaderRoute: typeof AppDashboardClaimRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/digital': {
+      id: '/_app/dashboard/digital'
+      path: '/dashboard/digital'
+      fullPath: '/dashboard/digital'
+      preLoaderRoute: typeof AppDashboardDigitalRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/earn': {
+      id: '/_app/dashboard/earn'
+      path: '/dashboard/earn'
+      fullPath: '/dashboard/earn'
+      preLoaderRoute: typeof AppDashboardEarnRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/explore': {
+      id: '/_app/dashboard/explore'
+      path: '/dashboard/explore'
+      fullPath: '/dashboard/explore'
+      preLoaderRoute: typeof AppDashboardExploreRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/home': {
+      id: '/_app/dashboard/home'
+      path: '/dashboard/home'
+      fullPath: '/dashboard/home'
+      preLoaderRoute: typeof AppDashboardHomeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/kyc': {
+      id: '/_app/dashboard/kyc'
+      path: '/dashboard/kyc'
+      fullPath: '/dashboard/kyc'
+      preLoaderRoute: typeof AppDashboardKycRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/notifications': {
+      id: '/_app/dashboard/notifications'
+      path: '/dashboard/notifications'
+      fullPath: '/dashboard/notifications'
+      preLoaderRoute: typeof AppDashboardNotificationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/orders': {
+      id: '/_app/dashboard/orders'
+      path: '/dashboard/orders'
+      fullPath: '/dashboard/orders'
+      preLoaderRoute: typeof AppDashboardOrdersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/products': {
+      id: '/_app/dashboard/products'
+      path: '/dashboard/products'
+      fullPath: '/dashboard/products'
+      preLoaderRoute: typeof AppDashboardProductsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/profile': {
+      id: '/_app/dashboard/profile'
+      path: '/dashboard/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof AppDashboardProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/promotions': {
+      id: '/_app/dashboard/promotions'
+      path: '/dashboard/promotions'
+      fullPath: '/dashboard/promotions'
+      preLoaderRoute: typeof AppDashboardPromotionsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/purchases': {
+      id: '/_app/dashboard/purchases'
+      path: '/dashboard/purchases'
+      fullPath: '/dashboard/purchases'
+      preLoaderRoute: typeof AppDashboardPurchasesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/revenue': {
+      id: '/_app/dashboard/revenue'
+      path: '/dashboard/revenue'
+      fullPath: '/dashboard/revenue'
+      preLoaderRoute: typeof AppDashboardRevenueRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/marketplace/': {
+      id: '/_app/marketplace/'
+      path: '/marketplace'
+      fullPath: '/marketplace/'
+      preLoaderRoute: typeof AppMarketplaceIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/onboarding/goals': {
+      id: '/_app/onboarding/goals'
+      path: '/onboarding/goals'
+      fullPath: '/onboarding/goals'
+      preLoaderRoute: typeof AppOnboardingGoalsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/onboarding/type': {
+      id: '/_app/onboarding/type'
+      path: '/onboarding/type'
+      fullPath: '/onboarding/type'
+      preLoaderRoute: typeof AppOnboardingTypeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reels/': {
+      id: '/_app/reels/'
+      path: '/reels'
+      fullPath: '/reels/'
+      preLoaderRoute: typeof AppReelsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reels/$id': {
+      id: '/_app/reels/$id'
+      path: '/reels/$id'
+      fullPath: '/reels/$id'
+      preLoaderRoute: typeof AppReelsIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/watch/$id': {
+      id: '/_app/watch/$id'
+      path: '/watch/$id'
+      fullPath: '/watch/$id'
+      preLoaderRoute: typeof AppWatchIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_public/announcement/$announcementId': {
+      id: '/_public/announcement/$announcementId'
+      path: '/announcement/$announcementId'
+      fullPath: '/announcement/$announcementId'
+      preLoaderRoute: typeof PublicAnnouncementAnnouncementIdRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/campaign/$campaignId': {
+      id: '/_public/campaign/$campaignId'
+      path: '/campaign/$campaignId'
+      fullPath: '/campaign/$campaignId'
+      preLoaderRoute: typeof PublicCampaignCampaignIdRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/event/$eventId': {
+      id: '/_public/event/$eventId'
+      path: '/event/$eventId'
+      fullPath: '/event/$eventId'
+      preLoaderRoute: typeof PublicEventEventIdRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/offering/$offeringId': {
+      id: '/_public/offering/$offeringId'
+      path: '/offering/$offeringId'
+      fullPath: '/offering/$offeringId'
+      preLoaderRoute: typeof PublicOfferingOfferingIdRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/p/$key': {
+      id: '/_public/p/$key'
+      path: '/p/$key'
+      fullPath: '/p/$key'
+      preLoaderRoute: typeof PublicPKeyRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/product/$key': {
+      id: '/_public/product/$key'
+      path: '/product/$key'
+      fullPath: '/product/$key'
+      preLoaderRoute: typeof PublicProductKeyRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/produit/$key': {
+      id: '/_public/produit/$key'
+      path: '/produit/$key'
+      fullPath: '/produit/$key'
+      preLoaderRoute: typeof PublicProduitKeyRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/program/$programId': {
+      id: '/_public/program/$programId'
+      path: '/program/$programId'
+      fullPath: '/program/$programId'
+      preLoaderRoute: typeof PublicProgramProgramIdRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/promo/ai-creations': {
+      id: '/_public/promo/ai-creations'
+      path: '/promo/ai-creations'
+      fullPath: '/promo/ai-creations'
+      preLoaderRoute: typeof PublicPromoAiCreationsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/promo/catalogue': {
+      id: '/_public/promo/catalogue'
+      path: '/promo/catalogue'
+      fullPath: '/promo/catalogue'
+      preLoaderRoute: typeof PublicPromoCatalogueRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/promo/gratuits': {
+      id: '/_public/promo/gratuits'
+      path: '/promo/gratuits'
+      fullPath: '/promo/gratuits'
+      preLoaderRoute: typeof PublicPromoGratuitsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/promo/stars': {
+      id: '/_public/promo/stars'
+      path: '/promo/stars'
+      fullPath: '/promo/stars'
+      preLoaderRoute: typeof PublicPromoStarsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/beauty/p/$slug': {
+      id: '/beauty/p/$slug'
+      path: '/beauty/p/$slug'
+      fullPath: '/beauty/p/$slug'
+      preLoaderRoute: typeof BeautyPSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/beauty/pro/onboarding': {
+      id: '/beauty/pro/onboarding'
+      path: '/beauty/pro/onboarding'
+      fullPath: '/beauty/pro/onboarding'
+      preLoaderRoute: typeof BeautyProOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/$slug/': {
+      id: '/church/$slug/'
+      path: '/church/$slug'
+      fullPath: '/church/$slug/'
+      preLoaderRoute: typeof ChurchSlugIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/': {
+      id: '/church/pro/'
+      path: '/church/pro'
+      fullPath: '/church/pro/'
+      preLoaderRoute: typeof ChurchProIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/announcements': {
+      id: '/church/pro/announcements'
+      path: '/church/pro/announcements'
+      fullPath: '/church/pro/announcements'
+      preLoaderRoute: typeof ChurchProAnnouncementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/appointments': {
+      id: '/church/pro/appointments'
+      path: '/church/pro/appointments'
+      fullPath: '/church/pro/appointments'
+      preLoaderRoute: typeof ChurchProAppointmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/campaigns': {
+      id: '/church/pro/campaigns'
+      path: '/church/pro/campaigns'
+      fullPath: '/church/pro/campaigns'
+      preLoaderRoute: typeof ChurchProCampaignsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/events': {
+      id: '/church/pro/events'
+      path: '/church/pro/events'
+      fullPath: '/church/pro/events'
+      preLoaderRoute: typeof ChurchProEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/giving': {
+      id: '/church/pro/giving'
+      path: '/church/pro/giving'
+      fullPath: '/church/pro/giving'
+      preLoaderRoute: typeof ChurchProGivingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/kyc': {
+      id: '/church/pro/kyc'
+      path: '/church/pro/kyc'
+      fullPath: '/church/pro/kyc'
+      preLoaderRoute: typeof ChurchProKycRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/members': {
+      id: '/church/pro/members'
+      path: '/church/pro/members'
+      fullPath: '/church/pro/members'
+      preLoaderRoute: typeof ChurchProMembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/onboarding': {
+      id: '/church/pro/onboarding'
+      path: '/church/pro/onboarding'
+      fullPath: '/church/pro/onboarding'
+      preLoaderRoute: typeof ChurchProOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/prayer': {
+      id: '/church/pro/prayer'
+      path: '/church/pro/prayer'
+      fullPath: '/church/pro/prayer'
+      preLoaderRoute: typeof ChurchProPrayerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/settings': {
+      id: '/church/pro/settings'
+      path: '/church/pro/settings'
+      fullPath: '/church/pro/settings'
+      preLoaderRoute: typeof ChurchProSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/team': {
+      id: '/church/pro/team'
+      path: '/church/pro/team'
+      fullPath: '/church/pro/team'
+      preLoaderRoute: typeof ChurchProTeamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/education/pro/onboarding': {
+      id: '/education/pro/onboarding'
+      path: '/education/pro/onboarding'
+      fullPath: '/education/pro/onboarding'
+      preLoaderRoute: typeof EducationProOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/pro/$slug': {
+      id: '/events/pro/$slug'
+      path: '/events/pro/$slug'
+      fullPath: '/events/pro/$slug'
+      preLoaderRoute: typeof EventsProSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/pro/onboarding': {
+      id: '/events/pro/onboarding'
+      path: '/events/pro/onboarding'
+      fullPath: '/events/pro/onboarding'
+      preLoaderRoute: typeof EventsProOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home/pro/$slug': {
+      id: '/home/pro/$slug'
+      path: '/home/pro/$slug'
+      fullPath: '/home/pro/$slug'
+      preLoaderRoute: typeof HomeProSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home/pro/onboarding': {
+      id: '/home/pro/onboarding'
+      path: '/home/pro/onboarding'
+      fullPath: '/home/pro/onboarding'
+      preLoaderRoute: typeof HomeProOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/pro/$slug': {
+      id: '/learn/pro/$slug'
+      path: '/learn/pro/$slug'
+      fullPath: '/learn/pro/$slug'
+      preLoaderRoute: typeof LearnProSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/pro/onboarding': {
+      id: '/learn/pro/onboarding'
+      path: '/learn/pro/onboarding'
+      fullPath: '/learn/pro/onboarding'
+      preLoaderRoute: typeof LearnProOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace/templates/': {
+      id: '/marketplace/templates/'
+      path: '/marketplace/templates'
+      fullPath: '/marketplace/templates/'
+      preLoaderRoute: typeof MarketplaceTemplatesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace/templates/$id': {
+      id: '/marketplace/templates/$id'
+      path: '/marketplace/templates/$id'
+      fullPath: '/marketplace/templates/$id'
+      preLoaderRoute: typeof MarketplaceTemplatesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/studio/abuse-monitor': {
+      id: '/superadmin/studio/abuse-monitor'
+      path: '/studio/abuse-monitor'
+      fullPath: '/superadmin/studio/abuse-monitor'
+      preLoaderRoute: typeof SuperadminStudioAbuseMonitorRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/studio/jobs': {
+      id: '/superadmin/studio/jobs'
+      path: '/studio/jobs'
+      fullPath: '/superadmin/studio/jobs'
+      preLoaderRoute: typeof SuperadminStudioJobsRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/studio/policies': {
+      id: '/superadmin/studio/policies'
+      path: '/studio/policies'
+      fullPath: '/superadmin/studio/policies'
+      preLoaderRoute: typeof SuperadminStudioPoliciesRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/studio/templates': {
+      id: '/superadmin/studio/templates'
+      path: '/studio/templates'
+      fullPath: '/superadmin/studio/templates'
+      preLoaderRoute: typeof SuperadminStudioTemplatesRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/_app/admin/announcements/': {
+      id: '/_app/admin/announcements/'
+      path: '/announcements'
+      fullPath: '/admin/announcements/'
+      preLoaderRoute: typeof AppAdminAnnouncementsIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/announcements/new': {
+      id: '/_app/admin/announcements/new'
+      path: '/announcements/new'
+      fullPath: '/admin/announcements/new'
+      preLoaderRoute: typeof AppAdminAnnouncementsNewRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/beauty/': {
+      id: '/_app/admin/beauty/'
+      path: '/beauty'
+      fullPath: '/admin/beauty/'
+      preLoaderRoute: typeof AppAdminBeautyIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/beauty/$': {
+      id: '/_app/admin/beauty/$'
+      path: '/beauty/$'
+      fullPath: '/admin/beauty/$'
+      preLoaderRoute: typeof AppAdminBeautySplatRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/beauty/kyc': {
+      id: '/_app/admin/beauty/kyc'
+      path: '/beauty/kyc'
+      fullPath: '/admin/beauty/kyc'
+      preLoaderRoute: typeof AppAdminBeautyKycRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/beauty/messages': {
+      id: '/_app/admin/beauty/messages'
+      path: '/beauty/messages'
+      fullPath: '/admin/beauty/messages'
+      preLoaderRoute: typeof AppAdminBeautyMessagesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/beauty/orders': {
+      id: '/_app/admin/beauty/orders'
+      path: '/beauty/orders'
+      fullPath: '/admin/beauty/orders'
+      preLoaderRoute: typeof AppAdminBeautyOrdersRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/beauty/revenue': {
+      id: '/_app/admin/beauty/revenue'
+      path: '/beauty/revenue'
+      fullPath: '/admin/beauty/revenue'
+      preLoaderRoute: typeof AppAdminBeautyRevenueRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/beauty/settings': {
+      id: '/_app/admin/beauty/settings'
+      path: '/beauty/settings'
+      fullPath: '/admin/beauty/settings'
+      preLoaderRoute: typeof AppAdminBeautySettingsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/campaigns/': {
+      id: '/_app/admin/campaigns/'
+      path: '/campaigns'
+      fullPath: '/admin/campaigns/'
+      preLoaderRoute: typeof AppAdminCampaignsIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/campaigns/new': {
+      id: '/_app/admin/campaigns/new'
+      path: '/campaigns/new'
+      fullPath: '/admin/campaigns/new'
+      preLoaderRoute: typeof AppAdminCampaignsNewRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/church/': {
+      id: '/_app/admin/church/'
+      path: '/church'
+      fullPath: '/admin/church/'
+      preLoaderRoute: typeof AppAdminChurchIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/church/announcements': {
+      id: '/_app/admin/church/announcements'
+      path: '/church/announcements'
+      fullPath: '/admin/church/announcements'
+      preLoaderRoute: typeof AppAdminChurchAnnouncementsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/church/appointments': {
+      id: '/_app/admin/church/appointments'
+      path: '/church/appointments'
+      fullPath: '/admin/church/appointments'
+      preLoaderRoute: typeof AppAdminChurchAppointmentsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/church/campaigns': {
+      id: '/_app/admin/church/campaigns'
+      path: '/church/campaigns'
+      fullPath: '/admin/church/campaigns'
+      preLoaderRoute: typeof AppAdminChurchCampaignsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/church/events': {
+      id: '/_app/admin/church/events'
+      path: '/church/events'
+      fullPath: '/admin/church/events'
+      preLoaderRoute: typeof AppAdminChurchEventsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/church/giving': {
+      id: '/_app/admin/church/giving'
+      path: '/church/giving'
+      fullPath: '/admin/church/giving'
+      preLoaderRoute: typeof AppAdminChurchGivingRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/church/kyc': {
+      id: '/_app/admin/church/kyc'
+      path: '/church/kyc'
+      fullPath: '/admin/church/kyc'
+      preLoaderRoute: typeof AppAdminChurchKycRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/church/members': {
+      id: '/_app/admin/church/members'
+      path: '/church/members'
+      fullPath: '/admin/church/members'
+      preLoaderRoute: typeof AppAdminChurchMembersRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/church/prayer': {
+      id: '/_app/admin/church/prayer'
+      path: '/church/prayer'
+      fullPath: '/admin/church/prayer'
+      preLoaderRoute: typeof AppAdminChurchPrayerRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/church/settings': {
+      id: '/_app/admin/church/settings'
+      path: '/church/settings'
+      fullPath: '/admin/church/settings'
+      preLoaderRoute: typeof AppAdminChurchSettingsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/church/team': {
+      id: '/_app/admin/church/team'
+      path: '/church/team'
+      fullPath: '/admin/church/team'
+      preLoaderRoute: typeof AppAdminChurchTeamRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/events-service/': {
+      id: '/_app/admin/events-service/'
+      path: '/events-service'
+      fullPath: '/admin/events-service/'
+      preLoaderRoute: typeof AppAdminEventsServiceIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/events-service/$': {
+      id: '/_app/admin/events-service/$'
+      path: '/events-service/$'
+      fullPath: '/admin/events-service/$'
+      preLoaderRoute: typeof AppAdminEventsServiceSplatRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/events-service/kyc': {
+      id: '/_app/admin/events-service/kyc'
+      path: '/events-service/kyc'
+      fullPath: '/admin/events-service/kyc'
+      preLoaderRoute: typeof AppAdminEventsServiceKycRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/events-service/messages': {
+      id: '/_app/admin/events-service/messages'
+      path: '/events-service/messages'
+      fullPath: '/admin/events-service/messages'
+      preLoaderRoute: typeof AppAdminEventsServiceMessagesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/events-service/orders': {
+      id: '/_app/admin/events-service/orders'
+      path: '/events-service/orders'
+      fullPath: '/admin/events-service/orders'
+      preLoaderRoute: typeof AppAdminEventsServiceOrdersRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/events-service/packages': {
+      id: '/_app/admin/events-service/packages'
+      path: '/events-service/packages'
+      fullPath: '/admin/events-service/packages'
+      preLoaderRoute: typeof AppAdminEventsServicePackagesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/events-service/revenue': {
+      id: '/_app/admin/events-service/revenue'
+      path: '/events-service/revenue'
+      fullPath: '/admin/events-service/revenue'
+      preLoaderRoute: typeof AppAdminEventsServiceRevenueRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/events-service/settings': {
+      id: '/_app/admin/events-service/settings'
+      path: '/events-service/settings'
+      fullPath: '/admin/events-service/settings'
+      preLoaderRoute: typeof AppAdminEventsServiceSettingsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/events/': {
+      id: '/_app/admin/events/'
+      path: '/events'
+      fullPath: '/admin/events/'
+      preLoaderRoute: typeof AppAdminEventsIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/events/new': {
+      id: '/_app/admin/events/new'
+      path: '/events/new'
+      fullPath: '/admin/events/new'
+      preLoaderRoute: typeof AppAdminEventsNewRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/home/': {
+      id: '/_app/admin/home/'
+      path: '/home'
+      fullPath: '/admin/home/'
+      preLoaderRoute: typeof AppAdminHomeIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/home/$': {
+      id: '/_app/admin/home/$'
+      path: '/home/$'
+      fullPath: '/admin/home/$'
+      preLoaderRoute: typeof AppAdminHomeSplatRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/home/kyc': {
+      id: '/_app/admin/home/kyc'
+      path: '/home/kyc'
+      fullPath: '/admin/home/kyc'
+      preLoaderRoute: typeof AppAdminHomeKycRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/home/messages': {
+      id: '/_app/admin/home/messages'
+      path: '/home/messages'
+      fullPath: '/admin/home/messages'
+      preLoaderRoute: typeof AppAdminHomeMessagesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/home/orders': {
+      id: '/_app/admin/home/orders'
+      path: '/home/orders'
+      fullPath: '/admin/home/orders'
+      preLoaderRoute: typeof AppAdminHomeOrdersRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/home/revenue': {
+      id: '/_app/admin/home/revenue'
+      path: '/home/revenue'
+      fullPath: '/admin/home/revenue'
+      preLoaderRoute: typeof AppAdminHomeRevenueRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/home/services': {
+      id: '/_app/admin/home/services'
+      path: '/home/services'
+      fullPath: '/admin/home/services'
+      preLoaderRoute: typeof AppAdminHomeServicesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/home/settings': {
+      id: '/_app/admin/home/settings'
+      path: '/home/settings'
+      fullPath: '/admin/home/settings'
+      preLoaderRoute: typeof AppAdminHomeSettingsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/learn/': {
+      id: '/_app/admin/learn/'
+      path: '/learn'
+      fullPath: '/admin/learn/'
+      preLoaderRoute: typeof AppAdminLearnIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/learn/$': {
+      id: '/_app/admin/learn/$'
+      path: '/learn/$'
+      fullPath: '/admin/learn/$'
+      preLoaderRoute: typeof AppAdminLearnSplatRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/learn/kyc': {
+      id: '/_app/admin/learn/kyc'
+      path: '/learn/kyc'
+      fullPath: '/admin/learn/kyc'
+      preLoaderRoute: typeof AppAdminLearnKycRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/learn/messages': {
+      id: '/_app/admin/learn/messages'
+      path: '/learn/messages'
+      fullPath: '/admin/learn/messages'
+      preLoaderRoute: typeof AppAdminLearnMessagesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/learn/orders': {
+      id: '/_app/admin/learn/orders'
+      path: '/learn/orders'
+      fullPath: '/admin/learn/orders'
+      preLoaderRoute: typeof AppAdminLearnOrdersRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/learn/revenue': {
+      id: '/_app/admin/learn/revenue'
+      path: '/learn/revenue'
+      fullPath: '/admin/learn/revenue'
+      preLoaderRoute: typeof AppAdminLearnRevenueRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/learn/settings': {
+      id: '/_app/admin/learn/settings'
+      path: '/learn/settings'
+      fullPath: '/admin/learn/settings'
+      preLoaderRoute: typeof AppAdminLearnSettingsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/learn/subjects': {
+      id: '/_app/admin/learn/subjects'
+      path: '/learn/subjects'
+      fullPath: '/admin/learn/subjects'
+      preLoaderRoute: typeof AppAdminLearnSubjectsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/media/': {
+      id: '/_app/admin/media/'
+      path: '/media'
+      fullPath: '/admin/media/'
+      preLoaderRoute: typeof AppAdminMediaIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/media/new': {
+      id: '/_app/admin/media/new'
+      path: '/media/new'
+      fullPath: '/admin/media/new'
+      preLoaderRoute: typeof AppAdminMediaNewRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/products/': {
+      id: '/_app/admin/products/'
+      path: '/products'
+      fullPath: '/admin/products/'
+      preLoaderRoute: typeof AppAdminProductsIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/products/new': {
+      id: '/_app/admin/products/new'
+      path: '/products/new'
+      fullPath: '/admin/products/new'
+      preLoaderRoute: typeof AppAdminProductsNewRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/programs/': {
+      id: '/_app/admin/programs/'
+      path: '/programs'
+      fullPath: '/admin/programs/'
+      preLoaderRoute: typeof AppAdminProgramsIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/programs/generating': {
+      id: '/_app/admin/programs/generating'
+      path: '/programs/generating'
+      fullPath: '/admin/programs/generating'
+      preLoaderRoute: typeof AppAdminProgramsGeneratingRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/programs/new': {
+      id: '/_app/admin/programs/new'
+      path: '/programs/new'
+      fullPath: '/admin/programs/new'
+      preLoaderRoute: typeof AppAdminProgramsNewRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/studio/': {
+      id: '/_app/admin/studio/'
+      path: '/studio'
+      fullPath: '/admin/studio/'
+      preLoaderRoute: typeof AppAdminStudioIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/studio/jobs': {
+      id: '/_app/admin/studio/jobs'
+      path: '/studio/jobs'
+      fullPath: '/admin/studio/jobs'
+      preLoaderRoute: typeof AppAdminStudioJobsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/studio/library': {
+      id: '/_app/admin/studio/library'
+      path: '/studio/library'
+      fullPath: '/admin/studio/library'
+      preLoaderRoute: typeof AppAdminStudioLibraryRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/studio/templates': {
+      id: '/_app/admin/studio/templates'
+      path: '/studio/templates'
+      fullPath: '/admin/studio/templates'
+      preLoaderRoute: typeof AppAdminStudioTemplatesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/dashboard/messages/': {
+      id: '/_app/dashboard/messages/'
+      path: '/dashboard/messages'
+      fullPath: '/dashboard/messages/'
+      preLoaderRoute: typeof AppDashboardMessagesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/settings/': {
+      id: '/_app/dashboard/settings/'
+      path: '/dashboard/settings'
+      fullPath: '/dashboard/settings/'
+      preLoaderRoute: typeof AppDashboardSettingsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/settings/modules': {
+      id: '/_app/dashboard/settings/modules'
+      path: '/dashboard/settings/modules'
+      fullPath: '/dashboard/settings/modules'
+      preLoaderRoute: typeof AppDashboardSettingsModulesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_public/org/$slug/': {
+      id: '/_public/org/$slug/'
+      path: '/org/$slug'
+      fullPath: '/org/$slug/'
+      preLoaderRoute: typeof PublicOrgSlugIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/org/$slug/content': {
+      id: '/_public/org/$slug/content'
+      path: '/org/$slug/content'
+      fullPath: '/org/$slug/content'
+      preLoaderRoute: typeof PublicOrgSlugContentRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/org/$slug/donate': {
+      id: '/_public/org/$slug/donate'
+      path: '/org/$slug/donate'
+      fullPath: '/org/$slug/donate'
+      preLoaderRoute: typeof PublicOrgSlugDonateRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/org/$slug/dons': {
+      id: '/_public/org/$slug/dons'
+      path: '/org/$slug/dons'
+      fullPath: '/org/$slug/dons'
+      preLoaderRoute: typeof PublicOrgSlugDonsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/org/$slug/events': {
+      id: '/_public/org/$slug/events'
+      path: '/org/$slug/events'
+      fullPath: '/org/$slug/events'
+      preLoaderRoute: typeof PublicOrgSlugEventsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/org/$slug/offerings': {
+      id: '/_public/org/$slug/offerings'
+      path: '/org/$slug/offerings'
+      fullPath: '/org/$slug/offerings'
+      preLoaderRoute: typeof PublicOrgSlugOfferingsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/org/$slug/photos': {
+      id: '/_public/org/$slug/photos'
+      path: '/org/$slug/photos'
+      fullPath: '/org/$slug/photos'
+      preLoaderRoute: typeof PublicOrgSlugPhotosRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/org/$slug/store': {
+      id: '/_public/org/$slug/store'
+      path: '/org/$slug/store'
+      fullPath: '/org/$slug/store'
+      preLoaderRoute: typeof PublicOrgSlugStoreRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/church/$slug/events/$eventId': {
+      id: '/church/$slug/events/$eventId'
+      path: '/church/$slug/events/$eventId'
+      fullPath: '/church/$slug/events/$eventId'
+      preLoaderRoute: typeof ChurchSlugEventsEventIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/$slug/give/': {
+      id: '/church/$slug/give/'
+      path: '/church/$slug/give'
+      fullPath: '/church/$slug/give/'
+      preLoaderRoute: typeof ChurchSlugGiveIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/$slug/give/success': {
+      id: '/church/$slug/give/success'
+      path: '/church/$slug/give/success'
+      fullPath: '/church/$slug/give/success'
+      preLoaderRoute: typeof ChurchSlugGiveSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/sermons/': {
+      id: '/church/pro/sermons/'
+      path: '/church/pro/sermons'
+      fullPath: '/church/pro/sermons/'
+      preLoaderRoute: typeof ChurchProSermonsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/pro/sermons/$id': {
+      id: '/church/pro/sermons/$id'
+      path: '/church/pro/sermons/$id'
+      fullPath: '/church/pro/sermons/$id'
+      preLoaderRoute: typeof ChurchProSermonsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/admin/announcements/$id/edit': {
+      id: '/_app/admin/announcements/$id/edit'
+      path: '/announcements/$id/edit'
+      fullPath: '/admin/announcements/$id/edit'
+      preLoaderRoute: typeof AppAdminAnnouncementsIdEditRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/beauty/messages/$id': {
+      id: '/_app/admin/beauty/messages/$id'
+      path: '/$id'
+      fullPath: '/admin/beauty/messages/$id'
+      preLoaderRoute: typeof AppAdminBeautyMessagesIdRouteImport
+      parentRoute: typeof AppAdminBeautyMessagesRoute
+    }
+    '/_app/admin/campaigns/$id/edit': {
+      id: '/_app/admin/campaigns/$id/edit'
+      path: '/campaigns/$id/edit'
+      fullPath: '/admin/campaigns/$id/edit'
+      preLoaderRoute: typeof AppAdminCampaignsIdEditRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/church/sermons/': {
+      id: '/_app/admin/church/sermons/'
+      path: '/church/sermons'
+      fullPath: '/admin/church/sermons/'
+      preLoaderRoute: typeof AppAdminChurchSermonsIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/church/sermons/$id': {
+      id: '/_app/admin/church/sermons/$id'
+      path: '/church/sermons/$id'
+      fullPath: '/admin/church/sermons/$id'
+      preLoaderRoute: typeof AppAdminChurchSermonsIdRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/events-service/messages/$id': {
+      id: '/_app/admin/events-service/messages/$id'
+      path: '/$id'
+      fullPath: '/admin/events-service/messages/$id'
+      preLoaderRoute: typeof AppAdminEventsServiceMessagesIdRouteImport
+      parentRoute: typeof AppAdminEventsServiceMessagesRoute
+    }
+    '/_app/admin/events/$id/edit': {
+      id: '/_app/admin/events/$id/edit'
+      path: '/events/$id/edit'
+      fullPath: '/admin/events/$id/edit'
+      preLoaderRoute: typeof AppAdminEventsIdEditRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/home/messages/$id': {
+      id: '/_app/admin/home/messages/$id'
+      path: '/$id'
+      fullPath: '/admin/home/messages/$id'
+      preLoaderRoute: typeof AppAdminHomeMessagesIdRouteImport
+      parentRoute: typeof AppAdminHomeMessagesRoute
+    }
+    '/_app/admin/learn/messages/$id': {
+      id: '/_app/admin/learn/messages/$id'
+      path: '/$id'
+      fullPath: '/admin/learn/messages/$id'
+      preLoaderRoute: typeof AppAdminLearnMessagesIdRouteImport
+      parentRoute: typeof AppAdminLearnMessagesRoute
+    }
+    '/_app/admin/media/$id/edit': {
+      id: '/_app/admin/media/$id/edit'
+      path: '/media/$id/edit'
+      fullPath: '/admin/media/$id/edit'
+      preLoaderRoute: typeof AppAdminMediaIdEditRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/products/$id/edit': {
+      id: '/_app/admin/products/$id/edit'
+      path: '/products/$id/edit'
+      fullPath: '/admin/products/$id/edit'
+      preLoaderRoute: typeof AppAdminProductsIdEditRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/programs/$id/edit': {
+      id: '/_app/admin/programs/$id/edit'
+      path: '/programs/$id/edit'
+      fullPath: '/admin/programs/$id/edit'
+      preLoaderRoute: typeof AppAdminProgramsIdEditRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/programs/draft/$projectId': {
+      id: '/_app/admin/programs/draft/$projectId'
+      path: '/programs/draft/$projectId'
+      fullPath: '/admin/programs/draft/$projectId'
+      preLoaderRoute: typeof AppAdminProgramsDraftProjectIdRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/studio/projects/': {
+      id: '/_app/admin/studio/projects/'
+      path: '/studio/projects'
+      fullPath: '/admin/studio/projects/'
+      preLoaderRoute: typeof AppAdminStudioProjectsIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/studio/projects/new': {
+      id: '/_app/admin/studio/projects/new'
+      path: '/studio/projects/new'
+      fullPath: '/admin/studio/projects/new'
+      preLoaderRoute: typeof AppAdminStudioProjectsNewRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/dashboard/messages/$vertical/$id': {
+      id: '/_app/dashboard/messages/$vertical/$id'
+      path: '/dashboard/messages/$vertical/$id'
+      fullPath: '/dashboard/messages/$vertical/$id'
+      preLoaderRoute: typeof AppDashboardMessagesVerticalIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/messages/beauty/$id': {
+      id: '/_app/dashboard/messages/beauty/$id'
+      path: '/dashboard/messages/beauty/$id'
+      fullPath: '/dashboard/messages/beauty/$id'
+      preLoaderRoute: typeof AppDashboardMessagesBeautyIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/messages/events/$id': {
+      id: '/_app/dashboard/messages/events/$id'
+      path: '/dashboard/messages/events/$id'
+      fullPath: '/dashboard/messages/events/$id'
+      preLoaderRoute: typeof AppDashboardMessagesEventsIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/messages/home/$id': {
+      id: '/_app/dashboard/messages/home/$id'
+      path: '/dashboard/messages/home/$id'
+      fullPath: '/dashboard/messages/home/$id'
+      preLoaderRoute: typeof AppDashboardMessagesHomeIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard/messages/learn/$id': {
+      id: '/_app/dashboard/messages/learn/$id'
+      path: '/dashboard/messages/learn/$id'
+      fullPath: '/dashboard/messages/learn/$id'
+      preLoaderRoute: typeof AppDashboardMessagesLearnIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_public/org/$slug/p/$productSlug': {
+      id: '/_public/org/$slug/p/$productSlug'
+      path: '/org/$slug/p/$productSlug'
+      fullPath: '/org/$slug/p/$productSlug'
+      preLoaderRoute: typeof PublicOrgSlugPProductSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/org/$slug/product/$productId': {
+      id: '/_public/org/$slug/product/$productId'
+      path: '/org/$slug/product/$productId'
+      fullPath: '/org/$slug/product/$productId'
+      preLoaderRoute: typeof PublicOrgSlugProductProductIdRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/church/$slug/pdf/$pdfId/': {
+      id: '/church/$slug/pdf/$pdfId/'
+      path: '/church/$slug/pdf/$pdfId'
+      fullPath: '/church/$slug/pdf/$pdfId/'
+      preLoaderRoute: typeof ChurchSlugPdfPdfIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/church/$slug/pdf/$pdfId/success': {
+      id: '/church/$slug/pdf/$pdfId/success'
+      path: '/church/$slug/pdf/$pdfId/success'
+      fullPath: '/church/$slug/pdf/$pdfId/success'
+      preLoaderRoute: typeof ChurchSlugPdfPdfIdSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/admin/studio/projects/$id/': {
+      id: '/_app/admin/studio/projects/$id/'
+      path: '/studio/projects/$id'
+      fullPath: '/admin/studio/projects/$id/'
+      preLoaderRoute: typeof AppAdminStudioProjectsIdIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/studio/projects/$id/assets': {
+      id: '/_app/admin/studio/projects/$id/assets'
+      path: '/studio/projects/$id/assets'
+      fullPath: '/admin/studio/projects/$id/assets'
+      preLoaderRoute: typeof AppAdminStudioProjectsIdAssetsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/studio/projects/$id/editor': {
+      id: '/_app/admin/studio/projects/$id/editor'
+      path: '/studio/projects/$id/editor'
+      fullPath: '/admin/studio/projects/$id/editor'
+      preLoaderRoute: typeof AppAdminStudioProjectsIdEditorRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/studio/projects/$id/publish': {
+      id: '/_app/admin/studio/projects/$id/publish'
+      path: '/studio/projects/$id/publish'
+      fullPath: '/admin/studio/projects/$id/publish'
+      preLoaderRoute: typeof AppAdminStudioProjectsIdPublishRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/studio/projects/$id/review': {
+      id: '/_app/admin/studio/projects/$id/review'
+      path: '/studio/projects/$id/review'
+      fullPath: '/admin/studio/projects/$id/review'
+      preLoaderRoute: typeof AppAdminStudioProjectsIdReviewRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+  }
+}
+
+interface AppAdminBeautyMessagesRouteChildren {
+  AppAdminBeautyMessagesIdRoute: typeof AppAdminBeautyMessagesIdRoute
+}
+
+const AppAdminBeautyMessagesRouteChildren: AppAdminBeautyMessagesRouteChildren =
+  {
+    AppAdminBeautyMessagesIdRoute: AppAdminBeautyMessagesIdRoute,
+  }
+
+const AppAdminBeautyMessagesRouteWithChildren =
+  AppAdminBeautyMessagesRoute._addFileChildren(
+    AppAdminBeautyMessagesRouteChildren,
+  )
+
+interface AppAdminEventsServiceMessagesRouteChildren {
+  AppAdminEventsServiceMessagesIdRoute: typeof AppAdminEventsServiceMessagesIdRoute
+}
+
+const AppAdminEventsServiceMessagesRouteChildren: AppAdminEventsServiceMessagesRouteChildren =
+  {
+    AppAdminEventsServiceMessagesIdRoute: AppAdminEventsServiceMessagesIdRoute,
+  }
+
+const AppAdminEventsServiceMessagesRouteWithChildren =
+  AppAdminEventsServiceMessagesRoute._addFileChildren(
+    AppAdminEventsServiceMessagesRouteChildren,
+  )
+
+interface AppAdminHomeMessagesRouteChildren {
+  AppAdminHomeMessagesIdRoute: typeof AppAdminHomeMessagesIdRoute
+}
+
+const AppAdminHomeMessagesRouteChildren: AppAdminHomeMessagesRouteChildren = {
+  AppAdminHomeMessagesIdRoute: AppAdminHomeMessagesIdRoute,
+}
+
+const AppAdminHomeMessagesRouteWithChildren =
+  AppAdminHomeMessagesRoute._addFileChildren(AppAdminHomeMessagesRouteChildren)
+
+interface AppAdminLearnMessagesRouteChildren {
+  AppAdminLearnMessagesIdRoute: typeof AppAdminLearnMessagesIdRoute
+}
+
+const AppAdminLearnMessagesRouteChildren: AppAdminLearnMessagesRouteChildren = {
+  AppAdminLearnMessagesIdRoute: AppAdminLearnMessagesIdRoute,
+}
+
+const AppAdminLearnMessagesRouteWithChildren =
+  AppAdminLearnMessagesRoute._addFileChildren(
+    AppAdminLearnMessagesRouteChildren,
+  )
+
+interface AppAdminRouteChildren {
+  AppAdminAffiliationRoute: typeof AppAdminAffiliationRoute
+  AppAdminAnalyticsRoute: typeof AppAdminAnalyticsRoute
+  AppAdminApiKeysRoute: typeof AppAdminApiKeysRoute
+  AppAdminContentRoute: typeof AppAdminContentRoute
+  AppAdminCreateRoute: typeof AppAdminCreateRoute
+  AppAdminCrmRoute: typeof AppAdminCrmRoute
+  AppAdminExperimentsRoute: typeof AppAdminExperimentsRoute
+  AppAdminKycRoute: typeof AppAdminKycRoute
+  AppAdminLearnerProgressRoute: typeof AppAdminLearnerProgressRoute
+  AppAdminMarketplaceTemplatesRoute: typeof AppAdminMarketplaceTemplatesRoute
+  AppAdminMembersRoute: typeof AppAdminMembersRoute
+  AppAdminNotificationsRoute: typeof AppAdminNotificationsRoute
+  AppAdminOfferingsRoute: typeof AppAdminOfferingsRoute
+  AppAdminPayoutsRoute: typeof AppAdminPayoutsRoute
+  AppAdminPeopleRoute: typeof AppAdminPeopleRoute
+  AppAdminPhotosRoute: typeof AppAdminPhotosRoute
+  AppAdminPopupsRoute: typeof AppAdminPopupsRoute
+  AppAdminPromoCodesRoute: typeof AppAdminPromoCodesRoute
+  AppAdminSalesRoute: typeof AppAdminSalesRoute
+  AppAdminSettingsRoute: typeof AppAdminSettingsRoute
+  AppAdminSubscriptionsRoute: typeof AppAdminSubscriptionsRoute
+  AppAdminViralStudioRoute: typeof AppAdminViralStudioRoute
+  AppAdminViralToolsRoute: typeof AppAdminViralToolsRoute
+  AppAdminVoiceAgentRoute: typeof AppAdminVoiceAgentRoute
+  AppAdminWaitlistsRoute: typeof AppAdminWaitlistsRoute
+  AppAdminWebhooksRoute: typeof AppAdminWebhooksRoute
+  AppAdminIndexRoute: typeof AppAdminIndexRoute
+  AppAdminAnnouncementsNewRoute: typeof AppAdminAnnouncementsNewRoute
+  AppAdminBeautySplatRoute: typeof AppAdminBeautySplatRoute
+  AppAdminBeautyKycRoute: typeof AppAdminBeautyKycRoute
+  AppAdminBeautyMessagesRoute: typeof AppAdminBeautyMessagesRouteWithChildren
+  AppAdminBeautyOrdersRoute: typeof AppAdminBeautyOrdersRoute
+  AppAdminBeautyRevenueRoute: typeof AppAdminBeautyRevenueRoute
+  AppAdminBeautySettingsRoute: typeof AppAdminBeautySettingsRoute
+  AppAdminCampaignsNewRoute: typeof AppAdminCampaignsNewRoute
+  AppAdminChurchAnnouncementsRoute: typeof AppAdminChurchAnnouncementsRoute
+  AppAdminChurchAppointmentsRoute: typeof AppAdminChurchAppointmentsRoute
+  AppAdminChurchCampaignsRoute: typeof AppAdminChurchCampaignsRoute
+  AppAdminChurchEventsRoute: typeof AppAdminChurchEventsRoute
+  AppAdminChurchGivingRoute: typeof AppAdminChurchGivingRoute
+  AppAdminChurchKycRoute: typeof AppAdminChurchKycRoute
+  AppAdminChurchMembersRoute: typeof AppAdminChurchMembersRoute
+  AppAdminChurchPrayerRoute: typeof AppAdminChurchPrayerRoute
+  AppAdminChurchSettingsRoute: typeof AppAdminChurchSettingsRoute
+  AppAdminChurchTeamRoute: typeof AppAdminChurchTeamRoute
+  AppAdminEventsServiceSplatRoute: typeof AppAdminEventsServiceSplatRoute
+  AppAdminEventsServiceKycRoute: typeof AppAdminEventsServiceKycRoute
+  AppAdminEventsServiceMessagesRoute: typeof AppAdminEventsServiceMessagesRouteWithChildren
+  AppAdminEventsServiceOrdersRoute: typeof AppAdminEventsServiceOrdersRoute
+  AppAdminEventsServicePackagesRoute: typeof AppAdminEventsServicePackagesRoute
+  AppAdminEventsServiceRevenueRoute: typeof AppAdminEventsServiceRevenueRoute
+  AppAdminEventsServiceSettingsRoute: typeof AppAdminEventsServiceSettingsRoute
+  AppAdminEventsNewRoute: typeof AppAdminEventsNewRoute
+  AppAdminHomeSplatRoute: typeof AppAdminHomeSplatRoute
+  AppAdminHomeKycRoute: typeof AppAdminHomeKycRoute
+  AppAdminHomeMessagesRoute: typeof AppAdminHomeMessagesRouteWithChildren
+  AppAdminHomeOrdersRoute: typeof AppAdminHomeOrdersRoute
+  AppAdminHomeRevenueRoute: typeof AppAdminHomeRevenueRoute
+  AppAdminHomeServicesRoute: typeof AppAdminHomeServicesRoute
+  AppAdminHomeSettingsRoute: typeof AppAdminHomeSettingsRoute
+  AppAdminLearnSplatRoute: typeof AppAdminLearnSplatRoute
+  AppAdminLearnKycRoute: typeof AppAdminLearnKycRoute
+  AppAdminLearnMessagesRoute: typeof AppAdminLearnMessagesRouteWithChildren
+  AppAdminLearnOrdersRoute: typeof AppAdminLearnOrdersRoute
+  AppAdminLearnRevenueRoute: typeof AppAdminLearnRevenueRoute
+  AppAdminLearnSettingsRoute: typeof AppAdminLearnSettingsRoute
+  AppAdminLearnSubjectsRoute: typeof AppAdminLearnSubjectsRoute
+  AppAdminMediaNewRoute: typeof AppAdminMediaNewRoute
+  AppAdminProductsNewRoute: typeof AppAdminProductsNewRoute
+  AppAdminProgramsGeneratingRoute: typeof AppAdminProgramsGeneratingRoute
+  AppAdminProgramsNewRoute: typeof AppAdminProgramsNewRoute
+  AppAdminStudioJobsRoute: typeof AppAdminStudioJobsRoute
+  AppAdminStudioLibraryRoute: typeof AppAdminStudioLibraryRoute
+  AppAdminStudioTemplatesRoute: typeof AppAdminStudioTemplatesRoute
+  AppAdminAnnouncementsIndexRoute: typeof AppAdminAnnouncementsIndexRoute
+  AppAdminBeautyIndexRoute: typeof AppAdminBeautyIndexRoute
+  AppAdminCampaignsIndexRoute: typeof AppAdminCampaignsIndexRoute
+  AppAdminChurchIndexRoute: typeof AppAdminChurchIndexRoute
+  AppAdminEventsServiceIndexRoute: typeof AppAdminEventsServiceIndexRoute
+  AppAdminEventsIndexRoute: typeof AppAdminEventsIndexRoute
+  AppAdminHomeIndexRoute: typeof AppAdminHomeIndexRoute
+  AppAdminLearnIndexRoute: typeof AppAdminLearnIndexRoute
+  AppAdminMediaIndexRoute: typeof AppAdminMediaIndexRoute
+  AppAdminProductsIndexRoute: typeof AppAdminProductsIndexRoute
+  AppAdminProgramsIndexRoute: typeof AppAdminProgramsIndexRoute
+  AppAdminStudioIndexRoute: typeof AppAdminStudioIndexRoute
+  AppAdminAnnouncementsIdEditRoute: typeof AppAdminAnnouncementsIdEditRoute
+  AppAdminCampaignsIdEditRoute: typeof AppAdminCampaignsIdEditRoute
+  AppAdminChurchSermonsIdRoute: typeof AppAdminChurchSermonsIdRoute
+  AppAdminEventsIdEditRoute: typeof AppAdminEventsIdEditRoute
+  AppAdminMediaIdEditRoute: typeof AppAdminMediaIdEditRoute
+  AppAdminProductsIdEditRoute: typeof AppAdminProductsIdEditRoute
+  AppAdminProgramsIdEditRoute: typeof AppAdminProgramsIdEditRoute
+  AppAdminProgramsDraftProjectIdRoute: typeof AppAdminProgramsDraftProjectIdRoute
+  AppAdminStudioProjectsNewRoute: typeof AppAdminStudioProjectsNewRoute
+  AppAdminChurchSermonsIndexRoute: typeof AppAdminChurchSermonsIndexRoute
+  AppAdminStudioProjectsIndexRoute: typeof AppAdminStudioProjectsIndexRoute
+  AppAdminStudioProjectsIdAssetsRoute: typeof AppAdminStudioProjectsIdAssetsRoute
+  AppAdminStudioProjectsIdEditorRoute: typeof AppAdminStudioProjectsIdEditorRoute
+  AppAdminStudioProjectsIdPublishRoute: typeof AppAdminStudioProjectsIdPublishRoute
+  AppAdminStudioProjectsIdReviewRoute: typeof AppAdminStudioProjectsIdReviewRoute
+  AppAdminStudioProjectsIdIndexRoute: typeof AppAdminStudioProjectsIdIndexRoute
+}
+
+const AppAdminRouteChildren: AppAdminRouteChildren = {
+  AppAdminAffiliationRoute: AppAdminAffiliationRoute,
+  AppAdminAnalyticsRoute: AppAdminAnalyticsRoute,
+  AppAdminApiKeysRoute: AppAdminApiKeysRoute,
+  AppAdminContentRoute: AppAdminContentRoute,
+  AppAdminCreateRoute: AppAdminCreateRoute,
+  AppAdminCrmRoute: AppAdminCrmRoute,
+  AppAdminExperimentsRoute: AppAdminExperimentsRoute,
+  AppAdminKycRoute: AppAdminKycRoute,
+  AppAdminLearnerProgressRoute: AppAdminLearnerProgressRoute,
+  AppAdminMarketplaceTemplatesRoute: AppAdminMarketplaceTemplatesRoute,
+  AppAdminMembersRoute: AppAdminMembersRoute,
+  AppAdminNotificationsRoute: AppAdminNotificationsRoute,
+  AppAdminOfferingsRoute: AppAdminOfferingsRoute,
+  AppAdminPayoutsRoute: AppAdminPayoutsRoute,
+  AppAdminPeopleRoute: AppAdminPeopleRoute,
+  AppAdminPhotosRoute: AppAdminPhotosRoute,
+  AppAdminPopupsRoute: AppAdminPopupsRoute,
+  AppAdminPromoCodesRoute: AppAdminPromoCodesRoute,
+  AppAdminSalesRoute: AppAdminSalesRoute,
+  AppAdminSettingsRoute: AppAdminSettingsRoute,
+  AppAdminSubscriptionsRoute: AppAdminSubscriptionsRoute,
+  AppAdminViralStudioRoute: AppAdminViralStudioRoute,
+  AppAdminViralToolsRoute: AppAdminViralToolsRoute,
+  AppAdminVoiceAgentRoute: AppAdminVoiceAgentRoute,
+  AppAdminWaitlistsRoute: AppAdminWaitlistsRoute,
+  AppAdminWebhooksRoute: AppAdminWebhooksRoute,
+  AppAdminIndexRoute: AppAdminIndexRoute,
+  AppAdminAnnouncementsNewRoute: AppAdminAnnouncementsNewRoute,
+  AppAdminBeautySplatRoute: AppAdminBeautySplatRoute,
+  AppAdminBeautyKycRoute: AppAdminBeautyKycRoute,
+  AppAdminBeautyMessagesRoute: AppAdminBeautyMessagesRouteWithChildren,
+  AppAdminBeautyOrdersRoute: AppAdminBeautyOrdersRoute,
+  AppAdminBeautyRevenueRoute: AppAdminBeautyRevenueRoute,
+  AppAdminBeautySettingsRoute: AppAdminBeautySettingsRoute,
+  AppAdminCampaignsNewRoute: AppAdminCampaignsNewRoute,
+  AppAdminChurchAnnouncementsRoute: AppAdminChurchAnnouncementsRoute,
+  AppAdminChurchAppointmentsRoute: AppAdminChurchAppointmentsRoute,
+  AppAdminChurchCampaignsRoute: AppAdminChurchCampaignsRoute,
+  AppAdminChurchEventsRoute: AppAdminChurchEventsRoute,
+  AppAdminChurchGivingRoute: AppAdminChurchGivingRoute,
+  AppAdminChurchKycRoute: AppAdminChurchKycRoute,
+  AppAdminChurchMembersRoute: AppAdminChurchMembersRoute,
+  AppAdminChurchPrayerRoute: AppAdminChurchPrayerRoute,
+  AppAdminChurchSettingsRoute: AppAdminChurchSettingsRoute,
+  AppAdminChurchTeamRoute: AppAdminChurchTeamRoute,
+  AppAdminEventsServiceSplatRoute: AppAdminEventsServiceSplatRoute,
+  AppAdminEventsServiceKycRoute: AppAdminEventsServiceKycRoute,
+  AppAdminEventsServiceMessagesRoute:
+    AppAdminEventsServiceMessagesRouteWithChildren,
+  AppAdminEventsServiceOrdersRoute: AppAdminEventsServiceOrdersRoute,
+  AppAdminEventsServicePackagesRoute: AppAdminEventsServicePackagesRoute,
+  AppAdminEventsServiceRevenueRoute: AppAdminEventsServiceRevenueRoute,
+  AppAdminEventsServiceSettingsRoute: AppAdminEventsServiceSettingsRoute,
+  AppAdminEventsNewRoute: AppAdminEventsNewRoute,
+  AppAdminHomeSplatRoute: AppAdminHomeSplatRoute,
+  AppAdminHomeKycRoute: AppAdminHomeKycRoute,
+  AppAdminHomeMessagesRoute: AppAdminHomeMessagesRouteWithChildren,
+  AppAdminHomeOrdersRoute: AppAdminHomeOrdersRoute,
+  AppAdminHomeRevenueRoute: AppAdminHomeRevenueRoute,
+  AppAdminHomeServicesRoute: AppAdminHomeServicesRoute,
+  AppAdminHomeSettingsRoute: AppAdminHomeSettingsRoute,
+  AppAdminLearnSplatRoute: AppAdminLearnSplatRoute,
+  AppAdminLearnKycRoute: AppAdminLearnKycRoute,
+  AppAdminLearnMessagesRoute: AppAdminLearnMessagesRouteWithChildren,
+  AppAdminLearnOrdersRoute: AppAdminLearnOrdersRoute,
+  AppAdminLearnRevenueRoute: AppAdminLearnRevenueRoute,
+  AppAdminLearnSettingsRoute: AppAdminLearnSettingsRoute,
+  AppAdminLearnSubjectsRoute: AppAdminLearnSubjectsRoute,
+  AppAdminMediaNewRoute: AppAdminMediaNewRoute,
+  AppAdminProductsNewRoute: AppAdminProductsNewRoute,
+  AppAdminProgramsGeneratingRoute: AppAdminProgramsGeneratingRoute,
+  AppAdminProgramsNewRoute: AppAdminProgramsNewRoute,
+  AppAdminStudioJobsRoute: AppAdminStudioJobsRoute,
+  AppAdminStudioLibraryRoute: AppAdminStudioLibraryRoute,
+  AppAdminStudioTemplatesRoute: AppAdminStudioTemplatesRoute,
+  AppAdminAnnouncementsIndexRoute: AppAdminAnnouncementsIndexRoute,
+  AppAdminBeautyIndexRoute: AppAdminBeautyIndexRoute,
+  AppAdminCampaignsIndexRoute: AppAdminCampaignsIndexRoute,
+  AppAdminChurchIndexRoute: AppAdminChurchIndexRoute,
+  AppAdminEventsServiceIndexRoute: AppAdminEventsServiceIndexRoute,
+  AppAdminEventsIndexRoute: AppAdminEventsIndexRoute,
+  AppAdminHomeIndexRoute: AppAdminHomeIndexRoute,
+  AppAdminLearnIndexRoute: AppAdminLearnIndexRoute,
+  AppAdminMediaIndexRoute: AppAdminMediaIndexRoute,
+  AppAdminProductsIndexRoute: AppAdminProductsIndexRoute,
+  AppAdminProgramsIndexRoute: AppAdminProgramsIndexRoute,
+  AppAdminStudioIndexRoute: AppAdminStudioIndexRoute,
+  AppAdminAnnouncementsIdEditRoute: AppAdminAnnouncementsIdEditRoute,
+  AppAdminCampaignsIdEditRoute: AppAdminCampaignsIdEditRoute,
+  AppAdminChurchSermonsIdRoute: AppAdminChurchSermonsIdRoute,
+  AppAdminEventsIdEditRoute: AppAdminEventsIdEditRoute,
+  AppAdminMediaIdEditRoute: AppAdminMediaIdEditRoute,
+  AppAdminProductsIdEditRoute: AppAdminProductsIdEditRoute,
+  AppAdminProgramsIdEditRoute: AppAdminProgramsIdEditRoute,
+  AppAdminProgramsDraftProjectIdRoute: AppAdminProgramsDraftProjectIdRoute,
+  AppAdminStudioProjectsNewRoute: AppAdminStudioProjectsNewRoute,
+  AppAdminChurchSermonsIndexRoute: AppAdminChurchSermonsIndexRoute,
+  AppAdminStudioProjectsIndexRoute: AppAdminStudioProjectsIndexRoute,
+  AppAdminStudioProjectsIdAssetsRoute: AppAdminStudioProjectsIdAssetsRoute,
+  AppAdminStudioProjectsIdEditorRoute: AppAdminStudioProjectsIdEditorRoute,
+  AppAdminStudioProjectsIdPublishRoute: AppAdminStudioProjectsIdPublishRoute,
+  AppAdminStudioProjectsIdReviewRoute: AppAdminStudioProjectsIdReviewRoute,
+  AppAdminStudioProjectsIdIndexRoute: AppAdminStudioProjectsIdIndexRoute,
+}
+
+const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
+  AppAdminRouteChildren,
+)
+
+interface AppRouteChildren {
+  AppAdminRoute: typeof AppAdminRouteWithChildren
+  AppAffiliationRoute: typeof AppAffiliationRoute
+  AppBookmarksRoute: typeof AppBookmarksRoute
+  AppCreditsRoute: typeof AppCreditsRoute
+  AppFeedRoute: typeof AppFeedRoute
+  AppInvoicesRoute: typeof AppInvoicesRoute
+  AppKycRoute: typeof AppKycRoute
+  AppLeaderboardRoute: typeof AppLeaderboardRoute
+  AppMesAvisRoute: typeof AppMesAvisRoute
+  AppMesFormationsRoute: typeof AppMesFormationsRoute
+  AppMyAnalyticsRoute: typeof AppMyAnalyticsRoute
+  AppMyDonationsRoute: typeof AppMyDonationsRoute
+  AppMyInvoicesRoute: typeof AppMyInvoicesRoute
+  AppMyProgramsRoute: typeof AppMyProgramsRoute
+  AppMyPurchasesRoute: typeof AppMyPurchasesRoute
+  AppMyReviewsRoute: typeof AppMyReviewsRoute
+  AppNotificationPreferencesRoute: typeof AppNotificationPreferencesRoute
+  AppNotificationsRoute: typeof AppNotificationsRoute
+  AppPartnerRoute: typeof AppPartnerRoute
+  AppProfileRoute: typeof AppProfileRoute
+  AppQuickPublishRoute: typeof AppQuickPublishRoute
+  AppQuickStartRoute: typeof AppQuickStartRoute
+  AppResourcesRoute: typeof AppResourcesRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppSupportRoute: typeof AppSupportRoute
+  AppWalletRoute: typeof AppWalletRoute
+  AppWishlistRoute: typeof AppWishlistRoute
+  AppCreatorAnalyticsRoute: typeof AppCreatorAnalyticsRoute
+  AppDashboardActivityRoute: typeof AppDashboardActivityRoute
+  AppDashboardAffiliationRoute: typeof AppDashboardAffiliationRoute
+  AppDashboardClaimRoute: typeof AppDashboardClaimRoute
+  AppDashboardDigitalRoute: typeof AppDashboardDigitalRoute
+  AppDashboardEarnRoute: typeof AppDashboardEarnRoute
+  AppDashboardExploreRoute: typeof AppDashboardExploreRoute
+  AppDashboardHomeRoute: typeof AppDashboardHomeRoute
+  AppDashboardKycRoute: typeof AppDashboardKycRoute
+  AppDashboardNotificationsRoute: typeof AppDashboardNotificationsRoute
+  AppDashboardOrdersRoute: typeof AppDashboardOrdersRoute
+  AppDashboardProductsRoute: typeof AppDashboardProductsRoute
+  AppDashboardProfileRoute: typeof AppDashboardProfileRoute
+  AppDashboardPromotionsRoute: typeof AppDashboardPromotionsRoute
+  AppDashboardPurchasesRoute: typeof AppDashboardPurchasesRoute
+  AppDashboardRevenueRoute: typeof AppDashboardRevenueRoute
+  AppOnboardingGoalsRoute: typeof AppOnboardingGoalsRoute
+  AppOnboardingTypeRoute: typeof AppOnboardingTypeRoute
+  AppReelsIdRoute: typeof AppReelsIdRoute
+  AppWatchIdRoute: typeof AppWatchIdRoute
+  AppDashboardIndexRoute: typeof AppDashboardIndexRoute
+  AppMarketplaceIndexRoute: typeof AppMarketplaceIndexRoute
+  AppReelsIndexRoute: typeof AppReelsIndexRoute
+  AppDashboardSettingsModulesRoute: typeof AppDashboardSettingsModulesRoute
+  AppDashboardMessagesIndexRoute: typeof AppDashboardMessagesIndexRoute
+  AppDashboardSettingsIndexRoute: typeof AppDashboardSettingsIndexRoute
+  AppDashboardMessagesVerticalIdRoute: typeof AppDashboardMessagesVerticalIdRoute
+  AppDashboardMessagesBeautyIdRoute: typeof AppDashboardMessagesBeautyIdRoute
+  AppDashboardMessagesEventsIdRoute: typeof AppDashboardMessagesEventsIdRoute
+  AppDashboardMessagesHomeIdRoute: typeof AppDashboardMessagesHomeIdRoute
+  AppDashboardMessagesLearnIdRoute: typeof AppDashboardMessagesLearnIdRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAdminRoute: AppAdminRouteWithChildren,
+  AppAffiliationRoute: AppAffiliationRoute,
+  AppBookmarksRoute: AppBookmarksRoute,
+  AppCreditsRoute: AppCreditsRoute,
+  AppFeedRoute: AppFeedRoute,
+  AppInvoicesRoute: AppInvoicesRoute,
+  AppKycRoute: AppKycRoute,
+  AppLeaderboardRoute: AppLeaderboardRoute,
+  AppMesAvisRoute: AppMesAvisRoute,
+  AppMesFormationsRoute: AppMesFormationsRoute,
+  AppMyAnalyticsRoute: AppMyAnalyticsRoute,
+  AppMyDonationsRoute: AppMyDonationsRoute,
+  AppMyInvoicesRoute: AppMyInvoicesRoute,
+  AppMyProgramsRoute: AppMyProgramsRoute,
+  AppMyPurchasesRoute: AppMyPurchasesRoute,
+  AppMyReviewsRoute: AppMyReviewsRoute,
+  AppNotificationPreferencesRoute: AppNotificationPreferencesRoute,
+  AppNotificationsRoute: AppNotificationsRoute,
+  AppPartnerRoute: AppPartnerRoute,
+  AppProfileRoute: AppProfileRoute,
+  AppQuickPublishRoute: AppQuickPublishRoute,
+  AppQuickStartRoute: AppQuickStartRoute,
+  AppResourcesRoute: AppResourcesRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppSupportRoute: AppSupportRoute,
+  AppWalletRoute: AppWalletRoute,
+  AppWishlistRoute: AppWishlistRoute,
+  AppCreatorAnalyticsRoute: AppCreatorAnalyticsRoute,
+  AppDashboardActivityRoute: AppDashboardActivityRoute,
+  AppDashboardAffiliationRoute: AppDashboardAffiliationRoute,
+  AppDashboardClaimRoute: AppDashboardClaimRoute,
+  AppDashboardDigitalRoute: AppDashboardDigitalRoute,
+  AppDashboardEarnRoute: AppDashboardEarnRoute,
+  AppDashboardExploreRoute: AppDashboardExploreRoute,
+  AppDashboardHomeRoute: AppDashboardHomeRoute,
+  AppDashboardKycRoute: AppDashboardKycRoute,
+  AppDashboardNotificationsRoute: AppDashboardNotificationsRoute,
+  AppDashboardOrdersRoute: AppDashboardOrdersRoute,
+  AppDashboardProductsRoute: AppDashboardProductsRoute,
+  AppDashboardProfileRoute: AppDashboardProfileRoute,
+  AppDashboardPromotionsRoute: AppDashboardPromotionsRoute,
+  AppDashboardPurchasesRoute: AppDashboardPurchasesRoute,
+  AppDashboardRevenueRoute: AppDashboardRevenueRoute,
+  AppOnboardingGoalsRoute: AppOnboardingGoalsRoute,
+  AppOnboardingTypeRoute: AppOnboardingTypeRoute,
+  AppReelsIdRoute: AppReelsIdRoute,
+  AppWatchIdRoute: AppWatchIdRoute,
+  AppDashboardIndexRoute: AppDashboardIndexRoute,
+  AppMarketplaceIndexRoute: AppMarketplaceIndexRoute,
+  AppReelsIndexRoute: AppReelsIndexRoute,
+  AppDashboardSettingsModulesRoute: AppDashboardSettingsModulesRoute,
+  AppDashboardMessagesIndexRoute: AppDashboardMessagesIndexRoute,
+  AppDashboardSettingsIndexRoute: AppDashboardSettingsIndexRoute,
+  AppDashboardMessagesVerticalIdRoute: AppDashboardMessagesVerticalIdRoute,
+  AppDashboardMessagesBeautyIdRoute: AppDashboardMessagesBeautyIdRoute,
+  AppDashboardMessagesEventsIdRoute: AppDashboardMessagesEventsIdRoute,
+  AppDashboardMessagesHomeIdRoute: AppDashboardMessagesHomeIdRoute,
+  AppDashboardMessagesLearnIdRoute: AppDashboardMessagesLearnIdRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
+interface PublicRouteChildren {
+  PublicCoursesRoute: typeof PublicCoursesRoute
+  PublicSpotlightRoute: typeof PublicSpotlightRoute
+  PublicAnnouncementAnnouncementIdRoute: typeof PublicAnnouncementAnnouncementIdRoute
+  PublicCampaignCampaignIdRoute: typeof PublicCampaignCampaignIdRoute
+  PublicEventEventIdRoute: typeof PublicEventEventIdRoute
+  PublicOfferingOfferingIdRoute: typeof PublicOfferingOfferingIdRoute
+  PublicPKeyRoute: typeof PublicPKeyRoute
+  PublicProductKeyRoute: typeof PublicProductKeyRoute
+  PublicProduitKeyRoute: typeof PublicProduitKeyRoute
+  PublicProgramProgramIdRoute: typeof PublicProgramProgramIdRoute
+  PublicPromoAiCreationsRoute: typeof PublicPromoAiCreationsRoute
+  PublicPromoCatalogueRoute: typeof PublicPromoCatalogueRoute
+  PublicPromoGratuitsRoute: typeof PublicPromoGratuitsRoute
+  PublicPromoStarsRoute: typeof PublicPromoStarsRoute
+  PublicOrgSlugContentRoute: typeof PublicOrgSlugContentRoute
+  PublicOrgSlugDonateRoute: typeof PublicOrgSlugDonateRoute
+  PublicOrgSlugDonsRoute: typeof PublicOrgSlugDonsRoute
+  PublicOrgSlugEventsRoute: typeof PublicOrgSlugEventsRoute
+  PublicOrgSlugOfferingsRoute: typeof PublicOrgSlugOfferingsRoute
+  PublicOrgSlugPhotosRoute: typeof PublicOrgSlugPhotosRoute
+  PublicOrgSlugStoreRoute: typeof PublicOrgSlugStoreRoute
+  PublicOrgSlugIndexRoute: typeof PublicOrgSlugIndexRoute
+  PublicOrgSlugPProductSlugRoute: typeof PublicOrgSlugPProductSlugRoute
+  PublicOrgSlugProductProductIdRoute: typeof PublicOrgSlugProductProductIdRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicCoursesRoute: PublicCoursesRoute,
+  PublicSpotlightRoute: PublicSpotlightRoute,
+  PublicAnnouncementAnnouncementIdRoute: PublicAnnouncementAnnouncementIdRoute,
+  PublicCampaignCampaignIdRoute: PublicCampaignCampaignIdRoute,
+  PublicEventEventIdRoute: PublicEventEventIdRoute,
+  PublicOfferingOfferingIdRoute: PublicOfferingOfferingIdRoute,
+  PublicPKeyRoute: PublicPKeyRoute,
+  PublicProductKeyRoute: PublicProductKeyRoute,
+  PublicProduitKeyRoute: PublicProduitKeyRoute,
+  PublicProgramProgramIdRoute: PublicProgramProgramIdRoute,
+  PublicPromoAiCreationsRoute: PublicPromoAiCreationsRoute,
+  PublicPromoCatalogueRoute: PublicPromoCatalogueRoute,
+  PublicPromoGratuitsRoute: PublicPromoGratuitsRoute,
+  PublicPromoStarsRoute: PublicPromoStarsRoute,
+  PublicOrgSlugContentRoute: PublicOrgSlugContentRoute,
+  PublicOrgSlugDonateRoute: PublicOrgSlugDonateRoute,
+  PublicOrgSlugDonsRoute: PublicOrgSlugDonsRoute,
+  PublicOrgSlugEventsRoute: PublicOrgSlugEventsRoute,
+  PublicOrgSlugOfferingsRoute: PublicOrgSlugOfferingsRoute,
+  PublicOrgSlugPhotosRoute: PublicOrgSlugPhotosRoute,
+  PublicOrgSlugStoreRoute: PublicOrgSlugStoreRoute,
+  PublicOrgSlugIndexRoute: PublicOrgSlugIndexRoute,
+  PublicOrgSlugPProductSlugRoute: PublicOrgSlugPProductSlugRoute,
+  PublicOrgSlugProductProductIdRoute: PublicOrgSlugProductProductIdRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
+interface SuperadminRouteChildren {
+  SuperadminAcquisitionRoute: typeof SuperadminAcquisitionRoute
+  SuperadminActivityRoute: typeof SuperadminActivityRoute
+  SuperadminAdsRoute: typeof SuperadminAdsRoute
+  SuperadminAiRoute: typeof SuperadminAiRoute
+  SuperadminAiHistoryRoute: typeof SuperadminAiHistoryRoute
+  SuperadminBeautyRoute: typeof SuperadminBeautyRoute
+  SuperadminChurchRoute: typeof SuperadminChurchRoute
+  SuperadminCommandCenterRoute: typeof SuperadminCommandCenterRoute
+  SuperadminDirectoryRoute: typeof SuperadminDirectoryRoute
+  SuperadminEducationRoute: typeof SuperadminEducationRoute
+  SuperadminEmailsRoute: typeof SuperadminEmailsRoute
+  SuperadminEventsRoute: typeof SuperadminEventsRoute
+  SuperadminExportsRoute: typeof SuperadminExportsRoute
+  SuperadminHealthRoute: typeof SuperadminHealthRoute
+  SuperadminHomeRoute: typeof SuperadminHomeRoute
+  SuperadminInvestorRoute: typeof SuperadminInvestorRoute
+  SuperadminKycRoute: typeof SuperadminKycRoute
+  SuperadminMarketplaceModerationRoute: typeof SuperadminMarketplaceModerationRoute
+  SuperadminMetricsRoute: typeof SuperadminMetricsRoute
+  SuperadminModerationRoute: typeof SuperadminModerationRoute
+  SuperadminOrgsRoute: typeof SuperadminOrgsRoute
+  SuperadminPartnersRoute: typeof SuperadminPartnersRoute
+  SuperadminPushRoute: typeof SuperadminPushRoute
+  SuperadminReportsRoute: typeof SuperadminReportsRoute
+  SuperadminRiskRoute: typeof SuperadminRiskRoute
+  SuperadminSettingsRoute: typeof SuperadminSettingsRoute
+  SuperadminSettlementsRoute: typeof SuperadminSettlementsRoute
+  SuperadminSupportRoute: typeof SuperadminSupportRoute
+  SuperadminTransactionsRoute: typeof SuperadminTransactionsRoute
+  SuperadminTrustRoute: typeof SuperadminTrustRoute
+  SuperadminUsersRoute: typeof SuperadminUsersRoute
+  SuperadminIndexRoute: typeof SuperadminIndexRoute
+  SuperadminStudioAbuseMonitorRoute: typeof SuperadminStudioAbuseMonitorRoute
+  SuperadminStudioJobsRoute: typeof SuperadminStudioJobsRoute
+  SuperadminStudioPoliciesRoute: typeof SuperadminStudioPoliciesRoute
+  SuperadminStudioTemplatesRoute: typeof SuperadminStudioTemplatesRoute
+}
+
+const SuperadminRouteChildren: SuperadminRouteChildren = {
+  SuperadminAcquisitionRoute: SuperadminAcquisitionRoute,
+  SuperadminActivityRoute: SuperadminActivityRoute,
+  SuperadminAdsRoute: SuperadminAdsRoute,
+  SuperadminAiRoute: SuperadminAiRoute,
+  SuperadminAiHistoryRoute: SuperadminAiHistoryRoute,
+  SuperadminBeautyRoute: SuperadminBeautyRoute,
+  SuperadminChurchRoute: SuperadminChurchRoute,
+  SuperadminCommandCenterRoute: SuperadminCommandCenterRoute,
+  SuperadminDirectoryRoute: SuperadminDirectoryRoute,
+  SuperadminEducationRoute: SuperadminEducationRoute,
+  SuperadminEmailsRoute: SuperadminEmailsRoute,
+  SuperadminEventsRoute: SuperadminEventsRoute,
+  SuperadminExportsRoute: SuperadminExportsRoute,
+  SuperadminHealthRoute: SuperadminHealthRoute,
+  SuperadminHomeRoute: SuperadminHomeRoute,
+  SuperadminInvestorRoute: SuperadminInvestorRoute,
+  SuperadminKycRoute: SuperadminKycRoute,
+  SuperadminMarketplaceModerationRoute: SuperadminMarketplaceModerationRoute,
+  SuperadminMetricsRoute: SuperadminMetricsRoute,
+  SuperadminModerationRoute: SuperadminModerationRoute,
+  SuperadminOrgsRoute: SuperadminOrgsRoute,
+  SuperadminPartnersRoute: SuperadminPartnersRoute,
+  SuperadminPushRoute: SuperadminPushRoute,
+  SuperadminReportsRoute: SuperadminReportsRoute,
+  SuperadminRiskRoute: SuperadminRiskRoute,
+  SuperadminSettingsRoute: SuperadminSettingsRoute,
+  SuperadminSettlementsRoute: SuperadminSettlementsRoute,
+  SuperadminSupportRoute: SuperadminSupportRoute,
+  SuperadminTransactionsRoute: SuperadminTransactionsRoute,
+  SuperadminTrustRoute: SuperadminTrustRoute,
+  SuperadminUsersRoute: SuperadminUsersRoute,
+  SuperadminIndexRoute: SuperadminIndexRoute,
+  SuperadminStudioAbuseMonitorRoute: SuperadminStudioAbuseMonitorRoute,
+  SuperadminStudioJobsRoute: SuperadminStudioJobsRoute,
+  SuperadminStudioPoliciesRoute: SuperadminStudioPoliciesRoute,
+  SuperadminStudioTemplatesRoute: SuperadminStudioTemplatesRoute,
+}
+
+const SuperadminRouteWithChildren = SuperadminRoute._addFileChildren(
+  SuperadminRouteChildren,
+)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
+  PublicRoute: PublicRouteWithChildren,
+  AProposRoute: AProposRoute,
+  AboutRoute: AboutRoute,
+  AcceptableUseRoute: AcceptableUseRoute,
+  AffiliateProgramRoute: AffiliateProgramRoute,
+  AmbassadorRoute: AmbassadorRoute,
+  AmbassadorProgramRoute: AmbassadorProgramRoute,
+  AmbassadorTermsRoute: AmbassadorTermsRoute,
+  AmlRoute: AmlRoute,
+  BrandRoute: BrandRoute,
+  CalculateurRoute: CalculateurRoute,
+  CguRoute: CguRoute,
+  ChangelogRoute: ChangelogRoute,
+  ChurchesRoute: ChurchesRoute,
+  CompareRoute: CompareRoute,
+  ComparerRoute: ComparerRoute,
+  ComplianceRoute: ComplianceRoute,
+  ContactRoute: ContactRoute,
+  CookiePolicyRoute: CookiePolicyRoute,
+  CookiesRoute: CookiesRoute,
+  CopyrightRoute: CopyrightRoute,
+  CreateCourseRoute: CreateCourseRoute,
+  CreateOrgRoute: CreateOrgRoute,
+  CreerFormationRoute: CreerFormationRoute,
+  DashboardPreviewRoute: DashboardPreviewRoute,
+  DataDeletionRoute: DataDeletionRoute,
+  DevelopersRoute: DevelopersRoute,
+  DeveloppeursRoute: DeveloppeursRoute,
+  DevenirPartenaireRoute: DevenirPartenaireRoute,
+  DiscoverRoute: DiscoverRoute,
+  DmcaRoute: DmcaRoute,
+  DpaRoute: DpaRoute,
+  EarnRoute: EarnRoute,
+  EcrireRoute: EcrireRoute,
+  EmailPreferencesRoute: EmailPreferencesRoute,
+  EtudesDeCasRoute: EtudesDeCasRoute,
+  ExplorerRoute: ExplorerRoute,
+  FaqRoute: FaqRoute,
+  FeaturesRoute: FeaturesRoute,
+  FeuilleDeRouteRoute: FeuilleDeRouteRoute,
+  FondateursRoute: FondateursRoute,
+  FoundersRoute: FoundersRoute,
+  GagnerRoute: GagnerRoute,
+  GagnerInfoRoute: GagnerInfoRoute,
+  GlossaireRoute: GlossaireRoute,
+  GlossaryRoute: GlossaryRoute,
+  HelpRoute: HelpRoute,
+  HubRoute: HubRoute,
+  InstallRoute: InstallRoute,
+  IntegrationsRoute: IntegrationsRoute,
+  LandingRoute: LandingRoute,
+  LegalNoticesRoute: LegalNoticesRoute,
+  LookingForRoute: LookingForRoute,
+  MaintenanceRoute: MaintenanceRoute,
+  MediaKitRoute: MediaKitRoute,
+  MentionsLegalesRoute: MentionsLegalesRoute,
+  MesAchatsRoute: MesAchatsRoute,
+  MigrateRoute: MigrateRoute,
+  MigrerRoute: MigrerRoute,
+  NewThisWeekRoute: NewThisWeekRoute,
+  NewsletterRoute: NewsletterRoute,
+  ParrainageRoute: ParrainageRoute,
+  PartenairesRoute: PartenairesRoute,
+  PartnerTermsRoute: PartnerTermsRoute,
+  PaymentSuccessRoute: PaymentSuccessRoute,
+  PayoutPolicyRoute: PayoutPolicyRoute,
+  PlanDuSiteRoute: PlanDuSiteRoute,
+  PresseRoute: PresseRoute,
+  PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
+  ProtectionRoute: ProtectionRoute,
+  ReferralsRoute: ReferralsRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
+  ReportRoute: ReportRoute,
+  RoadmapRoute: RoadmapRoute,
+  SecurityRoute: SecurityRoute,
+  SellRoute: SellRoute,
+  ServicesRoute: ServicesRoute,
+  ShareTargetRoute: ShareTargetRoute,
+  ShowcaseRoute: ShowcaseRoute,
+  SignalerRoute: SignalerRoute,
+  SitemapRoute: SitemapRoute,
+  StartSellingRoute: StartSellingRoute,
+  StatusRoute: StatusRoute,
+  SubprocessorsRoute: SubprocessorsRoute,
+  SuperadminRoute: SuperadminRouteWithChildren,
+  SuperappRoute: SuperappRoute,
+  TarifsRoute: TarifsRoute,
+  TemoignagesRoute: TemoignagesRoute,
+  TermsRoute: TermsRoute,
+  TopCreatorsRoute: TopCreatorsRoute,
+  TutorielsRoute: TutorielsRoute,
+  VendreRoute: VendreRoute,
+  WelcomeRoute: WelcomeRoute,
+  WelcomeIntentRoute: WelcomeIntentRoute,
+  WriteRoute: WriteRoute,
+  AccountTrustRoute: AccountTrustRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
+  BeautySplatRoute: BeautySplatRoute,
+  BeautyAboutRoute: BeautyAboutRoute,
+  BeautySearchRoute: BeautySearchRoute,
+  BillingSuccessRoute: BillingSuccessRoute,
+  BillingUsageRoute: BillingUsageRoute,
+  BlogSlugRoute: BlogSlugRoute,
+  CanvaCallbackRoute: CanvaCallbackRoute,
+  ChurchAboutRoute: ChurchAboutRoute,
+  ChurchDiscoverRoute: ChurchDiscoverRoute,
+  CreatorAdvancedAnalyticsRoute: CreatorAdvancedAnalyticsRoute,
+  DigitalAboutRoute: DigitalAboutRoute,
+  DocsApiRoute: DocsApiRoute,
+  EducationSplatRoute: EducationSplatRoute,
+  EducationAboutRoute: EducationAboutRoute,
+  EducationDiscoverRoute: EducationDiscoverRoute,
+  EventsSplatRoute: EventsSplatRoute,
+  EventsAboutRoute: EventsAboutRoute,
+  EventsDiscoverRoute: EventsDiscoverRoute,
+  ExploreArtisansRoute: ExploreArtisansRoute,
+  ExploreBeautyRoute: ExploreBeautyRoute,
+  ExploreCoachingRoute: ExploreCoachingRoute,
+  ExploreDigitalProductsRoute: ExploreDigitalProductsRoute,
+  ExploreInfluencersRoute: ExploreInfluencersRoute,
+  ExploreMusicRoute: ExploreMusicRoute,
+  ExploreOtherServicesRoute: ExploreOtherServicesRoute,
+  ExploreTutorsRoute: ExploreTutorsRoute,
+  GoCodeRoute: GoCodeRoute,
+  GuideAffiliationSansInvestissementRoute:
+    GuideAffiliationSansInvestissementRoute,
+  GuideAlternativeGofundmeRoute: GuideAlternativeGofundmeRoute,
+  GuideBoutiqueDigitaleGratuiteRoute: GuideBoutiqueDigitaleGratuiteRoute,
+  GuideGagnerSansContenuRoute: GuideGagnerSansContenuRoute,
+  GuideMobileMoneyEcommerceRoute: GuideMobileMoneyEcommerceRoute,
+  GuideMonetiserContenuReligieuxRoute: GuideMonetiserContenuReligieuxRoute,
+  GuidePlateformeDonsAfriqueRoute: GuidePlateformeDonsAfriqueRoute,
+  GuideVendreCoursEnLigneRoute: GuideVendreCoursEnLigneRoute,
+  GuideVendreEbookAfriqueRoute: GuideVendreEbookAfriqueRoute,
+  HomeSplatRoute: HomeSplatRoute,
+  HomeAboutRoute: HomeAboutRoute,
+  HomeDiscoverRoute: HomeDiscoverRoute,
+  InviteCodeRoute: InviteCodeRoute,
+  LearnSplatRoute: LearnSplatRoute,
+  LearnAboutRoute: LearnAboutRoute,
+  LearnDiscoverRoute: LearnDiscoverRoute,
+  PaymentSplatRoute: PaymentSplatRoute,
+  PourAgencesRoute: PourAgencesRoute,
+  PourAssociationsRoute: PourAssociationsRoute,
+  PourAuteursRoute: PourAuteursRoute,
+  PourBlogueursRoute: PourBlogueursRoute,
+  PourCentresFormationRoute: PourCentresFormationRoute,
+  PourCoachesRoute: PourCoachesRoute,
+  PourConsultantsRoute: PourConsultantsRoute,
+  PourCooperativesRoute: PourCooperativesRoute,
+  PourCreateursVideoRoute: PourCreateursVideoRoute,
+  PourDesignersRoute: PourDesignersRoute,
+  PourDiasporaRoute: PourDiasporaRoute,
+  PourEglisesRoute: PourEglisesRoute,
+  PourEnseignantsRoute: PourEnseignantsRoute,
+  PourEntrepreneursRoute: PourEntrepreneursRoute,
+  PourEtudiantsRoute: PourEtudiantsRoute,
+  PourFemmesEntrepreneuresRoute: PourFemmesEntrepreneuresRoute,
+  PourFinanceRoute: PourFinanceRoute,
+  PourFormateursRoute: PourFormateursRoute,
+  PourInfluenceursRoute: PourInfluenceursRoute,
+  PourJuristesRoute: PourJuristesRoute,
+  PourLeadersMusulmansRoute: PourLeadersMusulmansRoute,
+  PourMediasRoute: PourMediasRoute,
+  PourMinisteresRoute: PourMinisteresRoute,
+  PourMissionnairesRoute: PourMissionnairesRoute,
+  PourMusiciensRoute: PourMusiciensRoute,
+  PourOngRoute: PourOngRoute,
+  PourPhotographesRoute: PourPhotographesRoute,
+  PourPodcastersRoute: PourPodcastersRoute,
+  PourRetraitesRoute: PourRetraitesRoute,
+  PourSanteRoute: PourSanteRoute,
+  SolutionsChurchRoute: SolutionsChurchRoute,
+  StartSplatRoute: StartSplatRoute,
+  StartDetailsRoute: StartDetailsRoute,
+  StartFinishRoute: StartFinishRoute,
+  StoreSlugRoute: StoreSlugRoute,
+  VerifyCertNumberRoute: VerifyCertNumberRoute,
+  AccountIndexRoute: AccountIndexRoute,
+  AuthIndexRoute: AuthIndexRoute,
+  BeautyIndexRoute: BeautyIndexRoute,
+  BillingIndexRoute: BillingIndexRoute,
+  BlogIndexRoute: BlogIndexRoute,
+  ChurchIndexRoute: ChurchIndexRoute,
+  DigitalIndexRoute: DigitalIndexRoute,
+  DocsIndexRoute: DocsIndexRoute,
+  EducationIndexRoute: EducationIndexRoute,
+  EventsIndexRoute: EventsIndexRoute,
+  HomeIndexRoute: HomeIndexRoute,
+  LearnIndexRoute: LearnIndexRoute,
+  StartIndexRoute: StartIndexRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  BeautyPSlugRoute: BeautyPSlugRoute,
+  BeautyProOnboardingRoute: BeautyProOnboardingRoute,
+  ChurchProAnnouncementsRoute: ChurchProAnnouncementsRoute,
+  ChurchProAppointmentsRoute: ChurchProAppointmentsRoute,
+  ChurchProCampaignsRoute: ChurchProCampaignsRoute,
+  ChurchProEventsRoute: ChurchProEventsRoute,
+  ChurchProGivingRoute: ChurchProGivingRoute,
+  ChurchProKycRoute: ChurchProKycRoute,
+  ChurchProMembersRoute: ChurchProMembersRoute,
+  ChurchProOnboardingRoute: ChurchProOnboardingRoute,
+  ChurchProPrayerRoute: ChurchProPrayerRoute,
+  ChurchProSettingsRoute: ChurchProSettingsRoute,
+  ChurchProTeamRoute: ChurchProTeamRoute,
+  EducationProOnboardingRoute: EducationProOnboardingRoute,
+  EventsProSlugRoute: EventsProSlugRoute,
+  EventsProOnboardingRoute: EventsProOnboardingRoute,
+  HomeProSlugRoute: HomeProSlugRoute,
+  HomeProOnboardingRoute: HomeProOnboardingRoute,
+  LearnProSlugRoute: LearnProSlugRoute,
+  LearnProOnboardingRoute: LearnProOnboardingRoute,
+  MarketplaceTemplatesIdRoute: MarketplaceTemplatesIdRoute,
+  ChurchSlugIndexRoute: ChurchSlugIndexRoute,
+  ChurchProIndexRoute: ChurchProIndexRoute,
+  MarketplaceTemplatesIndexRoute: MarketplaceTemplatesIndexRoute,
+  ChurchSlugEventsEventIdRoute: ChurchSlugEventsEventIdRoute,
+  ChurchSlugGiveSuccessRoute: ChurchSlugGiveSuccessRoute,
+  ChurchProSermonsIdRoute: ChurchProSermonsIdRoute,
+  ChurchSlugGiveIndexRoute: ChurchSlugGiveIndexRoute,
+  ChurchProSermonsIndexRoute: ChurchProSermonsIndexRoute,
+  ChurchSlugPdfPdfIdSuccessRoute: ChurchSlugPdfPdfIdSuccessRoute,
+  ChurchSlugPdfPdfIdIndexRoute: ChurchSlugPdfPdfIdIndexRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()

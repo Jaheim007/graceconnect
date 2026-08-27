@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from 'react';
-import { Navigate as Nav, useLocation } from 'react-router-dom';
+import { Navigate as Nav, useLocation } from '@/lib/router-compat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { RouteContentSkeleton } from './RouteFallback';

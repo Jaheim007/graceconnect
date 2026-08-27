@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { X } from 'lucide-react';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { cn } from '@/lib/utils';

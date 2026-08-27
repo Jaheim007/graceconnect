@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, UserPlus, Download, Heart, Star, Globe, Flame, Users, TrendingUp, Award, X, Zap, BookOpen, Gift, Music, Camera, Laptop, GraduationCap, Church, Building2, Megaphone } from 'lucide-react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link } from '@/lib/router-compat';
 import { useI18n } from '@/i18n/I18nContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Navigate, Link } from 'react-router-dom';
+import { useNavigate, Navigate, Link } from '@/lib/router-compat';
 import { ArrowLeft, Church, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,6 +60,7 @@ export default function ChurchOnboarding() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return toast.error(fr ? 'Nom requis' : 'Name required');
+    if (!user) return toast.error(fr ? 'Connexion requise' : 'Login required');
     setSubmitting(true);
     try {
       const base = slugify(name);

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from '@/lib/router-compat';
 import { ArrowRight, Info } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { DocsLayout, DocsNavSection } from '@/components/docs/DocsLayout';

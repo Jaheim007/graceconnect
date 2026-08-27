@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, HandHeart, Loader2, Wallet, ShieldAlert, TrendingUp, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';

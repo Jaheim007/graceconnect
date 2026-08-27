@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from '@/lib/router-compat';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -975,11 +975,11 @@ export default function WriteWizard() {
         _is_free: false,
         _commission_rate: state.commissionRate,
         _chapters: JSON.parse(JSON.stringify(normalizedChapters)),
-        _topic: state.topic || null,
-        _cover_url: state.coverUrl || null,
-        _description: richDescription,
-        _file_url: null,
-        _org_id: targetOrgId,
+        _topic: state.topic || undefined,
+        _cover_url: state.coverUrl || undefined,
+        _description: richDescription || undefined,
+        _file_url: undefined,
+        _org_id: targetOrgId ?? undefined,
       });
 
       if (error) throw error;
@@ -1085,7 +1085,7 @@ export default function WriteWizard() {
       if (Object.keys(productPatch).length > 0 && result.product_id) {
         const { error: updateErr } = await supabase
           .from('digital_products')
-          .update(productPatch)
+          .update(productPatch as never)
           .eq('id', result.product_id);
 
         if (updateErr) {

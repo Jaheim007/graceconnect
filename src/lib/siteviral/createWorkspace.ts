@@ -69,7 +69,7 @@ export async function createWorkspace(input: CreateWorkspaceInput): Promise<Crea
       _name: input.name,
       _slug: slugifyWorkspaceName(input.name),
       _category: input.category ?? meta.category,
-      _description: input.description ?? null,
+      _description: input.description ?? undefined,
       _currency: input.currency,
     });
     if (error) throw error;

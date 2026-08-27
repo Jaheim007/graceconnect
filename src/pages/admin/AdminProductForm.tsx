@@ -4,7 +4,7 @@ import { SUPPORTED_CURRENCIES, type CurrencyCode } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import { getOrCreateShortLink, buildSocialShareUrl, buildShareUrlForPath } from '@/lib/shareMeta';
 import { getPublicUrl } from '@/lib/publicUrl';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from '@/lib/router-compat';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Zap, ImageIcon, AlertTriangle, RefreshCw, Loader2, CalendarIcon } from 'lucide-react';
@@ -132,7 +132,7 @@ export function ProductForm() {
     retry: 2,
   });
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<z.input<typeof schema>, unknown, FormData>({
     resolver: zodResolver(schema),
     defaultValues: { product_type: 'pdf', price: 0, is_free: false, is_published: true, is_bundle: false, is_pwyw: false, min_price: 0, guarantee_text: '' },
   });
@@ -967,7 +967,7 @@ export function ProductForm() {
                 if (snapshot.price !== undefined) setValue('price', snapshot.price as number);
               }} />
             </div>
-            <EmbedSnippetGen productId={id!} orgSlug={currentOrg?.slug || ''} productTitle={watch('title')} price={watch('price') || 0} currency={currentOrg?.currency || 'XOF'} isFree={watch('is_free')} />
+            <EmbedSnippetGen productId={id!} orgSlug={currentOrg?.slug || ''} productTitle={watch('title')} price={watch('price') || 0} currency={currentOrg?.currency || 'XOF'} isFree={watch('is_free') ?? false} />
             <SocialSnippetsViewer productId={id!} orgId={currentOrg?.id || ''} />
             <ContextualFeedback context="post_publication" question="Comment s'est passée cette publication ?" />
           </div>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Rocket, Copy, Check, ArrowRight, Zap, Gift, X, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
 import { toast } from 'sonner';

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Star, Quote, TrendingUp, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 
 interface SuccessStory {
   name: string;

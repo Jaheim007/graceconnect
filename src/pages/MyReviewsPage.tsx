@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { Star, MessageSquare, ExternalLink, Loader2, Pencil } from 'lucide-react';

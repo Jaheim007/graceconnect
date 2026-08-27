@@ -1,5 +1,5 @@
 import { useState, Suspense } from 'react';
-import { Outlet, NavLink, useLocation } from 'react-router-dom';
+import { Outlet, NavLink, useLocation } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
 import { Shield, Users, FileCheck, BarChart3, Megaphone, Zap, LayoutDashboard, Activity, Settings, Download, UserCircle, Target, ShieldAlert, Mail, ChevronLeft, ChevronRight, ArrowLeft, Bell, HelpCircle, Wallet, Handshake, ShieldCheck, Brain, Menu, Sun, Moon, Church, Home, PartyPopper, GraduationCap } from 'lucide-react';

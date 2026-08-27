@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { Church, Mic, HandHeart, Calendar, Heart, Users, Settings, ShieldCheck, ShieldAlert, ExternalLink, Loader2, Zap, ArrowUpRight, CalendarClock, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -65,7 +65,7 @@ export default function ChurchProDashboard() {
     { label: fr ? 'RDV en attente' : 'Pending appts', value: counts.appointments, icon: CalendarClock },
   ];
 
-  const quickLinks = [
+  const quickLinks: { to: string; icon: React.ElementType; title: string; desc: string; badge?: string | null }[] = [
     { to: '/admin/church/sermons', icon: Mic, title: fr ? 'Prédications → Livre' : 'Sermons → Book', desc: fr ? 'Uploader audio, transcrire, transformer en livre/PDF' : 'Upload audio, transcribe, transform to book/PDF', badge: null},
     { to: '/admin/church/giving', icon: HandHeart, title: fr ? 'Dîmes & offrandes' : 'Tithes & offerings', desc: fr ? 'Dons, campagnes, reçus' : 'Gifts, campaigns, receipts' },
     { to: '/admin/church/campaigns', icon: HandHeart, title: fr ? 'Campagnes' : 'Campaigns', desc: fr ? 'Collectes ciblées avec objectif' : 'Targeted fundraisers with a goal' },

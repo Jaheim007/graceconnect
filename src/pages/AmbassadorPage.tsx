@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, DollarSign, Share2, Users, Zap, Star, TrendingUp, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';

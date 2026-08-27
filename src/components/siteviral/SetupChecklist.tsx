@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { Check, Circle, ArrowRight, ListChecks, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useOrg } from '@/contexts/OrgContext';

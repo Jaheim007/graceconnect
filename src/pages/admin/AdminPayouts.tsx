@@ -22,7 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { onPayoutRequested } from '@/lib/notifications';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { ContextualFeedback } from '@/components/feedback/ContextualFeedback';
 import { formatCurrency } from '@/lib/currency';
 

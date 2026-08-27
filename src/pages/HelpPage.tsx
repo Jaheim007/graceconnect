@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Search, MessageCircle, BookOpen, CreditCard, Shield, Users, Settings, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useI18n } from '@/i18n/I18nContext';
 
 const categoriesFr = [

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, lazy, Suspense } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link } from '@/lib/router-compat';
 import { Search, X, Loader2, Flame } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';

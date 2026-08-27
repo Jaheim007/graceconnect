@@ -2,7 +2,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useOrgMedia } from '@/hooks/useMedia';
 import { useOrgProducts } from '@/hooks/useMonetization';
 import { useOrgMembers } from '@/hooks/useOrgRole';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { CheckCircle, Circle, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';

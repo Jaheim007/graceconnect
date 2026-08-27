@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { I18nContext } from '@/i18n/I18nContext';

@@ -2,7 +2,7 @@ import { Heart, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsWishlisted, useToggleWishlist } from '@/hooks/useWishlist';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
 

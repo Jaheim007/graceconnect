@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Zap, ArrowRight, X, PenLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';

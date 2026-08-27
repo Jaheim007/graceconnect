@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Download, Smartphone, CheckCircle, Share, ArrowRight, Wifi, BellRing, Zap, Plus, Monitor, Tablet } from 'lucide-react';
 import { Button } from '@/components/ui/button';

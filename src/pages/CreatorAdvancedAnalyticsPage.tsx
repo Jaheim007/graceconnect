@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, TrendingDown, TrendingUp, Users, AlertTriangle, Crown, BarChart3, Zap, ShoppingBag, Activity, Download } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { RouteContentSkeleton } from '@/components/layout/RouteFallback';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,

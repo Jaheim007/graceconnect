@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { PartyPopper, ArrowRight, ShieldCheck, MessageSquare, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EVENTS_CATEGORIES } from "@/lib/eventsCategories";

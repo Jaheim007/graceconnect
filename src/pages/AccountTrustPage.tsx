@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Shield, AlertTriangle, CheckCircle2, Clock, Mail } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 
 const STATUS_INFO: Record<string, { label: string; color: string; icon: any }> = {
   ok: { label: 'Compte en règle', color: 'text-green-500', icon: CheckCircle2 },

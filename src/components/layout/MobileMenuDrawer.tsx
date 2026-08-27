@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from '@/lib/router-compat';
 import { LogOut, Plus, X, ChevronDown, Check } from 'lucide-react';
 
 import { cn } from '@/lib/utils';

@@ -1,5 +1,5 @@
 import { BuyerFeeNote } from '@/components/payments/FeeBreakdown';
-import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, Link, useSearchParams } from '@/lib/router-compat';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useProgram, useProgramModules, useEnrollment, useLessonProgress, useEnrollInProgram, useToggleLessonComplete } from '@/hooks/usePrograms';
@@ -103,7 +103,7 @@ export default function ProgramDetailPage() {
         .from('organization_members')
         .select('role')
         .eq('user_id', user.id)
-        .eq('organization_id', program.organization_id)
+        .eq('organization_id', program.organization_id ?? '')
         .maybeSingle();
       return data && ['owner', 'admin', 'editor'].includes(data.role);
     },

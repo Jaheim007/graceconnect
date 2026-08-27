@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Search, X, Building2, ShoppingBag, CalendarDays, Play } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';

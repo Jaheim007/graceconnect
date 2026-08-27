@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Bell, Sun, Moon, LogOut, User, Shield, Plus, Search, Building2, Check, CreditCard } from 'lucide-react';
 import { PlanBadge } from '@/components/billing/PlanBadge';

@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { PromoLayout } from './PromoLayout';

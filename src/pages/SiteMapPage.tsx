@@ -1,7 +1,7 @@
 import LegalPageShell from '@/components/layout/LegalPageShell';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 
 export default function SiteMapPage() {
   const { locale } = useI18n();

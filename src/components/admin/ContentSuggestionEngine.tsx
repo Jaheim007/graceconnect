@@ -5,7 +5,7 @@ import { useOrgMedia } from '@/hooks/useMedia';
 import { useOrgProducts } from '@/hooks/useMonetization';
 import { Lightbulb, ArrowRight, Zap, Video, FileText, Mic, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { Badge } from '@/components/ui/badge';
 
 interface Suggestion {

@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom';
+import type { ReactElement } from 'react';
+import { useNavigate } from '@/lib/router-compat';
 import { Button } from '@/components/ui/button';
 import { MediaCard } from '@/components/media/MediaCard';
 import { CampaignCard } from '@/components/donations/CampaignCard';
@@ -43,7 +44,7 @@ export function OrgHomeSections({
     navigate(tab === 'home' ? base : `${base}/${tab}`, { replace: true });
   };
 
-  const sectionRenderers: Record<string, () => JSX.Element | null> = {
+  const sectionRenderers: Record<string, () => ReactElement | null> = {
     products: () => products.length > 0 ? (
       <motion.section key="products" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="rounded-2xl border border-border bg-card overflow-hidden shadow-card">
         <div className="flex items-center justify-between px-5 pt-5 pb-3">

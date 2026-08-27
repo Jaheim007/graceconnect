@@ -1,7 +1,7 @@
 // Robust affiliate attribution: cookie (7 days) + localStorage fallback
 // Last-click wins within the attribution window
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from '@/lib/router-compat';
 import { supabase } from '@/integrations/supabase/client';
 
 const STORAGE_KEY = 'sv_affiliate_ref';

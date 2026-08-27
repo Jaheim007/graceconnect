@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useShortLink } from '@/hooks/useShortLink';
 import { brandUrl } from '@/lib/storageUrl';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 
 interface OrgPublicHeaderProps {

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useI18n } from '@/i18n/I18nContext';
 import {
   CheckCircle, AlertTriangle, XCircle, Activity, Database, Shield,

@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle, Circle, ArrowRight, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { useI18n } from '@/i18n/I18nContext';
 
 interface FirstWinChecklistProps {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

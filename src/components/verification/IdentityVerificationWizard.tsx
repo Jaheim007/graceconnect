@@ -261,6 +261,9 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
         if (error) throw error;
         submissionId = (data as any)?.submission_id || null;
       } else if (mode === 'beauty') {
+        // The generated Args type marks every param as `string`, but the SQL
+        // function accepts NULL for the optional ones — preserve the original
+        // null-passing behavior with a single cast on the args object.
         const { data, error } = await db.rpc('submit_beauty_kyc', {
           _provider_id: entityId,
           _id_document_url: docFrontUrl,
@@ -274,7 +277,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
           _payout_method: payoutMethod,
           _payout_phone: payoutMethod === 'mobile_money' ? accountNumber : null,
           _payout_provider: payoutProvider || null,
-        });
+        } as never);
         if (error) throw error;
         submissionId = (data as any)?.submission_id || null;
       } else if (mode === 'church') {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useParams, useSearchParams } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Church, HandHeart, Loader2, Info, ShieldCheck, Lock, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';

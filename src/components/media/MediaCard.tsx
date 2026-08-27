@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Play, Headphones, Video, Heart, Eye } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { MediaContent } from '@/types/database';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';

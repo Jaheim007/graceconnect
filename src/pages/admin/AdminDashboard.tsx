@@ -5,7 +5,7 @@ import { useOrgAnnouncements } from '@/hooks/useAnnouncements';
 import { useOrgEvents } from '@/hooks/useEvents';
 import { useOrgCampaigns, useOrgProducts } from '@/hooks/useMonetization';
 import { useOrgMembers } from '@/hooks/useOrgRole';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';

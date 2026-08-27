@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Sun, Moon } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';

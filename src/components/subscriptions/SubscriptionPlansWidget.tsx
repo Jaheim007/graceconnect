@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Check, CreditCard, Star } from 'lucide-react';
 import { formatCurrency } from '@/lib/currency';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 
 interface Props {

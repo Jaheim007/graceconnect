@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from '@/lib/router-compat';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingFooterCompact } from '@/components/landing/LandingFooterCompact';
 import { Button } from '@/components/ui/button';

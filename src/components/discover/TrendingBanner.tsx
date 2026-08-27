@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { TrendingUp, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';

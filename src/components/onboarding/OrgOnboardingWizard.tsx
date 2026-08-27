@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,7 +61,7 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
       if (description) updates.description = description;
       if (logoUrl) updates.logo_url = logoUrl;
       if (Object.keys(updates).length > 0) {
-        await db.from('organizations').update(updates).eq('id', currentOrg.id);
+        await db.from('organizations').update(updates as never).eq('id', currentOrg.id);
         refetchOrgs();
       }
     } catch (err) {

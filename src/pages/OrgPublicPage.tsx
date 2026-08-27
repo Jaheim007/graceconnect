@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { stripHtml } from '@/lib/formatText';
-import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useSearchParams } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Tabs, TabsContent } from '@/components/ui/tabs';

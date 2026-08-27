@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Check, Loader2, Rocket, Zap } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';

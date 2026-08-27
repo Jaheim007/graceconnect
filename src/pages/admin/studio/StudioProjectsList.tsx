@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

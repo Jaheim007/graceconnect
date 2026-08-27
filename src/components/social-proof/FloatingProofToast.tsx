@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, UserPlus, Download, Heart, Star, Flame, Users, TrendingUp, Award, Zap, BookOpen, Gift, GraduationCap, X } from 'lucide-react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link } from '@/lib/router-compat';
 import { useI18n } from '@/i18n/I18nContext';
 import { GLOBAL_NAMES, GLOBAL_CITIES, PRODUCT_TITLES, ORG_NAMES } from '@/lib/global-names';
 import { createSeededRandom, hashString, seededPick, seededInt } from '@/lib/seeded-random';

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Star, Quote, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useI18n } from '@/i18n/I18nContext';

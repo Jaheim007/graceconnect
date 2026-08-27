@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { Home, Play, Bell, User, Store, Settings, BarChart3, Users, ShoppingBag, Heart, Link2, Megaphone, CalendarDays, Camera, FileCheck, Wallet, CreditCard, Clock, GraduationCap, Shield, Zap, BookOpen, Search, Building2, Package, UserPlus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';

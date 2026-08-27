@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet, HeartHandshake, Network } from 'lucide-react';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';

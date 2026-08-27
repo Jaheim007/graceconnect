@@ -4,7 +4,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { motion } from 'framer-motion';
 import { Clock, TrendingUp, Share2, MessageCircle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { HelpTip } from '@/components/ui/HelpTip';
 import { useI18n } from '@/i18n/I18nContext';
 

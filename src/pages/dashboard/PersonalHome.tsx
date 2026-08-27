@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, type ReactElement } from 'react';
+import { Link, useNavigate } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Package, Calendar, Ticket, ArrowRight, ShoppingBag, Compass, GraduationCap, HandCoins } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -122,7 +122,7 @@ export default function PersonalHome() {
   // Cumulative capabilities — learn / earn / create can all be true at once.
   const caps = useUserCapabilities();
 
-  const capabilityBlocks: Record<Capability, JSX.Element | null> = {
+  const capabilityBlocks: Record<Capability, ReactElement | null> = {
     learn: caps.continueItem ? <ContinueBlock key="learn" item={caps.continueItem} /> : null,
     create: caps.canCreate ? (
       <SpaceBlock key="create" spaceName={caps.spaces.currentName} spaceCount={caps.spaces.count} />

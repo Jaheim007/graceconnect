@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { AdaptiveLayout } from '@/components/layout/AdaptiveLayout';
 import { PlatformSetupStep, type PlatformSetupValues } from '@/components/write/PlatformSetupStep';
 import { createWorkspace } from '@/lib/siteviral/createWorkspace';

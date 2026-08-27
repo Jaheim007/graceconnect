@@ -38,7 +38,7 @@ export default function PartnerKYCForm({ partnerId, kycStatus, rejectionReason }
         _partner_id: partnerId,
         _id_document_url: docUrl,
         _id_document_type: docType,
-        _selfie_url: selfieUrl || null,
+        _selfie_url: selfieUrl || undefined,
       });
       if (error) throw error;
       toast.success(isFr ? 'Documents KYC soumis avec succès' : 'KYC documents submitted successfully');

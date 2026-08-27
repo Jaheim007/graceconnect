@@ -1,7 +1,7 @@
 import { Link2, MousePointerClick, ShoppingCart, TrendingUp, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { formatCurrency } from '@/lib/currency';
 
 interface Props {

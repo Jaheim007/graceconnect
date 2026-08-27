@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { Package, Calendar, Ticket, Gift, Wrench, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';

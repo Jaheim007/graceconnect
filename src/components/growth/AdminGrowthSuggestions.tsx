@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Lightbulb, ArrowRight, X } from 'lucide-react';
 import { useGrowthSuggestions } from '@/hooks/useGrowthSuggestions';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';

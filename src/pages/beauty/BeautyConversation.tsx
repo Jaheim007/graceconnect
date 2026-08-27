@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, Link } from "@/lib/router-compat";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Send, ShieldAlert, Info, Zap, Calendar, Home, Store, Check, X, Loader2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check, Zap, Crown, Building2, Star, CreditCard, Smartphone, Loader2, Trophy, Clock, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';

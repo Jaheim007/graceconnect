@@ -1,5 +1,5 @@
 import { Scissors } from 'lucide-react';
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Calendar, MessageSquare, ShieldCheck, Zap, AlertCircle, Share2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";

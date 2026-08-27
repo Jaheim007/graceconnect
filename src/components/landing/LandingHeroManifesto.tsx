@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { ArrowRight, PenLine, Share2, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { TrendingUp, Flame, BookOpen, Star, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { ArrowRight, ShieldCheck, Wallet, Users, Zap, Star, Check, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LandingNav } from '@/components/landing/LandingNav';

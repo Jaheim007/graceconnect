@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PenLine, Zap, ArrowRight, BookOpen, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useI18n } from '@/i18n/I18nContext';
 
 export function LandingInteractiveDemo() {

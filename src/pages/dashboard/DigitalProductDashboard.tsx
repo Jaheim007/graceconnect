@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, BookOpen, CheckCircle2, FileCheck, GraduationCap, Package, Plus, Receipt, Share2, ShoppingBag, Zap, TrendingUp, Wallet } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';

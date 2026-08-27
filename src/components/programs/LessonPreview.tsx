@@ -174,7 +174,7 @@ export function LessonPreview({ programId, initialLessonId, initialSlideId, init
   }, [isLearner, enrollmentProgress?.total_stars]);
 
   // Debounced progress save - refs only, effect is after allSlides
-  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const lastSavedRef = useRef<number>(-1);
   useEffect(() => {
     const updateViewport = () => {

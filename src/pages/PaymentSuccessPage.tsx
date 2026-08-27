@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from '@/lib/router-compat';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -104,9 +104,9 @@ export default function PaymentSuccessPage() {
         const org = product?.organizations;
         return {
           type: 'product', reference: purchase.paystack_reference, amount: purchase.amount,
-          currency: purchase.currency || 'XOF', status: purchase.status,
-          created_at: purchase.completed_at || purchase.created_at, product_title: product?.title,
-          product_type: product?.product_type, product_id: product?.id,
+          currency: purchase.currency || 'XOF', status: purchase.status ?? '',
+          created_at: purchase.completed_at || purchase.created_at || '', product_title: product?.title,
+          product_type: product?.product_type ?? undefined, product_id: product?.id,
           organization_id: product?.organization_id, file_url: product?.file_url,
           external_link: product?.external_link, cover_image_url: product?.cover_image_url,
           org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_slug: org?.slug,
@@ -127,8 +127,8 @@ export default function PaymentSuccessPage() {
         const org = donation.organizations;
         return {
           type: 'donation', reference: donation.paystack_reference, amount: donation.amount,
-          currency: donation.currency || 'XOF', status: donation.status,
-          created_at: donation.completed_at || donation.created_at,
+          currency: donation.currency || 'XOF', status: donation.status ?? '',
+          created_at: donation.completed_at || donation.created_at || '',
           campaign_title: donation.donation_campaigns?.title,
           org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_slug: org?.slug,
           org_logo: org?.logo_url, leader_name: org?.leader_name, leader_title: org?.leader_title,
@@ -150,9 +150,9 @@ export default function PaymentSuccessPage() {
         referenceRef.current = recentPurchase.paystack_reference;
         return {
           type: 'product', reference: recentPurchase.paystack_reference, amount: recentPurchase.amount,
-          currency: recentPurchase.currency || 'XOF', status: recentPurchase.status,
-          created_at: recentPurchase.completed_at || recentPurchase.created_at, product_title: product?.title,
-          product_type: product?.product_type, product_id: product?.id,
+          currency: recentPurchase.currency || 'XOF', status: recentPurchase.status ?? '',
+          created_at: recentPurchase.completed_at || recentPurchase.created_at || '', product_title: product?.title,
+          product_type: product?.product_type ?? undefined, product_id: product?.id,
           file_url: product?.file_url, external_link: product?.external_link,
           cover_image_url: product?.cover_image_url, organization_id: product?.organization_id,
           org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_slug: org?.slug,
@@ -172,8 +172,8 @@ export default function PaymentSuccessPage() {
         referenceRef.current = recentDonation.paystack_reference;
         return {
           type: 'donation', reference: recentDonation.paystack_reference, amount: recentDonation.amount,
-          currency: recentDonation.currency || 'XOF', status: recentDonation.status,
-          created_at: recentDonation.completed_at || recentDonation.created_at,
+          currency: recentDonation.currency || 'XOF', status: recentDonation.status ?? '',
+          created_at: recentDonation.completed_at || recentDonation.created_at || '',
           campaign_title: recentDonation.donation_campaigns?.title,
           org_name: org?.name || (isFr ? 'Organisation' : 'Organization'), org_slug: org?.slug,
           org_logo: org?.logo_url, leader_name: org?.leader_name, leader_title: org?.leader_title,

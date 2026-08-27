@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate } from '@/lib/router-compat';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { db, supabase } from '@/lib/db';
@@ -104,9 +104,9 @@ export default function MarketplaceTemplateDetailPage() {
               <Download className="w-4 h-4" /> {template.clones_count} {fr ? 'clones' : 'clones'}
             </span>
           </div>
-          {template.tags?.length > 0 && (
+          {(template.tags?.length ?? 0) > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
-              {template.tags.map((tag: string) => (
+              {(template.tags ?? []).map((tag: string) => (
                 <Badge key={tag} variant="secondary">{tag}</Badge>
               ))}
             </div>

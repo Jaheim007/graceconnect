@@ -1,6 +1,6 @@
 import LegalPageShell from '@/components/layout/LegalPageShell';
 import { Shield, CheckCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router-compat';
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 

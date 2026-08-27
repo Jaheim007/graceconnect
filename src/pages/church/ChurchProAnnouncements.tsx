@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate } from '@/lib/router-compat';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Loader2, Megaphone, Plus, Pin, PinOff, Trash2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -142,7 +142,7 @@ function NewAnnouncementDialog({ open, onOpenChange, churchId, onCreated }: {
     const { error } = await supabase.from('church_announcements').insert({
       church_id: churchId,
       title: title.trim(),
-      body: body.trim() || null,
+      body: body.trim() || '',
       status: asPublished ? 'published' : 'draft',
       published_at: asPublished ? new Date().toISOString() : null,
     });

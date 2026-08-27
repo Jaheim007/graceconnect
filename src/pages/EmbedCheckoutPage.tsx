@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from '@/lib/router-compat';
 import { db } from '@/lib/db';
 import { ProductPurchaseModal } from '@/components/products/ProductPurchaseModal';
 

@@ -1,5 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { Button } from '@/components/ui/button';
 import { Zap, ThumbsUp } from 'lucide-react';
 import { motion } from 'framer-motion';
