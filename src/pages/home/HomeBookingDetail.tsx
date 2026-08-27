@@ -1,9 +1,11 @@
 import { useEffect } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Link, useNavigate, useParams, useSearchParams } from "@/lib/router-compat";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Calendar, MapPin, ShieldCheck, MessageCircle, CheckCircle2, XCircle, Loader2, AlertTriangle, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { homeVerifyBooking } from "@/lib/verticals/bookings.functions";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { toast } from "@/hooks/use-toast";
@@ -30,6 +32,7 @@ export default function HomeBookingDetail() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const runVerifyBooking = useServerFn(homeVerifyBooking);
   const { user } = useAuth();
   const { locale } = useI18n();
   const isFr = locale === "fr";
@@ -73,11 +76,11 @@ export default function HomeBookingDetail() {
     if (!returnedSuccess || !id) return;
     (async () => {
       try {
-        await supabase.functions.invoke("home-verify-booking", { body: { booking_id: id, session_id: sessionId } });
+        await runVerifyBooking({ data: { booking_id: id, session_id: sessionId ?? undefined } });
         qc.invalidateQueries({ queryKey: ["home-booking", id] });
       } catch (e) { console.warn(e); }
     })();
-  }, [returnedSuccess, id, sessionId, qc]);
+  }, [returnedSuccess, id, sessionId, qc, runVerifyBooking]);
 
   if (isLoading) return <div className="p-10 text-center text-sm text-muted-foreground">…</div>;
   if (!booking) return (

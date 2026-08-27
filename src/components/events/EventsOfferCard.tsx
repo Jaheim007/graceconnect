@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@/lib/router-compat";
 import { Loader2, ArrowRight, Calendar, MapPin, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { eventsCreateBooking } from "@/lib/verticals/bookings.functions";
 import { toast } from "@/hooks/use-toast";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,11 +30,13 @@ export default function EventsOfferCard({ offerId }: Props) {
   if (!offer) return null;
   const isClient = user?.id === offer.client_id;
 
+  const runCreateBooking = useServerFn(eventsCreateBooking);
+
   const accept = async () => {
     setLoading(true);
-    const { data, error } = await supabase.functions.invoke("events-create-booking", {
-      body: { offer_id: offerId, return_origin: window.location.origin },
-    });
+    const res: any = await runCreateBooking({ data: { offer_id: offerId, return_origin: window.location.origin } })
+      .catch((e: any) => ({ error: e?.message || "Request failed" }));
+    const data = res; const error = res?.error ? { message: res.error as string } : null;
     if (error || !data?.checkout_url) {
       setLoading(false);
       toast({ title: "Error", description: error?.message || "no checkout url", variant: "destructive" });

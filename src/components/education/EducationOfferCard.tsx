@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@/lib/router-compat";
 import { Loader2, ArrowRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import { educationCreateBooking } from "@/lib/verticals/bookings.functions";
 import { toast } from "@/hooks/use-toast";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,15 +31,17 @@ export default function EducationOfferCard({ offerId }: Props) {
   if (!offer) return null;
   const isStudent = user?.id === offer.student_id;
 
+  const runCreateBooking = useServerFn(educationCreateBooking);
+
   const accept = async () => {
     if (!scheduledAt) {
       toast({ title: t("Choisis une date et heure.", "Pick a date and time."), variant: "destructive" });
       return;
     }
     setLoading(true);
-    const { data, error } = await supabase.functions.invoke("education-create-booking", {
-      body: { offer_id: offerId, scheduled_at: new Date(scheduledAt).toISOString(), mode: offer.mode, return_origin: window.location.origin },
-    });
+    const res: any = await runCreateBooking({ data: { offer_id: offerId, scheduled_at: new Date(scheduledAt).toISOString(), mode: offer.mode, return_origin: window.location.origin } })
+      .catch((e: any) => ({ error: e?.message || "Request failed" }));
+    const data = res; const error = res?.error ? { message: res.error as string } : null;
     if (error || !(data as any)?.checkout_url) {
       setLoading(false);
       toast({ title: "Error", description: error?.message || "no checkout url", variant: "destructive" });

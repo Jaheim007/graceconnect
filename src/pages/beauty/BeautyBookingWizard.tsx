@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useNavigate, useParams } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { beautyCreateBooking } from "@/lib/verticals/bookings.functions";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatCurrency } from "@/lib/currency";
 import { useI18n } from "@/i18n/I18nContext";
@@ -31,6 +33,7 @@ export default function BeautyBookingWizard() {
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
 
+  const runCreateBooking = useServerFn(beautyCreateBooking);
   const [step, setStep] = useState<Step>("slot");
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [locationType, setLocationType] = useState<"salon" | "home">("salon");
@@ -140,8 +143,8 @@ export default function BeautyBookingWizard() {
     try {
       const slot = (slots ?? []).find((s) => s.slot_start === selectedSlot);
       if (!slot) throw new Error("Slot expired");
-      const { data, error } = await supabase.functions.invoke("beauty-create-booking", {
-        body: {
+      const data: any = await runCreateBooking({
+        data: {
           service_id: bundle.service.id,
           slot_start: slot.slot_start,
           slot_end: slot.slot_end,
@@ -151,7 +154,7 @@ export default function BeautyBookingWizard() {
           return_origin: window.location.origin,
         },
       });
-      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
       if (!data?.checkout_url) throw new Error("No checkout URL returned");
       window.location.href = data.checkout_url;
     } catch (e: any) {

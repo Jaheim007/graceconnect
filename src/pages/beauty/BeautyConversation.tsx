@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useNavigate, useParams, Link } from "@/lib/router-compat";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Send, ShieldAlert, Info, Zap, Calendar, Home, Store, Check, X, Loader2, FileText } from "lucide-react";
@@ -16,6 +17,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { beautyCreateBooking } from "@/lib/verticals/bookings.functions";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { formatCurrency } from "@/lib/currency";
@@ -426,6 +428,7 @@ function OfferBubble({
 }) {
   const t = (fr: string, en: string) => (isFr ? fr : en);
   const navigate = useNavigate();
+  const runCreateBooking = useServerFn(beautyCreateBooking);
   const [busy, setBusy] = useState<"pay" | "decline" | "cancel" | null>(null);
 
   if (!offer) {
@@ -439,8 +442,8 @@ function OfferBubble({
   const pay = async () => {
     setBusy("pay");
     try {
-      const { data, error } = await supabase.functions.invoke("beauty-create-booking", {
-        body: {
+      const data: any = await runCreateBooking({
+        data: {
           service_id: offer.service_id,
           slot_start: offer.slot_start,
           slot_end: offer.slot_end,
@@ -449,8 +452,8 @@ function OfferBubble({
           return_origin: window.location.origin,
         },
       });
-      if (error || !(data as any)?.checkout_url) {
-        throw new Error((error as any)?.message || (data as any)?.error || "checkout error");
+      if (!data?.checkout_url) {
+        throw new Error(data?.error || "checkout error");
       }
       // Link offer → booking optimistically
       await supabase
