@@ -77,12 +77,11 @@ export default function SuperadminTrust() {
 
   const runAction = async (action: string) => {
     if (!selectedViolation) return;
-    const { data, error } = await supabase.functions.invoke('trust-admin-action', {
-      body: { violation_id: selectedViolation.id, target_user_id: selectedViolation.sender_id, action },
-    });
-    if (error || (data as any)?.error) {
-      toast.error('Action échouée: ' + (error?.message || (data as any)?.error));
-    } else {
+    try {
+      const data: any = await runTrustAction({
+        data: { violation_id: selectedViolation.id, target_user_id: selectedViolation.sender_id, action },
+      });
+      if (data?.error) throw new Error(data.error);
       toast.success('Action appliquée + utilisateur notifié');
       qc.invalidateQueries({ queryKey: ['sa-violations'] });
       qc.invalidateQueries({ queryKey: ['sa-trust-profile'] });
