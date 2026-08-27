@@ -5,7 +5,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePaymentGateway, PaymentMethod } from '@/hooks/usePaymentGateway';
 import { PaymentMethodSelector } from '@/components/payments/PaymentMethodSelector';
 import { isMoMoAvailable } from '@/lib/paymentRouting';
-import { supabase } from '@/integrations/supabase/client';
+import { useServerFn } from '@tanstack/react-start';
+import {
+  startCreditPurchase,
+  createStripeCreditCheckout,
+  verifyCreditPayment,
+} from '@/lib/billing/billing.functions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -53,6 +58,9 @@ export default function CreditsPage() {
   const qc = useQueryClient();
   const [selectedTab, setSelectedTab] = useState('packs');
   const [purchasing, setPurchasing] = useState<string | null>(null);
+  const runStartPurchase = useServerFn(startCreditPurchase);
+  const runStripeCheckout = useServerFn(createStripeCreditCheckout);
+  const runVerify = useServerFn(verifyCreditPayment);
 
   // Credit packs are priced in XOF
   const creditCurrency = 'XOF';
@@ -77,11 +85,11 @@ export default function CreditsPage() {
 
       (async () => {
         try {
-          const { data: verifyData, error: verifyErr } = await supabase.functions.invoke('verify-credit-purchase', {
-            body: { reference: stripeSessionId, purchase_id: creditPurchaseId, gateway: 'stripe' },
+          const verifyData: any = await runVerify({
+            data: { reference: stripeSessionId, purchase_id: creditPurchaseId, gateway: 'stripe' },
           });
 
-          if (verifyErr || !verifyData?.ok) {
+          if (!verifyData?.ok) {
             toast.error(verifyData?.error || (isFr ? 'Erreur de vérification Stripe. Contactez le support.' : 'Stripe verification error. Contact support.'));
             return;
           }
@@ -106,25 +114,25 @@ export default function CreditsPage() {
       // Apple Pay → Stripe Checkout. Mobile Money → GeniusPay (legacy "paystack" label kept for DB enum).
       // Card → Stripe.
       const gateway = paymentMethod === 'mobile_money' ? 'paystack' : 'stripe';
-      const { data, error } = await supabase.functions.invoke('purchase-credits', {
-        body: { pack_key: packKey, payment_gateway: gateway },
+      const data: any = await runStartPurchase({
+        data: { pack_key: packKey, payment_gateway: gateway },
       });
 
-      if (error || !data?.ok) {
-        throw new Error(data?.error || error?.message || (isFr ? 'Erreur lors de la création de l\'achat' : 'Error creating purchase'));
+      if (!data?.ok) {
+        throw new Error(data?.error || (isFr ? 'Erreur lors de la création de l\'achat' : 'Error creating purchase'));
       }
 
       if (gateway === 'stripe') {
         const currentUrl = window.location.origin + '/credits';
-        const { data: stripeData, error: stripeErr } = await supabase.functions.invoke('stripe-credit-checkout', {
-          body: {
+        const stripeData: any = await runStripeCheckout({
+          data: {
             purchase_id: data.purchase_id,
             success_url: currentUrl,
             cancel_url: currentUrl,
           },
         });
 
-        if (stripeErr || !stripeData?.checkout_url) {
+        if (!stripeData?.checkout_url) {
           throw new Error(stripeData?.error || (isFr ? 'Erreur lors de la création du paiement Stripe' : 'Error creating Stripe payment'));
         }
 
@@ -142,11 +150,11 @@ export default function CreditsPage() {
         metadata: data.metadata,
         onSuccess: async (reference: string, gw) => {
           try {
-            const { data: verifyData, error: verifyErr } = await supabase.functions.invoke('verify-credit-purchase', {
-              body: { reference, purchase_id: data.purchase_id, gateway: gw },
+            const verifyData: any = await runVerify({
+              data: { reference, purchase_id: data.purchase_id, gateway: gw },
             });
 
-            if (verifyErr || !verifyData?.ok) {
+            if (!verifyData?.ok) {
               toast.error(verifyData?.error || (isFr ? 'Erreur de vérification. Contactez le support.' : 'Verification error. Contact support.'));
               return;
             }

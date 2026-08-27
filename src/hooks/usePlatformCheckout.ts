@@ -1,6 +1,11 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useServerFn } from '@tanstack/react-start';
 import { toast } from 'sonner';
+import {
+  createPlatformSubscription,
+  createPaystackSubscription,
+  cancelSubscription,
+} from '@/lib/billing/billing.functions';
 
 export type PlanKey = 'pro_monthly' | 'org_monthly' | 'pro_lifetime';
 export type PaymentProvider = 'stripe' | 'paystack';
@@ -20,6 +25,9 @@ interface CheckoutOptions {
  */
 export function usePlatformCheckout() {
   const [loading, setLoading] = useState(false);
+  const runStripeSub = useServerFn(createPlatformSubscription);
+  const runPaystackSub = useServerFn(createPaystackSubscription);
+  const runCancel = useServerFn(cancelSubscription);
 
   const startCheckout = async ({ plan, provider, currency = 'XOF', couponCode }: CheckoutOptions) => {
     setLoading(true);
@@ -29,17 +37,17 @@ export function usePlatformCheckout() {
       const cancelUrl = `${origin}/pricing?canceled=1`;
 
       if (provider === 'stripe') {
-        const { data, error } = await supabase.functions.invoke('create-platform-subscription', {
-          body: { plan_key: plan, success_url: successUrl, cancel_url: cancelUrl, coupon_code: couponCode },
+        const data: any = await runStripeSub({
+          data: { plan_key: plan, success_url: successUrl, cancel_url: cancelUrl, coupon_code: couponCode },
         });
-        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
         if (!data?.url) throw new Error('No checkout URL');
         window.location.href = data.url;
       } else {
-        const { data, error } = await supabase.functions.invoke('create-paystack-subscription', {
-          body: { plan_key: plan, callback_url: successUrl, currency },
+        const data: any = await runPaystackSub({
+          data: { plan_key: plan, callback_url: successUrl, currency },
         });
-        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
         if (!data?.url) throw new Error('No checkout URL');
         window.location.href = data.url;
       }
@@ -53,10 +61,8 @@ export function usePlatformCheckout() {
   const cancelSubscription = async (immediate = false) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('cancel-platform-subscription', {
-        body: { immediate },
-      });
-      if (error) throw error;
+      const data: any = await runCancel({ data: { immediate } });
+      if (data?.error) throw new Error(data.error);
       toast.success(immediate ? 'Abonnement annulé' : 'Annulation programmée à la fin de la période');
       return data;
     } catch (e: any) {

@@ -6,7 +6,8 @@ import { LandingNav } from '@/components/landing/LandingNav';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { useServerFn } from '@tanstack/react-start';
+import { checkSubscription } from '@/lib/billing/billing.functions';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 
 export default function BillingSuccessPage() {
@@ -15,6 +16,7 @@ export default function BillingSuccessPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [params] = useSearchParams();
+  const runCheck = useServerFn(checkSubscription);
   const [verifying, setVerifying] = useState(true);
   const [tier, setTier] = useState<string>('free');
   const [founderSlot, setFounderSlot] = useState<number | null>(null);
@@ -30,7 +32,7 @@ export default function BillingSuccessPage() {
     const poll = async () => {
       attempts++;
       try {
-        const { data } = await supabase.functions.invoke('check-platform-subscription');
+        const data: any = await runCheck({});
         if (cancelled) return;
         if (data?.tier && data.tier !== 'free') {
           setTier(data.tier);
@@ -54,7 +56,7 @@ export default function BillingSuccessPage() {
 
     poll();
     return () => { cancelled = true; };
-  }, [user, planParam]);
+  }, [user, planParam, runCheck]);
 
   return (
     <div className="min-h-screen bg-background">
