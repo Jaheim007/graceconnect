@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import {
   createPlatformSubscription,
   createPaystackSubscription,
-  cancelSubscription,
+  cancelSubscription as cancelSubscriptionFn,
 } from '@/lib/billing/billing.functions';
 
 export type PlanKey = 'pro_monthly' | 'org_monthly' | 'pro_lifetime';
@@ -27,7 +27,7 @@ export function usePlatformCheckout() {
   const [loading, setLoading] = useState(false);
   const runStripeSub = useServerFn(createPlatformSubscription);
   const runPaystackSub = useServerFn(createPaystackSubscription);
-  const runCancel = useServerFn(cancelSubscription);
+  const runCancel = useServerFn(cancelSubscriptionFn);
 
   const startCheckout = async ({ plan, provider, currency = 'XOF', couponCode }: CheckoutOptions) => {
     setLoading(true);
