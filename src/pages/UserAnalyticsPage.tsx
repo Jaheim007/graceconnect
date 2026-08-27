@@ -46,9 +46,9 @@ export default function UserAnalyticsPage() {
       const totalClicks = affiliateLinks.reduce((sum, a) => sum + (a.clicks || 0), 0);
       const totalConversions = affiliateLinks.reduce((sum, a) => sum + (a.conversions || 0), 0);
       const now = new Date();
-      const thisMonth = purchases.filter(p => new Date(p.created_at).getMonth() === now.getMonth()).length;
+      const thisMonth = purchases.filter(p => new Date(p.created_at ?? 0).getMonth() === now.getMonth()).length;
       const lastMonth = purchases.filter(p => {
-        const d = new Date(p.created_at);
+        const d = new Date(p.created_at ?? 0);
         return d.getMonth() === (now.getMonth() - 1 + 12) % 12;
       }).length;
       return {

@@ -142,7 +142,7 @@ function NewAnnouncementDialog({ open, onOpenChange, churchId, onCreated }: {
     const { error } = await supabase.from('church_announcements').insert({
       church_id: churchId,
       title: title.trim(),
-      body: body.trim() || null,
+      body: body.trim() || '',
       status: asPublished ? 'published' : 'draft',
       published_at: asPublished ? new Date().toISOString() : null,
     });

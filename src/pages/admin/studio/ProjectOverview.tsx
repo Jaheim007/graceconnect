@@ -203,10 +203,10 @@ export default function ProjectOverview() {
               <span className="text-muted-foreground">Longueur cible</span>
               <span>{project.target_length} pages/chapitres</span>
             </>}
-            {project.keywords?.length > 0 && <>
+            {(project.keywords?.length ?? 0) > 0 && <>
               <span className="text-muted-foreground">Mots-clés</span>
               <div className="flex flex-wrap gap-1">
-                {project.keywords.map((k: string) => (
+                {(project.keywords ?? []).map((k: string) => (
                   <Badge key={k} variant="secondary" className="text-xs">{k}</Badge>
                 ))}
               </div>

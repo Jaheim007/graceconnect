@@ -104,9 +104,9 @@ export default function MarketplaceTemplateDetailPage() {
               <Download className="w-4 h-4" /> {template.clones_count} {fr ? 'clones' : 'clones'}
             </span>
           </div>
-          {template.tags?.length > 0 && (
+          {(template.tags?.length ?? 0) > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
-              {template.tags.map((tag: string) => (
+              {(template.tags ?? []).map((tag: string) => (
                 <Badge key={tag} variant="secondary">{tag}</Badge>
               ))}
             </div>
