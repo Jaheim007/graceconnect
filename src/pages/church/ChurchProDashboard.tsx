@@ -65,7 +65,7 @@ export default function ChurchProDashboard() {
     { label: fr ? 'RDV en attente' : 'Pending appts', value: counts.appointments, icon: CalendarClock },
   ];
 
-  const quickLinks = [
+  const quickLinks: { to: string; icon: React.ElementType; title: string; desc: string; badge?: string | null }[] = [
     { to: '/admin/church/sermons', icon: Mic, title: fr ? 'Prédications → Livre' : 'Sermons → Book', desc: fr ? 'Uploader audio, transcrire, transformer en livre/PDF' : 'Upload audio, transcribe, transform to book/PDF', badge: null},
     { to: '/admin/church/giving', icon: HandHeart, title: fr ? 'Dîmes & offrandes' : 'Tithes & offerings', desc: fr ? 'Dons, campagnes, reçus' : 'Gifts, campaigns, receipts' },
     { to: '/admin/church/campaigns', icon: HandHeart, title: fr ? 'Campagnes' : 'Campaigns', desc: fr ? 'Collectes ciblées avec objectif' : 'Targeted fundraisers with a goal' },
