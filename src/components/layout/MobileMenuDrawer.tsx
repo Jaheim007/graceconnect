@@ -93,9 +93,9 @@ export function MobileMenuDrawer({ onClose }: Props) {
     { id: 'acc-earn', icon: HandCoins, emoji: '', titleFr: 'Gagner', titleEn: 'Earn',
       descFr: '', descEn: '', route: '/gagner',
       borderClass: '', iconBg: 'bg-amber-500/12', iconColor: 'text-amber-500' },
-    { id: 'acc-affiliation', icon: Share2, emoji: '', titleFr: 'Parrainage', titleEn: 'Affiliate',
+    ...(isSuperadmin ? [{ id: 'acc-affiliation', icon: Share2, emoji: '', titleFr: 'Parrainage', titleEn: 'Affiliate',
       descFr: '', descEn: '', route: '/affiliation',
-      borderClass: '', iconBg: 'bg-emerald-500/12', iconColor: 'text-emerald-500' },
+      borderClass: '', iconBg: 'bg-emerald-500/12', iconColor: 'text-emerald-500' }] : []),
   ] : [];
 
 

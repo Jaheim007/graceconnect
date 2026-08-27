@@ -228,19 +228,22 @@ export function getActionNavItems(
       iconColor: 'text-emerald-500',
       featureKey: 'affiliation',
     });
-    items.push({
-      id: 'affiliation',
-      icon: Network,
-      emoji: '🔗',
-      titleFr: 'Parrainage',
-      titleEn: 'Affiliate',
-      descFr: 'Créer un programme de parrainage pour votre propre SaaS',
-      descEn: 'Create an affiliate program for your own SaaS',
-      route: '/affiliation',
-      borderClass: 'border-cyan-500/30 hover:border-cyan-500/60',
-      iconBg: 'bg-cyan-500/15',
-      iconColor: 'text-cyan-500',
-    });
+    // Affiliate Cloud is in private beta — superadmins only while we validate it.
+    if (ctx.isSuperadmin) {
+      items.push({
+        id: 'affiliation',
+        icon: Network,
+        emoji: '🔗',
+        titleFr: 'Parrainage',
+        titleEn: 'Affiliate',
+        descFr: 'Programme de parrainage pour votre plateforme (bêta)',
+        descEn: 'Referral program for your own platform (beta)',
+        route: '/affiliation',
+        borderClass: 'border-cyan-500/30 hover:border-cyan-500/60',
+        iconBg: 'bg-cyan-500/15',
+        iconColor: 'text-cyan-500',
+      });
+    }
   }
 
   // Revenue is a seller concept — buyers see their commissions under "Earn".

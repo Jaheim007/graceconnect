@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useOrg } from '@/contexts/OrgContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,6 +48,7 @@ const SDK_URL = 'https://siteviral.com/affiliate.js';
 
 export default function AffiliateCloudPage() {
   const { currentOrg, canManage } = useOrg();
+  const { isSuperadmin } = useAuth();
   const { locale } = useI18n();
   const fr = locale === 'fr';
   const { toast } = useToast();
@@ -157,39 +159,66 @@ export default function AffiliateCloudPage() {
     ? `<script src="${SDK_URL}" data-program="${activeProgram.slug}" async></script>`
     : '';
 
+  if (!isSuperadmin) {
+    return (
+      <main className="container max-w-3xl px-4 py-16">
+        <div className="relative overflow-hidden rounded-3xl border bg-card p-10 text-center shadow-sm">
+          <div className="pointer-events-none absolute -top-24 left-1/2 h-56 w-[28rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+          <div className="relative">
+            <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary"><Network className="h-6 w-6" /></span>
+            <h1 className="mt-6 text-2xl font-bold sm:text-3xl">{fr ? 'Parrainage — bêta privée' : 'Referrals — private beta'}</h1>
+            <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+              {fr
+                ? 'Cet espace est en test interne. Il ouvrira à tous une fois le suivi des recommandations validé de bout en bout.'
+                : 'This space is in internal testing. It opens to everyone once referral tracking is validated end to end.'}
+            </p>
+            <Button asChild className="mt-7"><Link to="/gagner">{fr ? 'Aller à Gagner' : 'Go to Earn'}<ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   if (!orgId || !canManageCurrentOrg) {
     return (
-      <main className="container max-w-5xl px-4 py-8 sm:py-12">
-        <div className="border bg-card p-6 sm:p-10 text-center rounded-lg">
-          <Network className="mx-auto h-10 w-10 text-primary" />
-          <h1 className="mt-4 text-2xl font-bold">SiteViral Affiliate Cloud</h1>
-          <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
+      <main className="container max-w-3xl px-4 py-16">
+        <div className="rounded-3xl border bg-card p-10 text-center shadow-sm">
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary"><Network className="h-6 w-6" /></span>
+          <h1 className="mt-6 text-2xl font-bold">SiteViral Affiliate Cloud</h1>
+          <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
             {fr
-              ? 'Créez d’abord un espace pour rattacher et sécuriser votre programme d’affiliation SaaS.'
-              : 'Create a workspace first to own and secure your SaaS affiliate program.'}
+              ? 'Créez d\u2019abord un espace pour rattacher et sécuriser votre programme de parrainage.'
+              : 'Create a workspace first to own and secure your referral program.'}
           </p>
-          <Button asChild className="mt-6"><Link to="/create-org">{fr ? 'Créer mon espace' : 'Create my workspace'}</Link></Button>
+          <Button asChild className="mt-7"><Link to="/create-org">{fr ? 'Créer mon espace' : 'Create my workspace'}</Link></Button>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="container max-w-7xl px-4 py-6 sm:py-8 space-y-6">
-      <header className="border-b pb-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            <Badge variant="outline" className="mb-3 gap-1.5"><Network className="h-3.5 w-3.5" /> Affiliate Cloud</Badge>
-            <h1 className="text-3xl font-bold sm:text-4xl">{fr ? 'Affiliation pour votre SaaS' : 'Affiliation for your SaaS'}</h1>
-            <p className="mt-2 text-muted-foreground">
+    <main className="container max-w-7xl px-4 py-6 sm:py-10 space-y-8">
+      <header className="relative overflow-hidden rounded-3xl border bg-card px-6 py-8 shadow-sm sm:px-10 sm:py-10">
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className="gap-1.5 bg-background/70 backdrop-blur"><Network className="h-3.5 w-3.5" /> Affiliate Cloud</Badge>
+              <Badge className="bg-primary/10 text-primary hover:bg-primary/10">{fr ? 'Bêta privée' : 'Private beta'}</Badge>
+            </div>
+            <h1 className="mt-5 text-3xl font-bold leading-[1.1] tracking-tight sm:text-[2.6rem]">
+              {fr ? 'Votre propre programme de parrainage' : 'Your own referral program'}
+            </h1>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
               {fr
-                ? 'Branchez SiteViral à votre application, suivez les recommandations et gérez les commissions de vos propres ambassadeurs.'
-                : 'Connect SiteViral to your app, track referrals, and manage commissions for your own ambassadors.'}
+                ? 'Branchez n\u2019importe quel site, boutique ou application : suivez les recommandations et payez automatiquement les commissions de vos ambassadeurs.'
+                : 'Plug in any website, store or app: track referrals and pay your ambassadors\u2019 commissions automatically.'}
             </p>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Button variant="outline" asChild><Link to="/gagner">{fr ? 'Gagner avec SiteViral' : 'Earn with SiteViral'}<ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
-            <Button onClick={() => setCreateOpen(true)}><Plus className="mr-2 h-4 w-4" />{fr ? 'Nouveau programme' : 'New program'}</Button>
+          <div className="flex flex-col gap-2.5 sm:flex-row lg:shrink-0">
+            <Button variant="outline" size="lg" asChild><Link to="/gagner">{fr ? 'Gagner avec SiteViral' : 'Earn with SiteViral'}<ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+            <Button size="lg" onClick={() => setCreateOpen(true)}><Plus className="mr-2 h-4 w-4" />{fr ? 'Nouveau programme' : 'New program'}</Button>
           </div>
         </div>
       </header>
@@ -197,12 +226,12 @@ export default function AffiliateCloudPage() {
       {isLoading ? (
         <div className="grid gap-4 sm:grid-cols-3">{[0, 1, 2].map((item) => <div key={item} className="h-28 animate-pulse rounded-lg bg-muted" />)}</div>
       ) : programs.length === 0 ? (
-        <section className="border border-dashed p-7 sm:p-10 rounded-lg">
+        <section className="rounded-3xl border border-dashed bg-card/50 p-8 sm:p-12">
           <div className="max-w-2xl">
             <Globe2 className="h-9 w-9 text-primary" />
-            <h2 className="mt-4 text-xl font-bold">{fr ? 'Lancez votre premier programme' : 'Launch your first program'}</h2>
+            <h2 className="mt-5 text-xl font-bold sm:text-2xl">{fr ? 'Lancez votre premier programme' : 'Launch your first program'}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              {fr ? 'Ajoutez votre SaaS, choisissez la commission, puis installez le script de suivi et votre clé API.' : 'Add your SaaS, choose the commission, then install the tracking script and your API key.'}
+              {fr ? 'Ajoutez votre plateforme, choisissez la commission, puis installez le script de suivi et votre clé API.' : 'Add your platform, choose the commission, then install the tracking script and your API key.'}
             </p>
             <Button className="mt-5" onClick={() => setCreateOpen(true)}><Plus className="mr-2 h-4 w-4" />{fr ? 'Créer un programme' : 'Create a program'}</Button>
           </div>
@@ -219,22 +248,22 @@ export default function AffiliateCloudPage() {
             </div>
             <div className="flex items-center gap-2">
               <Badge variant={activeProgram.is_active ? 'default' : 'secondary'}>{activeProgram.is_active ? (fr ? 'Actif' : 'Active') : (fr ? 'En pause' : 'Paused')}</Badge>
-              {activeProgram.platform_url && <Button variant="outline" size="sm" asChild><a href={activeProgram.platform_url} target="_blank" rel="noreferrer"><ExternalLink className="mr-2 h-4 w-4" />{fr ? 'Voir le SaaS' : 'View SaaS'}</a></Button>}
+              {activeProgram.platform_url && <Button variant="outline" size="sm" asChild><a href={activeProgram.platform_url} target="_blank" rel="noreferrer"><ExternalLink className="mr-2 h-4 w-4" />{fr ? 'Voir la plateforme' : 'View platform'}</a></Button>}
             </div>
           </div>
 
-          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {[
               { icon: BarChart3, label: fr ? 'Ventes attribuées' : 'Attributed sales', value: money(totals.sales) },
               { icon: Wallet, label: fr ? 'Commissions' : 'Commissions', value: money(totals.commissions) },
               { icon: Users2, label: fr ? 'Ambassadeurs' : 'Ambassadors', value: ambassadorCount.toLocaleString() },
               { icon: Activity, label: fr ? 'Conversions' : 'Conversions', value: conversions.length.toLocaleString() },
             ].map((stat) => (
-              <Card key={stat.label}><CardContent className="p-5"><stat.icon className="h-5 w-5 text-primary" /><p className="mt-4 text-2xl font-bold">{stat.value}</p><p className="text-xs text-muted-foreground">{stat.label}</p></CardContent></Card>
+              <Card key={stat.label} className="rounded-2xl transition-shadow hover:shadow-md"><CardContent className="p-6"><stat.icon className="h-5 w-5 text-primary" /><p className="mt-5 text-2xl font-bold tracking-tight">{stat.value}</p><p className="mt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">{stat.label}</p></CardContent></Card>
             ))}
           </section>
 
-          <Tabs defaultValue="overview" className="space-y-4">
+          <Tabs defaultValue="overview" className="space-y-5">
             <TabsList className="w-full justify-start overflow-x-auto">
               <TabsTrigger value="overview">{fr ? 'Activité' : 'Activity'}</TabsTrigger>
               <TabsTrigger value="install">{fr ? 'Installation' : 'Installation'}</TabsTrigger>
@@ -264,7 +293,7 @@ export default function AffiliateCloudPage() {
               <Card>
                 <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Code2 className="h-4 w-4" />{fr ? '1. Suivi des clics' : '1. Click tracking'}</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
-                  <p className="text-sm text-muted-foreground">{fr ? 'Collez ce script avant la fermeture de la balise body de votre SaaS.' : 'Paste this script before your SaaS closing body tag.'}</p>
+                  <p className="text-sm text-muted-foreground">{fr ? 'Collez ce script juste avant la fermeture de la balise body de votre site ou application.' : 'Paste this script just before the closing body tag of your site or app.'}</p>
                   <div className="flex items-start gap-2 rounded-md bg-muted p-3"><code className="min-w-0 flex-1 break-all text-xs">{snippet}</code><Button size="icon" variant="ghost" onClick={() => copy(snippet, 'sdk')} aria-label={fr ? 'Copier le script' : 'Copy script'}>{copied === 'sdk' ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}</Button></div>
                 </CardContent>
               </Card>
@@ -299,12 +328,12 @@ export default function AffiliateCloudPage() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{fr ? 'Créer un programme SaaS' : 'Create a SaaS program'}</DialogTitle>
+            <DialogTitle>{fr ? 'Créer un programme de parrainage' : 'Create a referral program'}</DialogTitle>
             <DialogDescription>{fr ? 'Ce programme est indépendant de “Gagner”, qui reste réservé au programme ambassadeur SiteViral.' : 'This program is separate from “Earn”, which remains SiteViral’s ambassador program.'}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-2">
             <div className="space-y-2"><Label htmlFor="program-name">{fr ? 'Nom du programme' : 'Program name'}</Label><Input id="program-name" value={form.name} onChange={(event) => setForm((value) => ({ ...value, name: event.target.value }))} placeholder="Noctely Partners" /></div>
-            <div className="space-y-2"><Label htmlFor="platform-url">{fr ? 'URL de votre SaaS' : 'Your SaaS URL'}</Label><Input id="platform-url" type="url" value={form.platformUrl} onChange={(event) => setForm((value) => ({ ...value, platformUrl: event.target.value }))} placeholder="https://app.example.com" /></div>
+            <div className="space-y-2"><Label htmlFor="platform-url">{fr ? 'URL de votre plateforme' : 'Your platform URL'}</Label><Input id="platform-url" type="url" value={form.platformUrl} onChange={(event) => setForm((value) => ({ ...value, platformUrl: event.target.value }))} placeholder="https://app.example.com" /></div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2"><Label>{fr ? 'Devise' : 'Currency'}</Label><Select value={form.currency} onValueChange={(currency) => setForm((value) => ({ ...value, currency }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="XOF">XOF</SelectItem><SelectItem value="EUR">EUR</SelectItem><SelectItem value="USD">USD</SelectItem><SelectItem value="GBP">GBP</SelectItem></SelectContent></Select></div>
               <div className="space-y-2"><Label htmlFor="commission">{fr ? 'Commission (%)' : 'Commission (%)'}</Label><Input id="commission" type="number" min="0" max="100" value={form.commission} onChange={(event) => setForm((value) => ({ ...value, commission: event.target.value }))} /></div>
