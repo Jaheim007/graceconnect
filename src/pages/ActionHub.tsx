@@ -79,10 +79,8 @@ export default function ActionHub() {
       descFr: 'Modules, leçons, quiz et certificats', descEn: 'Modules, lessons, quizzes and certificates',
       route: '/creer-formation', borderClass: 'border-indigo-500/30 hover:border-indigo-500/60',
       iconBg: 'bg-indigo-500/15', iconColor: 'text-indigo-500' },
-    { id: 'affiliation', icon: Network, titleFr: 'Parrainage', titleEn: 'Affiliate',
-      descFr: 'Ajoute un programme de parrainage à ton SaaS', descEn: 'Add an affiliate program to your SaaS',
-      route: '/affiliation', borderClass: 'border-cyan-500/30 hover:border-cyan-500/60',
-      iconBg: 'bg-cyan-500/15', iconColor: 'text-cyan-500' },
+  ];
+
   ];
 
   const baseAuthed = getActionNavItems({
