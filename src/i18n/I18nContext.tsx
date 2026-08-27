@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react'; 
+import { createContext, useContext, useState, useCallback, useEffect, startTransition, ReactNode } from 'react'; 
 import translations, { Locale, DEFAULT_LOCALE, SUPPORTED_LOCALES } from './locales';
 
 interface I18nContextType {
@@ -11,6 +11,7 @@ export const I18nContext = createContext<I18nContextType | undefined>(undefined)
 
 /** Detect best locale from browser */
 function detectBrowserLocale(): Locale {
+  if (typeof navigator === 'undefined') return DEFAULT_LOCALE;
   const candidates = [
     ...(navigator.languages || []),
     navigator.language,
@@ -22,20 +23,32 @@ function detectBrowserLocale(): Locale {
   return 'fr';
 }
 
+/** Resolve the persisted/browser locale — browser only. */
+function resolveClientLocale(): Locale {
+  // 1. Check if user manually chose a locale
+  const wasManual = localStorage.getItem('sv_locale_manual') === '1';
+  if (wasManual) {
+    const saved = localStorage.getItem('sv_locale') as Locale | null;
+    if (saved && SUPPORTED_LOCALES.includes(saved)) return saved;
+  }
+  // 2. Check profile preference (set by AuthContext after login)
+  const profileLang = localStorage.getItem('sv_profile_locale') as Locale | null;
+  if (profileLang && SUPPORTED_LOCALES.includes(profileLang)) return profileLang;
+  // 3. Auto-detect from browser
+  return detectBrowserLocale();
+}
+
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(() => {
-    // 1. Check if user manually chose a locale
-    const wasManual = localStorage.getItem('sv_locale_manual') === '1';
-    if (wasManual) {
-      const saved = localStorage.getItem('sv_locale') as Locale | null;
-      if (saved && SUPPORTED_LOCALES.includes(saved)) return saved;
-    }
-    // 2. Check profile preference (set by AuthContext after login)
-    const profileLang = localStorage.getItem('sv_profile_locale') as Locale | null;
-    if (profileLang && SUPPORTED_LOCALES.includes(profileLang)) return profileLang;
-    // 3. Auto-detect from browser
-    return detectBrowserLocale();
-  });
+  // SSR renders the default locale; the real locale is applied after hydration
+  // (reading localStorage in the initializer would crash SSR and mismatch hydration).
+  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
+
+  useEffect(() => {
+    const resolved = resolveClientLocale();
+    // startTransition lets React finish hydrating lazy route chunks with the
+    // SSR locale before applying the switch — avoids hydration mismatches.
+    if (resolved !== DEFAULT_LOCALE) startTransition(() => setLocaleState(resolved));
+  }, []);
 
   useEffect(() => {
     document.documentElement.lang = locale;

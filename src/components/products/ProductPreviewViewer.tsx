@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { docLang } from '@/lib/doc-lang';
 import * as pdfjsLib from 'pdfjs-dist';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -36,7 +37,7 @@ function computePreviewLimit(total: number, previewPageCount?: number | null): n
 
 // Get isFr from document lang
 function getIsFr() {
-  return document.documentElement.lang === 'fr';
+  return docLang() === 'fr';
 }
 
 export function ProductPreviewViewer({

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { docLang } from '@/lib/doc-lang';
 import { AdminPageShell } from './AdminPageShell';
 import { useOrg } from '@/contexts/OrgContext';
 import { useQuery } from '@tanstack/react-query';
@@ -65,7 +66,7 @@ function MemberRetentionWidget({ orgId }: { orgId?: string }) {
     <div className="bg-card border border-border rounded-2xl p-5">
       <h2 className="font-semibold text-sm mb-4 flex items-center gap-2">
         <Users className="h-4 w-4 text-primary" />
-        {document.documentElement.lang === 'fr' ? "Cohortes d'inscription (hebdomadaire)" : 'Registration cohorts (weekly)'}
+        {docLang() === 'fr' ? "Cohortes d'inscription (hebdomadaire)" : 'Registration cohorts (weekly)'}
       </h2>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={cohorts}>
@@ -73,11 +74,11 @@ function MemberRetentionWidget({ orgId }: { orgId?: string }) {
           <XAxis dataKey="label" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
           <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} width={30} />
           <Tooltip labelStyle={{ fontSize: 11 }} />
-          <Bar dataKey="joined" name={document.documentElement.lang === 'fr' ? 'Inscrits' : 'Registered'} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="joined" name={docLang() === 'fr' ? 'Inscrits' : 'Registered'} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
       <p className="text-[10px] text-muted-foreground mt-2">
-        {document.documentElement.lang === 'fr' ? 'Nombre de nouveaux membres par semaine sur les 8 dernières semaines' : 'New members per week over the last 8 weeks'}
+        {docLang() === 'fr' ? 'Nombre de nouveaux membres par semaine sur les 8 dernières semaines' : 'New members per week over the last 8 weeks'}
       </p>
     </div>
   );

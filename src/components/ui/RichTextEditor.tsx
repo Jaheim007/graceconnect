@@ -1,4 +1,5 @@
 import { useEditor, EditorContent } from '@tiptap/react';
+import { docLang } from '@/lib/doc-lang';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -352,7 +353,7 @@ export function RichTextEditor({
               onClick={onAIAssist}
               className="h-7 gap-1 text-[10px] px-2 border-primary/30 text-primary hover:bg-primary/10"
             >
-               {document.documentElement.lang === 'fr' ? 'Aide IA' : 'AI Help'}
+               {docLang() === 'fr' ? 'Aide IA' : 'AI Help'}
             </Button>
           </>
         )}

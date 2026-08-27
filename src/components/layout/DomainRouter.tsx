@@ -13,7 +13,7 @@ export function DomainRouter() {
   const { data: resolved, isLoading } = useDomainResolver();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const hostname = window.location.hostname;
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
 
   useEffect(() => {
     if (isLoading || !resolved) return;

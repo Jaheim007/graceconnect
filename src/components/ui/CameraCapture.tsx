@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
+import { docLang } from '@/lib/doc-lang';
 import { supabase } from '@/integrations/supabase/client';
 import { brandUrl } from '@/lib/storageUrl';
 import { Camera, RotateCcw, Check, X, Loader2, SwitchCamera, Smartphone, AlertTriangle } from 'lucide-react';
@@ -72,7 +73,7 @@ export function CameraCapture({
     } catch (err: any) {
       console.error('Camera error:', err);
       setCameraFailed(true);
-      const lang = document.documentElement.lang;
+      const lang = docLang();
       if (err.name === 'NotAllowedError') {
         setError(lang === 'fr' ? "Accès à la caméra refusé. Veuillez autoriser l'accès dans les paramètres de votre navigateur." : "Camera access denied. Please allow access in your browser settings.");
       } else if (err.name === 'NotFoundError') {

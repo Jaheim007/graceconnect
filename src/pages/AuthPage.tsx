@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { docLang } from '@/lib/doc-lang';
 import { useNavigate, useSearchParams, Link } from '@/lib/router-compat';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
@@ -146,7 +147,7 @@ export default function AuthPage() {
 
   return (
     <div className={cn('relative flex text-foreground', isDark ? 'bg-[#08070f]' : 'bg-[#fbf7ef]', nativeApp ? 'native-auth-screen' : 'min-h-screen')}>
-      <SEOHead title={document.documentElement.lang === 'fr' ? 'Connexion — Siteviral' : 'Sign in — Siteviral'} description={document.documentElement.lang === 'fr' ? 'Connectez-vous à Siteviral pour gérer votre plateforme, vos ressources et vos commissions.' : 'Sign in to Siteviral to manage your platform, resources, and commissions.'} noindex />
+      <SEOHead title={docLang() === 'fr' ? 'Connexion — Siteviral' : 'Sign in — Siteviral'} description={docLang() === 'fr' ? 'Connectez-vous à Siteviral pour gérer votre plateforme, vos ressources et vos commissions.' : 'Sign in to Siteviral to manage your platform, resources, and commissions.'} noindex />
 
       {/* Premium certificate-grade backdrop: deep ink, gold aurora, engraved grid */}
       <div className="absolute inset-0 z-0 overflow-hidden">
@@ -190,7 +191,7 @@ export default function AuthPage() {
         <SiteLogo size="xl" animate />
         <div className="space-y-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-amber-700 dark:text-amber-300/70">
-            {document.documentElement.lang === 'fr' ? 'Accès sécurisé' : 'Secure access'}
+            {docLang() === 'fr' ? 'Accès sécurisé' : 'Secure access'}
           </p>
           <h1 className="font-heading text-5xl font-bold leading-[1.05]">
             {t('auth.sign_in_title')}{' '}
@@ -234,7 +235,7 @@ export default function AuthPage() {
               <div className="flex items-center justify-center gap-3" aria-label="SiteViral">
                 <SiteLogo size="lg" animate />
                 <p className="text-xs text-muted-foreground">
-                  {document.documentElement.lang === 'fr' ? 'Connexion sécurisée' : 'Secure sign in'}
+                  {docLang() === 'fr' ? 'Connexion sécurisée' : 'Secure sign in'}
                 </p>
               </div>
             )}
@@ -352,7 +353,7 @@ export default function AuthPage() {
                     <Label htmlFor="magic-email">{t('auth.your_email')}</Label>
                     <div className="relative mt-1.5">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="magic-email" type="email" placeholder={document.documentElement.lang === 'fr' ? 'vous@exemple.com' : 'you@example.com'} className="pl-9 h-12 text-base" value={email} onChange={(e) => setEmail(e.target.value)} inputMode="email" autoCapitalize="none" autoCorrect="off" enterKeyHint="done" required autoFocus />
+                      <Input id="magic-email" type="email" placeholder={docLang() === 'fr' ? 'vous@exemple.com' : 'you@example.com'} className="pl-9 h-12 text-base" value={email} onChange={(e) => setEmail(e.target.value)} inputMode="email" autoCapitalize="none" autoCorrect="off" enterKeyHint="done" required autoFocus />
                     </div>
                   </div>
                   <Button type="submit" className="w-full h-11 bg-primary text-primary-foreground" disabled={sending || !email}>

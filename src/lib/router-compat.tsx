@@ -10,10 +10,9 @@ import {
   useSearch as tsSearch,
   useRouter,
   Link as TSLink,
-  Navigate as TSNavigate,
   Outlet as TSOutlet,
 } from "@tanstack/react-router";
-import { useMemo, useCallback, forwardRef, type ComponentProps, type ReactNode, type CSSProperties } from "react";
+import { useMemo, useCallback, useEffect, useRef, forwardRef, type ComponentProps, type ReactNode, type CSSProperties } from "react";
 
 // ---------- shared URL parsing ----------
 
@@ -144,9 +143,27 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
 
 // ---------- Navigate ----------
 
+// Imperative one-shot redirect, fired exactly once per mount. During a pending
+// TanStack transition the old tree stays mounted while useLocation already
+// reflects the new URL, so a guard that derives `to` from the location would
+// otherwise recompute it mid-flight and re-fire forever (nested returnTo loop).
 export function Navigate({ to, replace, state }: { to: string; replace?: boolean; state?: unknown }) {
-  const { pathname, search, hash } = parseTo(to);
-  return <TSNavigate to={pathname as never} search={search as never} hash={hash} state={state as never} replace={replace} />;
+  const router = useRouter();
+  const fired = useRef(false);
+  useEffect(() => {
+    if (fired.current) return;
+    fired.current = true;
+    const { pathname, search, hash } = parseTo(to);
+    void router.navigate({
+      to: pathname as never,
+      search: search as never,
+      hash,
+      state: state as never,
+      replace: replace ?? true,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
 }
 
 // ---------- Outlet ----------
