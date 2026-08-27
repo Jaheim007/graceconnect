@@ -967,7 +967,7 @@ export function ProductForm() {
                 if (snapshot.price !== undefined) setValue('price', snapshot.price as number);
               }} />
             </div>
-            <EmbedSnippetGen productId={id!} orgSlug={currentOrg?.slug || ''} productTitle={watch('title')} price={watch('price') || 0} currency={currentOrg?.currency || 'XOF'} isFree={watch('is_free')} />
+            <EmbedSnippetGen productId={id!} orgSlug={currentOrg?.slug || ''} productTitle={watch('title')} price={watch('price') || 0} currency={currentOrg?.currency || 'XOF'} isFree={watch('is_free') ?? false} />
             <SocialSnippetsViewer productId={id!} orgId={currentOrg?.id || ''} />
             <ContextualFeedback context="post_publication" question="Comment s'est passée cette publication ?" />
           </div>

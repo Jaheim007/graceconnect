@@ -103,7 +103,7 @@ export default function ProgramDetailPage() {
         .from('organization_members')
         .select('role')
         .eq('user_id', user.id)
-        .eq('organization_id', program.organization_id)
+        .eq('organization_id', program.organization_id ?? '')
         .maybeSingle();
       return data && ['owner', 'admin', 'editor'].includes(data.role);
     },

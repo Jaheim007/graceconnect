@@ -134,7 +134,7 @@ export default function ProductDetailPage() {
         .from('organization_members')
         .select('role')
         .eq('user_id', user.id)
-        .eq('organization_id', product.organization_id)
+        .eq('organization_id', product.organization_id ?? '')
         .maybeSingle();
       return data && ['owner', 'admin', 'editor'].includes(data.role);
     },
@@ -884,7 +884,7 @@ export default function ProductDetailPage() {
         {/* Cross-sell: Buyers also purchased */}
         <CrossSellWidget
           productId={product.id}
-          organizationId={product.organization_id}
+          organizationId={product.organization_id ?? undefined}
           productType={product.product_type}
         />
 

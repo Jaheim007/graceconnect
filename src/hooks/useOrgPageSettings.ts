@@ -37,7 +37,7 @@ export function useOrgPageSettings(orgId: string | undefined) {
         tiktok_pixel_id: null,
         google_tag_id: null,
         popup_config: null,
-      } as OrgPageSettings;
+      } as unknown as OrgPageSettings;
     },
     enabled: !!orgId,
   });
