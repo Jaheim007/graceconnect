@@ -75,7 +75,7 @@ export default function EventsBookingDetail() {
     if (!returnedSuccess || !id) return;
     (async () => {
       try {
-        await runVerifyBooking({ data: { booking_id: id, session_id: sessionId } });
+        await runVerifyBooking({ data: { booking_id: id, session_id: sessionId ?? undefined } });
         qc.invalidateQueries({ queryKey: ["events-booking", id] });
       } catch (e) { console.warn(e); }
     })();

@@ -82,7 +82,7 @@ export default function BeautyBookingDetail() {
     if (!returnedFromCheckout || !id) return;
     (async () => {
       try {
-        await runVerifyBooking({ data: { booking_id: id, session_id: sessionId } });
+        await runVerifyBooking({ data: { booking_id: id, session_id: sessionId ?? undefined } });
         qc.invalidateQueries({ queryKey: ["beauty-booking", id] });
       } catch (e) {
         // Non-fatal — webhook is source of truth

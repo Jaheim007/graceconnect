@@ -73,7 +73,7 @@ export default function EducationBookingDetail() {
     if (!returnedSuccess || !id) return;
     (async () => {
       try {
-        await runVerifyBooking({ data: { booking_id: id, session_id: sessionId } });
+        await runVerifyBooking({ data: { booking_id: id, session_id: sessionId ?? undefined } });
         qc.invalidateQueries({ queryKey: ["education-booking", id] });
       } catch (e) { console.warn(e); }
     })();

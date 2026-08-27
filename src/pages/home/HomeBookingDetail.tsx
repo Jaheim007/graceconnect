@@ -76,7 +76,7 @@ export default function HomeBookingDetail() {
     if (!returnedSuccess || !id) return;
     (async () => {
       try {
-        await runVerifyBooking({ data: { booking_id: id, session_id: sessionId } });
+        await runVerifyBooking({ data: { booking_id: id, session_id: sessionId ?? undefined } });
         qc.invalidateQueries({ queryKey: ["home-booking", id] });
       } catch (e) { console.warn(e); }
     })();
