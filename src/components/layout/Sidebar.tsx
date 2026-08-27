@@ -107,13 +107,13 @@ export function Sidebar() {
           route: '/gagner',
           borderClass: '', iconBg: '', iconColor: 'text-amber-400',
         },
-        {
+        ...(isSuperadmin ? [{
           id: 'acc-affiliation', icon: Share2, emoji: '',
           titleFr: 'Parrainage', titleEn: 'Affiliate',
-          descFr: 'Programme pour votre SaaS', descEn: 'Affiliate program for your SaaS',
+          descFr: 'Programme de parrainage (bêta)', descEn: 'Referral program (beta)',
           route: '/affiliation',
           borderClass: '', iconBg: '', iconColor: 'text-emerald-400',
-        },
+        } as ActionNavItem] : []),
       ]
     : [];
 
