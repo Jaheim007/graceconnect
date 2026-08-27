@@ -19,7 +19,7 @@ export interface ExtraChargeInput {
 }
 
 export type ExtraChargeResult =
-  | { ok: true; extra_charge?: unknown; status?: string; already?: boolean }
+  | { ok: true; extra_charge?: Record<string, string | number | boolean | null>; status?: string; already?: boolean }
   | { ok: true; checkout_url: string; gateway: 'stripe' | 'geniuspay' }
   | { error: string };
 
