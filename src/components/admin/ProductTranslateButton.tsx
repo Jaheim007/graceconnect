@@ -40,7 +40,6 @@ export function ProductTranslateButton({ productId, onTranslated }: Props) {
         },
       });
 
-      if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || 'Translation failed');
 
       const qualityMsg = data.quality_score

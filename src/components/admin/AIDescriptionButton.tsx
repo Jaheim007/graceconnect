@@ -50,8 +50,6 @@ export function AIDescriptionButton({ title, productType, price, currency = 'XOF
         },
       });
 
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
 
       if (data?.description) {
         onGenerated(data.description);
