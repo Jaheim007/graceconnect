@@ -3,10 +3,10 @@
 // supabase function: mcp
 // Bundled from src/lib/mcp/index.ts by @lovable.dev/mcp-js.
 // src/lib/mcp/index.ts
-import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.20.1";
 
 // src/lib/mcp/tools/who-am-i.ts
-import { defineTool } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool } from "npm:@lovable.dev/mcp-js@0.20.1";
 var who_am_i_default = defineTool({
   name: "who_am_i",
   title: "Who am I",
@@ -31,7 +31,7 @@ var who_am_i_default = defineTool({
 
 // src/lib/mcp/tools/list-my-organizations.ts
 import { createClient } from "npm:@supabase/supabase-js@^2.97.0";
-import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.20.1";
 function db(ctx) {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
     global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
@@ -67,7 +67,7 @@ var list_my_organizations_default = defineTool2({
 
 // src/lib/mcp/tools/list-org-products.ts
 import { createClient as createClient2 } from "npm:@supabase/supabase-js@^2.97.0";
-import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z } from "npm:zod@^3.24.2";
 function db2(ctx) {
   return createClient2(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
@@ -98,7 +98,7 @@ var list_org_products_default = defineTool3({
 
 // src/lib/mcp/tools/list-my-purchases.ts
 import { createClient as createClient3 } from "npm:@supabase/supabase-js@^2.97.0";
-import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z2 } from "npm:zod@^3.24.2";
 function db3(ctx) {
   return createClient3(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
@@ -128,7 +128,7 @@ var list_my_purchases_default = defineTool4({
 
 // src/lib/mcp/tools/get-org-analytics.ts
 import { createClient as createClient4 } from "npm:@supabase/supabase-js@^2.97.0";
-import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z3 } from "npm:zod@^3.24.2";
 function db4(ctx) {
   return createClient4(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
@@ -173,7 +173,7 @@ var get_org_analytics_default = defineTool5({
 });
 
 // src/lib/mcp/tools/create-course-from-prompt.ts
-import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z4 } from "npm:zod@^3.24.2";
 
 // src/lib/mcp/supabase.ts
@@ -330,7 +330,7 @@ Use get_generation_status with this job id to follow progress. Nothing is publis
 });
 
 // src/lib/mcp/tools/create-course-from-text.ts
-import { defineTool as defineTool7 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool7 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z5 } from "npm:zod@^3.24.2";
 var MAX_CHARS = 12e4;
 var create_course_from_text_default = defineTool7({
@@ -393,7 +393,7 @@ Use get_generation_status to follow progress. The creator reviews, prices and pu
 });
 
 // src/lib/mcp/tools/create-book-draft.ts
-import { defineTool as defineTool8 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool8 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z6 } from "npm:zod@^3.24.2";
 var create_book_draft_default = defineTool8({
   name: "create_book_draft",
@@ -470,7 +470,7 @@ Use get_generation_status to follow the outline generation. Chapters, cover, pri
 });
 
 // src/lib/mcp/tools/get-generation-status.ts
-import { defineTool as defineTool9 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool9 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z7 } from "npm:zod@^3.24.2";
 var get_generation_status_default = defineTool9({
   name: "get_generation_status",
@@ -524,7 +524,7 @@ var get_generation_status_default = defineTool9({
 });
 
 // src/lib/mcp/tools/list-my-drafts.ts
-import { defineTool as defineTool10 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool10 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z8 } from "npm:zod@^3.24.2";
 var list_my_drafts_default = defineTool10({
   name: "list_my_drafts",
@@ -563,7 +563,7 @@ ${lines}`, { org_id: org.id, drafts: rows });
 });
 
 // src/lib/mcp/tools/get-my-credits.ts
-import { defineTool as defineTool11 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool11 } from "npm:@lovable.dev/mcp-js@0.20.1";
 var RELEVANT_ACTIONS = ["ai_course_structure", "ai_course_image", "generate_outline", "generate_book"];
 var get_my_credits_default = defineTool11({
   name: "get_my_credits",
@@ -591,7 +591,7 @@ Top up credits at ${APP_BASE_URL}/credits`,
 });
 
 // src/lib/mcp/tools/import-book-from-content.ts
-import { defineTool as defineTool12 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool12 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z9 } from "npm:zod@^3.24.2";
 
 // src/lib/mcp/importing.ts
@@ -746,7 +746,7 @@ var import_book_from_content_default = defineTool12({
 });
 
 // src/lib/mcp/tools/add-book-chapters.ts
-import { defineTool as defineTool13 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool13 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z10 } from "npm:zod@^3.24.2";
 var ChapterSchema2 = z10.object({
   title: z10.string().describe("Chapter title."),
@@ -784,7 +784,7 @@ var add_book_chapters_default = defineTool13({
 });
 
 // src/lib/mcp/tools/import-course-from-content.ts
-import { defineTool as defineTool14 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool14 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z11 } from "npm:zod@^3.24.2";
 var LessonSchema = z11.object({
   title: z11.string().describe("Lesson title."),
@@ -837,7 +837,7 @@ var import_course_from_content_default = defineTool14({
 });
 
 // src/lib/mcp/tools/add-course-lessons.ts
-import { defineTool as defineTool15 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool15 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z12 } from "npm:zod@^3.24.2";
 var LessonSchema2 = z12.object({
   title: z12.string().describe("Lesson title."),
@@ -875,7 +875,7 @@ var add_course_lessons_default = defineTool15({
 });
 
 // src/lib/mcp/tools/get-draft-link.ts
-import { defineTool as defineTool16 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool16 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z13 } from "npm:zod@^3.24.2";
 var get_draft_link_default = defineTool16({
   name: "get_draft_link",
@@ -906,7 +906,7 @@ Show this draft link to the user as a clickable link in your next message.`,
 });
 
 // src/lib/mcp/tools/finish-draft-visuals.ts
-import { defineTool as defineTool17 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool17 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z14 } from "npm:zod@^3.24.2";
 var finish_draft_visuals_default = defineTool17({
   name: "finish_draft_visuals",
@@ -971,5 +971,5 @@ var mcp_default = defineMcp({
 });
 
 // lovable-mcp-supabase-entry.ts
-import { createSupabaseHandler } from "npm:@lovable.dev/mcp-js@0.20.0/stacks/supabase";
+import { createSupabaseHandler } from "npm:@lovable.dev/mcp-js@0.20.1/stacks/supabase";
 Deno.serve(createSupabaseHandler(mcp_default, { functionName: "mcp" }));
