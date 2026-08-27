@@ -1,3 +1,5 @@
+import { useServerFn } from '@tanstack/react-start';
+import { aiGenerateDescription } from '@/lib/ai/textHelpers.functions';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Zap, Loader2 } from 'lucide-react';
@@ -20,6 +22,7 @@ interface AIDescriptionButtonProps {
  */
 export function AIDescriptionButton({ title, productType, price, currency = 'XOF', existingDescription, onGenerated }: AIDescriptionButtonProps) {
   const [loading, setLoading] = useState(false);
+  const generateDescriptionFn = useServerFn(aiGenerateDescription);
   const { toast } = useToast();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -36,8 +39,8 @@ export function AIDescriptionButton({ title, productType, price, currency = 'XOF
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-generate-description', {
-        body: {
+      const data: any = await generateDescriptionFn({
+        data: {
           title,
           product_type: productType,
           price,
@@ -47,8 +50,6 @@ export function AIDescriptionButton({ title, productType, price, currency = 'XOF
         },
       });
 
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
 
       if (data?.description) {
         onGenerated(data.description);
