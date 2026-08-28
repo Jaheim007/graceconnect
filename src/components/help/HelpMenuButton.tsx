@@ -47,15 +47,18 @@ export function HelpMenuButton({ className }: { className?: string }) {
       <DropdownMenuTrigger asChild>
         <button
           aria-label={isFr ? 'Aide et support' : 'Help and support'}
+          title={isFr ? 'Aide et support' : 'Help and support'}
           className={cn(
-            'grid place-items-center rounded-full text-amber-500 dark:text-amber-400',
-            'bg-muted/60 hover:bg-muted transition-colors shrink-0',
+            'inline-flex items-center gap-1.5 rounded-full border border-primary/25 px-2.5',
+            'bg-primary/10 text-primary hover:bg-primary/15 transition-colors shrink-0 font-semibold',
             className,
           )}
         >
-          <LifeBuoy className="h-[18px] w-[18px]" />
+          <LifeBuoy className="h-[18px] w-[18px] shrink-0" />
+          <span className="text-[11px] leading-none">{isFr ? 'Aide' : 'Help'}</span>
         </button>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuLabel className="text-xs">
           {isFr ? 'Besoin d’aide ?' : 'Need help?'}

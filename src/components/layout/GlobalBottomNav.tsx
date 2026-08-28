@@ -65,18 +65,18 @@ export function GlobalBottomNav() {
 
   const items = user
     ? ([
-        { id: 'overview', route: '/dashboard', icon: SvHome, activeIcon: SvHomeSolid, fr: 'Accueil', en: 'Home', tint: 'text-sky-500 dark:text-sky-400' },
-        { id: 'explore', route: '/dashboard/explore', icon: SvExplore, activeIcon: SvExploreSolid, fr: 'Explorer', en: 'Explore', tint: 'text-violet-500 dark:text-violet-400' },
-        { id: 'purchases', route: '/my-purchases', icon: SvLibrary, activeIcon: SvLibrarySolid, fr: 'Biblio', en: 'Library', tint: 'text-blue-500 dark:text-blue-400' },
+        { id: 'overview', route: '/dashboard', icon: SvHome, activeIcon: SvHomeSolid, fr: 'Accueil', en: 'Home' },
+        { id: 'explore', route: '/dashboard/explore', icon: SvExplore, activeIcon: SvExploreSolid, fr: 'Explorer', en: 'Explore' },
+        { id: 'purchases', route: '/my-purchases', icon: SvLibrary, activeIcon: SvLibrarySolid, fr: 'Biblio', en: 'Library' },
         showServiceSurfaces()
-          ? { id: 'messages', route: '/dashboard/messages', icon: MessageSquare, activeIcon: MessageSquare, fr: 'Messages', en: 'Messages', tint: 'text-cyan-500 dark:text-cyan-400' }
-          : { id: 'earn', route: '/gagner', icon: SvEarn, activeIcon: SvEarnSolid, fr: 'Gagner', en: 'Earn', tint: 'text-emerald-500 dark:text-emerald-400' },
+          ? { id: 'messages', route: '/dashboard/messages', icon: MessageSquare, activeIcon: MessageSquare, fr: 'Messages', en: 'Messages' }
+          : { id: 'earn', route: '/gagner', icon: SvEarn, activeIcon: SvEarnSolid, fr: 'Gagner', en: 'Earn' },
       ] as const)
     : ([
-        { id: 'overview', route: '/', icon: SvHome, activeIcon: SvHomeSolid, fr: 'Accueil', en: 'Home', tint: 'text-sky-500 dark:text-sky-400' },
-        { id: 'explore', route: '/discover', icon: SvExplore, activeIcon: SvExploreSolid, fr: 'Explorer', en: 'Explore', tint: 'text-violet-500 dark:text-violet-400' },
-        { id: 'purchases', route: '/my-purchases', icon: SvLibrary, activeIcon: SvLibrarySolid, fr: 'Biblio', en: 'Library', tint: 'text-blue-500 dark:text-blue-400' },
-        { id: 'earn', route: '/gagner', icon: SvEarn, activeIcon: SvEarnSolid, fr: 'Gagner', en: 'Earn', tint: 'text-emerald-500 dark:text-emerald-400' },
+        { id: 'overview', route: '/', icon: SvHome, activeIcon: SvHomeSolid, fr: 'Accueil', en: 'Home' },
+        { id: 'explore', route: '/discover', icon: SvExplore, activeIcon: SvExploreSolid, fr: 'Explorer', en: 'Explore' },
+        { id: 'purchases', route: '/my-purchases', icon: SvLibrary, activeIcon: SvLibrarySolid, fr: 'Biblio', en: 'Library' },
+        { id: 'earn', route: '/gagner', icon: SvEarn, activeIcon: SvEarnSolid, fr: 'Gagner', en: 'Earn' },
       ] as const);
 
   /** Guests can browse Home/Explore/Earn; Purchases requires an account. */
@@ -130,9 +130,9 @@ export function GlobalBottomNav() {
                   aria-label={isFr ? item.fr : item.en}
                   className={cn(
                     'grid h-11 w-14 place-items-center rounded-full transition-all duration-200 active:scale-90',
-                    active ? 'bg-foreground/10' : 'hover:bg-foreground/5',
-                    item.tint,
-                    active ? 'opacity-100' : 'opacity-70 hover:opacity-100',
+                    active
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:bg-foreground/5 hover:text-foreground',
                   )}
                 >
                   <Icon

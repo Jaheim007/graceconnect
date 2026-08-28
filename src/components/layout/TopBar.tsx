@@ -137,7 +137,7 @@ export function TopBar() {
             </div>
             <div className="ml-auto flex items-center gap-1 shrink-0">
               <CreditBalance />
-              <HelpMenuButton className="h-10 w-10" />
+              <HelpMenuButton className="h-10" />
               <button
                 onClick={() => navigate('/notifications')}
                 className="relative grid place-items-center h-10 w-10 rounded-full bg-muted/60 hover:bg-muted text-indigo-500 dark:text-indigo-400 shrink-0"
@@ -177,7 +177,7 @@ export function TopBar() {
         <CreditBalance />
         <GlobalPreferencesSelector />
 
-        <HelpMenuButton className="h-8 w-8" />
+        <HelpMenuButton className="h-9" />
 
         <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={toggleTheme}>
           {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
