@@ -644,8 +644,8 @@ body > div[style*="position: fixed"][style*="opacity"] {
 /* Top bars */
 .capacitor-app .native-public-topbar,
 .capacitor-app .native-landing-topbar {
-  min-height: 3.5rem;
-  padding-top: 0;
+  min-height: calc(3.5rem + var(--safe-area-top));
+  padding-top: var(--safe-area-top);
   background: hsl(var(--background) / 0.94);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);

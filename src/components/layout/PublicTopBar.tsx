@@ -19,10 +19,11 @@ export function PublicTopBar() {
   return (
     <header className={cn(
       'sticky top-0 z-40 relative flex items-center gap-3 px-4',
+      'pt-[env(safe-area-inset-top,0px)]',
       'border-b border-border/60 supports-[backdrop-filter]:bg-background/70 backdrop-blur-xl',
       'after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-px after:h-px',
       'after:bg-gradient-to-r after:from-transparent after:via-primary/40 after:to-transparent',
-      nativeApp ? 'native-public-topbar bg-background/95 py-2' : 'h-14 glass'
+      nativeApp ? 'native-public-topbar bg-background/95 py-2' : 'min-h-14 py-2 glass'
     )}>
       {/* Ambient glow behind the bar */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">

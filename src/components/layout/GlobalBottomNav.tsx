@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { MobileMenuDrawer } from './MobileMenuDrawer';
+import { useNavAutoHide } from '@/hooks/useNavAutoHide';
 
 /** Hide bottom nav (prefix match) — only fully immersive surfaces */
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
@@ -32,6 +33,7 @@ export function GlobalBottomNav() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [menuOpen, setMenuOpen] = useState(false);
+  const navHidden = useNavAutoHide();
 
   const isBeautyThread = /^\/beauty\/messages\/[^/]+/.test(location.pathname);
   const hidden =
@@ -99,63 +101,57 @@ export function GlobalBottomNav() {
         className="native-bottom-nav-shell fixed bottom-0 left-0 right-0 z-40 lg:hidden pointer-events-auto"
         aria-label="Navigation mobile"
       >
-        <div className="native-bottom-nav pointer-events-auto">
-          <div className="rounded-2xl border border-border/60 bg-background/80 backdrop-blur-2xl shadow-[0_10px_40px_-12px_rgba(0,0,0,0.35)] supports-[backdrop-filter]:bg-background/60">
-            <div className="flex items-stretch px-1.5 pt-1.5 pb-2">
-              {items.map((item) => {
-                const active = isActive(item.route);
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    data-tour={`bottomnav-${item.id}`}
-                    onClick={() => go(item.route)}
-                    aria-current={active ? 'page' : undefined}
-                    aria-label={isFr ? item.fr : item.en}
-                    className={cn(
-                      'relative flex-1 flex flex-col items-center gap-1 rounded-xl px-1 pt-2 pb-1.5 transition-all duration-200 active:scale-[0.94]',
-                      active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
-                    )}
-                  >
-                    <span className={cn(
-                      'absolute top-0 left-1/2 -translate-x-1/2 h-[2px] rounded-full transition-all duration-300',
-                      active ? 'w-6 bg-primary' : 'w-0 bg-transparent',
-                    )} />
-                    <div className={cn(
-                      'flex h-8 w-8 items-center justify-center rounded-xl transition-all',
-                      active ? 'bg-primary/10 scale-105' : 'bg-transparent',
-                    )}>
-                      <Icon className={cn('h-4 w-4', active ? 'text-primary' : 'text-current')} />
-                    </div>
-                    <span className={cn('text-[10px] leading-none tracking-wide', active ? 'font-semibold' : 'font-medium')}>
-                      {isFr ? item.fr : item.en}
-                    </span>
-                  </button>
-                );
-              })}
-              <button
-                data-tour="bottomnav-menu"
-                onClick={() => {
-                  if (!user) {
-                    try { sessionStorage.setItem('sv_auth_returnTo', location.pathname); } catch {}
-                    navigate(`/auth?returnTo=${encodeURIComponent(location.pathname)}`);
-                    return;
-                  }
-                  setMenuOpen(true);
-                }}
-                aria-label={user ? (isFr ? 'Menu' : 'Menu') : (isFr ? 'Se connecter' : 'Sign in')}
-                className="relative flex-1 flex flex-col items-center gap-1 rounded-xl px-1 pt-2 pb-1.5 transition-all duration-200 active:scale-[0.94] text-muted-foreground hover:text-foreground"
-              >
-
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl">
-                  {user ? <MenuIcon className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
-                </div>
-                <span className="text-[10px] leading-none tracking-wide font-medium">
-                  {user ? 'Menu' : isFr ? 'Connexion' : 'Sign in'}
-                </span>
-
-              </button>
-            </div>
+        <div className="native-bottom-nav pointer-events-auto px-4 pb-2">
+          <div
+            className={cn(
+              'mx-auto flex w-fit max-w-full items-center gap-1 rounded-full border border-border/50 px-2 py-2',
+              'bg-background/70 backdrop-blur-2xl shadow-[0_12px_40px_-12px_rgba(0,0,0,0.45)]',
+              'supports-[backdrop-filter]:bg-background/55',
+              'transition-all duration-300 ease-out will-change-transform',
+              navHidden
+                ? 'translate-y-6 scale-90 opacity-0 pointer-events-none'
+                : 'translate-y-0 scale-100 opacity-100',
+            )}
+          >
+            {items.map((item) => {
+              const active = isActive(item.route);
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  data-tour={`bottomnav-${item.id}`}
+                  onClick={() => go(item.route)}
+                  aria-current={active ? 'page' : undefined}
+                  aria-label={isFr ? item.fr : item.en}
+                  className={cn(
+                    'grid h-11 w-14 place-items-center rounded-full transition-all duration-200 active:scale-90',
+                    active
+                      ? 'bg-foreground/10 text-foreground'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  <Icon
+                    className={cn('h-6 w-6 transition-transform', active && 'scale-110')}
+                    strokeWidth={active ? 2.4 : 1.9}
+                  />
+                </button>
+              );
+            })}
+            <button
+              data-tour="bottomnav-menu"
+              onClick={() => {
+                if (!user) {
+                  try { sessionStorage.setItem('sv_auth_returnTo', location.pathname); } catch {}
+                  navigate(`/auth?returnTo=${encodeURIComponent(location.pathname)}`);
+                  return;
+                }
+                setMenuOpen(true);
+              }}
+              aria-label={user ? 'Menu' : isFr ? 'Se connecter' : 'Sign in'}
+              className="grid h-11 w-14 place-items-center rounded-full text-muted-foreground transition-all duration-200 hover:text-foreground active:scale-90"
+            >
+              {user ? <MenuIcon className="h-6 w-6" strokeWidth={1.9} /> : <LogIn className="h-6 w-6" strokeWidth={1.9} />}
+            </button>
           </div>
         </div>
       </nav>
