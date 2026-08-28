@@ -185,6 +185,20 @@ export function CategoryCarousels({ category, onCategoryChange, hideRail }: Cate
         <p className="text-center text-sm text-muted-foreground py-6">
           {isFr ? 'Aucun contenu dans cette catégorie' : 'No content in this category'}
         </p>
+      ) : isVideoCategory ? (
+        /* Video & reels grid — from the media library */
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-1">
+          {videos.map((m: any, i: number) => (
+            <motion.div
+              key={m.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: Math.min(i, 8) * 0.03 }}
+            >
+              <MediaCard media={m} />
+            </motion.div>
+          ))}
+        </div>
       ) : isCampaignCategory ? (
         /* Campaigns grid */
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-1">
