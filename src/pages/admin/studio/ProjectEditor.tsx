@@ -252,12 +252,10 @@ export default function ProjectEditor() {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('canva-design', {
-        body: { action: 'export', canva_token: token, design_id: designId },
+      const data = await canvaExportDesign({
+        data: { canva_token: token, design_id: designId },
       });
 
-      if (error) throw error;
-      if (!data?.ok) throw new Error(data?.error || 'Export échoué');
 
       // Save as cover asset
       if (coverAsset) {
