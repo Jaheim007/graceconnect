@@ -81,21 +81,21 @@ export function MobileMenuDrawer({ onClose }: Props) {
   const accountNav: ActionNavItem[] = user ? [
     { id: 'acc-explore', icon: Compass, emoji: '', titleFr: 'Explorer', titleEn: 'Explore',
       descFr: '', descEn: '', route: '/dashboard/explore',
-      borderClass: '', iconBg: 'bg-violet-500/12', iconColor: 'text-violet-500' },
+      borderClass: '', iconBg: 'bg-primary/10', iconColor: 'text-primary' },
     { id: 'acc-purchases', icon: ShoppingBag, emoji: '', titleFr: 'Ma bibliothèque', titleEn: 'My library',
       descFr: '', descEn: '', route: '/my-purchases',
-      borderClass: '', iconBg: 'bg-primary/12', iconColor: 'text-primary' },
+      borderClass: '', iconBg: 'bg-primary/10', iconColor: 'text-primary' },
     ...(showServiceSurfaces() ? [{
       id: 'acc-messages', icon: MessageSquare, emoji: '', titleFr: 'Messages', titleEn: 'Messages',
       descFr: '', descEn: '', route: '/dashboard/messages',
-      borderClass: '', iconBg: 'bg-cyan-500/12', iconColor: 'text-cyan-500' }] : []),
+      borderClass: '', iconBg: 'bg-primary/10', iconColor: 'text-primary' }] : []),
 
     { id: 'acc-earn', icon: HandCoins, emoji: '', titleFr: 'Gagner', titleEn: 'Earn',
       descFr: '', descEn: '', route: '/gagner',
-      borderClass: '', iconBg: 'bg-amber-500/12', iconColor: 'text-amber-500' },
+      borderClass: '', iconBg: 'bg-primary/10', iconColor: 'text-primary' },
     ...(isSuperadmin ? [{ id: 'acc-affiliation', icon: Share2, emoji: '', titleFr: 'Parrainage', titleEn: 'Affiliate',
       descFr: '', descEn: '', route: '/affiliation',
-      borderClass: '', iconBg: 'bg-emerald-500/12', iconColor: 'text-emerald-500' }] : []),
+      borderClass: '', iconBg: 'bg-primary/10', iconColor: 'text-primary' }] : []),
   ] : [];
 
 
@@ -261,7 +261,7 @@ export function MobileMenuDrawer({ onClose }: Props) {
                   className={cn(
                     'w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left',
                     'active:scale-[0.98] transition',
-                    active ? 'bg-primary/8 text-foreground' : 'text-foreground/90 hover:bg-muted/50',
+                    active ? 'bg-primary/10 text-foreground' : 'text-foreground/90 hover:bg-muted/50',
                   )}
                 >
                   <div className={cn('h-8 w-8 rounded-lg grid place-items-center shrink-0', item.iconBg)}>
@@ -289,9 +289,9 @@ export function MobileMenuDrawer({ onClose }: Props) {
               <li>
                 <button
                   onClick={() => handleNav('/superadmin')}
-                  className="w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left text-amber-500 hover:bg-amber-500/10 active:scale-[0.98] transition"
+                  className="w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left text-primary hover:bg-primary/10 active:scale-[0.98] transition"
                 >
-                  <div className="h-8 w-8 rounded-lg bg-amber-500/12 grid place-items-center shrink-0">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 grid place-items-center shrink-0">
                     <ShieldCheck className="h-4 w-4" />
                   </div>
                   <span className="text-[14px] font-semibold">Super admin</span>
@@ -302,7 +302,7 @@ export function MobileMenuDrawer({ onClose }: Props) {
 
               <button
                 onClick={() => handleNav('/create-org')}
-                className="w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left text-primary hover:bg-primary/5 active:scale-[0.98] transition"
+                className="w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left text-primary hover:bg-primary/10 active:scale-[0.98] transition"
               >
                 <div className="h-8 w-8 rounded-lg bg-primary/10 grid place-items-center shrink-0">
                   <Plus className="h-4 w-4" />
