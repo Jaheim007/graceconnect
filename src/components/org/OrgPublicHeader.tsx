@@ -28,8 +28,6 @@ import {
 } from 'lucide-react';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Link } from '@/lib/router-compat';
-import { SiteLogo } from '@/components/ui/SiteLogo';
 
 interface OrgPublicHeaderProps {
   org: any;
