@@ -7,6 +7,9 @@ import type { LucideIcon } from 'lucide-react';
 import type { SiteviralFeatureKey } from '@/types/database';
 import type { BuyerWorld } from '@/lib/siteviral/buyerWorlds';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
+import {
+  asLucide, SvHome, SvLibrary, SvEarn, SvPencil, SvWallet, SvLesson, SvAdmin, SvSell, SvExplore,
+} from '@/components/icons/nav-icons';
 
 export interface ActionNavItem {
   id: string;
@@ -99,7 +102,7 @@ export function getActionNavItems(
   if (ctx.isAuthenticated) {
     items.push({
       id: 'overview',
-      icon: LayoutDashboard,
+      icon: asLucide(SvHome),
       emoji: '📊',
       titleFr: 'Mon tableau de bord',
       titleEn: 'My dashboard',
@@ -114,7 +117,7 @@ export function getActionNavItems(
 
     items.push({
       id: 'purchases',
-      icon: Package,
+      icon: asLucide(SvLibrary),
       emoji: '📚',
       titleFr: 'Ma bibliothèque',
       titleEn: 'My library',
@@ -133,7 +136,7 @@ export function getActionNavItems(
   if (ctx.isAuthenticated && ctx.hasManageableOrg) {
     items.push({
       id: 'sell',
-      icon: Store,
+      icon: asLucide(SvSell),
       emoji: '🛒',
       titleFr: 'Vendre',
       titleEn: 'Sell',
@@ -150,7 +153,7 @@ export function getActionNavItems(
   if (ctx.isAuthenticated) {
     items.push({
       id: 'write',
-      icon: BookOpen,
+      icon: asLucide(SvPencil),
       emoji: '✏️',
       titleFr: 'Écrire un livre en 5 min',
       titleEn: 'Write a book in 5 min',
@@ -167,7 +170,7 @@ export function getActionNavItems(
   if (ctx.isAuthenticated) {
     items.push({
       id: 'course',
-      icon: GraduationCap,
+      icon: asLucide(SvLesson),
       emoji: '🎓',
       titleFr: 'Créer une formation',
       titleEn: 'Create a formation',
@@ -188,7 +191,7 @@ export function getActionNavItems(
   // sellers keep the marketing /discover surface.
   items.push({
     id: 'discover',
-    icon: Compass,
+    icon: asLucide(SvExplore),
     emoji: '🔍',
     titleFr: 'Explorer',
     titleEn: 'Explore',
@@ -216,7 +219,7 @@ export function getActionNavItems(
   if (ctx.isAuthenticated) {
     items.push({
       id: 'earn',
-      icon: HandCoins,
+      icon: asLucide(SvEarn),
       emoji: '💰',
       titleFr: 'Gagner',
       titleEn: 'Earn',
@@ -250,7 +253,7 @@ export function getActionNavItems(
   if (ctx.isAuthenticated && ctx.hasManageableOrg) {
     items.push({
       id: 'sales',
-      icon: Wallet,
+      icon: asLucide(SvWallet),
       emoji: '💵',
       titleFr: 'Revenus',
       titleEn: 'Revenue',
@@ -267,7 +270,7 @@ export function getActionNavItems(
   if (ctx.isSuperadmin) {
     items.push({
       id: 'superadmin',
-      icon: Shield,
+      icon: asLucide(SvAdmin),
       emoji: '🛡️',
       titleFr: 'Super Admin',
       titleEn: 'Super Admin',

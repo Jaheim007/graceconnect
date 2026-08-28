@@ -3,7 +3,11 @@ import { BottomNav } from './BottomNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
-import { LayoutDashboard, Compass, ShoppingBag, MessageSquare, HandCoins, Menu as MenuIcon, LogIn } from 'lucide-react';
+import { MessageSquare, Menu as MenuIcon, LogIn } from 'lucide-react';
+import {
+  SvHome, SvHomeSolid, SvExplore, SvExploreSolid, SvLibrary, SvLibrarySolid,
+  SvEarn, SvEarnSolid,
+} from '@/components/icons/nav-icons';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -61,18 +65,18 @@ export function GlobalBottomNav() {
 
   const items = user
     ? ([
-        { id: 'overview', route: '/dashboard', icon: LayoutDashboard, fr: 'Accueil', en: 'Home' },
-        { id: 'explore', route: '/dashboard/explore', icon: Compass, fr: 'Explorer', en: 'Explore' },
-        { id: 'purchases', route: '/my-purchases', icon: ShoppingBag, fr: 'Biblio', en: 'Library' },
+        { id: 'overview', route: '/dashboard', icon: SvHome, activeIcon: SvHomeSolid, fr: 'Accueil', en: 'Home' },
+        { id: 'explore', route: '/dashboard/explore', icon: SvExplore, activeIcon: SvExploreSolid, fr: 'Explorer', en: 'Explore' },
+        { id: 'purchases', route: '/my-purchases', icon: SvLibrary, activeIcon: SvLibrarySolid, fr: 'Biblio', en: 'Library' },
         showServiceSurfaces()
-          ? { id: 'messages', route: '/dashboard/messages', icon: MessageSquare, fr: 'Messages', en: 'Messages' }
-          : { id: 'earn', route: '/gagner', icon: HandCoins, fr: 'Gagner', en: 'Earn' },
+          ? { id: 'messages', route: '/dashboard/messages', icon: MessageSquare, activeIcon: MessageSquare, fr: 'Messages', en: 'Messages' }
+          : { id: 'earn', route: '/gagner', icon: SvEarn, activeIcon: SvEarnSolid, fr: 'Gagner', en: 'Earn' },
       ] as const)
     : ([
-        { id: 'overview', route: '/', icon: LayoutDashboard, fr: 'Accueil', en: 'Home' },
-        { id: 'explore', route: '/discover', icon: Compass, fr: 'Explorer', en: 'Explore' },
-        { id: 'purchases', route: '/my-purchases', icon: ShoppingBag, fr: 'Biblio', en: 'Library' },
-        { id: 'earn', route: '/gagner', icon: HandCoins, fr: 'Gagner', en: 'Earn' },
+        { id: 'overview', route: '/', icon: SvHome, activeIcon: SvHomeSolid, fr: 'Accueil', en: 'Home' },
+        { id: 'explore', route: '/discover', icon: SvExplore, activeIcon: SvExploreSolid, fr: 'Explorer', en: 'Explore' },
+        { id: 'purchases', route: '/my-purchases', icon: SvLibrary, activeIcon: SvLibrarySolid, fr: 'Biblio', en: 'Library' },
+        { id: 'earn', route: '/gagner', icon: SvEarn, activeIcon: SvEarnSolid, fr: 'Gagner', en: 'Earn' },
       ] as const);
 
   /** Guests can browse Home/Explore/Earn; Purchases requires an account. */
@@ -116,7 +120,7 @@ export function GlobalBottomNav() {
           >
             {items.map((item) => {
               const active = isActive(item.route);
-              const Icon = item.icon;
+              const Icon = active ? item.activeIcon : item.icon;
               return (
                 <button
                   key={item.id}
@@ -133,7 +137,7 @@ export function GlobalBottomNav() {
                 >
                   <Icon
                     className={cn('h-6 w-6 transition-transform', active && 'scale-110')}
-                    strokeWidth={active ? 2.4 : 1.9}
+                    strokeWidth={2}
                   />
                 </button>
               );
