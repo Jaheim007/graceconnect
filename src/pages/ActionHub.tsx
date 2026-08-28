@@ -434,7 +434,7 @@ export default function ActionHub() {
               <>
                 <Button className="h-11 justify-start gap-2.5 rounded-xl font-semibold"
                   onClick={() => { setPrompt(null); navigate('/ecrire'); }}>
-                  <BookOpen className="h-4 w-4" />
+                  <PenLine className="h-4 w-4" />
                   {isFr ? 'Écrire un livre en 5 min' : 'Write a book in 5 min'}
                 </Button>
                 <Button variant="outline" className="h-11 justify-start gap-2.5 rounded-xl font-semibold"
