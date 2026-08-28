@@ -137,7 +137,9 @@ export function TopBar() {
             </div>
             <div className="ml-auto flex items-center gap-1 shrink-0">
               <CreditBalance />
+              <GlobalPreferencesSelector className="h-10 rounded-full bg-muted/60 px-2 text-foreground" />
               <HelpMenuButton className="h-10" />
+
               <button
                 onClick={() => navigate('/notifications')}
                 className="relative grid place-items-center h-10 w-10 rounded-full bg-muted/60 hover:bg-muted text-indigo-500 dark:text-indigo-400 shrink-0"
