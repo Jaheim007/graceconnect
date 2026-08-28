@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { duplicateCourseFn } from '@/lib/programs/duplicateCourse.functions';
 
 export const COURSE_LANGUAGES = [
   { code: 'fr', flag: '🇫🇷', fr: 'Français', en: 'French' },
@@ -36,19 +36,17 @@ export function useDuplicateCourse() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: DuplicateCourseInput) => {
-      const { data, error } = await supabase.functions.invoke('duplicate-course', {
-        body: {
+      return await duplicateCourseFn({
+        data: {
           program_id: input.programId,
           org_id: input.orgId,
           translate: !!input.translate,
-          target_language: input.translate ? input.targetLanguage : null,
+          target_language: input.translate ? input.targetLanguage ?? null : null,
           tier: input.tier || 'standard',
         },
       });
-      if (error) throw error;
-      if (!data?.ok) throw new Error(data?.error || 'Duplication failed');
-      return data as { program_id: string; translated: boolean; target_language: string | null; lessons: number };
     },
+
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['org-programs'] });
     },

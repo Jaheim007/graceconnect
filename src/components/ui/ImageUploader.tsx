@@ -1,5 +1,7 @@
 import { useRef, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { canvaCreateDesign, canvaExportDesign } from '@/lib/canva/canva.functions';
+
 import { X, Image as ImageIcon, Loader2, Palette, Upload as UploadIcon } from 'lucide-react';
 import { brandUrl } from '@/lib/storageUrl';
 import { cn } from '@/lib/utils';
@@ -143,9 +145,8 @@ export function ImageUploader({
       }
 
       const dims = CANVA_DIMENSIONS[aspectRatio] || CANVA_DIMENSIONS.free;
-      const { data, error } = await supabase.functions.invoke('canva-design', {
-        body: {
-          action: 'create',
+      const data = await canvaCreateDesign({
+        data: {
           canva_token: token,
           title: `Design — ${label}`,
           width: dims.width,
@@ -153,15 +154,14 @@ export function ImageUploader({
         },
       });
 
-      if (error) throw error;
-      if (!data?.ok) throw new Error(data?.error || 'Échec création design Canva');
 
-      if (data.edit_url) {
+      if (data.edit_url && data.design_id) {
         window.open(data.edit_url, '_blank');
         // Store design_id keyed by folder to allow multiple contexts
         const canvaKey = `canva_design_${folder}_${Date.now()}`;
         sessionStorage.setItem('canva_active_design', canvaKey);
         sessionStorage.setItem(canvaKey, data.design_id);
+
         toast({
           title: '🎨 Design Canva créé',
           description: 'Éditez votre design dans Canva, puis cliquez "Importer depuis Canva" ici.',
@@ -191,12 +191,10 @@ export function ImageUploader({
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('canva-design', {
-        body: { action: 'export', canva_token: token, design_id: designId },
+      const data = await canvaExportDesign({
+        data: { canva_token: token, design_id: designId },
       });
 
-      if (error) throw error;
-      if (!data?.ok) throw new Error(data?.error || 'Export échoué');
 
       onChange(brandUrl(data.cover_url));
       if (activeKey) {

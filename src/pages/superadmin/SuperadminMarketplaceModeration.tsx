@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { db, supabase } from '@/lib/db';
+import { db } from '@/lib/db';
+import { moderateMarketplaceTemplate } from '@/lib/marketplace/templates.functions';
+
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,12 +32,11 @@ export default function SuperadminMarketplaceModeration() {
 
   const moderate = useMutation({
     mutationFn: async ({ template_id, decision, rejection_reason }: any) => {
-      const { data, error } = await supabase.functions.invoke('marketplace-templates', {
-        body: { action: 'moderate', template_id, decision, rejection_reason },
+      await moderateMarketplaceTemplate({
+        data: { template_id, decision, rejection_reason: rejection_reason ?? null },
       });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
     },
+
     onSuccess: () => {
       toast.success('Decision recorded');
       qc.invalidateQueries({ queryKey: ['superadmin-marketplace-pending'] });
