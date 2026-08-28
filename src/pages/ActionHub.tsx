@@ -373,9 +373,10 @@ export default function ActionHub() {
 
 
                     <div className={cn(
-                      'relative h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-inset ring-current/15 transition-transform duration-200 group-hover:scale-[1.06]',
+                      'relative h-11 w-11 sm:h-12 sm:w-12 rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-[1.06]',
                       action.iconBg, action.iconColor
                     )}>
+
                       <action.icon className="h-5 w-5" />
                     </div>
 
