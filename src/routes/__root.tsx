@@ -21,7 +21,6 @@ import { OrgProvider } from "@/contexts/OrgContext";
 import { I18nProvider } from "@/i18n/I18nContext";
 import { RouteContentSkeleton } from "@/components/layout/RouteFallback";
 import { GlobalBottomNav } from "@/components/layout/GlobalBottomNav";
-import { FloatingHelpWidget } from "@/components/help/FloatingHelpWidget";
 import { AssistantChatWidget } from "@/components/assistant/AssistantChatWidget";
 import { TrialBillingBanner } from "@/components/billing/TrialBillingBanner";
 import { CreditAlertWatcher } from "@/components/credits/CreditAlertWatcher";
@@ -365,7 +364,6 @@ function RootComponent() {
                     <Outlet />
                   </Suspense>
                   <GlobalBottomNav />
-                  <FloatingHelpWidget />
                   <AssistantChatWidget />
                   {showNativeIntro && <NativeIntroSplash onComplete={() => setShowNativeIntro(false)} />}
                 </ErrorBoundary>

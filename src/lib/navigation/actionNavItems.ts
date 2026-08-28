@@ -110,9 +110,9 @@ export function getActionNavItems(
       descEn: 'Overview of my activity',
 
       route: '/dashboard',
-      borderClass: 'border-primary/30 hover:border-primary/60',
-      iconBg: 'bg-primary/15',
-      iconColor: 'text-primary',
+      borderClass: 'border-sky-500/30 hover:border-sky-500/60',
+      iconBg: 'bg-sky-500/15',
+      iconColor: 'text-sky-500',
     });
 
     items.push({
@@ -124,9 +124,9 @@ export function getActionNavItems(
       descFr: 'Accéder à mes livres et ressources',
       descEn: 'Access my books and resources',
       route: '/my-purchases',
-      borderClass: 'border-primary/30 hover:border-primary/60',
-      iconBg: 'bg-primary/15',
-      iconColor: 'text-primary',
+      borderClass: 'border-blue-500/30 hover:border-blue-500/60',
+      iconBg: 'bg-blue-500/15',
+      iconColor: 'text-blue-500',
     });
 
     // "Create platform" now lives in the profile menu — keeps the buyer
@@ -160,9 +160,9 @@ export function getActionNavItems(
       descFr: "Crée ton livre avec l'IA et vends-le",
       descEn: 'Create your book with AI and sell it',
       route: '/ecrire',
-      borderClass: 'border-primary/30 hover:border-primary/60',
-      iconBg: 'bg-primary/15',
-      iconColor: 'text-primary',
+      borderClass: 'border-pink-500/30 hover:border-pink-500/60',
+      iconBg: 'bg-pink-500/15',
+      iconColor: 'text-pink-500',
       featureKey: 'ai_book_creation',
     });
   }

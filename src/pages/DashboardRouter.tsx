@@ -23,9 +23,13 @@ export default function DashboardRouter() {
   // A) resume pending action if present
   useEffect(() => {
     if (!user) return;
-    const pa = consumePendingAction();
+    // Only a *typed* pending action may bounce us away from /dashboard.
+    // A stale legacy `sv_auth_returnTo` string must never hijack Home.
+    const pa = consumePendingAction(true);
     const dest = pa ? safeReturnTo(pa.returnTo) : null;
-    if (dest) navigate(dest, { replace: true });
+    if (!dest) return;
+    if (dest === '/dashboard' || dest === '/dashboard/home' || dest === '/') return;
+    navigate(dest, { replace: true });
   }, [user, navigate]);
 
   const manageableOrgs = useMemo(

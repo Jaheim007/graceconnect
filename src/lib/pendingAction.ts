@@ -62,7 +62,11 @@ export function setPendingAction(
   } catch {}
 }
 
-export function peekPendingAction(): PendingAction | null {
+/**
+ * @param typedOnly when true, ignore the legacy plain `sv_auth_returnTo` mirror.
+ *   Surfaces like /dashboard must not be hijacked by a stale legacy value.
+ */
+export function peekPendingAction(typedOnly = false): PendingAction | null {
   try {
     const raw = sessionStorage.getItem(KEY);
     if (raw) {
@@ -74,6 +78,7 @@ export function peekPendingAction(): PendingAction | null {
       sessionStorage.removeItem(KEY);
     }
     // Fall back to legacy plain returnTo string.
+    if (typedOnly) return null;
     const legacy = sessionStorage.getItem(LEGACY_RETURN_TO);
     const safeLegacy = safeReturnTo(legacy);
     if (safeLegacy) {
@@ -83,8 +88,8 @@ export function peekPendingAction(): PendingAction | null {
   return null;
 }
 
-export function consumePendingAction(): PendingAction | null {
-  const p = peekPendingAction();
+export function consumePendingAction(typedOnly = false): PendingAction | null {
+  const p = peekPendingAction(typedOnly);
   try {
     sessionStorage.removeItem(KEY);
     sessionStorage.removeItem(LEGACY_RETURN_TO);
