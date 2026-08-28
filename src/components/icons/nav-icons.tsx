@@ -230,3 +230,42 @@ export const SvExploreSolid = (p: IconProps) => (
 
 /** Cast helper — these glyphs are drop-in replacements for lucide icons. */
 export const asLucide = (C: (p: IconProps) => ReactElement) => C as unknown as LucideIcon;
+
+/* ───────────── App-wide icon unification ─────────────
+ * Any nav item still declared with a lucide glyph gets swapped for the
+ * matching SiteViral glyph, so every menu (bottom nav, sidebar, drawer,
+ * action hub) shares one visual family.
+ */
+import {
+  BookOpen, Book, Store, ShoppingBag, ShoppingCart, Package, Compass, Search,
+  LayoutDashboard, Wallet, GraduationCap, Shield, ShieldCheck, HandCoins,
+  Coins, Banknote, PenLine, Pencil, Tag, Library,
+} from 'lucide-react';
+
+const SV_ICON_MAP = new Map<unknown, LucideIcon>([
+  [LayoutDashboard, asLucide(SvHome)],
+  [Compass, asLucide(SvExplore)],
+  [Search, asLucide(SvExplore)],
+  [BookOpen, asLucide(SvLibrary)],
+  [Book, asLucide(SvLibrary)],
+  [Library, asLucide(SvLibrary)],
+  [ShoppingBag, asLucide(SvLibrary)],
+  [Package, asLucide(SvLibrary)],
+  [Store, asLucide(SvSell)],
+  [ShoppingCart, asLucide(SvSell)],
+  [Tag, asLucide(SvSell)],
+  [Wallet, asLucide(SvWallet)],
+  [Banknote, asLucide(SvWallet)],
+  [HandCoins, asLucide(SvEarn)],
+  [Coins, asLucide(SvEarn)],
+  [GraduationCap, asLucide(SvLesson)],
+  [PenLine, asLucide(SvPencil)],
+  [Pencil, asLucide(SvPencil)],
+  [Shield, asLucide(SvAdmin)],
+  [ShieldCheck, asLucide(SvAdmin)],
+]);
+
+/** Returns the SiteViral glyph for a lucide icon when one exists. */
+export function unifyNavIcon(icon: LucideIcon): LucideIcon {
+  return SV_ICON_MAP.get(icon) ?? icon;
+}
