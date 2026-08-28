@@ -1,4 +1,6 @@
 import { useParams, Link } from '@/lib/router-compat';
+import { canvaCreateDesign, canvaExportDesign } from '@/lib/canva/canva.functions';
+
 import { useOrg } from '@/contexts/OrgContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
