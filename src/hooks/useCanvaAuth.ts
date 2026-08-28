@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { canvaExchangeCode, canvaRefreshToken } from '@/lib/canva/canva.functions';
+
 
 const CANVA_TOKEN_KEY = 'sv_canva_token';
 const CANVA_REFRESH_KEY = 'sv_canva_refresh';
