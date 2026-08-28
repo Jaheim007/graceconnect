@@ -120,7 +120,7 @@ export function GlobalBottomNav() {
           >
             {items.map((item) => {
               const active = isActive(item.route);
-              const Icon = item.icon;
+              const Icon = active ? item.activeIcon : item.icon;
               return (
                 <button
                   key={item.id}
@@ -137,7 +137,7 @@ export function GlobalBottomNav() {
                 >
                   <Icon
                     className={cn('h-6 w-6 transition-transform', active && 'scale-110')}
-                    strokeWidth={active ? 2.4 : 1.9}
+                    strokeWidth={2}
                   />
                 </button>
               );
