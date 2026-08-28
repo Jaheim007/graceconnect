@@ -20,6 +20,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { CreditBalance } from '@/components/credits/CreditBalance';
 import { GlobalPreferencesSelector } from '@/components/global/GlobalPreferencesSelector';
 import { brandUrl } from '@/lib/storageUrl';
+import { HelpMenuButton } from '@/components/help/HelpMenuButton';
 import { cn } from '@/lib/utils';
 import { Organization } from '@/types/database';
 
@@ -125,7 +126,7 @@ export function TopBar() {
     <>
       {/* MOBILE — Djamo / Wave inspired: avatar + greeting, minimal glyphs on the right */}
       <header
-        className="mobile-safe-topbar lg:hidden min-h-16 shrink-0 z-40 sticky top-0 grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 px-safe-x bg-background/95 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/85"
+        className="mobile-safe-topbar lg:hidden min-h-16 shrink-0 z-40 sticky top-0 flex flex-nowrap items-center gap-1.5 px-safe-x bg-background/95 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/85"
       >
         {user ? (
           <>
@@ -134,23 +135,19 @@ export function TopBar() {
               <p className="text-[11px] text-muted-foreground leading-tight truncate">{greeting}</p>
               <p className="text-sm font-bold truncate leading-tight">{greetingName}</p>
             </div>
-            <CreditBalance />
-            <button
-              onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-              className="hidden sm:grid place-items-center h-11 w-11 rounded-full bg-muted/60 hover:bg-muted text-foreground shrink-0"
-              aria-label="Search"
-            >
-              <Search className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => navigate('/notifications')}
-              className="relative grid place-items-center h-11 w-11 rounded-full bg-muted/60 hover:bg-muted text-foreground shrink-0"
-              aria-label="Notifications"
-              data-tour="nav-notifications"
-            >
-              <Bell className="h-4 w-4" />
-              {unread > 0 && <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />}
-            </button>
+            <div className="ml-auto flex items-center gap-1 shrink-0">
+              <CreditBalance />
+              <HelpMenuButton className="h-10 w-10" />
+              <button
+                onClick={() => navigate('/notifications')}
+                className="relative grid place-items-center h-10 w-10 rounded-full bg-muted/60 hover:bg-muted text-indigo-500 dark:text-indigo-400 shrink-0"
+                aria-label="Notifications"
+                data-tour="nav-notifications"
+              >
+                <Bell className="h-[18px] w-[18px]" />
+                {unread > 0 && <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />}
+              </button>
+            </div>
           </>
         ) : (
           <>
@@ -179,6 +176,8 @@ export function TopBar() {
         <OrgSwitcher variant="topbar" />
         <CreditBalance />
         <GlobalPreferencesSelector />
+
+        <HelpMenuButton className="h-8 w-8" />
 
         <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={toggleTheme}>
           {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
