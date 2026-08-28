@@ -70,7 +70,7 @@ export function CategoryCarousels({ category, onCategoryChange, hideRail }: Cate
           .select('*, organizations(name, slug, logo_url, currency, is_verified)')
           .eq('is_published', true)
           .order('created_at', { ascending: false })
-          .limit(12);
+          .limit(24);
         return (data || []).map((p: any) => ({
           ...p,
           _isProgram: true,
@@ -117,7 +117,7 @@ export function CategoryCarousels({ category, onCategoryChange, hideRail }: Cate
         .eq('is_active', true)
         .eq('is_express_demo', false)
         .order('current_amount', { ascending: false })
-        .limit(12);
+        .limit(24);
       return (data || []).map((c: any) => ({
         ...c,
         organization_name: c.organizations?.name,
@@ -141,7 +141,7 @@ export function CategoryCarousels({ category, onCategoryChange, hideRail }: Cate
         .eq('is_active', true)
         .eq('organizations.offerings_enabled', true)
         .order('created_at', { ascending: false })
-        .limit(12);
+        .limit(24);
       return (data || []).map((o: any) => ({
         ...o,
         organization_name: o.organizations?.name,
