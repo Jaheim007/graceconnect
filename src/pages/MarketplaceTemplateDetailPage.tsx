@@ -51,21 +51,25 @@ export default function MarketplaceTemplateDetailPage() {
     setCloning(true);
     try {
       const isFreeClone = Number(template?.clone_price) === 0;
-      const fnName = isFreeClone ? 'marketplace-templates' : 'checkout-template-clone';
-      const body = isFreeClone
-        ? { action: 'clone', template_id: id, target_org_id: targetOrg }
-        : { template_id: id, target_org_id: targetOrg, callback_url: `${window.location.origin}/admin/products` };
-      const { data, error } = await supabase.functions.invoke(fnName, { body });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
       if (isFreeClone) {
+        await cloneMarketplaceTemplate({
+          data: { template_id: id!, target_org_id: targetOrg },
+        });
         toast.success(fr ? 'Template cloné !' : 'Template cloned!');
         navigate(`/admin/products`);
-      } else if (data?.url) {
-        window.location.href = data.url;
       } else {
-        throw new Error(fr ? 'Aucune URL de paiement reçue' : 'No checkout URL received');
+        const { data, error } = await supabase.functions.invoke('checkout-template-clone', {
+          body: { template_id: id, target_org_id: targetOrg, callback_url: `${window.location.origin}/admin/products` },
+        });
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+        if (data?.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error(fr ? 'Aucune URL de paiement reçue' : 'No checkout URL received');
+        }
       }
+
     } catch (e: any) {
       toast.error(e.message || (fr ? 'Erreur lors du clonage' : 'Clone failed'));
     } finally {
