@@ -17,6 +17,7 @@ import { useCreditsBalance } from '@/hooks/useCredits';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
 import { useIsTyping } from '@/hooks/useIsTyping';
 import { useNavAutoHide } from '@/hooks/useNavAutoHide';
+import { AssistantMascot } from './AssistantMascot';
 
 
 /**
@@ -165,9 +166,17 @@ export function AssistantChatWidget() {
             className="mb-3 flex h-[min(72dvh,32rem)] w-[calc(100vw-2rem)] max-w-[24rem] flex-col overflow-hidden rounded-2xl border border-amber-500/25 bg-card shadow-2xl sm:w-[24rem] md:h-[min(70dvh,34rem)] md:w-[26rem] md:max-w-[26rem]"
           >
             <div className="flex items-center justify-between gap-2 border-b border-border bg-muted/30 px-3.5 py-2.5">
-              <div>
-                <p className="text-xs font-bold">{ASSISTANT_NAME}</p>
-                <p className="text-[10px] text-muted-foreground">{copy.free}</p>
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+                  <AssistantMascot className="h-6 w-6" talking={thinking} />
+                  <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card bg-emerald-500" />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-xs font-bold">{ASSISTANT_NAME}</p>
+                  <p className="truncate text-[10px] text-muted-foreground">
+                    {thinking ? (isFr ? 'écrit…' : 'typing…') : copy.free}
+                  </p>
+                </div>
               </div>
               <div className="flex items-center gap-1">
 
@@ -268,9 +277,17 @@ export function AssistantChatWidget() {
               ))}
 
               {thinking && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  {isFr ? 'Réflexion…' : 'Thinking…'}
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-1 rounded-2xl bg-muted/70 px-3 py-2.5">
+                    {[0, 1, 2].map((i) => (
+                      <motion.span
+                        key={i}
+                        className="h-1.5 w-1.5 rounded-full bg-muted-foreground/70"
+                        animate={{ y: [0, -3.5, 0], opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15, ease: 'easeInOut' }}
+                      />
+                    ))}
+                  </span>
                 </div>
               )}
               <div ref={bottomRef} />
@@ -331,37 +348,39 @@ export function AssistantChatWidget() {
         </AnimatePresence>
 
         <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 420, damping: 22 }}
+          whileHover={{ scale: 1.06 }}
+          whileTap={{ scale: 0.93 }}
           onClick={() => setOpen((o) => !o)}
           aria-label={ASSISTANT_NAME}
+          title={ASSISTANT_NAME}
           className={cn(
             'relative flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground md:h-14 md:w-14',
             'ring-2 ring-background shadow-[0_10px_30px_-8px_hsl(var(--primary)/0.55)] transition-shadow hover:shadow-[0_14px_40px_-8px_hsl(var(--primary)/0.7)]'
           )}
         >
-          {/* Soft halo so the mascot floats above content */}
-          <span
+          {/* Breathing halo so the mascot floats above content */}
+          <motion.span
             aria-hidden
             className="pointer-events-none absolute -inset-2 rounded-full bg-primary/15 blur-md"
+            animate={{ scale: [1, 1.14, 1], opacity: [0.55, 0.85, 0.55] }}
+            transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
           />
+          {/* Attention ring — only when idle & closed */}
+          {!open && (
+            <motion.span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 rounded-full border border-[#F5C136]/60"
+              animate={{ scale: [1, 1.35], opacity: [0.6, 0] }}
+              transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut' }}
+            />
+          )}
           {open ? (
             <X className="relative h-5 w-5" />
           ) : (
-            <svg viewBox="0 0 32 32" className="relative h-7 w-7 md:h-8 md:w-8" fill="none" aria-hidden>
-              {/* antenna */}
-              <path d="M16 4.5v2.6" stroke="#F5C136" strokeWidth="1.8" strokeLinecap="round" />
-              <circle cx="16" cy="3.4" r="1.6" fill="#F5C136" />
-              {/* head */}
-              <rect x="5.5" y="7.5" width="21" height="16" rx="6.5" fill="currentColor" fillOpacity="0.16" stroke="currentColor" strokeWidth="1.8" />
-              {/* eyes */}
-              <circle cx="12" cy="15" r="2.1" fill="#F5C136" />
-              <circle cx="20" cy="15" r="2.1" fill="#F5C136" />
-              {/* smile */}
-              <path d="M12.8 19.4c1.9 1.3 4.5 1.3 6.4 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-              {/* ears */}
-              <path d="M3.6 13.4v4.2M28.4 13.4v4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
+            <AssistantMascot className="relative h-7 w-7 md:h-8 md:w-8" />
           )}
         </motion.button>
 
