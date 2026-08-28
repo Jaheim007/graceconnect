@@ -30,11 +30,15 @@ export function LandingNav() {
   const initials = displayName ? displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) : 'U';
 
   return (
-    <header className={cn(
-      'sticky top-0 z-50 w-full border-b border-border/60 backdrop-blur',
-      nativeApp ? 'native-landing-topbar bg-background/95' : 'bg-background/85'
-    )}>
+    <header
+      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      className={cn(
+        'sticky top-0 z-50 w-full border-b border-border/60 backdrop-blur',
+        nativeApp ? 'native-landing-topbar bg-background/95' : 'bg-background/85'
+      )}
+    >
       <div className="container flex items-center justify-between h-16 sm:h-[72px] px-4 sm:px-6">
+
         {/* Left cluster: logo + resource links */}
         <div className="flex items-center gap-7">
           <Link to="/" className="flex h-10 items-center shrink-0" aria-label="SiteViral">

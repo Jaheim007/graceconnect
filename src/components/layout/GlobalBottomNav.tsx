@@ -33,7 +33,7 @@ export function GlobalBottomNav() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [menuOpen, setMenuOpen] = useState(false);
-  const navHidden = useNavAutoHide();
+  const navScrolling = useNavAutoHide();
 
   const isBeautyThread = /^\/beauty\/messages\/[^/]+/.test(location.pathname);
   const hidden =
@@ -107,10 +107,11 @@ export function GlobalBottomNav() {
               'mx-auto flex w-fit max-w-full items-center gap-1 rounded-full border border-border/50 px-2 py-2',
               'bg-background/70 backdrop-blur-2xl shadow-[0_12px_40px_-12px_rgba(0,0,0,0.45)]',
               'supports-[backdrop-filter]:bg-background/55',
-              'transition-all duration-300 ease-out will-change-transform',
-              navHidden
-                ? 'translate-y-6 scale-90 opacity-0 pointer-events-none'
-                : 'translate-y-0 scale-100 opacity-100',
+              'transition-all duration-300 ease-out will-change-transform origin-bottom',
+              navScrolling
+                ? 'scale-[0.86] opacity-80'
+                : 'scale-100 opacity-100',
+
             )}
           >
             {items.map((item) => {
