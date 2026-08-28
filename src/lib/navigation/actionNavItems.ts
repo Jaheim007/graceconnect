@@ -8,7 +8,7 @@ import type { SiteviralFeatureKey } from '@/types/database';
 import type { BuyerWorld } from '@/lib/siteviral/buyerWorlds';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import {
-  asLucide, SvHome, SvLibrary, SvEarn, SvPencil, SvWallet, SvLesson, SvAdmin, SvSell, SvExplore,
+  asLucide, unifyNavIcon, SvHome, SvLibrary, SvEarn, SvPencil, SvWallet, SvLesson, SvAdmin, SvSell, SvExplore,
 } from '@/components/icons/nav-icons';
 
 export interface ActionNavItem {
@@ -283,7 +283,7 @@ export function getActionNavItems(
     });
   }
 
-  return items;
+  return items.map((it) => ({ ...it, icon: unifyNavIcon(it.icon) }));
 }
 
 /**
@@ -340,6 +340,6 @@ export function getBeautyNavItems(ctx: NavContext): ActionNavItem[] {
     iconColor: 'text-primary',
   });
 
-  return items;
+  return items.map((it) => ({ ...it, icon: unifyNavIcon(it.icon) }));
 }
 

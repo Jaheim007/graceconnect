@@ -6,6 +6,7 @@ import {
 
 import type { LucideIcon } from 'lucide-react';
 import type { SiteviralFeatureKey, SiteviralType } from '@/types/database';
+import { unifyNavIcon } from '@/components/icons/nav-icons';
 import type { ActionNavItem } from './actionNavItems';
 
 interface Ctx {
@@ -96,7 +97,7 @@ const TONE: Record<Spec['tone'], { border: string; iconBg: string; iconColor: st
 function toItem(s: Spec): ActionNavItem {
   const t = TONE[s.tone];
   return {
-    id: s.id, icon: s.icon, emoji: '',
+    id: s.id, icon: unifyNavIcon(s.icon), emoji: '',
     titleFr: s.titleFr, titleEn: s.titleEn,
     descFr: s.descFr, descEn: s.descEn,
     route: s.route,

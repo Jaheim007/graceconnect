@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, GraduationCap, Store, Compass, HandCoins, Wallet, HeartHandshake, Network } from 'lucide-react';
+import { ArrowRight, PenLine, GraduationCap, Store, Compass, HandCoins, Wallet, HeartHandshake, Network } from 'lucide-react';
+import { unifyNavIcon } from '@/components/icons/nav-icons';
 
 import { useNavigate } from '@/lib/router-compat';
 import { useAuth } from '@/contexts/AuthContext';
@@ -71,7 +72,7 @@ export default function ActionHub() {
       descFr: 'Offrandes, dons, enseignements et ressources', descEn: 'Offerings, donations, teachings & resources',
       route: '/create-org?scope=faith', borderClass: 'border-border hover:border-primary/40',
       iconBg: 'bg-primary/10', iconColor: 'text-primary' },
-    { id: 'write', icon: BookOpen, titleFr: 'Écrire un livre en 5 min', titleEn: 'Write a book in 5 min',
+    { id: 'write', icon: PenLine, titleFr: 'Écrire un livre en 5 min', titleEn: 'Write a book in 5 min',
       descFr: "Crée ton livre avec l'IA et vends-le", descEn: 'Create your book with AI and sell it',
       route: '/ecrire', borderClass: 'border-border hover:border-primary/40',
       iconBg: 'bg-primary/10', iconColor: 'text-primary' },
@@ -377,7 +378,7 @@ export default function ActionHub() {
                       action.iconBg, action.iconColor
                     )}>
 
-                      <action.icon className="h-5 w-5" />
+                      {(() => { const Icon = unifyNavIcon(action.icon); return <Icon className="h-5 w-5" />; })()}
                     </div>
 
                     <div className="relative flex-1 min-w-0">
@@ -433,7 +434,7 @@ export default function ActionHub() {
               <>
                 <Button className="h-11 justify-start gap-2.5 rounded-xl font-semibold"
                   onClick={() => { setPrompt(null); navigate('/ecrire'); }}>
-                  <BookOpen className="h-4 w-4" />
+                  <PenLine className="h-4 w-4" />
                   {isFr ? 'Écrire un livre en 5 min' : 'Write a book in 5 min'}
                 </Button>
                 <Button variant="outline" className="h-11 justify-start gap-2.5 rounded-xl font-semibold"
