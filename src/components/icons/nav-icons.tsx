@@ -231,4 +231,4 @@ export const SvExploreSolid = (p: IconProps) => (
 );
 
 /** Cast helper — these glyphs are drop-in replacements for lucide icons. */
-export const asLucide = (C: (p: IconProps) => JSX.Element) => C as unknown as LucideIcon;
+export const asLucide = (C: (p: IconProps) => React.ReactElement) => C as unknown as LucideIcon;
