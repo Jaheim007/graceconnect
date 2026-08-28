@@ -95,7 +95,7 @@ export function useCanvaAuth() {
       });
 
       sessionStorage.removeItem('canva_code_verifier');
-      sessionStorage.removeItem('canva_code_verifier');
+
       saveTokens(data);
       return true;
     } catch (e: any) {
