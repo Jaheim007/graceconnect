@@ -134,7 +134,7 @@ export function FloatingProofToast() {
   if (suppressed) return null;
 
   return (
-    <div className="fixed bottom-20 lg:bottom-4 left-4 z-50 max-w-xs sm:max-w-sm pointer-events-none">
+    <div className="hidden lg:block fixed bottom-4 left-4 z-30 max-w-sm pointer-events-none">
       <AnimatePresence>
         {visible && notification && (
           <motion.div
