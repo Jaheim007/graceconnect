@@ -49,12 +49,18 @@ export function SpaceBlock({ spaceName, spaceCount }: { spaceName: string | null
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-                  {isFr ? 'Gagné sur mes ventes' : 'Earned from my sales'}
+                  {isFr ? 'Net gagné sur mes ventes' : 'Net earned from my sales'}
                 </p>
                 <p className="text-xl font-black leading-none tabular-nums text-amber-500">
                   {fmt(sales.netAmount + sales.donationsAmount, sales.currency)}
                 </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {isFr
+                    ? `Après frais · brut ${fmt(sales.grossAmount, sales.currency)}`
+                    : `After fees · gross ${fmt(sales.grossAmount, sales.currency)}`}
+                </p>
               </div>
+
               <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
             </Link>
             <div className="grid grid-cols-2 gap-2">
