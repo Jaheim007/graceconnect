@@ -161,13 +161,12 @@ export function Sidebar() {
 
 
   /**
-   * The sidebar is always dark navy, so `text-primary` (deep navy in light
-   * theme) becomes invisible there. Remap it to a sidebar-safe blue.
+   * The sidebar surface is always dark navy, so brand `text-primary` (deep navy
+   * in the light theme) is invisible on it. Icons therefore always inherit the
+   * sidebar foreground, dimmed when the row is inactive.
    */
-  const sidebarIconColor = (c?: string) => {
-    if (!c || c === 'text-primary') return 'text-primary';
-    return c.replace(/-500$/, '-400');
-  };
+  const sidebarIconColor = (active: boolean) =>
+    active ? 'text-sidebar-foreground' : 'text-sidebar-foreground/60';
 
   const renderNavItem = (item: ActionNavItem) => {
     const active = isActive(item.route);
@@ -189,7 +188,7 @@ export function Sidebar() {
         <Icon
           className={cn(
             'h-[18px] w-[18px] shrink-0 transition-transform duration-200 group-hover:scale-110',
-            sidebarIconColor(item.iconColor),
+            sidebarIconColor(active),
           )}
         />
         <span className="truncate">{isFr ? item.titleFr : item.titleEn}</span>
@@ -217,7 +216,7 @@ export function Sidebar() {
             : 'border border-transparent hover:bg-sidebar-foreground/5',
         )}
       >
-        <Icon className={cn('h-[18px] w-[18px]', sidebarIconColor(item.iconColor))} />
+        <Icon className={cn('h-[18px] w-[18px]', sidebarIconColor(active))} />
 
       </Link>
     );
@@ -310,7 +309,7 @@ export function Sidebar() {
                 <Link
                   to="/superadmin"
                   aria-label="Super admin"
-                  className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-primary hover:bg-sidebar-foreground/5"
+                  className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-foreground/10"
                 >
                   <ShieldCheck className="h-[18px] w-[18px]" />
                 </Link>
@@ -320,7 +319,7 @@ export function Sidebar() {
           ) : (
             <Link
               to="/superadmin"
-              className="flex items-center gap-2.5 h-11 px-3 rounded-xl text-[13px] font-semibold text-primary hover:bg-sidebar-foreground/5"
+              className="flex items-center gap-2.5 h-11 px-3 rounded-xl text-[13px] font-semibold text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-foreground/10"
             >
               <ShieldCheck className="h-[18px] w-[18px] shrink-0" />
               <span>Super admin</span>
@@ -334,7 +333,7 @@ export function Sidebar() {
               <button
                 onClick={signOut}
                 aria-label={t('sidebar.sign_out')}
-                className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-destructive hover:bg-destructive/10"
+                className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10"
               >
                 <LogOut className="h-[18px] w-[18px]" />
               </button>
@@ -344,7 +343,7 @@ export function Sidebar() {
         ) : (
           <button
             onClick={signOut}
-            className="flex items-center gap-2.5 h-11 w-full px-3 rounded-xl text-[13px] font-medium text-destructive hover:bg-destructive/10"
+            className="flex items-center gap-2.5 h-11 w-full px-3 rounded-xl text-[13px] font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10"
           >
             <LogOut className="h-[18px] w-[18px] shrink-0" />
             <span>{t('sidebar.sign_out')}</span>
