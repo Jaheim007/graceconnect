@@ -337,20 +337,35 @@ export function AssistantChatWidget() {
           onClick={() => setOpen((o) => !o)}
           aria-label={ASSISTANT_NAME}
           className={cn(
-            'flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-amber-500 text-amber-950 shadow-lg transition-shadow hover:shadow-xl md:h-12 md:w-12',
-            !open && 'p-0.5'
+            'relative flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground md:h-14 md:w-14',
+            'ring-2 ring-background shadow-[0_10px_30px_-8px_hsl(var(--primary)/0.55)] transition-shadow hover:shadow-[0_14px_40px_-8px_hsl(var(--primary)/0.7)]'
           )}
         >
+          {/* Soft halo so the mascot floats above content */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -inset-2 rounded-full bg-primary/15 blur-md"
+          />
           {open ? (
-            <X className="h-5 w-5" />
+            <X className="relative h-5 w-5" />
           ) : (
-            <img
-              src={botAsset.url}
-              alt={ASSISTANT_NAME}
-              className="h-full w-full rounded-full object-cover"
-            />
+            <svg viewBox="0 0 32 32" className="relative h-7 w-7 md:h-8 md:w-8" fill="none" aria-hidden>
+              {/* antenna */}
+              <path d="M16 4.5v2.6" stroke="hsl(var(--gold))" strokeWidth="1.8" strokeLinecap="round" />
+              <circle cx="16" cy="3.4" r="1.6" fill="hsl(var(--gold))" />
+              {/* head */}
+              <rect x="5.5" y="7.5" width="21" height="16" rx="6.5" fill="currentColor" fillOpacity="0.16" stroke="currentColor" strokeWidth="1.8" />
+              {/* eyes */}
+              <circle cx="12" cy="15" r="2.1" fill="hsl(var(--gold))" />
+              <circle cx="20" cy="15" r="2.1" fill="hsl(var(--gold))" />
+              {/* smile */}
+              <path d="M12.8 19.4c1.9 1.3 4.5 1.3 6.4 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              {/* ears */}
+              <path d="M3.6 13.4v4.2M28.4 13.4v4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
           )}
         </motion.button>
+
       </div>
     </div>
   );
