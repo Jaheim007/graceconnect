@@ -10,7 +10,7 @@ export const CATEGORY_META = [
   { value: 'audio', emoji: '🎵' },
   { value: 'video', emoji: '🎬' },
   { value: 'course', emoji: '🎓' },
-  { value: 'link', emoji: '🔗' },
+  
   { value: 'campaigns', emoji: '❤️' },
   { value: 'offerings', emoji: '🤲' },
 ] as const;
