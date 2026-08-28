@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { db, supabase } from '@/lib/db';
+import { db } from '@/lib/db';
+import { publishMarketplaceTemplate } from '@/lib/marketplace/templates.functions';
+
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { Card } from '@/components/ui/card';
