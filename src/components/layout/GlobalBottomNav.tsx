@@ -33,7 +33,7 @@ export function GlobalBottomNav() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [menuOpen, setMenuOpen] = useState(false);
-  const navHidden = useNavAutoHide();
+  const navScrolling = useNavAutoHide();
 
   const isBeautyThread = /^\/beauty\/messages\/[^/]+/.test(location.pathname);
   const hidden =
