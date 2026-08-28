@@ -155,13 +155,14 @@ export default function AdminSales() {
   });
 
   const { data: earnedCommissionStats = { amount: 0, count: 0 }, isLoading: loadingC } = useQuery({
-    queryKey: ['admin-sales-earned-commissions', orgId, user?.id],
+    queryKey: ['admin-sales-earned-commissions', user?.id],
     queryFn: async () => {
-      if (!orgId || !user) return { amount: 0, count: 0 };
+      if (!user) return { amount: 0, count: 0 };
 
+      // Commissions are earned on OTHER creators' products, so they are never
+      // scoped to the current workspace — always roll up by ambassador user.
       const { data, error } = await db.from('affiliate_sales')
         .select('id, commission_amount')
-        .eq('organization_id', orgId)
         .eq('affiliate_user_id', user.id);
 
       if (error) {
@@ -175,8 +176,9 @@ export default function AdminSales() {
         count: rows.length,
       };
     },
-    enabled: !!orgId && !!user,
+    enabled: !!user,
   });
+
 
   const isLoading = loadingP || loadingD || loadingC;
 
