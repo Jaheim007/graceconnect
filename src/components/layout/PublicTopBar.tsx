@@ -17,14 +17,23 @@ export function PublicTopBar() {
   const nativeApp = isNativePlatform();
 
   return (
-    <header className={cn(
-      'sticky top-0 z-40 relative flex items-center gap-3 px-4',
-      'pt-[env(safe-area-inset-top,0px)]',
-      'border-b border-border/60 supports-[backdrop-filter]:bg-background/70 backdrop-blur-xl',
-      'after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-px after:h-px',
-      'after:bg-gradient-to-r after:from-transparent after:via-primary/40 after:to-transparent',
-      nativeApp ? 'native-public-topbar bg-background/95 py-2' : 'min-h-14 py-2 glass'
-    )}>
+    <header
+      style={{
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.5rem)',
+        paddingBottom: '0.5rem',
+        paddingLeft: 'max(1rem, env(safe-area-inset-left, 0px))',
+        paddingRight: 'max(1rem, env(safe-area-inset-right, 0px))',
+        minHeight: 'calc(env(safe-area-inset-top, 0px) + 3.5rem)',
+      }}
+      className={cn(
+        'sticky top-0 z-40 relative flex items-center gap-2 sm:gap-3',
+        'border-b border-border/60 supports-[backdrop-filter]:bg-background/70 backdrop-blur-xl',
+        'after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-px after:h-px',
+        'after:bg-gradient-to-r after:from-transparent after:via-primary/40 after:to-transparent',
+        nativeApp ? 'native-public-topbar bg-background/95' : 'glass'
+      )}
+    >
+
       {/* Ambient glow behind the bar */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-16 left-1/4 h-32 w-56 rounded-full bg-primary/10 blur-3xl" />
