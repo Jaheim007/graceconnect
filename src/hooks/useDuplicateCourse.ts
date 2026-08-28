@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { duplicateCourseFn } from '@/lib/programs/duplicateCourse.functions';
 
 export const COURSE_LANGUAGES = [
   { code: 'fr', flag: '🇫🇷', fr: 'Français', en: 'French' },
