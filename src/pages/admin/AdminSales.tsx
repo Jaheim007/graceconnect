@@ -237,14 +237,18 @@ export default function AdminSales() {
   const totalRevenue = totalSalesAmount + totalDonationsAmount + totalEarnedCommissions;
   const totalYourShare = totalOrgReceived + totalEarnedCommissions;
 
+  const salesNet = completedSales.reduce((s, t) => s + (t.organization_amount || 0), 0);
+  const donationsNet = completedDonations.reduce((s, t) => s + (t.organization_amount || 0), 0);
+
   const statCards = [
-    { label: isFr ? 'Ventes' : 'Sales', value: fmt(totalSalesAmount, orgCurrency), sub: `${completedSales.length} ${isFr ? 'transaction' : 'transaction'}${completedSales.length !== 1 ? 's' : ''}`, icon: ShoppingCart, color: 'blue' as const },
-    { label: isFr ? 'Dons reçus' : 'Donations received', value: fmt(totalDonationsAmount, orgCurrency), sub: `${completedDonations.length} ${isFr ? 'don' : 'donation'}${completedDonations.length !== 1 ? 's' : ''}`, icon: Heart, color: 'rose' as const },
+    { label: isFr ? 'Ventes (brut payé)' : 'Sales (gross paid)', value: fmt(totalSalesAmount, orgCurrency), sub: isFr ? `${completedSales.length} transaction${completedSales.length !== 1 ? 's' : ''} · net à vous ${fmt(salesNet, orgCurrency)}` : `${completedSales.length} transaction${completedSales.length !== 1 ? 's' : ''} · net to you ${fmt(salesNet, orgCurrency)}`, icon: ShoppingCart, color: 'blue' as const },
+    { label: isFr ? 'Dons reçus (brut)' : 'Donations received (gross)', value: fmt(totalDonationsAmount, orgCurrency), sub: isFr ? `${completedDonations.length} don${completedDonations.length !== 1 ? 's' : ''} · net à vous ${fmt(donationsNet, orgCurrency)}` : `${completedDonations.length} donation${completedDonations.length !== 1 ? 's' : ''} · net to you ${fmt(donationsNet, orgCurrency)}`, icon: Heart, color: 'rose' as const },
     { label: isFr ? 'Commissions gagnées' : 'Earned commissions', value: fmt(totalEarnedCommissions, orgCurrency), sub: `${earnedCommissionStats.count} ${isFr ? 'commission' : 'commission'}${earnedCommissionStats.count !== 1 ? 's' : ''}`, icon: Users, color: 'amber' as const },
-    { label: isFr ? 'Revenus total' : 'Total revenue', value: fmt(totalRevenue, orgCurrency), sub: isFr ? `${completedSales.length} ventes + ${completedDonations.length} dons + ${earnedCommissionStats.count} commissions` : `${completedSales.length} sales + ${completedDonations.length} donations + ${earnedCommissionStats.count} commissions`, icon: DollarSign, renderIcon: <CurrencyIcon currency={orgCurrency} className="h-4 w-4 text-primary" />, color: 'primary' as const },
-    { label: isFr ? 'Votre part' : 'Your share', value: fmt(totalYourShare, orgCurrency), sub: isFr ? 'Ventes/dons nets + commissions gagnées' : 'Net sales/donations + earned commissions', icon: TrendingUp, color: 'emerald' as const },
+    { label: isFr ? 'Volume total (brut)' : 'Total volume (gross)', value: fmt(totalRevenue, orgCurrency), sub: isFr ? `${completedSales.length} ventes + ${completedDonations.length} dons + ${earnedCommissionStats.count} commissions` : `${completedSales.length} sales + ${completedDonations.length} donations + ${earnedCommissionStats.count} commissions`, icon: DollarSign, renderIcon: <CurrencyIcon currency={orgCurrency} className="h-4 w-4 text-primary" />, color: 'primary' as const },
+    { label: isFr ? 'Votre part (net)' : 'Your share (net)', value: fmt(totalYourShare, orgCurrency), sub: isFr ? `Net ventes/dons ${fmt(totalOrgReceived, orgCurrency)} + commissions ${fmt(totalEarnedCommissions, orgCurrency)}` : `Net sales/donations ${fmt(totalOrgReceived, orgCurrency)} + commissions ${fmt(totalEarnedCommissions, orgCurrency)}`, icon: TrendingUp, color: 'emerald' as const },
     { label: isFr ? 'Transactions' : 'Transactions', value: allTx.length.toString(), icon: BarChart3, color: 'muted' as const },
   ];
+
 
   const typeFilters = [
     { key: 'all' as const, label: isFr ? 'Tout' : 'All', icon: Zap },
