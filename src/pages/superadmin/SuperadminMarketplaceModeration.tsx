@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { db, supabase } from '@/lib/db';
+import { db } from '@/lib/db';
+import { moderateMarketplaceTemplate } from '@/lib/marketplace/templates.functions';
+
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
