@@ -1,6 +1,6 @@
 import { Link, useNavigate } from '@/lib/router-compat';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Menu, X, ArrowRight, User, LogOut, CreditCard, BarChart3, Package, Settings, ShieldCheck, MessageSquare, Gift, Church, Sun, Moon } from 'lucide-react';
+import { Menu, X, ArrowRight, User, LogOut, CreditCard, BarChart3, Package, Settings, ShieldCheck, MessageSquare, Gift, Church, Sun, Moon, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -10,7 +10,6 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { GlobalPreferencesSelector } from '@/components/global/GlobalPreferencesSelector';
 import { PlanBadge } from '@/components/billing/PlanBadge';
 import { cn } from '@/lib/utils';
-import { isNativePlatform } from '@/lib/capacitor';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -22,7 +21,6 @@ export function LandingNav() {
   const isFr = locale === 'fr';
   const { user, profile, signOut, isSuperadmin } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const nativeApp = isNativePlatform();
 
   const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
   const avatarUrl = profile?.avatar_url || googleAvatar;
@@ -31,17 +29,13 @@ export function LandingNav() {
 
   return (
     <header
-      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
-      className={cn(
-        'sticky top-0 z-50 w-full border-b border-border/60 backdrop-blur',
-        nativeApp ? 'native-landing-topbar bg-background/95' : 'bg-background/85'
-      )}
+      className="mobile-safe-topbar sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/85"
     >
-      <div className="container flex items-center justify-between h-16 sm:h-[72px] px-4 sm:px-6">
+      <div className="grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-safe-x sm:min-h-[72px] sm:gap-3">
 
         {/* Left cluster: logo + resource links */}
-        <div className="flex items-center gap-7">
-          <Link to="/" className="flex h-10 items-center shrink-0" aria-label="SiteViral">
+        <div className="flex min-w-0 items-center gap-7">
+          <Link to="/" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full" aria-label="SiteViral">
             <SiteLogo size="md" animate linked={false} />
           </Link>
           <nav className="hidden lg:flex items-center gap-1">
@@ -64,16 +58,16 @@ export function LandingNav() {
 
 
         {/* Right cluster */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {user && <PlanBadge compact />}
-          <div className="flex items-center">
-            <GlobalPreferencesSelector className="h-10 px-2 sm:px-2.5 rounded-full border border-border/60" />
+        <div className="flex min-w-0 items-center justify-end gap-0.5 sm:gap-2">
+          {user && <span className="hidden sm:inline-flex"><PlanBadge compact /></span>}
+          <div className="hidden min-[350px]:flex items-center">
+            <GlobalPreferencesSelector className="h-11 px-2 sm:px-2.5 rounded-full border border-border/60" />
           </div>
 
           <Button
             variant="ghost"
             size="icon"
-            className="h-10 w-10 hidden sm:inline-flex rounded-full hover:bg-muted/60"
+            className="hidden h-11 w-11 min-[390px]:inline-flex rounded-full hover:bg-muted/60"
             onClick={toggleTheme}
             aria-label={isFr ? 'Changer de thème' : 'Toggle theme'}
           >
@@ -85,7 +79,7 @@ export function LandingNav() {
               <DropdownMenuTrigger asChild>
                 <button
                   aria-label={isFr ? 'Ouvrir le menu du compte' : 'Open account menu'}
-                  className="flex items-center gap-2 h-10 px-2 rounded-full hover:bg-muted/60 transition-colors"
+                  className="flex h-11 min-w-11 items-center justify-center gap-2 rounded-full px-2 transition-colors hover:bg-muted/60"
                 >
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="" className="h-7 w-7 rounded-full object-cover border border-border" />
@@ -121,13 +115,22 @@ export function LandingNav() {
               <Button
                 variant="ghost"
                 onClick={() => navigate('/auth?mode=signin')}
-                className="hidden sm:inline-flex text-sm font-semibold h-10 px-4"
+                size="icon"
+                className="h-11 w-11 shrink-0 rounded-full sm:hidden"
+                aria-label={isFr ? 'Se connecter' : 'Sign in'}
+              >
+                <LogIn className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/auth?mode=signin')}
+                className="hidden h-11 px-4 text-sm font-semibold sm:inline-flex"
               >
                 {isFr ? 'Se connecter' : 'Sign in'}
               </Button>
               <Button
                 onClick={() => navigate('/create-org')}
-                className="h-10 px-4 sm:px-5 text-sm font-semibold gap-1.5"
+                className="hidden h-11 px-5 text-sm font-semibold gap-1.5 md:inline-flex"
               >
                 {isFr ? 'Créer ma plateforme' : 'Create my platform'}
                 <ArrowRight className="h-3.5 w-3.5 hidden sm:block" />
@@ -135,7 +138,7 @@ export function LandingNav() {
             </>
           )}
 
-          <Button variant="ghost" size="icon" className="h-10 w-10 lg:hidden" onClick={() => setMenuOpen(!menuOpen)}
+          <Button variant="ghost" size="icon" className="h-11 w-11 shrink-0 rounded-full lg:hidden" onClick={() => setMenuOpen(!menuOpen)}
             aria-label={menuOpen ? (isFr ? 'Fermer le menu' : 'Close menu') : (isFr ? 'Ouvrir le menu' : 'Open menu')}
             aria-expanded={menuOpen}>
             {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

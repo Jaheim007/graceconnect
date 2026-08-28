@@ -125,8 +125,7 @@ export function TopBar() {
     <>
       {/* MOBILE — Djamo / Wave inspired: avatar + greeting, minimal glyphs on the right */}
       <header
-        className="lg:hidden h-14 shrink-0 z-40 sticky top-0 flex items-center gap-3 px-4 bg-background/85 backdrop-blur-xl border-b border-border/40"
-        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+        className="mobile-safe-topbar lg:hidden min-h-16 shrink-0 z-40 sticky top-0 grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 px-safe-x bg-background/95 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/85"
       >
         {user ? (
           <>
@@ -138,14 +137,14 @@ export function TopBar() {
             <CreditBalance />
             <button
               onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-              className="hidden sm:grid place-items-center h-9 w-9 rounded-full bg-muted/60 hover:bg-muted text-foreground shrink-0"
+              className="hidden sm:grid place-items-center h-11 w-11 rounded-full bg-muted/60 hover:bg-muted text-foreground shrink-0"
               aria-label="Search"
             >
               <Search className="h-4 w-4" />
             </button>
             <button
               onClick={() => navigate('/notifications')}
-              className="relative grid place-items-center h-9 w-9 rounded-full bg-muted/60 hover:bg-muted text-foreground shrink-0"
+              className="relative grid place-items-center h-11 w-11 rounded-full bg-muted/60 hover:bg-muted text-foreground shrink-0"
               aria-label="Notifications"
               data-tour="nav-notifications"
             >
