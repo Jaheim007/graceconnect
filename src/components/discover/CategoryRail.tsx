@@ -10,7 +10,7 @@ export const CATEGORY_META = [
   { value: 'audio', emoji: '🎵' },
   { value: 'video', emoji: '🎬' },
   { value: 'course', emoji: '🎓' },
-  { value: 'link', emoji: '🔗' },
+  
   { value: 'campaigns', emoji: '❤️' },
   { value: 'offerings', emoji: '🤲' },
 ] as const;
@@ -27,7 +27,7 @@ export function useCategoryLabels(): Record<string, string> {
     audio: 'Audio',
     video: isFr ? 'Vidéo' : 'Video',
     course: isFr ? 'Cours' : 'Courses',
-    link: isFr ? 'Liens' : 'Links',
+    
     campaigns: isFr ? 'Campagnes' : 'Campaigns',
     offerings: isFr ? 'Dons' : 'Donations',
   };

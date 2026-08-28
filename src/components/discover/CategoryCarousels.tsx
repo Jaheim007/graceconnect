@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { ProductCard } from '@/components/products/ProductCard';
+import { MediaCard } from '@/components/media/MediaCard';
 import { CampaignCard } from '@/components/donations/CampaignCard';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { BookOpen, Loader2, Heart, HandHeart } from 'lucide-react';
@@ -39,7 +40,25 @@ export function CategoryCarousels({ category, onCategoryChange, hideRail }: Cate
   const isCourseCategory = activeCategory === 'course';
   const isCampaignCategory = activeCategory === 'campaigns';
   const isOfferingCategory = activeCategory === 'offerings';
-  const isSpecialCategory = isCampaignCategory || isOfferingCategory;
+  const isVideoCategory = activeCategory === 'video';
+  const isSpecialCategory = isCampaignCategory || isOfferingCategory || isVideoCategory;
+
+  // Video lives in media_content (video + reel), not in digital_products.
+  const { data: videos = [], isLoading: loadingVideos } = useQuery({
+    queryKey: ['category-carousel-videos'],
+    queryFn: async () => {
+      const { data } = await db
+        .from('media_content')
+        .select('*')
+        .eq('is_published', true)
+        .in('media_type', ['video', 'reel'])
+        .order('created_at', { ascending: false })
+        .limit(24);
+      return data || [];
+    },
+    staleTime: 2 * 60 * 1000,
+    enabled: isVideoCategory,
+  });
 
   // Products / programs query
   const { data: products = [], isLoading: loadingProducts } = useQuery({
@@ -51,7 +70,7 @@ export function CategoryCarousels({ category, onCategoryChange, hideRail }: Cate
           .select('*, organizations(name, slug, logo_url, currency, is_verified)')
           .eq('is_published', true)
           .order('created_at', { ascending: false })
-          .limit(12);
+          .limit(24);
         return (data || []).map((p: any) => ({
           ...p,
           _isProgram: true,
@@ -98,7 +117,7 @@ export function CategoryCarousels({ category, onCategoryChange, hideRail }: Cate
         .eq('is_active', true)
         .eq('is_express_demo', false)
         .order('current_amount', { ascending: false })
-        .limit(12);
+        .limit(24);
       return (data || []).map((c: any) => ({
         ...c,
         organization_name: c.organizations?.name,
@@ -122,7 +141,7 @@ export function CategoryCarousels({ category, onCategoryChange, hideRail }: Cate
         .eq('is_active', true)
         .eq('organizations.offerings_enabled', true)
         .order('created_at', { ascending: false })
-        .limit(12);
+        .limit(24);
       return (data || []).map((o: any) => ({
         ...o,
         organization_name: o.organizations?.name,
@@ -141,11 +160,15 @@ export function CategoryCarousels({ category, onCategoryChange, hideRail }: Cate
     return diversifyFeed(products).slice(0, 12);
   }, [products, isCourseCategory, isSpecialCategory]);
 
-  const isLoading = isSpecialCategory
-    ? (isCampaignCategory ? loadingCampaigns : loadingOfferings)
-    : loadingProducts;
+  const isLoading = isVideoCategory
+    ? loadingVideos
+    : isSpecialCategory
+      ? (isCampaignCategory ? loadingCampaigns : loadingOfferings)
+      : loadingProducts;
 
-  const currentItems = isCampaignCategory ? campaigns : isOfferingCategory ? offerings : diverseProducts;
+  const currentItems = isVideoCategory
+    ? videos
+    : isCampaignCategory ? campaigns : isOfferingCategory ? offerings : diverseProducts;
 
   return (
     <div className="space-y-4 py-4">
@@ -163,6 +186,20 @@ export function CategoryCarousels({ category, onCategoryChange, hideRail }: Cate
         <p className="text-center text-sm text-muted-foreground py-6">
           {isFr ? 'Aucun contenu dans cette catégorie' : 'No content in this category'}
         </p>
+      ) : isVideoCategory ? (
+        /* Video & reels grid — from the media library */
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-1">
+          {videos.map((m: any, i: number) => (
+            <motion.div
+              key={m.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: Math.min(i, 8) * 0.03 }}
+            >
+              <MediaCard media={m} />
+            </motion.div>
+          ))}
+        </div>
       ) : isCampaignCategory ? (
         /* Campaigns grid */
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-1">

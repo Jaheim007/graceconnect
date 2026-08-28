@@ -249,11 +249,11 @@ export function MobileMenuDrawer({ onClose }: Props) {
 
       {/* Scrollable body */}
       <div
-        className="flex-1 overflow-y-auto overscroll-contain px-2.5 py-3"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}
+        className="flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-4 sm:py-5 lg:px-5"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 40px)' }}
       >
         {/* ONE unified nav — no groups */}
-        <ul className="space-y-0.5 mb-3">
+        <ul className="space-y-1.5 sm:space-y-2 mb-5 sm:mb-6">
           {unifiedNav.map((item, i) => {
             const Icon = unifyNavIcon(item.icon); const active = isActive(item.route);
             return (
@@ -267,20 +267,20 @@ export function MobileMenuDrawer({ onClose }: Props) {
                   onClick={() => handleNav(item.route)}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'group w-full min-h-[52px] flex items-center gap-3 px-2.5 rounded-2xl text-left',
+                    'group w-full min-h-[54px] sm:min-h-[58px] flex items-center gap-3.5 sm:gap-4 px-3 sm:px-3.5 rounded-2xl text-left',
                     'active:scale-[0.98] transition-colors duration-150',
                     active ? 'bg-primary/10 text-foreground' : 'text-foreground/90 hover:bg-muted/60',
                   )}
                 >
                   <span
                     className={cn(
-                      'h-10 w-10 rounded-full grid place-items-center shrink-0 transition-colors',
+                      'h-10 w-10 sm:h-11 sm:w-11 rounded-full grid place-items-center shrink-0 transition-colors',
                       active ? 'bg-primary/15 text-primary' : 'bg-primary/[0.08] text-primary',
                     )}
                   >
                     <Icon className="h-[18px] w-[18px]" />
                   </span>
-                  <span className="text-[15px] font-medium truncate flex-1 leading-tight">
+                  <span className="text-[15px] sm:text-base font-medium truncate flex-1 leading-tight">
                     {isFr ? item.titleFr : item.titleEn}
                   </span>
                   {active
@@ -295,18 +295,18 @@ export function MobileMenuDrawer({ onClose }: Props) {
 
 
 
-        <div className="mb-3">
-          <div className="px-3 pt-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">
+        <div className="mb-4">
+          <div className="px-3 pt-4 pb-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">
             {isFr ? 'RÉGLAGES' : 'SETTINGS'}
           </div>
-          <ul className="space-y-0.5">
+          <ul className="space-y-1.5 sm:space-y-2">
             {isSuperadmin && (
               <li>
                 <button
                   onClick={() => handleNav('/superadmin')}
-                  className="w-full min-h-[52px] flex items-center gap-3 px-2.5 rounded-2xl text-left text-primary hover:bg-primary/10 active:scale-[0.98] transition"
+                  className="w-full min-h-[54px] sm:min-h-[58px] flex items-center gap-3.5 sm:gap-4 px-3 sm:px-3.5 rounded-2xl text-left text-primary hover:bg-primary/10 active:scale-[0.98] transition"
                 >
-                  <div className="h-10 w-10 rounded-full bg-primary/[0.08] grid place-items-center shrink-0">
+                  <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-primary/[0.08] grid place-items-center shrink-0">
                     <ShieldCheck className="h-[18px] w-[18px]" />
                   </div>
                   <span className="text-[14px] font-semibold">Super admin</span>
@@ -317,9 +317,9 @@ export function MobileMenuDrawer({ onClose }: Props) {
 
               <button
                 onClick={() => handleNav('/create-org')}
-                className="w-full min-h-[52px] flex items-center gap-3 px-2.5 rounded-2xl text-left text-primary hover:bg-primary/10 active:scale-[0.98] transition"
+                className="w-full min-h-[54px] sm:min-h-[58px] flex items-center gap-3.5 sm:gap-4 px-3 sm:px-3.5 rounded-2xl text-left text-primary hover:bg-primary/10 active:scale-[0.98] transition"
               >
-                <div className="h-10 w-10 rounded-full bg-primary/[0.08] grid place-items-center shrink-0">
+                <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-primary/[0.08] grid place-items-center shrink-0">
                   <Plus className="h-[18px] w-[18px]" />
                 </div>
                 <span className="text-[14px] font-semibold">
@@ -332,9 +332,9 @@ export function MobileMenuDrawer({ onClose }: Props) {
                 <Link
                   to="/admin/settings"
                   onClick={onClose}
-                  className="w-full min-h-[52px] flex items-center gap-3 px-2.5 rounded-2xl text-left text-foreground/90 hover:bg-muted/60"
+                  className="w-full min-h-[54px] sm:min-h-[58px] flex items-center gap-3.5 sm:gap-4 px-3 sm:px-3.5 rounded-2xl text-left text-foreground/90 hover:bg-muted/60"
                 >
-                  <div className="h-10 w-10 rounded-full bg-primary/[0.08] grid place-items-center shrink-0">
+                  <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-primary/[0.08] grid place-items-center shrink-0">
                     <Settings className="h-[18px] w-[18px] text-primary" />
                   </div>
                   <span className="text-[14px] font-medium">{isFr ? 'Paramètres' : 'Settings'}</span>
@@ -344,9 +344,9 @@ export function MobileMenuDrawer({ onClose }: Props) {
             <li>
               <button
                 onClick={() => { onClose(); signOut(); }}
-                className="w-full min-h-[52px] flex items-center gap-3 px-2.5 rounded-2xl text-left text-destructive hover:bg-destructive/10 active:scale-[0.98] transition"
+                className="w-full min-h-[54px] sm:min-h-[58px] flex items-center gap-3.5 sm:gap-4 px-3 sm:px-3.5 rounded-2xl text-left text-destructive hover:bg-destructive/10 active:scale-[0.98] transition"
               >
-                <div className="h-10 w-10 rounded-full bg-destructive/10 grid place-items-center shrink-0">
+                <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-destructive/10 grid place-items-center shrink-0">
                   <LogOut className="h-[18px] w-[18px] text-destructive" />
                 </div>
                 <span className="text-[14px] font-medium">
