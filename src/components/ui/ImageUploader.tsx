@@ -143,9 +143,8 @@ export function ImageUploader({
       }
 
       const dims = CANVA_DIMENSIONS[aspectRatio] || CANVA_DIMENSIONS.free;
-      const { data, error } = await supabase.functions.invoke('canva-design', {
-        body: {
-          action: 'create',
+      const data = await canvaCreateDesign({
+        data: {
           canva_token: token,
           title: `Design — ${label}`,
           width: dims.width,
@@ -153,8 +152,6 @@ export function ImageUploader({
         },
       });
 
-      if (error) throw error;
-      if (!data?.ok) throw new Error(data?.error || 'Échec création design Canva');
 
       if (data.edit_url) {
         window.open(data.edit_url, '_blank');
