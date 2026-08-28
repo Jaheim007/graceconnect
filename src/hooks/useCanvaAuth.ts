@@ -89,13 +89,11 @@ export function useCanvaAuth() {
       const codeVerifier = sessionStorage.getItem('canva_code_verifier');
       if (!codeVerifier) throw new Error('Missing PKCE code_verifier');
 
-      const { data, error } = await supabase.functions.invoke('canva-auth?action=token', {
-        body: { code, redirect_uri: CANVA_REDIRECT_URI, code_verifier: codeVerifier },
+      const data = await canvaExchangeCode({
+        data: { code, redirect_uri: CANVA_REDIRECT_URI, code_verifier: codeVerifier },
       });
 
-      if (error) throw error;
-      if (!data?.ok) throw new Error(data?.error || 'Token exchange failed');
-
+      sessionStorage.removeItem('canva_code_verifier');
       sessionStorage.removeItem('canva_code_verifier');
       saveTokens(data);
       return true;
@@ -112,10 +110,8 @@ export function useCanvaAuth() {
     if (!refresh) { disconnect(); return null; }
 
     try {
-      const { data, error } = await supabase.functions.invoke('canva-auth?action=refresh', {
-        body: { refresh_token: refresh },
-      });
-      if (error || !data?.ok) { disconnect(); return null; }
+      const data = await canvaRefreshToken({ data: { refresh_token: refresh } });
+      if (!data?.access_token) { disconnect(); return null; }
       saveTokens(data);
       return data.access_token;
     } catch {
@@ -123,6 +119,7 @@ export function useCanvaAuth() {
       return null;
     }
   }, [saveTokens, disconnect]);
+
 
   const getValidToken = useCallback(async (): Promise<string | null> => {
     const expires = localStorage.getItem(CANVA_EXPIRES_KEY);
