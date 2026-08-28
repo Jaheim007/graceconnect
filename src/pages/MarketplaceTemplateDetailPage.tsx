@@ -1,4 +1,6 @@
 import { useParams, Link, useNavigate } from '@/lib/router-compat';
+import { cloneMarketplaceTemplate } from '@/lib/marketplace/templates.functions';
+
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { db, supabase } from '@/lib/db';
