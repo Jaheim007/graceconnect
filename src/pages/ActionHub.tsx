@@ -196,15 +196,14 @@ export default function ActionHub() {
       />
 
       {/* Compact mobile-first top bar */}
-      <header className="relative h-12 sm:h-14 sticky top-0 z-40 backdrop-blur-xl bg-[hsl(var(--cert-paper))]/70 dark:bg-[#08070f]/70 border-b border-[hsl(var(--brand-blue))]/20 flex items-center px-3 sm:px-4 gap-2 after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-px after:h-px after:bg-gradient-to-r after:from-transparent after:via-[hsl(var(--brand-blue))]/60 after:to-transparent">
+      <header className="mobile-safe-topbar px-safe-x relative sticky top-0 z-40 grid min-h-[calc(3.5rem+var(--safe-area-top))] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b border-[hsl(var(--brand-blue))]/20 bg-[hsl(var(--cert-paper))]/70 backdrop-blur-xl after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-px after:h-px after:bg-gradient-to-r after:from-transparent after:via-[hsl(var(--brand-blue))]/60 after:to-transparent dark:bg-[#08070f]/70">
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -top-14 left-8 h-28 w-40 rounded-full bg-[hsl(var(--brand-blue))]/20 blur-3xl" />
         </div>
-        <div className="relative flex items-center">
+        <div className="relative flex min-w-0 items-center">
           <SiteLogo size="sm" animate />
         </div>
-        <div className="flex-1" />
-        <div className="relative flex items-center gap-1.5">
+        <div className="relative flex shrink-0 items-center gap-1">
           <Button
             variant="ghost"
             size="sm"
@@ -213,7 +212,7 @@ export default function ActionHub() {
           >
             {isFr ? 'Découvrir SiteViral' : 'About SiteViral'}
           </Button>
-          <GlobalPreferencesSelector />
+          <GlobalPreferencesSelector className="h-11 rounded-full px-2 sm:px-3" />
           <Button
             variant="ghost"
             size="icon"
@@ -222,7 +221,7 @@ export default function ActionHub() {
                 ? (isFr ? 'Passer en mode clair' : 'Switch to light mode')
                 : (isFr ? 'Passer en mode sombre' : 'Switch to dark mode')
             }
-            className="h-8 w-8 rounded-full transition-transform hover:scale-110 hover:bg-[hsl(var(--brand-blue))]/10"
+            className="h-11 w-11 shrink-0 rounded-full transition-transform hover:scale-110 hover:bg-[hsl(var(--brand-blue))]/10"
             onClick={toggleTheme}
           >
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -230,7 +229,7 @@ export default function ActionHub() {
           {user ? (
             <Button
               size="sm"
-              className="h-8 rounded-full px-4 text-xs font-bold shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:shadow-primary/40 active:translate-y-0"
+              className="h-11 shrink-0 rounded-full px-3 text-xs font-bold shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:shadow-primary/40 active:translate-y-0 sm:px-4"
               onClick={() => navigate('/dashboard')}
             >
               {isFr ? 'Tableau de bord' : 'Dashboard'}
@@ -238,7 +237,7 @@ export default function ActionHub() {
           ) : (
             <Button
               size="sm"
-              className="h-8 rounded-full px-4 text-xs font-bold shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:shadow-primary/40 active:translate-y-0"
+              className="h-11 shrink-0 rounded-full px-3 text-xs font-bold shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:shadow-primary/40 active:translate-y-0 sm:px-4"
               onClick={() => navigate('/auth')}
             >
               {isFr ? 'Connexion' : 'Sign in'}
