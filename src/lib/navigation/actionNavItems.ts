@@ -283,7 +283,7 @@ export function getActionNavItems(
     });
   }
 
-  return items;
+  return items.map((it) => ({ ...it, icon: unifyNavIcon(it.icon) }));
 }
 
 /**
@@ -340,6 +340,6 @@ export function getBeautyNavItems(ctx: NavContext): ActionNavItem[] {
     iconColor: 'text-primary',
   });
 
-  return items;
+  return items.map((it) => ({ ...it, icon: unifyNavIcon(it.icon) }));
 }
 
