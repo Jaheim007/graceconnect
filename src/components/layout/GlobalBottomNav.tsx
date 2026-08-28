@@ -3,7 +3,11 @@ import { BottomNav } from './BottomNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
-import { LayoutDashboard, Compass, ShoppingBag, MessageSquare, HandCoins, Menu as MenuIcon, LogIn } from 'lucide-react';
+import { MessageSquare, Menu as MenuIcon, LogIn } from 'lucide-react';
+import {
+  SvHome, SvHomeSolid, SvExplore, SvExploreSolid, SvLibrary, SvLibrarySolid,
+  SvEarn, SvEarnSolid,
+} from '@/components/icons/nav-icons';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
