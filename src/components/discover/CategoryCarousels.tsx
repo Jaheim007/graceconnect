@@ -159,11 +159,15 @@ export function CategoryCarousels({ category, onCategoryChange, hideRail }: Cate
     return diversifyFeed(products).slice(0, 12);
   }, [products, isCourseCategory, isSpecialCategory]);
 
-  const isLoading = isSpecialCategory
-    ? (isCampaignCategory ? loadingCampaigns : loadingOfferings)
-    : loadingProducts;
+  const isLoading = isVideoCategory
+    ? loadingVideos
+    : isSpecialCategory
+      ? (isCampaignCategory ? loadingCampaigns : loadingOfferings)
+      : loadingProducts;
 
-  const currentItems = isCampaignCategory ? campaigns : isOfferingCategory ? offerings : diverseProducts;
+  const currentItems = isVideoCategory
+    ? videos
+    : isCampaignCategory ? campaigns : isOfferingCategory ? offerings : diverseProducts;
 
   return (
     <div className="space-y-4 py-4">
