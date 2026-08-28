@@ -274,11 +274,13 @@ export function MobileMenuDrawer({ onClose }: Props) {
                 >
                   <span
                     className={cn(
-                      'h-10 w-10 sm:h-11 sm:w-11 rounded-full grid place-items-center shrink-0 transition-colors',
-                      active ? 'bg-primary/15 text-primary' : 'bg-primary/[0.08] text-primary',
+                      'h-10 w-10 sm:h-11 sm:w-11 rounded-full grid place-items-center shrink-0 transition-colors border',
+                      active
+                        ? 'bg-primary text-primary-foreground border-transparent'
+                        : 'bg-muted text-foreground border-border/60',
                     )}
                   >
-                    <Icon className="h-[18px] w-[18px]" />
+                    <Icon className="h-[19px] w-[19px]" strokeWidth={2} />
                   </span>
                   <span className="text-[15px] sm:text-base font-medium truncate flex-1 leading-tight">
                     {isFr ? item.titleFr : item.titleEn}
