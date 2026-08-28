@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * Instagram-style nav behaviour: the bar shrinks/fades away while the user
- * scrolls down and springs back as soon as they scroll up (or stop).
+ * Instagram-style nav behaviour: the bar shrinks ("zooms out") while the user
+ * is actively scrolling and springs back to full size as soon as they stop.
+ * It never disappears — navigation stays reachable at all times.
  */
-export function useNavAutoHide(threshold = 12) {
-  const [hidden, setHidden] = useState(false);
+export function useNavAutoHide(threshold = 6) {
+  const [scrolling, setScrolling] = useState(false);
   const lastY = useRef(0);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -14,15 +15,13 @@ export function useNavAutoHide(threshold = 12) {
 
     const onScroll = () => {
       const y = window.scrollY;
-      const dy = y - lastY.current;
-
-      if (Math.abs(dy) > threshold) {
-        setHidden(dy > 0 && y > 80);
+      if (Math.abs(y - lastY.current) > threshold) {
+        setScrolling(true);
         lastY.current = y;
       }
 
       if (idleTimer.current) clearTimeout(idleTimer.current);
-      idleTimer.current = setTimeout(() => setHidden(false), 900);
+      idleTimer.current = setTimeout(() => setScrolling(false), 450);
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -32,5 +31,5 @@ export function useNavAutoHide(threshold = 12) {
     };
   }, [threshold]);
 
-  return hidden;
+  return scrolling;
 }
