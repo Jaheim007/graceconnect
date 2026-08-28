@@ -75,9 +75,8 @@ export default function AdminMarketplaceTemplates() {
   const publishMutation = useMutation({
     mutationFn: async () => {
       const tags = form.tags.split(',').map(t => t.trim()).filter(Boolean);
-      const { data, error } = await supabase.functions.invoke('marketplace-templates', {
-        body: {
-          action: 'publish',
+      return await publishMarketplaceTemplate({
+        data: {
           source_product_id: form.source_product_id,
           kind: form.kind,
           clone_price: Number(form.clone_price),
@@ -88,9 +87,7 @@ export default function AdminMarketplaceTemplates() {
           language: locale,
         },
       });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      return data;
+
     },
     onSuccess: () => {
       toast.success(fr ? 'Template soumis pour modération !' : 'Template submitted for review!');
