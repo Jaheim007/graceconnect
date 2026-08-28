@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from '@/lib/router-compat';
-import { LogOut, Plus, X, ChevronDown, Check } from 'lucide-react';
+import { LogOut, Plus, X, ChevronDown, Check, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { unifyNavIcon } from '@/components/icons/nav-icons';
 
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -247,32 +249,45 @@ export function MobileMenuDrawer({ onClose }: Props) {
 
       {/* Scrollable body */}
       <div
-        className="flex-1 overflow-y-auto overscroll-contain px-2 py-2"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
+        className="flex-1 overflow-y-auto overscroll-contain px-2.5 py-3"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}
       >
         {/* ONE unified nav — no groups */}
         <ul className="space-y-0.5 mb-3">
-          {unifiedNav.map((item) => {
-            const Icon = item.icon; const active = isActive(item.route);
+          {unifiedNav.map((item, i) => {
+            const Icon = unifyNavIcon(item.icon); const active = isActive(item.route);
             return (
-              <li key={item.id}>
+              <motion.li
+                key={item.id}
+                initial={{ opacity: 0, x: 12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: Math.min(i, 10) * 0.028, duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              >
                 <button
                   onClick={() => handleNav(item.route)}
+                  aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left',
-                    'active:scale-[0.98] transition',
-                    active ? 'bg-primary/10 text-foreground' : 'text-foreground/90 hover:bg-muted/50',
+                    'group w-full min-h-[52px] flex items-center gap-3 px-2.5 rounded-2xl text-left',
+                    'active:scale-[0.98] transition-colors duration-150',
+                    active ? 'bg-primary/10 text-foreground' : 'text-foreground/90 hover:bg-muted/60',
                   )}
                 >
-                  <div className={cn('h-8 w-8 rounded-lg grid place-items-center shrink-0', item.iconBg)}>
-                    <Icon className={cn('h-4 w-4', item.iconColor)} />
-                  </div>
-                  <span className="text-[14px] font-medium truncate flex-1">
+                  <span
+                    className={cn(
+                      'h-10 w-10 rounded-full grid place-items-center shrink-0 transition-colors',
+                      active ? 'bg-primary/15 text-primary' : 'bg-primary/[0.08] text-primary',
+                    )}
+                  >
+                    <Icon className="h-[18px] w-[18px]" />
+                  </span>
+                  <span className="text-[15px] font-medium truncate flex-1 leading-tight">
                     {isFr ? item.titleFr : item.titleEn}
                   </span>
-                  {active && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
+                  {active
+                    ? <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                    : <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5" />}
                 </button>
-              </li>
+              </motion.li>
             );
           })}
         </ul>
@@ -281,7 +296,7 @@ export function MobileMenuDrawer({ onClose }: Props) {
 
 
         <div className="mb-3">
-          <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+          <div className="px-3 pt-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">
             {isFr ? 'RÉGLAGES' : 'SETTINGS'}
           </div>
           <ul className="space-y-0.5">
@@ -289,10 +304,10 @@ export function MobileMenuDrawer({ onClose }: Props) {
               <li>
                 <button
                   onClick={() => handleNav('/superadmin')}
-                  className="w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left text-primary hover:bg-primary/10 active:scale-[0.98] transition"
+                  className="w-full min-h-[52px] flex items-center gap-3 px-2.5 rounded-2xl text-left text-primary hover:bg-primary/10 active:scale-[0.98] transition"
                 >
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 grid place-items-center shrink-0">
-                    <ShieldCheck className="h-4 w-4" />
+                  <div className="h-10 w-10 rounded-full bg-primary/[0.08] grid place-items-center shrink-0">
+                    <ShieldCheck className="h-[18px] w-[18px]" />
                   </div>
                   <span className="text-[14px] font-semibold">Super admin</span>
                 </button>
@@ -302,10 +317,10 @@ export function MobileMenuDrawer({ onClose }: Props) {
 
               <button
                 onClick={() => handleNav('/create-org')}
-                className="w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left text-primary hover:bg-primary/10 active:scale-[0.98] transition"
+                className="w-full min-h-[52px] flex items-center gap-3 px-2.5 rounded-2xl text-left text-primary hover:bg-primary/10 active:scale-[0.98] transition"
               >
-                <div className="h-8 w-8 rounded-lg bg-primary/10 grid place-items-center shrink-0">
-                  <Plus className="h-4 w-4" />
+                <div className="h-10 w-10 rounded-full bg-primary/[0.08] grid place-items-center shrink-0">
+                  <Plus className="h-[18px] w-[18px]" />
                 </div>
                 <span className="text-[14px] font-semibold">
                   {isFr ? 'Créer une plateforme' : 'Create a platform'}
@@ -317,10 +332,10 @@ export function MobileMenuDrawer({ onClose }: Props) {
                 <Link
                   to="/admin/settings"
                   onClick={onClose}
-                  className="w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left text-foreground/90 hover:bg-muted/50"
+                  className="w-full min-h-[52px] flex items-center gap-3 px-2.5 rounded-2xl text-left text-foreground/90 hover:bg-muted/60"
                 >
-                  <div className="h-8 w-8 rounded-lg bg-muted grid place-items-center shrink-0">
-                    <Settings className="h-4 w-4 text-foreground" />
+                  <div className="h-10 w-10 rounded-full bg-primary/[0.08] grid place-items-center shrink-0">
+                    <Settings className="h-[18px] w-[18px] text-primary" />
                   </div>
                   <span className="text-[14px] font-medium">{isFr ? 'Paramètres' : 'Settings'}</span>
                 </Link>
@@ -329,10 +344,10 @@ export function MobileMenuDrawer({ onClose }: Props) {
             <li>
               <button
                 onClick={() => { onClose(); signOut(); }}
-                className="w-full min-h-[48px] flex items-center gap-3 px-3 rounded-xl text-left text-destructive hover:bg-destructive/10 active:scale-[0.98] transition"
+                className="w-full min-h-[52px] flex items-center gap-3 px-2.5 rounded-2xl text-left text-destructive hover:bg-destructive/10 active:scale-[0.98] transition"
               >
-                <div className="h-8 w-8 rounded-lg bg-destructive/10 grid place-items-center shrink-0">
-                  <LogOut className="h-4 w-4 text-destructive" />
+                <div className="h-10 w-10 rounded-full bg-destructive/10 grid place-items-center shrink-0">
+                  <LogOut className="h-[18px] w-[18px] text-destructive" />
                 </div>
                 <span className="text-[14px] font-medium">
                   {isFr ? 'Déconnexion' : 'Sign out'}
