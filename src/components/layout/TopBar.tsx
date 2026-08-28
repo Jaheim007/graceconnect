@@ -155,8 +155,10 @@ export function TopBar() {
           <>
             <SiteLogo size="sm" animate />
             <div className="flex-1" />
-            <Button size="sm" className="h-8 text-xs rounded-full px-4" onClick={() => navigate('/auth')}>{t('topbar.sign_in')}</Button>
+            <GlobalPreferencesSelector className="h-10 rounded-full bg-muted/60 px-2 text-foreground" />
+            <Button size="sm" className="h-10 text-xs rounded-full px-4" onClick={() => navigate('/auth')}>{t('topbar.sign_in')}</Button>
           </>
+
         )}
       </header>
 
