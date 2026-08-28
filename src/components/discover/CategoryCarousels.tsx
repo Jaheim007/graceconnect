@@ -39,7 +39,25 @@ export function CategoryCarousels({ category, onCategoryChange, hideRail }: Cate
   const isCourseCategory = activeCategory === 'course';
   const isCampaignCategory = activeCategory === 'campaigns';
   const isOfferingCategory = activeCategory === 'offerings';
-  const isSpecialCategory = isCampaignCategory || isOfferingCategory;
+  const isVideoCategory = activeCategory === 'video';
+  const isSpecialCategory = isCampaignCategory || isOfferingCategory || isVideoCategory;
+
+  // Video lives in media_content (video + reel), not in digital_products.
+  const { data: videos = [], isLoading: loadingVideos } = useQuery({
+    queryKey: ['category-carousel-videos'],
+    queryFn: async () => {
+      const { data } = await db
+        .from('media_content')
+        .select('*')
+        .eq('is_published', true)
+        .in('media_type', ['video', 'reel'])
+        .order('created_at', { ascending: false })
+        .limit(24);
+      return data || [];
+    },
+    staleTime: 2 * 60 * 1000,
+    enabled: isVideoCategory,
+  });
 
   // Products / programs query
   const { data: products = [], isLoading: loadingProducts } = useQuery({
