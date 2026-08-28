@@ -17,6 +17,7 @@ import { useCreditsBalance } from '@/hooks/useCredits';
 import { BOOK_PREFILL_KEY } from '@/lib/viralStudio/handoff';
 import botAsset from '@/assets/viral-studio-bot.gif.asset.json';
 import { useIsTyping } from '@/hooks/useIsTyping';
+import { useNavAutoHide } from '@/hooks/useNavAutoHide';
 
 
 /**
@@ -37,6 +38,7 @@ export function AssistantChatWidget() {
   const { data: creditSummary } = useCreditsBalance();
 
   const [open, setOpen] = useState(false);
+  const scrolling = useNavAutoHide();
   const [showNudge, setShowNudge] = useState(false);
   const [input, setInput] = useState('');
   const [imageChoice, setImageChoice] = useState<Record<string, boolean>>({});
