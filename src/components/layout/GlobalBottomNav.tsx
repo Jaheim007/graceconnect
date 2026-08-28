@@ -65,18 +65,18 @@ export function GlobalBottomNav() {
 
   const items = user
     ? ([
-        { id: 'overview', route: '/dashboard', icon: LayoutDashboard, fr: 'Accueil', en: 'Home' },
-        { id: 'explore', route: '/dashboard/explore', icon: Compass, fr: 'Explorer', en: 'Explore' },
-        { id: 'purchases', route: '/my-purchases', icon: ShoppingBag, fr: 'Biblio', en: 'Library' },
+        { id: 'overview', route: '/dashboard', icon: SvHome, activeIcon: SvHomeSolid, fr: 'Accueil', en: 'Home' },
+        { id: 'explore', route: '/dashboard/explore', icon: SvExplore, activeIcon: SvExploreSolid, fr: 'Explorer', en: 'Explore' },
+        { id: 'purchases', route: '/my-purchases', icon: SvLibrary, activeIcon: SvLibrarySolid, fr: 'Biblio', en: 'Library' },
         showServiceSurfaces()
-          ? { id: 'messages', route: '/dashboard/messages', icon: MessageSquare, fr: 'Messages', en: 'Messages' }
-          : { id: 'earn', route: '/gagner', icon: HandCoins, fr: 'Gagner', en: 'Earn' },
+          ? { id: 'messages', route: '/dashboard/messages', icon: MessageSquare, activeIcon: MessageSquare, fr: 'Messages', en: 'Messages' }
+          : { id: 'earn', route: '/gagner', icon: SvEarn, activeIcon: SvEarnSolid, fr: 'Gagner', en: 'Earn' },
       ] as const)
     : ([
-        { id: 'overview', route: '/', icon: LayoutDashboard, fr: 'Accueil', en: 'Home' },
-        { id: 'explore', route: '/discover', icon: Compass, fr: 'Explorer', en: 'Explore' },
-        { id: 'purchases', route: '/my-purchases', icon: ShoppingBag, fr: 'Biblio', en: 'Library' },
-        { id: 'earn', route: '/gagner', icon: HandCoins, fr: 'Gagner', en: 'Earn' },
+        { id: 'overview', route: '/', icon: SvHome, activeIcon: SvHomeSolid, fr: 'Accueil', en: 'Home' },
+        { id: 'explore', route: '/discover', icon: SvExplore, activeIcon: SvExploreSolid, fr: 'Explorer', en: 'Explore' },
+        { id: 'purchases', route: '/my-purchases', icon: SvLibrary, activeIcon: SvLibrarySolid, fr: 'Biblio', en: 'Library' },
+        { id: 'earn', route: '/gagner', icon: SvEarn, activeIcon: SvEarnSolid, fr: 'Gagner', en: 'Earn' },
       ] as const);
 
   /** Guests can browse Home/Explore/Earn; Purchases requires an account. */
