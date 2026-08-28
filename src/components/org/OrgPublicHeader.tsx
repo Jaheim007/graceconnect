@@ -28,8 +28,6 @@ import {
 } from 'lucide-react';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Link } from '@/lib/router-compat';
-import { SiteLogo } from '@/components/ui/SiteLogo';
 
 interface OrgPublicHeaderProps {
   org: any;
@@ -163,21 +161,15 @@ export function OrgPublicHeader({
 
   return (
     <>
-      {/* Top bar */}
-      <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-xs px-4 h-12 flex items-center justify-between">
-        <Link to={user ? '/feed' : '/'}>
-          <SiteLogo size="sm" linked={false} animate />
-        </Link>
-        {!user ? (
-          <Button size="sm" className="h-7 text-xs bg-primary text-primary-foreground" onClick={() => navigate('/auth')}>
-            {t('org_public.login')}
-          </Button>
-        ) : (
-          <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(-1 as any)}>
+      {/* Back row only — the global public top bar already provides logo / language / theme / sign-in */}
+      {user && (
+        <div className="px-safe-x py-1.5">
+          <Button variant="ghost" size="sm" className="h-9 gap-1.5 text-xs" onClick={() => navigate(-1 as any)}>
             <ArrowLeft className="h-4 w-4" /> {t('org_public.back')}
           </Button>
-        )}
-      </div>
+        </div>
+      )}
+
 
       {/* Affiliate referral banner */}
       {hasAffiliateRef && (
