@@ -205,9 +205,8 @@ export default function ProjectEditor() {
       }
 
       // Create a design with book cover dimensions (600x900)
-      const { data, error } = await supabase.functions.invoke('canva-design', {
-        body: {
-          action: 'create',
+      const data = await canvaCreateDesign({
+        data: {
           canva_token: token,
           title: `Couverture — ${project.title}`,
           width: 600,
@@ -215,11 +214,8 @@ export default function ProjectEditor() {
         },
       });
 
-      if (error) throw error;
-      if (!data?.ok) throw new Error(data?.error || 'Échec création design Canva');
-
       // Open Canva editor in new tab
-      if (data.edit_url) {
+      if (data.edit_url && data.design_id) {
         window.open(data.edit_url, '_blank');
         toast({
           title: '🎨 Design Canva créé',
@@ -229,6 +225,7 @@ export default function ProjectEditor() {
         // Store design_id for later export
         sessionStorage.setItem(`canva_design_${id}`, data.design_id);
       }
+
     } catch (e: any) {
       toast({ title: 'Erreur Canva', description: e.message, variant: 'destructive' });
     } finally {
