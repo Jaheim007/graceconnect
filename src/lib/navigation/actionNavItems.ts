@@ -8,7 +8,7 @@ import type { SiteviralFeatureKey } from '@/types/database';
 import type { BuyerWorld } from '@/lib/siteviral/buyerWorlds';
 import { showServiceSurfaces } from '@/lib/siteviral/visibility';
 import {
-  asLucide, SvHome, SvLibrary, SvEarn, SvPencil, SvWallet, SvLesson, SvAdmin, SvSell, SvExplore,
+  asLucide, unifyNavIcon, SvHome, SvLibrary, SvEarn, SvPencil, SvWallet, SvLesson, SvAdmin, SvSell, SvExplore,
 } from '@/components/icons/nav-icons';
 
 export interface ActionNavItem {
