@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { ProductCard } from '@/components/products/ProductCard';
+import { MediaCard } from '@/components/media/MediaCard';
 import { CampaignCard } from '@/components/donations/CampaignCard';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { BookOpen, Loader2, Heart, HandHeart } from 'lucide-react';
