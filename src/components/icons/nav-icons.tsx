@@ -1,4 +1,4 @@
-import type { SVGProps } from 'react';
+import type { ReactElement, SVGProps } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 /**
