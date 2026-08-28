@@ -155,12 +155,13 @@ export function ImageUploader({
       });
 
 
-      if (data.edit_url) {
+      if (data.edit_url && data.design_id) {
         window.open(data.edit_url, '_blank');
         // Store design_id keyed by folder to allow multiple contexts
         const canvaKey = `canva_design_${folder}_${Date.now()}`;
         sessionStorage.setItem('canva_active_design', canvaKey);
         sessionStorage.setItem(canvaKey, data.design_id);
+
         toast({
           title: '🎨 Design Canva créé',
           description: 'Éditez votre design dans Canva, puis cliquez "Importer depuis Canva" ici.',
