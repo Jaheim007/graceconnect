@@ -333,7 +333,7 @@ export function Sidebar() {
               <button
                 onClick={signOut}
                 aria-label={t('sidebar.sign_out')}
-                className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-destructive hover:bg-destructive/10"
+                className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10"
               >
                 <LogOut className="h-[18px] w-[18px]" />
               </button>
@@ -343,7 +343,7 @@ export function Sidebar() {
         ) : (
           <button
             onClick={signOut}
-            className="flex items-center gap-2.5 h-11 w-full px-3 rounded-xl text-[13px] font-medium text-destructive hover:bg-destructive/10"
+            className="flex items-center gap-2.5 h-11 w-full px-3 rounded-xl text-[13px] font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10"
           >
             <LogOut className="h-[18px] w-[18px] shrink-0" />
             <span>{t('sidebar.sign_out')}</span>
