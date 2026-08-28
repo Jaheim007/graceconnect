@@ -84,7 +84,7 @@ export function Sidebar() {
           titleFr: 'Explorer', titleEn: 'Explore',
           descFr: 'Découvrir', descEn: 'Discover',
           route: '/dashboard/explore',
-          borderClass: '', iconBg: '', iconColor: 'text-violet-400',
+          borderClass: '', iconBg: '', iconColor: 'text-primary',
         },
         {
           id: 'acc-purchases', icon: ShoppingBag, emoji: '',
@@ -98,21 +98,21 @@ export function Sidebar() {
           titleFr: 'Messages', titleEn: 'Messages',
           descFr: 'Vos conversations', descEn: 'Your conversations',
           route: '/dashboard/messages',
-          borderClass: '', iconBg: '', iconColor: 'text-cyan-400',
+          borderClass: '', iconBg: '', iconColor: 'text-primary',
         }] : []),
         {
           id: 'acc-earn', icon: HandCoins, emoji: '',
           titleFr: 'Gagner', titleEn: 'Earn',
           descFr: 'Programme ambassadeur SiteViral', descEn: 'SiteViral ambassador program',
           route: '/gagner',
-          borderClass: '', iconBg: '', iconColor: 'text-amber-400',
+          borderClass: '', iconBg: '', iconColor: 'text-primary',
         },
         ...(isSuperadmin ? [{
           id: 'acc-affiliation', icon: Share2, emoji: '',
           titleFr: 'Parrainage', titleEn: 'Affiliate',
           descFr: 'Programme de parrainage (bêta)', descEn: 'Referral program (beta)',
           route: '/affiliation',
-          borderClass: '', iconBg: '', iconColor: 'text-emerald-400',
+          borderClass: '', iconBg: '', iconColor: 'text-primary',
         } as ActionNavItem] : []),
       ]
     : [];
@@ -165,7 +165,7 @@ export function Sidebar() {
    * theme) becomes invisible there. Remap it to a sidebar-safe blue.
    */
   const sidebarIconColor = (c?: string) => {
-    if (!c || c === 'text-primary') return 'text-blue-400';
+    if (!c || c === 'text-primary') return 'text-primary';
     return c.replace(/-500$/, '-400');
   };
 
@@ -310,7 +310,7 @@ export function Sidebar() {
                 <Link
                   to="/superadmin"
                   aria-label="Super admin"
-                  className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-amber-400 hover:bg-sidebar-foreground/5"
+                  className="flex items-center justify-center h-11 w-11 mx-auto rounded-xl text-primary hover:bg-sidebar-foreground/5"
                 >
                   <ShieldCheck className="h-[18px] w-[18px]" />
                 </Link>
@@ -320,7 +320,7 @@ export function Sidebar() {
           ) : (
             <Link
               to="/superadmin"
-              className="flex items-center gap-2.5 h-11 px-3 rounded-xl text-[13px] font-semibold text-amber-400 hover:bg-sidebar-foreground/5"
+              className="flex items-center gap-2.5 h-11 px-3 rounded-xl text-[13px] font-semibold text-primary hover:bg-sidebar-foreground/5"
             >
               <ShieldCheck className="h-[18px] w-[18px] shrink-0" />
               <span>Super admin</span>

@@ -79,18 +79,18 @@ interface Spec {
 }
 
 const TONE: Record<Spec['tone'], { border: string; iconBg: string; iconColor: string }> = {
-  primary:  { border: 'border-primary/30 hover:border-primary/60',           iconBg: 'bg-primary/12',           iconColor: 'text-primary' },
-  sky:      { border: 'border-sky-500/30 hover:border-sky-500/60',           iconBg: 'bg-sky-500/12',           iconColor: 'text-sky-500' },
-  amber:    { border: 'border-amber-500/30 hover:border-amber-500/60',       iconBg: 'bg-amber-500/12',         iconColor: 'text-amber-500' },
-  emerald:  { border: 'border-emerald-500/30 hover:border-emerald-500/60',   iconBg: 'bg-emerald-500/12',       iconColor: 'text-emerald-500' },
-  violet:   { border: 'border-violet-500/30 hover:border-violet-500/60',     iconBg: 'bg-violet-500/12',        iconColor: 'text-violet-500' },
-  pink:     { border: 'border-pink-500/30 hover:border-pink-500/60',         iconBg: 'bg-pink-500/12',          iconColor: 'text-pink-500' },
-  blue:     { border: 'border-blue-500/30 hover:border-blue-500/60',         iconBg: 'bg-blue-500/12',          iconColor: 'text-blue-500' },
-  fuchsia:  { border: 'border-fuchsia-500/30 hover:border-fuchsia-500/60',   iconBg: 'bg-fuchsia-500/12',       iconColor: 'text-fuchsia-500' },
-  cyan:     { border: 'border-cyan-500/30 hover:border-cyan-500/60',         iconBg: 'bg-cyan-500/12',          iconColor: 'text-cyan-500' },
-  indigo:   { border: 'border-indigo-500/30 hover:border-indigo-500/60',     iconBg: 'bg-indigo-500/12',        iconColor: 'text-indigo-500' },
-  yellow:   { border: 'border-yellow-500/30 hover:border-yellow-500/60',     iconBg: 'bg-yellow-500/12',        iconColor: 'text-yellow-500' },
-  teal:     { border: 'border-teal-500/30 hover:border-teal-500/60',         iconBg: 'bg-teal-500/12',          iconColor: 'text-teal-500' },
+  primary:  { border: 'border-border hover:border-primary/40',           iconBg: 'bg-primary/10',           iconColor: 'text-primary' },
+  sky:      { border: 'border-border hover:border-primary/40',           iconBg: 'bg-primary/10',           iconColor: 'text-primary' },
+  amber:    { border: 'border-border hover:border-primary/40',       iconBg: 'bg-primary/10',         iconColor: 'text-primary' },
+  emerald:  { border: 'border-border hover:border-primary/40',   iconBg: 'bg-primary/10',       iconColor: 'text-primary' },
+  violet:   { border: 'border-border hover:border-primary/40',     iconBg: 'bg-primary/10',        iconColor: 'text-primary' },
+  pink:     { border: 'border-border hover:border-primary/40',         iconBg: 'bg-primary/10',          iconColor: 'text-primary' },
+  blue:     { border: 'border-border hover:border-primary/40',         iconBg: 'bg-primary/10',          iconColor: 'text-primary' },
+  fuchsia:  { border: 'border-border hover:border-primary/40',   iconBg: 'bg-primary/10',       iconColor: 'text-primary' },
+  cyan:     { border: 'border-border hover:border-primary/40',         iconBg: 'bg-primary/10',          iconColor: 'text-primary' },
+  indigo:   { border: 'border-border hover:border-primary/40',     iconBg: 'bg-primary/10',        iconColor: 'text-primary' },
+  yellow:   { border: 'border-border hover:border-primary/40',     iconBg: 'bg-primary/10',        iconColor: 'text-primary' },
+  teal:     { border: 'border-border hover:border-primary/40',         iconBg: 'bg-primary/10',          iconColor: 'text-primary' },
 };
 
 function toItem(s: Spec): ActionNavItem {

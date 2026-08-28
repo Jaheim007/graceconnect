@@ -49,8 +49,8 @@ function interestNavItems(interest: BuyerWorld, isFr: boolean): ActionNavItem[] 
         titleFr: 'Mes rendez-vous', titleEn: 'My appointments',
         descFr: 'Mes rendez-vous beauté', descEn: 'My beauty appointments',
         route: '/beauty/bookings',
-        borderClass: 'border-rose-500/30 hover:border-rose-500/60',
-        iconBg: 'bg-rose-500/15', iconColor: 'text-rose-500',
+        borderClass: 'border-border hover:border-primary/40',
+        iconBg: 'bg-primary/10', iconColor: 'text-primary',
       }];
     case 'home':
       return [{
@@ -59,8 +59,8 @@ function interestNavItems(interest: BuyerWorld, isFr: boolean): ActionNavItem[] 
         titleFr: 'Mes demandes', titleEn: 'My requests',
         descFr: 'Interventions et devis', descEn: 'Requests & quotes',
         route: '/home',
-        borderClass: 'border-orange-500/30 hover:border-orange-500/60',
-        iconBg: 'bg-orange-500/15', iconColor: 'text-orange-500',
+        borderClass: 'border-border hover:border-primary/40',
+        iconBg: 'bg-primary/10', iconColor: 'text-primary',
       }];
     case 'events':
       return [{
@@ -69,8 +69,8 @@ function interestNavItems(interest: BuyerWorld, isFr: boolean): ActionNavItem[] 
         titleFr: 'Mes réservations', titleEn: 'My bookings',
         descFr: 'Prestataires événements', descEn: 'Event vendors',
         route: '/events',
-        borderClass: 'border-fuchsia-500/30 hover:border-fuchsia-500/60',
-        iconBg: 'bg-fuchsia-500/15', iconColor: 'text-fuchsia-500',
+        borderClass: 'border-border hover:border-primary/40',
+        iconBg: 'bg-primary/10', iconColor: 'text-primary',
       }];
     case 'education':
       return [{
@@ -79,8 +79,8 @@ function interestNavItems(interest: BuyerWorld, isFr: boolean): ActionNavItem[] 
         titleFr: 'Mes séances', titleEn: 'My sessions',
         descFr: 'Cours et tuteurs', descEn: 'Classes & tutors',
         route: '/education',
-        borderClass: 'border-cyan-500/30 hover:border-cyan-500/60',
-        iconBg: 'bg-cyan-500/15', iconColor: 'text-cyan-500',
+        borderClass: 'border-border hover:border-primary/40',
+        iconBg: 'bg-primary/10', iconColor: 'text-primary',
       }];
     default:
       return [];
@@ -110,9 +110,9 @@ export function getActionNavItems(
       descEn: 'Overview of my activity',
 
       route: '/dashboard',
-      borderClass: 'border-sky-500/30 hover:border-sky-500/60',
-      iconBg: 'bg-sky-500/15',
-      iconColor: 'text-sky-500',
+      borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
     });
 
     items.push({
@@ -124,9 +124,9 @@ export function getActionNavItems(
       descFr: 'Accéder à mes livres et ressources',
       descEn: 'Access my books and resources',
       route: '/my-purchases',
-      borderClass: 'border-blue-500/30 hover:border-blue-500/60',
-      iconBg: 'bg-blue-500/15',
-      iconColor: 'text-blue-500',
+      borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
     });
 
     // "Create platform" now lives in the profile menu — keeps the buyer
@@ -143,9 +143,9 @@ export function getActionNavItems(
       descFr: 'Vends tes livres, formations et plus',
       descEn: 'Sell your books, courses & more',
       route: r('sell', '/admin/products'),
-      borderClass: 'border-amber-500/30 hover:border-amber-500/60',
-      iconBg: 'bg-amber-500/15',
-      iconColor: 'text-amber-500',
+      borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
       featureKey: 'digital_products',
     });
   }
@@ -160,9 +160,9 @@ export function getActionNavItems(
       descFr: "Crée ton livre avec l'IA et vends-le",
       descEn: 'Create your book with AI and sell it',
       route: '/ecrire',
-      borderClass: 'border-pink-500/30 hover:border-pink-500/60',
-      iconBg: 'bg-pink-500/15',
-      iconColor: 'text-pink-500',
+      borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
       featureKey: 'ai_book_creation',
     });
   }
@@ -177,9 +177,9 @@ export function getActionNavItems(
       descFr: "Modules, leçons et certificats avec l'IA",
       descEn: 'Modules, lessons and certificates with AI',
       route: r('course', '/creer-formation'),
-      borderClass: 'border-indigo-500/30 hover:border-indigo-500/60',
-      iconBg: 'bg-indigo-500/15',
-      iconColor: 'text-indigo-500',
+      borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
       featureKey: 'ai_formation_creation',
     });
   }
@@ -198,9 +198,9 @@ export function getActionNavItems(
     descFr: 'Voir et acheter des livres, formations et plus',
     descEn: 'Browse & buy books, courses & more',
     route: ctx.hasManageableOrg ? '/discover' : '/dashboard/explore',
-    borderClass: 'border-violet-500/30 hover:border-violet-500/60',
-    iconBg: 'bg-violet-500/15',
-    iconColor: 'text-violet-500',
+    borderClass: 'border-border hover:border-primary/40',
+    iconBg: 'bg-primary/10',
+    iconColor: 'text-primary',
   });
 
   // Buyer interest-driven items — appended right after Explorer so buyers see
@@ -226,9 +226,9 @@ export function getActionNavItems(
       descFr: 'Gagner en partageant les offres SiteViral',
       descEn: 'Earn by sharing SiteViral offers',
       route: '/gagner',
-      borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
-      iconBg: 'bg-emerald-500/15',
-      iconColor: 'text-emerald-500',
+      borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
       featureKey: 'affiliation',
     });
     // Affiliate Cloud is in private beta — superadmins only while we validate it.
@@ -242,9 +242,9 @@ export function getActionNavItems(
         descFr: 'Programme de parrainage pour votre plateforme (bêta)',
         descEn: 'Referral program for your own platform (beta)',
         route: '/affiliation',
-        borderClass: 'border-cyan-500/30 hover:border-cyan-500/60',
-        iconBg: 'bg-cyan-500/15',
-        iconColor: 'text-cyan-500',
+        borderClass: 'border-border hover:border-primary/40',
+        iconBg: 'bg-primary/10',
+        iconColor: 'text-primary',
       });
     }
   }
@@ -260,9 +260,9 @@ export function getActionNavItems(
       descFr: 'Ventes, dons reçus, commissions et retraits',
       descEn: 'Sales, donations, commissions & payouts',
       route: '/admin/sales',
-      borderClass: 'border-teal-500/30 hover:border-teal-500/60',
-      iconBg: 'bg-teal-500/15',
-      iconColor: 'text-teal-500',
+      borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
     });
   }
 
@@ -277,9 +277,9 @@ export function getActionNavItems(
       descFr: 'Gérer la plateforme',
       descEn: 'Manage the platform',
       route: '/superadmin',
-      borderClass: 'border-rose-500/30 hover:border-rose-500/60',
-      iconBg: 'bg-rose-500/15',
-      iconColor: 'text-rose-500',
+      borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
     });
   }
 
@@ -303,9 +303,9 @@ export function getBeautyNavItems(ctx: NavContext): ActionNavItem[] {
       descFr: 'Mes rendez-vous beauté',
       descEn: 'My beauty appointments',
       route: '/beauty/bookings',
-      borderClass: 'border-amber-500/30 hover:border-amber-500/60',
-      iconBg: 'bg-amber-500/15',
-      iconColor: 'text-amber-500',
+      borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
     });
   }
 
@@ -318,9 +318,9 @@ export function getBeautyNavItems(ctx: NavContext): ActionNavItem[] {
     descFr: 'Trouver un expert beauté',
     descEn: 'Find a beauty expert',
     route: '/beauty/search',
-    borderClass: 'border-rose-500/30 hover:border-rose-500/60',
-    iconBg: 'bg-rose-500/15',
-    iconColor: 'text-rose-500',
+    borderClass: 'border-border hover:border-primary/40',
+    iconBg: 'bg-primary/10',
+    iconColor: 'text-primary',
   });
 
   // Messages intentionally NOT in bottom nav — accessed via avatar menu / RDV details.
@@ -335,9 +335,9 @@ export function getBeautyNavItems(ctx: NavContext): ActionNavItem[] {
     descFr: 'Créer mon profil et recevoir des clients',
     descEn: 'Create my profile and get clients',
     route: '/beauty/pro/onboarding',
-    borderClass: 'border-fuchsia-500/30 hover:border-fuchsia-500/60',
-    iconBg: 'bg-fuchsia-500/15',
-    iconColor: 'text-fuchsia-500',
+    borderClass: 'border-border hover:border-primary/40',
+    iconBg: 'bg-primary/10',
+    iconColor: 'text-primary',
   });
 
   return items;

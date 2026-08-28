@@ -57,28 +57,28 @@ export default function ActionHub() {
   const visitorActions = [
     { id: 'discover', icon: Compass, titleFr: 'Découvrir', titleEn: 'Discover',
       descFr: 'Voir et acheter des livres, formations et plus', descEn: 'Browse & buy books, courses & more',
-      route: '/discover', borderClass: 'border-violet-500/30 hover:border-violet-500/60',
-      iconBg: 'bg-violet-500/15', iconColor: 'text-violet-500' },
+      route: '/discover', borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10', iconColor: 'text-primary' },
     { id: 'sell', icon: Store, titleFr: 'Vendre', titleEn: 'Sell',
       descFr: 'Vends tes livres, formations et plus', descEn: 'Sell your books, courses & more',
-      route: '/vendre', borderClass: 'border-amber-500/30 hover:border-amber-500/60',
-      iconBg: 'bg-amber-500/15', iconColor: 'text-amber-500' },
+      route: '/vendre', borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10', iconColor: 'text-primary' },
     { id: 'earn', icon: HandCoins, titleFr: 'Gagner', titleEn: 'Earn',
       descFr: 'Partage et touche des commissions', descEn: 'Share products and earn commissions',
-      route: '/gagner', borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
-      iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-500' },
+      route: '/gagner', borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10', iconColor: 'text-primary' },
     { id: 'faith', icon: HeartHandshake, titleFr: 'Créer un espace Église / ONG', titleEn: 'Create a Church / NGO space',
       descFr: 'Offrandes, dons, enseignements et ressources', descEn: 'Offerings, donations, teachings & resources',
-      route: '/create-org?scope=faith', borderClass: 'border-sky-500/30 hover:border-sky-500/60',
-      iconBg: 'bg-sky-500/15', iconColor: 'text-sky-500' },
+      route: '/create-org?scope=faith', borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10', iconColor: 'text-primary' },
     { id: 'write', icon: BookOpen, titleFr: 'Écrire un livre en 5 min', titleEn: 'Write a book in 5 min',
       descFr: "Crée ton livre avec l'IA et vends-le", descEn: 'Create your book with AI and sell it',
-      route: '/ecrire', borderClass: 'border-primary/30 hover:border-primary/60',
-      iconBg: 'bg-primary/15', iconColor: 'text-primary' },
+      route: '/ecrire', borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10', iconColor: 'text-primary' },
     { id: 'course', icon: GraduationCap, titleFr: 'Créer une formation', titleEn: 'Create a formation',
       descFr: 'Modules, leçons, quiz et certificats', descEn: 'Modules, lessons, quizzes and certificates',
-      route: '/creer-formation', borderClass: 'border-indigo-500/30 hover:border-indigo-500/60',
-      iconBg: 'bg-indigo-500/15', iconColor: 'text-indigo-500' },
+      route: '/creer-formation', borderClass: 'border-border hover:border-primary/40',
+      iconBg: 'bg-primary/10', iconColor: 'text-primary' },
   ];
 
   const baseAuthed = getActionNavItems({
@@ -99,8 +99,8 @@ export default function ActionHub() {
         titleFr: 'Vendre', titleEn: 'Sell',
         descFr: 'Vends tes livres, formations et plus', descEn: 'Sell your books, courses & more',
         route: resolveRoute('sell'),
-        borderClass: 'border-amber-500/30 hover:border-amber-500/60',
-        iconBg: 'bg-amber-500/15', iconColor: 'text-amber-500',
+        borderClass: 'border-border hover:border-primary/40',
+        iconBg: 'bg-primary/10', iconColor: 'text-primary',
       });
     }
     if (!has('sales')) {
@@ -109,8 +109,8 @@ export default function ActionHub() {
         titleFr: 'Revenus', titleEn: 'Revenue',
         descFr: 'Ventes, dons reçus, commissions et retraits', descEn: 'Sales, donations, commissions & payouts',
         route: hasManageableOrg ? '/admin/sales' : '/create-org',
-        borderClass: 'border-teal-500/30 hover:border-teal-500/60',
-        iconBg: 'bg-teal-500/15', iconColor: 'text-teal-500',
+        borderClass: 'border-border hover:border-primary/40',
+        iconBg: 'bg-primary/10', iconColor: 'text-primary',
       });
     }
     // Ordering: my dashboard → discover → purchases → sell → revenue → earn → create → affiliate tools.
@@ -247,7 +247,7 @@ export default function ActionHub() {
       </header>
 
       {/* Main content — centered vertically, mobile-optimized spacing */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 lg:pb-8">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 pb-40 sm:pb-36 lg:pb-12">
 
         <motion.div
           variants={container}
@@ -373,9 +373,10 @@ export default function ActionHub() {
 
 
                     <div className={cn(
-                      'relative h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-inset ring-current/15 transition-transform duration-200 group-hover:scale-[1.06]',
+                      'relative h-11 w-11 sm:h-12 sm:w-12 rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-[1.06]',
                       action.iconBg, action.iconColor
                     )}>
+
                       <action.icon className="h-5 w-5" />
                     </div>
 
