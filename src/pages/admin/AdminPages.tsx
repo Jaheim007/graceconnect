@@ -1155,12 +1155,15 @@ export function AdminSettings() {
   const [leaderImageUrl, setLeaderImageUrl] = useState(orgAny?.leader_image_url ?? '');
   const [savingLeader, setSavingLeader] = useState(false);
 
-  // Affiliation fields
+  // Affiliation fields — commission is capped so a seller can never give away
+  // 100% (or more than they keep) of a sale.
+  const MAX_COMMISSION_PCT = 50;
   const [affiliationEnabled, setAffiliationEnabled] = useState(currentOrg?.affiliation_enabled ?? false);
   const [commissionPercent, setCommissionPercent] = useState(
     String(currentOrg?.affiliation_commission_percent ?? 10)
   );
   const [savingAffiliation, setSavingAffiliation] = useState(false);
+
 
   // Offerings (Dons) toggle
   const orgAnySettings = currentOrg as any;
