@@ -6,7 +6,7 @@ const CANVA_TOKEN_KEY = 'sv_canva_token';
 const CANVA_REFRESH_KEY = 'sv_canva_refresh';
 const CANVA_EXPIRES_KEY = 'sv_canva_expires';
 
-const CANVA_CLIENT_ID = 'OC-AZy_Hn2HxZQ9';
+const CANVA_CLIENT_ID = 'OC-AaBNLr9XS5P3';
 const CANVA_REDIRECT_URI = 'https://siteviral.com/canva/callback';
 const CANVA_SCOPES = 'asset:read design:content:read design:meta:read profile:read design:content:write asset:write folder:read';
 
