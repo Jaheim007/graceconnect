@@ -8,6 +8,7 @@ import { useNavigate } from '@/lib/router-compat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
+import { useAppLikeMobile } from '@/hooks/useAppLikeMobile';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,7 @@ const item = {
 
 export default function ActionHub() {
   const navigate = useNavigate();
+  const appLike = useAppLikeMobile();
   const { user, isSuperadmin } = useAuth();
   const { userOrgs, canManage } = useOrg();
   const { locale } = useI18n();
@@ -393,7 +395,8 @@ export default function ActionHub() {
           </motion.div>
 
 
-          {/* Footer link */}
+          {/* Footer link — hidden in app-like/mobile contexts */}
+          {!appLike && (
           <motion.div variants={item} className="text-center pt-1">
             <Button
               variant="outline"
@@ -407,6 +410,7 @@ export default function ActionHub() {
             </Button>
 
           </motion.div>
+          )}
         </motion.div>
       </main>
 
