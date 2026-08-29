@@ -33,6 +33,31 @@ export function worldForSiteviralType(type: SiteviralType | null | undefined): S
   return match?.id ?? 'digital';
 }
 
+/**
+ * True when another platform already uses this name (or the slug it produces).
+ * Names are unique across SiteViral so buyers never confuse two platforms.
+ */
+export async function isWorkspaceNameTaken(name: string, excludeOrgId?: string | null): Promise<boolean> {
+  const trimmed = name.trim();
+  if (trimmed.length < 2) return false;
+  const slug = slugifyWorkspaceName(trimmed);
+  let query = (db.from('organizations') as any)
+    .select('id')
+    .or(`name.ilike.${trimmed.replace(/[,()]/g, ' ')},slug.eq.${slug}`)
+    .limit(1);
+  if (excludeOrgId) query = query.neq('id', excludeOrgId);
+  const { data, error } = await query;
+  if (error) return false; // never block creation on a read failure
+  return Array.isArray(data) && data.length > 0;
+}
+
+export class WorkspaceNameTakenError extends Error {
+  constructor() {
+    super('WORKSPACE_NAME_TAKEN');
+    this.name = 'WorkspaceNameTakenError';
+  }
+}
+
 export interface CreateWorkspaceInput {
   name: string;
   world: SiteviralWorld;
@@ -65,6 +90,7 @@ export async function createWorkspace(input: CreateWorkspaceInput): Promise<Crea
   let orgId = input.existingOrgId ?? null;
 
   if (!orgId) {
+    if (await isWorkspaceNameTaken(input.name)) throw new WorkspaceNameTakenError();
     const { data, error } = await db.rpc('create_organization_with_owner', {
       _name: input.name,
       _slug: slugifyWorkspaceName(input.name),
