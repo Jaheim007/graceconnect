@@ -1714,13 +1714,23 @@ Deno.serve(async (req) => {
         html: e.html,
       }));
 
-      const res = await fetch('https://api.resend.com/emails/batch', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(batchPayload),
-      });
+      // Resend enforces 25 requests/second. Bulk notification blasts used to
+      // fail outright with 429; retry with backoff instead of dropping mail.
+      let res: Response;
+      let result: any;
+      let attempt = 0;
+      while (true) {
+        res = await fetch('https://api.resend.com/emails/batch', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(batchPayload),
+        });
+        result = await res.json().catch(() => ({}));
+        if (res.status !== 429 || attempt >= 4) break;
+        attempt++;
+        await new Promise((r) => setTimeout(r, 400 * attempt + Math.floor(Math.random() * 300)));
+      }
 
-      const result = await res.json();
 
       // Batch API returns { data: [{ id }, { id }, ...] } on success
       const batchResults = result.data || [];

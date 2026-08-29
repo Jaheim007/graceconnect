@@ -18,6 +18,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, preOpenWindow, triggerBrowserDownload } from '@/lib/secureDownload';
 import { verifyStripePayment } from '@/lib/api';
+import { getPaymentByReference } from '@/lib/payments/payment.functions';
+
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
@@ -95,8 +97,8 @@ export default function PaymentSuccessPage() {
       // Server-side lookup first: works for guests and for rows RLS hides from
       // the buyer (this was the cause of the endless "loading" spinner).
       try {
-        const { getPaymentByReference } = await import('@/lib/payments/payment.functions');
         const res = await getPaymentByReference({ data: { reference: searchRef } });
+
         if (res?.payment) {
           return {
             ...res.payment,
