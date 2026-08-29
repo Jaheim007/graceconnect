@@ -92,12 +92,29 @@ export default function PaymentSuccessPage() {
     const searchRef = ref || referenceRef.current;
 
     if (searchRef) {
+      // Server-side lookup first: works for guests and for rows RLS hides from
+      // the buyer (this was the cause of the endless "loading" spinner).
+      try {
+        const { getPaymentByReference } = await import('@/lib/payments/payment.functions');
+        const res = await getPaymentByReference({ data: { reference: searchRef } });
+        if (res?.payment) {
+          return {
+            ...res.payment,
+            org_name: res.payment.org_name || (isFr ? 'Organisation' : 'Organization'),
+            commission_rate: res.payment.type === 'product' ? 10 : undefined,
+          } as TransactionDetails;
+        }
+      } catch (lookupErr) {
+        console.error('[PaymentSuccess] server lookup failed:', lookupErr);
+      }
+
       const { data: purchase } = await db
         .from('product_purchases')
         .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, slug, logo_url, leader_name, leader_title))')
         .eq('paystack_reference', searchRef)
         .limit(1)
         .maybeSingle();
+
 
       if (purchase) {
         const product = purchase.digital_products;
@@ -229,7 +246,7 @@ export default function PaymentSuccessPage() {
           } else if (gateway === 'geniuspay' || referenceRef.current.startsWith('MTX-')) {
             try {
               const { callFn } = await import('@/lib/api');
-              const result = await callFn('geniuspay-verify', { reference: referenceRef.current }, true);
+              const result = await callFn('geniuspay-verify', { reference: referenceRef.current }, !!user);
               if (result?.ok) {
                 await wait(1500);
                 const found2 = await lookupTransaction();
