@@ -437,7 +437,7 @@ Deno.serve(async (req) => {
       const res = result as any;
       if (res?.ok) {
         const { data: purchase } = await db.from('credit_purchases')
-          .select('user_id, credits_amount').eq('id', purchaseId).maybeSingle();
+          .select('user_id, credits_amount, price_amount, price_currency').eq('id', purchaseId).maybeSingle();
         if (purchase) {
           await db.from('user_notifications').insert({
             user_id: purchase.user_id,
@@ -446,7 +446,29 @@ Deno.serve(async (req) => {
             notification_type: 'credit_purchase',
             action_url: '/credits',
           });
+          // Confirmation email (credit purchases previously sent none, so buyers
+          // had no proof of payment in their inbox).
+          try {
+            const buyerEmail = await getUserEmail(purchase.user_id);
+            if (buyerEmail) {
+              await sendEmail({
+                template: 'purchase_confirmation',
+                to: buyerEmail,
+                data: {
+                  product_name: `${purchase.credits_amount} crédits IA`,
+                  org_name: 'SiteViral',
+                  amount: Number(purchase.price_amount || 0),
+                  currency: purchase.price_currency || 'XOF',
+                  reference,
+                  access_link: 'https://siteviral.com/credits',
+                },
+              });
+            }
+          } catch (mailErr) {
+            console.error('[geniuspay-webhook] credit email error:', mailErr);
+          }
         }
+
       }
       await db.from('payment_events').update({
         status: 'processed', processed_at: new Date().toISOString(),
