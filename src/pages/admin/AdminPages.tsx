@@ -1155,12 +1155,15 @@ export function AdminSettings() {
   const [leaderImageUrl, setLeaderImageUrl] = useState(orgAny?.leader_image_url ?? '');
   const [savingLeader, setSavingLeader] = useState(false);
 
-  // Affiliation fields
+  // Affiliation fields — commission is capped so a seller can never give away
+  // 100% (or more than they keep) of a sale.
+  const MAX_COMMISSION_PCT = 50;
   const [affiliationEnabled, setAffiliationEnabled] = useState(currentOrg?.affiliation_enabled ?? false);
   const [commissionPercent, setCommissionPercent] = useState(
     String(currentOrg?.affiliation_commission_percent ?? 10)
   );
   const [savingAffiliation, setSavingAffiliation] = useState(false);
+
 
   // Offerings (Dons) toggle
   const orgAnySettings = currentOrg as any;
@@ -1273,10 +1276,17 @@ export function AdminSettings() {
   const handleSaveAffiliation = async () => {
     if (!currentOrg) return;
     const pct = parseFloat(commissionPercent);
-    if (isNaN(pct) || pct < 1 || pct > 80) {
-      toast({ title: 'Invalid commission', description: 'Enter a value between 1 and 80.', variant: 'destructive' });
+    if (isNaN(pct) || pct < 1 || pct > MAX_COMMISSION_PCT) {
+      toast({
+        title: isFr ? 'Taux de commission invalide' : 'Invalid commission rate',
+        description: isFr
+          ? `Choisis un taux entre 1 % et ${MAX_COMMISSION_PCT} % — au-delà, tu vendrais à perte.`
+          : `Pick a rate between 1% and ${MAX_COMMISSION_PCT}% — above that you'd sell at a loss.`,
+        variant: 'destructive',
+      });
       return;
     }
+
     setSavingAffiliation(true);
     const { error } = await supabase
       .from('organizations')
@@ -1753,22 +1763,55 @@ export function AdminSettings() {
             </div>
 
             {affiliationEnabled && (
-              <div className="space-y-2 pl-1">
-                <Label htmlFor="commission-pct" className="text-xs font-medium">{isFr ? 'Taux de commission (%)' : 'Commission rate (%)'}</Label>
-                <div className="flex items-center gap-3">
-                  <Input
-                    id="commission-pct"
-                    type="number"
-                    min={1}
-                    max={80}
-                    value={commissionPercent}
-                    onChange={e => setCommissionPercent(e.target.value)}
-                    className="h-9 text-sm w-24"
-                  />
-                  <span className="text-xs text-muted-foreground">{isFr ? '% par vente via lien affilié' : '% per sale via affiliate link'}</span>
+              <div className="space-y-3 rounded-xl border border-border/60 p-3">
+                <Label htmlFor="commission-pct" className="text-xs font-medium">
+                  {isFr ? 'Taux de commission (%)' : 'Commission rate (%)'}
+                </Label>
+                <div className="flex items-center gap-2">
+                  <div className="relative w-full max-w-[140px]">
+                    <Input
+                      id="commission-pct"
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={MAX_COMMISSION_PCT}
+                      value={commissionPercent}
+                      onChange={e => {
+                        const raw = e.target.value;
+                        if (raw === '') { setCommissionPercent(''); return; }
+                        const n = Math.floor(Number(raw));
+                        if (!Number.isFinite(n)) return;
+                        setCommissionPercent(String(Math.min(Math.max(n, 1), MAX_COMMISSION_PCT)));
+                      }}
+                      className="h-11 pr-8 text-base"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
+                  </div>
+                  <div className="flex gap-1.5">
+                    {[10, 20, 30].map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setCommissionPercent(String(p))}
+                        className={`h-11 min-w-11 px-2.5 rounded-xl border text-xs font-semibold transition-colors ${
+                          Number(commissionPercent) === p
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-border text-muted-foreground hover:border-primary/40'
+                        }`}
+                      >
+                        {p}%
+                      </button>
+                    ))}
+                  </div>
                 </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  {isFr
+                    ? `Part versée à l'ambassadeur sur chaque vente via son lien. Maximum ${MAX_COMMISSION_PCT} % — tu gardes au moins la moitié.`
+                    : `Share paid to the ambassador on each sale via their link. Max ${MAX_COMMISSION_PCT}% — you always keep at least half.`}
+                </p>
               </div>
             )}
+
 
             <Button
               size="sm"

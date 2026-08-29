@@ -69,9 +69,13 @@ export function shouldShowCookieConsent(): boolean {
   return !isNative() && !isPWA();
 }
 
-/** Marketing surfaces (landing pages, "learn more" links) are web-only. */
+/**
+ * Marketing surfaces (landing pages, "learn more" links) are shown on the
+ * website in any browser — phone, tablet or desktop. They are hidden only in
+ * installed app contexts (PWA standalone / Capacitor native shell).
+ */
 export function shouldShowMarketingSurfaces(): boolean {
-  return !isNative() && !isPWA() && !isMobileDevice();
+  return !isNative() && !isPWA();
 }
 
 
