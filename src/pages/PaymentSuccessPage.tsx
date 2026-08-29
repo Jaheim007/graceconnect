@@ -18,6 +18,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, preOpenWindow, triggerBrowserDownload } from '@/lib/secureDownload';
 import { verifyStripePayment } from '@/lib/api';
+import { getPaymentByReference } from '@/lib/payments/payment.functions';
+
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
