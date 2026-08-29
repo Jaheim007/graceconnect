@@ -97,8 +97,8 @@ export default function PaymentSuccessPage() {
       // Server-side lookup first: works for guests and for rows RLS hides from
       // the buyer (this was the cause of the endless "loading" spinner).
       try {
-        const { getPaymentByReference } = await import('@/lib/payments/payment.functions');
         const res = await getPaymentByReference({ data: { reference: searchRef } });
+
         if (res?.payment) {
           return {
             ...res.payment,
