@@ -28,30 +28,29 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Guest checkout must be able to confirm its own payment, so auth is
+    // optional here. Safety comes from the reference: it is a high-entropy
+    // provider value, it is only ever verified against GeniusPay, and the
+    // commit path (processTransaction) is idempotent.
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    if (authHeader?.startsWith('Bearer ')) {
+      const userClient = createClient(SUPABASE_URL, SUPABASE_ANON, {
+        global: { headers: { Authorization: authHeader } },
       });
-    }
-    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: claims, error: claimsErr } = await userClient.auth.getClaims(
-      authHeader.replace('Bearer ', ''),
-    );
-    if (claimsErr || !claims?.claims) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      await userClient.auth.getClaims(authHeader.replace('Bearer ', '')).catch(() => null);
     }
 
     const { reference } = await req.json();
-    if (!reference || typeof reference !== 'string') {
+    if (
+      !reference ||
+      typeof reference !== 'string' ||
+      !/^[A-Za-z0-9][A-Za-z0-9._-]{5,79}$/.test(reference)
+    ) {
       return new Response(JSON.stringify({ error: 'reference required' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
 
     const gpRes = await fetch(`${GP_BASE}/payments/${encodeURIComponent(reference)}`, {
       headers: {
