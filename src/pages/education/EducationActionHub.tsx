@@ -3,6 +3,7 @@ import { useNavigate } from "@/lib/router-compat";
 import { Search, Calendar, GraduationCap, LayoutDashboard, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
+import { useAppLikeMobile } from "@/hooks/useAppLikeMobile";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +13,7 @@ export default function EducationActionHub() {
   const { user } = useAuth();
   const { locale } = useI18n();
   const navigate = useNavigate();
+  const appLike = useAppLikeMobile();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
 
@@ -91,12 +93,14 @@ export default function EducationActionHub() {
               </button>
             ))}
           </div>
-          <div className="pt-1 text-center">
-            <button onClick={() => navigate("/learn/about")}
-              className="text-[10px] text-muted-foreground underline underline-offset-2 hover:text-foreground">
-              {t("En savoir plus sur SiteViral Learn", "Learn more about SiteViral Learn")}
-            </button>
-          </div>
+          {!appLike && (
+            <div className="pt-1 text-center">
+              <button onClick={() => navigate("/learn/about")}
+                className="text-[10px] text-muted-foreground underline underline-offset-2 hover:text-foreground">
+                {t("En savoir plus sur SiteViral Learn", "Learn more about SiteViral Learn")}
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>

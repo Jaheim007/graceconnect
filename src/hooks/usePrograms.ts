@@ -243,6 +243,26 @@ export function useDeleteProgram() {
         .maybeSingle();
       const productId = (prog as any)?.linked_product_id as string | null;
 
+      // Buyers keep what they paid for. If anyone is enrolled, the course is
+      // archived (unpublished + unlisted) instead of destroyed, so enrolled
+      // learners keep their access and their progress.
+      const { count: enrollmentCount } = await db.from('program_enrollments')
+        .select('id', { count: 'exact', head: true })
+        .eq('program_id', id);
+
+      if ((enrollmentCount ?? 0) > 0) {
+        const { error: archiveError } = await db.from('programs')
+          .update({ is_published: false } as any)
+          .eq('id', id);
+        if (archiveError) throw archiveError;
+        if (productId) {
+          await db.from('digital_products')
+            .update({ is_published: false, publication_status: 'draft' } as any)
+            .eq('id', productId);
+        }
+        return { archived: true, enrollments: enrollmentCount ?? 0 };
+      }
+
       const { data: modules } = await db.from('program_modules').select('id').eq('program_id', id);
       const moduleIds = (modules || []).map((m: any) => m.id);
       if (moduleIds.length > 0) {
@@ -255,9 +275,9 @@ export function useDeleteProgram() {
         await db.from('program_lessons').delete().in('module_id', moduleIds);
       }
       await db.from('program_modules').delete().eq('program_id', id);
-      await db.from('program_enrollments').delete().eq('program_id', id);
       const { error } = await db.from('programs').delete().eq('id', id);
       if (error) throw error;
+
 
       if (productId) {
         // Buyers keep their purchase records: if anyone ever paid, we only

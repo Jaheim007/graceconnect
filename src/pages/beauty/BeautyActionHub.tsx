@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Search, Calendar, Scissors, LayoutDashboard, ArrowRight, Zap, Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
+import { useAppLikeMobile } from "@/hooks/useAppLikeMobile";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BeautyHeader } from "@/components/beauty/BeautyHeader";
 import { BeautyPendingReviewNag } from "@/components/beauty/BeautyPendingReviewNag";
@@ -21,6 +22,7 @@ export default function BeautyActionHub() {
   const { user } = useAuth();
   const { locale } = useI18n();
   const navigate = useNavigate();
+  const appLike = useAppLikeMobile();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
 
@@ -266,15 +268,17 @@ export default function BeautyActionHub() {
             ))}
           </div>
 
-          {/* Footer link */}
-          <motion.div variants={item} className="pt-1 text-center">
-            <button
-              onClick={() => navigate("/beauty/about")}
-              className="text-[10px] text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground"
-            >
-              {t("En savoir plus sur SiteViral Beauty", "Learn more about SiteViral Beauty")}
-            </button>
-          </motion.div>
+          {/* Footer link — web only, mobile app users don't need marketing pages */}
+          {!appLike && (
+            <motion.div variants={item} className="pt-1 text-center">
+              <button
+                onClick={() => navigate("/beauty/about")}
+                className="text-[10px] text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground"
+              >
+                {t("En savoir plus sur SiteViral Beauty", "Learn more about SiteViral Beauty")}
+              </button>
+            </motion.div>
+          )}
         </motion.div>
       </main>
     </div>

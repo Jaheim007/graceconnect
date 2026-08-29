@@ -39,20 +39,25 @@ const PERIOD_OPTIONS: { key: PeriodFilter; label: string }[] = [
 ];
 
 /**
- * Detect the gateway used for a transaction from its reference / stored gateway value.
+ * Detect the gateway used for a transaction.
+ * The `gateway` column defaults to 'paystack' on legacy rows even when the
+ * payment went through GeniusPay / Stripe / was free, so the reference is the
+ * source of truth and the stored value is only a fallback.
  * GeniusPay refs start with `MTX-` (see mem://payments/geniuspay-migration).
- * Legacy Paystack refs are anything else that isn't Stripe or free.
  */
 function detectGateway(ref: string | null, storedGateway?: string | null): string {
-  if (storedGateway && ['geniuspay', 'stripe', 'paystack', 'free'].includes(storedGateway)) {
+  if (ref) {
+    if (ref.startsWith('free-')) return 'free';
+    if (ref.startsWith('MTX-') || ref.startsWith('GP-')) return 'geniuspay';
+    if (ref.toUpperCase().includes('STRIPE')) return 'stripe';
+  }
+  if (storedGateway && ['geniuspay', 'stripe', 'free'].includes(storedGateway)) {
     return storedGateway;
   }
   if (!ref) return 'unknown';
-  if (ref.startsWith('free-')) return 'free';
-  if (ref.startsWith('MTX-') || ref.startsWith('GP-')) return 'geniuspay';
-  if (ref.includes('STRIPE')) return 'stripe';
   return 'paystack';
 }
+
 
 
 function getDateRange(periodFilter: PeriodFilter, customFrom?: Date, customTo?: Date) {

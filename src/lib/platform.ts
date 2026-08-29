@@ -60,10 +60,20 @@ export function shouldShowInstallPrompt(): boolean {
   return isBrowser() && isMobileDevice();
 }
 
-/** Should show cookie consent? Not on native apps */
+/**
+ * Should show cookie consent? Only in a real browser tab.
+ * Installed PWAs and native shells behave like apps (no third-party browser
+ * cookie surface to consent to), so the banner is pure friction there.
+ */
 export function shouldShowCookieConsent(): boolean {
-  return !isNative();
+  return !isNative() && !isPWA();
 }
+
+/** Marketing surfaces (landing pages, "learn more" links) are web-only. */
+export function shouldShowMarketingSurfaces(): boolean {
+  return !isNative() && !isPWA() && !isMobileDevice();
+}
+
 
 /** Should register service worker? Not on native */
 export function shouldRegisterSW(): boolean {

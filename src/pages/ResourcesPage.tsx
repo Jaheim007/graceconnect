@@ -75,10 +75,15 @@ export default function ResourcesPage() {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return (data || []).map((row: any) => ({
-        ...row,
-        program: row.programs,
-      })) as EnrolledProgram[];
+      return (data || [])
+        // Skip orphan enrollments whose course row no longer exists — they
+        // rendered as empty "100% terminé" cards with no title.
+        .filter((row: any) => !!row.programs)
+        .map((row: any) => ({
+          ...row,
+          program: row.programs,
+        })) as EnrolledProgram[];
+
     },
     enabled: !!user,
   });

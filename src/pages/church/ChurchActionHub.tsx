@@ -6,6 +6,7 @@ import { Church as ChurchIcon, LayoutDashboard, ArrowRight, Zap, Info } from "lu
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
+import { useAppLikeMobile } from "@/hooks/useAppLikeMobile";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { ChurchHeader } from "@/components/church/ChurchHeader";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +22,7 @@ export default function ChurchActionHub() {
   const { user } = useAuth();
   const { locale } = useI18n();
   const navigate = useNavigate();
+  const appLike = useAppLikeMobile();
   const isFr = locale === "fr";
   const t = (fr: string, en: string) => (isFr ? fr : en);
 
@@ -83,7 +85,7 @@ export default function ChurchActionHub() {
 
 
 
-    {
+    ...(appLike ? [] : [{
       id: "about",
       icon: Info,
       titleFr: "Comment ça marche",
@@ -94,7 +96,7 @@ export default function ChurchActionHub() {
       iconBg: "bg-sky-100 dark:bg-sky-500/15",
       iconColor: "text-sky-600 dark:text-sky-400",
       borderClass: "hover:border-sky-300 dark:hover:border-sky-500/40",
-    },
+    }]),
   ];
 
   const container = {
@@ -204,15 +206,17 @@ export default function ChurchActionHub() {
             ))}
           </div>
 
-          {/* Footer link */}
-          <motion.div variants={item} className="pt-1 text-center">
-            <button
-              onClick={() => navigate("/church/about")}
-              className="text-[10px] text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground"
-            >
-              {t("En savoir plus sur SiteViral Church", "Learn more about SiteViral Church")}
-            </button>
-          </motion.div>
+          {/* Footer link — web only, mobile app users don't need marketing pages */}
+          {!appLike && (
+            <motion.div variants={item} className="pt-1 text-center">
+              <button
+                onClick={() => navigate("/church/about")}
+                className="text-[10px] text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground"
+              >
+                {t("En savoir plus sur SiteViral Church", "Learn more about SiteViral Church")}
+              </button>
+            </motion.div>
+          )}
         </motion.div>
       </main>
     </div>
