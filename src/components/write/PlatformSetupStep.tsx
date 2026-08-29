@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Church, HeartHandshake, Loader2, Rocket, Users, PenLine, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import type { SiteviralWorld } from '@/lib/siteviral/worlds';
 import type { OrgCategory } from '@/lib/siteviral/identities';
 import { PLATFORM_IDENTITIES, type PlatformIdentity } from '@/lib/siteviral/identities';
+import { isWorkspaceNameTaken } from '@/lib/siteviral/createWorkspace';
 
 export interface PlatformSetupValues {
   name: string;
@@ -56,7 +57,21 @@ export function PlatformSetupStep({
   const [currency, setCurrency] = useState(defaultCurrency);
 
   const trimmed = name.trim();
-  const valid = trimmed.length >= 2 && !!currency && !!identity;
+  const [nameState, setNameState] = useState<'idle' | 'checking' | 'free' | 'taken'>('idle');
+
+  // Live uniqueness check — a platform name can only be used once.
+  useEffect(() => {
+    if (trimmed.length < 2) { setNameState('idle'); return; }
+    setNameState('checking');
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      const taken = await isWorkspaceNameTaken(trimmed);
+      if (!cancelled) setNameState(taken ? 'taken' : 'free');
+    }, 450);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [trimmed]);
+
+  const valid = trimmed.length >= 2 && !!currency && !!identity && nameState !== 'taken' && nameState !== 'checking';
 
   return (
     <div className="space-y-8 pt-8">
@@ -119,11 +134,27 @@ export function PlatformSetupStep({
           maxLength={60}
           placeholder={isFr ? 'Ex : Éditions Grâce' : 'e.g. Grace Editions'}
           onChange={(e) => setName(e.target.value)}
-          className="h-12 text-base"
+          className={`h-12 text-base ${nameState === 'taken' ? 'border-destructive focus-visible:ring-destructive' : ''}`}
         />
-        <p className="text-xs text-muted-foreground">
-          {isFr ? "C'est le nom que tes acheteurs verront." : 'This is the name your buyers will see.'}
-        </p>
+        {nameState === 'taken' ? (
+          <p className="text-xs font-medium text-destructive">
+            {isFr
+              ? 'Ce nom est déjà pris par une autre plateforme. Choisis-en un autre.'
+              : 'This name is already taken by another platform. Please choose another one.'}
+          </p>
+        ) : nameState === 'checking' ? (
+          <p className="text-xs text-muted-foreground">
+            {isFr ? 'Vérification de la disponibilité…' : 'Checking availability…'}
+          </p>
+        ) : nameState === 'free' ? (
+          <p className="text-xs font-medium text-emerald-600">
+            {isFr ? 'Nom disponible 🎉' : 'Name available 🎉'}
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            {isFr ? "C'est le nom que tes acheteurs verront." : 'This is the name your buyers will see.'}
+          </p>
+        )}
       </div>
 
       {/* 3. Currency */}
