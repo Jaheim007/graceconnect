@@ -34,7 +34,12 @@ async function oauthToken(params: Record<string, string>): Promise<CanvaTokens> 
   });
   const data = (await res.json()) as Record<string, any>;
   if (!res.ok) {
-    throw new Error(data.error_description || data.error || 'Canva token request failed');
+    throw new Error(
+      data.error_description ||
+        data.message ||
+        data.error ||
+        `Canva token request failed (${res.status})`,
+    );
   }
   return data as CanvaTokens;
 }
