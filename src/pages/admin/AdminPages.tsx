@@ -1273,10 +1273,17 @@ export function AdminSettings() {
   const handleSaveAffiliation = async () => {
     if (!currentOrg) return;
     const pct = parseFloat(commissionPercent);
-    if (isNaN(pct) || pct < 1 || pct > 80) {
-      toast({ title: 'Invalid commission', description: 'Enter a value between 1 and 80.', variant: 'destructive' });
+    if (isNaN(pct) || pct < 1 || pct > MAX_COMMISSION_PCT) {
+      toast({
+        title: isFr ? 'Taux de commission invalide' : 'Invalid commission rate',
+        description: isFr
+          ? `Choisis un taux entre 1 % et ${MAX_COMMISSION_PCT} % — au-delà, tu vendrais à perte.`
+          : `Pick a rate between 1% and ${MAX_COMMISSION_PCT}% — above that you'd sell at a loss.`,
+        variant: 'destructive',
+      });
       return;
     }
+
     setSavingAffiliation(true);
     const { error } = await supabase
       .from('organizations')
