@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Cookie, X, Settings2 } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
-import { isNativePlatform } from '@/lib/capacitor';
+import { shouldShowCookieConsent } from '@/lib/platform';
 
 
 const CONSENT_KEY = 'sv-cookie-consent';
@@ -37,18 +37,20 @@ export function CookieConsent() {
   const [prefs, setPrefs] = useState<CookiePrefs>({ essential: true, analytics: true, marketing: false });
   const { locale } = useI18n();
   const isFr = locale === 'fr';
-  const nativeApp = isNativePlatform();
+  const appLike = !shouldShowCookieConsent();
 
   useEffect(() => {
-    // Never show cookie consent on native apps (no browser cookies)
-    if (nativeApp) return;
+    // Never show cookie consent in app-like contexts (native shell, installed
+    // PWA): there is no browser cookie surface and it is pure UX friction.
+    if (appLike) return;
     const stored = getStoredConsent();
     if (!stored) {
       // Delay showing the banner to not overwhelm users
       const timer = setTimeout(() => setVisible(true), 3000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [appLike]);
+
 
   const handleAcceptAll = () => {
     const allPrefs: CookiePrefs = { essential: true, analytics: true, marketing: true };
