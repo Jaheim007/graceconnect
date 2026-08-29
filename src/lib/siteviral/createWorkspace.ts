@@ -53,7 +53,7 @@ export async function isWorkspaceNameTaken(name: string, excludeOrgId?: string |
 
 export class WorkspaceNameTakenError extends Error {
   constructor() {
-    super('WORKSPACE_NAME_TAKEN');
+    super('Ce nom de plateforme est déjà utilisé — choisis-en un autre. / This platform name is already taken — please pick another one.');
     this.name = 'WorkspaceNameTakenError';
   }
 }
