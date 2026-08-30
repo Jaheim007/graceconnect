@@ -10,17 +10,27 @@ import { Mail, Search, Filter } from 'lucide-react';
 const TEMPLATE_CATEGORIES: Record<string, string[]> = {
   Auth: ['welcome'],
   Donations: ['donation_receipt', 'new_donation_received'],
-  Purchases: ['purchase_confirmation', 'new_purchase_received', 'download_ready'],
+  Purchases: ['purchase_confirmation', 'new_purchase_received', 'download_ready', 'new_product_published'],
   Vérification: ['kyc_submitted', 'kyc_approved', 'kyc_rejected'],
   Org: ['org_created', 'org_deleted', 'org_suspended', 'org_unsuspended'],
   Members: ['new_member_joined', 'member_left', 'invite_to_org', 'role_changed'],
-  Payouts: ['payout_requested', 'payout_approved', 'payout_processing', 'payout_completed', 'payout_rejected', 'payouts_frozen'],
-  Affiliate: ['affiliate_sale', 'affiliate_payout_requested', 'affiliate_payout_completed'],
+  Payouts: ['payout_requested', 'payout_approved', 'payout_processing', 'payout_completed', 'payout_rejected', 'payouts_frozen', 'payout_available', 'pre_subaccount_settled'],
+  Affiliate: ['affiliate_sale', 'affiliate_payout_requested', 'affiliate_payout_completed', 'affiliate_inactive', 'high_commission_opportunity'],
   Directory: ['directory_approved', 'directory_rejected'],
   Support: ['ticket_created', 'ticket_replied', 'ticket_resolved'],
   Refunds: ['refund_initiated', 'refund_completed'],
   Moderation: ['content_report_resolved'],
+  Notifications: ['notification_reminder'],
+  Digests: ['inspiration_digest', 'weekly_report', 'weekly_owner_digest', 'weekly_buyer_digest', 'weekly_ambassador_digest', 'weekly_discovery_digest'],
+  Réengagement: ['inactive_7d', 'inactive_14d', 'win_back', 'wishlist_reminder', 'draft_product_reminder'],
+  Panier: ['abandoned_cart_reminder', 'abandoned_cart_1h', 'abandoned_cart_24h', 'abandoned_cart_72h'],
+  Milestones: [
+    'first_sale_celebration',
+    'sales_milestone_10', 'sales_milestone_25', 'sales_milestone_50', 'sales_milestone_100',
+    'streak_milestone_3', 'streak_milestone_7', 'streak_milestone_30',
+  ],
 };
+
 
 function getCategoryForTemplate(template: string): string {
   for (const [cat, templates] of Object.entries(TEMPLATE_CATEGORIES)) {
@@ -47,7 +57,7 @@ export default function SuperadminEmailLogs() {
         .from('email_logs')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(200);
+        .limit(500);
       return data || [];
     },
   });
@@ -114,6 +124,8 @@ export default function SuperadminEmailLogs() {
              <SelectItem value="all">All statuses</SelectItem>
              <SelectItem value="sent">Sent</SelectItem>
              <SelectItem value="failed">Failed</SelectItem>
+             <SelectItem value="pending">Pending</SelectItem>
+
            </SelectContent>
         </Select>
       </div>
@@ -135,7 +147,11 @@ export default function SuperadminEmailLogs() {
                   {new Date(l.created_at).toLocaleString()} · <code className="text-[10px]">{l.template}</code>
                   {l.resend_message_id && <> · <code className="text-[10px]">{l.resend_message_id}</code></>}
                 </p>
+                {l.status === 'failed' && l.error_message && (
+                  <p className="mt-1 text-[10px] text-destructive break-words">{l.error_message}</p>
+                )}
               </div>
+
               <Badge className={`text-[10px] border-0 shrink-0 ${statusColors[l.status] || ''}`}>
                 {l.status}
               </Badge>

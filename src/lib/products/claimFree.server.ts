@@ -90,5 +90,35 @@ export async function runClaimFreeProduct(
     );
   }
 
+  // Free claims used to create only in-app notifications, so buyers of free
+  // resources never got an email like paid buyers do. Send the same
+  // purchase confirmation (amount 0) so every claim leaves an email trail.
+  try {
+    const supabaseUrl = process.env['SUPABASE_URL'];
+    const serviceKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
+    const { data: userRow } = await db.auth.admin.getUserById(userId);
+    const buyerEmail = userRow?.user?.email as string | undefined;
+    if (supabaseUrl && serviceKey && buyerEmail) {
+      await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${serviceKey}` },
+        body: JSON.stringify({
+          template: 'purchase_confirmation',
+          to: buyerEmail,
+          organization_id,
+          data: {
+            product_title: productTitle,
+            org_name: orgName,
+            amount: 0,
+            currency: 'XOF',
+          },
+        }),
+      });
+    }
+  } catch (e) {
+    console.error('[claim-free-product] confirmation email failed:', e);
+  }
+
   return { ok: true, already_claimed: false };
 }
+

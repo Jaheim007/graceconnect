@@ -813,41 +813,13 @@ Deno.serve(async (req) => {
     results['streak_milestones'] = streakMilestoneCount;
 
     // ═══════════════════════════════════════════
-    // 21. ABANDONED CART RECOVERY (opened but not purchased in 1h)
+    // 21. ABANDONED CART RECOVERY — retired.
+    // The dedicated hourly `abandoned-cart-reminder` job owns the whole
+    // 1h / 24h / 72h series. Keeping a second 1h reminder here made buyers
+    // receive duplicate cart emails, so this block was removed on purpose.
     // ═══════════════════════════════════════════
-    let abandonedCartCount = 0;
-    const oneHourAgo = new Date(now.getTime() - 60 * 60000).toISOString();
-    const twoHoursAgoCart = new Date(now.getTime() - 2 * 3600000).toISOString();
-    const { data: abandonedCarts } = await db.from('abandoned_carts')
-      .select('id, email, buyer_name, product_id, organization_id, reminder_sent_count, digital_products(title), organizations(name, currency)')
-      .eq('converted', false)
-      .eq('reminder_sent_count', 0)
-      .lte('opened_at', oneHourAgo)
-      .gte('opened_at', twoHoursAgoCart)
-      .limit(30);
-    for (const cart of abandonedCarts || []) {
-      const cartEmail = cart.email || (cart.user_id ? await getUserEmail(cart.user_id) : null);
-      const prod = (cart as any).digital_products;
-      const org = (cart as any).organizations;
-      if (cartEmail && prod && org) {
-        await sendEmail({
-          template: 'abandoned_cart_reminder' as any,
-          to: cartEmail,
-          data: {
-            buyer_name: cart.buyer_name || '',
-            product_title: prod.title,
-            org_name: org.name,
-            currency: org.currency || 'XOF',
-          },
-          organization_id: cart.organization_id,
-        });
-        await db.from('abandoned_carts')
-          .update({ reminder_sent_count: 1, last_reminder_at: now.toISOString() })
-          .eq('id', cart.id);
-        abandonedCartCount++;
-      }
-    }
-    results['abandoned_cart_recovery'] = abandonedCartCount;
+    results['abandoned_cart_recovery'] = 0;
+
 
     // ═══════════════════════════════════════════
     // 22. WEEKLY PERFORMANCE DIGEST FOR ORG OWNERS (Monday 8AM)
