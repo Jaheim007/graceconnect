@@ -188,8 +188,8 @@ export default function SuperadminLayout() {
       </aside>
 
       {/* ═══ MOBILE TOP BAR ═══ */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-card/95 backdrop-blur-xl">
-        <div className="px-3 py-2.5 flex items-center gap-3">
+      <div className="mobile-safe-topbar lg:hidden fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-card/95 backdrop-blur-xl">
+        <div className="px-safe-x py-2 min-h-14 flex items-center gap-2.5 sm:gap-3">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="h-9 w-9 -ml-1">
