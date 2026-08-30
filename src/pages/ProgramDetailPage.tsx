@@ -64,7 +64,7 @@ export default function ProgramDetailPage() {
   const isFr = locale === 'fr';
   const { data: program, isLoading } = useProgram(programId);
   const { data: modules = [] } = useProgramModules(programId);
-  const { data: enrollment } = useEnrollment(programId);
+  const { data: enrollment, isLoading: enrollmentLoading } = useEnrollment(programId);
   const { data: progress = {} } = useLessonProgress(programId);
   const enrollMutation = useEnrollInProgram();
   const resumeInfo = useProgramResume(programId);
