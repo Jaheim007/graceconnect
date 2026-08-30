@@ -17,6 +17,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { getAuthIdentities } from '@/lib/superadmin/authIdentities.functions';
 
 type FilterTab = 'all' | 'active' | 'creators' | 'affiliates' | 'new';
 type SortKey = 'recent' | 'top_spend' | 'most_orgs' | 'name';
@@ -34,14 +35,16 @@ export default function SuperadminUsers() {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['sa-users-v2'],
     queryFn: async () => {
-      const [profiles, members, roles, purchases, donations, affiliateLinks] = await Promise.all([
+      const [profiles, members, roles, purchases, donations, affiliateLinks, identities] = await Promise.all([
         db.from('profiles').select('*').order('created_at', { ascending: false }),
         db.from('organization_members').select('user_id, organization_id, role, organizations(name)'),
         db.from('user_platform_roles').select('user_id, role'),
         db.from('product_purchases').select('user_id, amount, status, buyer_email').eq('status', 'completed'),
         db.from('donations').select('user_id, amount, status, donor_email').eq('status', 'completed'),
         db.from('affiliate_links').select('user_id, total_earned, clicks, conversions, is_active'),
+        getAuthIdentities().catch(() => ({ identities: [] as any[] })),
       ]);
+
 
       const memberMap: Record<string, any[]> = {};
       (members.data || []).forEach((m: any) => {
@@ -53,12 +56,17 @@ export default function SuperadminUsers() {
       (roles.data || []).forEach((r: any) => { roleMap[r.user_id] = r.role; });
 
       const emailMap: Record<string, string> = {};
+      const authMap: Record<string, any> = {};
+      ((identities as any)?.identities || []).forEach((a: any) => {
+        authMap[a.id] = a;
+        if (a.email) emailMap[a.id] = a.email;
+      });
       const purchaseMap: Record<string, { count: number; total: number }> = {};
       (purchases.data || []).forEach((p: any) => {
         if (!purchaseMap[p.user_id]) purchaseMap[p.user_id] = { count: 0, total: 0 };
         purchaseMap[p.user_id].count++;
         purchaseMap[p.user_id].total += p.amount || 0;
-        if (p.buyer_email && p.user_id) emailMap[p.user_id] = p.buyer_email;
+        if (p.buyer_email && p.user_id && !emailMap[p.user_id]) emailMap[p.user_id] = p.buyer_email;
       });
 
       const donationMap: Record<string, { count: number; total: number }> = {};
@@ -67,7 +75,7 @@ export default function SuperadminUsers() {
         if (!donationMap[d.user_id]) donationMap[d.user_id] = { count: 0, total: 0 };
         donationMap[d.user_id].count++;
         donationMap[d.user_id].total += d.amount || 0;
-        if (d.donor_email && d.user_id) emailMap[d.user_id] = d.donor_email;
+        if (d.donor_email && d.user_id && !emailMap[d.user_id]) emailMap[d.user_id] = d.donor_email;
       });
 
       const affiliateMap: Record<string, { links: number; earned: number; clicks: number }> = {};
@@ -89,6 +97,8 @@ export default function SuperadminUsers() {
           ...p,
           display_name: resolvedName || p.display_name,
           _resolved_email: emailMap[p.id] || null,
+          _auth_provider: authMap[p.id]?.provider || null,
+          _last_sign_in_at: authMap[p.id]?.last_sign_in_at || null,
           memberships: memberMap[p.id] || [],
           platformRole: roleMap[p.id] || null,
           purchases: purchaseMap[p.id] || { count: 0, total: 0 },
