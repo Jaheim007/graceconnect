@@ -544,6 +544,30 @@ Deno.serve(async (req) => {
         }).then(() => null).catch(() => null);
       }
 
+      // Receipt email — church giving (tithes / offerings / campaign gifts)
+      // previously sent nothing, so givers had no proof of their offering.
+      if (don?.donor_email) {
+        try {
+          const { data: church } = await db.from('church_providers')
+            .select('name').eq('id', churchId).maybeSingle();
+          await sendEmail({
+            template: 'donation_receipt',
+            to: don.donor_email,
+            data: {
+              donor_name: don.donor_name || '',
+              org_name: church?.name || 'Église',
+              amount: Number(don.amount || 0),
+              currency: don.currency || 'XOF',
+              reference,
+            },
+          });
+        } catch (mailErr) {
+          console.error('[geniuspay-webhook] church giving email error:', mailErr);
+        }
+      }
+
+
+
       await db.from('payment_events').update({
         status: 'processed', processed_at: new Date().toISOString(),
       }).eq('event_id', String(eventId));
