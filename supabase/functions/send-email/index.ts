@@ -1519,9 +1519,224 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     }
 
     default:
-      throw new Error(`Unknown template: ${template}`);
+      return buildAutoTemplate(String(template), d, lang);
   }
 }
+
+/**
+ * Fallback renderer for automation templates that had no case above.
+ * Before this existed, those automations (payout_available, weekly digests,
+ * milestones, win-back, wishlist, abandoned cart, weekly_report...) threw
+ * "Unknown template" and the email was silently dropped with no log row.
+ */
+function buildAutoTemplate(
+  template: string,
+  d: Record<string, string | number>,
+  lang: Lang,
+): { subject: string; html: string } {
+  const isFr = lang === 'fr';
+  const name = String(d.name || '');
+  const org = String(d.org_name || '');
+  const cur = String(d.currency || 'XOF');
+  const hello = name ? `<p>${isFr ? 'Bonjour' : 'Hello'} ${escapeHtml(name)},</p>` : '';
+  const page = (path: string) => `https://siteviral.com${path}`;
+
+  const block = (
+    subject: string,
+    heading: string,
+    body: string,
+    link: string,
+    linkText: string,
+    color = blue,
+  ) => ({
+    subject,
+    html: wrap(
+      `<h1 style="color:${color};font-size:22px">${heading}</h1>${hello}${body}${cta(link, linkText)}`,
+      lang,
+    ),
+  });
+
+  // ── Prefix-based templates ──
+  if (template.startsWith('abandoned_cart_')) {
+    const title = escapeHtml(String(d.product_title || (isFr ? 'votre article' : 'your item')));
+    const url = String(d.product_url || page('/discover'));
+    return isFr
+      ? block(`Vous avez oublié « ${title} »`, 'Votre achat est presque terminé',
+          `<p>Vous avez commencé l'achat de <strong>${title}</strong>${org ? ` sur <strong>${escapeHtml(org)}</strong>` : ''} mais le paiement n'a pas été finalisé.</p><p>Il vous reste juste une étape.</p>`,
+          url, 'Terminer mon achat')
+      : block(`You left "${title}" behind`, 'Your purchase is almost done',
+          `<p>You started buying <strong>${title}</strong>${org ? ` on <strong>${escapeHtml(org)}</strong>` : ''} but the payment was never completed.</p><p>Only one step left.</p>`,
+          url, 'Complete my purchase');
+  }
+
+  if (template.startsWith('sales_milestone_')) {
+    const milestone = String(d.milestone || template.replace('sales_milestone_', ''));
+    return isFr
+      ? block(`🎉 ${milestone} ventes sur ${org || 'votre espace'} !`, `${milestone} ventes atteintes`,
+          `<p>${escapeHtml(String(d.message || `Félicitations pour vos ${milestone} ventes !`))}</p><p>Continuez sur cette lancée — vos revenus sont disponibles dans votre tableau de bord.</p>`,
+          page('/admin/sales'), 'Voir mes revenus', green)
+      : block(`🎉 ${milestone} sales on ${org || 'your space'}!`, `${milestone} sales reached`,
+          `<p>${escapeHtml(String(d.message || `Congratulations on your ${milestone} sales!`))}</p><p>Keep the momentum — your earnings are in your dashboard.</p>`,
+          page('/admin/sales'), 'View my revenue', green);
+  }
+
+  if (template.startsWith('streak_milestone_')) {
+    const streak = String(d.streak || template.replace('streak_milestone_', ''));
+    return isFr
+      ? block(`🔥 ${streak} jours d'affilée !`, `Série de ${streak} jours`,
+          `<p>${escapeHtml(String(d.message || `${streak} jours consécutifs sur Siteviral — bravo !`))}</p><p>Revenez demain pour garder votre série et vos crédits quotidiens.</p>`,
+          page('/dashboard'), 'Continuer ma série', orange)
+      : block(`🔥 ${streak}-day streak!`, `${streak}-day streak`,
+          `<p>${escapeHtml(String(d.message || `${streak} days in a row on Siteviral — well done!`))}</p><p>Come back tomorrow to keep your streak and daily credits.</p>`,
+          page('/dashboard'), 'Keep my streak', orange);
+  }
+
+  switch (template) {
+    case 'payout_available':
+      return isFr
+        ? block('💰 Vos revenus sont disponibles', 'Retrait disponible',
+            `<p>Les fonds de vos ventes récentes${org ? ` sur <strong>${escapeHtml(org)}</strong>` : ''} ont passé la période de sécurité et sont maintenant retirables (${escapeHtml(cur)}).</p>`,
+            page('/admin/payouts'), 'Demander un retrait', green)
+        : block('💰 Your earnings are available', 'Payout available',
+            `<p>Funds from your recent sales${org ? ` on <strong>${escapeHtml(org)}</strong>` : ''} passed the security hold and can now be withdrawn (${escapeHtml(cur)}).</p>`,
+            page('/admin/payouts'), 'Request a payout', green);
+
+    case 'draft_product_reminder': {
+      const title = escapeHtml(String(d.product_title || ''));
+      return isFr
+        ? block(`« ${title} » attend d'être publié`, 'Votre brouillon est presque prêt',
+            `<p>Votre produit <strong>${title}</strong>${org ? ` (${escapeHtml(org)})` : ''} est encore en brouillon. Personne ne peut l'acheter tant qu'il n'est pas publié.</p>`,
+            page('/admin/products'), 'Publier maintenant')
+        : block(`"${title}" is waiting to go live`, 'Your draft is almost ready',
+            `<p>Your product <strong>${title}</strong>${org ? ` (${escapeHtml(org)})` : ''} is still a draft. Nobody can buy it until it is published.</p>`,
+            page('/admin/products'), 'Publish now');
+    }
+
+    case 'affiliate_inactive': {
+      const code = escapeHtml(String(d.code || ''));
+      return isFr
+        ? block('Votre lien d\'affiliation dort 😴', 'Réveillez vos commissions',
+            `<p>Votre lien${code ? ` <strong>${code}</strong>` : ''}${org ? ` sur <strong>${escapeHtml(org)}</strong>` : ''} n'a reçu aucun clic depuis 14 jours.</p><p>Un simple partage sur WhatsApp ou vos réseaux peut relancer vos commissions.</p>`,
+            page('/affiliation'), 'Voir mon lien')
+        : block('Your affiliate link is asleep 😴', 'Wake up your commissions',
+            `<p>Your link${code ? ` <strong>${code}</strong>` : ''}${org ? ` on <strong>${escapeHtml(org)}</strong>` : ''} received no clicks in 14 days.</p><p>One share on WhatsApp or social media can restart your commissions.</p>`,
+            page('/affiliation'), 'View my link');
+    }
+
+    case 'first_sale_celebration':
+      return isFr
+        ? block('🎉 Votre première vente !', 'Première vente réalisée',
+            `<p>Félicitations ! ${org ? `<strong>${escapeHtml(org)}</strong> a` : 'Vous avez'} réalisé sa première vente de <strong>${escapeHtml(String(d.amount || ''))} ${escapeHtml(cur)}</strong>.</p><p>C'est le début — continuez à publier et à partager.</p>`,
+            page('/admin/sales'), 'Voir la vente', green)
+        : block('🎉 Your first sale!', 'First sale completed',
+            `<p>Congratulations! ${org ? `<strong>${escapeHtml(org)}</strong> just made` : 'You just made'} its first sale of <strong>${escapeHtml(String(d.amount || ''))} ${escapeHtml(cur)}</strong>.</p><p>This is just the start — keep publishing and sharing.</p>`,
+            page('/admin/sales'), 'View the sale', green);
+
+    case 'high_commission_alert':
+      return isFr
+        ? block('⚡ Une offre à forte commission', 'Commission élevée disponible',
+            `<p>${escapeHtml(String(d.message || `Un produit${org ? ` sur ${org}` : ''} propose une commission élevée (${d.commission_percent || ''}%).`))}</p>`,
+            page('/gagner'), 'Voir l\'offre', orange)
+        : block('⚡ A high-commission offer', 'High commission available',
+            `<p>${escapeHtml(String(d.message || `A product${org ? ` on ${org}` : ''} offers a high commission (${d.commission_percent || ''}%).`))}</p>`,
+            page('/gagner'), 'See the offer', orange);
+
+    case 'ambassador_weekly_digest':
+      return isFr
+        ? block('📊 Votre semaine d\'ambassadeur', 'Récap hebdomadaire',
+            `<p>Clics : <strong>${d.clicks ?? 0}</strong> · Ventes : <strong>${d.sales ?? 0}</strong> · Commissions : <strong>${d.commission ?? 0} ${escapeHtml(cur)}</strong></p>`,
+            page('/affiliation'), 'Voir mon tableau de bord')
+        : block('📊 Your ambassador week', 'Weekly recap',
+            `<p>Clicks: <strong>${d.clicks ?? 0}</strong> · Sales: <strong>${d.sales ?? 0}</strong> · Commissions: <strong>${d.commission ?? 0} ${escapeHtml(cur)}</strong></p>`,
+            page('/affiliation'), 'View my dashboard');
+
+    case 'weekly_buyer_digest':
+      return isFr
+        ? block('📚 Nouveautés de la semaine', 'Du nouveau pour vous',
+            `<p><strong>${d.new_products ?? 0}</strong> nouvelle(s) ressource(s) ont été publiées par les espaces que vous suivez.</p>`,
+            page('/discover'), 'Découvrir')
+        : block('📚 This week\'s new releases', 'Something new for you',
+            `<p><strong>${d.new_products ?? 0}</strong> new resource(s) were published by the spaces you follow.</p>`,
+            page('/discover'), 'Discover');
+
+    case 'weekly_discovery_digest':
+      return isFr
+        ? block('✨ À découvrir cette semaine', 'Sélection de la semaine',
+            `<p>${escapeHtml(String(d.message || 'De nouvelles formations, ebooks et ressources viennent d\'être publiés sur Siteviral.'))}</p>`,
+            page('/discover'), 'Explorer')
+        : block('✨ Worth discovering this week', 'This week\'s picks',
+            `<p>${escapeHtml(String(d.message || 'New courses, ebooks and resources have just been published on Siteviral.'))}</p>`,
+            page('/discover'), 'Explore');
+
+    case 'weekly_owner_digest': {
+      const slug = String(d.org_slug || '');
+      const change = String(d.revenue_change || '0');
+      const rows = isFr
+        ? `<p>Revenus : <strong>${d.week_revenue ?? 0} ${escapeHtml(cur)}</strong> (${change}% vs semaine passée)<br />Transactions : <strong>${d.week_transactions ?? 0}</strong><br />Nouveaux membres : <strong>${d.week_new_members ?? 0}</strong></p>`
+        : `<p>Revenue: <strong>${d.week_revenue ?? 0} ${escapeHtml(cur)}</strong> (${change}% vs last week)<br />Transactions: <strong>${d.week_transactions ?? 0}</strong><br />New members: <strong>${d.week_new_members ?? 0}</strong></p>`;
+      return isFr
+        ? block(`📈 Votre semaine sur ${org || 'Siteviral'}`, 'Récap hebdomadaire', rows,
+            slug ? page(`/org/${slug}`) : page('/admin'), 'Voir mon tableau de bord')
+        : block(`📈 Your week on ${org || 'Siteviral'}`, 'Weekly recap', rows,
+            slug ? page(`/org/${slug}`) : page('/admin'), 'View my dashboard');
+    }
+
+    case 'weekly_report': {
+      const rows = isFr
+        ? `<p>Période : ${escapeHtml(String(d.week_start || ''))} → ${escapeHtml(String(d.week_end || ''))}</p><p>Nouveaux utilisateurs : <strong>${d.new_users ?? 0}</strong><br />Nouveaux espaces : <strong>${d.new_orgs ?? 0}</strong><br />Nouveaux produits : <strong>${d.new_products ?? 0}</strong><br />Ventes : <strong>${d.total_sales ?? 0}</strong> (${d.sales_count ?? 0})<br />Dons : <strong>${d.total_donations ?? 0}</strong> (${d.donations_count ?? 0})<br />GMV : <strong>${d.gmv ?? 0}</strong><br />Nouveaux affiliés : <strong>${d.new_affiliates ?? 0}</strong><br />Retraits en attente : <strong>${d.pending_payouts ?? 0}</strong></p>`
+        : `<p>Period: ${escapeHtml(String(d.week_start || ''))} → ${escapeHtml(String(d.week_end || ''))}</p><p>New users: <strong>${d.new_users ?? 0}</strong><br />New spaces: <strong>${d.new_orgs ?? 0}</strong><br />New products: <strong>${d.new_products ?? 0}</strong><br />Sales: <strong>${d.total_sales ?? 0}</strong> (${d.sales_count ?? 0})<br />Donations: <strong>${d.total_donations ?? 0}</strong> (${d.donations_count ?? 0})<br />GMV: <strong>${d.gmv ?? 0}</strong><br />New affiliates: <strong>${d.new_affiliates ?? 0}</strong><br />Pending payouts: <strong>${d.pending_payouts ?? 0}</strong></p>`;
+      return isFr
+        ? block('📊 Rapport hebdomadaire Siteviral', 'Rapport plateforme', rows, page('/superadmin'), 'Ouvrir le panel')
+        : block('📊 Siteviral weekly report', 'Platform report', rows, page('/superadmin'), 'Open the panel');
+    }
+
+    case 'win_back': {
+      const slug = String(d.org_slug || '');
+      const products = escapeHtml(String(d.new_products || ''));
+      return isFr
+        ? block(`${org || 'Votre espace'} a du nouveau`, 'On ne vous a pas oublié',
+            `<p>Depuis votre dernier achat${org ? ` sur <strong>${escapeHtml(org)}</strong>` : ''}, de nouvelles ressources sont sorties${products ? ` : <strong>${products}</strong>` : ''}.</p>`,
+            slug ? page(`/org/${slug}`) : page('/discover'), 'Revenir voir')
+        : block(`${org || 'Your space'} has something new`, 'We haven\'t forgotten you',
+            `<p>Since your last purchase${org ? ` on <strong>${escapeHtml(org)}</strong>` : ''}, new resources were released${products ? `: <strong>${products}</strong>` : ''}.</p>`,
+            slug ? page(`/org/${slug}`) : page('/discover'), 'Take a look');
+    }
+
+    case 'wishlist_reminder': {
+      const title = escapeHtml(String(d.product_title || (isFr ? 'un article' : 'an item')));
+      const url = String(d.product_url || page('/discover'));
+      const price = d.sale_price || d.price;
+      return isFr
+        ? block(`« ${title} » est toujours dans vos favoris`, 'Votre envie vous attend',
+            `<p>Vous avez enregistré <strong>${title}</strong>${price ? ` — ${escapeHtml(String(price))} ${escapeHtml(cur)}` : ''}.</p>${d.sale_price ? '<p style="color:' + orange + ';font-weight:600">Il est actuellement en promotion.</p>' : ''}`,
+            url, 'Voir l\'article')
+        : block(`"${title}" is still on your wishlist`, 'Your saved item is waiting',
+            `<p>You saved <strong>${title}</strong>${price ? ` — ${escapeHtml(String(price))} ${escapeHtml(cur)}` : ''}.</p>${d.sale_price ? '<p style="color:' + orange + ';font-weight:600">It is currently on sale.</p>' : ''}`,
+            url, 'View the item');
+    }
+
+    case 'pre_subaccount_settled':
+      return isFr
+        ? block('✅ Vos fonds ont été transférés', 'Règlement effectué',
+            `<p>Le montant de <strong>${escapeHtml(String(d.amount || ''))} ${escapeHtml(cur)}</strong>${org ? ` pour <strong>${escapeHtml(org)}</strong>` : ''} vient d'être réglé sur votre compte de paiement.</p>`,
+            page('/admin/payouts'), 'Voir le détail', green)
+        : block('✅ Your funds have been settled', 'Settlement completed',
+            `<p><strong>${escapeHtml(String(d.amount || ''))} ${escapeHtml(cur)}</strong>${org ? ` for <strong>${escapeHtml(org)}</strong>` : ''} has just been settled to your payout account.</p>`,
+            page('/admin/payouts'), 'View details', green);
+
+    default: {
+      // Last resort: render whatever title/body the caller supplied so the
+      // message is delivered instead of dropped.
+      const title = escapeHtml(String(d.title || (isFr ? 'Notification Siteviral' : 'Siteviral notification')));
+      const body = escapeHtml(String(d.body || d.message || ''))
+        .replace(/\n/g, '<br />');
+      const link = String(d.action_url || page('/dashboard'));
+      console.warn(`send_email: no dedicated template for "${template}" — using generic layout`);
+      return block(title, title, body ? `<p>${body}</p>` : '', link, isFr ? 'Ouvrir Siteviral' : 'Open Siteviral');
+    }
+  }
+}
+
 
 // ═══════════════════════════════════════
 // Resolve org's primary custom domain
@@ -1726,10 +1941,13 @@ Deno.serve(async (req) => {
           body: JSON.stringify(batchPayload),
         });
         result = await res.json().catch(() => ({}));
-        if (res.status !== 429 || attempt >= 4) break;
+        if (res.status !== 429 || attempt >= 7) break;
         attempt++;
-        await new Promise((r) => setTimeout(r, 400 * attempt + Math.floor(Math.random() * 300)));
+        // Exponential backoff with jitter: ~0.5s, 1s, 2s, 4s, 8s, 12s, 16s.
+        const base = Math.min(500 * 2 ** (attempt - 1), 16000);
+        await new Promise((r) => setTimeout(r, base + Math.floor(Math.random() * 500)));
       }
+
 
 
       // Batch API returns { data: [{ id }, { id }, ...] } on success
