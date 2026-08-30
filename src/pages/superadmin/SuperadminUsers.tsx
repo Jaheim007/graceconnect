@@ -17,6 +17,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { getAuthIdentities } from '@/lib/superadmin/authIdentities.functions';
 
 type FilterTab = 'all' | 'active' | 'creators' | 'affiliates' | 'new';
 type SortKey = 'recent' | 'top_spend' | 'most_orgs' | 'name';
@@ -55,6 +56,11 @@ export default function SuperadminUsers() {
       (roles.data || []).forEach((r: any) => { roleMap[r.user_id] = r.role; });
 
       const emailMap: Record<string, string> = {};
+      const authMap: Record<string, any> = {};
+      ((identities as any)?.identities || []).forEach((a: any) => {
+        authMap[a.id] = a;
+        if (a.email) emailMap[a.id] = a.email;
+      });
       const purchaseMap: Record<string, { count: number; total: number }> = {};
       (purchases.data || []).forEach((p: any) => {
         if (!purchaseMap[p.user_id]) purchaseMap[p.user_id] = { count: 0, total: 0 };
@@ -91,6 +97,8 @@ export default function SuperadminUsers() {
           ...p,
           display_name: resolvedName || p.display_name,
           _resolved_email: emailMap[p.id] || null,
+          _auth_provider: authMap[p.id]?.provider || null,
+          _last_sign_in_at: authMap[p.id]?.last_sign_in_at || null,
           memberships: memberMap[p.id] || [],
           platformRole: roleMap[p.id] || null,
           purchases: purchaseMap[p.id] || { count: 0, total: 0 },
