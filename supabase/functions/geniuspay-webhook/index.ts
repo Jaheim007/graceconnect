@@ -588,12 +588,33 @@ Deno.serve(async (req) => {
         })
         .eq('reference', ourRef)
         .eq('status', 'pending')
-        .select('id, pdf_id')
+        .select('id, pdf_id, buyer_email, buyer_name, amount, currency')
         .maybeSingle();
       if (purchase?.pdf_id) {
-        const { data: pdf } = await db.from('church_sermon_pdfs').select('sales_count').eq('id', purchase.pdf_id).maybeSingle();
+        const { data: pdf } = await db.from('church_sermon_pdfs').select('sales_count, title').eq('id', purchase.pdf_id).maybeSingle();
         if (pdf) await db.from('church_sermon_pdfs').update({ sales_count: (pdf.sales_count || 0) + 1 }).eq('id', purchase.pdf_id);
+        // Confirmation email — sermon PDF buyers previously got none.
+        if (purchase.buyer_email) {
+          try {
+            await sendEmail({
+              template: 'purchase_confirmation',
+              to: purchase.buyer_email,
+              data: {
+                product_name: pdf?.title || 'PDF de prédication',
+                product_title: pdf?.title || 'PDF de prédication',
+                org_name: 'Siteviral',
+                amount: Number(purchase.amount || 0),
+                currency: purchase.currency || 'XOF',
+                reference,
+                access_link: `https://siteviral.com/church/sermon-pdf/success?reference=${encodeURIComponent(ourRef)}`,
+              },
+            });
+          } catch (mailErr) {
+            console.error('[geniuspay-webhook] sermon pdf email error:', mailErr);
+          }
+        }
       }
+
       await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
       return new Response(JSON.stringify({ ok: true, kind: 'church_sermon_pdf' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
