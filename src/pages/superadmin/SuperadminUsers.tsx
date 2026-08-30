@@ -89,13 +89,20 @@ export default function SuperadminUsers() {
       const deriveName = (email: string) =>
         email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
+      const identityList = ((identities as any)?.identities || []) as any[];
+      const identitiesLoaded = identityList.length > 0;
+
       return (profiles.data || []).map((p: any) => {
+        // A profile with no matching auth identity is a deleted/removed account:
+        // there is no email left anywhere, so never fall back to a raw user id.
+        const isOrphan = identitiesLoaded && !authMap[p.id];
         const resolvedName = (p.display_name && p.display_name.trim())
           ? p.display_name
           : emailMap[p.id] ? deriveName(emailMap[p.id]) : null;
         return {
           ...p,
-          display_name: resolvedName || p.display_name,
+          display_name: resolvedName || null,
+          _orphan: isOrphan,
           _resolved_email: emailMap[p.id] || null,
           _auth_provider: authMap[p.id]?.provider || null,
           _last_sign_in_at: authMap[p.id]?.last_sign_in_at || null,
@@ -106,6 +113,7 @@ export default function SuperadminUsers() {
           affiliate: affiliateMap[p.id] || { links: 0, earned: 0, clicks: 0 },
         };
       });
+
     },
   });
 
