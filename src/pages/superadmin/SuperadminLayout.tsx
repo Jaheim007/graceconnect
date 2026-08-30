@@ -192,7 +192,7 @@ export default function SuperadminLayout() {
         <div className="px-safe-x py-2 min-h-14 flex items-center gap-2.5 sm:gap-3">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9 -ml-1">
+              <Button variant="ghost" size="icon" className="h-11 w-11 -ml-1.5 shrink-0">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -245,7 +245,7 @@ export default function SuperadminLayout() {
             </SheetContent>
           </Sheet>
 
-          <div className="h-8 w-8 rounded-lg overflow-hidden ring-1 ring-border/40">
+          <div className="h-8 w-8 shrink-0 rounded-lg overflow-hidden ring-1 ring-border/40">
             <img src={logoSiteViral} alt="SiteViral" className="h-full w-full object-cover" />
           </div>
           <div className="min-w-0 flex-1">
@@ -254,7 +254,7 @@ export default function SuperadminLayout() {
               {allLinks.find(l => l.to === location.pathname)?.label || 'Superadmin'}
             </p>
           </div>
-          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={toggleTheme}
+          <Button variant="ghost" size="icon" className="h-11 w-11 shrink-0" onClick={toggleTheme}
             aria-label={theme === 'dark' ? 'Passer en clair' : 'Passer en sombre'}>
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
@@ -263,8 +263,8 @@ export default function SuperadminLayout() {
 
       {/* ═══ MAIN CONTENT ═══ */}
       <main className="flex-1 min-w-0 lg:max-h-screen lg:overflow-y-auto">
-        <div className="pt-14 lg:pt-0">
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 tabular-nums">
+        <div className="pt-[calc(3.5rem+env(safe-area-inset-top,0px))] lg:pt-0">
+          <div className="sv-nav-clearance max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 tabular-nums">
             <motion.div key={location.pathname} {...pageTransition}>
               <Suspense fallback={<RouteContentSkeleton />}>
                 <Outlet />
