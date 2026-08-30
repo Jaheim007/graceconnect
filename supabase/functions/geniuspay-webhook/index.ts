@@ -633,7 +633,7 @@ Deno.serve(async (req) => {
           })
           .eq('id', ticketId)
           .eq('status', 'pending')
-          .select('id, event_id, qty, buyer_email, buyer_name, ticket_number, total_amount, currency')
+          .select('id, event_id, qty, buyer_email, buyer_name, ticket_code, amount_cents, currency')
           .maybeSingle();
         if (ticket?.event_id) {
           const { data: ev } = await db.from('church_events').select('tickets_sold, title').eq('id', ticket.event_id).maybeSingle();
