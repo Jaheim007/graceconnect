@@ -633,12 +633,32 @@ Deno.serve(async (req) => {
           })
           .eq('id', ticketId)
           .eq('status', 'pending')
-          .select('id, event_id, qty')
+          .select('id, event_id, qty, buyer_email, buyer_name, ticket_number, total_amount, currency')
           .maybeSingle();
         if (ticket?.event_id) {
-          const { data: ev } = await db.from('church_events').select('tickets_sold').eq('id', ticket.event_id).maybeSingle();
+          const { data: ev } = await db.from('church_events').select('tickets_sold, title').eq('id', ticket.event_id).maybeSingle();
           if (ev) await db.from('church_events').update({ tickets_sold: Number(ev.tickets_sold || 0) + Number(ticket.qty || 1) }).eq('id', ticket.event_id);
+          // Ticket confirmation email — previously none was sent.
+          if (ticket.buyer_email) {
+            try {
+              await sendEmail({
+                template: 'purchase_confirmation',
+                to: ticket.buyer_email,
+                data: {
+                  product_name: ev?.title || 'Billet',
+                  product_title: ev?.title || 'Billet',
+                  org_name: 'Siteviral',
+                  amount: Number(ticket.total_amount || 0),
+                  currency: ticket.currency || 'XOF',
+                  reference: ticket.ticket_number || reference,
+                },
+              });
+            } catch (mailErr) {
+              console.error('[geniuspay-webhook] event ticket email error:', mailErr);
+            }
+          }
         }
+
       }
       await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
       return new Response(JSON.stringify({ ok: true, kind: 'church_event_ticket' }), {
