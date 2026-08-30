@@ -34,14 +34,16 @@ export default function SuperadminUsers() {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['sa-users-v2'],
     queryFn: async () => {
-      const [profiles, members, roles, purchases, donations, affiliateLinks] = await Promise.all([
+      const [profiles, members, roles, purchases, donations, affiliateLinks, identities] = await Promise.all([
         db.from('profiles').select('*').order('created_at', { ascending: false }),
         db.from('organization_members').select('user_id, organization_id, role, organizations(name)'),
         db.from('user_platform_roles').select('user_id, role'),
         db.from('product_purchases').select('user_id, amount, status, buyer_email').eq('status', 'completed'),
         db.from('donations').select('user_id, amount, status, donor_email').eq('status', 'completed'),
         db.from('affiliate_links').select('user_id, total_earned, clicks, conversions, is_active'),
+        getAuthIdentities().catch(() => ({ identities: [] as any[] })),
       ]);
+
 
       const memberMap: Record<string, any[]> = {};
       (members.data || []).forEach((m: any) => {
