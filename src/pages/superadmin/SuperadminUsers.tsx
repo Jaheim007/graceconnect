@@ -341,7 +341,13 @@ export default function SuperadminUsers() {
             const totalValue = getUserTotalSpent(u);
             const isHighValue = totalValue >= 10000;
             const isCreator = u.memberships.some((m: any) => m.role === 'owner');
-            const displayName = u.display_name || u._resolved_email?.split('@')[0] || u.id.slice(0, 8);
+            const displayName =
+              u.display_name ||
+              u._resolved_email?.split('@')[0] ||
+              (u._orphan
+                ? (isFr ? 'Compte supprimé' : 'Deleted account')
+                : (isFr ? 'Utilisateur sans nom' : 'Unnamed user'));
+
 
             return (
               <motion.div
