@@ -51,13 +51,13 @@ export default function AdminContentHub() {
 
   return (
     <div className="space-y-5">
-      {/* Back to settings */}
+      {/* Back to dashboard */}
       <Link
-        to="/admin/settings"
+        to="/dashboard"
         className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        {isFr ? 'Paramètres' : 'Settings'}
+        {isFr ? 'Tableau de bord' : 'Dashboard'}
       </Link>
 
       {/* Header */}
