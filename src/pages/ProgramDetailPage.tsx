@@ -316,7 +316,9 @@ export default function ProgramDetailPage() {
     );
   }
 
-  if (isUnpublished && !canManage) {
+  // Buyers/enrolled learners keep access even if the creator unpublishes or
+  // archives the course — only strangers see the "not published" wall.
+  if (isUnpublished && !canManage && !hasAccess && !(user && enrollmentLoading)) {
     return (
       <EmptyState
         title={isFr ? 'Cours non publié' : 'Course not published'}
