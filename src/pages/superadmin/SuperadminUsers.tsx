@@ -66,7 +66,7 @@ export default function SuperadminUsers() {
         if (!purchaseMap[p.user_id]) purchaseMap[p.user_id] = { count: 0, total: 0 };
         purchaseMap[p.user_id].count++;
         purchaseMap[p.user_id].total += p.amount || 0;
-        if (p.buyer_email && p.user_id) emailMap[p.user_id] = p.buyer_email;
+        if (p.buyer_email && p.user_id && !emailMap[p.user_id]) emailMap[p.user_id] = p.buyer_email;
       });
 
       const donationMap: Record<string, { count: number; total: number }> = {};
@@ -75,7 +75,7 @@ export default function SuperadminUsers() {
         if (!donationMap[d.user_id]) donationMap[d.user_id] = { count: 0, total: 0 };
         donationMap[d.user_id].count++;
         donationMap[d.user_id].total += d.amount || 0;
-        if (d.donor_email && d.user_id) emailMap[d.user_id] = d.donor_email;
+        if (d.donor_email && d.user_id && !emailMap[d.user_id]) emailMap[d.user_id] = d.donor_email;
       });
 
       const affiliateMap: Record<string, { links: number; earned: number; clicks: number }> = {};
