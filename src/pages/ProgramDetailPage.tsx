@@ -64,7 +64,7 @@ export default function ProgramDetailPage() {
   const isFr = locale === 'fr';
   const { data: program, isLoading } = useProgram(programId);
   const { data: modules = [] } = useProgramModules(programId);
-  const { data: enrollment } = useEnrollment(programId);
+  const { data: enrollment, isLoading: enrollmentLoading } = useEnrollment(programId);
   const { data: progress = {} } = useLessonProgress(programId);
   const enrollMutation = useEnrollInProgram();
   const resumeInfo = useProgramResume(programId);
@@ -316,7 +316,9 @@ export default function ProgramDetailPage() {
     );
   }
 
-  if (isUnpublished && !canManage) {
+  // Buyers/enrolled learners keep access even if the creator unpublishes or
+  // archives the course — only strangers see the "not published" wall.
+  if (isUnpublished && !canManage && !hasAccess && !(user && enrollmentLoading)) {
     return (
       <EmptyState
         title={isFr ? 'Cours non publié' : 'Course not published'}
