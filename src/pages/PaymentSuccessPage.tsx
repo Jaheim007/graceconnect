@@ -408,7 +408,10 @@ export default function PaymentSuccessPage() {
   const showAmbassador = isProduct && isCompleted && tx.amount > 0;
 
   return (
-    <div className="sv-nav-clearance min-h-[100dvh] bg-background px-3 sm:px-4 pt-4 pb-10 sm:py-10 flex justify-center">
+    // Column stack: the card and the upsell are siblings, so a row flex made
+    // them share the width and squeezed the card to half-screen on mobile.
+    <div className="sv-nav-clearance min-h-[100dvh] bg-background px-3 sm:px-4 pt-4 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:py-10 flex flex-col items-center">
+
       <SEOHead title={isFr ? 'Paiement réussi — Siteviral' : 'Payment successful — Siteviral'} noindex />
 
       <motion.div
