@@ -10,6 +10,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      // Keep toasts clear of the status bar / notch on phones and tablets.
+      style={
+        {
+          "--offset-top": "calc(1rem + env(safe-area-inset-top, 0px))",
+          "--mobile-offset-top": "calc(0.75rem + env(safe-area-inset-top, 0px))",
+        } as React.CSSProperties
+      }
       toastOptions={{
         classNames: {
           toast:
