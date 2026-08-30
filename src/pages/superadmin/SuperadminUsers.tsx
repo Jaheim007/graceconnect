@@ -359,9 +359,8 @@ export default function SuperadminUsers() {
             const displayName =
               u.display_name ||
               u._resolved_email?.split('@')[0] ||
-              (u._orphan
-                ? (isFr ? 'Compte supprimé' : 'Deleted account')
-                : (isFr ? 'Utilisateur sans nom' : 'Unnamed user'));
+              (isFr ? 'Utilisateur sans nom' : 'Unnamed user');
+
 
 
             return (
