@@ -8,6 +8,7 @@ export interface AuthIdentity {
   email: string | null;
   provider: string | null;
   last_sign_in_at: string | null;
+  created_at: string | null;
   confirmed: boolean;
 }
 
@@ -26,6 +27,7 @@ export async function listAuthIdentities(): Promise<AuthIdentity[]> {
         email: u.email ?? null,
         provider: (u.app_metadata as any)?.provider ?? null,
         last_sign_in_at: u.last_sign_in_at ?? null,
+        created_at: u.created_at ?? null,
         confirmed: !!(u.email_confirmed_at || u.confirmed_at),
       });
     }
@@ -33,5 +35,6 @@ export async function listAuthIdentities(): Promise<AuthIdentity[]> {
   }
   return out;
 }
+
 
 export { assertSuperadmin };

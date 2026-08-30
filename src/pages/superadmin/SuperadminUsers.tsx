@@ -92,27 +92,42 @@ export default function SuperadminUsers() {
       const identityList = ((identities as any)?.identities || []) as any[];
       const identitiesLoaded = identityList.length > 0;
 
-      return (profiles.data || []).map((p: any) => {
-        // A profile with no matching auth identity is a deleted/removed account:
-        // there is no email left anywhere, so never fall back to a raw user id.
-        const isOrphan = identitiesLoaded && !authMap[p.id];
-        const resolvedName = (p.display_name && p.display_name.trim())
+      const profileMap: Record<string, any> = {};
+      (profiles.data || []).forEach((p: any) => { profileMap[p.id] = p; });
+
+      const build = (id: string, p: any) => {
+        const auth = authMap[id];
+        const resolvedName = (p?.display_name && p.display_name.trim())
           ? p.display_name
-          : emailMap[p.id] ? deriveName(emailMap[p.id]) : null;
+          : emailMap[id] ? deriveName(emailMap[id]) : null;
         return {
-          ...p,
+          ...(p || {}),
+          id,
+          created_at: p?.created_at || auth?.created_at || null,
           display_name: resolvedName || null,
-          _orphan: isOrphan,
-          _resolved_email: emailMap[p.id] || null,
-          _auth_provider: authMap[p.id]?.provider || null,
-          _last_sign_in_at: authMap[p.id]?.last_sign_in_at || null,
-          memberships: memberMap[p.id] || [],
-          platformRole: roleMap[p.id] || null,
-          purchases: purchaseMap[p.id] || { count: 0, total: 0 },
-          donations: donationMap[p.id] || { count: 0, total: 0 },
-          affiliate: affiliateMap[p.id] || { links: 0, earned: 0, clicks: 0 },
+          _noProfile: !p,
+          _resolved_email: emailMap[id] || null,
+          _auth_provider: auth?.provider || null,
+          _last_sign_in_at: auth?.last_sign_in_at || null,
+          memberships: memberMap[id] || [],
+          platformRole: roleMap[id] || null,
+          purchases: purchaseMap[id] || { count: 0, total: 0 },
+          donations: donationMap[id] || { count: 0, total: 0 },
+          affiliate: affiliateMap[id] || { links: 0, earned: 0, clicks: 0 },
         };
-      });
+      };
+
+      // auth.users is the source of truth for "how many users exist".
+      // Some accounts never got a profile row (signup interrupted / trigger miss),
+      // and a couple of profile rows survive a deleted auth account — those are not users.
+      if (identitiesLoaded) {
+        return identityList
+          .map((a: any) => build(a.id, profileMap[a.id]))
+          .sort((x: any, y: any) => (y.created_at || '').localeCompare(x.created_at || ''));
+      }
+
+      return (profiles.data || []).map((p: any) => build(p.id, p));
+
 
     },
   });
@@ -344,9 +359,8 @@ export default function SuperadminUsers() {
             const displayName =
               u.display_name ||
               u._resolved_email?.split('@')[0] ||
-              (u._orphan
-                ? (isFr ? 'Compte supprimé' : 'Deleted account')
-                : (isFr ? 'Utilisateur sans nom' : 'Unnamed user'));
+              (isFr ? 'Utilisateur sans nom' : 'Unnamed user');
+
 
 
             return (
