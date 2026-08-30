@@ -1941,10 +1941,13 @@ Deno.serve(async (req) => {
           body: JSON.stringify(batchPayload),
         });
         result = await res.json().catch(() => ({}));
-        if (res.status !== 429 || attempt >= 4) break;
+        if (res.status !== 429 || attempt >= 7) break;
         attempt++;
-        await new Promise((r) => setTimeout(r, 400 * attempt + Math.floor(Math.random() * 300)));
+        // Exponential backoff with jitter: ~0.5s, 1s, 2s, 4s, 8s, 12s, 16s.
+        const base = Math.min(500 * 2 ** (attempt - 1), 16000);
+        await new Promise((r) => setTimeout(r, base + Math.floor(Math.random() * 500)));
       }
+
 
 
       // Batch API returns { data: [{ id }, { id }, ...] } on success
