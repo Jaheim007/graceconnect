@@ -264,7 +264,7 @@ export default function SuperadminLayout() {
       {/* ═══ MAIN CONTENT ═══ */}
       <main className="flex-1 min-w-0 lg:max-h-screen lg:overflow-y-auto">
         <div className="pt-[calc(3.5rem+env(safe-area-inset-top,0px))] lg:pt-0">
-          <div className="sv-nav-clearance max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 tabular-nums">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 tabular-nums">
             <motion.div key={location.pathname} {...pageTransition}>
               <Suspense fallback={<RouteContentSkeleton />}>
                 <Outlet />
