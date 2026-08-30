@@ -648,9 +648,9 @@ Deno.serve(async (req) => {
                   product_name: ev?.title || 'Billet',
                   product_title: ev?.title || 'Billet',
                   org_name: 'Siteviral',
-                  amount: Number(ticket.total_amount || 0),
+                  amount: Number(ticket.amount_cents || 0) / 100,
                   currency: ticket.currency || 'XOF',
-                  reference: ticket.ticket_number || reference,
+                  reference: ticket.ticket_code || reference,
                 },
               });
             } catch (mailErr) {
