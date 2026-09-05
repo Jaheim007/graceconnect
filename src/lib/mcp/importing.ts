@@ -114,7 +114,8 @@ export function importReply(data: any, opts: { kind: "book" | "course"; appended
   if (Number(data?.images_generated) > 0) lines.push(`${data.images_generated} illustration(s) generated.`);
   if (Number(data?.images_missing) > 0) {
     lines.push(
-      `The remaining ${data.images_missing} illustration(s) are being generated right now in the background — SiteViral finishes them automatically, they will all be in the draft in a few minutes. Tell the user the illustrations are finishing, and do NOT call finish_draft_visuals unless the user says some are still missing later.`,
+      `ILLUSTRATIONS NOT FINISHED — ${data.images_missing} ${unit.slice(0, -1)}(s) still have no image.`,
+      `Call finish_draft_visuals NOW (kind: "${opts.kind}", project_id above, illustrations: true) and keep calling it in this same turn until a reply no longer reports missing illustrations. Do NOT tell the user the illustrations are done before that.`,
     );
   }
   if (data?.visuals_stopped_for_credits) {
