@@ -27,7 +27,9 @@ const MIN_CHAPTER_CHARS = 400;
 const MIN_LESSON_CHARS = 300;
 const MAX_ITEMS_PER_CALL = 12;
 const MAX_TOTAL_ITEMS = 20;
-const MAX_IMAGES_PER_CALL = 6;
+const MAX_IMAGES_PER_CALL = 12;
+/** Stop starting new images after this much wall time so the invocation never dies mid-batch. */
+const IMAGE_TIME_BUDGET_MS = 75_000;
 
 const INSUFFICIENT =
   'Not enough credits on your SiteViral account. Add credits at https://siteviral.com/credits, then try again.';
@@ -93,7 +95,7 @@ function continueVisualsInBackground(opts: {
   projectId: string;
   pass: number;
 }) {
-  if (opts.pass >= 6) return; // hard stop: 6 passes x 6 images covers the 20-item max
+  if (opts.pass >= 8) return; // hard stop; each pass covers up to 12 images
   const run = fetch(`${opts.functionsUrl}/import-content`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: opts.authHeader },
@@ -428,6 +430,7 @@ async function generateVisuals(opts: {
   imageActionKey: string;
 }) {
   const { admin, auth, orgId, project, kind, tier, items, wantCover, illustrations } = opts;
+  const startedAt = Date.now();
   const geminiKey = Deno.env.get('GEMINI_API_KEY');
   const result = { cover_generated: false, images_generated: 0, images_missing: 0, visuals_stopped_for_credits: false };
   if (!geminiKey || (!wantCover && !illustrations)) return result;
@@ -501,11 +504,12 @@ async function generateVisuals(opts: {
       .map((item, index) => ({ item, index }))
       .filter(({ item, index }) => !hasImage(item, index));
 
-    result.images_missing = Math.max(0, pending.length - MAX_IMAGES_PER_CALL);
     const batch = pending.slice(0, MAX_IMAGES_PER_CALL);
 
     const images: Record<number, string> = {};
     for (let b = 0; b < batch.length; b++) {
+      // Time budget: never start an image we cannot finish before the invocation dies.
+      if (b > 0 && Date.now() - startedAt > IMAGE_TIME_BUDGET_MS) break;
       const { item, index: i } = batch[b];
       let debited = 0;
       try {
@@ -538,6 +542,12 @@ async function generateVisuals(opts: {
       }
       if (b < batch.length - 1) await new Promise((r) => setTimeout(r, 400));
     }
+
+    // Whatever we did not actually produce in this invocation is still missing:
+    // the batch cap, the time budget and failed generations all count.
+    const generatedIdx = new Set(Object.keys(images).map(Number));
+    result.images_missing = pending.filter(({ index }) => !generatedIdx.has(index)).length;
+
 
     if (Object.keys(images).length > 0) {
       const { data: fresh } = await admin
