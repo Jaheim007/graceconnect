@@ -55,15 +55,24 @@ export function formatCurrency(
     locale = info?.locale || 'fr-FR';
   }
 
+  // XOF / XAF have no sub-unit: cents never exist, so 0 decimals is correct.
+  // Every other currency DOES have cents — rounding them away made small
+  // amounts (a 10% fee on $4) display as "0", which looked like a free sale.
+  const zeroDecimal = cur === 'XOF' || cur === 'XAF';
+  const digits = zeroDecimal
+    ? 0
+    : Number.isInteger(Number(amount.toFixed(2))) ? 0 : 2;
+
   try {
     return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: cur,
-      maximumFractionDigits: 0,
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
     }).format(amount);
   } catch {
     // Fallback for unknown currency codes
-    return `${amount.toLocaleString()} ${cur}`;
+    return `${amount.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })} ${cur}`;
   }
 }
 
